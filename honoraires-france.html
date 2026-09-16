@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trouve Ton Toit — Honoraires & Conformité
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  if(localStorage.getItem('rm_theme')==='dark')document.documentElement.classList.add('dark');
+</script>
+<style>
+:root{
+  --bg:#F5EFE0;--s:#FDFAF4;--s2:#EDE8D8;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);
+  --terra:#C9553A;--tdim:rgba(201,85,58,.1);
+  --gold:#D4A847;--gdim:rgba(212,168,71,.1);
+  --sea:#2E6B8A;--sdim:rgba(46,107,138,.1);
+  --green:#4CAF7D;--grdim:rgba(76,175,125,.1);
+  --red:#C9553A;--rdim:rgba(201,85,58,.1);
+  --deep:#1A1410;--stone:#6B5F52;--txt:#1A1410;--tm:#6B5F52;--td:#887A68
+}
+html.dark{
+  --bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);
+  --terra:#E05A3A;--tdim:rgba(224,90,58,.15);
+  --gold:#D4A847;--gdim:rgba(212,168,71,.12);
+  --sea:#3A8FB5;--sdim:rgba(58,143,181,.12);
+  --green:#4CAF7D;--grdim:rgba(76,175,125,.12);
+  --red:#E05A3A;--rdim:rgba(224,90,90,.12);
+  --deep:#F0EDE8;--stone:rgba(240,237,232,.48);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sb{width:220px;min-height:100vh;background:var(--s);border-right:1px solid var(--b);position:fixed;top:0;left:0;bottom:0;z-index:50;display:flex;flex-direction:column}
+.sb-logo{padding:1.3rem 1.3rem .9rem;border-bottom:1px solid var(--b)}
+.logo{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;color:var(--terra)}
+.logo-sub{font-size:.65rem;color:var(--td);margin-top:.1rem}
+.sb-nav{flex:1;padding:.75rem 0}
+.nl{font-size:.62rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--td);padding:.7rem 1.2rem .3rem}
+.ni{display:flex;align-items:center;gap:.65rem;padding:.6rem 1.2rem;cursor:pointer;font-size:.84rem;font-weight:500;color:var(--tm);border:none;background:none;width:100%;text-align:left;transition:all .15s;position:relative}
+.ni:hover{color:var(--deep);background:rgba(26,20,16,.04)}
+.ni.act{color:var(--terra);background:var(--tdim)}
+.ni.act::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--terra);border-radius:0 2px 2px 0}
+.nico{font-size:.95rem;width:18px;text-align:center;flex-shrink:0}
+
+/* ── Main ── */
+.main{margin-left:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--s);border-bottom:1px solid var(--b);padding:.85rem 1.75rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.tb-title{font-size:.95rem;font-weight:600}.tb-sub{font-size:.72rem;color:var(--tm);margin-top:.1rem}
+.content{padding:1.5rem 1.75rem;flex:1}
+
+/* ── Page nav tabs ── */
+.tab-nav{display:flex;gap:.4rem;background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.4rem;margin-bottom:1.5rem;overflow-x:auto}
+.tab{padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--tm);border:none;background:transparent;white-space:nowrap;transition:all .15s}
+.tab.act{background:var(--terra);color:white}
+.tab:hover:not(.act){background:rgba(26,20,16,.06);color:var(--deep)}
+
+/* ── Cards ── */
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.ch{padding:1rem 1.2rem .8rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.6rem}
+.ch-ico{font-size:1rem;width:30px;height:30px;background:var(--tdim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-title{font-weight:700;font-size:.9rem;color:var(--deep)}
+.ch-sub{font-size:.73rem;color:var(--tm);margin-top:.1rem}
+.cb{padding:1.1rem 1.2rem}
+
+/* ── Grid layout ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ── Form ── */
+.fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.85rem}
+.fl{font-size:.73rem;font-weight:600;color:var(--tm)}
+.fi{padding:.58rem .85rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%}
+.fi:focus{border-color:var(--terra)}
+.fsel{padding:.58rem .85rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;cursor:pointer;width:100%}
+.fsel:focus{border-color:var(--terra)}
+.fradio-group{display:flex;gap:.4rem;flex-wrap:wrap}
+.fradio{display:none}
+.fradio-lbl{padding:.42rem .9rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--tm);transition:all .15s;background:var(--s)}
+.fradio:checked+.fradio-lbl{border-color:var(--terra);color:var(--terra);background:var(--tdim)}
+
+/* ── Result boxes ── */
+.result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-top:1rem}
+@media(max-width:700px){.result-grid{grid-template-columns:1fr 1fr}}
+.result-box{background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:1rem;text-align:center}
+.result-label{font-size:.7rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--td);margin-bottom:.4rem}
+.result-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--deep)}
+.result-sub{font-size:.72rem;color:var(--td);margin-top:.2rem}
+.result-box.highlight{background:var(--tdim);border-color:rgba(201,85,58,.25)}
+.result-box.highlight .result-val{color:var(--terra)}
+.result-box.green{background:var(--grdim);border-color:rgba(76,175,125,.25)}
+.result-box.green .result-val{color:var(--green)}
+.result-box.gold{background:var(--gdim);border-color:rgba(212,168,71,.3)}
+.result-box.gold .result-val{color:var(--gold)}
+
+/* ── DPE classes ── */
+.dpe-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-bottom:1rem}
+@media(max-width:600px){.dpe-grid{grid-template-columns:repeat(4,1fr)}}
+.dpe-btn{border:2px solid transparent;border-radius:10px;padding:.65rem .4rem;text-align:center;cursor:pointer;transition:all .15s;font-weight:700;font-size:.85rem;color:white;position:relative}
+.dpe-btn.selected{transform:scale(1.06);box-shadow:0 4px 12px rgba(0,0,0,.15);border-color:var(--deep)}
+.dpe-A{background:#2B8A3E}.dpe-B{background:#51B94C}.dpe-C{background:#9FD544}.dpe-D{background:#F7C000}.dpe-D.selected,.dpe-E{background:#F59500}.dpe-E{background:#F07000}.dpe-F{background:#E04000}.dpe-G{background:#C20000}
+.dpe-label{font-size:.7rem;margin-top:.2rem;font-weight:600}
+.dpe-desc{font-size:.65rem;margin-top:.15rem;opacity:.85}
+.dpe-badge-large{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:10px;font-weight:700;font-size:1rem;color:white;margin-top:.5rem}
+.dpe-info-box{border-radius:12px;padding:1rem 1.2rem;margin-top:1rem;font-size:.82rem;line-height:1.5}
+.dpe-info-box.ok{background:var(--grdim);border:1.5px solid rgba(76,175,125,.3);color:var(--green)}
+.dpe-info-box.warn{background:var(--gdim);border:1.5px solid rgba(212,168,71,.35);color:#8a6000}
+html.dark .dpe-info-box.warn{color:var(--gold)}
+.dpe-info-box.nok{background:var(--rdim);border:1.5px solid rgba(201,85,58,.3);color:var(--red)}
+.dpe-info-box.blocked{background:#2a0000;border:2px solid var(--red);color:var(--red)}
+
+/* ── Encadrement loyers ── */
+.loyer-result{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-top:1rem}
+.loyer-box{border-radius:12px;padding:1.1rem;border:1.5px solid transparent}
+.loyer-box.ref{background:var(--sdim);border-color:rgba(46,107,138,.25)}
+.loyer-box.ok{background:var(--grdim);border-color:rgba(76,175,125,.3)}
+.loyer-box.over{background:var(--rdim);border-color:rgba(201,85,58,.3)}
+.loyer-box-label{font-size:.7rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--td);margin-bottom:.3rem}
+.loyer-box-val{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700}
+.loyer-box.ref .loyer-box-val{color:var(--sea)}
+.loyer-box.ok .loyer-box-val{color:var(--green)}
+.loyer-box.over .loyer-box-val{color:var(--red)}
+.loyer-box-sub{font-size:.73rem;margin-top:.25rem;color:var(--td)}
+
+/* ── Lois résumé ── */
+.law-list{display:flex;flex-direction:column;gap:.6rem}
+.law-item{display:flex;gap:.85rem;padding:.9rem 1rem;background:var(--s2);border:1px solid var(--b);border-radius:10px;align-items:flex-start}
+.law-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.law-title{font-size:.84rem;font-weight:700;color:var(--deep)}
+.law-desc{font-size:.77rem;color:var(--tm);margin-top:.2rem;line-height:1.5}
+.law-tag{display:inline-flex;padding:.15rem .55rem;border-radius:20px;font-size:.65rem;font-weight:700;margin-top:.3rem}
+
+/* ── Alert ── */
+.alert{display:flex;gap:.7rem;padding:.8rem 1rem;border-radius:10px;font-size:.8rem;margin:.7rem 0}
+.alert.blue{background:var(--sdim);border:1px solid rgba(46,107,138,.2);color:var(--sea)}
+.alert.orange{background:var(--gdim);border:1px solid rgba(212,168,71,.3);color:#7a5500}
+html.dark .alert.orange{color:var(--gold)}
+.alert.red{background:var(--rdim);border:1px solid rgba(201,85,58,.2);color:var(--red)}
+.alert.green{background:var(--grdim);border:1px solid rgba(76,175,125,.2);color:var(--green)}
+.alert-ico{font-size:1rem;flex-shrink:0;margin-top:.05rem}
+.alert p{line-height:1.5}
+
+/* ── Divider ── */
+.divider{border:none;border-top:1px solid var(--b);margin:1rem 0}
+
+/* ── Btn ── */
+.btn{padding:.55rem 1.2rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}
+.bp{background:var(--terra);color:white}.bp:hover{background:#e06545;transform:translateY(-1px)}
+.bg{background:rgba(26,20,16,.06);color:var(--stone);border:1px solid var(--b2)}.bg:hover{background:rgba(26,20,16,.1);color:var(--deep)}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sb{width:0;overflow:hidden;display:none}
+  .main{margin-left:0}
+  .topbar{padding:.8rem 1rem}
+  .content{padding:1rem}
+}
+
+/* ── Tab sections ── */
+.tab-section{display:none}.tab-section.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="logo"><span style="color:var(--terra)">T</span>rouve<span style="color:var(--terra)">T</span>on<span style="color:var(--terra)">T</span>oit</div>
+    <div class="logo-sub">Outil propriétaire / agent</div>
+  </div>
+  <div class="sb-nav">
+    <div class="nl">Annonce</div>
+    <button class="ni act" onclick="switchTab('honoraires')"><span class="nico">💶</span> Honoraires</button>
+    <button class="ni" onclick="switchTab('dpe')"><span class="nico">⚡</span> DPE & Diagnostics</button>
+    <button class="ni" onclick="switchTab('encadrement')"><span class="nico">📊</span> Encadrement loyers</button>
+    <button class="ni" onclick="switchTab('bail')"><span class="nico">📄</span> Type de bail</button>
+    <div class="nl">Référence</div>
+    <button class="ni" onclick="switchTab('lois')"><span class="nico">⚖️</span> Lois applicables</button>
+    <button class="ni" onclick="switchTab('depot')"><span class="nico">🔒</span> Dépôt & préavis</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">Calcul des honoraires d'agence</div>
+      <div class="tb-sub">Loi Alur — plafonds locataire & bailleur</div>
+    </div>
+    <button class="btn bg" onclick="toggleTheme()">☀️ Thème</button>
+  </div>
+
+  <div class="content">
+    <!-- ── Nav tabs mobile ── -->
+    <div class="tab-nav">
+      <button class="tab act" onclick="switchTab('honoraires')">💶 Honoraires</button>
+      <button class="tab" onclick="switchTab('dpe')">⚡ DPE</button>
+      <button class="tab" onclick="switchTab('encadrement')">📊 Encadrement</button>
+      <button class="tab" onclick="switchTab('bail')">📄 Bail</button>
+      <button class="tab" onclick="switchTab('lois')">⚖️ Lois</button>
+      <button class="tab" onclick="switchTab('depot')">🔒 Dépôt</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         HONORAIRES D'AGENCE — loi Alur
+    ══════════════════════════════════════════ -->
+    <div class="tab-section active" id="tab-honoraires">
+
+      <div class="grid2">
+        <!-- Inputs -->
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📐</div><div><div class="ch-title">Paramètres du bien</div></div></div>
+            <div class="cb">
+              <div class="fg">
+                <label class="fl">Surface habitable (m²) *</label>
+                <input class="fi" id="surface" type="number" min="1" placeholder="45" oninput="calcHonoraires()">
+              </div>
+              <div class="fg">
+                <label class="fl">Zone géographique *</label>
+                <select class="fsel" id="zone-hon" onchange="calcHonoraires()">
+                  <option value="">Sélectionner la zone…</option>
+                  <option value="tres-tendue">Zone très tendue — Paris, 1ère couronne, Lille</option>
+                  <option value="tendue">Zone tendue — Lyon, Bordeaux, Montpellier…</option>
+                  <option value="normale">Zone normale — reste du territoire</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Type de prestation</label>
+                <div class="fradio-group">
+                  <input type="radio" name="presta" id="p-visite" value="visite" class="fradio" checked onchange="calcHonoraires()">
+                  <label for="p-visite" class="fradio-lbl">Visite + bail</label>
+                  <input type="radio" name="presta" id="p-full" value="full" class="fradio" onchange="calcHonoraires()">
+                  <label for="p-full" class="fradio-lbl">+ EDL</label>
+                  <input type="radio" name="presta" id="p-man" value="mandat" class="fradio" onchange="calcHonoraires()">
+                  <label for="p-man" class="fradio-lbl">Mandat complet</label>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Loyer mensuel HC (€) — pour info</label>
+                <input class="fi" id="loyer-hon" type="number" min="0" placeholder="900">
+              </div>
+            </div>
+          </div>
+
+          <div class="alert blue">
+            <span class="alert-ico">ℹ️</span>
+            <p><strong>Loi Alur (2014)</strong> — Les honoraires de location sont plafonnés par m² de surface habitable selon la zone. Le bailleur doit payer <strong>au moins autant</strong> que le locataire.</p>
+          </div>
+        </div>
+
+        <!-- Résultats -->
+        <div>
+          <div class="card" id="result-card" style="display:none">
+            <div class="ch"><div class="ch-ico">💶</div><div><div class="ch-title">Résultat</div></div></div>
+            <div class="cb">
+              <div class="result-grid" id="result-grid"></div>
+              <div id="result-detail" style="margin-top:1rem"></div>
+            </div>
+          </div>
+
+          <div class="card" id="placeholder-card">
+            <div class="cb" style="text-align:center;padding:2rem 1.2rem;color:var(--td)">
+              <div style="font-size:2rem;margin-bottom:.75rem">💶</div>
+              <div style="font-size:.88rem;font-weight:600;margin-bottom:.3rem">Renseignez la surface et la zone</div>
+              <div style="font-size:.78rem">Les plafonds loi Alur s'afficheront ici</div>
+            </div>
+          </div>
+
+          <!-- Tableau des plafonds -->
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📋</div><div><div class="ch-title">Plafonds légaux 2024</div><div class="ch-sub">Par m² de surface habitable TTC</div></div></div>
+            <div class="cb" style="padding:0">
+              <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-weight:600;font-size:.7rem;letter-spacing:.4px;text-transform:uppercase">Zone</th>
+                    <th style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-weight:600;font-size:.7rem;letter-spacing:.4px;text-transform:uppercase">Locataire max</th>
+                    <th style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-weight:600;font-size:.7rem;letter-spacing:.4px;text-transform:uppercase">EDL max</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="padding:.7rem 1rem;border-bottom:1px solid var(--b);font-weight:600">Zone très tendue<br><span style="font-size:.72rem;font-weight:400;color:var(--td)">Paris, Petite Couronne, Lille</span></td><td style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);font-weight:700;color:var(--terra)">12 €/m²</td><td style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);color:var(--tm)">3 €/m²</td></tr>
+                  <tr><td style="padding:.7rem 1rem;border-bottom:1px solid var(--b);font-weight:600">Zone tendue<br><span style="font-size:.72rem;font-weight:400;color:var(--td)">Lyon, Bordeaux, Montpellier…</span></td><td style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);font-weight:700;color:var(--terra)">10 €/m²</td><td style="text-align:right;padding:.7rem 1rem;border-bottom:1px solid var(--b);color:var(--tm)">3 €/m²</td></tr>
+                  <tr><td style="padding:.7rem 1rem;font-weight:600">Zone normale<br><span style="font-size:.72rem;font-weight:400;color:var(--td)">Reste du territoire</span></td><td style="text-align:right;padding:.7rem 1rem;font-weight:700;color:var(--terra)">8 €/m²</td><td style="text-align:right;padding:.7rem 1rem;color:var(--tm)">3 €/m²</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         DPE & DIAGNOSTICS
+    ══════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-dpe">
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">⚡</div><div><div class="ch-title">Classe DPE du logement</div><div class="ch-sub">Obligatoire sur toute annonce de location</div></div></div>
+            <div class="cb">
+              <div class="fl" style="margin-bottom:.6rem">Sélectionnez la classe énergétique *</div>
+              <div class="dpe-grid">
+                <div class="dpe-btn dpe-A" onclick="selectDpe('A')" id="dpe-A">A<div class="dpe-desc">≤70</div></div>
+                <div class="dpe-btn dpe-B" onclick="selectDpe('B')" id="dpe-B">B<div class="dpe-desc">71-110</div></div>
+                <div class="dpe-btn dpe-C" onclick="selectDpe('C')" id="dpe-C">C<div class="dpe-desc">111-180</div></div>
+                <div class="dpe-btn dpe-D" onclick="selectDpe('D')" id="dpe-D">D<div class="dpe-desc">181-250</div></div>
+                <div class="dpe-btn dpe-E" onclick="selectDpe('E')" id="dpe-E">E<div class="dpe-desc">251-330</div></div>
+                <div class="dpe-btn dpe-F" onclick="selectDpe('F')" id="dpe-F">F<div class="dpe-desc">331-420</div></div>
+                <div class="dpe-btn dpe-G" onclick="selectDpe('G')" id="dpe-G">G<div class="dpe-desc">≥421</div></div>
+              </div>
+
+              <div class="grid2" style="gap:.75rem;margin-top:.85rem">
+                <div class="fg" style="margin-bottom:0">
+                  <label class="fl">Consommation énergie (kWh/m²/an)</label>
+                  <input class="fi" id="dpe-conso" type="number" placeholder="180" oninput="updateDpeLabel()">
+                </div>
+                <div class="fg" style="margin-bottom:0">
+                  <label class="fl">Émissions GES (kg CO₂/m²/an)</label>
+                  <input class="fi" id="dpe-ges" type="number" placeholder="40" oninput="updateDpeLabel()">
+                </div>
+              </div>
+
+              <div id="dpe-result" style="margin-top:1rem"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📅</div><div><div class="ch-title">Calendrier d'interdiction à la location</div></div></div>
+            <div class="cb" style="padding:0">
+              <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+                <thead><tr>
+                  <th style="text-align:left;padding:.65rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Classe</th>
+                  <th style="text-align:left;padding:.65rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Interdiction nouvelle location</th>
+                  <th style="text-align:left;padding:.65rem 1rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Statut</th>
+                </tr></thead>
+                <tbody id="dpe-table">
+                  <tr><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b);font-weight:700;color:#C20000">G</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)">1er janvier 2025</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)"><span style="background:var(--rdim);color:var(--red);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:20px">⛔ Interdit</span></td></tr>
+                  <tr><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b);font-weight:700;color:#E04000">F</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)">1er janvier 2028</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)"><span style="background:var(--gdim);color:var(--gold);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:20px">⚠️ Bientôt</span></td></tr>
+                  <tr><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b);font-weight:700;color:#F07000">E</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)">1er janvier 2034</td><td style="padding:.65rem 1rem;border-bottom:1px solid var(--b)"><span style="background:rgba(26,20,16,.06);color:var(--td);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:20px">🟡 2034</span></td></tr>
+                  <tr><td style="padding:.65rem 1rem;font-weight:700;color:var(--green)">A–D</td><td style="padding:.65rem 1rem">—</td><td style="padding:.65rem 1rem"><span style="background:var(--grdim);color:var(--green);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:20px">✅ Autorisé</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagnostics DDT -->
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📁</div><div><div class="ch-title">Dossier de Diagnostics Techniques (DDT)</div><div class="ch-sub">À annexer obligatoirement au bail</div></div></div>
+            <div class="cb" style="padding:.75rem 1.2rem">
+
+              <div class="fg" style="margin-bottom:1rem">
+                <label class="fl">Année de construction du bien</label>
+                <input class="fi" id="annee-construction" type="number" min="1800" max="2025" placeholder="1975" oninput="updateDDT()">
+              </div>
+
+              <div id="ddt-list" style="display:flex;flex-direction:column;gap:.5rem"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ch-ico">🌡️</div><div><div class="ch-title">Classe GES associée</div><div class="ch-sub">Émissions de gaz à effet de serre</div></div></div>
+            <div class="cb">
+              <p style="font-size:.82rem;color:var(--tm);margin-bottom:.75rem">Les deux étiquettes DPE et GES doivent apparaître sur l'annonce.</p>
+              <div class="dpe-grid">
+                <div class="dpe-btn dpe-A" onclick="selectGes('A')" id="ges-A" style="opacity:.7">A<div class="dpe-desc">≤5</div></div>
+                <div class="dpe-btn dpe-B" onclick="selectGes('B')" id="ges-B" style="opacity:.7">B<div class="dpe-desc">6-10</div></div>
+                <div class="dpe-btn dpe-C" onclick="selectGes('C')" id="ges-C" style="opacity:.7">C<div class="dpe-desc">11-20</div></div>
+                <div class="dpe-btn dpe-D" onclick="selectGes('D')" id="ges-D" style="opacity:.7">D<div class="dpe-desc">21-35</div></div>
+                <div class="dpe-btn dpe-E" onclick="selectGes('E')" id="ges-E" style="opacity:.7">E<div class="dpe-desc">36-55</div></div>
+                <div class="dpe-btn dpe-F" onclick="selectGes('F')" id="ges-F" style="opacity:.7">F<div class="dpe-desc">56-80</div></div>
+                <div class="dpe-btn dpe-G" onclick="selectGes('G')" id="ges-G" style="opacity:.7">G<div class="dpe-desc">≥81</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         ENCADREMENT DES LOYERS
+    ══════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-encadrement">
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📊</div><div><div class="ch-title">Vérification du loyer</div><div class="ch-sub">Encadrement des loyers — zones concernées</div></div></div>
+            <div class="cb">
+              <div class="fg">
+                <label class="fl">Ville / Zone *</label>
+                <select class="fsel" id="ville-enc" onchange="calcEncadrement()">
+                  <option value="">Sélectionner la ville…</option>
+                  <optgroup label="Zones avec encadrement actif">
+                    <option value="paris">Paris (75)</option>
+                    <option value="lille">Lille, Hellemmes, Lomme</option>
+                    <option value="lyon">Lyon + Villeurbanne</option>
+                    <option value="bordeaux">Bordeaux</option>
+                    <option value="montpellier">Montpellier</option>
+                    <option value="paris-epc">Seine-Saint-Denis / Val-de-Marne (EPCI)</option>
+                    <option value="grenoble">Grenoble (prévu)</option>
+                  </optgroup>
+                  <optgroup label="Autres zones">
+                    <option value="marseille">Marseille</option>
+                    <option value="nice">Nice</option>
+                    <option value="toulouse">Toulouse</option>
+                    <option value="nantes">Nantes</option>
+                    <option value="autre">Autre commune</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="fradio-group" style="margin-bottom:.85rem">
+                <input type="radio" name="bail-enc" id="be-meuble" value="meuble" class="fradio" checked onchange="calcEncadrement()">
+                <label for="be-meuble" class="fradio-lbl">Meublé</label>
+                <input type="radio" name="bail-enc" id="be-vide" value="vide" class="fradio" onchange="calcEncadrement()">
+                <label for="be-vide" class="fradio-lbl">Non meublé (vide)</label>
+              </div>
+              <div class="fg">
+                <label class="fl">Nombre de pièces *</label>
+                <select class="fsel" id="pieces-enc" onchange="calcEncadrement()">
+                  <option value="">Sélectionner…</option>
+                  <option value="1">Studio / T1</option>
+                  <option value="2">T2 — 2 pièces</option>
+                  <option value="3">T3 — 3 pièces</option>
+                  <option value="4">T4 — 4 pièces</option>
+                  <option value="5">T5+ — 5 pièces et plus</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Époque de construction</label>
+                <select class="fsel" id="epoque-enc" onchange="calcEncadrement()">
+                  <option value="">Sélectionner…</option>
+                  <option value="avant1946">Avant 1946</option>
+                  <option value="1946-1970">1946–1970</option>
+                  <option value="1971-1990">1971–1990</option>
+                  <option value="apres1990">Après 1990</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Loyer mensuel HC envisagé (€)</label>
+                <input class="fi" id="loyer-enc" type="number" placeholder="1200" oninput="calcEncadrement()">
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Surface (m²)</label>
+                <input class="fi" id="surface-enc" type="number" placeholder="35" oninput="calcEncadrement()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div id="enc-result-block">
+            <div class="card">
+              <div class="cb" style="text-align:center;padding:2rem 1.2rem;color:var(--td)">
+                <div style="font-size:2rem;margin-bottom:.75rem">📊</div>
+                <div style="font-size:.88rem;font-weight:600;margin-bottom:.3rem">Sélectionnez la ville et le type de bien</div>
+                <div style="font-size:.78rem">L'encadrement s'affichera ici</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📈</div><div><div class="ch-title">IRL — Indice de Référence des Loyers</div><div class="ch-sub">Révision annuelle du loyer</div></div></div>
+            <div class="cb">
+              <p style="font-size:.82rem;color:var(--tm);margin-bottom:.85rem">La révision du loyer est plafonnée à l'évolution de l'IRL publié par l'INSEE chaque trimestre.</p>
+              <div class="fg">
+                <label class="fl">Loyer actuel (€/mois HC)</label>
+                <input class="fi" id="loyer-irl" type="number" placeholder="900" oninput="calcIRL()">
+              </div>
+              <div class="grid2" style="gap:.75rem">
+                <div class="fg" style="margin-bottom:0">
+                  <label class="fl">IRL de référence (date bail)</label>
+                  <input class="fi" id="irl-ref" type="number" step="0.01" placeholder="138.79" oninput="calcIRL()">
+                </div>
+                <div class="fg" style="margin-bottom:0">
+                  <label class="fl">IRL nouveau (dernier connu)</label>
+                  <input class="fi" id="irl-new" type="number" step="0.01" placeholder="140.56" oninput="calcIRL()">
+                </div>
+              </div>
+              <div id="irl-result" style="margin-top:1rem"></div>
+              <div class="alert blue" style="margin-top:.75rem">
+                <span class="alert-ico">ℹ️</span>
+                <p>IRL du 2ème trimestre 2024 : <strong>140,75</strong>. Source officielle : <strong>insee.fr → IRL</strong> ou <strong>data.gouv.fr</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TYPE DE BAIL
+    ══════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-bail">
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📄</div><div><div class="ch-title">Choisir le type de bail</div></div></div>
+            <div class="cb">
+              <div class="fg">
+                <label class="fl">Type de location *</label>
+                <select class="fsel" id="type-bail" onchange="updateBailInfo()">
+                  <option value="">Sélectionner…</option>
+                  <option value="meuble">Bail meublé — Résidentiel (loi Alur)</option>
+                  <option value="vide">Bail vide / nu — Résidentiel (loi Alur)</option>
+                  <option value="mobilite">Bail mobilité (1–10 mois)</option>
+                  <option value="etudiant">Bail meublé étudiant (9 mois)</option>
+                  <option value="commercial">Bail commercial (3-6-9)</option>
+                  <option value="professionnel">Bail professionnel (3 ans min.)</option>
+                </select>
+              </div>
+              <div id="bail-info"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📋</div><div><div class="ch-title">Comparatif des baux</div></div></div>
+            <div class="cb" style="padding:0">
+              <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+                <thead><tr>
+                  <th style="text-align:left;padding:.6rem .85rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.67rem;font-weight:700;text-transform:uppercase">Bail</th>
+                  <th style="padding:.6rem .5rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.67rem;font-weight:700;text-transform:uppercase">Durée</th>
+                  <th style="padding:.6rem .5rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.67rem;font-weight:700;text-transform:uppercase">Dépôt</th>
+                  <th style="padding:.6rem .5rem;border-bottom:1px solid var(--b);color:var(--td);font-size:.67rem;font-weight:700;text-transform:uppercase">Préavis locataire</th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td style="padding:.6rem .85rem;border-bottom:1px solid var(--b);font-weight:600">Meublé</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1 an</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">2 mois HC</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1 mois</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:.6rem .85rem;border-bottom:1px solid var(--b);font-weight:600">Vide</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">3 ans</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1 mois HC</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1 ou 3 mois*</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:.6rem .85rem;border-bottom:1px solid var(--b);font-weight:600">Mobilité</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1–10 mois</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b);color:var(--green);font-weight:700">0</td>
+                    <td style="padding:.6rem .5rem;border-bottom:1px solid var(--b)">1 mois</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:.6rem .85rem;font-weight:600">Commercial</td>
+                    <td style="padding:.6rem .5rem">9 ans</td>
+                    <td style="padding:.6rem .5rem">Libre</td>
+                    <td style="padding:.6rem .5rem">6 mois</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="font-size:.7rem;color:var(--td);padding:.6rem .85rem">* Vide : 1 mois zone tendue, 3 mois zone non tendue</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         LOIS APPLICABLES
+    ══════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-lois">
+      <div class="law-list">
+        <div class="law-item">
+          <div class="law-num" style="background:var(--tdim);color:var(--terra)">📜</div>
+          <div>
+            <div class="law-title">Loi du 6 juillet 1989</div>
+            <div class="law-desc">Loi de référence des rapports locatifs résidentiels. Encadre les droits et obligations du bailleur et du locataire, les clauses abusives, la liste des documents autorisés, les préavis, la quittance de loyer.</div>
+            <span class="law-tag" style="background:var(--tdim);color:var(--terra)">Résidentiel</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--sdim);color:var(--sea)">🏛️</div>
+          <div>
+            <div class="law-title">Loi Alur — 24 mars 2014</div>
+            <div class="law-desc">Accès au Logement et Urbanisme Rénové. Plafonne les honoraires d'agence (locataire et bailleur), instaure l'encadrement des loyers dans les zones tendues, renforce les droits du locataire, crée le bail type obligatoire.</div>
+            <span class="law-tag" style="background:var(--sdim);color:var(--sea)">Honoraires · Encadrement</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--grdim);color:var(--green)">⚡</div>
+          <div>
+            <div class="law-title">Loi Élan — 23 novembre 2018</div>
+            <div class="law-desc">Évolution du Logement, de l'Aménagement et du Numérique. Crée le bail mobilité (1–10 mois), relance l'encadrement des loyers à titre expérimental, simplifie les procédures de construction.</div>
+            <span class="law-tag" style="background:var(--grdim);color:var(--green)">Bail mobilité · Encadrement exp.</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--gdim);color:var(--gold)">🌿</div>
+          <div>
+            <div class="law-title">Loi Climat et Résilience — août 2021</div>
+            <div class="law-desc">Interdit progressivement la location des passoires thermiques. Classe G interdite à la location dès janvier 2025 (nouvelles locations), F en 2028, E en 2034. Gel des loyers pour logements DPE F et G depuis le 24/08/2022.</div>
+            <span class="law-tag" style="background:var(--gdim);color:var(--gold)">DPE · Passoires thermiques</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:rgba(124,58,237,.1);color:#7C3AED">🔒</div>
+          <div>
+            <div class="law-title">Décret du 5 novembre 2015</div>
+            <div class="law-desc">Liste limitative et exhaustive des documents que le bailleur peut demander au candidat locataire. Interdit les relevés bancaires, la carte Vitale, le casier judiciaire, les photos. Sanction : amende administrative jusqu'à 3 000 €.</div>
+            <span class="law-tag" style="background:rgba(124,58,237,.1);color:#7C3AED">Dossier locataire</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--sdim);color:var(--sea)">🔥</div>
+          <div>
+            <div class="law-title">Réglementation DPE (décrets 2021–2022)</div>
+            <div class="law-desc">Rend le DPE opposable (plus seulement indicatif), instaure les nouvelles étiquettes énergie et GES, harmonise la méthode de calcul 3CL. Dès 2025 : gel des loyers F/G + interdiction classe G nouvelles locations.</div>
+            <span class="law-tag" style="background:var(--sdim);color:var(--sea)">DPE · Énergie</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--grdim);color:var(--green)">📋</div>
+          <div>
+            <div class="law-title">Bail type Alur — Décrets 2015–2023</div>
+            <div class="law-desc">Modèles réglementaires obligatoires pour bail meublé (annexe 2) et bail vide (annexe 1). Clauses obligatoires : montant du loyer HC, charges, dépôt de garantie, date de prise d'effet, désignation des parties, désignation du logement, liste des équipements (meublé).</div>
+            <span class="law-tag" style="background:var(--grdim);color:var(--green)">Bail · Contrat type</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--tdim);color:var(--terra)">💶</div>
+          <div>
+            <div class="law-title">Quittance de loyer — Art. 21 loi 1989</div>
+            <div class="law-desc">Le bailleur est obligé de délivrer une quittance au locataire qui en fait la demande. Mentions obligatoires : identité des parties, adresse, période, montant loyer HC, charges, total. Gratuite. Si paiement partiel : attestation de paiement partiel.</div>
+            <span class="law-tag" style="background:var(--tdim);color:var(--terra)">Quittance · Mensuel</span>
+          </div>
+        </div>
+        <div class="law-item">
+          <div class="law-num" style="background:var(--gdim);color:var(--gold)">🛡️</div>
+          <div>
+            <div class="law-title">Garanties — Art. 22-1 loi 1989 + Visale</div>
+            <div class="law-desc">Caution solidaire : mentions manuscrites obligatoires, montant maximum cautionné, durée. Interdit de cumuler caution solidaire et assurance loyers impayés sauf locataire étudiant ou apprenti. Visale : garantie gratuite Action Logement couvrant 36 mois d'impayés.</div>
+            <span class="law-tag" style="background:var(--gdim);color:var(--gold)">Garanties · Caution</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         DÉPÔT DE GARANTIE & PRÉAVIS
+    ══════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-depot">
+      <div class="grid2">
+        <!-- Calcul dépôt -->
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">🔒</div><div><div class="ch-title">Calcul du dépôt de garantie</div><div class="ch-sub">Plafonds légaux selon le type de bail</div></div></div>
+            <div class="cb">
+              <div class="fg">
+                <label class="fl">Type de bail *</label>
+                <select class="fsel" id="bail-depot" onchange="calcDepot()">
+                  <option value="">Sélectionner…</option>
+                  <option value="meuble">Bail meublé</option>
+                  <option value="vide">Bail vide (non meublé)</option>
+                  <option value="mobilite">Bail mobilité</option>
+                  <option value="commercial">Bail commercial</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Loyer mensuel HC (€) *</label>
+                <input class="fi" id="loyer-depot" type="number" placeholder="900" oninput="calcDepot()">
+              </div>
+              <div id="depot-result" style="margin-top:.5rem"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Préavis -->
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📅</div><div><div class="ch-title">Calcul du préavis</div><div class="ch-sub">Délais légaux locataire et bailleur</div></div></div>
+            <div class="cb">
+              <div class="fg">
+                <label class="fl">Type de bail *</label>
+                <select class="fsel" id="bail-preavis" onchange="calcPreavis()">
+                  <option value="">Sélectionner…</option>
+                  <option value="meuble">Bail meublé</option>
+                  <option value="vide">Bail vide (non meublé)</option>
+                  <option value="mobilite">Bail mobilité</option>
+                  <option value="commercial">Bail commercial</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Zone du bien *</label>
+                <div class="fradio-group">
+                  <input type="radio" name="zone-preavis" id="zp-tendue" value="tendue" class="fradio" checked onchange="calcPreavis()">
+                  <label for="zp-tendue" class="fradio-lbl">Zone tendue</label>
+                  <input type="radio" name="zone-preavis" id="zp-normale" value="normale" class="fradio" onchange="calcPreavis()">
+                  <label for="zp-normale" class="fradio-lbl">Zone normale</label>
+                </div>
+              </div>
+              <div id="preavis-result" style="margin-top:.5rem"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📤</div><div><div class="ch-title">Restitution du dépôt</div></div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:.7rem;font-size:.82rem">
+                <div style="display:flex;gap:.75rem;align-items:flex-start">
+                  <div style="width:32px;height:32px;background:var(--grdim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
+                  <div><strong>EDL de sortie conforme</strong><br><span style="color:var(--tm)">Restitution sous <strong>1 mois</strong> après remise des clés</span></div>
+                </div>
+                <div style="display:flex;gap:.75rem;align-items:flex-start">
+                  <div style="width:32px;height:32px;background:var(--gdim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">⚠️</div>
+                  <div><strong>EDL de sortie avec réserves</strong><br><span style="color:var(--tm)">Restitution sous <strong>2 mois</strong> après remise des clés</span></div>
+                </div>
+                <div style="display:flex;gap:.75rem;align-items:flex-start">
+                  <div style="width:32px;height:32px;background:var(--rdim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">❌</div>
+                  <div><strong>Retard de restitution</strong><br><span style="color:var(--tm)">Pénalité de <strong>10% du loyer mensuel HC</strong> par mois de retard</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .content -->
+</div><!-- .main -->
+
+<script>
+/* ── Theme ── */
+function toggleTheme(){
+  document.documentElement.classList.toggle('dark');
+  try{localStorage.setItem('rm_theme',document.documentElement.classList.contains('dark')?'dark':'light');}catch(e){}
+}
+
+/* ── Tab switching ── */
+const TAB_TITLES = {
+  honoraires:'Calcul des honoraires d\'agence',
+  dpe:'DPE & Diagnostics techniques',
+  encadrement:'Encadrement des loyers',
+  bail:'Type de bail',
+  lois:'Lois applicables en France',
+  depot:'Dépôt de garantie & Préavis'
+};
+function switchTab(id){
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>{ if(t.textContent.toLowerCase().includes(id.substr(0,4))||t.onclick?.toString().includes(id)) t.classList.add('act'); });
+  document.querySelectorAll('.ni').forEach(n=>{ if(n.onclick?.toString().includes("'"+id+"'")) n.classList.add('act'); });
+  document.getElementById('tb-title').textContent = TAB_TITLES[id]||id;
+}
+
+/* ══════════════════════════════════
+   HONORAIRES CALC
+══════════════════════════════════ */
+const HON_RATES = {'tres-tendue':12,'tendue':10,'normale':8};
+const EDL_RATE = 3;
+
+function calcHonoraires(){
+  const m2 = parseFloat(document.getElementById('surface').value)||0;
+  const zone = document.getElementById('zone-hon').value;
+  const presta = document.querySelector('input[name=presta]:checked')?.value;
+  if(!m2||!zone){ showPlaceholder(); return; }
+
+  const rateMax = HON_RATES[zone];
+  const honLocMax = m2 * rateMax;
+  const edlMax = m2 * EDL_RATE;
+
+  // Bailleur paie au moins autant que locataire
+  const honBailMin = honLocMax;
+  // Mandat : bailleur paie plus
+  const honBailMandat = honLocMax * 1.5;
+
+  const includeEDL = presta === 'full' || presta === 'mandat';
+  const totalLoc = honLocMax + (includeEDL ? edlMax : 0);
+  const totalBail = (presta==='mandat' ? honBailMandat : honBailMin) + (includeEDL ? edlMax : 0);
+  const total = totalLoc + totalBail;
+
+  document.getElementById('result-card').style.display='block';
+  document.getElementById('placeholder-card').style.display='none';
+  document.getElementById('result-grid').innerHTML = `
+    <div class="result-box highlight"><div class="result-label">Locataire (max)</div><div class="result-val">${fmt(totalLoc)}</div><div class="result-sub">${rateMax} €/m²${includeEDL?' + EDL':''}</div></div>
+    <div class="result-box"><div class="result-label">Bailleur (min)</div><div class="result-val">${fmt(presta==='mandat'?honBailMandat:honBailMin)}</div><div class="result-sub">≥ part locataire</div></div>
+    <div class="result-box green"><div class="result-label">Total agence</div><div class="result-val">${fmt(total)}</div><div class="result-sub">Honoraires TTC</div></div>
+  `;
+  document.getElementById('result-detail').innerHTML = `
+    <div style="font-size:.78rem;color:var(--tm);line-height:1.6;background:var(--s2);padding:.85rem 1rem;border-radius:10px">
+      <strong style="color:var(--deep)">Détail du calcul :</strong><br>
+      Surface : ${m2} m² × ${rateMax} €/m² = ${fmt(honLocMax)} (locataire)<br>
+      ${includeEDL?`EDL : ${m2} m² × ${EDL_RATE} €/m² = ${fmt(edlMax)}<br>`:''}
+      Bailleur paie au moins autant que locataire : ${fmt(presta==='mandat'?honBailMandat:honBailMin)}<br>
+      <strong>Total agence : ${fmt(total)}</strong>
+      <br><span style="color:var(--terra);font-size:.72rem">⚖️ Loi Alur — Décret du 25 mars 2014</span>
+    </div>
+  `;
+}
+
+function showPlaceholder(){
+  document.getElementById('result-card').style.display='none';
+  document.getElementById('placeholder-card').style.display='block';
+}
+
+/* ══════════════════════════════════
+   DPE
+══════════════════════════════════ */
+let selectedDpe = null, selectedGes = null;
+
+const DPE_COLORS = {A:'#2B8A3E',B:'#51B94C',C:'#9FD544',D:'#F7C000',E:'#F07000',F:'#E04000',G:'#C20000'};
+const DPE_STATUS = {
+  A:{cls:'ok',msg:'✅ Classe A — Performance excellente. Ce logement peut être mis en location sans restriction.'},
+  B:{cls:'ok',msg:'✅ Classe B — Très bonne performance énergétique. Aucune restriction à la location.'},
+  C:{cls:'ok',msg:'✅ Classe C — Bonne performance. Aucune restriction à la location.'},
+  D:{cls:'ok',msg:'✅ Classe D — Performance correcte. Aucune restriction à la location.'},
+  E:{cls:'warn',msg:'⚠️ Classe E — Performance limitée. Ce logement sera interdit à la location dès 2034. Des travaux sont recommandés.'},
+  F:{cls:'warn',msg:'⚠️ Classe F — Passoire thermique. Interdit à la location dès 2028. Le loyer ne peut plus être augmenté depuis le 24/08/2022.'},
+  G:{cls:'blocked',msg:'⛔ CLASSE G — INTERDIT À LA LOCATION depuis le 1er janvier 2025 (nouvelles locations). Ce logement ne peut pas être mis en annonce. Des travaux de rénovation sont obligatoires.'},
+};
+
+function selectDpe(cls){
+  selectedDpe = cls;
+  document.querySelectorAll('[id^=dpe-]').forEach(el=>{
+    if(['A','B','C','D','E','F','G'].some(c=>'dpe-'+c===el.id)) el.classList.toggle('selected',el.id==='dpe-'+cls);
+  });
+  const s = DPE_STATUS[cls];
+  document.getElementById('dpe-result').innerHTML = `
+    <div class="dpe-info-box ${s.cls}">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="dpe-badge-large" style="background:${DPE_COLORS[cls]}">${cls} <span style="font-size:.8rem;font-weight:500">${cls==='A'?'≤70':cls==='B'?'71-110':cls==='C'?'111-180':cls==='D'?'181-250':cls==='E'?'251-330':cls==='F'?'331-420':'≥421'} kWh/m²/an</span></div>
+        <div style="flex:1">${s.msg}</div>
+      </div>
+      ${cls==='G'?'<div style="margin-top:.75rem;font-size:.78rem;font-weight:600">Pour mettre ce logement en location, vous devez réaliser des travaux de rénovation énergétique afin d\'atteindre au moins la classe F (temporairement) puis E avant 2028.</div>':''}
+    </div>`;
+}
+
+function selectGes(cls){
+  selectedGes = cls;
+  document.querySelectorAll('[id^=ges-]').forEach(el=>{
+    if(['A','B','C','D','E','F','G'].some(c=>'ges-'+c===el.id)){
+      el.classList.toggle('selected',el.id==='ges-'+cls);
+      el.style.opacity = el.id==='ges-'+cls ? '1' : '0.55';
+    }
+  });
+}
+
+function updateDpeLabel(){}
+
+/* DDT dynamique */
+function updateDDT(){
+  const year = parseInt(document.getElementById('annee-construction').value)||0;
+  const diags = [
+    {n:'DPE — Diagnostic de Performance Énergétique',d:'Obligatoire pour tout logement loué',req:true,cond:true},
+    {n:'ERP — État des Risques et Pollutions',d:'Obligatoire pour tout bien',req:true,cond:true},
+    {n:'CREP — Constat de Risque d\'Exposition au Plomb',d:'Immeuble construit avant le 01/01/1949',req:year>0&&year<1949,cond:year>0},
+    {n:'Diagnostic Amiante',d:'Immeuble dont le permis de construire est antérieur au 01/07/1997',req:year>0&&year<1997,cond:year>0},
+    {n:'Diagnostic Électricité',d:'Installation électrique intérieure de plus de 15 ans',req:true,cond:true},
+    {n:'Diagnostic Gaz',d:'Installation de gaz intérieure de plus de 15 ans (si applicable)',req:false,cond:true},
+    {n:'Diagnostic Termites',d:'Zones définies par arrêté préfectoral (à vérifier localement)',req:false,cond:true},
+    {n:'Diagnostic Bruit',d:'Zones de bruit autour des aérodromes',req:false,cond:true},
+    {n:'ERNMT / Mérule',d:'Zones définies par arrêté préfectoral',req:false,cond:true},
+  ];
+  const list = document.getElementById('ddt-list');
+  list.innerHTML = diags.filter(d=>d.cond).map(d=>`
+    <div style="display:flex;gap:.65rem;padding:.65rem .85rem;background:${d.req?'var(--tdim)':'var(--s2)'};border:1px solid ${d.req?'rgba(201,85,58,.2)':'var(--b)'};border-radius:8px;align-items:flex-start">
+      <div style="font-size:.8rem;margin-top:.05rem">${d.req?'🔴':'🟡'}</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--deep)">${d.n}</div>
+        <div style="font-size:.72rem;color:var(--td);margin-top:.1rem">${d.d} ${d.req?'<strong style="color:var(--terra)">— Obligatoire</strong>':'— Selon situation'}</div>
+      </div>
+    </div>`).join('');
+}
+
+// Initialiser DDT au chargement
+document.addEventListener('DOMContentLoaded', ()=>{ updateDDT(); updateBailInfo(); });
+
+/* ══════════════════════════════════
+   ENCADREMENT DES LOYERS
+══════════════════════════════════ */
+// Loyers de référence approximatifs (€/m²/mois) par ville / type / pièces
+// Source : arrêtés préfectoraux — données indicatives 2023-2024
+const LOYERS_REF = {
+  paris: {
+    meuble: {1:36.5,2:27.8,3:21.9,4:19.2,5:17.8},
+    vide:   {1:29.5,2:22.4,3:17.7,4:15.5,5:14.4},
+  },
+  lille: {
+    meuble: {1:19.8,2:15.9,3:13.2,4:11.6,5:10.8},
+    vide:   {1:16.1,2:12.9,3:10.8,4:9.4,5:8.8},
+  },
+  lyon: {
+    meuble: {1:20.5,2:16.6,3:13.8,4:12.1,5:11.3},
+    vide:   {1:16.6,2:13.4,3:11.2,4:9.8,5:9.2},
+  },
+  bordeaux: {
+    meuble: {1:18.9,2:15.2,3:12.7,4:11.1,5:10.4},
+    vide:   {1:15.3,2:12.3,3:10.3,4:9.0,5:8.4},
+  },
+  montpellier: {
+    meuble: {1:17.5,2:14.0,3:11.7,4:10.2,5:9.6},
+    vide:   {1:14.2,2:11.4,3:9.5,4:8.3,5:7.8},
+  },
+};
+const ZONES_ENCADREMENT = ['paris','lille','lyon','bordeaux','montpellier','paris-epc','grenoble'];
+
+function calcEncadrement(){
+  const ville = document.getElementById('ville-enc').value;
+  const bail = document.querySelector('input[name=bail-enc]:checked')?.value;
+  const pieces = document.getElementById('pieces-enc').value;
+  const loyer = parseFloat(document.getElementById('loyer-enc').value)||0;
+  const surface = parseFloat(document.getElementById('surface-enc').value)||0;
+
+  const block = document.getElementById('enc-result-block');
+
+  if(!ZONES_ENCADREMENT.includes(ville)){
+    block.innerHTML = `<div class="card"><div class="cb"><div class="alert green"><span class="alert-ico">✅</span><p><strong>${ville?'Cette commune':'Sélectionnez une commune'}</strong>${ville?' n\'est pas soumise à l\'encadrement des loyers. Aucun loyer de référence à respecter.':''}</p></div></div></div>`;
+    return;
+  }
+  if(!bail||!pieces){
+    block.innerHTML = `<div class="card"><div class="cb" style="text-align:center;padding:1.5rem;color:var(--td)">Renseignez le type de bail et le nombre de pièces</div></div>`;
+    return;
+  }
+
+  const cityData = LOYERS_REF[ville]?.[bail];
+  if(!cityData){
+    block.innerHTML = `<div class="card"><div class="cb"><div class="alert orange"><span class="alert-ico">⚠️</span><p>Données de loyer de référence non disponibles pour cette combinaison. Consultez l'arrêté préfectoral de la préfecture concernée ou le site <strong>encadrementdesloyers.adil.org</strong>.</p></div></div></div>`;
+    return;
+  }
+
+  const refParM2 = cityData[parseInt(pieces)];
+  const refMax = refParM2 * 1.2; // majoration +20% max
+  const loyerRefTotal = surface ? refParM2 * surface : null;
+  const loyerMaxTotal = surface ? refMax * surface : null;
+
+  const isOver = loyerMaxTotal && loyer > loyerMaxTotal;
+  const isOk = loyerMaxTotal && loyer <= loyerMaxTotal;
+
+  block.innerHTML = `<div class="card">
+    <div class="ch"><div class="ch-ico">📊</div><div><div class="ch-title">Résultat — Encadrement des loyers</div></div></div>
+    <div class="cb">
+      <div class="loyer-result">
+        <div class="loyer-box ref">
+          <div class="loyer-box-label">Loyer de référence</div>
+          <div class="loyer-box-val">${refParM2.toFixed(2)} €/m²</div>
+          <div class="loyer-box-sub">${loyerRefTotal?fmt(loyerRefTotal)+' total pour '+surface+' m²':'Renseignez la surface pour le total'}</div>
+        </div>
+        <div class="loyer-box ref">
+          <div class="loyer-box-label">Maximum légal (+20%)</div>
+          <div class="loyer-box-val">${refMax.toFixed(2)} €/m²</div>
+          <div class="loyer-box-sub">${loyerMaxTotal?fmt(loyerMaxTotal)+' total pour '+surface+' m²':'—'}</div>
+        </div>
+      </div>
+      ${loyer&&loyerMaxTotal?`
+      <div class="loyer-box ${isOk?'ok':'over'}" style="margin-top:.75rem">
+        <div class="loyer-box-label">Votre loyer : ${fmt(loyer)}/mois</div>
+        <div class="loyer-box-val">${isOk?'✅ Conforme':'⛔ Dépasse le plafond'}</div>
+        <div class="loyer-box-sub">${isOk?`En dessous du plafond légal de ${fmt(loyerMaxTotal)}`:`Dépassement de ${fmt(loyer-loyerMaxTotal)} — À ajuster avant publication`}</div>
+      </div>`:''
+      }
+      <div class="alert blue" style="margin-top:.85rem">
+        <span class="alert-ico">ℹ️</span>
+        <p>Données indicatives basées sur les arrêtés préfectoraux. Pour une vérification exacte par quartier, consultez <strong>encadrementdesloyers.adil.org</strong> ou l'observatoire CLAMEUR.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* IRL */
+function calcIRL(){
+  const loyer = parseFloat(document.getElementById('loyer-irl').value)||0;
+  const ref   = parseFloat(document.getElementById('irl-ref').value)||0;
+  const nw    = parseFloat(document.getElementById('irl-new').value)||0;
+  if(!loyer||!ref||!nw){ document.getElementById('irl-result').innerHTML=''; return; }
+  const nouveau = loyer * (nw/ref);
+  const diff = nouveau - loyer;
+  document.getElementById('irl-result').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+      <div class="result-box"><div class="result-label">Loyer actuel</div><div class="result-val">${fmt(loyer)}</div></div>
+      <div class="result-box ${diff>0?'highlight':'green'}"><div class="result-label">Loyer révisé max</div><div class="result-val">${fmt(nouveau)}</div><div class="result-sub">${diff>0?'+'+fmt(diff):fmt(diff)} / mois</div></div>
+    </div>`;
+}
+
+/* ══════════════════════════════════
+   TYPE DE BAIL
+══════════════════════════════════ */
+const BAIL_INFO = {
+  meuble:{
+    title:'Bail meublé — Loi Alur',
+    color:'var(--sea)',
+    items:[
+      '📅 Durée : 1 an, renouvellement tacite',
+      '🔒 Dépôt de garantie : 2 mois de loyer HC maximum',
+      '⏱️ Préavis locataire : 1 mois (en toutes zones)',
+      '⏱️ Préavis bailleur : 3 mois (motifs limités)',
+      '📋 Template : Annexe 2 du décret loi Alur',
+      '🛋️ Obligatoire : équipements listés au décret du 31/07/2015',
+      '💡 Fiscalité locataire : Régime BIC (LMNP / LMP)',
+    ]
+  },
+  vide:{
+    title:'Bail vide (non meublé) — Loi Alur',
+    color:'var(--terra)',
+    items:[
+      '📅 Durée : 3 ans (particulier) / 6 ans (personne morale)',
+      '🔒 Dépôt de garantie : 1 mois de loyer HC maximum',
+      '⏱️ Préavis locataire : 1 mois (zone tendue) / 3 mois (autres)',
+      '⏱️ Préavis bailleur : 6 mois — motifs limitatifs : reprise, vente, MSL',
+      '📋 Template : Annexe 1 du décret loi Alur',
+      '💡 Fiscalité propriétaire : Revenus fonciers (micro-foncier ou réel)',
+    ]
+  },
+  mobilite:{
+    title:'Bail mobilité — Loi Élan 2018',
+    color:'var(--green)',
+    items:[
+      '📅 Durée : 1 à 10 mois, non renouvelable et non reconductible',
+      '🚫 Dépôt de garantie : interdit (0 €)',
+      '⏱️ Préavis locataire : 1 mois',
+      '👤 Réservé : formation, stage, apprentissage, études supérieures, mobilité pro',
+      '🛡️ Garantie Visale acceptée (recommandée)',
+      '🛋️ Logement obligatoirement meublé',
+    ]
+  },
+  etudiant:{
+    title:'Bail meublé étudiant — 9 mois',
+    color:'var(--violet)||#7C3AED',
+    items:[
+      '📅 Durée : 9 mois, non reconductible automatiquement',
+      '🔒 Dépôt de garantie : 2 mois HC maximum',
+      '⏱️ Préavis locataire : 1 mois',
+      '🎓 Réservé aux étudiants — justificatif d\'inscription requis',
+      '📋 Même template que bail meublé classique',
+    ]
+  },
+  commercial:{
+    title:'Bail commercial — 3-6-9',
+    color:'var(--gold)',
+    items:[
+      '📅 Durée minimale : 9 ans (possibilité de résilier à chaque période triennale)',
+      '🔒 Dépôt de garantie : libre (généralement 3 mois)',
+      '⏱️ Préavis : 6 mois avant la fin de la période triennale',
+      '📈 Indice de révision : ILC (activités commerciales) ou ILAT (tertiaire)',
+      '⚖️ Régime : Code de commerce — Statut des baux commerciaux',
+      '🔑 Droit au bail : le locataire a un droit au renouvellement',
+    ]
+  },
+  professionnel:{
+    title:'Bail professionnel — 3 ans min.',
+    color:'var(--tm)',
+    items:[
+      '📅 Durée minimale : 3 ans',
+      '⏱️ Préavis locataire : 6 mois',
+      '🏢 Pour les professions libérales et activités non-commerciales',
+      '📈 Révision : selon contrat (ILC ou ILAT)',
+    ]
+  }
+};
+
+function updateBailInfo(){
+  const v = document.getElementById('type-bail')?.value;
+  const info = BAIL_INFO[v];
+  const block = document.getElementById('bail-info');
+  if(!block) return;
+  if(!info){ block.innerHTML=''; return; }
+  block.innerHTML = `<div style="margin-top:1rem">
+    <div style="font-size:.84rem;font-weight:700;color:${info.color};margin-bottom:.75rem">${info.title}</div>
+    <div style="display:flex;flex-direction:column;gap:.45rem">
+      ${info.items.map(i=>`<div style="display:flex;gap:.5rem;font-size:.8rem;color:var(--tm);line-height:1.4"><span style="flex-shrink:0">${i.split(' ')[0]}</span><span>${i.split(' ').slice(1).join(' ')}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════
+   DÉPÔT & PRÉAVIS
+══════════════════════════════════ */
+function calcDepot(){
+  const bail = document.getElementById('bail-depot').value;
+  const loyer = parseFloat(document.getElementById('loyer-depot').value)||0;
+  const block = document.getElementById('depot-result');
+  if(!bail||!loyer){ block.innerHTML=''; return; }
+
+  const rules = {
+    meuble:{max:2,label:'2 mois de loyer HC',note:'Bail meublé résidentiel — art. 22 loi 1989'},
+    vide:{max:1,label:'1 mois de loyer HC',note:'Bail vide résidentiel — art. 22 loi 1989'},
+    mobilite:{max:0,label:'Interdit (0 €)',note:'Bail mobilité — art. 89 loi Élan 2018'},
+    commercial:{max:null,label:'Libre (usage : 3 mois)',note:'Bail commercial — Code de commerce'},
+  };
+  const r = rules[bail];
+  const montant = r.max !== null ? loyer * (r.max||0) : null;
+
+  block.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.5rem">
+    <div class="result-box ${r.max===0?'green':'highlight'}">
+      <div class="result-label">Plafond légal</div>
+      <div class="result-val">${r.label}</div>
+    </div>
+    ${montant!==null?`<div class="result-box"><div class="result-label">Montant pour ${fmt(loyer)}/mois</div><div class="result-val">${r.max===0?'0 €':fmt(montant)}</div></div>`:'<div class="result-box"><div class="result-label">Montant</div><div class="result-val">Libre</div></div>'}
+  </div>
+  <div style="font-size:.73rem;color:var(--td);margin-top:.5rem">${r.note}</div>`;
+}
+
+function calcPreavis(){
+  const bail = document.getElementById('bail-preavis').value;
+  const zone = document.querySelector('input[name=zone-preavis]:checked')?.value;
+  const block = document.getElementById('preavis-result');
+  if(!bail){ block.innerHTML=''; return; }
+
+  const rules = {
+    meuble:{
+      locataire:{tendue:'1 mois',normale:'1 mois'},
+      bailleur:'3 mois',
+      note:'Motifs bailleur limités : reprise, vente, motif sérieux et légitime'
+    },
+    vide:{
+      locataire:{tendue:'1 mois',normale:'3 mois'},
+      bailleur:'6 mois',
+      note:'Motifs bailleur limitatifs : reprise pour habiter, vendre, motif sérieux et légitime'
+    },
+    mobilite:{
+      locataire:{tendue:'1 mois',normale:'1 mois'},
+      bailleur:'Fin de contrat (pas de reconduction)',
+      note:'Bail non renouvelable et non reconductible'
+    },
+    commercial:{
+      locataire:{tendue:'6 mois',normale:'6 mois'},
+      bailleur:'6 mois (refus renouvellement)',
+      note:'Droit au renouvellement — indemnité d\'éviction si refus'
+    },
+  };
+  const r = rules[bail];
+  block.innerHTML = `<div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem">
+    <div style="display:flex;gap:.75rem;align-items:center;padding:.75rem 1rem;background:var(--grdim);border-radius:10px">
+      <div style="font-size:1.3rem">🚶</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green)">Préavis locataire</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--deep)">${r.locataire[zone||'tendue']}</div>
+        ${bail==='vide'&&zone==='normale'?'<div style="font-size:.72rem;color:var(--td)">Réduit à 1 mois si motif spécial (emploi, santé, AAH…)</div>':''}
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;align-items:center;padding:.75rem 1rem;background:var(--tdim);border-radius:10px">
+      <div style="font-size:1.3rem">🏠</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--terra)">Préavis bailleur</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--deep)">${r.bailleur}</div>
+        <div style="font-size:.72rem;color:var(--td);margin-top:.1rem">${r.note}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── Utils ── */
+function fmt(n){ return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n); }
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{ updateDDT(); updateBailInfo(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://trouvetonoit.fr/sitemap.xml
