@@ -112,6 +112,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .vtab{padding:.4rem .75rem;border-radius:100px;border:1px solid var(--b);background:transparent;color:var(--td);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:'DM Sans',sans-serif}
 .vtab:hover{background:var(--s2);color:var(--tf)}
 .vtab-actif{background:var(--bleu);color:white;border-color:var(--bleu)}
+
+/* ── DossierFacile styles ── */
+.dossier-layout{display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:start}
+@media(max-width:900px){.dossier-layout{grid-template-columns:1fr}}
+.dossier-sidebar{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.2rem;position:sticky;top:80px}
+.dossier-step{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:9px;cursor:pointer;transition:background .15s;font-size:.85rem;font-weight:500;color:var(--tm);position:relative}
+.dossier-step:hover{background:var(--s2)}
+.dossier-step.ds-act{color:var(--bleu);background:var(--tdim)}
+.dossier-step.ds-done{color:var(--green)}
+.dossier-step.ds-done::after{content:'✓';margin-left:auto;font-weight:700;font-size:.8rem}
+.dossier-step-num{width:22px;height:22px;border-radius:50%;background:var(--b2);color:var(--td);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dossier-step.ds-act .dossier-step-num{background:var(--bleu);color:white}
+.dossier-step.ds-done .dossier-step-num{background:var(--green);color:white}
+.ds-connector{width:2px;height:12px;background:var(--b2);margin-left:10px}
+.dossier-main{min-height:400px}
+.dossier-screen{display:none}.dossier-screen.ds-visible{display:block;animation:fi .2s ease}
+.doc-type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-top:1rem}
+@media(max-width:600px){.doc-type-grid{grid-template-columns:1fr}}
+.doc-type-card{border:2px solid var(--b2);border-radius:12px;padding:1rem 1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.75rem;transition:all .15s;background:var(--s)}
+.doc-type-card:hover{border-color:var(--bleu);background:var(--tdim)}
+.doc-type-card.dtc-selected{border-color:var(--bleu);background:var(--tdim)}
+.dtc-arrow{color:var(--td);font-size:1.1rem;flex-shrink:0}
+.dossier-upload-area{border:2px dashed var(--b2);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .15s;margin-top:1rem}
+.dossier-upload-area:hover{border-color:var(--bleu);background:var(--tdim)}
+.dossier-upload-area.dua-dragover{border-color:var(--bleu);background:var(--tdim)}
+.doc-status-row{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--s);border:1px solid var(--b);border-radius:11px;gap:1rem}
+.doc-status-row+.doc-status-row{margin-top:.5rem}
+.dsr-label{font-size:.85rem;font-weight:600;flex:1}
+.dsr-sub{font-size:.72rem;color:var(--td);margin-top:.15rem}
+.badge-missing{background:rgba(201,85,58,.12);color:#C9553A;padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-uploaded{background:var(--grdim);color:var(--green);padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700}
+.dossier-progress{background:var(--b);border-radius:100px;height:6px;margin:.75rem 0}
+.dossier-progress-bar{background:var(--bleu);height:6px;border-radius:100px;transition:width .4s ease}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
 <style>
@@ -143,6 +176,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <button class="ni" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>My Location</button>
     <button class="ni" onclick="sp('roommates',this)"><span class="nico"><i data-lucide=users class=ic></i></span>Find a roommate</button>
     <div class="nl">Reviews & Profil</div>
+    <button class="ni" onclick="sp('dossier',this)"><span class="nico"><i data-lucide=folder-open class=ic></i></span>Mon Dossier<span class="nbadge" id="nb-dossier" style="display:none;background:var(--gold)">!</span></button>
     <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Leave a avis</button>
     <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>My profil</button>
     <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour to site</button>
@@ -521,14 +555,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <option value="Afghan">Afghan</option><option value="Albanian">Albanian</option><option value="Algerian">Algerian</option><option value="American">American</option><option value="Andorran">Andorran</option><option value="Angolan">Angolan</option><option value="Argentine">Argentine</option><option value="Armenian">Armenian</option><option value="Australian">Australian</option><option value="Austrian">Austrian</option><option value="Azerbaijani">Azerbaijani</option><option value="Bahraini">Bahraini</option><option value="Bangladeshi">Bangladeshi</option><option value="Belgian">Belgian</option><option value="Bolivian">Bolivian</option><option value="Bosnian">Bosnian</option><option value="Brazilian">Brazilian</option><option value="British">British</option><option value="Bulgarian">Bulgarian</option><option value="Cambodian">Cambodian</option><option value="Cameroonian">Cameroonian</option><option value="Canadian">Canadian</option><option value="Chilean">Chilean</option><option value="Chinese">Chinese</option><option value="Colombian">Colombian</option><option value="Croatian">Croatian</option><option value="Cuban">Cuban</option><option value="Cypriot">Cypriot</option><option value="Czech">Czech</option><option value="Danish">Danish</option><option value="Dominican">Dominican</option><option value="Dutch">Dutch</option><option value="Ecuadorian">Ecuadorian</option><option value="Egyptian">Egyptian</option><option value="Emirati">Emirati</option><option value="Estonian">Estonian</option><option value="Ethiopian">Ethiopian</option><option value="Filipino">Filipino</option><option value="Finnish">Finnish</option><option value="French">French</option><option value="Georgian">Georgian</option><option value="German">German</option><option value="Ghanaian">Ghanaian</option><option value="Greek">Greek</option><option value="Guatemalan">Guatemalan</option><option value="Honduran">Honduran</option><option value="Hungarian">Hungarian</option><option value="Icelandic">Icelandic</option><option value="Indian">Indian</option><option value="Indonesian">Indonesian</option><option value="Iranian">Iranian</option><option value="Iraqi">Iraqi</option><option value="Irish">Irish</option><option value="Israeli">Israeli</option><option value="Italian">Italian</option><option value="Ivorian">Ivorian</option><option value="Jamaican">Jamaican</option><option value="Japanese">Japanese</option><option value="Jordanian">Jordanian</option><option value="Kazakh">Kazakh</option><option value="Kenyan">Kenyan</option><option value="Korean">Korean</option><option value="Kuwaiti">Kuwaiti</option><option value="Latvian">Latvian</option><option value="Lebanese">Lebanese</option><option value="Libyan">Libyan</option><option value="Lithuanian">Lithuanian</option><option value="Luxembourgish">Luxembourgish</option><option value="Macedonian">Macedonian</option><option value="Malaysian">Malaysian</option><option value="français">français</option><option value="Mexican">Mexican</option><option value="Moldovan">Moldovan</option><option value="Mongolian">Mongolian</option><option value="Montenegrin">Montenegrin</option><option value="Moroccan">Moroccan</option><option value="Mozambican">Mozambican</option><option value="Namibian">Namibian</option><option value="Nepali">Nepali</option><option value="New Zealander">New Zealander</option><option value="Nicaraguan">Nicaraguan</option><option value="Nigerian">Nigerian</option><option value="Norwegian">Norwegian</option><option value="Omani">Omani</option><option value="Pakistani">Pakistani</option><option value="Panamanian">Panamanian</option><option value="Paraguayan">Paraguayan</option><option value="Peruvian">Peruvian</option><option value="Polish">Polish</option><option value="Portuguese">Portuguese</option><option value="Qatari">Qatari</option><option value="Romanian">Romanian</option><option value="Russian">Russian</option><option value="Saudi">Saudi</option><option value="Senegalese">Senegalese</option><option value="Serbian">Serbian</option><option value="Singaporean">Singaporean</option><option value="Slovak">Slovak</option><option value="Slovenian">Slovenian</option><option value="South African">South African</option><option value="Spanish">Spanish</option><option value="Sri Lankan">Sri Lankan</option><option value="Sudanese">Sudanese</option><option value="Swedish">Swedish</option><option value="Swiss">Swiss</option><option value="Syrian">Syrian</option><option value="Taiwanese">Taiwanese</option><option value="Tanzanian">Tanzanian</option><option value="Thai">Thai</option><option value="Tunisian">Tunisian</option><option value="Turkish">Turkish</option><option value="Ugandan">Ugandan</option><option value="Ukrainian">Ukrainian</option><option value="Uruguayan">Uruguayan</option><option value="Uzbek">Uzbek</option><option value="Venezuelan">Venezuelan</option><option value="Vietnamese">Vietnamese</option><option value="Yemeni">Yemeni</option><option value="Zambian">Zambian</option><option value="Zimbabwean">Zimbabwean</option>
               </select></div>
             <div class="fg"><label class="fl">Passport / ID number *</label><input class="fi" id="p-passport" placeholder="e.g. 12345678A"></div>
-            <div class="fg"><label class="fl">Date of birth *</label><input class="fi" type="date" id="p-dob"></div>
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Accueil address * <span style="font-size:.68rem;color:var(--td)">(full address — country of origin)</span></label><input class="fi" id="p-address" placeholder="123 Rue de Paris, 75001 Paris, France"></div>
+            <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob"></div>
+            <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris"></div>
           </div>
 
           <!-- Stay en France -->
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0">🇲🇹 Stay en France</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0">🇫🇷 Situation professionnelle</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">Employer / University <span style="font-size:.68rem;color:var(--td)">(optional)</span></label><input class="fi" id="p-emprent" placeholder="Company or university name"></div>
+            <div class="fg"><label class="fl">Profession / Poste *</label><input class="fi" id="p-profession" placeholder="Développeur, Étudiant, Infirmier..."></div>
+            <div class="fg"><label class="fl">Employeur / Université</label><input class="fi" id="p-emprent" placeholder="Nom de l'entreprise ou université"></div>
+            <div class="fg"><label class="fl">Revenus nets mensuels (€) *</label><input class="fi" type="number" id="p-income" placeholder="2500" min="0"></div>
             <div class="fg" style="grid-column:1/-1"><label class="fl">Needs Contrat de bail Attestation? <span style="font-size:.68rem;color:var(--td)">(optional — non-EU residence permit)</span></label>
               <select class="fsel" id="p-attestation">
                 <option value="no">No — standard bail is fine</option>
@@ -602,6 +639,385 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
 
     </div>
+
+    <!-- DOSSIER LOCATAIRE -->
+    <div class="page" id="page-dossier">
+      <div style="margin-bottom:1.2rem">
+        <div style="font-size:1rem;font-weight:700"><i data-lucide=folder-open class=ic></i> Mon Dossier Locataire</div>
+        <div style="font-size:.78rem;color:var(--tm);margin-top:.2rem">Constituez votre dossier étape par étape — comme sur DossierFacile</div>
+      </div>
+
+      <!-- Progress bar global -->
+      <div style="background:var(--s);border:1px solid var(--b);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:600;margin-bottom:.4rem">
+            <span>Dossier complété</span>
+            <span id="dossier-pct-label">0 / 5 documents</span>
+          </div>
+          <div class="dossier-progress"><div class="dossier-progress-bar" id="dossier-pct-bar" style="width:0%"></div></div>
+        </div>
+        <button class="btn bp bsm" onclick="showDossierSummary()" style="white-space:nowrap"><i data-lucide=eye class=ic></i> Voir le récap</button>
+      </div>
+
+      <div class="dossier-layout">
+        <!-- Sidebar steps -->
+        <div class="dossier-sidebar">
+          <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem">Étapes</div>
+
+          <div class="dossier-step ds-act" id="dstep-0" onclick="showDossierStep(0)">
+            <div class="dossier-step-num">1</div><span>Pièce d\'identité</span>
+          </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-1" onclick="showDossierStep(1)">
+            <div class="dossier-step-num">2</div><span>Situation d\'hébergement</span>
+          </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-2" onclick="showDossierStep(2)">
+            <div class="dossier-step-num">3</div><span>Situation professionnelle</span>
+          </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-3" onclick="showDossierStep(3)">
+            <div class="dossier-step-num">4</div><span>Justificatif de ressources</span>
+          </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-4" onclick="showDossierStep(4)">
+            <div class="dossier-step-num">5</div><span>Avis d\'imposition</span>
+          </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-5" onclick="showDossierStep(5)">
+            <div class="dossier-step-num">6</div><span>Garant</span>
+          </div>
+
+          <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--b)">
+            <div style="font-size:.72rem;color:var(--td);line-height:1.5">Vos documents sont stockés de façon sécurisée et partagés uniquement avec les propriétaires qui examinent votre candidature.</div>
+          </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="dossier-main">
+
+          <!-- STEP 0: Pièce d'identité -->
+          <div class="dossier-screen ds-visible" id="dscreen-0">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=id-card class=ic></i> Pièce d\'identité</div>
+                <span class="badge b-dim" id="dstatus-0">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Sélectionnez le type de document d\'identité que vous souhaitez fournir.</p>
+                <div class="doc-type-grid" id="dtype-grid-0">
+                  <div class="doc-type-card" onclick="selectDocType(0,'cni')">
+                    <div><div style="font-weight:600;font-size:.88rem">Carte nationale d\'identité</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Recto et verso</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(0,'passeport')">
+                    <div><div style="font-weight:600;font-size:.88rem">Passeport</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pages d\'identité</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(0,'sejour')">
+                    <div><div style="font-weight:600;font-size:.88rem">Carte / titre de séjour</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">En cours de validité</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(0,'permis')">
+                    <div><div style="font-weight:600;font-size:.88rem">Permis de conduire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Français ou européen</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(0,'france_identite')">
+                    <div><div style="font-weight:600;font-size:.88rem">France Identité</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation numérique</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(0,'autre_id')">
+                    <div><div style="font-weight:600;font-size:.88rem">Autre document</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Document officiel</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-0" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-0"></div>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-0').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,0)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                    <input type="file" id="dfile-0" accept="image/*,.pdf" style="display:none" onchange="uploadDossierFile(0,this.files)">
+                  </div>
+                  <div id="dfile-preview-0" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(0)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(0)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 1: Situation d'hébergement -->
+          <div class="dossier-screen" id="dscreen-1">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=home class=ic></i> Situation d\'hébergement</div>
+                <span class="badge b-dim" id="dstatus-1">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Quelle est votre situation d\'hébergement actuelle ?</p>
+                <div class="doc-type-grid" id="dtype-grid-1">
+                  <div class="doc-type-card" onclick="selectDocType(1,'locataire')">
+                    <div><div style="font-weight:600;font-size:.88rem">Locataire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Bail + quittances de loyer</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(1,'heberge')">
+                    <div><div style="font-weight:600;font-size:.88rem">Hébergé chez quelqu\'un</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation d\'hébergement</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(1,'proprietaire')">
+                    <div><div style="font-weight:600;font-size:.88rem">Propriétaire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Titre de propriété</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(1,'autre_heberg')">
+                    <div><div style="font-weight:600;font-size:.88rem">Autres situations</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Résidence universitaire, etc.</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-1" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-1"></div>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-1').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,1)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                    <input type="file" id="dfile-1" accept="image/*,.pdf" style="display:none" onchange="uploadDossierFile(1,this.files)">
+                  </div>
+                  <div id="dfile-preview-1" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(1)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(1)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Situation professionnelle -->
+          <div class="dossier-screen" id="dscreen-2">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=briefcase class=ic></i> Situation professionnelle</div>
+                <span class="badge b-dim" id="dstatus-2">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Quelle est votre situation professionnelle actuelle ?</p>
+                <div class="doc-type-grid" id="dtype-grid-2">
+                  <div class="doc-type-card" onclick="selectDocType(2,'cdi')">
+                    <div><div style="font-weight:600;font-size:.88rem">CDI</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat à durée indéterminée</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'cdd')">
+                    <div><div style="font-weight:600;font-size:.88rem">CDD</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat à durée déterminée</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'fonctionnaire')">
+                    <div><div style="font-weight:600;font-size:.88rem">Fonctionnaire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Arrêté de nomination</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'independant')">
+                    <div><div style="font-weight:600;font-size:.88rem">Indépendant</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Micro-entreprise, freelance</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'retraite')">
+                    <div><div style="font-weight:600;font-size:.88rem">Retraite</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation de retraite</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'chomage')">
+                    <div><div style="font-weight:600;font-size:.88rem">Chômage</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation Pôle Emploi</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'etudes')">
+                    <div><div style="font-weight:600;font-size:.88rem">Études</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Carte étudiante / certificat</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'alternance')">
+                    <div><div style="font-weight:600;font-size:.88rem">Alternance</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat d\'apprentissage</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'autre_pro')">
+                    <div><div style="font-weight:600;font-size:.88rem">Autres activités</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Artiste, intermittent...</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-2" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-2"></div>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-2').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,2)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                    <input type="file" id="dfile-2" accept="image/*,.pdf" style="display:none" onchange="uploadDossierFile(2,this.files)">
+                  </div>
+                  <div id="dfile-preview-2" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(2)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(2)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Justificatif de ressources -->
+          <div class="dossier-screen" id="dscreen-3">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=banknote class=ic></i> Justificatif de ressources</div>
+                <span class="badge b-dim" id="dstatus-3">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Fournissez un justificatif de vos revenus. Vous pouvez uploader plusieurs fichiers (ex : 3 bulletins de salaire).</p>
+                <div class="doc-type-grid" id="dtype-grid-3">
+                  <div class="doc-type-card" onclick="selectDocType(3,'bulletins')">
+                    <div><div style="font-weight:600;font-size:.88rem">3 derniers bulletins de salaire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Salarié / Fonctionnaire</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'avis_impot_ressources')">
+                    <div><div style="font-weight:600;font-size:.88rem">Avis d\'imposition</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Revenu annuel</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'bilan')">
+                    <div><div style="font-weight:600;font-size:.88rem">Bilan comptable</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pour les indépendants</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'pension')">
+                    <div><div style="font-weight:600;font-size:.88rem">Attestation de pension</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Retraite / invalidité</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'bourse')">
+                    <div><div style="font-weight:600;font-size:.88rem">Bourse d\'études</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation CROUS</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'autre_ressources')">
+                    <div><div style="font-weight:600;font-size:.88rem">Autres ressources</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Allocations, rentes...</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-3" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-3"></div>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-3').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,3)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
+                    <input type="file" id="dfile-3" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(3,this.files)">
+                  </div>
+                  <div id="dfile-preview-3" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(3)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(3)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4: Avis d'imposition -->
+          <div class="dossier-screen" id="dscreen-4">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=file-text class=ic></i> Avis d\'imposition</div>
+                <span class="badge b-dim" id="dstatus-4">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Avez-vous un avis d\'imposition à fournir ?</p>
+                <div class="doc-type-grid" id="dtype-grid-4">
+                  <div class="doc-type-card" onclick="selectDocType(4,'avec_impot')">
+                    <div>
+                      <div style="font-weight:600;font-size:.88rem">Vous avez un avis d\'impôt</div>
+                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Avis disponible sur impots.gouv.fr</div>
+                    </div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="skipDossierStep(4)">
+                    <div>
+                      <div style="font-weight:600;font-size:.88rem">Vous n\'avez pas d\'avis d\'impôt</div>
+                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Première année ou non imposable</div>
+                    </div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-4" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-4"></div>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-4').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,4)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                    <input type="file" id="dfile-4" accept="image/*,.pdf" style="display:none" onchange="uploadDossierFile(4,this.files)">
+                  </div>
+                  <div id="dfile-preview-4" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(4)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(4)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5: Garant -->
+          <div class="dossier-screen" id="dscreen-5">
+            <div class="card">
+              <div class="ch">
+                <div class="ct"><i data-lucide=shield class=ic></i> Garant</div>
+                <span class="badge b-dim" id="dstatus-5">Non fourni</span>
+              </div>
+              <div class="cb">
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Avez-vous un garant pour votre location ?</p>
+                <div class="doc-type-grid" id="dtype-grid-5">
+                  <div class="doc-type-card" onclick="selectDocType(5,'garant_personne')">
+                    <div><div style="font-weight:600;font-size:.88rem">Une personne</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Parent, proche, ami</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(5,'garant_organisme')">
+                    <div><div style="font-weight:600;font-size:.88rem">Un organisme</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Visale, Action Logement</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(5,'garant_moral')">
+                    <div><div style="font-weight:600;font-size:.88rem">Une personne morale</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Entreprise, association</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="skipDossierStep(5)">
+                    <div><div style="font-weight:600;font-size:.88rem">Pas de garant</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Je n\'ai pas de garant</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                </div>
+                <div id="dupload-5" style="display:none;margin-top:1rem">
+                  <div class="ai" id="dtype-label-5"></div>
+                  <p style="font-size:.82rem;color:var(--tm);margin-bottom:.75rem;line-height:1.5">Votre garant devra fournir : pièce d\'identité, justificatifs de revenus et avis d\'imposition.</p>
+                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
+                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
+                    <input type="file" id="dfile-5" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(5,this.files)">
+                  </div>
+                  <div id="dfile-preview-5" style="display:none;margin-top:.75rem"></div>
+                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
+                    <button class="btn bp bsm" onclick="confirmDossierStep(5)">Confirmer et continuer →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /dossier-main -->
+      </div><!-- /dossier-layout -->
+
+      <!-- Summary modal -->
+      <div class="mover" id="dossier-summary-modal">
+        <div class="modal" style="max-width:600px">
+          <button class="mclose" onclick="document.getElementById('dossier-summary-modal').classList.remove('open')">✕</button>
+          <div class="fr"><i data-lucide=folder-open class=ic></i> Récapitulatif du dossier</div>
+          <div class="ms">Statut de chaque document</div>
+          <div id="dossier-summary-list"></div>
+          <div style="margin-top:1rem;text-align:right">
+            <button class="btn bp" onclick="document.getElementById('dossier-summary-modal').classList.remove('open')">Fermer</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-dossier -->
 
     <!-- FIND A FLAT -->
       <div id="docs-section" style="display:none">
@@ -864,7 +1280,7 @@ function sp(id,btn){
   // Afficher docs seulement sur profil
   const docsSection=document.getElementById('docs-section');
   if(docsSection) docsSection.style.display=id==='profil'?'block':'none';
-  const titles={overview:'My Locations',messages:'Messages',mylocation:'My Location',depot:'My Dépôt de garantie',avis:'Reviews',profil:'Mon compte',search:'Find a Flat',visites:'Mes visites'};
+  const titles={overview:'My Locations',messages:'Messages',mylocation:'My Location',depot:'My Dépôt de garantie',avis:'Reviews',profil:'Mon compte',search:'Find a Flat',visites:'Mes visites',dossier:'Mon Dossier'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
   if(id==='mylocation')loadMyLocation();
@@ -873,6 +1289,7 @@ function sp(id,btn){
   if(id==='applications'){loadLocataireApplicationsPage();}
   if(id==='roommates'){showRmTab('channel');loadRmDmsList();}
   if(id==='profil'){loadProfilee();loadDossierStatut();setTimeout(initPhonePicker,200);}
+  if(id==='dossier'){initDossierPage();}
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3592,6 +4009,9 @@ async function loadProfilee(){
   document.getElementById('p-dob').value=P.date_of_birth||'';
   document.getElementById('p-address').value=P.home_address||'';
   document.getElementById('p-emprent').value=P.emprent||'';
+  document.getElementById('p-pob').value=P.place_of_birth||'';
+  document.getElementById('p-profession').value=P.profession||'';
+  if(P.monthly_income)document.getElementById('p-income').value=P.monthly_income||'';
   if(P.needs_attestation)document.getElementById('p-attestation').value='yes';
   updateProfileeCompleteness();
 
@@ -3608,7 +4028,7 @@ async function loadProfilee(){
         <div style="font-size:.78rem;color:var(--tm)">Your identity has been vérifié by Trouve Ton Toit. Your <i data-lucide=check-circle-2 class=ic></i> badge is visible to all propriétaires.</div>
       </div>`;
   } else if(P.id_submitted){
-    badge.classNom='badge b-gold';
+    badge.className='badge b-gold';
     badge.textContent='⏳ En attente';
     if(uploadSection) uploadSection.innerHTML=`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center">
@@ -3626,7 +4046,10 @@ function updateProfileeCompleteness(){
     document.getElementById('p-nat')?.value,
     document.getElementById('p-passport')?.value,
     document.getElementById('p-dob')?.value,
+    document.getElementById('p-pob')?.value,
     document.getElementById('p-address')?.value,
+    document.getElementById('p-profession')?.value,
+    document.getElementById('p-income')?.value,
   ];
   const filled=required.filter(v=>v&&v.trim()!=='').length;
   const pct=Math.round(filled/required.length*100);
@@ -3653,6 +4076,9 @@ async function saveProfilee(){
     date_of_birth:document.getElementById('p-dob').value||null,
     home_address:document.getElementById('p-address').value.trim(),
     emprent:document.getElementById('p-emprent').value.trim(),
+    place_of_birth:document.getElementById('p-pob').value.trim(),
+    profession:document.getElementById('p-profession').value.trim(),
+    monthly_income:parseInt(document.getElementById('p-income').value)||null,
     needs_attestation:document.getElementById('p-attestation').value==='yes'
   };
   const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
@@ -3968,6 +4394,223 @@ function checkDossierComplete(){
   }
 }
 
+// ════════════════════════════════════════════════════════════════
+// DOSSIER FACILE — guided document upload flow
+// ════════════════════════════════════════════════════════════════
+
+const DOSSIER_STEPS=[
+  {key:'identite',label:'Pièce d\'identité'},
+  {key:'hebergement',label:'Situation d\'hébergement'},
+  {key:'profession',label:'Situation professionnelle'},
+  {key:'ressources',label:'Justificatif de ressources'},
+  {key:'impot',label:'Avis d\'imposition'},
+  {key:'garant',label:'Garant'}
+];
+
+const DOSSIER_TYPE_LABELS={
+  cni:'Carte nationale d\'identité',passeport:'Passeport',sejour:'Carte / titre de séjour',permis:'Permis de conduire',france_identite:'France Identité',autre_id:'Autre document',
+  locataire:'Locataire (bail + quittances)',heberge:'Hébergé chez quelqu\'un',proprietaire:'Propriétaire (titre de propriété)',autre_heberg:'Autres situations',
+  cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',autre_pro:'Autres activités',
+  bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'Attestation de pension',bourse:'Bourse d\'études',autre_ressources:'Autres ressources',
+  avec_impot:'Avis d\'imposition',
+  garant_personne:'Garant — une personne',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
+  skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_garant:'Pas de garant'
+};
+
+// State: {step_index -> {type, files:[{name,url,path}], skipped}}
+let dossierState={};
+
+async function initDossierPage(){
+  // Load saved dossier state from profiles.dossier_data
+  try{
+    const{data}=await sb.from('profiles').select('dossier_data').eq('clerk_id',U.id).single();
+    if(data?.dossier_data){
+      dossierState=typeof data.dossier_data==='string'?JSON.parse(data.dossier_data):data.dossier_data;
+    }
+  }catch(e){}
+  renderDossierState();
+  showDossierStep(0);
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function renderDossierState(){
+  let done=0;
+  DOSSIER_STEPS.forEach((s,i)=>{
+    const st=dossierState[i];
+    const stepEl=document.getElementById('dstep-'+i);
+    const badgeEl=document.getElementById('dstatus-'+i);
+    if(st?.type){
+      if(stepEl){stepEl.classList.remove('ds-act');stepEl.classList.add('ds-done');}
+      if(badgeEl){badgeEl.textContent=st.skipped?'Non applicable':'Fourni';badgeEl.className=st.skipped?'badge b-gold':'badge b-green';}
+      done++;
+    } else {
+      if(stepEl)stepEl.classList.remove('ds-done');
+      if(badgeEl){badgeEl.textContent='Non fourni';badgeEl.className='badge b-dim';}
+    }
+  });
+  const pct=Math.round(done/DOSSIER_STEPS.length*100);
+  const bar=document.getElementById('dossier-pct-bar');
+  const lbl=document.getElementById('dossier-pct-label');
+  if(bar)bar.style.width=pct+'%';
+  if(lbl)lbl.textContent=done+' / '+DOSSIER_STEPS.length+' documents';
+  // Show badge in sidebar nav if incomplete
+  const nb=document.getElementById('nb-dossier');
+  if(nb)nb.style.display=done<DOSSIER_STEPS.length?'inline-flex':'none';
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function showDossierStep(idx){
+  document.querySelectorAll('.dossier-screen').forEach(s=>s.classList.remove('ds-visible'));
+  document.querySelectorAll('.dossier-step').forEach(s=>s.classList.remove('ds-act'));
+  const sc=document.getElementById('dscreen-'+idx);
+  const st=document.getElementById('dstep-'+idx);
+  if(sc)sc.classList.add('ds-visible');
+  if(st&&!st.classList.contains('ds-done'))st.classList.add('ds-act');
+  // If step already has data, restore it
+  const saved=dossierState[idx];
+  if(saved?.type){restoreUploadedStep(idx,saved);}
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function restoreUploadedStep(idx,saved){
+  const grid=document.getElementById('dtype-grid-'+idx);
+  const upload=document.getElementById('dupload-'+idx);
+  const label=document.getElementById('dtype-label-'+idx);
+  const preview=document.getElementById('dfile-preview-'+idx);
+  if(grid)grid.style.display='none';
+  if(upload)upload.style.display='block';
+  if(label)label.textContent='Type sélectionné : '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type);
+  if(preview&&saved.files&&saved.files.length>0){
+    preview.style.display='block';
+    preview.innerHTML=saved.files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  } else if(preview&&saved.skipped){
+    preview.style.display='block';
+    preview.innerHTML=`<div style="background:var(--gdim);border-radius:8px;padding:.5rem .75rem;font-size:.82rem;color:var(--gold)"><i data-lucide=info class=ic></i> Non applicable — étape ignorée</div>`;
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  }
+}
+
+function selectDocType(idx,type){
+  const grid=document.getElementById('dtype-grid-'+idx);
+  const upload=document.getElementById('dupload-'+idx);
+  const label=document.getElementById('dtype-label-'+idx);
+  if(grid)grid.style.display='none';
+  if(upload)upload.style.display='block';
+  if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[type]||type)+'</strong>';
+  // Store type but not yet confirmed
+  if(!dossierState[idx])dossierState[idx]={};
+  dossierState[idx].pendingType=type;
+  dossierState[idx].files=dossierState[idx].files||[];
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function resetDocType(idx){
+  const grid=document.getElementById('dtype-grid-'+idx);
+  const upload=document.getElementById('dupload-'+idx);
+  const preview=document.getElementById('dfile-preview-'+idx);
+  if(grid)grid.style.display='';
+  if(upload)upload.style.display='none';
+  if(preview){preview.style.display='none';preview.innerHTML='';}
+  if(dossierState[idx]){delete dossierState[idx].pendingType;}
+}
+
+async function skipDossierStep(idx){
+  dossierState[idx]={type:'skipped',skipped:true,files:[]};
+  // For impot skip
+  if(idx===4)dossierState[idx].type='skipped_impot';
+  if(idx===5)dossierState[idx].type='skipped_garant';
+  await saveDossierState();
+  renderDossierState();
+  const next=idx+1;
+  if(next<DOSSIER_STEPS.length)setTimeout(()=>showDossierStep(next),300);
+  else showDossierSummary();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape '+(idx+1)+' — non applicable');
+}
+
+async function uploadDossierFile(idx,files){
+  if(!files||!files.length)return;
+  const type=dossierState[idx]?.pendingType||'doc';
+  const preview=document.getElementById('dfile-preview-'+idx);
+  const uploadArea=document.getElementById('dfile-'+idx)?.closest('.dossier-upload-area')||document.querySelector('#dscreen-'+idx+' .dossier-upload-area');
+  if(uploadArea)uploadArea.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;justify-content:center"><div class="sp"></div><span style="font-size:.82rem;color:var(--tm)">Envoi en cours...</span></div>';
+  const uploaded=[];
+  try{
+    for(const file of Array.from(files)){
+      const ext=file.name.split('.').pop();
+      const path=`dossier/${U.id}/${DOSSIER_STEPS[idx].key}_${type}_${Date.now()}.${ext}`;
+      const{error}=await sb.storage.from('documents-dossiers').upload(path,file,{upsert:true,contentType:file.type});
+      if(error)throw error;
+      const{data:urlData}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
+      uploaded.push({name:file.name,path,url:urlData?.signedUrl||'',ext});
+    }
+    if(!dossierState[idx])dossierState[idx]={};
+    dossierState[idx].files=(dossierState[idx].files||[]).concat(uploaded);
+    // Restore upload area
+    if(uploadArea)uploadArea.innerHTML=`<div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div><div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Ajouter d\'autres fichiers</div><div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>`;
+    if(preview){
+      preview.style.display='block';
+      const allFiles=dossierState[idx].files;
+      preview.innerHTML=allFiles.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
+    }
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
+  }catch(e){
+    if(uploadArea)uploadArea.innerHTML=`<div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div><div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div><div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>`;
+    toast('<i data-lucide=alert-triangle class=ic></i>️ Erreur upload : '+e.message);
+  }
+}
+
+function handleDossierDrop(event,idx){
+  event.preventDefault();
+  event.currentTarget.classList.remove('dua-dragover');
+  const files=event.dataTransfer.files;
+  uploadDossierFile(idx,files);
+}
+
+async function confirmDossierStep(idx){
+  const st=dossierState[idx];
+  if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
+  if(!st?.files?.length&&!st?.skipped){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+  // Confirm the pending type
+  if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
+  await saveDossierState();
+  renderDossierState();
+  const next=idx+1;
+  if(next<DOSSIER_STEPS.length)setTimeout(()=>showDossierStep(next),300);
+  else showDossierSummary();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape '+(idx+1)+' enregistrée !');
+}
+
+async function saveDossierState(){
+  try{
+    await sb.from('profiles').update({dossier_data:dossierState}).eq('clerk_id',U.id);
+  }catch(e){console.warn('saveDossierState:',e);}
+}
+
+function showDossierSummary(){
+  const list=document.getElementById('dossier-summary-list');
+  if(!list)return;
+  let html='';
+  DOSSIER_STEPS.forEach((s,i)=>{
+    const st=dossierState[i];
+    const hasDoc=st?.type&&!st?.skipped&&st?.files?.length>0;
+    const skipped=st?.skipped;
+    html+=`<div class="doc-status-row" style="margin-bottom:.5rem">
+      <div style="flex:1"><div class="dsr-label">${s.label}</div>
+      ${st?.type?'<div class="dsr-sub">'+(DOSSIER_TYPE_LABELS[st.type]||st.type)+'</div>':''}
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        ${hasDoc?'<span class="badge-uploaded"><i data-lucide=check-circle-2 class=ic></i> Fourni</span>':skipped?'<span class="badge b-gold" style="font-size:.68rem">Non applicable</span>':'<span class="badge-missing">DOCUMENT MANQUANT</span>'}
+        <button class="btn bg bsm" onclick="showDossierStep(${i});document.getElementById(\'dossier-summary-modal\').classList.remove(\'open\')" style="font-size:.72rem;padding:.25rem .65rem">${hasDoc||skipped?'Modifier':'Ajouter →'}</button>
+      </div>
+    </div>`;
+  });
+  list.innerHTML=html;
+  document.getElementById('dossier-summary-modal').classList.add('open');
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
 // ── Vérification dossier avant demande de visite ──────────────
 async function checkDossierBeforeVisit(){
   // Check profil completeness
@@ -4262,8 +4905,10 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
   if(!P?.full_name)missing.push('Full name');
   if(!P?.passport_number)missing.push('Passport/ID');
   if(!P?.nationality)missing.push('Nationalité');
-  if(!P?.date_of_birth)missing.push('Date of birth');
-  if(!P?.home_address)missing.push('Accueil address');
+  if(!P?.date_of_birth)missing.push('Date de naissance');
+  if(!P?.place_of_birth)missing.push('Lieu de naissance');
+  if(!P?.profession)missing.push('Profession');
+  if(!P?.home_address)missing.push('Adresse actuelle');
   if(missing.length>0){
     toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before requesting a visite');
     alert(`Pbail complete votre profil first.\n\nMissing: ${missing.join(', ')}`);
