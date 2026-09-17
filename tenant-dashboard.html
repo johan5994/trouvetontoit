@@ -1335,7 +1335,7 @@ let clerk,U=null,P=null,selectedRating=5;
   // Normalise : la colonne Supabase s'appelle 'vérifié' (accent) — on expose aussi P.verified pour le reste du code
   if(P&&P['vérifié']!==undefined)P.verified=!!P['vérifié'];
   if(P&&P['vérifié_at']!==undefined)P.verified_at=P['vérifié_at'];
-  if(P?.role==='bailleur'){window.location.href='/landlord-dashboard.html';return;}
+  if(P?.role==='bailleur'||P?.role==='propriétaire'){window.location.href='/landlord-dashboard.html';return;}
   initUI();loadAll();
 })();
 
