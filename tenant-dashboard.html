@@ -1541,8 +1541,8 @@ async function openCreateGroupModal(){
   const picker=document.getElementById('rm-group-member-picker');
   picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Chargement...</div>';
   try{
-    const{data:profiles}=await sb.from('roommate_profiles').select('locataire_id,full_name').neq('locataire_id',U.id).eq('active',true);
-    if(!profiles?.length){picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">No other actif profiles yet</div>';return;}
+    const{data:profiles}=await sb.from('roommate_profiles').select('locataire_id,full_name').neq('locataire_id',U.id).eq('actif',true);
+    if(!profiles?.length){picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Aucun autre profil actif pour l\'instant</div>';return;}
     picker.innerHTML=profiles.map(p=>`
       <label style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem">
         <input type="checkbox" value="${p.locataire_id}" class="rm-member-cb"> ${p.full_name||'Locataire'}
