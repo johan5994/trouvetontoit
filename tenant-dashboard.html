@@ -1423,7 +1423,7 @@ function openRmProfileFromChannel(otherId){
   if(otherId===U.id)return;
   const prof=rmProfilesCache[otherId];
   const name=prof?.full_name||'This person';
-  if(confirm(`Message ${name} privately?`))openRmDm(otherId,name);
+  openRmDm(otherId,name);
 }
 
 async function loadRmDmsList(){
