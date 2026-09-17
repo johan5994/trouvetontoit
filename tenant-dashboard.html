@@ -5066,7 +5066,17 @@ const GARANT_TRAVAIL_SUBTYPES=[
 let garantSubStep=0;
 let garantRevenueAdding=null;
 let garantRevSubType=null;
+let garantRevSalarieAnc=null;
+let garantRevSalaireMontant='';
 let garantRevFiles=[];
+
+function getLastMonthNames(n){
+  const FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const now=new Date();
+  const out=[];
+  for(let i=n;i>=1;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);out.push(FR[d.getMonth()]);}
+  return out;
+}
 
 function updateGarantName(){
   if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
@@ -5176,11 +5186,50 @@ function renderGarantRevenueScreen(){
       if(typeof lucide!=='undefined')lucide.createIcons();
       return;
     }
+    // Niveau 3 : ancienneté du salarié
+    if(garantRevenueAdding==='g_travail'&&garantRevSubType==='g_trav_salarie'&&!garantRevSalarieAnc){
+      const ancs=[
+        {key:'plus_3_mois',label:'Depuis plus de 3 mois',hint:'3 derniers bulletins de salaire requis'},
+        {key:'moins_3_mois',label:'Depuis moins de 3 mois',hint:'Bulletins disponibles + contrat de travail'},
+        {key:'nouveau_poste',label:"Garant n'a pas encore pris son poste ou commencé depuis moins d'un mois",hint:'Contrat de travail signé uniquement'}
+      ];
+      sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.25rem"><i data-lucide=banknote class=ic></i> Revenus du travail — <span style="color:var(--bleu);font-weight:400">Salarié</span></div>
+        <div style="font-size:.78rem;color:var(--tm);margin-bottom:.85rem">Depuis quand votre garant est-il en poste ?</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
+          ${ancs.map(a=>`<div class="dtg-item" onclick="selectGarantSalarieAnc('${a.key}')">
+            <div class="dtg-label">${a.label}</div>
+            <div class="dtg-hint">${a.hint}</div>
+          </div>`).join('')}
+        </div>
+        <button class="btn bg bsm" onclick="cancelAddGarantRevenue()">← Retour</button>`;
+      if(typeof lucide!=='undefined')lucide.createIcons();
+      return;
+    }
     const subLabel=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.label;
-    const displayLabel=garantRevSubType?`${opt?.label||garantRevenueAdding} — ${subLabel}`:(opt?.label||garantRevenueAdding);
-    const displayHint=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.hint||opt?.hint||'';
+    const ancLabel=garantRevSalarieAnc==='plus_3_mois'?'Depuis plus de 3 mois':garantRevSalarieAnc==='moins_3_mois'?'Depuis moins de 3 mois':garantRevSalarieAnc==='nouveau_poste'?'Nouveau poste':'';
+    const displayLabel=garantRevSubType?`${opt?.label||garantRevenueAdding} — ${subLabel}${ancLabel?' ('+ancLabel+')':''}` :(opt?.label||garantRevenueAdding);
+    // Hint adapté selon ancienneté salarié
+    let displayHint=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.hint||opt?.hint||'';
+    let extraHtml='';
+    if(garantRevSubType==='g_trav_salarie'&&garantRevSalarieAnc){
+      if(garantRevSalarieAnc==='plus_3_mois'){
+        const lastMonths=getLastMonthNames(3);
+        const curMonth=new Date().toLocaleDateString('fr-FR',{month:'long'});
+        displayHint=`Veuillez fournir les <strong>3 derniers bulletins de salaire</strong> : ${lastMonths.join(', ')}.<br><span style="font-size:.75rem;color:var(--td)">Vous pouvez ajouter le bulletin de ${curMonth} si vous l'avez.</span>`;
+        extraHtml=`<div style="margin-bottom:.85rem">
+          <label style="font-size:.82rem;font-weight:600;color:var(--deep);display:block;margin-bottom:.35rem">Revenu mensuel net moyen avant prélèvement à la source, sans virgule :</label>
+          <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem">Exemple : 2400</div>
+          <input type="number" id="garant-salaire-montant" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="garantRevSalaireMontant=this.value" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.88rem;background:var(--s);color:var(--deep);box-sizing:border-box">
+        </div>`;
+      } else if(garantRevSalarieAnc==='moins_3_mois'){
+        displayHint='Bulletins de salaire disponibles + contrat de travail signé';
+      } else if(garantRevSalarieAnc==='nouveau_poste'){
+        displayHint='Contrat de travail signé uniquement — aucun bulletin de salaire requis';
+      }
+    }
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=banknote class=ic></i> Ressources — <span style="color:var(--bleu);font-weight:400">${displayLabel}</span></div>
-      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">${displayHint}</div>
+      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem;line-height:1.5">${displayHint}</div>
+      ${extraHtml}
       ${garantRevFiles.length>0?`<div style="margin-bottom:.5rem">${garantRevFiles.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('')}</div>`:''}
       <div class="dossier-upload-area" onclick="document.getElementById('gfile-rev').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantRevDrop(event)">
         <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
@@ -5211,17 +5260,36 @@ function renderGarantRevenueScreen(){
 function startAddGarantRevenue(typeKey){
   garantRevenueAdding=typeKey;
   garantRevSubType=null;
+  garantRevSalarieAnc=null;
+  garantRevSalaireMontant='';
   garantRevFiles=[];
   renderGarantSubScreen(3);
 }
 
 function selectGarantRevSubType(subKey,subLabel){
   garantRevSubType=subKey;
+  garantRevSalarieAnc=null;
+  garantRevSalaireMontant='';
+  garantRevFiles=[];
+  renderGarantSubScreen(3);
+}
+
+function selectGarantSalarieAnc(key){
+  garantRevSalarieAnc=key;
   garantRevFiles=[];
   renderGarantSubScreen(3);
 }
 
 function cancelAddGarantRevenue(){
+  // Retour depuis l'upload → ancienneté
+  if(garantRevSalarieAnc){
+    garantRevSalarieAnc=null;
+    garantRevSalaireMontant='';
+    garantRevFiles=[];
+    renderGarantSubScreen(3);
+    return;
+  }
+  // Retour depuis ancienneté → sous-types travail
   if(garantRevSubType&&garantRevenueAdding==='g_travail'){
     garantRevSubType=null;
     garantRevFiles=[];
@@ -5230,6 +5298,8 @@ function cancelAddGarantRevenue(){
   }
   garantRevenueAdding=null;
   garantRevSubType=null;
+  garantRevSalarieAnc=null;
+  garantRevSalaireMontant='';
   garantRevFiles=[];
   renderGarantSubScreen(3);
 }
@@ -5238,11 +5308,14 @@ function confirmAddGarantRevenue(){
   if(!garantRevFiles.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
   const opt=GARANT_TYPE_OPTIONS[3].find(o=>o.key===garantRevenueAdding);
   const subLabel=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.label;
-  const displayLabel=subLabel?`${opt?.label||garantRevenueAdding} — ${subLabel}`:(opt?.label||garantRevenueAdding);
+  const ancLabel=garantRevSalarieAnc==='plus_3_mois'?'Depuis plus de 3 mois':garantRevSalarieAnc==='moins_3_mois'?'Depuis moins de 3 mois':garantRevSalarieAnc==='nouveau_poste'?'Nouveau poste':'';
+  let displayLabel=subLabel?`${opt?.label||garantRevenueAdding} — ${subLabel}${ancLabel?' ('+ancLabel+')':''}` :(opt?.label||garantRevenueAdding);
   if(!dossierState[5].garant_subs[3].revenues)dossierState[5].garant_subs[3].revenues=[];
-  dossierState[5].garant_subs[3].revenues.push({type:garantRevenueAdding,subType:garantRevSubType||null,label:displayLabel,files:[...garantRevFiles]});
+  dossierState[5].garant_subs[3].revenues.push({type:garantRevenueAdding,subType:garantRevSubType||null,anciennete:garantRevSalarieAnc||null,montant:garantRevSalaireMontant||null,label:displayLabel,files:[...garantRevFiles]});
   garantRevenueAdding=null;
   garantRevSubType=null;
+  garantRevSalarieAnc=null;
+  garantRevSalaireMontant='';
   garantRevFiles=[];
   renderGarantSubScreen(3);
   renderGarantSubNav();
