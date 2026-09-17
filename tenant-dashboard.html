@@ -3963,11 +3963,7 @@ async function loadProfilee(){
   document.getElementById('p-passport').value=P.passport_number||'';
   document.getElementById('p-dob').value=P.date_of_birth||'';
   document.getElementById('p-address').value=P.home_address||'';
-  document.getElementById('p-emprent').value=P.emprent||'';
   document.getElementById('p-pob').value=P.place_of_birth||'';
-  document.getElementById('p-profession').value=P.profession||'';
-  if(P.monthly_income)document.getElementById('p-income').value=P.monthly_income||'';
-  if(P.needs_attestation)document.getElementById('p-attestation').value='yes';
   updateProfileeCompleteness();
 
   // Gestion section vérification
@@ -4028,14 +4024,14 @@ async function saveProfilee(){
     passport_number:document.getElementById('p-passport').value.trim(),
     date_of_birth:document.getElementById('p-dob').value||null,
     home_address:document.getElementById('p-address').value.trim(),
-    emprent:document.getElementById('p-emprent').value.trim(),
-    place_of_birth:document.getElementById('p-pob').value.trim(),
-    profession:document.getElementById('p-profession').value.trim(),
-    monthly_income:parseInt(document.getElementById('p-income').value)||null,
-    needs_attestation:document.getElementById('p-attestation').value==='yes'
+    place_of_birth:document.getElementById('p-pob').value.trim()
   };
   const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
-  if(error){toast('Erreur: '+error.message);return;}
+  if(error){
+    toast('<i data-lucide=x-circle class=ic></i> Erreur sauvegarde : '+error.message);
+    alert('❌ Impossible de sauvegarder le profil :\n\n'+error.message+'\n\nContactez le support si le problème persiste.');
+    return;
+  }
   Object.assign(P,updates);
   updateProfileeCompleteness();
   const ok=document.getElementById('prof-ok');ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
