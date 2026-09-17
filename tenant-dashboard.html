@@ -176,7 +176,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <button class="ni" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>My Location</button>
     <button class="ni" onclick="sp('roommates',this)"><span class="nico"><i data-lucide=users class=ic></i></span>Find a roommate</button>
     <div class="nl">Reviews & Profil</div>
-    <button class="ni" onclick="sp('dossier',this)"><span class="nico"><i data-lucide=folder-open class=ic></i></span>Mon Dossier<span class="nbadge" id="nb-dossier" style="display:none;background:var(--gold)">!</span></button>
     <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Leave a avis</button>
     <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>My profil</button>
     <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour to site</button>
@@ -566,12 +565,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div class="fg"><label class="fl">Profession / Poste *</label><input class="fi" id="p-profession" placeholder="Développeur, Étudiant, Infirmier..."></div>
             <div class="fg"><label class="fl">Employeur / Université</label><input class="fi" id="p-emprent" placeholder="Nom de l'entreprise ou université"></div>
             <div class="fg"><label class="fl">Revenus nets mensuels (€) *</label><input class="fi" type="number" id="p-income" placeholder="2500" min="0"></div>
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Needs Contrat de bail Attestation? <span style="font-size:.68rem;color:var(--td)">(optional — non-EU residence permit)</span></label>
-              <select class="fsel" id="p-attestation">
-                <option value="no">No — standard bail is fine</option>
-                <option value="yes">Yes — I need notary attestation</option>
-              </select>
-            </div>
           </div>
 
           <!-- Profil completeness indicator -->
@@ -632,17 +625,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div id="id-statut" style="margin-top:.75rem;font-size:.82rem;color:var(--td)"></div>
         </div>
       </div>
-      <div class="card" style="margin-bottom:1rem">
-          <div id="dossier-check-result" style="margin-top:.75rem"></div>
-        </div>
-      </div>
+      <div id="dossier-check-result" style="margin-top:.75rem"></div>
 
-
-    </div>
-
-    <!-- DOSSIER LOCATAIRE -->
-    <div class="page" id="page-dossier">
-      <div style="margin-bottom:1.2rem">
+      <!-- ══ DOSSIER FACILE ══ -->
+      <div style="margin-top:1.5rem;margin-bottom:.75rem">
         <div style="font-size:1rem;font-weight:700"><i data-lucide=folder-open class=ic></i> Mon Dossier Locataire</div>
         <div style="font-size:.78rem;color:var(--tm);margin-top:.2rem">Constituez votre dossier étape par étape — comme sur DossierFacile</div>
       </div>
@@ -1017,78 +1003,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         </div>
       </div>
 
-    </div><!-- /page-dossier -->
-
-    <!-- FIND A FLAT -->
-      <div id="docs-section" style="display:none">
-      <!-- Documents supporting dossier -->
-      <div class="card" style="margin-bottom:1rem">
-        <div class="ch"><div class="ct"><i data-lucide=folder class=ic></i> Supporting documents</div><span id="docs-badge" class="badge b-dim">—</span></div>
-        <div class="cb">
-          <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">These documents are shown to propriétaires when you apply pour a flat. The more you upload, the stronger votre application.</p>
-
-          <div style="display:flex;flex-direction:column;gap:.65rem">
-            <!-- ID / Passport -->
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=id-card class=ic></i> ID card / Passport</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">Photo of votre ID or passport</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-id-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'id')"></label>
-              </div>
-            </div>
-            <!-- Bank statement -->
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=landmark class=ic></i> Bank statement</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">Last 3 months · PDF or screenshot</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-bank-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'bank_statement')"></label>
-              </div>
-            </div>
-
-            <!-- Employment letter -->
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=briefcase class=ic></i> Employment letter</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">From votre employer confirming votre position</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-emprent-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'emprent_letter')"></label>
-              </div>
-            </div>
-
-            <!-- Loyer quittances -->
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=file-text class=ic></i> Loyer quittance 1</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">Précédent loyer paiement proof</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-rent1-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'rent1')"></label>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=file-text class=ic></i> Loyer quittance 2</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">Précédent loyer paiement proof</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-rent2-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'rent2')"></label>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=file-text class=ic></i> Loyer quittance 3</div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">Précédent loyer paiement proof</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-rent3-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'rent3')"></label>
-              </div>
-            </div>
-
-            <!-- Reference letter -->
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:9px;padding:.6rem .85rem">
-              <div><div style="font-size:.82rem;font-weight:600"><i data-lucide=star class=ic></i> Reference letter <span style="font-size:.65rem;color:var(--td)">(optional)</span></div><div style="font-size:.7rem;color:var(--td);margin-top:.1rem">From a previous propriétaire or employer</div></div>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <span id="doc-ref-statut" class="badge b-dim" style="font-size:.65rem">Not uploaded</span>
-                <label style="background:var(--bleu);color:white;padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer">Téléverser<input type="file" accepter="image/*,.pdf" style="display:none" onchange="uploadSupportDoc(this,'reference_letter')"></label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
+    </div><!-- /page-profil -->
     <div class="page" id="page-search">
       <div style="max-width:640px;margin:0 auto;width:100%">
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700"><i data-lucide=search class=ic></i> Find a flat</div>
@@ -1277,9 +1192,6 @@ function sp(id,btn){
   if(btn)btn.classList.add('act');
   document.querySelector('.content')?.scrollTo(0,0);
   window.scrollTo(0,0);
-  // Afficher docs seulement sur profil
-  const docsSection=document.getElementById('docs-section');
-  if(docsSection) docsSection.style.display=id==='profil'?'block':'none';
   const titles={overview:'My Locations',messages:'Messages',mylocation:'My Location',depot:'My Dépôt de garantie',avis:'Reviews',profil:'Mon compte',search:'Find a Flat',visites:'Mes visites',dossier:'Mon Dossier'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
@@ -1288,8 +1200,7 @@ function sp(id,btn){
   if(id==='visites'){loadLocataireVisits();}
   if(id==='applications'){loadLocataireApplicationsPage();}
   if(id==='roommates'){showRmTab('channel');loadRmDmsList();}
-  if(id==='profil'){loadProfilee();loadDossierStatut();setTimeout(initPhonePicker,200);}
-  if(id==='dossier'){initDossierPage();}
+  if(id==='profil'){loadProfilee();loadDossierStatut();initDossierPage();setTimeout(initPhonePicker,200);}
 }
 
 // ═══════════════════════════════════════════════════════════════════
