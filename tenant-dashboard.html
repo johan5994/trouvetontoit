@@ -872,7 +872,7 @@ function sp(id,btn){
   if(id==='visites'){loadLocataireVisits();}
   if(id==='applications'){loadLocataireApplicationsPage();}
   if(id==='roommates'){showRmTab('channel');loadRmDmsList();}
-  if(id==='profil'){loadProfilee();loadDossierStatut();setTimeout(initTéléphonePickerLocataire,200);}
+  if(id==='profil'){loadProfilee();loadDossierStatut();setTimeout(initPhonePicker,200);}
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1393,7 +1393,7 @@ async function loadMyLocation(){
 }
 
 function renderBailDocCard(bk,annonce){
-  if(!bk.bail_locataire_embed&&!bk.bail_propriétaire_embed){
+  if(!bk.bail_tenant_embed&&!bk.bail_landlord_embed){
     return`<div class="card"><div class="cb"><div class="empty"><div class="em"><i data-lucide=file-text class=ic></i></div><p>Your bail is being prepared.<br>It will appear here as soon as it's prêt à signer.</p></div></div></div>`;
   }
   const bothSigned=bk.bail_signed_landlord&&bk.bail_signed_tenant;
@@ -1402,7 +1402,7 @@ function renderBailDocCard(bk,annonce){
     <div class="cb">
       <div style="font-size:.8rem;color:var(--tm);margin-bottom:.75rem">${annonce?.title||'Your bien'} · ${annonce?.full_address||annonce?.zone||'France'}</div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        ${bk.bail_locataire_embed?`<a href="${bk.bail_locataire_embed}" target="_blank" class="btn ${bk.bail_signed_tenant?'bg':'bp'} bsm">${bk.bail_signed_tenant?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i>️ Sign now'}</a>`:''}
+        ${bk.bail_tenant_embed?`<a href="${bk.bail_tenant_embed}" target="_blank" class="btn ${bk.bail_signed_tenant?'bg':'bp'} bsm">${bk.bail_signed_tenant?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i>️ Sign now'}</a>`:''}
       </div>
       ${bothSigned?`<div style="margin-top:.75rem;font-size:.72rem;color:var(--td)"><i data-lucide=file-edit class=ic></i> Remember to register this bail at <strong>rentregistration.fr</strong> within 30 days of the start date.</div>`:''}
     </div>
@@ -1410,7 +1410,7 @@ function renderBailDocCard(bk,annonce){
 }
 
 function renderEdlDocCard(bk){
-  const myEdlEmbed=bk.edl_locataire_embed;
+  const myEdlEmbed=bk.edl_tenant_embed;
   const myEdlSigned=bk.edl_signed_tenant;
   if(!myEdlEmbed&&bk.status!=='move_in_ready'){
     return`<div class="card"><div class="cb"><div class="empty"><div class="em"><i data-lucide=clipboard-list class=ic></i></div><p>Your entrée dans les lieux état des lieux (État des lieux) hasn't been generated yet.<br>It will appear here once votre propriétaire or agence prepares it.</p></div></div></div>`;
@@ -1957,10 +1957,10 @@ async function fetchLocataireVisitData(){
       if(!isMe)return;
       let coLocataires=[];
       try{coLocataires=b.co_locataires_embed_src?JSON.parse(b.co_locataires_embed_src):[];}catch(e){}
-      const myEntry=coLocataires.find(cl=>cl.locataire_id===U.id)||{signed:false,embed_src:null,locataire_id:U.id};
+      const myEntry=coLocataires.find(cl=>cl.tenant_id===U.id)||{signed:false,embed_src:null,locataire_id:U.id};
       let edlCoLocataires=[];
       try{edlCoLocataires=b.edl_co_locataires_embed_src?JSON.parse(b.edl_co_locataires_embed_src):[];}catch(e){}
-      const myEdlEntry=edlCoLocataires.find(cl=>cl.locataire_id===U.id)||{signed:false,embed_src:null,locataire_id:U.id};
+      const myEdlEntry=edlCoLocataires.find(cl=>cl.tenant_id===U.id)||{signed:false,embed_src:null,locataire_id:U.id};
       coLocataireBookings.push({...b,_myCoLocataireEntry:myEntry,_myEdlCoLocataireEntry:myEdlEntry});
     });
   }catch(e){}
@@ -1984,10 +1984,10 @@ async function fetchLocataireVisitData(){
     }
 
     // Enrichir les bookings accepté avec IBAN propriétaire si manquant
-    const acceptéBookings=bookings.filter(b=>b.status==='accepted'&&!b.landlord_iban);
-    if(acceptéBookings.length){
+    const acceptedBookings=bookings.filter(b=>b.status==='accepted'&&!b.landlord_iban);
+    if(acceptedBookings.length){
       try{
-        const lIds=[...new Set(acceptéBookings.map(b=>b.listing_id).filter(Boolean))];
+        const lIds=[...new Set(acceptedBookings.map(b=>b.listing_id).filter(Boolean))];
         const{data:annonces}=await sb.from('listings').select('id,landlord_id').in('id',lIds);
         const llIds=[...new Set((annonces||[]).map(l=>l.landlord_id).filter(Boolean))];
         if(llIds.length){
@@ -2176,15 +2176,15 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
       coLocataireBookings.forEach(b=>{
         const annonce=lMap[b.listing_id]||{};
         const entry=b._myCoLocataireEntry;
-        const isAccepté=['accepted','edl_scheduled','signing_day','move_in_ready'].includes(b.status);
+        const isAccepted=['accepted','edl_scheduled','signing_day','move_in_ready'].includes(b.status);
 
-        html+=`<div style="padding:.85rem;background:${isAccepté?'var(--grdim)':'var(--s2)'};border:1px solid ${isAccepté?'var(--grdim)':'var(--b)'};border-radius:12px;margin-bottom:.6rem">
+        html+=`<div style="padding:.85rem;background:${isAccepted?'var(--grdim)':'var(--s2)'};border:1px solid ${isAccepted?'var(--grdim)':'var(--b)'};border-radius:12px;margin-bottom:.6rem">
           <div style="font-size:.85rem;font-weight:700;margin-bottom:.2rem">${annonce.title||'Bien'}</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=map-pin class=ic></i> ${annonce.zone||'France'} · Candidat principal: ${b.locataire_name||'—'}</div>`;
 
         if(b.status==='pending'||b.status==='booking_pending'){
           html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600">⏳ Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
-        }else if(isAccepté){
+        }else if(isAccepted){
           html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry);
         }else{
           html+=`<div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--td)">Statut: ${b.status}</div>`;
@@ -2299,7 +2299,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null){
   // ligne "You" au lieu du locataire principal — même carte, juste la bonne
   // perspective de signature.
   const tSigned=coLocataireEntry?coLocataireEntry.signed:bk.bail_signed_tenant;
-  const mySignEmbed=coLocataireEntry?coLocataireEntry.embed_src:bk.bail_locataire_embed;
+  const mySignEmbed=coLocataireEntry?coLocataireEntry.embed_src:bk.bail_tenant_embed;
   const mySignFn=coLocataireEntry?`openCoLocataireBailDoc('${bk.id}')`:`openLocataireBailDoc('${bk.id}')`;
   const payDeclared=bk.first_payment_sent;
   const payConfirmered=bk.first_paiement_confirmed;
@@ -2359,9 +2359,9 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null){
       <div style="margin-top:.6rem;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--marine);font-weight:600"><i data-lucide=clipboard-list class=ic></i> ${bk.edl_handler==='agence'?'Your agence is':'Your propriétaire is'} completing the entrée dans les lieux état des lieux (État des lieux) — vous serez notifié once it's prêt à signer.</div>`:''}
       ${(()=>{
         // Co-locataire : son propre lien d'État des lieux vit dans edl_co_locataires_embed_src,
-        // jamais dans bk.edl_locataire_embed (qui ne concerne que le locataire
+        // jamais dans bk.edl_tenant_embed (qui ne concerne que le locataire
         // principal) — même logique que pour le bail juste au-dessus.
-        const myEdlEmbed=coLocataireEntry?bk._myEdlCoLocataireEntry?.embed_src:bk.edl_locataire_embed;
+        const myEdlEmbed=coLocataireEntry?bk._myEdlCoLocataireEntry?.embed_src:bk.edl_tenant_embed;
         const myEdlSigned=coLocataireEntry?bk._myEdlCoLocataireEntry?.signed:bk.edl_signed_tenant;
         const myEdlSignFn=coLocataireEntry?`openCoLocataireEdlDoc('${bk.id}')`:`openLocataireEdlDoc('${bk.id}')`;
         if(!myEdlEmbed&&bk.status!=='move_in_ready')return'';
@@ -2426,10 +2426,10 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null){
         <div style="font-size:.72rem;color:var(--tm)">€${totalDue} ÷ ${totalLocataires} locataires = <strong>€${perPersonShare} each</strong></div>
         <div style="font-size:.66rem;color:var(--td);margin-top:.25rem"><i data-lucide=lightbulb class=ic></i> Coordinate avec ${bk.locataire_name||'the main locataire'} — usually one of you sends the full total et marks it as paid below.</div>
       </div>`:''}
-      ${bk.landlord_iban||bk.propriétaire_revolut?`
+      ${bk.landlord_iban||bk.landlord_revolut?`
       <div style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-bottom:.4rem;font-size:.73rem;color:var(--tm)">
         ${bk.landlord_iban?`<i data-lucide=landmark class=ic></i> IBAN: <strong>${bk.landlord_iban}</strong><br>`:''}
-        ${bk.propriétaire_revolut?`<i data-lucide=heart class=ic></i> Revolut: <strong>${bk.propriétaire_revolut}</strong>`:''}
+        ${bk.landlord_revolut?`<i data-lucide=heart class=ic></i> Revolut: <strong>${bk.landlord_revolut}</strong>`:''}
       </div>`:''}
       ${!payDeclared&&!payConfirmered
         ?`<button onclick="declareLocatairePaiement('${bk.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> I have transferred the paiement →</button>`
@@ -2441,13 +2441,13 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null){
 }
 
 function renderLocataireEdlSection(bk){
-  if(bk.edl_locataire_embed||bk.status==='move_in_ready')return''; // déjà généré/terminé — le bloc "Sign now" plus haut couvre déjà ce cas
+  if(bk.edl_tenant_embed||bk.status==='move_in_ready')return''; // déjà généré/terminé — le bloc "Sign now" plus haut couvre déjà ce cas
   if(!bk.agency_annonce||!bk.edl_handler)return''; // bien direct — comportement inchangé, seul le propriétaire initie
   if(bk.edl_handler==='agence')return`<div style="margin-top:.6rem;font-size:.72rem;color:var(--td)"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux: votre agence is handling this</div>`;
   if(bk.edl_handler==='propriétaire')return''; // déjà couvert par le message "edl_scheduled" plus haut une fois le propriétaire lancé
   if(bk.edl_handler==='locataire'){
     return`<div style="margin-top:.6rem">
-      <button onclick="openLocataireÉtat des lieux('${bk.id}')" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux (État des lieux) & keys →</button>
+      <button onclick="openLocataireEdl('${bk.id}')" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux (État des lieux) & keys →</button>
     </div>`;
   }
   if(bk.edl_handler==='agency_declined'){
@@ -2470,7 +2470,7 @@ async function locataireEdlSelfDecision(bookingId,wantsIt){
     if(wantsIt){
       await sb.from('bookings').update({edl_handler:'locataire'}).eq('id',bookingId);
       toast('<i data-lucide=check-circle-2 class=ic></i> Starting entrée dans les lieux état des lieux');
-      openLocataireÉtat des lieux(bookingId);
+      openLocataireEdl(bookingId);
     }else{
       await sb.from('bookings').update({edl_locataire_declined:true}).eq('id',bookingId);
       toast('Noted — vousr propriétaire may still choose to handle it');
@@ -2480,15 +2480,15 @@ async function locataireEdlSelfDecision(bookingId,wantsIt){
 }
 
 // ── Entrée dans les lieux état des lieux (État des lieux) — le locataire prend en charge lui-même ────
-async function openLocataireÉtat des lieux(bookingId){
+async function openLocataireEdl(bookingId){
   if(!bookingId){toast('<i data-lucide=x-circle class=ic></i> No booking ID');return;}
-  let booking=null,annonce=null,propriétaire=null;
+  let booking=null,annonce=null,landlord=null;
   try{const{data:b}=await sb.from('bookings').select('*').eq('id',bookingId).single();booking=b;}catch(e){}
   if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
   try{const{data:l}=await sb.from('listings').select('*').eq('id',booking.listing_id).single();annonce=l;}catch(e){}
-  if(booking.landlord_id)try{const{data:lp}=await sb.from('profiles').select('*').eq('clerk_id',booking.landlord_id).maybeSingle();propriétaire=lp;}catch(e){}
+  if(booking.landlord_id)try{const{data:lp}=await sb.from('profiles').select('*').eq('clerk_id',booking.landlord_id).maybeSingle();landlord=lp;}catch(e){}
 
-  window._tnEdl={bookingId,booking,listing:annonce,landlord:landlordData,tenant:P};
+  window._tnEdl={bookingId,booking,listing:annonce,landlord:landlord,tenant:P};
 
   if(booking?.status!=='move_in_ready'&&booking?.status!=='edl_scheduled'){
     try{await sb.from('bookings').update({status:'edl_scheduled'}).eq('id',bookingId);booking.status='edl_scheduled';}catch(e){}
@@ -2722,15 +2722,15 @@ function collectEdlRoomsTn(){
 // ── Même système que pour le bail côté agence : pas de compte propriétaire lié →
 // on propose au locataire de transmettre le lien de signature. Pas d'option
 // "signer soi-même" ici — un locataire ne peut pas signer à la place du propriétaire.
-function showEdlSigningOptionsScreenLocataire(bookingId,signLink,propriétaireE-mail,propertyTitle,propriétaireTéléphone){
+function showEdlSigningOptionsScreenLocataire(bookingId,signLink,landlordEmail,propertyTitle,landlordPhone){
   const modal=document.createElement('div');
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
   const mailBody=encodeURIComponent(`Hello,\n\nPbail avis et sign the entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} using the link below:\n\n${signLink}\n\nThank you!`);
   const mailSubject=encodeURIComponent(`Entrée dans les lieux état des lieux to sign — ${propertyTitle}`);
-  const mailtoHref=propriétaireE-mail&&propriétaireE-mail.includes('@')?`mailto:${propriétaireE-mail}?subject=${mailSubject}&body=${mailBody}`:`mailto:?subject=${mailSubject}&body=${mailBody}`;
+  const mailtoHref=landlordEmail&&landlordEmail.includes('@')?`mailto:${landlordEmail}?subject=${mailSubject}&body=${mailBody}`:`mailto:?subject=${mailSubject}&body=${mailBody}`;
   const waText=encodeURIComponent(`Hello! Pbail avis et sign the entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} using this link:\n\n${signLink}`);
-  const waTéléphone=propriétaireTéléphone?propriétaireTéléphone.replace(/[^0-9+]/g,'').replace(/^\+/,''):'';
-  const waHref=`https://wa.me/${waTéléphone}?text=${waText}`;
+  const waPhone=landlordPhone?landlordPhone.replace(/[^0-9+]/g,'').replace(/^\+/,''):'';
+  const waHref=`https://wa.me/${waPhone}?text=${waText}`;
   modal.innerHTML=`
     <div style="background:var(--s);border:1px solid var(--b);border-radius:16px;padding:1.75rem;max-width:440px;width:100%">
       <div style="font-size:1.6rem;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i></div>
@@ -2758,28 +2758,28 @@ async function generateAnnexAndCompleteTn(){
   const statusEl=document.getElementById('tn-annex-statut');
   if(statusEl){statusEl.style.display='block';statusEl.textContent='⏳ Generating Annex A (État des lieux)...';}
 
-  const landlordField={name:ctx.propriétaire?.full_name||ctx.annonce?.manual_propriétaire_name||'',email:ctx.propriétaire?.email||ctx.annonce?.manual_propriétaire_email||'',passport:ctx.propriétaire?.passport_number||''};
-  const tenantField={name:ctx.locataire?.full_name||'',email:ctx.locataire?.email||'',passport:ctx.locataire?.passport_number||'',nationality:ctx.locataire?.nationality||''};
+  const landlordField={name:ctx.landlord?.full_name||ctx.listing?.manual_landlord_name||'',email:ctx.landlord?.email||ctx.listing?.manual_landlord_email||'',passport:ctx.landlord?.passport_number||''};
+  const tenantField={name:ctx.tenant?.full_name||'',email:ctx.tenant?.email||'',passport:ctx.tenant?.passport_number||'',nationality:ctx.tenant?.nationality||''};
   const listingField={address:ctx.annonce?.full_address||ctx.annonce?.zone||'',price:ctx.annonce?.price||0};
   let coLocataires=[];
-  try{coLocataires=ctx.booking?.co_locataires_data?JSON.parse(ctx.booking.co_locataires_data):[];}catch(e){}
+  try{coLocataires=ctx.booking?.co_tenants_data?JSON.parse(ctx.booking.co_tenants_data):[];}catch(e){}
 
-  let edlPropriétaireEmbed=null,edlLocataireEmbed=null,edlSubmissionId=null,edlCoLocatairesEmbed=[];
+  let edlLandlordEmbed=null,edlTenantEmbed=null,edlSubmissionId=null,edlCoLocatairesEmbed=[];
   try{
     const res=await fetch('/.netlify/functions/generate-edl',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({propriétaire:landlordField,locataire:tenantField,coLocataires,listing:listingField,meter_water:meterWater,meter_electricity:meterElec,rooms,photos:window._tnEdlPhotos||{},general_notes:edlNotes,phase:'arrival'})
+      body:JSON.stringify({landlord:landlordField,tenant:tenantField,coLocataires,listing:listingField,meter_water:meterWater,meter_electricity:meterElec,rooms,photos:window._tnEdlPhotos||{},general_notes:edlNotes,phase:'arrival'})
     });
     const edlData=await res.json();
-    edlPropriétaireEmbed=edlData?.propriétaire_embed_src||null;
-    edlLocataireEmbed=edlData?.locataire_embed_src||null;
+    edlLandlordEmbed=edlData?.landlord_embed_src||null;
+    edlTenantEmbed=edlData?.tenant_embed_src||null;
     edlSubmissionId=edlData?.submission_id||null;
-    edlCoLocatairesEmbed=(edlData?.co_locataires_embed_src||[]).map(cl=>{
+    edlCoLocatairesEmbed=(edlData?.co_tenants_embed_src||[]).map(cl=>{
       const roleIndex=parseInt((cl.role||'').replace('Locataire ',''),10)-2;
       const match=(roleIndex>=0&&coLocataires[roleIndex])?coLocataires[roleIndex]:coLocataires.find(ct=>ct.email&&cl.email&&ct.email.toLowerCase()===cl.email.toLowerCase());
-      return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',locataire_id:match?.locataire_id||null,signed:false};
+      return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',locataire_id:match?.tenant_id||null,signed:false};
     });
-    if(!edlPropriétaireEmbed||!edlLocataireEmbed){
+    if(!edlLandlordEmbed||!edlTenantEmbed){
       if(statusEl){statusEl.style.color='var(--gold)';statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ État des lieux saved, but signature links failed: '+(edlData?.message||'unknown erreur');}
     }else{
       if(statusEl)statusEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Annex A (État des lieux) sent pour signature!';
@@ -2792,10 +2792,10 @@ async function generateAnnexAndCompleteTn(){
     await sb.from('bookings').update({
       meter_water:meterWater,
       meter_electricity:meterElec,
-      statut:'edl_scheduled', // pas "move_in_ready" — ça, c'est le webhook qui le décide, une fois propriétaire + locataire + tous les co-locataires vraiment signés (pas juste le document généré/envoyé)
-      edl_propriétaire_embed:edlPropriétaireEmbed,
-      edl_locataire_embed:edlLocataireEmbed,
-      edl_co_locataires_embed_src:edlCoLocatairesEmbed.length?JSON.stringify(edlCoLocatairesEmbed):null,
+      status:'edl_scheduled', // pas "move_in_ready" — ça, c'est le webhook qui le décide, une fois propriétaire + locataire + tous les co-locataires vraiment signés (pas juste le document généré/envoyé)
+      edl_landlord_embed:edlLandlordEmbed,
+      edl_tenant_embed:edlTenantEmbed,
+      edl_co_tenants_embed_src:edlCoLocatairesEmbed.length?JSON.stringify(edlCoLocatairesEmbed):null,
       edl_submission_id:edlSubmissionId?String(edlSubmissionId):null,
       edl_photos:JSON.stringify(window._tnEdlPhotos||{}),
       edl_rooms:JSON.stringify(rooms),
@@ -2810,8 +2810,8 @@ async function generateAnnexAndCompleteTn(){
   showEdlStepTn(3);
   toast('<i data-lucide=check-circle-2 class=ic></i> État des lieux sent pour signature!');
 
-  if(edlPropriétaireEmbed){
-    showEdlSigningOptionsScreenLocataire(ctx.bookingId,edlPropriétaireEmbed,ctx.annonce?.manual_propriétaire_email||'',ctx.annonce?.title||'the bien',ctx.annonce?.manual_propriétaire_phone||'');
+  if(edlLandlordEmbed){
+    showEdlSigningOptionsScreenLocataire(ctx.bookingId,edlLandlordEmbed,ctx.listing?.manual_landlord_email||'',ctx.listing?.title||'the bien',ctx.listing?.manual_landlord_phone||'');
   }
 }
 
@@ -2877,11 +2877,11 @@ async function viewEdlDossierLocataire(bookingId){
 async function openLocataireEdlDoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('edl_locataire_embed,id,listing_id,landlord_id').eq('id',bookingId).single();
   if(!bk?.edl_locataire_embed){toast('<i data-lucide=x-circle class=ic></i> Document not ready yet');return;}
-  if(window.docusealLoaded){doOuvrirLocataireDoc(bk,bookingId,bk.edl_locataire_embed,'edl_signed_locataire','<i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (Annex A)');}
+  if(window.docusealLoaded){doOuvrirLocataireDoc(bk,bookingId,bk.edl_tenant_embed,'edl_signed_locataire','<i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (Annex A)');}
   else{
     const s=document.createElement('script');
     s.src='https://cdn.docuseal.com/js/form.js';
-    s.onload=()=>{window.docusealLoaded=true;doOuvrirLocataireDoc(bk,bookingId,bk.edl_locataire_embed,'edl_signed_locataire','<i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (Annex A)');};
+    s.onload=()=>{window.docusealLoaded=true;doOuvrirLocataireDoc(bk,bookingId,bk.edl_tenant_embed,'edl_signed_locataire','<i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (Annex A)');};
     document.head.appendChild(s);
   }
 }
@@ -2985,7 +2985,7 @@ function doOuvrirLocataireBailDoc(bk,bookingId){
   const body=document.createElement('div');
   body.style.cssText='flex:1;overflow:auto;background:white';
   const form=document.createElement('docuseal-form');
-  form.setAttribute('data-src',bk.bail_locataire_embed);
+  form.setAttribute('data-src',bk.bail_tenant_embed);
   form.setAttribute('data-send-copy-email','false');
   form.style.cssText='width:100%;display:block;min-height:100vh';
   form.addEventListener('completed',async()=>{
@@ -3011,7 +3011,7 @@ async function openCoLocataireBailDoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('co_locataires_embed_src,id,listing_id,landlord_id').eq('id',bookingId).single();
   let coLocataires=[];
   try{coLocataires=bk?.co_locataires_embed_src?JSON.parse(bk.co_locataires_embed_src):[];}catch(e){}
-  const myEntry=coLocataires.find(cl=>cl.locataire_id===U.id);
+  const myEntry=coLocataires.find(cl=>cl.tenant_id===U.id);
   if(!myEntry?.embed_src){toast('<i data-lucide=x-circle class=ic></i> Bail document not ready yet');return;}
 
   if(window.docusealLoaded){doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry);}
@@ -3046,7 +3046,7 @@ function doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry){
       const{data:current}=await sb.from('bookings').select('co_locataires_embed_src').eq('id',bookingId).single();
       let cl2=[];
       try{cl2=current?.co_locataires_embed_src?JSON.parse(current.co_locataires_embed_src):[];}catch(e){}
-      const idx=cl2.findIndex(cl=>cl.locataire_id===U.id);
+      const idx=cl2.findIndex(cl=>cl.tenant_id===U.id);
       if(idx!==-1){
         cl2[idx].signed=true;
         await sb.from('bookings').update({co_locataires_embed_src:JSON.stringify(cl2)}).eq('id',bookingId);
@@ -3073,7 +3073,7 @@ async function openCoLocataireEdlDoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('edl_co_locataires_embed_src,id,listing_id,landlord_id').eq('id',bookingId).single();
   let edlCoLocataires=[];
   try{edlCoLocataires=bk?.edl_co_locataires_embed_src?JSON.parse(bk.edl_co_locataires_embed_src):[];}catch(e){}
-  const myEntry=edlCoLocataires.find(cl=>cl.locataire_id===U.id);
+  const myEntry=edlCoLocataires.find(cl=>cl.tenant_id===U.id);
   if(!myEntry?.embed_src){toast('<i data-lucide=x-circle class=ic></i> État des lieux document not ready yet');return;}
 
   if(window.docusealLoaded){doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry);}
@@ -3108,10 +3108,10 @@ function doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry){
       const{data:current}=await sb.from('bookings').select('edl_co_locataires_embed_src').eq('id',bookingId).single();
       let cl2=[];
       try{cl2=current?.edl_co_locataires_embed_src?JSON.parse(current.edl_co_locataires_embed_src):[];}catch(e){}
-      const idx=cl2.findIndex(cl=>cl.locataire_id===U.id);
+      const idx=cl2.findIndex(cl=>cl.tenant_id===U.id);
       if(idx!==-1){
         cl2[idx].signed=true;
-        await sb.from('bookings').update({edl_co_locataires_embed_src:JSON.stringify(cl2)}).eq('id',bookingId);
+        await sb.from('bookings').update({edl_co_tenants_embed_src:JSON.stringify(cl2)}).eq('id',bookingId);
       }
       await sb.from('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
@@ -3367,7 +3367,7 @@ function setRating(r){
   document.querySelectorAll('.star-btn').forEach((s,i)=>s.classList.toggle('actif',i<r));
 }
 
-async function loadReviewablePropriétaires(){
+async function loadReviewableLandlords(){
   const sel=document.getElementById('rev-propriétaire-select');
   const noneEl=document.getElementById('rev-no-propriétaires');
   const formEl=document.getElementById('rev-propriétaire-form');
@@ -3501,16 +3501,16 @@ async function submitAvis(){
   selectedRating=0;
   document.querySelectorAll('.star-btn').forEach(s=>s.classList.remove('actif'));
   loadMyReviews();
-  loadReviewablePropriétaires();
+  loadReviewableLandlords();
   loadReviewableAgencies();
 }
 
 async function loadMyReviews(){
   const{data}=await sb.from('avis').select('*').eq('reviewer_id',U.id).order('created_at',{ascending:false});
   document.getElementById('my-avis').innerHTML=(data||[]).map(r=>'<div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem"><div style="color:var(--gold);font-size:1rem;letter-spacing:2px">'+'<i data-lucide=star class=ic></i>'.repeat(r.rating)+'</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">'+r.comment+'</div><div style="font-size:.72rem;color:var(--td);margin-top:.3rem">'+new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></div>').join('')||'<div style="font-size:.85rem;color:var(--tm);text-align:center;padding:1rem">No avis submitted yet</div>';
-  loadReviewsÀ proposMe();
+  loadMyReviews();
   loadRateAgentCard();
-  loadReviewablePropriétaires();
+  loadReviewableLandlords();
   loadReviewableAgencies();
 }
 
@@ -3575,7 +3575,7 @@ async function submitLocataireAgentAvis(visitId,agentId){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
-async function loadReviewsÀ proposMe(){
+async function loadMyReviews(){
   const wrap=document.getElementById('avis-about-me');
   if(!wrap)return;
   const{data}=await sb.from('avis').select('*').eq('locataire_id',U.id).eq('type','propriétaire_to_locataire').order('created_at',{ascending:false});
@@ -3598,8 +3598,8 @@ async function loadProfilee(){
   // Gestion section vérification
   const uploadSection = document.getElementById('verify-upload-section');
   const badge = document.getElementById('verify-badge');
-  if(P.vérifié){
-    badge.classNom='badge b-green';
+  if(P.verified){
+    badge.className='badge b-green';
     badge.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vérifié';
     if(uploadSection) uploadSection.innerHTML=`
       <div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;padding:1.2rem;text-align:center">
@@ -3976,12 +3976,12 @@ async function checkDossierBeforeVisit(){
   // Check docs uploaded
   const docsComplete=DOCS_REQUIRED.every(d=>uploadedDocs[d]);
   // Check identity vérifié
-  const idVérifié=P?.vérifié||false;
+  const idVerified=P?.verified||false;
   const issues=[];
   if(!profileComplete)issues.push('Incomplete profil (name, passport, date of birth, nationality, address)');
   if(!uploadedDocs['id'])issues.push('Passeport / ID non uploadé');
   if(!uploadedDocs['emprent_letter'])issues.push('Lettre d\'employeur ou d\'admission non uploadée');
-  if(!idVérifié)issues.push('Identity not vérifié (selfie + ID required)');
+  if(!idVerified)issues.push('Identity not vérifié (selfie + ID required)');
   return{ok:issues.length===0,issues};
 }
 
@@ -4398,7 +4398,7 @@ async function lookupCoLocataire(slotId){
       name:profil.full_name||'',email:profil.email||email,
       passport:profil.passport_number||'',nationality:profil.nationality||'',
       address:profil.home_address||'',
-      phone:profil.phone||'',vérifié:!!profil.vérifié
+      phone:profil.phone||'',verified:!!profil.verified
     };
   }else if(profil&&missingFields.length){
     resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ Found their Trouve Ton Toit compte, but their profil is missing: ${missingFields.join(', ')}. Ask them to complete their profil first, or fill in their details manually below.</span>`;
@@ -4628,7 +4628,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
 
 
 let itiLocataire = null;
-function initTéléphonePickerLocataire(){
+function initPhonePicker(){
   const input = document.getElementById('p-phone');
   if(!input || itiLocataire) return;
   const script = document.createElement('script');
