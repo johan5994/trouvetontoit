@@ -1587,20 +1587,20 @@ async function inviteCoLocataires(listingId, coLocataireEmails){
     const{data:profil}=await sb.from('profiles').select('clerk_id,full_name').eq('email',email).single().then(r=>r).catch(()=>({data:null}));
     if(profil){
       // Add to visite group
-      await sb.from('co_locataires').insert({
+      await sb.from('co_tenants').insert({
         listing_id:listingId,
         invited_by:U.id,
-        locataire_id:profil.clerk_id,
-        locataire_email:email,
+        tenant_id:profil.clerk_id,
+        tenant_email:email,
         statut:'en attente'
       });
       invited.push({email,name:profil.full_name,found:true});
     } else {
       // User doesn't have Trouve Ton Toit compte yet
-      await sb.from('co_locataires').insert({
+      await sb.from('co_tenants').insert({
         listing_id:listingId,
         invited_by:U.id,
-        locataire_email:email,
+        tenant_email:email,
         statut:'invited' // waiting pour them to create compte
       });
       invited.push({email,found:false});
@@ -1651,10 +1651,10 @@ async function requestVisitFromDetail(){
     try{
       await sb.from('visites').insert({
         listing_id:AL.id,
-        locataire_id:U.id,
+        tenant_id:U.id,
         landlord_id:AL.propriétaire_id,
-        locataire_name:P?.full_name||'',
-        locataire_email:P?.email||'',
+        tenant_name:P?.full_name||'',
+        tenant_email:P?.email||'',
         visit_date:visitDate,
         visit_time:visitTime,
         zone:AL.zone||'',
@@ -2490,7 +2490,7 @@ async function requestReference(){
   // Store reference request in Supabase
   try{
     await sb.from('references').insert({
-      locataire_id:U.id,
+      tenant_id:U.id,
       propriétaire_email:email,
       statut:'en attente',
       created_at:new Date().toISOString()
