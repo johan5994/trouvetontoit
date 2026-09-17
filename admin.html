@@ -127,7 +127,7 @@ async function loadAll(){
   const wrap = document.getElementById('locataires-list');
   wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--td)"><div class="sp"></div></div>';
 
-  const{data:profiles} = await sb. depuis ('profiles').select('*').in('role',['locataire','Locataire','propriétaire','Propriétaire','agent','Agent']).order('created_at',{ascending:false});
+  const{data:profiles} = await sb.from('profiles').select('*').in('role',['locataire','Locataire','propriétaire','Propriétaire','agent','Agent']).order('created_at',{ascending:false});
   allLocataires = profiles || [];
 
   const locataires = allLocataires.filter(p=>p.role?.toLowerCase()==='locataire');
@@ -207,8 +207,8 @@ async function loadLocataireDocs(clerkId){
   try{
     // Chercher dans les 2 chemins
     const[{data:files1},{data:files2}] = await Promise.all([
-      sb.storage. depuis ('locataire-documents').list('id-docs/'+clerkId, {limit:10}),
-      sb.storage. depuis ('locataire-documents').list('docs/'+clerkId, {limit:20})
+      sb.storage.from('locataire-documents').list('id-docs/'+clerkId, {limit:10}),
+      sb.storage.from('locataire-documents').list('docs/'+clerkId, {limit:20})
     ]);
     const allFiles = [
       ...(files1||[]).map(f=>({...f, path:'id-docs/'+clerkId+'/'+f.name})),
@@ -216,8 +216,8 @@ async function loadLocataireDocs(clerkId){
     ];
 
     let html = '';
-     pour (const f of allFiles){
-      const{data:url} = await sb.storage. depuis ('locataire-documents').createSignedUrl(f.path, 3600);
+    for (const f of allFiles){
+      const{data:url} = await sb.storage.from('locataire-documents').createSignedUrl(f.path, 3600);
       if(!url?.signedUrl) continue;
       const ext = f.name.split('.').pop().toLowerCase();
       const isImg = ['jpg','jpeg','png','gif','webp'].includes(ext);
@@ -236,28 +236,28 @@ async function loadLocataireDocs(clerkId){
 
 async function verifyLocataire(clerkId, name){
   if(!confirm('Verify '+name+'? This will grant the ✅ badge.')) return;
-  const{erreur} = await sb. depuis ('profiles').update({vérifié:true, vérifié_at:new Date().toISOString()}).eq('clerk_id',clerkId);
-  if(erreur){toast('❌ Erreur: '+erreur.message);return;}
+  const{error} = await sb.from('profiles').update({vérifié:true, vérifié_at:new Date().toISOString()}).eq('clerk_id',clerkId);
+  if(error){toast('❌ Erreur: '+error.message);return;}
   toast('✅ '+name+' vérifié!');
   // Notifier le locataire
   try{
-    await sb. depuis ('messages').insert({
+    await sb.from('messages').insert({
       listing_id:'00000000-0000-0000-0000-000000000000',
       sender_id:'system',
       receiver_id:clerkId,
       content:'🎉 Your identity has been vérifié by Trouve Ton Toit!\n\nYour ✅ Vérifié badge is now visible to all propriétaires. This increases votre chances of being selected.',
       type:'vérifié'
     });
-  }catch(e){console.warn('Notify erreur:',e);}
+  }catch(e){console.warn('Notify error:',e);}
   loadAll();
 }
 
 async function rejectLocataire(clerkId){
   const reason = prompt('Reason pour rejection (will be sent to locataire):');
   if(!reason) return;
-  await sb. depuis ('profiles').update({id_submitted:false}).eq('clerk_id',clerkId);
+  await sb.from('profiles').update({id_submitted:false}).eq('clerk_id',clerkId);
   try{
-    await sb. depuis ('messages').insert({
+    await sb.from('messages').insert({
       listing_id:'00000000-0000-0000-0000-000000000000',
       sender_id:'system',
       receiver_id:clerkId,
