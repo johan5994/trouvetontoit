@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /admin.html
-Disallow: /sso-callback.html
-Sitemap: https://trouvetonoit.fr/sitemap.xml
