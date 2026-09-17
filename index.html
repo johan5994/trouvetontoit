@@ -87,7 +87,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 .page{display:none;min-height:100vh;padding-top:80px}
 .page.actif{display:block;animation:fu .3s ease}
-@keyframes fu{ depuis {opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* HERO */
 .hero{min-height:calc(100vh - 80px);display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
@@ -908,27 +908,27 @@ async function initClerk() {
 
 
 async function sU(clerkUser, showPicker=true) {
-  U = { id: clerkUser.id, email: clerkUser.primaryE-mailAdresse?.emailAdresse||'', clerk: clerkUser };
+  U = { id: clerkUser.id, email: clerkUser.primaryEmailAddress?.emailAddress||'', clerk: clerkUser };
   let data = null;
-  try { const r = await sb. depuis ('profiles').select('*').eq('clerk_id', U.id).single(); data = r.data; } catch(e){}
+  try { const r = await sb.from('profiles').select('*').eq('clerk_id', U.id).single(); data = r.data; } catch(e){}
   if (data && data.role) {
     P = data;
     updN();
     // Même vérification qu'à la première inscription — une agence a pu
     // ajouter un nouveau bien en mode manuel pour ce même email APRÈS que
     // ce propriétaire ait déjà créé son compte, à un moment difféloyer.
-    if(data.role==='propriétaire'&&data.email){
+    if(data.role==='bailleur'&&data.email){
       try{
-        const{data:manualAnnonces}=await sb. depuis ('annonces').select('id').ilike('manual_propriétaire_email',data.email).is('real_propriétaire_id',null);
+        const{data:manualAnnonces}=await sb.from('listings').select('id').ilike('manual_landlord_email',data.email).is('real_landlord_id',null);
         const listingIds=(manualAnnonces||[]).map(l=>l.id);
         if(listingIds.length){
-          await sb. depuis ('annonces').update({real_propriétaire_id:U.id}).in('id',listingIds);
-          await sb. depuis ('bookings').update({propriétaire_id:U.id,no_propriétaire_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+          await sb.from('listings').update({real_landlord_id:U.id}).in('id',listingIds);
+          await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
         }
       }catch(e){}
     }
   } else {
-    const full_name = clerkUser.fullNom || clerkUser.firstNom || '';
+    const full_name = clerkUser.fullName || clerkUser.firstName || '';
     P = data || { clerk_id: U.id, full_name, email: U.email, role: null };
     if(showPicker) showRolePicker(full_name);
   }
@@ -964,7 +964,7 @@ async function searchAgencies(){
     const lat=parseFloat(results[0].lat),lng=parseFloat(results[0].lon);
     const nearestZone=findNearestZone(lat,lng);
 
-    const{data:agences}=await sb. depuis ('agency_profiles').select('*');
+    const{data:agences}=await sb.from('agency_profiles').select('*');
     const matching=(agences||[]).filter(a=>{
       const zones=(a.zones||'').split(',').map(z=>z.trim().toLowerCase());
       return zones.includes(nearestZone.toLowerCase());
@@ -1026,8 +1026,8 @@ async function submitEstimationRequest(agencyId){
   const requestType=document.getElementById('est-req-type')?.value||'location';
   const notes=document.getElementById('est-req-notes')?.value.trim()||'';
   try{
-    const{erreur}=await sb. depuis ('estimation_requests').insert({
-      propriétaire_id:U.id,
+    const{erreur}=await sb.from('estimation_requests').insert({
+      landlord_id:U.id,
       propriétaire_name:P?.full_name||'Propriétaire',
       propriétaire_email:U.email,
       agency_id:agencyId,
@@ -1046,7 +1046,7 @@ async function contactAgence(agencyId,agencyNom){
   const msg=prompt(`Envoyer a message to ${agencyNom}:`,`Hi, I'd like to discuss managing my bien avec votre agence.`);
   if(!msg)return;
   try{
-    const{erreur}=await sb. depuis ('messages').insert({
+    const{erreur}=await sb.from('messages').insert({
       sender_id:U.id,receiver_id:agencyId,
       content:msg,type:'propriétaire_to_agency'
     });
@@ -1105,7 +1105,7 @@ function showRolePicker(name) {
           <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=briefcase class=ic></i></span>
           <div><div>Locataire / Intern</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">Looking pour a flat in France</div></div>
         </button>
-        <button onclick="confirmRoleChoice('propriétaire','<i data-lucide=home class=ic></i>','Propriétaire','I want to list my bien')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+        <button onclick="confirmRoleChoice('bailleur','<i data-lucide=home class=ic></i>','Propriétaire','I want to list my bien')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
           <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=home class=ic></i></span>
           <div><div>Propriétaire</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">I want to list my bien</div></div>
         </button>
@@ -1150,22 +1150,22 @@ async function setRoleAndContinue(role) {
   try {
     if(!U){toast('<i data-lucide=x-circle class=ic></i> Pbail sign in first');return;}
 
-    const full_name = P?.full_name || U.clerk?.fullNom || U.clerk?.firstNom || '';
-    const email = P?.email || U.email || U.clerk?.primaryE-mailAdresse?.emailAdresse || '';
+    const full_name = P?.full_name || U.clerk?.fullName || U.clerk?.firstName || '';
+    const email = P?.email || U.email || U.clerk?.primaryEmailAddress?.emailAddress || '';
 
     // Essayer d'abord un UPDATE
     let data = null;
-    const {data:existing} = await sb. depuis ('profiles').select('*').eq('clerk_id', U.id).maybeSingle();
+    const {data:existing} = await sb.from('profiles').select('*').eq('clerk_id', U.id).maybeSingle();
 
     if(existing) {
       // Profil existe → update le rôle
-      const {data:updated, erreur} = await sb. depuis ('profiles').update({role, full_name, email}).eq('clerk_id', U.id).select().single();
+      const {data:updated, erreur} = await sb.from('profiles').update({role, full_name, email}).eq('clerk_id', U.id).select().single();
       if(erreur) throw new Erreur(erreur.message);
       data = updated;
     } else {
       // Pas de profil → insert avec id généré
       const newId = crypto.randomUUID();
-      const {data:inserted, erreur} = await sb. depuis ('profiles').insert({id: newId, clerk_id: U.id, full_name, email, role}).select().single();
+      const {data:inserted, erreur} = await sb.from('profiles').insert({id: newId, clerk_id: U.id, full_name, email, role}).select().single();
       if(erreur) throw new Erreur(erreur.message);
       data = inserted;
     }
@@ -1174,24 +1174,24 @@ async function setRoleAndContinue(role) {
     updN();
     toast('<i data-lucide=party-popper class=ic></i> Welcome to Trouve Ton Toit!');
 
-    if(role === 'propriétaire') {
+    if(role === 'bailleur') {
       // Relier automatiquement les biens/réservations déjà saisis manuellement
       // (sans compte) par une agence, si l'email correspond — sinon un
       // propriétaire qui crée son compte après coup ne voit jamais ses
       // biens déjà loués apparaître dans son tableau de bord.
       if(email){
         try{
-          const{data:manualAnnonces}=await sb. depuis ('annonces').select('id').ilike('manual_propriétaire_email',email).is('real_propriétaire_id',null);
+          const{data:manualAnnonces}=await sb.from('listings').select('id').ilike('manual_landlord_email',email).is('real_landlord_id',null);
           const listingIds=(manualAnnonces||[]).map(l=>l.id);
           if(listingIds.length){
-            await sb. depuis ('annonces').update({real_propriétaire_id:U.id}).in('id',listingIds);
-            await sb. depuis ('bookings').update({propriétaire_id:U.id,no_propriétaire_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+            await sb.from('listings').update({real_landlord_id:U.id}).in('id',listingIds);
+            await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
           }
         }catch(e){console.warn('Auto-link manual propriétaire:',e);}
       }
-      window.location.href = '/propriétaire-tableau de bord.html';
+      window.location.href = '/landlord-dashboard.html';
     }
-    else if(role === 'agence') window.location.href = '/agence-tableau de bord.html';
+    else if(role === 'agent') window.location.href = '/agency-dashboard.html';
     else { loadL(); updC(); go('home'); }
 
   } catch(e) {
@@ -1208,10 +1208,10 @@ function updN(){
     const n=P.full_name?.split(' ')[0]||'?';
     const avatar=`<div style="width:32px;height:32px;border-radius:50%;background:var(--terra);color:white;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer" onclick="goToDash()">${n[0].toUpperCase()}</div>`;
     na.innerHTML=avatar+`<span style="font-size:.82rem;color:var(--stone);font-weight:500;cursor:pointer" onclick="goToDash()">${n}</span><button class="btn btn-p btn-sm" onclick="goToDash()"><i data-lucide=bar-chart-3 class=ic></i> Tableau de bord</button><button class="btn btn-s btn-sm" onclick="doLogout()">Se déconnecter</button>`;
-    np.style.display=P.role==='propriétaire'?'inline':'none';
+    np.style.display=P.role==='bailleur'?'inline':'none';
     nd.style.display='inline';
     const heroAgLink=document.getElementById('hero-agences-link');
-    if(heroAgLink)heroAgLink.style.display=P.role==='propriétaire'?'inline-flex':'none';
+    if(heroAgLink)heroAgLink.style.display=P.role==='bailleur'?'inline-flex':'none';
   } else {
     na.innerHTML=`<button class="btn btn-s btn-sm" onclick="go('auth')">Se connecter</button><button class="btn btn-p btn-sm" onclick="go('auth')">Publier votre logement →</button>`;
     np.style.display='none';nd.style.display='none';
@@ -1228,9 +1228,9 @@ async function signInWithFacebook(){
 }
 
 function goToDash(){
-  if(P?.role==='propriétaire') window.location.href='/propriétaire-tableau de bord.html';
-  else if(P?.role==='agence') window.location.href='/agence-tableau de bord.html';
-  else window.location.href='/locataire-tableau de bord.html';
+  if(P?.role==='bailleur') window.location.href='/landlord-dashboard.html';
+  else if(P?.role==='agent') window.location.href='/agency-dashboard.html';
+  else window.location.href='/tenant-dashboard.html';
 }
 
 async function doLogout(){await clerk.signOut();toast('<i data-lucide=hand class=ic></i> See you soon!');go('home');updN();}
@@ -1245,7 +1245,7 @@ async function loadHeroAnnonces(){
   const wrap=document.getElementById('hero-live-annonces');
   if(!wrap)return;
   try{
-    const{data}=await sb. depuis ('annonces').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
+    const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
     if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">No annonces live yet</div><div class="ps">Be the first to post one!</div></div></div>';return;}
     const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
     const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
@@ -1264,7 +1264,7 @@ let currentListingsPage=1;
 async function loadL(){
   const g=document.getElementById('lg');g.innerHTML='<div class="chargement"><div class="sp"></div> Chargement…</div>';
   const z=document.getElementById('fz')?.value,t=document.getElementById('ft')?.value,p=document.getElementById('fp')?.value,att=document.getElementById('fa')?.value,src=document.getElementById('fsrc')?.value;
-  let q=sb. depuis ('annonces').select('*').eq('actif',true).not('statut','in','("reserved","rented")').order('created_at',{ascending:false});
+  let q=sb.from('listings').select('*').eq('actif',true).not('statut','in','("reserved","rented")').order('created_at',{ascending:false});
   if(z)q=q.eq('zone',z);
   if(t)q=q.eq('type',t);
   if(p&&t!=='for_sale')q=q.lte('price',parseInt(p)); // le filtre budget est pensé pour un loyer, n'a pas de sens pour un prix de vente
@@ -1326,7 +1326,7 @@ function goToListingsPage(n){
   document.getElementById('lg')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-async function updC(){const{count}=await sb. depuis ('annonces').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
+async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
 
 function rCard(l){
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
@@ -1366,7 +1366,7 @@ function rCard(l){
 }
 
 async function openDet(id){
-  const{data:l}=await sb. depuis ('annonces').select('*').eq('id',id).single();if(!l)return;AL=l;
+  const{data:l}=await sb.from('listings').select('*').eq('id',id).single();if(!l)return;AL=l;
 
   // Vrai comptage de vues — une seule fois par visiteur par session pour ne pas gonfler le chiffre.
   // Passe par une fonction serveur (pas d'update direct côté client) pour éviter
@@ -1533,7 +1533,7 @@ async function openDet(id){
     vBtn.style.display='none';vHint.style.display='block';
     if(U){
       try{
-        const{data:existing}=await sb. depuis ('messages').select('id').eq('listing_id',id).eq('sender_id',U.id).limit(1);
+        const{data:existing}=await sb.from('messages').select('id').eq('listing_id',id).eq('sender_id',U.id).limit(1);
         if(existing&&existing.length){vBtn.style.display='flex';vHint.style.display='none';}
       }catch(e){}
     }
@@ -1584,10 +1584,10 @@ async function inviteCoLocataires(listingId, coLocataireEmails){
   const invited=[];
    for (const email of coLocataireEmails){
     // Check if user exists in profiles
-    const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').eq('email',email).single().then(r=>r).catch(()=>({data:null}));
+    const{data:profil}=await sb.from('profiles').select('clerk_id,full_name').eq('email',email).single().then(r=>r).catch(()=>({data:null}));
     if(profil){
       // Add to visite group
-      await sb. depuis ('co_locataires').insert({
+      await sb.from('co_locataires').insert({
         listing_id:listingId,
         invited_by:U.id,
         locataire_id:profil.clerk_id,
@@ -1597,7 +1597,7 @@ async function inviteCoLocataires(listingId, coLocataireEmails){
       invited.push({email,name:profil.full_name,found:true});
     } else {
       // User doesn't have Trouve Ton Toit compte yet
-      await sb. depuis ('co_locataires').insert({
+      await sb.from('co_locataires').insert({
         listing_id:listingId,
         invited_by:U.id,
         locataire_email:email,
@@ -1649,10 +1649,10 @@ async function requestVisitFromDetail(){
     if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
 
     try{
-      await sb. depuis ('visites').insert({
+      await sb.from('visites').insert({
         listing_id:AL.id,
         locataire_id:U.id,
-        propriétaire_id:AL.propriétaire_id,
+        landlord_id:AL.propriétaire_id,
         locataire_name:P?.full_name||'',
         locataire_email:P?.email||'',
         visit_date:visitDate,
@@ -1664,7 +1664,7 @@ async function requestVisitFromDetail(){
 
     try{
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-      await sb. depuis ('messages').insert({
+      await sb.from('messages').insert({
         listing_id:AL.id,sender_id:'system',receiver_id:AL.propriétaire_id,
         content:'📅 '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
         type:'visit_request'
@@ -1706,7 +1706,7 @@ async function sendMsg(){
     c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireEmails.join(', ')}`;
   }
 
-  const{erreur}=await sb. depuis ('messages').insert({
+  const{erreur}=await sb.from('messages').insert({
     listing_id:AL.id,
     sender_id:U.id,
     receiver_id:AL.propriétaire_id,
@@ -1835,7 +1835,7 @@ function onDisponibleFromChange(val){
 
 function chkPost(){
   if(!U){toast('Pbail sign in to post a annonce');go('auth');return;}
-  if(P?.role!=='propriétaire'){toast('<i data-lucide=alert-triangle class=ic></i>️ You need a propriétaire compte to post.');return;}
+  if(P?.role!=='bailleur'){toast('<i data-lucide=alert-triangle class=ic></i>️ You need a propriétaire compte to post.');return;}
 
   // Vérifier les champs essentiels du profil
   const missing=[];
@@ -1861,7 +1861,7 @@ function chkPost(){
         <div style="font-size:2.5rem;margin-bottom:.75rem"><i data-lucide=clipboard-list class=ic></i></div>
         <div style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">Complete votre profil first</div>
         <div style="font-size:.82rem;color:var(--td,#888);margin-bottom:1rem;line-height:1.5">To post a annonce, Trouve Ton Toit needs to verify votre identity.<br><br>Missing: <strong style="color:var(--terra)">${missing.join(', ')}</strong></div>
-        <button onclick="this.closest('[style*=fixed]').remove();window.location.href='/propriétaire-tableau de bord.html?tab=profil'" style="width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:.85rem;font-size:.95rem;font-weight:700;cursor:pointer">Compléter mon profil →</button>
+        <button onclick="this.closest('[style*=fixed]').remove();window.location.href='/landlord-dashboard.html?tab=profil'" style="width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:.85rem;font-size:.95rem;font-weight:700;cursor:pointer">Compléter mon profil →</button>
         <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;background:transparent;color:var(--td,#888);border:none;padding:.6rem;font-size:.82rem;cursor:pointer;margin-top:.3rem">Annuler</button>
       </div>`;
     document.body.appendChild(overlay);
@@ -1896,7 +1896,7 @@ function handleDrop(e) {
 
 function handlePhotos(files) {
   const pavis = document.getElementById('photo-pavis');
-  Array. depuis (files).slice(0, 5 - uploadedPhotos.length).forEach(file => {
+  Array.from(files).slice(0, 5 - uploadedPhotos.length).forEach(file => {
     if (!file.type.startsWith('image/')) return;
     if (file.size > 5 * 1024 * 1024) { toast('<i data-lucide=x-circle class=ic></i> File too large — max 5MB'); return; }
     uploadedPhotos.push(file);
@@ -1969,13 +1969,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     setTimeout(()=>toast('<i data-lucide=flame class=ic></i> Boost activated! Your annonce now shows at the top of search results.'),600);
     window.history.replaceState({},'',window.location.pathname);
   }else if(urlParams.get('boost_cancelled')){
-    setTimeout(()=>toast('Boost paiement cancelled — vous can try again anytime  depuis  Mes annonces.'),600);
+    setTimeout(()=>toast('Boost paiement cancelled — vous can try again anytime  depuis Mes annonces.'),600);
     window.history.replaceState({},'',window.location.pathname);
   }
 });
 
 async function openSaleActivation(listingId){
-  const{data:l}=await sb. depuis ('annonces').select('id,title,zone,sale_price,price,propriétaire_email,sale_subscription_status').eq('id',listingId).maybeSingle();
+  const{data:l}=await sb.from('listings').select('id,title,zone,sale_price,price,propriétaire_email,sale_subscription_status').eq('id',listingId).maybeSingle();
   if(!l){toast('<i data-lucide=x-circle class=ic></i> Annonce not found');return;}
   if(l.sale_subscription_status==='actif'){toast('<i data-lucide=check-circle-2 class=ic></i> This annonce is already actif');return;}
 
@@ -2069,7 +2069,7 @@ async function doPost(){
     meublé:document.getElementById('pfu').checked,
     wifi:document.getElementById('pwi').checked,
     bills_included:document.getElementById('pbi')?.checked||false,
-    propriétaire_id:U.id,
+    landlord_id:U.id,
     // mandat_exclusif retiré — fonctionnalité jamais utile, supprimée
     actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // reste caché tant que le paiement requis (abonnement vente, ou frais room location) n'est pas fait
     sale_price:document.getElementById('pt').value==='for_sale'?parseInt(pr):null,
@@ -2095,14 +2095,14 @@ async function doPost(){
     accepts_attestation,
     propriétaire_present:document.getElementById('p-visite-presence')?.value||'not_needed',
     inventory_presence:document.getElementById('p-état des lieux-presence')?.value||'mandatory',
-    key_type:document.getElementById('p-key-type')?.value||'propriétaire',
+    key_type:document.getElementById('p-key-type')?.value||'bailleur',
     key_location:document.getElementById('p-key-location')?.value?.trim()||null,
     current_locataire_phone:document.getElementById('p-current-locataire-phone')?.value?.trim()||null,
     bail_end_date:document.getElementById('p-bail-end-date')?.value||null,
     locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant'
   };
 
-  const{data:annonce,erreur}=await sb. depuis ('annonces').insert(fields).select().single();
+  const{data:annonce,erreur}=await sb.from('listings').insert(fields).select().single();
   if(erreur){sA(err,erreur.message);ok.style.display='none';return;}
   // Enregistrer extra amenities
   const extraData = {
@@ -2114,11 +2114,11 @@ async function doPost(){
     washing_machine: document.getElementById('pwash')?.checked||false,
     dishwasher: document.getElementById('pdish')?.checked||false,
   };
-  if(annonce) await sb. depuis ('annonces').update(extraData).eq('id',annonce.id);
+  if(annonce) await sb.from('listings').update(extraData).eq('id',annonce.id);
   if(uploadedPhotos.length>0&&annonce){
     const photoUrls=await uploadPhotos(annonce.id);
     if(photoUrls.length>0){
-      await sb. depuis ('annonces').update({photos:photoUrls}).eq('id',annonce.id);
+      await sb.from('listings').update({photos:photoUrls}).eq('id',annonce.id);
     }
   }
   // Téléverser video if provided
@@ -2140,8 +2140,8 @@ async function doPost(){
       if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
       window.location.href=data.checkout_url;
     }catch(e){
-      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis  votre tableau de bord.');
-      setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},2500);
+      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
+      setTimeout(()=>{window.location.href='/landlord-dashboard.html';},2500);
     }
   }else if(document.getElementById('pt').value==='room_rental'&&annonce){
     // Pas de commission ni de bail/État des lieux sur les room locations — un petit
@@ -2156,14 +2156,14 @@ async function doPost(){
       if(!data.success)throw new Erreur(data.erreur||'Could not start paiement');
       window.location.href=data.checkout_url;
     }catch(e){
-      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis  votre tableau de bord.');
-      setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},2500);
+      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
+      setTimeout(()=>{window.location.href='/landlord-dashboard.html';},2500);
     }
   }else{
     sA(ok,"<i data-lucide=party-popper class=ic></i> Annonce published! It's now live on Trouve Ton Toit.");
     updC();loadL();
     if(annonce)offerBoostAfterPublish(annonce.id,annonce.title,annonce.type);
-    else setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},1800);
+    else setTimeout(()=>{window.location.href='/landlord-dashboard.html';},1800);
   }
 }
 
@@ -2180,22 +2180,22 @@ function offerBoostAfterPublish(listingId,listingTitle,listingType){
       <div style="font-weight:800;font-size:1.05rem;margin-bottom:.4rem">Want more eyes on  votre annonce?</div>
       <div style="font-size:.82rem;color:var(--stone-l);margin-bottom:1.2rem;line-height:1.6">Boost "${listingTitle}" to the top of search results pour <strong>${days} days</strong> — one-time paiement of <strong>${price}</strong>.</div>
       <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="startBoostPaiement('${listingId}','${listingTitle.replace(/'/g,"\\'")}','${listingType}')"><i data-lucide=flame class=ic></i> Boost pour ${price} →</button>
-      <button class="btn btn-s" style="width:100%;justify-content:center" onclick="window.location.href='/propriétaire-tableau de bord.html'">Maybe later — I'll do it  depuis  Mes annonces</button>
+      <button class="btn btn-s" style="width:100%;justify-content:center" onclick="window.location.href='/landlord-dashboard.html'">Maybe later — I'll do it  depuis Mes annonces</button>
     </div>`;
   document.body.appendChild(modal);
 }
 
 async function loadDash(){
   if(!U){return;}
-  document.getElementById('dTitle').textContent=P?.role==='propriétaire'?'Propriétaire Tableau de bord':'Mon compte';
+  document.getElementById('dTitle').textContent=P?.role==='bailleur'?'Propriétaire Tableau de bord':'Mon compte';
   document.getElementById('dSub').textContent=`Welcome back, ${P?.full_name?.split(' ')[0]||''}! Here's votre overview.`;
   loadML();loadMM();
 }
 
 async function loadML(){
   const w=document.getElementById('myl');
-  if(P?.role!=='propriétaire'){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Switch to a propriétaire compte to post et manage annonces.</p></div>';return;}
-  const{data}=await sb. depuis ('annonces').select('*').eq('propriétaire_id',U.id).order('created_at',{ascending:false});
+  if(P?.role!=='bailleur'){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Switch to a propriétaire compte to post et manage annonces.</p></div>';return;}
+  const{data}=await sb.from('listings').select('*').eq('propriétaire_id',U.id).order('created_at',{ascending:false});
   if(!data||data.length===0){w.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=clipboard-list class=ic></i></div><p>No annonces yet. Post votre first flat et start receiving messages!</p><button class="btn btn-p" onclick="go('post')">Post my first annonce →</button></div>`;return;}
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️',for_sale:'<i data-lucide=tag class=ic></i>️'};
   w.innerHTML=data.map(l=>{
@@ -2251,17 +2251,17 @@ async function retrySaleActivation(listingId,listingTitle){
   }
 }
 
-async function togL(id,a){await sb. depuis ('annonces').update({actif:!a}).eq('id',id);toast(a?'⏸ Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
+async function togL(id,a){await sb.from('listings').update({actif:!a}).eq('id',id);toast(a?'⏸ Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
 
 async function loadMM(){
-  const w=document.getElementById('mym'),field=P?.role==='propriétaire'?'receiver_id':'sender_id';
-  const{data}=await sb. depuis ('messages').select('*, annonces(title,zone,id)').eq(field,U.id).order('created_at',{ascending:false});
+  const w=document.getElementById('mym'),field=P?.role==='bailleur'?'receiver_id':'sender_id';
+  const{data}=await sb.from('messages').select('*, annonces(title,zone,id)').eq(field,U.id).order('created_at',{ascending:false});
   if(!data||data.length===0){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=message-circle class=ic></i></div><p>No messages yet. When locataires contact you, they\'ll appear here.</p></div>';return;}
   // Deduplicate by annonce
   const seen=new Set();const unique=[];
   data.forEach(m=>{if(!seen.has(m.listing_id)){seen.add(m.listing_id);unique.push(m);}});
   w.innerHTML=unique.map(m=>{
-    const otherId=P?.role==='propriétaire'?m.sender_id:m.receiver_id;
+    const otherId=P?.role==='bailleur'?m.sender_id:m.receiver_id;
     return`<div class="msgcard" onclick="opM('${m.id}','${(m.annonces?.title||'').replace(/'/g,"\\'")}','${m.content.replace(/'/g,"\\'")}','${m.annonces?.zone||''}','${m.listing_id||''}','${otherId||''}')"><div class="mav">${(m.annonces?.title||'?')[0].toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:.88rem;font-weight:600;margin-bottom:.15rem">${m.annonces?.title||'Annonce'}</div><div style="font-size:.72rem;color:var(--stone-l);margin-bottom:.2rem"><i data-lucide=map-pin class=ic></i> ${m.annonces?.zone||''}</div><div class="mprev">${m.content}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0"><span class="mtime">${new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>${!m.read?'<div class="ubadge"></div>':''}</div></div>`;
   }).join('');
 }
@@ -2285,7 +2285,7 @@ async function opM(id, title, content, zone, listingId, receiverId){
   await loadChatHistory(listingId, receiverId);
 
   // Mark as read
-  sb. depuis ('messages').update({read:true}).eq('id',id).then(()=>loadMM());
+  sb.from('messages').update({read:true}).eq('id',id).then(()=>loadMM());
 
   // Subscribe to real-time new messages
   if(chatChannel) sb.removeChannel(chatChannel);
@@ -2307,7 +2307,7 @@ async function loadChatHistory(listingId, receiverId){
   const thread=document.getElementById('moth');
   thread.innerHTML='<div style="text-align:center;font-size:.75rem;color:var(--stone-l);padding:.5rem">Chargement messages...</div>';
   if(!listingId){thread.innerHTML='';return;}
-  const{data}=await sb. depuis ('messages')
+  const{data}=await sb.from('messages')
     .select('*')
     .eq('listing_id',listingId)
     .order('created_at',{ascending:true});
@@ -2330,7 +2330,7 @@ async function sendR(){
   const r=document.getElementById('mre').value.trim();
   if(!r||!U)return;
   document.getElementById('mre').value='';
-  const{erreur}=await sb. depuis ('messages').insert({
+  const{erreur}=await sb.from('messages').insert({
     listing_id:currentChatListingId||AMI,
     sender_id:U.id,
     receiver_id:currentChatReceiverId,
@@ -2441,21 +2441,21 @@ function initMap(){
 
 // ── Badge "Propriétaire réactif" ──────────────────────────────────
 async function getAgenceRating(agentId){
-  const{data}=await sb. depuis ('avis').select('rating').eq('target_id',agentId).eq('type','locataire_to_agency');
+  const{data}=await sb.from('avis').select('rating').eq('target_id',agentId).eq('type','locataire_to_agency');
   if(!data||!data.length)return null;
   const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
   return{avg,count:data.length};
 }
 
 async function getPropriétaireRating(propriétaireId){
-  const{data}=await sb. depuis ('avis').select('rating').eq('propriétaire_id',propriétaireId).eq('type','locataire_to_propriétaire');
+  const{data}=await sb.from('avis').select('rating').eq('propriétaire_id',propriétaireId).eq('type','locataire_to_propriétaire');
   if(!data||!data.length)return null;
   const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
   return{avg,count:data.length};
 }
 
 async function getPropriétaireResponseBadge(propriétaireId){
-  const{data}=await sb. depuis ('messages')
+  const{data}=await sb.from('messages')
     .select('created_at,sender_id')
     .eq('receiver_id',propriétaireId)
     .order('created_at',{ascending:false})
@@ -2478,7 +2478,7 @@ async function uploadVisitVideo(input, listingId){
   const{data,erreur}=await sb.storage. depuis ('annonces').upload(path,file,{upsert:true,cacheControl:'3600'});
   if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
   const{data:urlData}=sb.storage. depuis ('annonces').getPublicUrl(path);
-  await sb. depuis ('annonces').update({video_url:urlData.publicUrl}).eq('id',listingId);
+  await sb.from('listings').update({video_url:urlData.publicUrl}).eq('id',listingId);
   toast('<i data-lucide=check-circle-2 class=ic></i> Visite video uploaded!');
 }
 
@@ -2489,7 +2489,7 @@ async function requestReference(){
   if(!email||!email.includes('@')){toast('Invalid email');return;}
   // Store reference request in Supabase
   try{
-    await sb. depuis ('references').insert({
+    await sb.from('references').insert({
       locataire_id:U.id,
       propriétaire_email:email,
       statut:'en attente',
