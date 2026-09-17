@@ -859,7 +859,7 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
     await new Promise(r=>setTimeout(r,800));
   }
   P=P_data;
-  if(!P||P.role!=='propriétaire'){window.location.href='/tenant-dashboard.html';return;}
+  if(!P||!['propriétaire','bailleur'].includes(P.role)){window.location.href='/tenant-dashboard.html';return;}
 
   // Relier automatiquement les biens/réservations saisis manuellement
   // (sans compte) par une agence, si l'email correspond au sien — sinon un
