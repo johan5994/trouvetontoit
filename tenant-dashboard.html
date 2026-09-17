@@ -4753,6 +4753,13 @@ function showDossierStep(idx){
   if(idx===6){renderDossierCompletion();if(typeof lucide!=='undefined')lucide.createIcons();return;}
   const saved=dossierState[idx];
   if(saved?.type){restoreUploadedStep(idx,saved);}
+  // Sécurité supplémentaire : si garant_personne (type ou pendingType), forcer le sous-dossier
+  if(idx===5&&(saved?.type==='garant_personne'||saved?.pendingType==='garant_personne')){
+    const simpleUpload=document.getElementById('garant-simple-upload');
+    const subDossier=document.getElementById('garant-sub-dossier');
+    if(simpleUpload&&simpleUpload.style.display!=='none')simpleUpload.style.display='none';
+    if(subDossier&&subDossier.style.display!=='block'){subDossier.style.display='block';initGarantSubDossier();}
+  }
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
@@ -4811,15 +4818,19 @@ function selectDocType(idx,type){
     if(type==='garant_personne'){
       simpleUpload.style.display='none';
       subDossier.style.display='block';
+      // Force type immédiatement pour que la navigation retour fonctionne
+      if(!dossierState[idx])dossierState[idx]={};
+      dossierState[5].type='garant_personne';
+      if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
       initGarantSubDossier();
     } else {
       simpleUpload.style.display='block';
       subDossier.style.display='none';
     }
   }
-  // Store type but not yet confirmed
+  // Store type but not yet confirmed (for non-garant_personne types)
   if(!dossierState[idx])dossierState[idx]={};
-  dossierState[idx].pendingType=type;
+  if(type!=='garant_personne')dossierState[idx].pendingType=type;
   dossierState[idx].files=dossierState[idx].files||[];
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
@@ -5066,6 +5077,7 @@ function garantSubDone(i){
 
 function initGarantSubDossier(){
   if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
+  dossierState[5].type='garant_personne';
   if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
   const gn=dossierState[5].garant_name||{};
   const prenomEl=document.getElementById('garant-prenom');
