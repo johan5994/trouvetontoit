@@ -578,7 +578,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 </datalist></div>
         <div class="fg2"><label>Size (m²)</label><input class="fi" type="number" id="p-sqm" placeholder="e.g. 65" min="10" max="1000"></div>
         <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Monthly loyer (€) *</label><input class="fi" type="number" id="ppr" placeholder="650"></div>
-        <div class="fg2" id="pt-dépôt de garantie-wrap"><label>Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
+        <div class="fg2" id="pt-depot-wrap"><label>Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
         <div class="fg2" id="section-beds"><label>Number of chambres</label>
           <select class="fi" id="psp" style="cursor:pointer">
             <option value="0">Studio</option>
@@ -938,7 +938,7 @@ let addressMapInstance=null;
 // ── Annuaire d'agences pour propriétaires ──────────────────────
 function findNearestZone(lat,lng){
   let best=null,bestDist=Infinity;
-   pour (const[zone,coords]of Object.entries(AGENCY_ZONE_COORDS)){
+   for (const[zone,coords]of Object.entries(AGENCY_ZONE_COORDS)){
     const d=Math.sqrt((lat-coords[0])**2+(lng-coords[1])**2);
     if(d<bestDist){bestDist=d;best=zone;}
   }
@@ -1307,7 +1307,7 @@ function renderListingsPage(){
 
   let buttons='';
   buttons+=`<button class="pagebtn" ${currentListingsPage===1?'disabled':''} onclick="goToListingsPage(${currentListingsPage-1})">← Prev</button>`;
-   pour (let i=1;i<=totalPages;i++){
+   for (let i=1;i<=totalPages;i++){
     // N'afficher que les pages proches de la page actuelle + première/dernière,
     // avec "…" entre les deux — sinon 40 pages donneraient 40 boutons d'affilée.
     if(i===1||i===totalPages||Math.abs(i-currentListingsPage)<=1){
@@ -1502,7 +1502,7 @@ async function openDet(id){
     ${ratingHtml}
     <div class="crow"><span>Type</span><span>${tl[l.type]||l.type}</span></div>
     <div class="crow"><span>Disponible  depuis </span><span>${l.available_from?new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'Now'}</span></div>
-    <div class="crow"><span>Dépôt de garantie</span><span>${l.dépôt de garantie?'€'+l.dépôt de garantie:'None'}</span></div>
+    <div class="crow"><span>Dépôt de garantie</span><span>${l.deposit?'€'+l.deposit:'None'}</span></div>
     ${l.bills_situation?`<div class="crow"><span>Bills</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Included in loyer':'<i data-lucide=x-circle class=ic></i> Locataire pays separately'}</span></div>`:''}
     ${l.paiement_due_day?`<div class="crow"><span>Loyer due</span><span>${l.paiement_due_day==='last'?'Last day of month':l.paiement_due_day+' of the month'}</span></div>`:''}
     ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
@@ -1519,10 +1519,10 @@ async function openDet(id){
     const commissionLabel=isAgence?'Agence fee (50%)':'Trouve Ton Toit fee (10%)';
     document.getElementById('dcost-inner').innerHTML=`
       <div class="crow"><span>First month loyer</span><span style="font-weight:700">€${l.price}</span></div>
-      <div class="crow"><span>Security dépôt de garantie</span><span style="font-weight:700">${l.dépôt de garantie?'€'+l.dépôt de garantie:'None'}</span></div>
+      <div class="crow"><span>Security dépôt de garantie</span><span style="font-weight:700">${l.deposit?'€'+l.deposit:'None'}</span></div>
       <div class="crow"><span>${commissionLabel}</span><span style="font-weight:700;color:var(--terra)">€${commission}</span></div>
       <div style="height:1px;background:rgba(201,85,58,.15);margin:.5rem 0"></div>
-      <div class="crow" style="font-size:.92rem"><span style="font-weight:700">Total at signing</span><span style="font-weight:900;color:var(--terra);font-size:1.1rem">€${l.price+(l.dépôt de garantie||0)+commission}</span></div>
+      <div class="crow" style="font-size:.92rem"><span style="font-weight:700">Total at signing</span><span style="font-weight:900;color:var(--terra);font-size:1.1rem">€${l.price+(l.deposit||0)+commission}</span></div>
       <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">Dépôt de garantie et loyer are paid directly to the propriétaire once the bail is signed.</div>`;
   }
 
@@ -1572,17 +1572,17 @@ function setGroupMode(mode){
 
 function getCoLocataires(){
   const emails=[];
-   pour (let i=2;i<=4;i++){
+   for (let i=2;i<=4;i++){
     const val=document.getElementById(`colocataire-${i}`)?.value.trim();
     if(val)emails.push(val);
   }
   return emails;
 }
 
-async function inviteCoLocataires(listingId, coLocataireE-mails){
-  if(!coLocataireE-mails.length)return [];
+async function inviteCoLocataires(listingId, coLocataireEmails){
+  if(!coLocataireEmails.length)return [];
   const invited=[];
-   pour (const email of coLocataireE-mails){
+   for (const email of coLocataireEmails){
     // Check if user exists in profiles
     const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').eq('email',email).single().then(r=>r).catch(()=>({data:null}));
     if(profil){
@@ -1696,14 +1696,14 @@ async function sendMsg(){
   }
 
   // Handle co-locataires
-  const coLocataireE-mails=getCoLocataires();
-  if(coLocataireE-mails.length){
-    const invited=await inviteCoLocataires(AL.id, coLocataireE-mails);
+  const coLocataireEmails=getCoLocataires();
+  if(coLocataireEmails.length){
+    const invited=await inviteCoLocataires(AL.id, coLocataireEmails);
     const notFound=invited.filter(i=>!i.found).map(i=>i.email);
     if(notFound.length){
       setTimeout(()=>toast(`<i data-lucide=alert-triangle class=ic></i>️ ${notFound.length} co-locataire(s) don't have a Trouve Ton Toit compte yet — invite them to sign up.`),1000);
     }
-    c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireE-mails.join(', ')}`;
+    c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireEmails.join(', ')}`;
   }
 
   const{erreur}=await sb. depuis ('messages').insert({
@@ -1771,9 +1771,9 @@ function setT(el,t){
   const isSale=t==='for_sale';
   const priceLabel=document.getElementById('pt-price-label');
   if(priceLabel)priceLabel.textContent=isSale?'Sale price (€) *':'Monthly loyer (€) *';
-  const dépôt de garantieWrap=document.getElementById('pt-dépôt de garantie-wrap');
+  const depotWrap=document.getElementById('pt-depot-wrap');
   const availWrap=document.getElementById('pt-avail-wrap');
-  if(dépôt de garantieWrap)dépôt de garantieWrap.style.display=isSale?'none':'block';
+  if(depotWrap)depotWrap.style.display=isSale?'none':'block';
   if(availWrap)availWrap.style.display=isSale?'none':'block';
   const billsWrap=document.getElementById('p-bills')?.closest('.fg2');
   if(billsWrap)billsWrap.style.display=isSale?'none':'block';
@@ -2019,7 +2019,7 @@ async function confirmSaleActivation(listingId,listingTitle){
 
 async function uploadPhotos(listingId) {
   const urls = [];
-  pour (const file of uploadedPhotos) {
+  for (const file of uploadedPhotos) {
     const ext = file.name.split('.').pop();
     const path = `${listingId}/${Date.now()}.${ext}`;
     const { erreur } = await sb.storage. depuis ('annonces').upload(path, file, { cacheControl: '3600', upsert: false });
@@ -2058,7 +2058,7 @@ async function doPost(){
     type:document.getElementById('pt').value,
     zone:document.getElementById('pz').value,
     price:parseInt(pr),
-    dépôt de garantie:parseInt(document.getElementById('pdep').value)||null,
+    depot:parseInt(document.getElementById('pdep').value)||null,
     spots:parseInt(document.getElementById('psp').value)||1,
     baths:parseInt(document.getElementById('p-baths')?.value)||1,
     sqm:parseInt(document.getElementById('p-sqm')?.value)||null,
