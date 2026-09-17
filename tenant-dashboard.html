@@ -485,9 +485,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               <div style="font-size:.68rem;color:var(--td)" id="rm-groupchat-members">—</div>
             </div>
             <div style="display:flex;gap:.5rem;align-items:center">
+              <button onclick="openAddMemberPanel()" title="Ajouter un membre" style="background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--bleu)"><i data-lucide=user-plus class=ic></i> Ajouter</button>
               <button onclick="leaveRoommateGroup()" title="Quitter le groupe" style="background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--td)"><i data-lucide=door-open class=ic></i> Quitter</button>
               <button onclick="closeRmGroupChat()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--td)"><i data-lucide=x class=ic></i></button>
             </div>
+          </div>
+          <!-- Panneau ajout de membres (masqué par défaut) -->
+          <div id="rm-add-member-panel" style="display:none;padding:.85rem 1.2rem;border-bottom:1px solid var(--b);background:var(--s2)">
+            <div style="font-weight:700;font-size:.82rem;margin-bottom:.6rem"><i data-lucide=user-plus class=ic></i> Ajouter des membres</div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+              <input id="rm-add-member-search" class="fi" placeholder="Rechercher par nom..." style="flex:1;font-size:.78rem;padding:.4rem .7rem" oninput="searchRmMembersToAdd()">
+            </div>
+            <div id="rm-add-member-results" style="max-height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem"></div>
           </div>
           <div id="rm-groupchat-thread" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem"></div>
           <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
@@ -1070,10 +1079,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <!-- Garant personne physique: nom + 5 sous-étapes dynamiques -->
                   <div id="garant-sub-dossier" style="display:none">
-                    <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
-                      <strong style="color:var(--deep)">Dossier garant — 5 rubriques :</strong> Identité, hébergement, activité professionnelle, ressources et avis d'imposition.
-                    </div>
-                    <!-- Identité du garant -->
+                    <!-- Sélecteur multi-garant -->
+                    <div id="garant-multi-selector" style="margin-bottom:1rem"></div>
+                    <!-- Identité du garant courant -->
                     <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:1rem;margin-bottom:1rem">
                       <div style="font-size:.88rem;font-weight:600;margin-bottom:.75rem;color:var(--deep)"><i data-lucide=user class=ic></i> Identité du garant</div>
                       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem">
@@ -1352,6 +1360,7 @@ function sp(id,btn){
   if(id==='applications'){loadLocataireApplicationsPage();}
   if(id==='roommates'){renderRmChannelList();showRmTab('channel');loadRmDmsList();}
   if(id==='profil'){loadProfilee();loadDossierStatut();initDossierPage();setTimeout(initPhonePicker,200);}
+  if(id==='avis'){loadReviewableLandlords();loadReviewableAgencies();loadMyReviews();loadRateAgentCard();loadAvisAboutMe();}
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1928,7 +1937,61 @@ async function leaveRoommateGroup(){
 
 function closeRmGroupChat(){
   document.getElementById('rm-groupchat-modal').style.display='none';
+  document.getElementById('rm-add-member-panel').style.display='none';
   rmActifGroupId=null;
+}
+
+function openAddMemberPanel(){
+  const panel=document.getElementById('rm-add-member-panel');
+  const isOpen=panel.style.display!=='none';
+  panel.style.display=isOpen?'none':'block';
+  if(!isOpen){
+    document.getElementById('rm-add-member-search').value='';
+    searchRmMembersToAdd();
+  }
+}
+
+async function searchRmMembersToAdd(){
+  const q=(document.getElementById('rm-add-member-search')?.value||'').toLowerCase().trim();
+  const wrap=document.getElementById('rm-add-member-results');
+  if(!wrap||!rmActifGroupId)return;
+  wrap.innerHTML='<div style="font-size:.75rem;color:var(--td)">Recherche...</div>';
+  try{
+    // Membres déjà dans le groupe
+    const{data:existing}=await sb.from('roommate_group_members').select('locataire_id').eq('group_id',rmActifGroupId);
+    const existingIds=new Set((existing||[]).map(m=>m.locataire_id));
+    // Tous les profils actifs sauf ceux déjà membres
+    const{data:rmProfiles}=await sb.from('roommate_profiles').select('locataire_id').eq('actif',true).neq('locataire_id',U.id);
+    const candidates=(rmProfiles||[]).map(p=>p.locataire_id).filter(id=>!existingIds.has(id));
+    if(!candidates.length){wrap.innerHTML='<div style="font-size:.75rem;color:var(--td)">Tous les membres actifs sont déjà dans ce groupe</div>';return;}
+    const{data:profiles}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',candidates);
+    const filtered=(profiles||[]).filter(p=>{
+      const name=(p.full_name||p.email||'').toLowerCase();
+      return !q||name.includes(q);
+    });
+    if(!filtered.length){wrap.innerHTML='<div style="font-size:.75rem;color:var(--td)">Aucun résultat</div>';return;}
+    wrap.innerHTML=filtered.map(p=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.3rem .4rem;background:var(--s);border-radius:8px;font-size:.78rem">
+        <span style="font-weight:500">${p.full_name||p.email||'Locataire'}</span>
+        <button class="btn bp bsm" style="font-size:.72rem;padding:.2rem .6rem" onclick="addMemberToGroup('${p.clerk_id}','${(p.full_name||p.email||'Locataire').replace(/'/g,"\\'")}')">+ Ajouter</button>
+      </div>`).join('');
+  }catch(e){wrap.innerHTML='<div style="font-size:.75rem;color:var(--td)">Erreur de chargement</div>';}
+}
+
+async function addMemberToGroup(locataireId, name){
+  if(!rmActifGroupId)return;
+  try{
+    const{error}=await sb.from('roommate_group_members').insert({group_id:rmActifGroupId,locataire_id:locataireId});
+    if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
+    toast('<i data-lucide=check-circle-2 class=ic></i> '+name+' ajouté au groupe !');
+    searchRmMembersToAdd();
+    // Rafraîchir la liste des membres affichée dans le header
+    const{data:members}=await sb.from('roommate_group_members').select('locataire_id').eq('group_id',rmActifGroupId);
+    const ids=(members||[]).map(m=>m.locataire_id);
+    const{data:profiles}=await sb.from('roommate_profiles').select('locataire_id,full_name').in('locataire_id',ids);
+    const names=(profiles||[]).map(p=>p.full_name||'Locataire');
+    document.getElementById('rm-groupchat-members').textContent=names.join(', ');
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
 async function sendRmGroupMsg(){
@@ -4159,11 +4222,7 @@ async function submitAvis(){
 
 async function loadMyReviews(){
   const{data}=await sb.from('avis').select('*').eq('reviewer_id',U.id).order('created_at',{ascending:false});
-  document.getElementById('my-avis').innerHTML=(data||[]).map(r=>'<div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem"><div style="color:var(--gold);font-size:1rem;letter-spacing:2px">'+'<i data-lucide=star class=ic></i>'.repeat(r.rating)+'</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">'+r.comment+'</div><div style="font-size:.72rem;color:var(--td);margin-top:.3rem">'+new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></div>').join('')||'<div style="font-size:.85rem;color:var(--tm);text-align:center;padding:1rem">No avis submitted yet</div>';
-  loadMyReviews();
-  loadRateAgentCard();
-  loadReviewableLandlords();
-  loadReviewableAgencies();
+  document.getElementById('my-avis').innerHTML=(data||[]).map(r=>'<div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem"><div style="color:var(--gold);font-size:1rem;letter-spacing:2px">'+'<i data-lucide=star class=ic></i>'.repeat(r.rating)+'</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">'+r.comment+'</div><div style="font-size:.72rem;color:var(--td);margin-top:.3rem">'+new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+'</div></div>').join('')||'<div style="font-size:.85rem;color:var(--tm);text-align:center;padding:1rem">Aucun avis soumis pour l\'instant</div>';
 }
 
 async function loadRateAgentCard(){
@@ -4227,11 +4286,11 @@ async function submitLocataireAgentAvis(visitId,agentId){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
-async function loadMyReviews(){
+async function loadAvisAboutMe(){
   const wrap=document.getElementById('avis-about-me');
   if(!wrap)return;
   const{data}=await sb.from('avis').select('*').eq('locataire_id',U.id).eq('type','propriétaire_to_locataire').order('created_at',{ascending:false});
-  wrap.innerHTML=(data||[]).map(r=>'<div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem"><div style="color:var(--gold);font-size:1rem;letter-spacing:2px">'+'<i data-lucide=star class=ic></i>'.repeat(r.rating)+'</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">'+(r.comment||'No comment')+'</div><div style="font-size:.72rem;color:var(--td);margin-top:.3rem">'+new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></div>').join('')||'<div style="font-size:.85rem;color:var(--tm);text-align:center;padding:1rem">No avis yet</div>';
+  wrap.innerHTML=(data||[]).map(r=>'<div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem"><div style="color:var(--gold);font-size:1rem;letter-spacing:2px">'+'<i data-lucide=star class=ic></i>'.repeat(r.rating)+'</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">'+(r.comment||'Aucun commentaire')+'</div><div style="font-size:.72rem;color:var(--td);margin-top:.3rem">'+new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+'</div></div>').join('')||'<div style="font-size:.85rem;color:var(--tm);text-align:center;padding:1rem">Aucun avis reçu pour l\'instant</div>';
 }
 
 async function loadProfilee(){
@@ -4726,7 +4785,7 @@ function renderDossierState(){
       return;
     }
     const isGarantPersonne=st?.type==='garant_personne';
-    const garantComplete=isGarantPersonne?[0,1,2,3,4].every(idx=>{if(idx===3)return st?.garant_subs?.[3]?.revenues?.length>0;const gs=st?.garant_subs?.[idx];if(!gs?.type)return false;const gopt=GARANT_TYPE_OPTIONS[idx]?.find(o=>o.key===gs.type);return gopt?.needsUpload===false||gs.files?.length>0;}):true;
+    const garantComplete=isGarantPersonne?allGarantsComplete():true;
     const isDone=st?.type&&(!isGarantPersonne||garantComplete);
     if(isDone){
       if(stepEl){stepEl.classList.remove('ds-act');stepEl.classList.add('ds-done');}
@@ -4813,7 +4872,7 @@ function selectDocType(idx,type){
     if(subDossier)subDossier.style.display='block';
     if(!dossierState[idx])dossierState[idx]={};
     dossierState[5].type='garant_personne';
-    if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
+    if(!gState().garant_subs)gState().garant_subs={};
     dossierState[idx].files=dossierState[idx].files||[];
     initGarantSubDossier();
     if(typeof lucide!=='undefined')lucide.createIcons();
@@ -4944,7 +5003,7 @@ function showDossierSummary(){
   DOSSIER_STEPS.filter(s=>!s.isValidation).forEach((s,i)=>{
     const st=dossierState[i];
     const isGarantP=st?.type==='garant_personne';
-    const garantOk=isGarantP?(st?.garant_subs&&Object.values(st.garant_subs).every(gs=>gs?.files?.length>0)):true;
+    const garantOk=isGarantP?allGarantsComplete():true;
     const hasDoc=st?.type&&!st?.skipped&&(!isGarantP||garantOk);
     const skipped=st?.skipped;
     if(!hasDoc&&!skipped)allDone=false;
@@ -5064,11 +5123,127 @@ const GARANT_TRAVAIL_SUBTYPES=[
   {key:'g_trav_artiste',label:'artiste-auteur',hint:'Déclaration URSSAF + justificatifs de revenus de l\'année'}
 ];
 let garantSubStep=0;
+let activeGarantIdx=0;
 let garantRevenueAdding=null;
 let garantRevSubType=null;
 let garantRevSalarieAnc=null;
 let garantRevSalaireMontant='';
 let garantRevFiles=[];
+
+// ── Helpers multi-garant ──────────────────────────────────────────
+function gState(){
+  if(!dossierState[5])dossierState[5]={type:'garant_personne',garants:[{garant_name:{},garant_subs:{},files:[]}]};
+  if(!dossierState[5].garants){
+    // Migration ancien format mono-garant (bracket notation pour éviter le replace_all)
+    const _d=dossierState[5];
+    _d.garants=[{garant_name:_d['garant_name']||{},garant_subs:_d['garant_subs']||{},files:_d['files']||[]}];
+  }
+  if(!dossierState[5].garants[activeGarantIdx])dossierState[5].garants[activeGarantIdx]={garant_name:{},garant_subs:{},files:[]};
+  return dossierState[5].garants[activeGarantIdx];
+}
+
+function isGarantComplete(idx){
+  const g=dossierState[5]?.garants?.[idx];
+  if(!g)return false;
+  return [0,1,2,3,4].every(i=>{
+    if(i===3)return g.garant_subs?.[3]?.revenues?.length>0;
+    const gs=g.garant_subs?.[i];
+    if(!gs?.type)return false;
+    const gopt=GARANT_TYPE_OPTIONS[i]?.find(o=>o.key===gs.type);
+    return gopt?.needsUpload===false||gs.files?.length>0;
+  });
+}
+
+function allGarantsComplete(){
+  const st=dossierState[5];
+  if(!st)return false;
+  if(st.garants)return st.garants.length>0&&st.garants.every((_,i)=>isGarantComplete(i));
+  // Legacy
+  return [0,1,2,3,4].every(idx=>{
+    if(idx===3)return st?.garant_subs?.[3]?.revenues?.length>0;
+    const gs=st?.garant_subs?.[idx];if(!gs?.type)return false;
+    const gopt=GARANT_TYPE_OPTIONS[idx]?.find(o=>o.key===gs.type);
+    return gopt?.needsUpload===false||gs.files?.length>0;
+  });
+}
+
+function renderGarantSelector(){
+  const sel=document.getElementById('garant-multi-selector');
+  if(!sel)return;
+  const garants=dossierState[5]?.garants||[];
+  if(!garants.length){sel.innerHTML='';return;}
+  const firstOk=isGarantComplete(0);
+  let html=`<div style="font-size:.82rem;font-weight:700;color:var(--deep);margin-bottom:.5rem"><i data-lucide=users class=ic></i> Garants</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem">`;
+  garants.forEach((g,i)=>{
+    const nm=[g.garant_name?.prenom,g.garant_name?.nom].filter(Boolean).join(' ')||'Garant '+(i+1);
+    const ok=isGarantComplete(i);
+    const act=i===activeGarantIdx;
+    html+=`<div style="display:flex;align-items:center;gap:.3rem;padding:.35rem .85rem;border-radius:100px;cursor:pointer;font-size:.78rem;font-weight:600;border:1.5px solid ${act?'var(--bleu)':ok?'var(--green)':'var(--b2)'};background:${act?'var(--bleu)':ok?'var(--grdim)':'var(--s2)'};color:${act?'white':ok?'var(--green)':'var(--tm)'};transition:all .15s" onclick="switchGarant(${i})">
+      ${ok?'<i data-lucide=check-circle-2 style="width:12px;height:12px;margin-right:2px"></i>':''} ${nm}
+      ${i>0?`<span onclick="event.stopPropagation();removeGarant(${i})" style="margin-left:.25rem;opacity:.65;font-size:.85em;line-height:1">✕</span>`:''}
+    </div>`;
+  });
+  if(firstOk){
+    html+=`<div style="padding:.35rem .85rem;border-radius:100px;cursor:pointer;font-size:.78rem;font-weight:600;border:1.5px dashed var(--bleu);background:transparent;color:var(--bleu)" onclick="addNewGarant()">+ Ajouter un garant</div>`;
+  }
+  html+='</div>';
+  if(firstOk&&allGarantsComplete()){
+    html+=`<button class="btn bp bsm" onclick="saveAndGoToValidation()" style="font-size:.82rem"><i data-lucide=arrow-right class=ic></i> Continuer vers la validation →</button>`;
+  }
+  sel.innerHTML=html;
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function switchGarant(idx){
+  updateGarantName();
+  activeGarantIdx=idx;
+  const gn=dossierState[5].garants[idx]?.garant_name||{};
+  const prenomEl=document.getElementById('garant-prenom');
+  const nomEl=document.getElementById('garant-nom');
+  const nomUsageEl=document.getElementById('garant-nom-usage');
+  const emailEl=document.getElementById('garant-email');
+  if(prenomEl)prenomEl.value=gn.prenom||'';
+  if(nomEl)nomEl.value=gn.nom||'';
+  if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
+  if(emailEl)emailEl.value=gn.email||'';
+  garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
+  garantSubStep=0;
+  for(let i=0;i<5;i++)renderGarantSubScreen(i);
+  renderGarantSubNav();
+  renderGarantSelector();
+  showGarantSubStep(0);
+}
+
+function addNewGarant(){
+  if(!dossierState[5].garants)gState();
+  dossierState[5].garants.push({garant_name:{},garant_subs:{},files:[]});
+  activeGarantIdx=dossierState[5].garants.length-1;
+  ['garant-nom','garant-nom-usage','garant-prenom','garant-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
+  garantSubStep=0;
+  for(let i=0;i<5;i++)renderGarantSubScreen(i);
+  renderGarantSubNav();
+  renderGarantSelector();
+  showGarantSubStep(0);
+  toast('<i data-lucide=user-plus class=ic></i> Nouveau garant — remplissez les 5 rubriques');
+}
+
+function removeGarant(idx){
+  if(!idx||!dossierState[5]?.garants||dossierState[5].garants.length<=1)return;
+  dossierState[5].garants.splice(idx,1);
+  if(activeGarantIdx>=dossierState[5].garants.length)activeGarantIdx=dossierState[5].garants.length-1;
+  switchGarant(activeGarantIdx);
+  toast('Garant supprimé');
+}
+
+async function saveAndGoToValidation(){
+  dossierState[5].type='garant_personne';
+  await saveDossierState();
+  renderDossierState();
+  setTimeout(()=>showDossierStep(6),300);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Dossier garant complet !');
+}
 
 function getLastMonthNames(n){
   const FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
@@ -5079,27 +5254,27 @@ function getLastMonthNames(n){
 }
 
 function updateGarantName(){
-  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
+  gState();
   const prenom=document.getElementById('garant-prenom')?.value||'';
   const nom=document.getElementById('garant-nom')?.value||'';
   const nomUsage=document.getElementById('garant-nom-usage')?.value||'';
   const email=document.getElementById('garant-email')?.value||'';
-  dossierState[5].garant_name={prenom,nom,nomUsage,email};
+  gState().garant_name={prenom,nom,nomUsage,email};
 }
 
 function garantSubDone(i){
-  if(i===3)return dossierState[5]?.garant_subs?.[3]?.revenues?.length>0;
-  const gs=dossierState[5]?.garant_subs?.[i];
+  if(i===3)return gState().garant_subs?.[3]?.revenues?.length>0;
+  const gs=gState().garant_subs?.[i];
   if(!gs?.type)return false;
   const opt=GARANT_TYPE_OPTIONS[i]?.find(o=>o.key===gs.type);
   return opt?.needsUpload===false||gs.files?.length>0;
 }
 
 function initGarantSubDossier(){
-  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
+  gState();
   dossierState[5].type='garant_personne';
-  if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
-  const gn=dossierState[5].garant_name||{};
+  if(!gState().garant_subs)gState().garant_subs={};
+  const gn=gState().garant_name||{};
   const prenomEl=document.getElementById('garant-prenom');
   const nomEl=document.getElementById('garant-nom');
   const nomUsageEl=document.getElementById('garant-nom-usage');
@@ -5115,6 +5290,7 @@ function initGarantSubDossier(){
   }
   for(let i=0;i<5;i++)renderGarantSubScreen(i);
   renderGarantSubNav();
+  renderGarantSelector();
   showGarantSubStep(garantSubStep);
 }
 
@@ -5124,7 +5300,7 @@ function renderGarantSubScreen(i){
   if(i===3){renderGarantRevenueScreen();return;}
   const step=GARANT_SUB_STEPS[i];
   const opts=GARANT_TYPE_OPTIONS[i];
-  const sub=dossierState[5]?.garant_subs?.[i];
+  const sub=gState().garant_subs?.[i];
   const hasType=!!sub?.type;
   const opt=opts.find(o=>o.key===sub?.type);
   const noUpload=hasType&&opt?.needsUpload===false;
@@ -5167,9 +5343,9 @@ function renderGarantSubScreen(i){
 function renderGarantRevenueScreen(){
   const sc=document.getElementById('garant-sub-3');
   if(!sc)return;
-  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
-  if(!dossierState[5].garant_subs[3])dossierState[5].garant_subs[3]={revenues:[]};
-  const revs=dossierState[5].garant_subs[3].revenues||[];
+  gState();
+  if(!gState().garant_subs[3])gState().garant_subs[3]={revenues:[]};
+  const revs=gState().garant_subs[3].revenues||[];
   if(garantRevenueAdding){
     const opt=GARANT_TYPE_OPTIONS[3].find(o=>o.key===garantRevenueAdding);
     // Niveau intermédiaire : sous-types Revenus du travail
@@ -5223,6 +5399,11 @@ function renderGarantRevenueScreen(){
         </div>`;
       } else if(garantRevSalarieAnc==='moins_3_mois'){
         displayHint='Bulletins de salaire disponibles + contrat de travail signé';
+        extraHtml=`<div style="margin-bottom:.85rem">
+          <label style="font-size:.82rem;font-weight:600;color:var(--deep);display:block;margin-bottom:.35rem">Revenu mensuel net moyen avant prélèvement à la source, sans virgule :</label>
+          <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem">Exemple : 2400</div>
+          <input type="number" id="garant-salaire-montant" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="garantRevSalaireMontant=this.value" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.88rem;background:var(--s);color:var(--deep);box-sizing:border-box">
+        </div>`;
       } else if(garantRevSalarieAnc==='nouveau_poste'){
         displayHint='Contrat de travail signé uniquement — aucun bulletin de salaire requis';
       }
@@ -5310,8 +5491,8 @@ function confirmAddGarantRevenue(){
   const subLabel=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.label;
   const ancLabel=garantRevSalarieAnc==='plus_3_mois'?'Depuis plus de 3 mois':garantRevSalarieAnc==='moins_3_mois'?'Depuis moins de 3 mois':garantRevSalarieAnc==='nouveau_poste'?'Nouveau poste':'';
   let displayLabel=subLabel?`${opt?.label||garantRevenueAdding} — ${subLabel}${ancLabel?' ('+ancLabel+')':''}` :(opt?.label||garantRevenueAdding);
-  if(!dossierState[5].garant_subs[3].revenues)dossierState[5].garant_subs[3].revenues=[];
-  dossierState[5].garant_subs[3].revenues.push({type:garantRevenueAdding,subType:garantRevSubType||null,anciennete:garantRevSalarieAnc||null,montant:garantRevSalaireMontant||null,label:displayLabel,files:[...garantRevFiles]});
+  if(!gState().garant_subs[3].revenues)gState().garant_subs[3].revenues=[];
+  gState().garant_subs[3].revenues.push({type:garantRevenueAdding,subType:garantRevSubType||null,anciennete:garantRevSalarieAnc||null,montant:garantRevSalaireMontant||null,label:displayLabel,files:[...garantRevFiles]});
   garantRevenueAdding=null;
   garantRevSubType=null;
   garantRevSalarieAnc=null;
@@ -5323,8 +5504,8 @@ function confirmAddGarantRevenue(){
 }
 
 function removeGarantRevenue(idx){
-  if(!dossierState[5]?.garant_subs?.[3]?.revenues)return;
-  dossierState[5].garant_subs[3].revenues.splice(idx,1);
+  if(!gState().garant_subs?.[3]?.revenues)return;
+  gState().garant_subs[3].revenues.splice(idx,1);
   renderGarantSubScreen(3);
   renderGarantSubNav();
 }
@@ -5357,17 +5538,17 @@ function handleGarantRevDrop(event){
 }
 
 function selectGarantType(subIdx,typeKey){
-  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
-  if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
-  if(!dossierState[5].garant_subs[subIdx])dossierState[5].garant_subs[subIdx]={files:[]};
-  dossierState[5].garant_subs[subIdx].type=typeKey;
+  gState();
+  if(!gState().garant_subs)gState().garant_subs={};
+  if(!gState().garant_subs[subIdx])gState().garant_subs[subIdx]={files:[]};
+  gState().garant_subs[subIdx].type=typeKey;
   renderGarantSubScreen(subIdx);
   renderGarantSubNav();
 }
 
 function resetGarantType(subIdx){
-  if(!dossierState[5]?.garant_subs)return;
-  dossierState[5].garant_subs[subIdx]={files:[]};
+  if(!gState().garant_subs)return;
+  gState().garant_subs[subIdx]={files:[]};
   renderGarantSubScreen(subIdx);
   renderGarantSubNav();
 }
@@ -5393,9 +5574,9 @@ function showGarantSubStep(i){
 
 async function uploadGarantFile(subIdx,files){
   if(!files||!files.length)return;
-  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
-  if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
-  if(!dossierState[5].garant_subs[subIdx])dossierState[5].garant_subs[subIdx]={files:[]};
+  gState();
+  if(!gState().garant_subs)gState().garant_subs={};
+  if(!gState().garant_subs[subIdx])gState().garant_subs[subIdx]={files:[]};
   const area=document.querySelector('#garant-sub-'+subIdx+' .dossier-upload-area');
   if(area)area.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;justify-content:center"><div class="sp"></div><span style="font-size:.82rem;color:var(--tm)">Envoi...</span></div>';
   const uploaded=[];
@@ -5409,7 +5590,7 @@ async function uploadGarantFile(subIdx,files){
       const{data:urlData}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
       uploaded.push({name:file.name,path,url:urlData?.signedUrl||'',ext});
     }
-    dossierState[5].garant_subs[subIdx].files=(dossierState[5].garant_subs[subIdx].files||[]).concat(uploaded);
+    gState().garant_subs[subIdx].files=(gState().garant_subs[subIdx].files||[]).concat(uploaded);
     renderGarantSubScreen(subIdx);
     renderGarantSubNav();
     toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
@@ -5427,16 +5608,17 @@ function handleGarantDrop(event,subIdx){
 
 async function confirmGarantSub(subIdx){
   if(subIdx===3){
-    if(!dossierState[5]?.garant_subs?.[3]?.revenues?.length){
+    if(!gState().garant_subs?.[3]?.revenues?.length){
       toast('<i data-lucide=alert-triangle class=ic></i>️ Déclarez au moins une source de revenus');return;
     }
   } else {
-    const sub=dossierState[5]?.garant_subs?.[subIdx];
+    const sub=gState().garant_subs?.[subIdx];
     if(!sub?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
     const opt=GARANT_TYPE_OPTIONS[subIdx]?.find(o=>o.key===sub.type);
     if(opt?.needsUpload!==false&&!sub.files?.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
   }
   renderGarantSubNav();
+  renderGarantSelector();
   if(subIdx<4){
     setTimeout(()=>showGarantSubStep(subIdx+1),200);
     toast('<i data-lucide=check-circle-2 class=ic></i> Rubrique '+(subIdx+1)+'/5 enregistrée');
@@ -5444,8 +5626,8 @@ async function confirmGarantSub(subIdx){
     dossierState[5].type='garant_personne';
     await saveDossierState();
     renderDossierState();
-    setTimeout(()=>showDossierStep(6),300);
-    toast('<i data-lucide=check-circle-2 class=ic></i> Dossier garant complet ! Passez à la validation.');
+    renderGarantSelector();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Garant '+(activeGarantIdx+1)+' complet ! Ajoutez un autre garant ou continuez vers la validation.');
   }
 }
 
@@ -5458,7 +5640,7 @@ function renderDossierCompletion(){
   docSteps.forEach((s,i)=>{
     const st=dossierState[i];
     const isGarantP=st?.type==='garant_personne';
-    const garantOk=isGarantP?[0,1,2,3,4].every(idx=>{if(idx===3)return st?.garant_subs?.[3]?.revenues?.length>0;const gs=st?.garant_subs?.[idx];if(!gs?.type)return false;const gopt=GARANT_TYPE_OPTIONS[idx]?.find(o=>o.key===gs.type);return gopt?.needsUpload===false||gs.files?.length>0;}):true;
+    const garantOk=isGarantP?allGarantsComplete():true;
     if(st?.type&&(!isGarantP||garantOk))done++;
     else missing.push(s.label);
   });
@@ -5482,7 +5664,7 @@ function renderDossierCompletion(){
   docSteps.forEach((s,i)=>{
     const st=dossierState[i];
     const isGarantP=st?.type==='garant_personne';
-    const garantOk=isGarantP?[0,1,2,3,4].every(idx=>{if(idx===3)return st?.garant_subs?.[3]?.revenues?.length>0;const gs=st?.garant_subs?.[idx];if(!gs?.type)return false;const gopt=GARANT_TYPE_OPTIONS[idx]?.find(o=>o.key===gs.type);return gopt?.needsUpload===false||gs.files?.length>0;}):true;
+    const garantOk=isGarantP?allGarantsComplete():true;
     const ok=st?.type&&(!isGarantP||garantOk);
     html+=`<div class="doc-status-row" style="margin-bottom:.5rem">
       <div style="flex:1"><div class="dsr-label">${s.label}</div>${st?.type?`<div class="dsr-sub">${DOSSIER_TYPE_LABELS[st.type]||st.type}</div>`:''}
@@ -5496,28 +5678,14 @@ function renderDossierCompletion(){
   html+='</div></div>';
   // CTA
   if(allDone){
-    const alreadySubmitted=P?.id_submitted;
     html+=`<div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
-      ${alreadySubmitted
-        ?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.65rem 1rem;font-size:.82rem;color:var(--gold)"><i data-lucide=clock class=ic></i> Dossier soumis — en cours de vérification</div>`
-        :`<button class="btn bp" onclick="submitDossierForReview()" style="font-size:.88rem"><i data-lucide=send class=ic></i> Soumettre le dossier →</button>`}
-      <button class="btn bg" onclick="showDossierShare()" style="font-size:.88rem"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
+      <button class="btn bp" onclick="showDossierShare()" style="font-size:.88rem"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
     </div>`;
   }
   container.innerHTML=html;
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
-async function submitDossierForReview(){
-  try{
-    const{error}=await sb.from('profiles').update({id_submitted:true,id_submitted_at:new Date().toISOString()}).eq('clerk_id',U.id);
-    if(error)throw new Error(error.message);
-    if(P)P.id_submitted=true;
-    toast('<i data-lucide=check-circle-2 class=ic></i> Dossier soumis pour vérification !');
-    renderDossierCompletion();
-    if(typeof lucide!=='undefined')lucide.createIcons();
-  }catch(e){toast('<i data-lucide=x-circle class=ic></i> Erreur : '+e.message);}
-}
 
 // ── Vérification dossier avant demande de visite ──────────────
 async function checkDossierBeforeVisit(){
