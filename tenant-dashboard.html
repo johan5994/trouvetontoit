@@ -652,7 +652,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           </div>
           <div class="dossier-progress"><div class="dossier-progress-bar" id="dossier-pct-bar" style="width:0%"></div></div>
         </div>
-        <button class="btn bp bsm" onclick="showDossierSummary()" style="white-space:nowrap"><i data-lucide=eye class=ic></i> Voir le récap</button>
+        <div style="display:flex;gap:.5rem;flex-shrink:0">
+          <button class="btn bp bsm" onclick="showDossierSummary()" style="white-space:nowrap"><i data-lucide=eye class=ic></i> Récap</button>
+          <button class="btn bg bsm" id="dossier-share-btn" onclick="showDossierShare()" style="white-space:nowrap;display:none"><i data-lucide=share-2 class=ic></i> Partager</button>
+        </div>
       </div>
 
       <div class="dossier-layout">
@@ -832,6 +835,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div><div style="font-weight:600;font-size:.88rem">Alternance</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat d\'apprentissage</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'stage')">
+                    <div><div style="font-weight:600;font-size:.88rem">Stage / Service civique</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Convention de stage</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'allocations_rsa')">
+                    <div><div style="font-weight:600;font-size:.88rem">RSA / Allocations</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Bénéficiaire CAF / RSA</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
                   <div class="doc-type-card" onclick="selectDocType(2,'autre_pro')">
                     <div><div style="font-weight:600;font-size:.88rem">Autres activités</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Artiste, intermittent...</div></div>
                     <span class="dtc-arrow">›</span>
@@ -885,8 +896,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div><div style="font-weight:600;font-size:.88rem">Bourse d\'études</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation CROUS</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'are_allocation')">
+                    <div><div style="font-weight:600;font-size:.88rem">ARE (indemnités chômage)</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation Pôle Emploi / France Travail</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'caf_rsa')">
+                    <div><div style="font-weight:600;font-size:.88rem">Allocations CAF / RSA</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation de droits CAF</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'revenus_fonciers')">
+                    <div><div style="font-weight:600;font-size:.88rem">Revenus fonciers</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Loyers perçus, quittances</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
                   <div class="doc-type-card" onclick="selectDocType(3,'autre_ressources')">
-                    <div><div style="font-weight:600;font-size:.88rem">Autres ressources</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Allocations, rentes...</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Autres ressources</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Rentes, aide familiale...</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                 </div>
@@ -980,7 +1003,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 </div>
                 <div id="dupload-5" style="display:none;margin-top:1rem">
                   <div class="ai" id="dtype-label-5"></div>
-                  <p style="font-size:.82rem;color:var(--tm);margin-bottom:.75rem;line-height:1.5">Votre garant devra fournir : pièce d\'identité, justificatifs de revenus et avis d\'imposition.</p>
+                  <div id="garant-guidance" style="display:none"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
                     <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                     <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -1007,8 +1030,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="fr"><i data-lucide=folder-open class=ic></i> Récapitulatif du dossier</div>
           <div class="ms">Statut de chaque document</div>
           <div id="dossier-summary-list"></div>
-          <div style="margin-top:1rem;text-align:right">
-            <button class="btn bp" onclick="document.getElementById('dossier-summary-modal').classList.remove('open')">Fermer</button>
+          <div style="margin-top:1rem;display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap">
+            <button class="btn bg" onclick="document.getElementById('dossier-summary-modal').classList.remove('open')">Fermer</button>
+            <button class="btn bp" id="dossier-share-from-summary" onclick="document.getElementById('dossier-summary-modal').classList.remove('open');showDossierShare()" style="display:none"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share modal -->
+      <div class="mover" id="dossier-share-modal">
+        <div class="modal" style="max-width:560px">
+          <button class="mclose" onclick="document.getElementById('dossier-share-modal').classList.remove('open')">✕</button>
+          <div class="fr"><i data-lucide=share-2 class=ic></i> Partager mon dossier</div>
+          <div class="ms">Envoyez ces liens à votre propriétaire ou à une agence — chaque lien est valable 7 jours</div>
+          <div id="dossier-share-list" style="margin-top:1rem"></div>
+          <div style="margin-top:1.25rem;padding:1rem;background:var(--s2);border-radius:10px;border:1px solid var(--b2)">
+            <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem">Copier tous les liens</div>
+            <textarea id="dossier-share-text" class="fta" rows="4" style="font-size:.72rem;font-family:monospace" readonly></textarea>
+            <button class="btn bp bsm" style="margin-top:.5rem" onclick="copyDossierLinks()"><i data-lucide=copy class=ic></i> Copier</button>
           </div>
         </div>
       </div>
@@ -1626,17 +1665,21 @@ async function openCreateGroupModal(preselectedId){
   const picker=document.getElementById('rm-group-member-picker');
   picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Chargement...</div>';
   try{
-    const{data:profiles}=await sb.from('roommate_profiles').select('locataire_id,full_name').neq('locataire_id',U.id).eq('actif',true);
-    if(!profiles?.length){
+    const{data:rmProfiles}=await sb.from('roommate_profiles').select('locataire_id').neq('locataire_id',U.id).eq('actif',true);
+    if(!rmProfiles?.length){
       picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Aucun autre profil actif pour l\'instant</div>';
     }else{
-      picker.innerHTML=profiles.map(p=>`
+      // Fetch real names from profiles table (source of truth) using clerk_id = locataire_id
+      const ids=rmProfiles.map(p=>p.locataire_id);
+      const{data:realProfiles}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',ids);
+      const nameMap={};(realProfiles||[]).forEach(p=>{nameMap[p.clerk_id]=p.full_name||p.email||'Locataire';});
+      picker.innerHTML=rmProfiles.map(p=>`
         <label style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem">
-          <input type="checkbox" value="${p.locataire_id}" class="rm-member-cb"${preselectedId&&p.locataire_id===preselectedId?' checked':''}> ${p.full_name||'Locataire'}
+          <input type="checkbox" value="${p.locataire_id}" class="rm-member-cb"${preselectedId&&p.locataire_id===preselectedId?' checked':''}> ${nameMap[p.locataire_id]||'Locataire'}
         </label>`).join('');
     }
-    // If preselectedId is not in roommate_profiles, fetch their name from profiles table and add them
-    if(preselectedId&&!(profiles||[]).find(p=>p.locataire_id===preselectedId)){
+    // If preselectedId is not in roommate_profiles, fetch from profiles and add them
+    if(preselectedId&&!(rmProfiles||[]).find(p=>p.locataire_id===preselectedId)){
       const{data:extProfile}=await sb.from('profiles').select('full_name,email').eq('clerk_id',preselectedId).single();
       if(extProfile){
         const name=extProfile.full_name||extProfile.email||'Locataire';
@@ -4498,11 +4541,49 @@ const DOSSIER_STEPS=[
 const DOSSIER_TYPE_LABELS={
   cni:'Carte nationale d\'identité',passeport:'Passeport',sejour:'Carte / titre de séjour',permis:'Permis de conduire',france_identite:'France Identité',autre_id:'Autre document',
   locataire:'Locataire (bail + quittances)',heberge:'Hébergé chez quelqu\'un',proprietaire:'Propriétaire (titre de propriété)',autre_heberg:'Autres situations',
-  cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',autre_pro:'Autres activités',
-  bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'Attestation de pension',bourse:'Bourse d\'études',autre_ressources:'Autres ressources',
+  cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage / Service civique',allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
+  bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',bourse:'Bourse d\'études (CROUS)',are_allocation:'ARE — indemnités chômage',caf_rsa:'Allocations CAF / RSA',revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
   avec_impot:'Avis d\'imposition',
   garant_personne:'Garant — une personne',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
   skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_garant:'Pas de garant'
+};
+
+// Contextual instructions shown after type selection — like DossierFacile
+const DOSSIER_TYPE_INSTRUCTIONS={
+  cni:'Recto et verso obligatoires. Le document doit être en cours de validité.',
+  passeport:'Les pages contenant votre photo et vos informations personnelles (double-page). En cours de validité.',
+  sejour:'Recto et verso du titre de séjour. En cours de validité.',
+  permis:'Recto et verso. Permis français ou européen.',
+  france_identite:'Attestation numérique délivrée par l\'application France Identité.',
+  autre_id:'Tout document d\'identité officiel en cours de validité.',
+  locataire:'Votre bail en cours + les 3 dernières quittances de loyer. Si vous avez emménagé récemment, les quittances disponibles suffisent.',
+  heberge:'Attestation d\'hébergement signée par votre hébergeur + copie de sa pièce d\'identité + un justificatif de domicile à son nom (facture EDF, eau ou téléphone < 3 mois).',
+  proprietaire:'Titre de propriété ou dernier avis de taxe foncière.',
+  autre_heberg:'Attestation de résidence ou tout document justifiant votre situation (résidence universitaire, foyer, etc.).',
+  cdi:'Contrat de travail signé par vous et l\'employeur (toutes les pages), ou attestation employeur datée de moins de 3 mois.',
+  cdd:'Contrat de travail signé (toutes les pages) indiquant la durée, ou attestation employeur datée de moins de 3 mois.',
+  fonctionnaire:'Arrêté de nomination ou attestation de l\'administration datée de moins de 3 mois.',
+  independant:'Extrait Kbis (moins de 3 mois) ou attestation INSEE, ou carte professionnelle. Pour une micro-entreprise : extrait Kbis ou attestation URSSAF.',
+  retraite:'Attestation de droits à la retraite ou notification de pension de l\'organisme de retraite.',
+  chomage:'Attestation d\'ouverture de droits ARE (Pôle Emploi / France Travail) ou avis de situation datée de moins de 3 mois.',
+  etudes:'Carte étudiante en cours de validité ou certificat de scolarité de l\'année en cours.',
+  alternance:'Contrat d\'apprentissage ou de professionnalisation signé par toutes les parties.',
+  stage:'Convention de stage signée par l\'établissement, l\'entreprise et le stagiaire.',
+  allocations_rsa:'Attestation de droits CAF ou de l\'organisme prescripteur datée de moins de 3 mois.',
+  autre_pro:'Tout document officiel attestant de votre activité professionnelle (contrat, attestation, relevé).',
+  bulletins:'Vos 3 derniers bulletins de salaire. Vous pouvez les uploader un par un ou en un seul PDF.',
+  avis_impot_ressources:'Dernier avis d\'imposition disponible sur impots.gouv.fr — toutes les pages visibles.',
+  bilan:'Vos 2 derniers bilans comptables signés ou déclarations de chiffre d\'affaires (H2/tableau récapitulatif).',
+  pension:'Vos 3 derniers bulletins de pension ou attestation de la caisse de retraite.',
+  bourse:'Notification d\'attribution de bourse de l\'année en cours (CROUS ou autre organisme).',
+  are_allocation:'Attestation d\'ouverture de droits ARE ou relevé de situation Pôle Emploi / France Travail (moins de 3 mois).',
+  caf_rsa:'Attestation de droits CAF / notification RSA datée de moins de 3 mois.',
+  revenus_fonciers:'Vos 3 dernières quittances de loyer perçues ou déclaration fiscale des revenus fonciers (formulaire 2044).',
+  autre_ressources:'Tout justificatif officiel de vos revenus (aide familiale, rente, pension alimentaire, etc.).',
+  avec_impot:'Avis d\'imposition complet disponible sur impots.gouv.fr — toutes les pages. Assurez-vous que le montant du revenu fiscal de référence est visible.',
+  garant_personne:'Votre garant doit fournir un dossier complet : <strong>pièce d\'identité</strong> + <strong>justificatif de domicile</strong> (facture < 3 mois ou 1 quittance) + <strong>justificatifs de revenus</strong> (3 bulletins de salaire ou équivalent) + <strong>avis d\'imposition</strong>. Regroupez tous ces documents dans un seul PDF pour simplifier l\'envoi.',
+  garant_organisme:'Attestation Visale, Garantme, Cautionnéo ou autre organisme de cautionnement. Le document doit mentionner votre nom, être daté et en cours de validité.',
+  garant_moral:'Extrait Kbis de l\'entreprise (moins de 3 mois) + pièce d\'identité du représentant légal signataire.',
 };
 
 // State: {step_index -> {type, files:[{name,url,path}], skipped}}
@@ -4541,6 +4622,9 @@ function renderDossierState(){
   const lbl=document.getElementById('dossier-pct-label');
   if(bar)bar.style.width=pct+'%';
   if(lbl)lbl.textContent=done+' / '+DOSSIER_STEPS.length+' documents';
+  // Show "Partager" button when complete
+  const shareBtn=document.getElementById('dossier-share-btn');
+  if(shareBtn)shareBtn.style.display=done===DOSSIER_STEPS.length?'inline-flex':'none';
   // Show badge in sidebar nav if incomplete
   const nb=document.getElementById('nb-dossier');
   if(nb)nb.style.display=done<DOSSIER_STEPS.length?'inline-flex':'none';
@@ -4586,6 +4670,39 @@ function selectDocType(idx,type){
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
   if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[type]||type)+'</strong>';
+  // Show contextual instructions if available
+  const instr=DOSSIER_TYPE_INSTRUCTIONS[type];
+  const instrBox=upload?.querySelector('.dossier-instr-box')||null;
+  if(instr&&upload){
+    let box=upload.querySelector('.dossier-instr-box');
+    if(!box){
+      box=document.createElement('div');
+      box.className='dossier-instr-box';
+      box.style.cssText='background:color-mix(in srgb,var(--bleu) 8%,transparent);border:1px solid color-mix(in srgb,var(--bleu) 25%,transparent);border-radius:10px;padding:.75rem 1rem;font-size:.8rem;color:var(--tm);line-height:1.6;margin-top:.75rem';
+      upload.insertBefore(box,upload.querySelector('.dossier-upload-area')||upload.firstChild);
+    }
+    box.innerHTML='<span style="font-weight:700;color:var(--bleu)"><i data-lucide=info class=ic></i> Documents à fournir</span><br>'+instr;
+  }
+  // Special guidance for garant physique
+  const garantGuide=document.getElementById('garant-guidance');
+  if(garantGuide){
+    if(type==='garant_personne'){
+      garantGuide.style.display='block';
+      garantGuide.innerHTML=`<div style="background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.8rem;color:var(--tm);line-height:1.6">
+        <div style="font-weight:700;margin-bottom:.4rem"><i data-lucide=list-checks class=ic></i> Documents requis du garant</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <div>✅ <strong>Pièce d'identité</strong> (CNI, passeport — en cours de validité)</div>
+          <div>✅ <strong>Justificatif de domicile</strong> (facture < 3 mois ou 1 quittance de loyer)</div>
+          <div>✅ <strong>Justificatifs de revenus</strong> (3 derniers bulletins ou équivalent)</div>
+          <div>✅ <strong>Avis d'imposition</strong> (impots.gouv.fr — toutes les pages)</div>
+        </div>
+        <div style="margin-top:.5rem;font-size:.75rem;color:var(--td)">Conseil : regroupez tous ces documents dans un seul PDF avant d'uploader.</div>
+      </div>`;
+    }else{
+      garantGuide.style.display='none';
+      garantGuide.innerHTML='';
+    }
+  }
   // Store type but not yet confirmed
   if(!dossierState[idx])dossierState[idx]={};
   dossierState[idx].pendingType=type;
@@ -4680,10 +4797,12 @@ function showDossierSummary(){
   const list=document.getElementById('dossier-summary-list');
   if(!list)return;
   let html='';
+  let allDone=true;
   DOSSIER_STEPS.forEach((s,i)=>{
     const st=dossierState[i];
     const hasDoc=st?.type&&!st?.skipped&&st?.files?.length>0;
     const skipped=st?.skipped;
+    if(!hasDoc&&!skipped)allDone=false;
     html+=`<div class="doc-status-row" style="margin-bottom:.5rem">
       <div style="flex:1"><div class="dsr-label">${s.label}</div>
       ${st?.type?'<div class="dsr-sub">'+(DOSSIER_TYPE_LABELS[st.type]||st.type)+'</div>':''}
@@ -4695,8 +4814,54 @@ function showDossierSummary(){
     </div>`;
   });
   list.innerHTML=html;
+  const shareBtn=document.getElementById('dossier-share-from-summary');
+  if(shareBtn)shareBtn.style.display=allDone?'inline-flex':'none';
   document.getElementById('dossier-summary-modal').classList.add('open');
   if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function showDossierShare(){
+  const modal=document.getElementById('dossier-share-modal');
+  if(!modal)return;
+  const list=document.getElementById('dossier-share-list');
+  const textarea=document.getElementById('dossier-share-text');
+  let html='';
+  let textLines=[`Dossier de ${P?.full_name||'locataire'} — ${new Date().toLocaleDateString('fr-FR')}\n`];
+  DOSSIER_STEPS.forEach((s,i)=>{
+    const st=dossierState[i];
+    if(!st?.files?.length)return;
+    html+=`<div style="margin-bottom:.75rem"><div style="font-size:.78rem;font-weight:700;color:var(--tm);margin-bottom:.3rem">${s.label} — ${DOSSIER_TYPE_LABELS[st.type]||st.type}</div>`;
+    textLines.push(`\n== ${s.label} (${DOSSIER_TYPE_LABELS[st.type]||st.type}) ==`);
+    st.files.forEach(f=>{
+      html+=`<div style="display:flex;align-items:center;gap:.6rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem .75rem;margin-bottom:.25rem;font-size:.8rem">
+        <i data-lucide=file-text class=ic style="color:var(--bleu);flex-shrink:0"></i>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+        <a href="${f.url}" target="_blank" class="btn bp bsm" style="flex-shrink:0;font-size:.72rem">Ouvrir →</a>
+      </div>`;
+      textLines.push(f.url);
+    });
+    html+='</div>';
+  });
+  if(!html){
+    list.innerHTML='<div style="font-size:.85rem;color:var(--td)">Aucun document uploadé pour l\'instant.</div>';
+    textarea.value='';
+  }else{
+    list.innerHTML=html;
+    textarea.value=textLines.join('\n');
+  }
+  modal.classList.add('open');
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function copyDossierLinks(){
+  const ta=document.getElementById('dossier-share-text');
+  if(!ta)return;
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    toast('<i data-lucide=check-circle-2 class=ic></i> Liens copiés !');
+  }).catch(()=>{
+    ta.select();document.execCommand('copy');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Liens copiés !');
+  });
 }
 
 // ── Vérification dossier avant demande de visite ──────────────
