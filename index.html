@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Trouve Ton Toit — Location immobilière en France</title>
+<meta name="description" content="Trouvez des logements vérifiés en France avec chat en direct, visites guidées et baux e-signés — no agents, no Facebook groups. Location courte et longue durée — étudiants, expatriés, résidents.">
+<link rel="canonical" href="https://trouvetonoit.fr/">
+<meta name="robots" content="index, follow">
+<meta name="google-site-verification" content="5vB3Az7o83wT0tdPP83nUMNl-SItQ3r9qm0gvWzQ6yc" />
+
+<!-- Ouvrir Graph — comment le lien apparaît quand il est partagé (WhatsApp, Facebook, LinkedIn...) -->
+<meta bien="og:type" content="website">
+<meta bien="og:site_name" content="Trouve Ton Toit">
+<meta bien="og:title" content="Trouve Ton Toit — Location immobilière en France">
+<meta bien="og:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Sans frais cachés, sans agents fantômes  depuis  a WhatsApp group.">
+<meta bien="og:url" content="https://trouvetonoit.fr/">
+<meta bien="og:image" content="https://trouvetonoit.fr/og-image.png">
+<meta bien="og:locale" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trouve Ton Toit — Location immobilière en France">
+<meta name="twitter:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit in France.">
+<meta name="twitter:image" content="https://trouvetonoit.fr/og-image.png">
+
+<meta name="theme-color" content="#1B4FD8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-statut-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trouve Ton Toit">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Données structurées — aide Google à comprendre que c'est un service immobilier -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Trouve Ton Toit",
+  "description": "France's smart location platform — annonces vérifiées, chat en direct, visites guidées et baux e-signés.",
+  "url": "https://trouvetonoit.fr/",
+  "areaServed": {
+    "@type": "Country",
+    "name": "France"
+  }
+}
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+<script>
+  // ── Clerk config ──────────────────────────────────────────────
+  window.__clerk_publishable_key = 'pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<style>
+:root{--sand:#EEF2FF;--warm:#F8FAFF;--terra:#1B4FD8;--terra-l:#4B7BE5;--ochre:#3B82F6;--deep:#1A1410;--stone:#6B5F52;--stone-l:#887A68;--sea:#0F2D7A;--green:#4CAF7D}
+
+
+
+
+
+
+
+
+
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--deep);overflow-x:hidden}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 4rem;background:rgba(253,250,244,0.93);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,85,58,0.1)}
+.logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--terra);cursor:pointer}
+.logo span{color:var(--deep)}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{text-decoration:none;color:var(--stone);font-size:0.9rem;font-weight:500;cursor:pointer;transition:color .2s}
+.nav-links a:hover{color:var(--terra)}
+.nav-act{display:flex;gap:.75rem;align-items:center}
+
+.btn{padding:.65rem 1.4rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s}
+.btn-p{background:var(--terra);color:white;box-shadow:0 4px 16px rgba(201,85,58,.25)}
+.btn-p:hover{background:var(--terra-l);transform:translateY(-2px)}
+.btn-s{background:transparent;color:var(--deep);border:1.5px solid rgba(26,20,16,.18)}
+.btn-s:hover{border-color:var(--terra);color:var(--terra)}
+.btn-sm{padding:.45rem 1rem;font-size:.8rem}
+
+.page{display:none;min-height:100vh;padding-top:80px}
+.page.actif{display:block;animation:fu .3s ease}
+@keyframes fu{ depuis {opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{min-height:calc(100vh - 80px);display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 80% 50%,rgba(46,107,138,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(201,85,58,.05) 0%,transparent 70%)}
+.hero-l{display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 5rem;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,85,58,.1);color:var(--terra);border:1px solid rgba(201,85,58,.2);padding:.4rem 1rem;border-radius:100px;font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;width:fit-content;margin-bottom:1.8rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,4.5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-1.5px;margin-bottom:1.3rem}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero-desc{font-size:1rem;color:var(--stone);line-height:1.7;max-width:420px;margin-bottom:2rem}
+.hero-acts{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
+.hero-stats{display:flex;gap:2.5rem;padding-top:2rem;border-top:1px solid rgba(107,95,82,.12)}
+.sn{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--terra)}
+.sl{font-size:.75rem;color:var(--stone-l);font-weight:500}
+
+.hero-r{display:flex;align-items:center;justify-content:center;padding:2rem}
+.pcard{background:white;border-radius:20px;padding:1.5rem;box-shadow:0 20px 60px rgba(26,20,16,.12);width:100%;max-width:400px}
+.pmap{width:100%;height:200px;background:linear-gradient(135deg,#CBE4F0,#BFD8E8);border-radius:12px;position:relative;overflow:hidden;margin-bottom:1.2rem}
+.pmap svg{width:100%;height:100%;position:absolute;top:0;left:0}
+.mpin{position:absolute;display:flex;flex-direction:column;align-items:center;animation:pb 2s infinite}
+.mpin .pl{background:white;padding:.2rem .5rem;border-radius:6px;font-size:.63rem;font-weight:700;color:var(--deep);box-shadow:0 2px 6px rgba(0,0,0,.1);margin-bottom:.2rem;white-space:nowrap}
+.mpin .pd{width:10px;height:10px;background:var(--terra);border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(201,85,58,.4)}
+@keyframes pb{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.pi-a{top:29%;left:60%;animation-delay:0s}.pi-b{top:36%;left:64%;animation-delay:.3s}.pi-c{top:46%;left:70%;animation-delay:.6s}.pi-d{top:36%;left:22%;animation-delay:.9s}
+.pitems{display:flex;flex-direction:column;gap:.6rem}
+.pitem{display:flex;align-items:center;gap:.75rem;padding:.65rem .8rem;background:var(--warm);border-radius:10px;border:1px solid rgba(107,95,82,.08);cursor:pointer;transition:all .2s}
+.pitem:hover{border-color:var(--terra);transform:translateX(3px)}
+.pe{font-size:1.3rem;flex-shrink:0}
+.pi{flex:1}
+.pt{font-size:.8rem;font-weight:600}
+.ps{font-size:.68rem;color:var(--stone-l)}
+.pp{font-family:'Playfair Display',serif;font-weight:700;color:var(--terra);font-size:.85rem}
+
+/* SEARCH */
+.search-sec{padding:0 4rem 2rem}
+.sbar{background:white;border-radius:16px;padding:1.2rem 1.5rem;box-shadow:0 8px 32px rgba(26,20,16,.08);display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end;border:1px solid rgba(107,95,82,.08)}
+.sf{display:flex;flex-direction:column;gap:.3rem}
+.sf label{font-size:.67rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--stone-l)}
+.sf select{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--deep);font-weight:500;padding:.3rem 0;border-bottom:1.5px solid rgba(107,95,82,.2);outline:none;cursor:pointer;width:100%;transition:border-color .2s}
+.sf select:focus{border-color:var(--terra)}
+
+/* HOW IT WORKS */
+.hiw{padding:5rem 4rem;background:white}
+.stag{display:inline-flex;align-items:center;background:rgba(212,168,71,.1);color:var(--ochre);border:1px solid rgba(212,168,71,.2);padding:.35rem 1rem;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1.2rem}
+.hiw h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:.8rem}
+.hiw h2 em{font-style:italic;color:var(--terra)}
+.hiw p{color:var(--stone);font-size:.95rem;line-height:1.7;max-width:480px;margin-bottom:3rem}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
+.step{padding:1.8rem;border-radius:18px;border:1px solid rgba(107,95,82,.1);background:var(--warm);transition:all .3s;position:relative;overflow:hidden}
+.step::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--terra);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.step:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(26,20,16,.08)}
+.step:hover::before{transform:scaleX(1)}
+.snum{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:rgba(201,85,58,.1);line-height:1;margin-bottom:.8rem}
+.sico{font-size:1.6rem;margin-bottom:.8rem}
+.step h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.step p{font-size:.85rem;color:var(--stone);line-height:1.6}
+
+/* FEATURES */
+.feat{background:var(--deep);color:white;padding:5rem 4rem}
+.feat .stag{background:rgba(255,255,255,.07);color:var(--ochre);border-color:rgba(212,168,71,.2)}
+.feat h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;color:white;margin-bottom:3rem}
+.feat h2 em{font-style:italic;color:var(--terra)}
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:900px;margin:0 auto}
+.fc{padding:1.8rem;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);transition:all .3s}
+.fc:hover{background:rgba(255,255,255,.08);border-color:rgba(201,85,58,.3);transform:translateY(-3px)}
+.fci{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1rem}
+.fc h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.4rem}
+.fc p{font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6}
+
+/* LISTINGS */
+.ls{padding:3rem 4rem 5rem;background:var(--sand)}
+.ls-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem}
+.ls-head h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800}
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.pagebtn{background:white;border:1px solid rgba(107,95,82,.15);color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;padding:.55rem .9rem;border-radius:8px;cursor:pointer;transition:all .15s}
+.pagebtn:hover:not(:disabled){border-color:var(--terra);color:var(--terra)}
+.pagebtn.act{background:var(--terra);color:white;border-color:var(--terra)}
+.pagebtn:disabled{opacity:.35;cursor:default}
+.pagedots{color:var(--stone-l);padding:0 .3rem;font-size:.85rem}
+.lcard{background:white;border-radius:18px;overflow:hidden;border:1px solid rgba(107,95,82,.08);transition:all .3s;cursor:pointer}
+.lcard:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(26,20,16,.1)}
+.limg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
+.lbadge{position:absolute;top:.75rem;left:.75rem;padding:.25rem .7rem;border-radius:100px;font-size:.68rem;font-weight:700}
+.bs{background:var(--terra);color:white}.bl{background:var(--sea);color:white}.bsub{background:var(--ochre);color:white}
+.lbody{padding:1.1rem}
+.lzone{font-size:.72rem;color:var(--stone-l);margin-bottom:.3rem;font-weight:500}
+.ltitle{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;margin-bottom:.6rem;line-height:1.3}
+.ltags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
+.ltag{background:var(--sand);color:var(--stone);padding:.2rem .6rem;border-radius:100px;font-size:.66rem}
+.lfoot{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid rgba(107,95,82,.1)}
+.lprice{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--terra)}
+.lper{font-size:.7rem;color:var(--stone-l)}
+
+/* FOOTER */
+footer{background:var(--deep);color:white;padding:4rem 4rem 2rem}
+.fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.flogo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--terra);margin-bottom:.8rem}
+.fdesc{font-size:.82rem;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px}
+footer h4{font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1rem}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+footer ul a{text-decoration:none;color:rgba(255,255,255,.45);font-size:.85rem;cursor:pointer;transition:color .2s}
+footer ul a:hover{color:var(--terra)}
+.fbot{border-top:1px solid rgba(255,255,255,.07);padding-top:1.5rem;display:flex;justify-content:space-between}
+.fbot p{font-size:.75rem;color:rgba(255,255,255,.2)}
+
+/* AUTH */
+.awrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 80px);padding:2rem;background:radial-gradient(ellipse at 50% 0%,rgba(201,85,58,.05) 0%,transparent 60%)}
+.acard{background:white;border-radius:24px;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(26,20,16,.1);border:1px solid rgba(107,95,82,.08)}
+.atitle{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800;margin-bottom:.3rem}
+.asub{color:var(--stone);font-size:.85rem;margin-bottom:1.5rem}
+.atabs{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px;margin-bottom:1.5rem}
+.atab{flex:1;padding:.55rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.atab.actif{background:white;color:var(--deep);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rtog{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px;margin-bottom:1.2rem}
+.rbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.rbtn.actif{background:var(--terra);color:white;font-weight:600}
+.fg2{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.fg2 label{font-size:.75rem;font-weight:600;color:var(--stone)}
+.fi{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%}
+.fi:focus{border-color:var(--terra);background:white}
+.fsel{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;cursor:pointer;width:100%}
+.fta{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%;resize:vertical}
+.fta:focus{border-color:var(--terra);background:white}
+.aerr{background:rgba(201,85,58,.08);color:var(--terra);padding:.7rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:none;border:1px solid rgba(201,85,58,.15)}
+.aok{background:rgba(76,175,125,.08);color:#2d7a56;padding:.7rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:none;border:1px solid rgba(76,175,125,.2)}
+
+/* POST */
+.pwrap{max-width:700px;margin:0 auto;padding:3rem 2rem 5rem}
+.ptitle{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;margin-bottom:.3rem}
+.psub{color:var(--stone);margin-bottom:2rem;font-size:.95rem}
+.fcard{background:white;border-radius:20px;padding:2rem;box-shadow:0 8px 32px rgba(26,20,16,.06);border:1px solid rgba(107,95,82,.08);margin-bottom:1.5rem}
+.fcard h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid rgba(107,95,82,.1)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.ttog{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px}
+.tbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.tbtn.actif{background:var(--terra);color:white;font-weight:600}
+.cbwrap{display:flex;gap:1.5rem;flex-wrap:wrap}
+.cl{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--stone);cursor:pointer}
+.cl input{accent-color:var(--terra);width:15px;height:15px;cursor:pointer}
+
+/* DETAIL */
+.dwrap{max-width:900px;margin:0 auto;padding:2rem 2rem 5rem}
+.dhero{border-radius:20px;height:380px;display:flex;align-items:center;justify-content:center;font-size:7rem;position:relative;margin-bottom:.75rem;overflow:hidden;background:#1a1410}
+.dphoto-main{width:100%;height:380px;object-fit:contain;border-radius:20px;cursor:pointer;background:#1a1410}
+.dphoto-thumbs{display:flex;gap:.4rem;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:.2rem}
+.dphoto-thumb{width:72px;height:52px;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.6;transition:all .2s;flex-shrink:0;border:2px solid transparent}
+.dphoto-thumb.actif{opacity:1;border-color:var(--terra)}
+.dphoto-thumb:hover{opacity:.9}
+.dphoto-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:white;border:none;border-radius:50%;width:36px;height:36px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background .2s}
+.dphoto-nav:hover{background:rgba(0,0,0,.8)}
+.dphoto-count{position:absolute;bottom:.6rem;right:.75rem;background:rgba(0,0,0,.6);color:white;font-size:.72rem;padding:.2rem .5rem;border-radius:20px}
+.bbtn{position:absolute;top:1.2rem;left:1.2rem;background:white;border:none;padding:.5rem 1.2rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.1);transition:all .2s}
+.bbtn:hover{transform:translateX(-2px)}
+.dgrid{display:grid;grid-template-columns:1.4fr 1fr;gap:2.5rem}
+.dtitle{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.5rem}
+.dzone{color:var(--stone-l);font-size:.9rem;margin-bottom:1.2rem}
+.dfeats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.dfeat{background:var(--sand);padding:.35rem .85rem;border-radius:100px;font-size:.78rem;color:var(--stone)}
+.ddesc{color:var(--stone);line-height:1.8;font-size:.92rem;margin-bottom:2rem}
+.ccard{background:white;border-radius:20px;padding:1.8rem;border:1px solid rgba(107,95,82,.1);box-shadow:0 8px 30px rgba(26,20,16,.08);position:sticky;top:100px}
+.cprice{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--terra)}
+.cper{font-size:.78rem;color:var(--stone-l);margin-bottom:1.2rem}
+.cinfo{display:flex;flex-direction:column;gap:.6rem;padding-bottom:1.2rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(107,95,82,.1)}
+.crow{display:flex;justify-content:space-between;font-size:.83rem}
+.crow span:first-child{color:var(--stone-l)}
+.crow span:last-child{font-weight:600}
+
+/* DASHBOARD */
+.dwrap2{max-width:960px;margin:0 auto;padding:2.5rem 2rem 5rem}
+.dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.dtabs{display:flex;gap:.3rem;background:var(--sand);border-radius:10px;padding:4px;width:fit-content;margin-bottom:1.5rem}
+.dtab{padding:.5rem 1.2rem;border-radius:8px;font-size:.83rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--stone);font-family:'DM Sans',sans-serif;transition:all .15s}
+.dtab.actif{background:var(--terra);color:white;font-weight:600}
+.dpanel{display:none}
+.dpanel.actif{display:block;animation:fu .2s ease}
+.mlcard{background:white;border-radius:14px;padding:1.2rem 1.4rem;border:1px solid rgba(107,95,82,.1);display:flex;gap:1rem;align-items:center;margin-bottom:.8rem;transition:all .2s}
+.mlcard:hover{border-color:rgba(107,95,82,.2);box-shadow:0 4px 16px rgba(26,20,16,.06)}
+.mlico{width:44px;height:44px;border-radius:10px;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.mli{flex:1;min-width:0}
+.mlt{font-weight:600;font-size:.9rem;margin-bottom:.2rem}
+.mls{font-size:.75rem;color:var(--stone-l)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:.3rem}
+.dg{background:var(--green)}.dr{background:var(--terra)}
+.msgcard{background:white;border-radius:14px;padding:1.1rem 1.4rem;border:1px solid rgba(107,95,82,.1);display:flex;gap:1rem;align-items:flex-start;margin-bottom:.75rem;cursor:pointer;transition:all .2s}
+.msgcard:hover{border-color:var(--terra);transform:translateX(3px)}
+.mav{width:38px;height:38px;border-radius:50%;background:rgba(201,85,58,.1);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--terra);font-size:.82rem;flex-shrink:0}
+.mprev{font-size:.78rem;color:var(--stone-l);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.mtime{font-size:.68rem;color:var(--stone-l);white-space:nowrap}
+.ubadge{width:8px;height:8px;background:var(--terra);border-radius:50%;flex-shrink:0;margin-top:.5rem}
+
+/* MODAL */
+.mover{position:fixed;inset:0;background:rgba(26,20,16,.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+.mover.open{display:flex}
+.modal{background:white;border-radius:22px;padding:2rem;max-width:500px;width:100%;position:relative;animation:fu .25s ease;max-height:88vh;overflow-y:auto}
+.mclose{position:absolute;top:1rem;right:1rem;background:var(--sand);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--stone);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mclose:hover{background:rgba(201,85,58,.1);color:var(--terra)}
+.mt{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
+.ms{color:var(--stone);font-size:.82rem;margin-bottom:1.2rem}
+.thread{display:flex;flex-direction:column;gap:.6rem;max-height:220px;overflow-y:auto;padding:.5rem 0;margin-bottom:.8rem}
+.bt{background:var(--sand);padding:.65rem .9rem;border-radius:4px 12px 12px 12px;font-size:.83rem;color:var(--stone);line-height:1.5;align-self:flex-start;max-width:85%}
+.bm{background:var(--terra);color:white;padding:.65rem .9rem;border-radius:12px 4px 12px 12px;font-size:.83rem;line-height:1.5;align-self:flex-end;max-width:85%}
+
+.chargement{display:flex;align-items:center;justify-content:center;padding:4rem 2rem;color:var(--stone-l);gap:.6rem;grid-column:1/-1}
+.sp{width:20px;height:20px;border:2px solid rgba(201,85,58,.2);border-top-color:var(--terra);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:4rem 2rem;color:var(--stone);grid-column:1/-1}
+.empty .emo{font-size:3rem;margin-bottom:1rem}
+.empty p{font-size:.9rem;margin-bottom:1.5rem;line-height:1.6}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;left:1.5rem;max-width:400px;margin-left:auto;background:var(--deep);color:white;padding:.85rem 1.4rem;border-radius:12px;font-size:.85rem;z-index:1000;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.show{transform:translateY(0);opacity:1}
+
+
+.promo-banner strong{font-weight:700}
+.promo-banner .pbadge{background:var(--ochre);color:#1A1410;padding:.2rem .65rem;border-radius:100px;font-size:.7rem;font-weight:800;letter-spacing:.3px}
+.promo-banner-close{position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:white;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.promo-banner-close:hover{background:rgba(255,255,255,.35)}
+
+@media(max-width:768px){
+  .ttog{flex-wrap:wrap!important}
+  .ttog .tbtn{flex:1 1 45%!important;min-width:120px}
+  .fi,.fsel,.fta{font-size:16px!important}
+  #map-container{height:320px!important}
+  .dphoto-main{height:240px!important}
+  .dphoto-nav{width:40px!important;height:40px!important}
+  .dépôt de garantie-grid{grid-template-columns:1fr 1fr!important}
+  body{overflow-x:hidden!important}
+  *{max-width:100vw}
+  .hero-stats{gap:1.5rem!important}
+  section,div{overflow-x:hidden}
+
+  .hero{grid-template-columns:1fr!important}
+  .hero-r{display:none!important}
+  .hero-l{padding:2rem 1.2rem!important}
+  .sbar{grid-template-columns:1fr!important;padding:1rem!important}
+  .lgrid{grid-template-columns:1fr!important}
+  .steps,.fgrid{grid-template-columns:1fr!important}
+  .hiw,.feat,.ls{padding:2.5rem 1.2rem!important}
+  .trust{padding:2rem 1.2rem!important;flex-wrap:wrap}
+  footer{padding:2.5rem 1.2rem 1.5rem!important}
+  .fg{grid-template-columns:1fr!important}
+  .dgrid{grid-template-columns:1fr!important}
+  .frow{grid-template-columns:1fr!important}
+  .awrap{padding:1rem!important}
+  .acard{padding:1.5rem!important}
+  .pwrap{padding:1.5rem 1rem!important}
+  .dwrap,.dwrap2{padding:1.5rem 1rem!important}
+  nav{padding:.8rem 1rem!important}
+  .nav-links{display:none!important}
+  .nav-act{gap:.4rem!important}
+  .nav-act span{display:none!important}
+  .nav-act .btn-sm{padding:.4rem .65rem!important;font-size:.72rem!important;min-height:44px}
+  .dépôt de garantie-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:1200px) et (min-width:901px){
+  .lgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}.nav-links{display:none}
+  .hero{grid-template-columns:1fr}.hero-r{display:none}.hero-l{padding:3rem 1.5rem}
+  .search-sec{padding:0 1.5rem 2rem}.sbar{grid-template-columns:1fr}
+  .hiw,.feat{padding:3rem 1.5rem}.steps,.fgrid{grid-template-columns:1fr}
+  .ls{padding:2.5rem 1.5rem}.lgrid{grid-template-columns:1fr}
+  .trust{padding:2rem 1.5rem}footer{padding:3rem 1.5rem 2rem}.fg{grid-template-columns:1fr 1fr}
+  .dgrid{grid-template-columns:1fr}.frow{grid-template-columns:1fr}
+}
+</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NGD9YC7TNK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NGD9YC7TNK');
+  gtag('config', 'GT-K466VC2J');
+</script>
+</head>
+<body>
+
+
+<nav>
+  <div class="logo" onclick="go('home')"><svg width="16" height="16" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-2px;margin-right:.35rem"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="var(--terra)"/></svg>Rest<span>France</span></div>
+  <ul class="nav-links">
+    <li><a onclick="go('home');stl()">Browse flats</a></li>
+    <li><a href="/how-it-works.html">Comment ça marche</a></li>
+    <li id="np" style="display:none"><a onclick="chkPost()">Publier un logement</a></li>
+    <li id="nd" style="display:none"><a onclick="goToDash()">My Tableau de bord</a></li>
+  </ul>
+  <div class="nav-act" id="na">
+    <button class="btn btn-s btn-sm" onclick="go('auth')">Se connecter</button>
+    <button class="btn btn-p btn-sm" onclick="go('auth')">Publier votre logement →</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page actif" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-l">
+      <div class="hero-tag">🇲🇹 La première plateforme locative intelligente de France</div>
+      <h1><em>Trouve Ton Toit</em> — La façon sécurisée de louer en France.</h1>
+      <p class="hero-desc">Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. No cash to strangers, no vanishing "agents"  depuis  a WhatsApp group.</p>
+      <div class="hero-acts">
+        <button class="btn btn-p" onclick="stl()"><i data-lucide=search class=ic></i> Browse annonces</button>
+        <button class="btn btn-s" onclick="chkPost()"><i data-lucide=home class=ic></i> Publier votre logement</button>
+      </div>
+      <div id="hero-agences-link" onclick="go('agences')" style="display:none;margin-top:1rem;align-items:center;gap:.6rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:100px;padding:.55rem 1.1rem;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(99,102,241,.16)'" onmouseout="this.style.background='rgba(99,102,241,.1)'">
+        <span style="font-size:1.1rem"><i data-lucide=building-2 class=ic></i></span>
+        <span style="font-size:.85rem;font-weight:700;color:#4F46E5">Selling or renting through an agence? Browse agences →</span>
+      </div>
+
+      <div class="hero-stats">
+        <div><div class="sn" id="sc">—</div><div class="sl">Actif annonces</div></div>
+      </div>
+    </div>
+    <div class="hero-r">
+      <div class="pcard">
+        <div style="padding:1rem 1rem 0;font-size:.72rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px"><i data-lucide=sparkle class=ic></i> Live on Trouve Ton Toit right now</div>
+        <div class="pitems" id="hero-live-annonces">
+          <div class="pitem"><div class="pi"><div class="pt">Chargement real annonces…</div></div></div>
+        </div>
+        <div style="padding:0 1rem 1rem"><a onclick="stl()" style="display:block;text-align:center;background:var(--terra);color:white;text-decoration:none;padding:.7rem;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer">Browse all annonces →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-sec" id="la">
+    <div class="sbar">
+      <div class="sf"><label><i data-lucide=map-pin class=ic></i> Zone</label><input list="zones-list" id="fz" onchange="loadL()" oninput="loadL()" placeholder="Any zone..." style="border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--deep);font-weight:500;padding:.3rem 0;border-bottom:1.5px solid rgba(107,95,82,.2);outline:none;width:100%">
+<datalist id="zones-list">
+  <option value="St. Julian's"><option value="Paris"><option value="Paris"><option value="Paris">
+  <option value="Paris"><option value="Gozo"><option value="Birkirkara"><option value="Swieqi">
+  <option value="Paceville"><option value="Bugibba"><option value="St. Paul's Bay"><option value="Mellieha">
+  <option value="Mosta"><option value="Naxxar"><option value="Rabat"><option value="Mdina">
+  <option value="Marsaskala"><option value="Marsaxlokk"><option value="Birgu"><option value="Senglea">
+</datalist></div>
+      <div class="sf"><label><i data-lucide=calendar class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
+        <option value="">All types</option>
+        <option value="short"><i data-lucide=home class=ic></i> Location courte durée only</option>
+        <option value="long"><i data-lucide=calendar class=ic></i> Location longue durée only</option>
+        <option value="room_rental"><i data-lucide=key class=ic></i> Room location</option>
+        <option value="for_sale"><i data-lucide=tag class=ic></i>️ À vendre</option>
+      </select></div>
+      <div class="sf" id="fp-wrap"><label>💶 Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
+      <div class="sf"><label><i data-lucide=clipboard-list class=ic></i> Attestation</label><select id="fa" onchange="loadL()"><option value="">All</option><option value="yes"><i data-lucide=check-circle-2 class=ic></i> Attestation OK</option></select></div>
+      <div class="sf"><label><i data-lucide=home class=ic></i> Listed by</label><select id="fsrc" onchange="loadL()"><option value="">Owner or agence</option><option value="owner"><i data-lucide=user class=ic></i> Directement du propriétaire</option><option value="agence"><i data-lucide=building-2 class=ic></i> Via an agence</option></select></div>
+      <button class="btn btn-p" onclick="loadL()">Rechercher →</button>
+    </div>
+  </div>
+
+  <div class="ls">
+    <div class="ls-head">
+      <div><h2>Latest annonces</h2><p style="font-size:.82rem;color:var(--stone-l);margin-top:.2rem" id="lc"></p></div>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn btn-s btn-sm" id="view-toggle" onclick="toggleMapView()"><i data-lucide=map class=ic></i> Vue carte</button>
+        <button class="btn btn-s btn-sm" onclick="chkPost()">+ Publier votre logement</button>
+      </div>
+    </div>
+    <!-- MAP VIEW -->
+    <div id="map-container" style="display:none;height:500px;border-radius:16px;overflow:hidden;margin-bottom:1.5rem;border:1px solid rgba(107,95,82,.12)">
+      <div id="annonces-map" style="height:100%;width:100%"></div>
+    </div>
+    <div id="lg" class="lgrid"><div class="chargement"><div class="sp"></div> Chargement annonces…</div></div>
+    <div id="lpagination" style="display:flex;gap:.4rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap"></div>
+  </div>
+
+  <div class="hiw">
+    <div class="stag"><i data-lucide=sparkle class=ic></i> Simple process</div>
+    <h2>How <em>Trouve Ton Toit</em> works</h2>
+    <p>Une expérience différente selon votre profil — voir le guide complet pour locataires, propriétaires et agences.</p>
+    <a href="/how-it-works.html" style="display:inline-block;background:var(--terra);color:white;text-decoration:none;padding:.9rem 2.2rem;border-radius:100px;font-weight:700;font-size:.92rem">See comment ça marche →</a>
+  </div>
+
+  <div class="feat">
+    <div class="stag"><i data-lucide=sparkle class=ic></i> Platform features</div>
+    <h2>Everything you need,<br><em>nothing</em> you don't.</h2>
+    <div class="fgrid">
+      <div class="fc"><div class="fci" style="background:rgba(201,85,58,.15)"><i data-lucide=message-circle class=ic></i></div><h3>Real-time chat</h3><p>Messagerie instantanée entre locataires et propriétaires. Les messages apparaissent en direct — sans actualisation. Comme WhatsApp, intégré à la plateforme.</p></div>
+      <div class="fc"><div class="fci" style="background:rgba(99,102,241,.15)"><i data-lucide=building-2 class=ic></i></div><h3>Immobilier agences</h3><p>Les agences gèrent tout en votre nom — annonce, visites, candidatures, bail, entrée dans les lieux — avec their own tableau de bord et a public directory profil propriétaires can browse et contact directly.</p></div>
+      <div class="fc"><div class="fci" style="background:rgba(201,85,58,.15)"><i data-lucide=clipboard-list class=ic></i></div><h3>Digital locataire dossier</h3><p>Téléverser votre ID, employment letter, bank statements et references once — propriétaires see votre vérifié profil et documents in one click. Co-locataires get their own dossier too.</p></div>
+      <div class="fc"><div class="fci" style="background:rgba(139,92,246,.15)"><i data-lucide=camera class=ic></i></div><h3>Photographed entrée dans les lieux état des lieux</h3><p>Chaque pièce et chaque compteur est consigné et photographié à l'état des lieux d'entrée, kept as proof both parties can access anytime — no more disputes over who broke what.</p></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="fg">
+      <div><div class="flogo"><svg width="16" height="16" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-2px;margin-right:.35rem"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="var(--terra)"/></svg>Trouve Ton Toit</div><p class="fdesc">La première plateforme locative intelligente de France. Real-time chat, visites guidées, baux e-signés et a photographed entrée dans les lieux état des lieux. Built pour interns, expats et independent propriétaires.</p></div>
+      <div><h4>Pour les locataires</h4><ul><li><a onclick="stl()">Browse annonces</a></li><li><a onclick="stl()">Virtual visites</a></li><li><a onclick="go('auth')">Build votre dossier</a></li><li><a onclick="stl()">Room location</a></li></ul></div>
+      <div><h4>For propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Browse agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
+      <div><h4>Legal</h4><ul><li><a href="/terms.html">Terms of service</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/cookies.html">Cookie policy</a></li><li><a href="/contact.html">Contact us</a></li></ul></div>
+    </div>
+    <div class="fbot"><p>© 2026 Trouve Ton Toit. Made avec <i data-lucide=sun class=ic></i>️ in France.</p><p>Pas affilié au gouvernement français. Trouve Ton Toit n'est pas une agence immobilière.</p></div>
+  </footer>
+</div>
+
+<!-- AUTH -->
+<div class="page" id="page-auth">
+  <div class="awrap"><div class="acard">
+    <div class="atitle">Welcome to Trouve Ton Toit</div>
+    <div class="asub">Se connecter to access votre tableau de bord</div>
+    <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem">
+      <button onclick="signInWithGoogle()" style="width:100%;padding:.85rem;border:1.5px solid rgba(107,95,82,.2);border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:#1A1410;transition:all .2s" onmouseover="this.style.borderColor='#4285F4'" onmouseout="this.style.borderColor='rgba(107,95,82,.2)'">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue avec Google
+      </button>
+      <button onclick="signInWithFacebook()" style="width:100%;padding:.85rem;border:none;border-radius:12px;background:#1877F2;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:white;transition:all .2s" onmouseover="this.style.background='#0d6edb'" onmouseout="this.style.background='#1877F2'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Continue avec Facebook
+      </button>
+    </div>
+    <div style="margin-top:1.5rem;font-size:.75rem;color:var(--stone-l);text-align:center;line-height:1.6">
+      <i data-lucide=check-circle-2 class=ic></i> Annonces vérifiées · <i data-lucide=lock class=ic></i> Secure · 🇲🇹 France only
+    </div>
+  </div></div>
+</div>
+<div class="page" id="page-post">
+  <div class="pwrap">
+    <div class="ptitle">Post  votre annonce</div>
+    <div class="psub">Reach vérifié locataires across France — interns, expats, nomads. Free to post.</div>
+
+    <!-- Choix : je remplis moi-même vs passer par une agence -->
+    <div class="fcard" id="post-choice-screen">
+      <h3>How would you like to list votre bien?</h3>
+      <div class="post-choice-grid" style="display:flex;flex-direction:column;gap:.85rem;margin-top:1rem">
+        <div onclick="document.getElementById('post-choice-screen').style.display='none';document.getElementById('post-self-form').style.display='block'" style="cursor:pointer;background:var(--stone-xl);border:2px solid var(--b2);border-radius:12px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s" onmouseover="this.style.borderColor='var(--terra)'" onmouseout="this.style.borderColor='var(--b2)'">
+          <div style="font-size:1.8rem;flex-shrink:0"><i data-lucide=pen-line class=ic></i>️</div>
+          <div><div style="font-weight:700;margin-bottom:.2rem">Je remplirai les détails moi-même</div><div style="font-size:.78rem;color:var(--stone-l)">Title, photos, price — vous're in control. You also handle visites & état des lieux. 10% platform fee  depuis  locataire.</div></div>
+        </div>
+        <div onclick="go('agences')" style="cursor:pointer;background:rgba(99,102,241,.06);border:2px solid rgba(99,102,241,.2);border-radius:12px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='rgba(99,102,241,.2)'">
+          <div style="font-size:1.8rem;flex-shrink:0"><i data-lucide=building-2 class=ic></i></div>
+          <div><div style="font-weight:700;margin-bottom:.2rem;color:#6366F1">Browse immobilier agences</div><div style="font-size:.78rem;color:var(--stone-l)">Contact a professional agence directly — see their zones et any current offers (e.g. first year of management free).</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fcard" id="post-self-form" style="display:none">
+      <h3><i data-lucide=clipboard-list class=ic></i> Annonce details</h3>
+
+      <!-- Bail type -->
+      <div class="fg2">
+        <label>Bail type *</label>
+        <div class="ttog">
+          <button class="tbtn actif" onclick="setT(this,'short')"><i data-lucide=home class=ic></i> Location courte durée only</button>
+          <button class="tbtn" onclick="setT(this,'long')"><i data-lucide=calendar class=ic></i> Location longue durée only</button>
+          <button class="tbtn" onclick="setT(this,'room_rental')"><i data-lucide=key class=ic></i> Room location</button>
+          <button class="tbtn" onclick="setT(this,'for_sale')"><i data-lucide=tag class=ic></i>️ À vendre</button>
+        </div>
+        <input type="hidden" id="pt" value="short">
+        <div id="type-info" style="margin-top:.5rem;font-size:.72rem;color:var(--stone-l);line-height:1.5">
+          <i data-lucide=home class=ic></i> Location courte durée: short-term location (tourism, internship, expat). France-specific bail.
+        </div>
+      </div>
+
+      <!-- Location courte durée specific options -->
+      <div id="shortlet-opts" style="background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--terra);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Location courte durée</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=alert-triangle class=ic></i>️ Duration fixed by Français law (Cap. 604) — minimum 1 month, maximum 6 months. Cannot be renewed.</div>
+      </div>
+
+      <!-- Location longue durée options -->
+      <div id="longlet-opts" style="display:none;background:rgba(46,107,138,.05);border:1px solid rgba(46,107,138,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--sea);margin-bottom:.3rem"><i data-lucide=calendar class=ic></i> Location longue durée</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=alert-triangle class=ic></i>️ Minimum 1 year bail required by Français law (Cap. 604).</div>
+        <div class="frow" style="margin-top:.5rem">
+        </div>
+        <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">ℹ️ Di Fermo = minimum period during which locataire cannot leave without penalty. Must be minimum 1 year.</div>
+      </div>
+      <div class="frow" style="margin-top:.75rem">
+        <div class="fg2" style="grid-column:1/-1"><label>Title *</label><input class="fi" type="text" id="pti" placeholder="e.g. Bright meublé studio near the sea, St. Julian's"></div>
+        <div class="fg2"><label>Zone *</label><input list="zones-post" id="pz" class="fi" placeholder="e.g. St. Julian's, Paris...">
+<datalist id="zones-post">
+  <option value="St. Julian's"><option value="Paris"><option value="Paris"><option value="Paris">
+  <option value="Paris"><option value="Gozo"><option value="Birkirkara"><option value="Swieqi">
+  <option value="Paceville"><option value="Bugibba"><option value="St. Paul's Bay"><option value="Mellieha">
+  <option value="Mosta"><option value="Naxxar"><option value="Rabat"><option value="Mdina">
+  <option value="Marsaskala"><option value="Marsaxlokk"><option value="Birgu"><option value="Senglea">
+</datalist></div>
+        <div class="fg2"><label>Size (m²)</label><input class="fi" type="number" id="p-sqm" placeholder="e.g. 65" min="10" max="1000"></div>
+        <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Monthly loyer (€) *</label><input class="fi" type="number" id="ppr" placeholder="650"></div>
+        <div class="fg2" id="pt-dépôt de garantie-wrap"><label>Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
+        <div class="fg2" id="section-beds"><label>Number of chambres</label>
+          <select class="fi" id="psp" style="cursor:pointer">
+            <option value="0">Studio</option>
+            <option value="1" selected>1 chambre</option>
+            <option value="2">2 chambres</option>
+            <option value="3">3 chambres</option>
+            <option value="4">4 chambres</option>
+            <option value="5">5+ chambres</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Salles de bain</label>
+          <select class="fi" id="p-baths" style="cursor:pointer">
+            <option value="1" selected>1 salle de bain</option>
+            <option value="2">2 salle de bains</option>
+            <option value="3">3+ salle de bains</option>
+          </select>
+        </div>
+        <div class="fg2" id="pt-avail-wrap"><label>Disponible  depuis </label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+      </div>
+
+      <!-- Champs spécifiques à une vente — n'apparaissent qu'en mode "À vendre" -->
+      <div id="pt-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Sale details</div>
+        <div class="frow">
+          <div class="fg2"><label>Tenure *</label><select class="fi" id="p-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
+          <div class="fg2"><label>Finish statut *</label><select class="fi" id="p-finish"><option value="finished">Fully finished</option><option value="meublé">Finished & meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
+        </div>
+        <div class="frow">
+          <div class="fg2"><label>EPC rating <span style="font-size:.68rem;color:var(--stone-l)">(legally required to sell)</span></label><select class="fi" id="p-epc"><option value="">Not disponible yet</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+          <div class="fg2"><label>Annual service charge (€) <span style="font-size:.68rem;color:var(--stone-l)">(if applicable)</span></label><input class="fi" type="number" id="p-service-charge" placeholder="0"></div>
+        </div>
+        <div class="frow">
+          <div class="fg2"><label>Planning permit no. <span style="font-size:.68rem;color:var(--stone-l)">(optional)</span></label><input class="fi" id="p-permit" placeholder="e.g. PA 1234/23"></div>
+          <div class="fg2" style="display:flex;align-items:center;padding-top:1.4rem"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem"><input type="checkbox" id="p-sda"> Special Designated Area (SDA)</label></div>
+        </div>
+        <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">SDAs let foreign buyers purchase without an AIP permit — worth flagging if it applies.</div>
+      </div>
+
+      <!-- Bail Agreement Attestation -->
+      <div id="section-attestation" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:#8B5CF6;margin-bottom:.4rem"><i data-lucide=clipboard-list class=ic></i> Bail Agreement Attestation <span style="font-size:.65rem;font-weight:400;color:var(--stone-l)">(France — required pour some non-EU residence permits)</span></div>
+        <div style="font-size:.73rem;color:var(--stone);margin-bottom:.6rem;line-height:1.5">Certains locataires hors UE ont besoin d'un bail attesté par notaire pour leur titre de séjour. Acceptez-vous ces locataires? If yes, un badge apparaîtra sur votre annonce. Le locataire gère la procédure notariale lui-même — Trouve Ton Toit ne gère pas cela.</div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer"><input type="radio" name="attestation" id="att-no" value="no" checked> <i data-lucide=x-circle class=ic></i> No — standard bail only</label>
+          <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer"><input type="radio" name="attestation" id="att-yes" value="yes"> <i data-lucide=check-circle-2 class=ic></i> Yes — I accepter locataires needing attestation</label>
+        </div>
+      </div>
+
+      <!-- Room location legal notice (point 3) -->
+      <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Room location / Colocation details</div>
+        <div class="frow">
+          <div class="fg2"><label>Room type</label>
+            <select class="fi" id="p-room-type" style="cursor:pointer">
+              <option value="private"><i data-lucide=door-open class=ic></i> Private room (own chambre)</option>
+              <option value="shared"><i data-lucide=users class=ic></i> Shared room</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Salle de bain</label>
+            <select class="fi" id="p-room-salle de bain" style="cursor:pointer">
+              <option value="shared"><i data-lucide=shower-head class=ic></i> Shared salle de bain</option>
+              <option value="private"><i data-lucide=shower-head class=ic></i> Private salle de bain</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Personnes déjà dans le logement</label>
+            <select class="fi" id="p-roommates" style="cursor:pointer">
+              <option value="1">1 person (you)</option>
+              <option value="2">2 people</option>
+              <option value="3">3 people</option>
+              <option value="4">4+ people</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Disponible  depuis </label>
+            <input class="fi" type="date" id="p-room-disponible">
+          </div>
+        </div>
+        <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem">
+          <i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.<br>
+        </div>
+        <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer">
+          <input type="checkbox" id="room_rental-confirm" required> I confirm I have read et accepter these obligations
+        </label>
+      </div>
+
+      <div class="fg2" style="margin-top:.75rem"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Describe votre flat — meublé, WiFi, near transport, bills included, house rules…"></textarea></div>
+
+      <!-- Bail conditions — auto-fills the bail -->
+      <div id="section-bail-cond" style="background:rgba(46,107,138,.06);border:1px solid rgba(46,107,138,.15);border-radius:12px;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:.85rem;font-weight:700;color:var(--sea);margin-bottom:.75rem"><i data-lucide=file-text class=ic></i> Bail conditions <span style="font-weight:400;font-size:.75rem;color:var(--stone-l)">— used to auto-generate votre France bail</span></div>
+        <div class="frow">
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Full bien address in France *</label>
+            <input class="fi" id="p-full-address" placeholder="12 Triq il-Kbira, St. Julian's STJ 1234, France" onblur="geocodeAdresse()">
+            <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
+            <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
+          </div>
+        </div>
+        <div class="frow">
+
+          <div class="fg2"><label>Bills situation</label>
+            <select class="fi" id="p-bills" style="cursor:pointer">
+              <option value="included"><i data-lucide=check-circle-2 class=ic></i> All bills included in loyer</option>
+              <option value="excluded"><i data-lucide=x-circle class=ic></i> Bills not included — locataire pays separately</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg2"><label>Amenities</label>
+        <div class="cbwrap">
+          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i>️ Meublé</label>
+          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi disponible</label>
+          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i>️ A/C</label>
+          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
+          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Pool</label>
+          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
+          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
+          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Washing machine</label>
+          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i>️ Dishwasher</label>
+        </div>
+      </div>
+      <div class="fg2">
+        <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo required to publish</span></label>
+        <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
+          <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
+          <div style="font-size:.85rem;color:var(--terra);font-weight:600">Click or drag & drop votre photos here</div>
+          <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5MB each · Max 5 photos · At least 1 required</div>
+          <input type="file" id="photo-input" multiple accepter="image/*" style="display:none" onchange="handlePhotos(this.files)">
+        </div>
+        <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+        <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Pbail add at least 1 photo before publishing.</div>
+      </div>
+      <div class="fg2" style="grid-column:1/-1">
+        <label><i data-lucide=video class=ic></i> Virtual visite video <span style="font-weight:400;color:var(--stone-l)">(optional)</span></label>
+        <div style="border:2px dashed rgba(107,95,82,.2);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--warm)" onclick="document.getElementById('video-input').click()">
+          <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=video class=ic></i></div>
+          <div style="font-size:.82rem;color:var(--stone)">Téléversez une visite vidéo de votre logement (max 50MB)</div>
+          <div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">MP4, MOV — locataires can watch before requesting a visite</div>
+          <input type="file" id="video-input" accepter="video/*" style="display:none" onchange="handleVideo(this)">
+        </div>
+        <div id="video-pavis" style="margin-top:.5rem"></div>
+      </div>
+      <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
+      <button class="btn btn-p" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:.5rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publish my annonce →</button>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSE AGENCIES -->
+<div class="page" id="page-agences">
+  <div class="pwrap" style="max-width:760px">
+    <button class="btn btn-s" style="margin-bottom:1.5rem" onclick="go('post')">← Retour</button>
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:.4rem"><i data-lucide=building-2 class=ic></i> Browse immobilier agences</h2>
+    <p style="color:var(--stone);font-size:.9rem;margin-bottom:1.5rem">Enter votre bien's address et we'll show you agences covering that area — dont any current offers.</p>
+
+    <div class="fcard" style="margin-bottom:1.5rem">
+      <div class="fg2"><label>Your bien's address in France *</label><input class="fi" id="ag-search-address" placeholder="12 Triq il-Kbira, Paris, France"></div>
+      <div id="ag-search-statut" style="font-size:.8rem;margin:-.4rem 0 .6rem"></div>
+      <button class="btn btn-p" style="width:100%;justify-content:center" onclick="searchAgencies()"><i data-lucide=search class=ic></i> Find agences near me →</button>
+    </div>
+
+    <div id="ag-search-results"></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="page" id="page-det">
+  <div class="dwrap">
+    <div style="margin-bottom:.75rem">
+      <div class="dhero" id="dh"><button class="bbtn" onclick="go('home')">← Retour</button><i data-lucide=home class=ic></i></div>
+      <div class="dphoto-thumbs" id="dthumbs"></div>
+    </div>
+    <div class="dgrid">
+      <!-- COLONNE GAUCHE -->
+      <div>
+        <div class="dtitle" id="dti"></div>
+        <div class="dzone" id="dzo"></div>
+
+        <!-- Specs rapides : chambres, bains, m², type -->
+        <div id="dspecs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0"></div>
+
+        <!-- Description -->
+        <div style="margin-top:.5rem">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.4rem;color:var(--stone)">Description</div>
+          <div class="ddesc" id="dde"></div>
+        </div>
+
+        <!-- Amenities -->
+        <div style="margin-top:1rem">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)"><i data-lucide=sparkles class=ic></i> Features & amenities</div>
+          <div id="dfe" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
+        </div>
+
+        <!-- Infos bail -->
+        <div style="margin-top:1.2rem;background:white;border-radius:14px;padding:1rem;border:1px solid rgba(107,95,82,.08)">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Bail details</div>
+          <div id="din"></div>
+        </div>
+
+        <!-- Coût pour le locataire -->
+        <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1rem">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--terra)">💶 What you'll pay</div>
+          <div id="dcost-inner"></div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div>
+        <div class="ccard">
+          <div class="cprice" id="dpr"></div>
+          <div class="cper" id="dpr-per">/mois</div>
+
+          <div id="contact-direct-wrap">
+            <div class="fg2"><label>Your message to the propriétaire</label><textarea class="fta" id="dmsg" rows="3" placeholder="Hi! I'm interested in  votre annonce. I'm looking  pour …"></textarea></div>
+            <button class="btn btn-p" style="width:100%;justify-content:center" onclick="sendMsg()">Envoyer message →</button>
+            <button class="btn btn-s" id="visite-req-btn" style="width:100%;justify-content:center;margin-top:.5rem;display:none" onclick="requestVisitFromDetail()"><i data-lucide=calendar class=ic></i> Request a visite</button>
+            <div id="visite-req-hint" style="font-size:.7rem;color:var(--stone-l);text-align:center;margin-top:.5rem">Envoyer a message first — vous'll be able to request a visite once you've reached out.</div>
+          </div>
+
+          <p style="margin-top:.6rem;font-size:.68rem;color:var(--stone-l);text-align:center"><i data-lucide=lock class=ic></i> Your contact details are never shared directly</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dash">
+  <div class="dwrap2">
+    <div class="dh">
+      <div><div class="ptitle" id="dTitle">My Tableau de bord</div><div style="color:var(--stone);font-size:.9rem;margin-top:.2rem" id="dSub"></div></div>
+      <button class="btn btn-p btn-sm" onclick="chkPost()">+ New annonce</button>
+    </div>
+    <div class="dtabs">
+      <button class="dtab actif" onclick="swDash(this,'dl')">My annonces</button>
+      <button class="dtab" onclick="swDash(this,'dm')">Messages</button>
+    </div>
+    <div class="dpanel actif" id="dl"><div id="myl"><div class="chargement"><div class="sp"></div></div></div></div>
+    <div class="dpanel" id="dm"><div id="mym"><div class="chargement"><div class="sp"></div></div></div></div>
+  </div>
+</div>
+
+<!-- REAL-TIME CHAT MODAL -->
+<div class="mover" id="mo" onclick="cmo(event)">
+  <div class="modal" style="display:flex;flex-direction:column;height:520px;max-height:90vh">
+    <button class="mclose" onclick="closeM()"><i data-lucide=x class=ic></i></button>
+    <div class="mt" id="moti"></div>
+    <div class="ms" id="most"></div>
+    <div id="chat-statut" style="font-size:.7rem;color:var(--stone-l);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem">
+      <span id="chat-online-dot" style="width:6px;height:6px;border-radius:50%;background:#ccc;display:inline-block"></span>
+      <span id="chat-online-txt">Connecting...</span>
+    </div>
+    <div class="thread" id="moth" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;padding-right:.3rem"></div>
+    <div style="margin-top:.75rem;display:flex;gap:.5rem">
+      <textarea class="fta" id="mre" rows="2" placeholder="Write votre message… (Enter to send)" style="flex:1;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendR();}"></textarea>
+      <button class="btn btn-p" style="align-self:flex-end;padding:.65rem 1rem" onclick="sendR()">↑</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="t"></div>
+
+<script>
+// ── Icônes (remplace les émojis) — convertit automatiquement tout nouveau
+// <i data-lucide="..."> ajouté au DOM, y compris le contenu généré
+// dynamiquement en JS (innerHTML), pas seulement au chargement initial.
+// Lucide se charge en "defer" (pour ne jamais bloquer l'affichage de la
+// page) — donc on attend qu'il soit vraiment prêt plutôt que de ne vérifier
+// qu'une seule fois immédiatement, ce qui le raterait systématiquement.
+function initLucideIcons(){
+  if(window.lucide){
+    lucide.createIcons();
+    // Vérification périodique légère plutôt qu'un MutationObserver — celui-ci
+    // réagissait à CHAQUE changement du DOM sur toute la page (y compris
+    // l'ouverture d'un simple menu déroulant natif), provoquant des gels
+    // complets de l'écran un peu partout sur le site. lucide.createIcons()
+    // ne fait rien si aucune icône n'a besoin d'être convertie — sans danger
+    // de tourner toutes les secondes.
+    setInterval(()=>{
+      // Ne jamais toucher au DOM pendant qu'un menu déroulant (natif ou
+      // personnalisé) est ouvert ou qu'un champ a le focus — c'est ce qui
+      // provoquait les menus qui disparaissent une fraction de seconde.
+      const actif=document.activeElement;
+      if(actif&&(actif.tagNom==='SELECT'||actif.tagNom==='INPUT'||actif.tagNom==='TEXTAREA'))return;
+      lucide.createIcons();
+    },2000);
+  }else{
+    setTimeout(initLucideIcons,50);
+  }
+}
+initLucideIcons();
+</script>
+<script>
+// ── Supabase (DB only — no auth) ─────────────────────────────
+const SU='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
+
+// ── Bail Generation via Netlify Function ──────────────────────
+// ── Clerk Auth ────────────────────────────────────────────────
+let clerk, U=null, P=null, AL=null, AMI=null;
+
+async function initClerk() {
+  clerk = window.Clerk;
+  await clerk.load();
+
+  let initialUser = clerk.user;
+
+  if (initialUser) {
+    // Au chargement initial — montrer le picker si pas de rôle
+    await sU(initialUser, true);
+  }
+  loadL(); updC(); loadHeroAnnonces();
+
+  clerk.addListener(({ user }) => {
+    if (user) {
+      const isNewLogin = !initialUser;
+      initialUser = user;
+      sU(user, true); // toujours montrer le picker si pas de rôle
+    } else {
+      initialUser = null;
+      U = null; P = null; updN();
+    }
+  });
+}
+
+
+async function sU(clerkUser, showPicker=true) {
+  U = { id: clerkUser.id, email: clerkUser.primaryE-mailAdresse?.emailAdresse||'', clerk: clerkUser };
+  let data = null;
+  try { const r = await sb. depuis ('profiles').select('*').eq('clerk_id', U.id).single(); data = r.data; } catch(e){}
+  if (data && data.role) {
+    P = data;
+    updN();
+    // Même vérification qu'à la première inscription — une agence a pu
+    // ajouter un nouveau bien en mode manuel pour ce même email APRÈS que
+    // ce propriétaire ait déjà créé son compte, à un moment difféloyer.
+    if(data.role==='propriétaire'&&data.email){
+      try{
+        const{data:manualAnnonces}=await sb. depuis ('annonces').select('id').ilike('manual_propriétaire_email',data.email).is('real_propriétaire_id',null);
+        const listingIds=(manualAnnonces||[]).map(l=>l.id);
+        if(listingIds.length){
+          await sb. depuis ('annonces').update({real_propriétaire_id:U.id}).in('id',listingIds);
+          await sb. depuis ('bookings').update({propriétaire_id:U.id,no_propriétaire_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+        }
+      }catch(e){}
+    }
+  } else {
+    const full_name = clerkUser.fullNom || clerkUser.firstNom || '';
+    P = data || { clerk_id: U.id, full_name, email: U.email, role: null };
+    if(showPicker) showRolePicker(full_name);
+  }
+}
+let addressMapInstance=null;
+
+// ── Annuaire d'agences pour propriétaires ──────────────────────
+function findNearestZone(lat,lng){
+  let best=null,bestDist=Infinity;
+   pour (const[zone,coords]of Object.entries(AGENCY_ZONE_COORDS)){
+    const d=Math.sqrt((lat-coords[0])**2+(lng-coords[1])**2);
+    if(d<bestDist){bestDist=d;best=zone;}
+  }
+  return best;
+}
+
+async function searchAgencies(){
+  const addr=document.getElementById('ag-search-address')?.value.trim();
+  const statusEl=document.getElementById('ag-search-statut');
+  const resultsEl=document.getElementById('ag-search-results');
+  if(!addr){toast('<i data-lucide=alert-triangle class=ic></i>️ Enter votre bien\'s address');return;}
+  statusEl.innerHTML='<span style="color:var(--stone-l)"><i data-lucide=map-pin class=ic></i> Locating address...</span>';
+  resultsEl.innerHTML='';
+
+  try{
+    const query=addr.toLowerCase().includes('france')?addr:addr+', France';
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,{headers:{'Accepter-Language':'en'}});
+    const results=await res.json();
+    if(!results||!results.length){
+      statusEl.innerHTML='<span style="color:var(--terra)"><i data-lucide=x-circle class=ic></i> Could not locate this address — try being more specific</span>';
+      return;
+    }
+    const lat=parseFloat(results[0].lat),lng=parseFloat(results[0].lon);
+    const nearestZone=findNearestZone(lat,lng);
+
+    const{data:agences}=await sb. depuis ('agency_profiles').select('*');
+    const matching=(agences||[]).filter(a=>{
+      const zones=(a.zones||'').split(',').map(z=>z.trim().toLowerCase());
+      return zones.includes(nearestZone.toLowerCase());
+    });
+
+    if(!matching.length){
+      statusEl.innerHTML=`<span style="color:var(--terra)"><i data-lucide=map-pin class=ic></i> Zone identified: <strong>${nearestZone}</strong> — no agences currently cover this area</span>`;
+      resultsEl.innerHTML='<div class="empty" style="padding:2rem;text-align:center;color:var(--stone-l)"><div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=building-2 class=ic></i></div>No agences found pour this zone yet.</div>';
+      return;
+    }
+    statusEl.innerHTML=`<span style="color:#4CAF7D"><i data-lucide=check-circle-2 class=ic></i> Zone identified: <strong>${nearestZone}</strong> — ${matching.length} agenc${matching.length>1?'ies':'y'} disponible</span>`;
+    resultsEl.innerHTML=matching.map(a=>`
+      <div class="fcard" style="margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start">
+        <div style="width:56px;height:56px;border-radius:10px;background:var(--sand);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.5rem">
+          ${a.logo_url?`<img src="${a.logo_url}" style="width:100%;height:100%;object-fit:cover">`:'<i data-lucide=building-2 class=ic></i>'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:1rem;margin-bottom:.2rem">${a.agency_name||'Agence'}</div>
+          <div style="font-size:.78rem;color:var(--stone-l);margin-bottom:.5rem">${a.bio||''}</div>
+          ${a.current_offer?`<div style="background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.25);border-radius:8px;padding:.4rem .7rem;font-size:.78rem;color:#2d7a56;font-weight:600;margin-bottom:.5rem;display:inline-block"><i data-lucide=gift class=ic></i> ${a.current_offer}</div>`:''}
+          <div style="font-size:.7rem;color:var(--stone-l);margin-bottom:.6rem"><i data-lucide=map-pin class=ic></i> ${(a.zones||'').split(',').filter(Boolean).length} zones couvertes, dont ${nearestZone}</div>
+          <div style="font-size:.72rem;color:var(--stone-l);margin-bottom:.6rem"><i data-lucide=ruler class=ic></i> They'll get back to you avec a quote or a call</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-p bsm" onclick="contactAgence('${a.clerk_id}','${(a.agency_name||'Agence').replace(/'/g,"\\'")}')"><i data-lucide=message-circle class=ic></i> Contact this agence →</button>
+            <button class="btn btn-s bsm" onclick="requestEstimation('${a.clerk_id}','${(a.agency_name||'Agence').replace(/'/g,"\\'")}')"><i data-lucide=ruler class=ic></i> Request an estimation</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){
+    statusEl.innerHTML='<span style="color:var(--terra)"><i data-lucide=alert-triangle class=ic></i>️ Could not check this address right now</span>';
+  }
+}
+
+async function requestEstimation(agencyId,agencyNom){
+  if(!U){toast('Pbail sign in first');go('auth');return;}
+  const prefillAdresse=document.getElementById('ag-search-address')?.value.trim()||'';
+
+  const modal=document.createElement('div');
+  modal.id='est-req-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div style="background:white;border-radius:18px;padding:1.75rem;max-width:420px;width:100%">
+      <div style="font-weight:800;font-size:1.05rem;margin-bottom:.3rem"><i data-lucide=ruler class=ic></i> Request an estimation  depuis  ${agencyNom}</div>
+      <div style="font-size:.8rem;color:var(--stone-l);margin-bottom:1.1rem">Tell them a bit about votre bien — they'll get back to you directly.</div>
+      <div class="fg2"><label>What kind of estimation?</label>
+        <select class="fi" id="est-req-type"><option value="location"><i data-lucide=home class=ic></i> Location estimation</option><option value="sale"><i data-lucide=tag class=ic></i>️ Sale estimation</option></select>
+      </div>
+      <div class="fg2"><label>Bien address *</label><input class="fi" id="est-req-address" value="${prefillAdresse.replace(/"/g,'&quot;')}" placeholder="12 Triq il-Kbira, Paris"></div>
+      <div class="fg2"><label>Anything else? (optional)</label><textarea class="fi" id="est-req-notes" rows="3" placeholder="Bien type, size, condition..."></textarea></div>
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-top:.5rem" onclick="submitEstimationRequest('${agencyId}')">Envoyer request →</button>
+      <button class="btn btn-s" style="width:100%;justify-content:center;margin-top:.5rem" onclick="document.getElementById('est-req-modal').remove()">Annuler</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function submitEstimationRequest(agencyId){
+  const address=document.getElementById('est-req-address')?.value.trim();
+  if(!address){toast('<i data-lucide=alert-triangle class=ic></i>️ Bien address is required');return;}
+  const requestType=document.getElementById('est-req-type')?.value||'location';
+  const notes=document.getElementById('est-req-notes')?.value.trim()||'';
+  try{
+    const{erreur}=await sb. depuis ('estimation_requests').insert({
+      propriétaire_id:U.id,
+      propriétaire_name:P?.full_name||'Propriétaire',
+      propriétaire_email:U.email,
+      agency_id:agencyId,
+      request_type:requestType,
+      address,notes,
+      statut:'en attente'
+    });
+    if(erreur){console.erreur('[estimation_requests] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+    document.getElementById('est-req-modal')?.remove();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Estimation request sent!');
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
+}
+
+async function contactAgence(agencyId,agencyNom){
+  if(!U){toast('Pbail sign in first');go('auth');return;}
+  const msg=prompt(`Envoyer a message to ${agencyNom}:`,`Hi, I'd like to discuss managing my bien avec votre agence.`);
+  if(!msg)return;
+  try{
+    const{erreur}=await sb. depuis ('messages').insert({
+      sender_id:U.id,receiver_id:agencyId,
+      content:msg,type:'propriétaire_to_agency'
+    });
+    if(erreur){console.erreur('[contactAgence] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+    toast('<i data-lucide=check-circle-2 class=ic></i> Message sent! The agence will get back to you.');
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
+}
+
+async function geocodeAdresse(){
+  const addr=document.getElementById('p-full-address')?.value.trim();
+  const statusEl=document.getElementById('address-map-statut');
+  const mapEl=document.getElementById('address-map');
+  if(!addr||!statusEl||!mapEl)return;
+  statusEl.innerHTML='<i data-lucide=map-pin class=ic></i> Locating address...';
+  try{
+    const query=addr.toLowerCase().includes('france')?addr:addr+', France';
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,{headers:{'Accepter-Language':'en'}});
+    const results=await res.json();
+    if(!results||!results.length){
+      statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Could not locate this address — vous can still publish, just double-check it\'s written clearly';
+      mapEl.style.display='none';
+      return;
+    }
+    const lat=parseFloat(results[0].lat),lng=parseFloat(results[0].lon);
+    statusEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Adresse located';
+    mapEl.style.display='block';
+    if(!addressMapInstance){
+      addressMapInstance=L.map('address-map').setView([lat,lng],16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OuvrirStreetMap',maxZoom:19}).addTo(addressMapInstance);
+    }else{
+      addressMapInstance.setView([lat,lng],16);
+      addressMapInstance.eachLayer(l=>{if(l instanceof L.Marker)addressMapInstance.removeLayer(l);});
+      setTimeout(()=>addressMapInstance.invalidateSize(),50);
+    }
+    L.marker([lat,lng]).addTo(addressMapInstance);
+  }catch(e){
+    statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Could not check this address right now';
+    mapEl.style.display='none';
+  }
+}
+
+function showRolePicker(name) {
+  // Afficher le modal de choix du rôle
+  const existing = document.getElementById('role-picker-modal');
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'role-picker-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:1.5rem';
+  modal.innerHTML = `
+    <div style="background:#0D1220;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.5)">
+      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Welcome${name?' '+name:''}!</div>
+      <div style="font-size:.82rem;color:rgba(240,237,232,.4);margin-bottom:1.6rem">Who are you on Trouve Ton Toit?</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <button onclick="confirmRoleChoice('locataire','<i data-lucide=briefcase class=ic></i>','Locataire / Intern','Looking pour a flat in France')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+          <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=briefcase class=ic></i></span>
+          <div><div>Locataire / Intern</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">Looking pour a flat in France</div></div>
+        </button>
+        <button onclick="confirmRoleChoice('propriétaire','<i data-lucide=home class=ic></i>','Propriétaire','I want to list my bien')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+          <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=home class=ic></i></span>
+          <div><div>Propriétaire</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">I want to list my bien</div></div>
+        </button>
+        <button onclick="confirmRoleChoice('agence','<i data-lucide=building-2 class=ic></i>','Agence immobilière','Publish annonces · CRM · Team')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(99,102,241,.4);background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .2s" onmouseover="this.style.background='linear-gradient(135deg,rgba(99,102,241,.22),rgba(139,92,246,.14))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08))'">
+          <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=building-2 class=ic></i></span>
+          <div style="flex:1">
+            <div style="color:#818CF8">Agence immobilière</div>
+            <div style="font-size:.7rem;color:rgba(129,140,248,.55);font-weight:400;margin-top:.1rem">Publish annonces · CRM · Team</div>
+          </div>
+          <span style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;font-size:.58rem;font-weight:700;padding:.18rem .5rem;border-radius:100px">PRO</span>
+        </button>
+      </div>
+      <div style="font-size:.62rem;color:rgba(240,237,232,.18);margin-top:1.1rem">You can change this later in paramètres</div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function confirmRoleChoice(role,icon,label,description){
+  const existing=document.getElementById('role-confirm-modal');
+  if(existing)existing.remove();
+
+  const modal=document.createElement('div');
+  modal.id='role-confirm-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.5rem';
+  modal.innerHTML=`
+    <div style="background:#0D1220;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:2rem;max-width:360px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.5)">
+      <div style="font-size:2.2rem;margin-bottom:.6rem">${icon}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Continue as ${label}?</div>
+      <div style="font-size:.8rem;color:rgba(240,237,232,.45);margin-bottom:1.5rem;line-height:1.5">${description}</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <button onclick="document.getElementById('role-confirm-modal').remove();setRoleAndContinue('${role}')" style="width:100%;padding:.8rem;border-radius:12px;border:none;background:#E05A3A;color:white;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer">Yes, that's me →</button>
+        <button onclick="document.getElementById('role-confirm-modal').remove()" style="width:100%;padding:.8rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(240,237,232,.55);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer">← Go back</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function setRoleAndContinue(role) {
+  const modal = document.getElementById('role-picker-modal');
+  if(modal) modal.remove();
+
+  try {
+    if(!U){toast('<i data-lucide=x-circle class=ic></i> Pbail sign in first');return;}
+
+    const full_name = P?.full_name || U.clerk?.fullNom || U.clerk?.firstNom || '';
+    const email = P?.email || U.email || U.clerk?.primaryE-mailAdresse?.emailAdresse || '';
+
+    // Essayer d'abord un UPDATE
+    let data = null;
+    const {data:existing} = await sb. depuis ('profiles').select('*').eq('clerk_id', U.id).maybeSingle();
+
+    if(existing) {
+      // Profil existe → update le rôle
+      const {data:updated, erreur} = await sb. depuis ('profiles').update({role, full_name, email}).eq('clerk_id', U.id).select().single();
+      if(erreur) throw new Erreur(erreur.message);
+      data = updated;
+    } else {
+      // Pas de profil → insert avec id généré
+      const newId = crypto.randomUUID();
+      const {data:inserted, erreur} = await sb. depuis ('profiles').insert({id: newId, clerk_id: U.id, full_name, email, role}).select().single();
+      if(erreur) throw new Erreur(erreur.message);
+      data = inserted;
+    }
+
+    P = data;
+    updN();
+    toast('<i data-lucide=party-popper class=ic></i> Welcome to Trouve Ton Toit!');
+
+    if(role === 'propriétaire') {
+      // Relier automatiquement les biens/réservations déjà saisis manuellement
+      // (sans compte) par une agence, si l'email correspond — sinon un
+      // propriétaire qui crée son compte après coup ne voit jamais ses
+      // biens déjà loués apparaître dans son tableau de bord.
+      if(email){
+        try{
+          const{data:manualAnnonces}=await sb. depuis ('annonces').select('id').ilike('manual_propriétaire_email',email).is('real_propriétaire_id',null);
+          const listingIds=(manualAnnonces||[]).map(l=>l.id);
+          if(listingIds.length){
+            await sb. depuis ('annonces').update({real_propriétaire_id:U.id}).in('id',listingIds);
+            await sb. depuis ('bookings').update({propriétaire_id:U.id,no_propriétaire_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+          }
+        }catch(e){console.warn('Auto-link manual propriétaire:',e);}
+      }
+      window.location.href = '/propriétaire-tableau de bord.html';
+    }
+    else if(role === 'agence') window.location.href = '/agence-tableau de bord.html';
+    else { loadL(); updC(); go('home'); }
+
+  } catch(e) {
+    console.erreur('setRoleAndContinue erreur:', e);
+    toast('<i data-lucide=x-circle class=ic></i> ' + e.message);
+  }
+}
+
+initClerk();
+
+function updN(){
+  const na=document.getElementById('na'),np=document.getElementById('np'),nd=document.getElementById('nd');
+  if(U&&P){
+    const n=P.full_name?.split(' ')[0]||'?';
+    const avatar=`<div style="width:32px;height:32px;border-radius:50%;background:var(--terra);color:white;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer" onclick="goToDash()">${n[0].toUpperCase()}</div>`;
+    na.innerHTML=avatar+`<span style="font-size:.82rem;color:var(--stone);font-weight:500;cursor:pointer" onclick="goToDash()">${n}</span><button class="btn btn-p btn-sm" onclick="goToDash()"><i data-lucide=bar-chart-3 class=ic></i> Tableau de bord</button><button class="btn btn-s btn-sm" onclick="doLogout()">Se déconnecter</button>`;
+    np.style.display=P.role==='propriétaire'?'inline':'none';
+    nd.style.display='inline';
+    const heroAgLink=document.getElementById('hero-agences-link');
+    if(heroAgLink)heroAgLink.style.display=P.role==='propriétaire'?'inline-flex':'none';
+  } else {
+    na.innerHTML=`<button class="btn btn-s btn-sm" onclick="go('auth')">Se connecter</button><button class="btn btn-p btn-sm" onclick="go('auth')">Publier votre logement →</button>`;
+    np.style.display='none';nd.style.display='none';
+  }
+}
+
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('actif'));document.getElementById('page-'+id).classList.add('actif');window.scrollTo(0,0);}
+function stl(){go('home');setTimeout(()=>document.getElementById('la').scrollIntoView({behavior:'smooth'}),100);}
+
+async function signInWithGoogle(){
+  try { clerk.openSignIn({}); } catch(e) { toast('<i data-lucide=x-circle class=ic></i> '+e.message); }
+}
+async function signInWithFacebook(){
+  try { clerk.openSignIn({}); } catch(e) { toast('<i data-lucide=x-circle class=ic></i> '+e.message); }
+}
+
+function goToDash(){
+  if(P?.role==='propriétaire') window.location.href='/propriétaire-tableau de bord.html';
+  else if(P?.role==='agence') window.location.href='/agence-tableau de bord.html';
+  else window.location.href='/locataire-tableau de bord.html';
+}
+
+async function doLogout(){await clerk.signOut();toast('<i data-lucide=hand class=ic></i> See you soon!');go('home');updN();}
+
+function toggleSaleFiltrerUI(){
+  const isSale=document.getElementById('ft')?.value==='for_sale';
+  const fpWrap=document.getElementById('fp-wrap');
+  if(fpWrap)fpWrap.style.display=isSale?'none':'block';
+}
+
+async function loadHeroAnnonces(){
+  const wrap=document.getElementById('hero-live-annonces');
+  if(!wrap)return;
+  try{
+    const{data}=await sb. depuis ('annonces').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
+    if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">No annonces live yet</div><div class="ps">Be the first to post one!</div></div></div>';return;}
+    const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
+    const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
+    wrap.innerHTML=data.map(l=>`
+      <div class="pitem" onclick="openDet('${l.id}')">
+        <div class="pe">${typeIcon[l.type]||'<i data-lucide=home class=ic></i>'}</div>
+        <div class="pi"><div class="pt">${typeLabel[l.type]||''} · ${l.zone||'France'}</div><div class="ps">${l.title||''}</div></div>
+        <div class="pp">€${l.price}${l.type==='for_sale'?'':'/mois'}</div>
+      </div>`).join('');
+  }catch(e){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Browse annonces →</div></div></div>';}
+}
+
+const LISTINGS_PER_PAGE=25;
+let currentListingsPage=1;
+
+async function loadL(){
+  const g=document.getElementById('lg');g.innerHTML='<div class="chargement"><div class="sp"></div> Chargement…</div>';
+  const z=document.getElementById('fz')?.value,t=document.getElementById('ft')?.value,p=document.getElementById('fp')?.value,att=document.getElementById('fa')?.value,src=document.getElementById('fsrc')?.value;
+  let q=sb. depuis ('annonces').select('*').eq('actif',true).not('statut','in','("reserved","rented")').order('created_at',{ascending:false});
+  if(z)q=q.eq('zone',z);
+  if(t)q=q.eq('type',t);
+  if(p&&t!=='for_sale')q=q.lte('price',parseInt(p)); // le filtre budget est pensé pour un loyer, n'a pas de sens pour un prix de vente
+  if(att==='yes')q=q.eq('accepts_attestation',true);
+  if(src==='owner')q=q.not('agency_annonce','is',true);
+  else if(src==='agence')q=q.eq('agency_annonce',true);
+  const{data}=await q;
+  const now=Date.now();
+  const sorted=(data||[]).slice().sort((a,b)=>{
+    const aBoost=a.boosted_until&&new Date(a.boosted_until).getTime()>now?1:0;
+    const bBoost=b.boosted_until&&new Date(b.boosted_until).getTime()>now?1:0;
+    if(aBoost!==bBoost)return bBoost-aBoost; // les boostés valides passent devant
+    return new Date(b.created_at)-new Date(a.created_at);
+  });
+  window._currentAnnonces=sorted;
+  if(!sorted.length){g.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>No annonces found. Try adjusting votre filters!</p><button class="btn btn-p" onclick="chkPost()">Post votre flat →</button></div>`;document.getElementById('lc').innerHTML='';document.getElementById('lpagination').innerHTML='';return;}
+  document.getElementById('lc').textContent=`${sorted.length} annonce${sorted.length>1?'s':''} found`;
+
+  // Repartir de la page 1 à chaque nouveau résultat (changement de filtre) —
+  // sinon on peut rester bloqué sur "page 5" alors qu'il n'y a plus que 2
+  // pages de résultats avec le nouveau filtre.
+  const totalPages=Math.max(1,Math.ceil(sorted.length/LISTINGS_PER_PAGE));
+  if(currentListingsPage>totalPages)currentListingsPage=1;
+
+  renderListingsPage();
+  if(mapView)initMap();
+}
+
+function renderListingsPage(){
+  const sorted=window._currentAnnonces||[];
+  const g=document.getElementById('lg');
+  const totalPages=Math.max(1,Math.ceil(sorted.length/LISTINGS_PER_PAGE));
+  const start=(currentListingsPage-1)*LISTINGS_PER_PAGE;
+  const pageItems=sorted.slice(start,start+LISTINGS_PER_PAGE);
+  g.innerHTML=pageItems.map(rCard).join('');
+
+  const pagEl=document.getElementById('lpagination');
+  if(!pagEl)return;
+  if(totalPages<=1){pagEl.innerHTML='';return;}
+
+  let buttons='';
+  buttons+=`<button class="pagebtn" ${currentListingsPage===1?'disabled':''} onclick="goToListingsPage(${currentListingsPage-1})">← Prev</button>`;
+   pour (let i=1;i<=totalPages;i++){
+    // N'afficher que les pages proches de la page actuelle + première/dernière,
+    // avec "…" entre les deux — sinon 40 pages donneraient 40 boutons d'affilée.
+    if(i===1||i===totalPages||Math.abs(i-currentListingsPage)<=1){
+      buttons+=`<button class="pagebtn ${i===currentListingsPage?'act':''}" onclick="goToListingsPage(${i})">${i}</button>`;
+    }else if(Math.abs(i-currentListingsPage)===2){
+      buttons+=`<span class="pagedots">…</span>`;
+    }
+  }
+  buttons+=`<button class="pagebtn" ${currentListingsPage===totalPages?'disabled':''} onclick="goToListingsPage(${currentListingsPage+1})">Suivant →</button>`;
+  pagEl.innerHTML=buttons;
+}
+
+function goToListingsPage(n){
+  currentListingsPage=n;
+  renderListingsPage();
+  document.getElementById('lg')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function updC(){const{count}=await sb. depuis ('annonces').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
+
+function rCard(l){
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
+  const bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)',for_sale:'linear-gradient(135deg,#F3EEFB,#E1D4F5)'};
+  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Room location',long:'<i data-lucide=calendar class=ic></i> Location longue durée',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'};
+  const lbColor={short:'#1B4FD8',room_rental:'#3B82F6',long:'#2E6B8A',for_sale:'#6366F1'};
+  const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Bills incl.':null,l.ac?'A/C':null,l.parking?'Parking':null,l.pool?'Pool':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} spots`:null].filter(Boolean).slice(0,3);
+  const fr=l.available_indefinitely?'Disponible indefinitely':l.available_from?'From '+new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Disponible now';
+  // Annonce source badge — agence or direct  depuis  owner
+  const sourceBadge=l.agency_annonce?
+    `<span style="position:absolute;top:.5rem;left:.5rem;background:#8B5CF6;color:white;font-size:.58rem;font-weight:700;padding:.2rem .45rem;border-radius:100px"><i data-lucide=building-2 class=ic></i> ${l.agency_name||'Agence immobilière'}</span>`:
+    `<span style="position:absolute;top:.5rem;left:.5rem;background:rgba(76,175,125,.9);color:white;font-size:.58rem;font-weight:700;padding:.2rem .45rem;border-radius:100px"><i data-lucide=home class=ic></i> Directement du propriétaire</span>`;
+  // Attestation badge — only show when accepté, et never pour agence annonces (info not collected)
+  const attBadge=(l.accepts_attestation&&!l.agency_annonce)?
+    `<span style="position:absolute;bottom:.5rem;right:.5rem;background:rgba(46,107,138,.9);color:white;font-size:.55rem;font-weight:700;padding:.15rem .4rem;border-radius:100px"><i data-lucide=clipboard-list class=ic></i> Att. <i data-lucide=check-circle-2 class=ic></i></span>`:'';
+  const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
+  const boostBadge=isBoosted?
+    `<span style="position:absolute;bottom:.5rem;left:.5rem;background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;font-size:.58rem;font-weight:800;padding:.2rem .5rem;border-radius:100px;box-shadow:0 2px 6px rgba(220,38,38,.4)"><i data-lucide=flame class=ic></i> Boosted</span>`:'';
+  return`<div class="lcard" onclick="openDet('${l.id}')" style="${isBoosted?'box-shadow:0 0 0 2px #F59E0B,0 4px 14px rgba(245,158,11,.25)':''}">
+    <div class="limg" style="background:${bg[l.type]||bg.room_rental}">
+      ${l.photos&&l.photos.length>0?`<img src="${l.photos[0]}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0" onerror="this.style.display='none'" alt="${l.title}">`:`<span style="font-size:3rem">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</span>`}
+      <span style="position:absolute;top:.5rem;right:.5rem;background:${lbColor[l.type]||'#1B4FD8'};color:white;font-size:.65rem;font-weight:700;padding:.25rem .6rem;border-radius:100px">${lb[l.type]||'Annonce'}</span>
+      ${sourceBadge}${attBadge}${boostBadge}
+    </div>
+    <div class="lbody">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+        <div style="min-width:0">
+          <div class="lzone"><i data-lucide=map-pin class=ic></i> ${l.zone}</div>
+          <div class="ltitle">${l.title}</div>
+        </div>
+        ${l.agency_logo_url?`<img src="${l.agency_logo_url}" style="width:32px;height:32px;object-fit:cover;border-radius:7px;border:1px solid var(--stone-xl);flex-shrink:0" alt="${l.agency_name||'Agence'}">`:''}
+      </div>
+      <div class="ltags">${tags.map(t=>`<span class="ltag">${t}</span>`).join('')}</div>
+      <div class="lfoot"><div><span class="lprice">€${l.type==='for_sale'?(l.sale_price||l.price):l.price}</span>${l.type==='for_sale'?'':'<span class="lper"> /mois</span>'}</div><span style="font-size:.7rem;color:var(--stone-l)">${fr}</span></div>
+    </div>
+  </div>`;
+}
+
+async function openDet(id){
+  const{data:l}=await sb. depuis ('annonces').select('*').eq('id',id).single();if(!l)return;AL=l;
+
+  // Vrai comptage de vues — une seule fois par visiteur par session pour ne pas gonfler le chiffre.
+  // Passe par une fonction serveur (pas d'update direct côté client) pour éviter
+  // tout blocage de permissions/RLS sur un visiteur non-propriétaire de l'annonce.
+  try{
+    const seenKey='rm_viewed_'+id;
+    if(!sessionStorage.getItem(seenKey)){
+      sessionStorage.setItem(seenKey,'1');
+      fetch('/.netlify/functions/track-view',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({listingId:id})
+      }).then(r=>r.json()).then(d=>{
+        if(d.erreur)console.erreur('[views] server-side tracking failed:',d.erreur);
+        else console.log('[views] tracked, new total:',d.views);
+      }).catch(e=>console.erreur('[views] fetch failed:',e.message));
+    }
+  }catch(e){console.erreur('[views] outer erreur:',e.message);}
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️'},bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)'};
+  // Photos carousel
+  const photos=l.photos&&l.photos.length>0?l.photos:[];
+  let currentPhoto=0;
+  const h=document.getElementById('dh');
+  const thumbs=document.getElementById('dthumbs');
+  h.style.background=bg[l.type]||bg.room_rental;
+
+  if(l.video_url&&photos.length===0){
+    h.innerHTML=`<button class="bbtn" onclick="go('home')">← Retour</button><video src="${l.video_url}" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:20px"></video>`;
+    if(thumbs)thumbs.innerHTML='';
+  } else if(photos.length>0){
+    const showPhoto=(idx)=>{
+      currentPhoto=idx;
+      const allThumbs=document.querySelectorAll('.dphoto-thumb');
+      allThumbs.forEach((t,i)=>t.classList.toggle('actif',i===idx));
+      h.innerHTML=`
+        <button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button>
+        <img src="${photos[idx]}" class="dphoto-main" onclick="openFullscreen('${photos[idx]}')">
+        ${photos.length>1?`<button class="dphoto-nav" style="left:.5rem" onclick="showPhoto(${(idx-1+photos.length)%photos.length})">‹</button><button class="dphoto-nav" style="right:.5rem" onclick="showPhoto(${(idx+1)%photos.length})">›</button>`:''}
+        <div class="dphoto-count">${idx+1} / ${photos.length}</div>
+      `;
+      window.showPhoto=showPhoto;
+    };
+    showPhoto(0);
+    window.showHeroVideo=function(){
+      const url=window._heroVideoUrl;
+      if(!url)return;
+      h.innerHTML=`
+        <button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button>
+        <video src="${url}" controls autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:20px"></video>
+      `;
+    };
+    if(thumbs){
+      thumbs.innerHTML=photos.map((p,i)=>`<img src="${p}" class="dphoto-thumb${i===0?' actif':''}" onclick="window.showPhoto(${i})" chargement="lazy">`).join('');
+      if(l.video_url){
+        window._heroVideoUrl=l.video_url;
+        thumbs.innerHTML+=`<div style="width:72px;height:52px;border-radius:8px;background:#1a1410;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:2px solid transparent" onclick="showHeroVideo()"><i data-lucide=video class=ic></i></div>`;
+      }
+    }
+  } else {
+    h.innerHTML=`<button class="bbtn" onclick="go('home')">← Retour</button><span style="font-size:7rem">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</span>`;
+    if(thumbs)thumbs.innerHTML='';
+  }
+
+  document.getElementById('dti').textContent=l.title;
+  document.getElementById('dzo').innerHTML='<i data-lucide=map-pin class=ic></i> '+l.zone+(l.address?' · '+l.address:'');
+  document.getElementById('dde').textContent=l.description||'No description provided.';
+  document.getElementById('dpr').textContent='€'+(l.type==='for_sale'?(l.sale_price||l.price):l.price);
+  const dprPer=document.getElementById('dpr-per');
+  if(dprPer)dprPer.style.display=l.type==='for_sale'?'none':'block';
+
+  // Specs rapides
+  const specs=[];
+  if(l.chambres||l.spots)specs.push(`<i data-lucide=bed-double class=ic></i> ${l.chambres||l.spots} chambre${(l.chambres||l.spots)>1?'s':''}`);
+  if(l.baths)specs.push(`<i data-lucide=shower-head class=ic></i> ${l.baths} salle de bain${l.baths>1?'s':''}`);
+  if(l.sqm)specs.push(`<i data-lucide=ruler class=ic></i> ${l.sqm} m²`);
+  specs.push({short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Room location',long:'<i data-lucide=landmark class=ic></i> Location longue durée',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'}[l.type]||l.type);
+  if(l.video_url)specs.push('<i data-lucide=video class=ic></i> Virtual tour');
+  document.getElementById('dspecs').innerHTML=specs.map(s=>`<span class="dfeat" style="background:var(--s2);border:1px solid var(--b2);font-size:.78rem;padding:.3rem .7rem;border-radius:20px">${s}</span>`).join('');
+
+  // Amenities
+  const fe=[
+    l.meublé?'<i data-lucide=check-circle-2 class=ic></i> Meublé':null,
+    l.wifi?'<i data-lucide=wifi class=ic></i> WiFi disponible':null,
+    l.bills_included?'<i data-lucide=lightbulb class=ic></i> Bills included':null,
+    l.ac?'<i data-lucide=snowflake class=ic></i>️ A/C':null,
+    l.parking?'<i data-lucide=car class=ic></i> Parking':null,
+    l.pool?'<i data-lucide=waves class=ic></i> Pool':null,
+    l.balcon?'<i data-lucide=leaf class=ic></i> Balcon/Terrasse':null,
+    l.washing_machine?'<i data-lucide=washing-machine class=ic></i> Washing machine':null,
+    l.dishwasher?'<i data-lucide=utensils class=ic></i> Dishwasher':null,
+    l.ascenseur?'<i data-lucide=arrow-up-down class=ic></i> Ascenseur':null,
+    l.jardin?'<i data-lucide=trees class=ic></i> Jardin':null,
+    l.sea_view?'<i data-lucide=waves class=ic></i> Sea view':null,
+    l.accepts_attestation?'<i data-lucide=clipboard-list class=ic></i> Attestation accepté':null,
+  ].filter(Boolean);
+  // Fusionner avec les features cochées côté agence (tableau JSON libre) —
+  // "Meublé" est explicitement exclu ici : il a déjà sa propre étiquette
+  // fiable et mutuellement exclusive juste au-dessus (<i data-lucide=check-circle-2 class=ic></i>/<i data-lucide=x-circle class=ic></i> selon l.meublé).
+  // Le laisser passer créait "<i data-lucide=x-circle class=ic></i> Non meublé" ET "<i data-lucide=check-circle-2 class=ic></i> Meublé" ensemble,
+  // car la vérification de doublon (substring, sensible à la casse) ne
+  // détectait jamais que les deux décrivaient la même chose.
+  try{
+    if(l.features){
+      const extra=JSON.parse(l.features);
+      extra.forEach(f=>{
+        if(f.toLowerCase().includes('meublé'))return;
+        if(!fe.some(x=>x.toLowerCase().includes(f.toLowerCase())))fe.push('<i data-lucide=check-circle-2 class=ic></i> '+f);
+      });
+    }
+  }catch(e){}
+  document.getElementById('dfe').innerHTML=fe.map(f=>`<span class="dfeat">${f}</span>`).join('');
+
+  // Infos bail — ou infos de vente si l'annonce est "À vendre"
+  const tl={short:'Location courte durée (1-6 months)',room_rental:'Room location',long:'Location longue durée (1 year+)',for_sale:'À vendre'};
+  const badge=await getPropriétaireResponseBadge(l.propriétaire_id);
+  const propriétaireRating=await getPropriétaireRating(l.propriétaire_id);
+  const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
+  const ratingHtml=(propriétaireRating?`<div style="background:rgba(212,168,71,.1);color:var(--ochre);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${propriétaireRating.avg.toFixed(1)} propriétaire rating <span style="font-weight:400;color:var(--stone-l)">(${propriétaireRating.count} avis${propriétaireRating.count>1?'s':''})</span></div>`:'')
+    +(agencyRating?`<div style="background:rgba(46,107,138,.1);color:var(--sea);border:1px solid rgba(46,107,138,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${agencyRating.avg.toFixed(1)} agence rating <span style="font-weight:400;color:var(--stone-l)">(${agencyRating.count} avis${agencyRating.count>1?'s':''})</span></div>`:'');
+  const tenureLabels={freehold:'Freehold',bailhold:'Bailhold',perpetual_ground_rent:'Perpetual ground loyer'};
+  const finishLabels={finished:'Fully finished',meublé:'Finished & meublé',semi_finished:'Semi-finished',shell:'Shell form (bare)'};
+  document.getElementById('din').innerHTML=l.type==='for_sale'?`
+    ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
+    ${ratingHtml}
+    <div class="crow"><span>Type</span><span><i data-lucide=tag class=ic></i>️ À vendre</span></div>
+    ${l.tenure?`<div class="crow"><span>Tenure</span><span>${tenureLabels[l.tenure]||l.tenure}</span></div>`:''}
+    ${l.finish_status?`<div class="crow"><span>Finish statut</span><span>${finishLabels[l.finish_status]||l.finish_status}</span></div>`:''}
+    <div class="crow"><span>EPC rating</span><span>${l.epc_rating?'Class '+l.epc_rating:'Not disponible yet'}</span></div>
+    ${l.service_charge?`<div class="crow"><span>Annual service charge</span><span>€${l.service_charge}/year</span></div>`:''}
+    ${l.permit_number?`<div class="crow"><span>Planning permit</span><span>${l.permit_number}</span></div>`:''}
+    ${l.sda?`<div class="crow"><span>Special Designated Area</span><span><i data-lucide=check-circle-2 class=ic></i> Yes — no AIP permit needed pour foreign buyers</span></div>`:''}
+    ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`:`
+    ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
+    ${ratingHtml}
+    <div class="crow"><span>Type</span><span>${tl[l.type]||l.type}</span></div>
+    <div class="crow"><span>Disponible  depuis </span><span>${l.available_from?new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'Now'}</span></div>
+    <div class="crow"><span>Dépôt de garantie</span><span>${l.dépôt de garantie?'€'+l.dépôt de garantie:'None'}</span></div>
+    ${l.bills_situation?`<div class="crow"><span>Bills</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Included in loyer':'<i data-lucide=x-circle class=ic></i> Locataire pays separately'}</span></div>`:''}
+    ${l.paiement_due_day?`<div class="crow"><span>Loyer due</span><span>${l.paiement_due_day==='last'?'Last day of month':l.paiement_due_day+' of the month'}</span></div>`:''}
+    ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
+
+  // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
+  const dcostCard=document.getElementById('dcost');
+  const isAgence=!!AL.agency_annonce;
+  if(l.type==='for_sale'){
+    if(dcostCard)dcostCard.style.display='none';
+  }else{
+    if(dcostCard)dcostCard.style.display='block';
+    const commissionRate=isAgence?0.50:0.10;
+    const commission=Math.round(l.price*commissionRate);
+    const commissionLabel=isAgence?'Agence fee (50%)':'Trouve Ton Toit fee (10%)';
+    document.getElementById('dcost-inner').innerHTML=`
+      <div class="crow"><span>First month loyer</span><span style="font-weight:700">€${l.price}</span></div>
+      <div class="crow"><span>Security dépôt de garantie</span><span style="font-weight:700">${l.dépôt de garantie?'€'+l.dépôt de garantie:'None'}</span></div>
+      <div class="crow"><span>${commissionLabel}</span><span style="font-weight:700;color:var(--terra)">€${commission}</span></div>
+      <div style="height:1px;background:rgba(201,85,58,.15);margin:.5rem 0"></div>
+      <div class="crow" style="font-size:.92rem"><span style="font-weight:700">Total at signing</span><span style="font-weight:900;color:var(--terra);font-size:1.1rem">€${l.price+(l.dépôt de garantie||0)+commission}</span></div>
+      <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">Dépôt de garantie et loyer are paid directly to the propriétaire once the bail is signed.</div>`;
+  }
+
+  // Si un message existe déjà avec ce propriétaire pour cette annonce, pas besoin
+  // de forcer un nouveau message — la discussion a déjà commencé
+  const vBtn=document.getElementById('visite-req-btn'),vHint=document.getElementById('visite-req-hint');
+  if(vBtn&&vHint){
+    vBtn.style.display='none';vHint.style.display='block';
+    if(U){
+      try{
+        const{data:existing}=await sb. depuis ('messages').select('id').eq('listing_id',id).eq('sender_id',U.id).limit(1);
+        if(existing&&existing.length){vBtn.style.display='flex';vHint.style.display='none';}
+      }catch(e){}
+    }
+  }
+
+  go('det');
+}
+
+function openFullscreen(src){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  overlay.innerHTML=`<img src="${src}" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:12px"><button style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.2);border:none;color:white;font-size:1.5rem;width:40px;height:40px;border-radius:50%;cursor:pointer">×</button>`;
+  overlay.onclick=()=>overlay.remove();
+  document.body.appendChild(overlay);
+}
+
+function findNotaire(){
+  toast('<i data-lucide=search class=ic></i> Ouvriring partner notary directory...');
+  window.open('https://www.notaryfrance.com','_blank');
+}
+
+function setGroupMode(mode){
+  const soloBtn=document.getElementById('grp-solo-btn');
+  const groupBtn=document.getElementById('grp-group-btn');
+  const section=document.getElementById('group-invite-section');
+  if(mode==='solo'){
+    soloBtn.style.background='var(--sea)';soloBtn.style.color='white';
+    groupBtn.style.background='';groupBtn.style.color='';
+    if(section)section.style.display='none';
+  } else {
+    groupBtn.style.background='var(--sea)';groupBtn.style.color='white';
+    soloBtn.style.background='';soloBtn.style.color='';
+    if(section)section.style.display='block';
+  }
+}
+
+function getCoLocataires(){
+  const emails=[];
+   pour (let i=2;i<=4;i++){
+    const val=document.getElementById(`colocataire-${i}`)?.value.trim();
+    if(val)emails.push(val);
+  }
+  return emails;
+}
+
+async function inviteCoLocataires(listingId, coLocataireE-mails){
+  if(!coLocataireE-mails.length)return [];
+  const invited=[];
+   pour (const email of coLocataireE-mails){
+    // Check if user exists in profiles
+    const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').eq('email',email).single().then(r=>r).catch(()=>({data:null}));
+    if(profil){
+      // Add to visite group
+      await sb. depuis ('co_locataires').insert({
+        listing_id:listingId,
+        invited_by:U.id,
+        locataire_id:profil.clerk_id,
+        locataire_email:email,
+        statut:'en attente'
+      });
+      invited.push({email,name:profil.full_name,found:true});
+    } else {
+      // User doesn't have Trouve Ton Toit compte yet
+      await sb. depuis ('co_locataires').insert({
+        listing_id:listingId,
+        invited_by:U.id,
+        locataire_email:email,
+        statut:'invited' // waiting pour them to create compte
+      });
+      invited.push({email,found:false});
+    }
+  }
+  return invited;
+}
+
+async function requestVisitFromDetail(){
+  if(!U){toast('Pbail sign in first');go('auth');return;}
+  if(!AL){toast('<i data-lucide=x-circle class=ic></i> Annonce not loaded');return;}
+
+  const missing=[];
+  if(!P?.full_name)missing.push('Full name');
+  if(!P?.passport_number)missing.push('Passport/ID');
+  if(!P?.nationality)missing.push('Nationalité');
+  if(!P?.date_of_birth)missing.push('Date of birth');
+  if(!P?.home_address)missing.push('Accueil address');
+  if(missing.length>0){
+    toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before requesting a visite');
+    alert(`Pbail complete votre profil first.\n\nMissing: ${missing.join(', ')}\n\nGo to votre tableau de bord → Profil → fill in all fields → Enregistrer.`);
+    return;
+  }
+
+  const modal=document.createElement('div');
+  modal.id='visite-request-modal-overlay';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div style="background:white;border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
+      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Request a visite</div>
+      <div style="font-size:.78rem;color:var(--stone);margin-bottom:1rem">${(AL.title||'ce logement').replace(/</g,'&lt;')}</div>
+      <div class="fg2"><label>Preferred date</label><input class="fi" type="date" id="vr-date"></div>
+      <div class="fg2"><label>Preferred time</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <button id="vr-send-btn" style="flex:1;background:var(--terra);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer request →</button>
+        <button onclick="document.getElementById('visite-request-modal-overlay').remove()" style="background:#f2ede4;color:var(--stone);border:1px solid #e5ddd0;border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  document.getElementById('vr-send-btn').onclick=async()=>{
+    const visitDate=document.getElementById('vr-date')?.value;
+    const visitTime=document.getElementById('vr-time')?.value||'14:00';
+    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a date');return;}
+    const today=new Date();today.setHours(0,0,0,0);
+    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
+
+    try{
+      await sb. depuis ('visites').insert({
+        listing_id:AL.id,
+        locataire_id:U.id,
+        propriétaire_id:AL.propriétaire_id,
+        locataire_name:P?.full_name||'',
+        locataire_email:P?.email||'',
+        visit_date:visitDate,
+        visit_time:visitTime,
+        zone:AL.zone||'',
+        statut:'awaiting_propriétaire'
+      });
+    }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);return;}
+
+    try{
+      const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+      await sb. depuis ('messages').insert({
+        listing_id:AL.id,sender_id:'system',receiver_id:AL.propriétaire_id,
+        content:'📅 '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
+        type:'visit_request'
+      });
+    }catch(e){}
+
+    modal.remove();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Visite request sent! Check My Tableau de bord → Mes visites.');
+  };
+}
+
+async function sendMsg(){
+  if(!U){toast('Pbail sign in first');go('auth');return;}
+  if(!AL)return;
+  const c=document.getElementById('dmsg').value.trim();
+  if(!c){toast('Pbail write a message');return;}
+
+  // Check minimum profil before contact
+  const missingFields=[];
+  if(!P?.full_name)missingFields.push('Full name');
+  if(!P?.passport_number)missingFields.push('Passport/ID');
+  if(!P?.nationality)missingFields.push('Nationalité');
+  if(!P?.date_of_birth)missingFields.push('Date of birth');
+  if(!P?.home_address)missingFields.push('Accueil address');
+  if(missingFields.length>0){
+    toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before contacting a propriétaire');
+    alert(`Pbail complete votre profil first.\n\nMissing: ${missingFields.join(', ')}\n\nGo to votre tableau de bord → Profil → fill in all fields → Enregistrer.`);
+    return;
+  }
+
+  // Handle co-locataires
+  const coLocataireE-mails=getCoLocataires();
+  if(coLocataireE-mails.length){
+    const invited=await inviteCoLocataires(AL.id, coLocataireE-mails);
+    const notFound=invited.filter(i=>!i.found).map(i=>i.email);
+    if(notFound.length){
+      setTimeout(()=>toast(`<i data-lucide=alert-triangle class=ic></i>️ ${notFound.length} co-locataire(s) don't have a Trouve Ton Toit compte yet — invite them to sign up.`),1000);
+    }
+    c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireE-mails.join(', ')}`;
+  }
+
+  const{erreur}=await sb. depuis ('messages').insert({
+    listing_id:AL.id,
+    sender_id:U.id,
+    receiver_id:AL.propriétaire_id,
+    content:filterContactData(c) // masquer numéros/emails
+  });
+  if(erreur){toast('Erreur: '+erreur.message);return;}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Message sent!');
+  document.getElementById('dmsg').value='';
+  const vBtn=document.getElementById('visite-req-btn'),vHint=document.getElementById('visite-req-hint');
+  if(vBtn){vBtn.style.display='flex';}
+  if(vHint){vHint.style.display='none';}
+}
+
+// ── Anti-contournement : masquer numéros et emails dans le chat ──
+function filterContactData(text){
+  if(!text)return text;
+  // Numéros franceis (+356 ou locaux)
+  text=text.replace(/(?:\+356|00356)?\s?[279]\d{3}\s?\d{4}/g,'[<i data-lucide=phone-off class=ic></i> Number hidden by Trouve Ton Toit]');
+  // Numéros internationaux
+  text=text.replace(/(\+\d{1,3}[\s\-]?)?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}/g,'[<i data-lucide=phone-off class=ic></i> Number hidden by Trouve Ton Toit]');
+  // E-mails
+  text=text.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,'[<i data-lucide=mail class=ic></i> E-mail hidden by Trouve Ton Toit]');
+  // WhatsApp / Telegram
+  text=text.replace(/whatsapp|telegram|signal|viber/gi,'[Trouve Ton Toit chat only]');
+  return text;
+}
+
+async function requestBail(){
+  // Bail is now generated by propriétaire depuis leur tableau de bord
+  toast('<i data-lucide=file-text class=ic></i> Bail signing is initiated by the propriétaire. They will send you a DocuSeal email to sign.');
+}
+
+function setT(el,t){
+  // Handle both button (tbtn) et card (type-opt) styles
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('actif'));
+  document.querySelectorAll('.type-opt').forEach(o=>{
+    o.style.border='2px solid rgba(107,95,82,.2)';
+    o.style.background='';
+    const label=o.querySelector('div:nth-child(2)');
+    if(label)label.style.color='';
+  });
+  if(el.classList.contains('tbtn')) el.classList.add('actif');
+  else {
+    el.style.border='2px solid var(--terra)';
+    el.style.background='rgba(201,85,58,.06)';
+    const label=el.querySelector('div:nth-child(2)');
+    if(label)label.style.color='var(--terra)';
+  }
+  document.getElementById('pt').value=t;
+  const shortOpts=document.getElementById('shortlet-opts');
+  const longOpts=document.getElementById('longlet-opts');
+  const room_rentalNotice=document.getElementById('room_rental-notice');
+  const room_rentalOpts=document.getElementById('room_rental-opts');
+  const typeInfo=document.getElementById('type-info');
+  if(shortOpts)shortOpts.style.display=t==='short'?'block':'none';
+  if(longOpts)longOpts.style.display=t==='long'?'block':'none';
+  if(room_rentalNotice)room_rentalNotice.style.display=t==='room_rental'?'block':'none';
+  if(room_rentalOpts)room_rentalOpts.style.display=t==='room_rental'?'block':'none';
+
+  // "À vendre" est un mode complètement à part : pas de bail, pas de caution,
+  // pas de disponibilité, pas d'agent — juste une annonce + abonnement 2€/semaine.
+  const isSale=t==='for_sale';
+  const priceLabel=document.getElementById('pt-price-label');
+  if(priceLabel)priceLabel.textContent=isSale?'Sale price (€) *':'Monthly loyer (€) *';
+  const dépôt de garantieWrap=document.getElementById('pt-dépôt de garantie-wrap');
+  const availWrap=document.getElementById('pt-avail-wrap');
+  if(dépôt de garantieWrap)dépôt de garantieWrap.style.display=isSale?'none':'block';
+  if(availWrap)availWrap.style.display=isSale?'none':'block';
+  const billsWrap=document.getElementById('p-bills')?.closest('.fg2');
+  if(billsWrap)billsWrap.style.display=isSale?'none':'block';
+  const saleDetailsWrap=document.getElementById('pt-sale-details-wrap');
+  if(saleDetailsWrap)saleDetailsWrap.style.display=isSale?'block':'none';
+
+  // Cacher sections non pertinentes pour room_rental
+  const isRoom=t==='room_rental';
+  const secBeds=document.getElementById('section-beds');
+  const secAtt=document.getElementById('section-attestation');
+  const secBail=document.getElementById('section-bail-cond');
+  if(secBeds)secBeds.style.display=isRoom?'none':'block';
+  if(secAtt)secAtt.style.display=(isRoom||isSale)?'none':'block';
+  if(secBail)secBail.style.display=(isRoom||isSale)?'none':'block';
+  const infos={
+    short:'<i data-lucide=home class=ic></i> Location courte durée: short-term location (tourism, internship, expat). Max 6 months by Français law. Cannot be renewed.',
+    long:'<i data-lucide=calendar class=ic></i> Location longue durée only: minimum 1 year bail. You refuse short-term locations.',
+    room_rental:'<i data-lucide=key class=ic></i> Room location: written owner consent required. Housing Authority registration is votre responsibility.',
+    for_sale:'<i data-lucide=tag class=ic></i>️ À vendre:  votre annonce stays online pour €2/week, billed automatically after publishing. Annuler anytime.'
+  };
+  if(typeInfo)typeInfo.textContent=infos[t]||'';
+
+  // Auto-set date fields based on type
+  const punInput=document.getElementById('pun');
+  const pfrInput=document.getElementById('pfr');
+  if(t==='short'&&pfrInput&&pfrInput.value&&punInput){
+    // Location courte durée: auto set end date to 6 months after start
+    const start=new Date(pfrInput.value);
+    start.setMonth(start.getMonth()+6);
+    punInput.value=start.toISOString().split('T')[0];
+  }
+  if(t==='long'&&pfrInput&&pfrInput.value&&punInput){
+    // Location longue durée: auto set end date to 1 year after start (minimum)
+    const start=new Date(pfrInput.value);
+    start.setFullYear(start.getFullYear()+1);
+    punInput.value=start.toISOString().split('T')[0];
+  }
+}
+
+// Auto-update end date when start date changes
+function onDisponibleFromChange(val){
+  const type=document.getElementById('pt')?.value;
+  const punInput=document.getElementById('pun');
+  if(!val||!punInput)return;
+  const start=new Date(val);
+  if(type==='short'){
+    start.setMonth(start.getMonth()+6);
+    punInput.value=start.toISOString().split('T')[0];
+    punInput.style.background='rgba(201,85,58,.05)';
+    setTimeout(()=>punInput.style.background='',1000);
+  } else if(type==='long'){
+    start.setFullYear(start.getFullYear()+1);
+    punInput.value=start.toISOString().split('T')[0];
+    punInput.style.background='rgba(46,107,138,.05)';
+    setTimeout(()=>punInput.style.background='',1000);
+  }
+}
+
+
+function chkPost(){
+  if(!U){toast('Pbail sign in to post a annonce');go('auth');return;}
+  if(P?.role!=='propriétaire'){toast('<i data-lucide=alert-triangle class=ic></i>️ You need a propriétaire compte to post.');return;}
+
+  // Vérifier les champs essentiels du profil
+  const missing=[];
+  if(!P?.full_name) missing.push('Full name');
+  if(!P?.phone) missing.push('Téléphone');
+  if(!P?.passport_number) missing.push('Passport/ID');
+  if(!P?.iban) missing.push('IBAN ( pour  paiements)');
+
+  if(missing.length>0){
+    // Afficher un message clair et rediriger vers le profil
+    const msg=missing.length===1
+      ? `<i data-lucide=alert-triangle class=ic></i>️ Pbail complete votre profil before posting — missing: ${missing[0]}`
+      : `<i data-lucide=alert-triangle class=ic></i>️ Pbail complete votre profil before posting — ${missing.length} fields missing`;
+
+    // Toast visible + modal de confirmation
+    toast(msg);
+
+    // Afficher un modal d'alerte
+    const overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:1.5rem';
+    overlay.innerHTML=`
+      <div style="background:var(--card,#1a1a1a);border-radius:16px;padding:2rem;max-width:360px;width:100%;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:.75rem"><i data-lucide=clipboard-list class=ic></i></div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">Complete votre profil first</div>
+        <div style="font-size:.82rem;color:var(--td,#888);margin-bottom:1rem;line-height:1.5">To post a annonce, Trouve Ton Toit needs to verify votre identity.<br><br>Missing: <strong style="color:var(--terra)">${missing.join(', ')}</strong></div>
+        <button onclick="this.closest('[style*=fixed]').remove();window.location.href='/propriétaire-tableau de bord.html?tab=profil'" style="width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:.85rem;font-size:.95rem;font-weight:700;cursor:pointer">Compléter mon profil →</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;background:transparent;color:var(--td,#888);border:none;padding:.6rem;font-size:.82rem;cursor:pointer;margin-top:.3rem">Annuler</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    return;
+  }
+
+  go('post');
+}
+
+// PHOTO UPLOAD
+let uploadedPhotos = [];
+
+function updatePhotoArea(){
+  const area=document.getElementById('photo-upload-area');
+  const msg=document.getElementById('photo-required-msg');
+  if(uploadedPhotos.length>0){
+    area.style.borderColor='var(--green)';
+    area.style.background='rgba(76,175,125,.04)';
+    if(msg)msg.style.display='none';
+  } else {
+    area.style.borderColor='var(--terra)';
+    area.style.background='rgba(201,85,58,.03)';
+  }
+  if(uploadedPhotos.length>=5)area.style.opacity='0.5';
+  else area.style.opacity='1';
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  handlePhotos(e.dataTransfer.files);
+}
+
+function handlePhotos(files) {
+  const pavis = document.getElementById('photo-pavis');
+  Array. depuis (files).slice(0, 5 - uploadedPhotos.length).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) { toast('<i data-lucide=x-circle class=ic></i> File too large — max 5MB'); return; }
+    uploadedPhotos.push(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:80px;height:80px';
+      div.innerHTML = `<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"><button onclick="removePhoto(this,${uploadedPhotos.length-1})" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center"><i data-lucide=x class=ic></i></button>`;
+      pavis.appendChild(div);
+      updatePhotoArea();
+    };
+    reader.readAsDataURL(file);
+  });
+  updatePhotoArea();
+}
+
+function handleVideo(input){
+  const file=input.files?.[0];
+  if(!file)return;
+  if(!file.type.startsWith('video/')){toast('<i data-lucide=x-circle class=ic></i> Pbail select a video file');input.value='';return;}
+  if(file.size>50*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Video too large — max 50MB');input.value='';return;}
+  const pavis=document.getElementById('video-pavis');
+  pavis.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;background:var(--warm);border-radius:8px;padding:.5rem .75rem">
+    <span style="font-size:1.2rem"><i data-lucide=video class=ic></i></span>
+    <span style="font-size:.8rem;color:var(--stone);flex:1">${file.name}</span>
+    <button onclick="removeVideo()" style="background:var(--terra);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer"><i data-lucide=x class=ic></i></button>
+  </div>`;
+}
+
+function removeVideo(){
+  document.getElementById('video-pavis').innerHTML='';
+  document.getElementById('video-input').value='';
+}
+
+function removePhoto(btn, idx) {
+  uploadedPhotos.splice(idx, 1);
+  btn.parentElement.remove();
+  updatePhotoArea();
+}
+
+// Video pavis
+document.addEventListener('DOMContentLoaded',()=>{
+  const vi=document.getElementById('video-input');
+  if(vi)vi.addEventListener('change',function(){
+    const file=this.files[0];
+    if(!file)return;
+    const url=URL.createObjectURL(file);
+    document.getElementById('video-pavis').innerHTML=`<video src="${url}" controls style="width:100%;border-radius:8px;max-height:200px;margin-top:.5rem"></video><div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem"><i data-lucide=check-circle-2 class=ic></i> ${file.name} · ${(file.size/1024/1024).toFixed(1)}MB</div>`;
+  });
+
+  // Ouvrir directement une annonce depuis #annonce-ID
+  const hash=window.location.hash;
+  if(hash&&hash.startsWith('#annonce-')){
+    const listingId=hash.replace('#annonce-','');
+    setTimeout(()=>openDet(listingId),1000);
+  }
+
+  // Propriétaire arrivant depuis l'email d'activation d'une annonce "À vendre"
+  // — aucun compte requis, juste confirmer son email et payer.
+  const urlParams=new URLRechercherParams(window.location.search);
+  const activateId=urlParams.get('activate_sale');
+  if(activateId)setTimeout(()=>openSaleActivation(activateId),600);
+  if(urlParams.get('sale_activated')){
+    setTimeout(()=>toast('<i data-lucide=check-circle-2 class=ic></i> Your annonce is now live on Trouve Ton Toit!'),600);
+    window.history.replaceState({},'',window.location.pathname);
+  }else if(urlParams.get('sale_cancelled')){
+    setTimeout(()=>toast('Activation cancelled — vous can try again anytime  depuis  the link in votre email.'),600);
+    window.history.replaceState({},'',window.location.pathname);
+  }else if(urlParams.get('boost_activated')){
+    setTimeout(()=>toast('<i data-lucide=flame class=ic></i> Boost activated! Your annonce now shows at the top of search results.'),600);
+    window.history.replaceState({},'',window.location.pathname);
+  }else if(urlParams.get('boost_cancelled')){
+    setTimeout(()=>toast('Boost paiement cancelled — vous can try again anytime  depuis  Mes annonces.'),600);
+    window.history.replaceState({},'',window.location.pathname);
+  }
+});
+
+async function openSaleActivation(listingId){
+  const{data:l}=await sb. depuis ('annonces').select('id,title,zone,sale_price,price,propriétaire_email,sale_subscription_status').eq('id',listingId).maybeSingle();
+  if(!l){toast('<i data-lucide=x-circle class=ic></i> Annonce not found');return;}
+  if(l.sale_subscription_status==='actif'){toast('<i data-lucide=check-circle-2 class=ic></i> This annonce is already actif');return;}
+
+  const modal=document.createElement('div');
+  modal.id='sale-activation-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div style="background:white;border-radius:18px;padding:1.75rem;max-width:420px;width:100%">
+      <div style="font-size:2rem;margin-bottom:.5rem;text-align:center"><i data-lucide=tag class=ic></i>️</div>
+      <div style="font-weight:800;font-size:1.1rem;margin-bottom:.3rem;text-align:center">Activer  votre annonce</div>
+      <div style="background:var(--sand);border-radius:10px;padding:.75rem 1rem;margin:1rem 0">
+        <div style="font-weight:700">${l.title}</div>
+        <div style="font-size:.78rem;color:var(--stone-l)"><i data-lucide=map-pin class=ic></i> ${l.zone} · €${l.sale_price||l.price}</div>
+      </div>
+      <div style="font-size:.82rem;color:var(--stone);margin-bottom:1rem;line-height:1.6">Your annonce stays online pour <strong>€2/week</strong>, billed automatically. Annuler anytime — the annonce goes offline the moment you do.</div>
+      <div class="fg2"><label>Your email *</label><input class="fi" id="sale-act-email" type="email" value="${l.propriétaire_email||''}" placeholder="you@email.com"></div>
+      <button id="sale-act-btn" class="btn btn-p" style="width:100%;justify-content:center;margin-top:.5rem" onclick="this.disabled=true;confirmSaleActivation('${listingId}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer pour €2/week →</button>
+      <button class="btn btn-s" style="width:100%;justify-content:center;margin-top:.5rem" onclick="document.getElementById('sale-activation-modal').remove()">Not now</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function confirmSaleActivation(listingId,listingTitle){
+  const email=document.getElementById('sale-act-email')?.value.trim();
+  if(!email){toast('<i data-lucide=alert-triangle class=ic></i>️ Enter votre email');return;}
+  const btn=document.getElementById('sale-act-btn');
+  if(btn){btn.textContent='Redirecting to paiement...';btn.disabled=true;}
+  try{
+    const res=await fetch('/.netlify/functions/create-sale-subscription',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({listing_id:listingId,propriétaire_email:email,listing_title:listingTitle})
+    });
+    const data=await res.json();
+    if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+    window.location.href=data.checkout_url;
+  }catch(e){
+    toast('<i data-lucide=x-circle class=ic></i> '+e.message);
+    if(btn){btn.innerHTML='<i data-lucide=credit-card class=ic></i> Activer pour €2/week →';btn.disabled=false;}
+  }
+}
+
+async function uploadPhotos(listingId) {
+  const urls = [];
+  pour (const file of uploadedPhotos) {
+    const ext = file.name.split('.').pop();
+    const path = `${listingId}/${Date.now()}.${ext}`;
+    const { erreur } = await sb.storage. depuis ('annonces').upload(path, file, { cacheControl: '3600', upsert: false });
+    if (!erreur) {
+      const { data } = sb.storage. depuis ('annonces').getPublicUrl(path);
+      urls.push(data.publicUrl);
+    }
+  }
+  return urls;
+}
+
+async function doPost(){
+  const err=document.getElementById('poer'),ok=document.getElementById('pook');err.style.display='none';ok.style.display='none';
+  const ti=document.getElementById('pti').value.trim(),pr=document.getElementById('ppr').value;
+  if(!ti){sA(err,'Title is required');return;}
+  if(!pr||parseFloat(pr)<=0){sA(err,'Pbail enter a valid price greater than €0');return;}
+
+  // Photo required check
+  if(uploadedPhotos.length===0){
+    const msg=document.getElementById('photo-required-msg');
+    if(msg)msg.style.display='block';
+    document.getElementById('photo-upload-area').style.borderColor='var(--terra)';
+    document.getElementById('photo-upload-area').style.boxShadow='0 0 0 3px rgba(201,85,58,.2)';
+    document.getElementById('photo-upload-area').scrollIntoView({behavior:'smooth',block:'center'});
+    sA(err,'<i data-lucide=alert-triangle class=ic></i>️ At least 1 photo is required to publish  votre annonce.');
+    return;
+  }
+
+  sA(ok,'⏳ Publishing  votre annonce…');
+  ok.style.background='rgba(46,107,138,0.08)';
+  ok.style.color='var(--sea)';
+  const accepts_attestation=document.getElementById('att-yes')?.checked===true;
+
+  const fields={
+    title:ti,
+    type:document.getElementById('pt').value,
+    zone:document.getElementById('pz').value,
+    price:parseInt(pr),
+    dépôt de garantie:parseInt(document.getElementById('pdep').value)||null,
+    spots:parseInt(document.getElementById('psp').value)||1,
+    baths:parseInt(document.getElementById('p-baths')?.value)||1,
+    sqm:parseInt(document.getElementById('p-sqm')?.value)||null,
+    video_url:null, // rempli juste après via uploadVisitVideo() si une vidéo est fournie
+    available_from:document.getElementById('pfr').value||null,
+    available_until:document.getElementById('pun')?.value||null,
+    description:document.getElementById('pde').value,
+    meublé:document.getElementById('pfu').checked,
+    wifi:document.getElementById('pwi').checked,
+    bills_included:document.getElementById('pbi')?.checked||false,
+    propriétaire_id:U.id,
+    // mandat_exclusif retiré — fonctionnalité jamais utile, supprimée
+    actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // reste caché tant que le paiement requis (abonnement vente, ou frais room location) n'est pas fait
+    sale_price:document.getElementById('pt').value==='for_sale'?parseInt(pr):null,
+    sale_subscription_status:document.getElementById('pt').value==='for_sale'?'en attente':null,
+    tenure:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-tenure')?.value||null):null,
+    finish_status:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-finish')?.value||null):null,
+    epc_rating:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-epc')?.value||null):null,
+    service_charge:document.getElementById('pt').value==='for_sale'?(parseFloat(document.getElementById('p-service-charge')?.value)||null):null,
+    permit_number:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-permit')?.value.trim()||null):null,
+    sda:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-sda')?.checked||false):false,
+    // Bail fields
+    full_address:document.getElementById('p-full-address')?.value.trim()||null,
+    // Loyer due day: no longer set manually — derived  depuis  the locataire's
+    // entrée dans les lieux date once a booking is accepté (see generateRentScheduleLL).
+    notice_period:document.getElementById('p-notice')?.value||null,
+    bills_situation:document.getElementById('p-bills')?.value||null,
+    // New fields
+    min_stay:document.getElementById('p-min-stay')?.value||null,
+    max_stay:document.getElementById('p-max-stay')?.value||null,
+    bail_duration:document.getElementById('p-bail-duration')?.value||null,
+    di_fermo:document.getElementById('p-di-fermo')?.value||null,
+    available_indefinitely:document.getElementById('p-indefinite')?.checked||false,
+    accepts_attestation,
+    propriétaire_present:document.getElementById('p-visite-presence')?.value||'not_needed',
+    inventory_presence:document.getElementById('p-état des lieux-presence')?.value||'mandatory',
+    key_type:document.getElementById('p-key-type')?.value||'propriétaire',
+    key_location:document.getElementById('p-key-location')?.value?.trim()||null,
+    current_locataire_phone:document.getElementById('p-current-locataire-phone')?.value?.trim()||null,
+    bail_end_date:document.getElementById('p-bail-end-date')?.value||null,
+    locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant'
+  };
+
+  const{data:annonce,erreur}=await sb. depuis ('annonces').insert(fields).select().single();
+  if(erreur){sA(err,erreur.message);ok.style.display='none';return;}
+  // Enregistrer extra amenities
+  const extraData = {
+    ac: document.getElementById('pac')?.checked||false,
+    parking: document.getElementById('ppk')?.checked||false,
+    pool: document.getElementById('ppool')?.checked||false,
+    balcon: document.getElementById('pbalc')?.checked||false,
+    pets: document.getElementById('ppets')?.checked||false,
+    washing_machine: document.getElementById('pwash')?.checked||false,
+    dishwasher: document.getElementById('pdish')?.checked||false,
+  };
+  if(annonce) await sb. depuis ('annonces').update(extraData).eq('id',annonce.id);
+  if(uploadedPhotos.length>0&&annonce){
+    const photoUrls=await uploadPhotos(annonce.id);
+    if(photoUrls.length>0){
+      await sb. depuis ('annonces').update({photos:photoUrls}).eq('id',annonce.id);
+    }
+  }
+  // Téléverser video if provided
+  const videoInput=document.getElementById('video-input');
+  if(videoInput?.files[0]&&annonce){
+    sA(ok,'⏳ Upchargement video...');
+    await uploadVisitVideo(videoInput,annonce.id);
+  }
+  uploadedPhotos=[];document.getElementById('photo-pavis').innerHTML='';
+  document.getElementById('video-pavis').innerHTML='';
+  if(document.getElementById('pt').value==='for_sale'&&annonce){
+    sA(ok,'⏳ Redirecting you to activate  votre annonce (€2/week)...');
+    try{
+      const res=await fetch('/.netlify/functions/create-sale-subscription',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({listing_id:annonce.id,propriétaire_email:U.email,listing_title:annonce.title})
+      });
+      const data=await res.json();
+      if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+      window.location.href=data.checkout_url;
+    }catch(e){
+      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis  votre tableau de bord.');
+      setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},2500);
+    }
+  }else if(document.getElementById('pt').value==='room_rental'&&annonce){
+    // Pas de commission ni de bail/État des lieux sur les room locations — un petit
+    // frais fixe à la publication à la place, une seule fois par annonce.
+    sA(ok,'⏳ Redirecting you to activate  votre annonce (€3)...');
+    try{
+      const res=await fetch('/.netlify/functions/create-room-location-fee-paiement',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({listing_id:annonce.id,payer_email:U.email,listing_title:annonce.title})
+      });
+      const data=await res.json();
+      if(!data.success)throw new Erreur(data.erreur||'Could not start paiement');
+      window.location.href=data.checkout_url;
+    }catch(e){
+      sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis  votre tableau de bord.');
+      setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},2500);
+    }
+  }else{
+    sA(ok,"<i data-lucide=party-popper class=ic></i> Annonce published! It's now live on Trouve Ton Toit.");
+    updC();loadL();
+    if(annonce)offerBoostAfterPublish(annonce.id,annonce.title,annonce.type);
+    else setTimeout(()=>{window.location.href='/propriétaire-tableau de bord.html';},1800);
+  }
+}
+
+function offerBoostAfterPublish(listingId,listingTitle,listingType){
+  const isSale=listingType==='for_sale';
+  const price=isSale?'€15':'€5';
+  const days=isSale?'14':'7';
+  const modal=document.createElement('div');
+  modal.id='boost-offer-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div style="background:white;border-radius:18px;padding:1.75rem;max-width:400px;width:100%;text-align:center">
+      <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=flame class=ic></i></div>
+      <div style="font-weight:800;font-size:1.05rem;margin-bottom:.4rem">Want more eyes on  votre annonce?</div>
+      <div style="font-size:.82rem;color:var(--stone-l);margin-bottom:1.2rem;line-height:1.6">Boost "${listingTitle}" to the top of search results pour <strong>${days} days</strong> — one-time paiement of <strong>${price}</strong>.</div>
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="startBoostPaiement('${listingId}','${listingTitle.replace(/'/g,"\\'")}','${listingType}')"><i data-lucide=flame class=ic></i> Boost pour ${price} →</button>
+      <button class="btn btn-s" style="width:100%;justify-content:center" onclick="window.location.href='/propriétaire-tableau de bord.html'">Maybe later — I'll do it  depuis  Mes annonces</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function loadDash(){
+  if(!U){return;}
+  document.getElementById('dTitle').textContent=P?.role==='propriétaire'?'Propriétaire Tableau de bord':'Mon compte';
+  document.getElementById('dSub').textContent=`Welcome back, ${P?.full_name?.split(' ')[0]||''}! Here's votre overview.`;
+  loadML();loadMM();
+}
+
+async function loadML(){
+  const w=document.getElementById('myl');
+  if(P?.role!=='propriétaire'){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Switch to a propriétaire compte to post et manage annonces.</p></div>';return;}
+  const{data}=await sb. depuis ('annonces').select('*').eq('propriétaire_id',U.id).order('created_at',{ascending:false});
+  if(!data||data.length===0){w.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=clipboard-list class=ic></i></div><p>No annonces yet. Post votre first flat et start receiving messages!</p><button class="btn btn-p" onclick="go('post')">Post my first annonce →</button></div>`;return;}
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️',for_sale:'<i data-lucide=tag class=ic></i>️'};
+  w.innerHTML=data.map(l=>{
+    const isSale=l.type==='for_sale';
+    const pendingSale=isSale&&l.sale_subscription_status!=='actif';
+    const statusLabel=pendingSale?'⏳ Not activated — €2/week to go live':l.actif?'Actif':'Paused';
+    const dotClass=pendingSale?'dg':l.actif?'dg':'dr';
+    const priceLabel=isSale?`€${l.sale_price||l.price}`:`€${l.price}/mois`;
+    const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
+    const boostLabel=isBoosted?`<i data-lucide=flame class=ic></i> Boosted until ${new Date(l.boosted_until).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`:'';
+    const boostBtn=!pendingSale?(l.actif?`<button class="btn btn-s btn-sm" style="${isBoosted?'':'background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;border:none'}" onclick="startBoostPaiement('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend boost':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — a paused annonce doesn't show in search, so boosting it does nothing"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
+    const actionBtn=isSale
+      ?(l.actif
+        ?`<button class="btn btn-s btn-sm" onclick="togL('${l.id}',true)">Pause</button>`
+        :`<button class="btn btn-p btn-sm" onclick="retrySaleActivation('${l.id}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer</button>`)
+      :`<button class="btn ${l.actif?'btn-s':'btn-p'} btn-sm" onclick="togL('${l.id}',${l.actif})">${l.actif?'Pause':'Activer'}</button>`;
+    return`<div class="mlcard"><div class="mlico">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div><div class="mli"><div class="mlt">${l.title}</div><div class="mls">${priceLabel} · ${l.zone} · <span class="dot ${dotClass}"></span>${statusLabel}${boostLabel?' · '+boostLabel:''}</div></div><div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-s btn-sm" onclick="openDet('${l.id}')">View</button>${actionBtn}${boostBtn}</div></div>`;
+  }).join('');
+}
+
+async function startBoostPaiement(listingId,listingTitle,listingType){
+  const btn=event?.target;
+  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='⏳ Redirecting...';}
+  toast('<i data-lucide=credit-card class=ic></i> Redirecting to paiement...');
+  try{
+    const res=await fetch('/.netlify/functions/create-boost-paiement',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({listing_id:listingId,listing_title:listingTitle,listing_type:listingType,payer_email:U.email,payer_name:P?.full_name||''})
+    });
+    const data=await res.json();
+    if(!data.success)throw new Erreur(data.erreur||'Could not start paiement');
+    window.location.href=data.checkout_url;
+  }catch(e){
+    toast('<i data-lucide=x-circle class=ic></i> '+e.message);
+    if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.origText||'<i data-lucide=rocket class=ic></i> Boost';}
+  }
+}
+
+async function retrySaleActivation(listingId,listingTitle){
+  const btn=event?.target;
+  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='⏳ Redirecting...';}
+  try{
+    const res=await fetch('/.netlify/functions/create-sale-subscription',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({listing_id:listingId,propriétaire_email:U.email,listing_title:listingTitle})
+    });
+    const data=await res.json();
+    if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+    window.location.href=data.checkout_url;
+  }catch(e){
+    toast('<i data-lucide=x-circle class=ic></i> '+e.message);
+    if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.origText||'<i data-lucide=credit-card class=ic></i> Activer';}
+  }
+}
+
+async function togL(id,a){await sb. depuis ('annonces').update({actif:!a}).eq('id',id);toast(a?'⏸ Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
+
+async function loadMM(){
+  const w=document.getElementById('mym'),field=P?.role==='propriétaire'?'receiver_id':'sender_id';
+  const{data}=await sb. depuis ('messages').select('*, annonces(title,zone,id)').eq(field,U.id).order('created_at',{ascending:false});
+  if(!data||data.length===0){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=message-circle class=ic></i></div><p>No messages yet. When locataires contact you, they\'ll appear here.</p></div>';return;}
+  // Deduplicate by annonce
+  const seen=new Set();const unique=[];
+  data.forEach(m=>{if(!seen.has(m.listing_id)){seen.add(m.listing_id);unique.push(m);}});
+  w.innerHTML=unique.map(m=>{
+    const otherId=P?.role==='propriétaire'?m.sender_id:m.receiver_id;
+    return`<div class="msgcard" onclick="opM('${m.id}','${(m.annonces?.title||'').replace(/'/g,"\\'")}','${m.content.replace(/'/g,"\\'")}','${m.annonces?.zone||''}','${m.listing_id||''}','${otherId||''}')"><div class="mav">${(m.annonces?.title||'?')[0].toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:.88rem;font-weight:600;margin-bottom:.15rem">${m.annonces?.title||'Annonce'}</div><div style="font-size:.72rem;color:var(--stone-l);margin-bottom:.2rem"><i data-lucide=map-pin class=ic></i> ${m.annonces?.zone||''}</div><div class="mprev">${m.content}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0"><span class="mtime">${new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>${!m.read?'<div class="ubadge"></div>':''}</div></div>`;
+  }).join('');
+}
+
+function swDash(btn,p){document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('actif'));btn.classList.add('actif');document.querySelectorAll('.dpanel').forEach(x=>x.classList.remove('actif'));document.getElementById(p).classList.add('actif');}
+
+// ── Real-time chat ────────────────────────────────────────────
+let chatChannel=null;
+let currentChatListingId=null;
+let currentChatReceiverId=null;
+
+async function opM(id, title, content, zone, listingId, receiverId){
+  AMI=id;
+  currentChatListingId=listingId||null;
+  currentChatReceiverId=receiverId||null;
+  document.getElementById('moti').textContent=title;
+  document.getElementById('most').innerHTML='<i data-lucide=map-pin class=ic></i> '+zone;
+  document.getElementById('mo').classList.add('open');
+
+  // Load all messages pour this conversation
+  await loadChatHistory(listingId, receiverId);
+
+  // Mark as read
+  sb. depuis ('messages').update({read:true}).eq('id',id).then(()=>loadMM());
+
+  // Subscribe to real-time new messages
+  if(chatChannel) sb.removeChannel(chatChannel);
+  chatChannel = sb.channel('chat-'+listingId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`listing_id=eq.${listingId}`},
+      payload => {
+        appendChatMessage(payload.new, payload.new.sender_id===U.id);
+      }
+    )
+    .subscribe(statut=>{
+      const dot=document.getElementById('chat-online-dot');
+      const txt=document.getElementById('chat-online-txt');
+      if(statut==='SUBSCRIBED'){dot.style.background='#4CAF7D';txt.textContent='Connected — messages appear instantly';}
+      else{dot.style.background='#ccc';txt.textContent='Connecting...';}
+    });
+}
+
+async function loadChatHistory(listingId, receiverId){
+  const thread=document.getElementById('moth');
+  thread.innerHTML='<div style="text-align:center;font-size:.75rem;color:var(--stone-l);padding:.5rem">Chargement messages...</div>';
+  if(!listingId){thread.innerHTML='';return;}
+  const{data}=await sb. depuis ('messages')
+    .select('*')
+    .eq('listing_id',listingId)
+    .order('created_at',{ascending:true});
+  thread.innerHTML='';
+  (data||[]).forEach(m=>appendChatMessage(m, m.sender_id===U.id, false));
+  thread.scrollTop=thread.scrollHeight;
+}
+
+function appendChatMessage(msg, isMe, scroll=true){
+  const thread=document.getElementById('moth');
+  const div=document.createElement('div');
+  const time=new Date(msg.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  div.style.cssText=`display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};gap:.15rem;animation:fu .2s ease`;
+  div.innerHTML=`<div class="${isMe?'bm':'bt'}" style="max-width:80%">${msg.content}</div><div style="font-size:.62rem;color:var(--stone-l)">${time}</div>`;
+  thread.appendChild(div);
+  if(scroll)thread.scrollTop=thread.scrollHeight;
+}
+
+async function sendR(){
+  const r=document.getElementById('mre').value.trim();
+  if(!r||!U)return;
+  document.getElementById('mre').value='';
+  const{erreur}=await sb. depuis ('messages').insert({
+    listing_id:currentChatListingId||AMI,
+    sender_id:U.id,
+    receiver_id:currentChatReceiverId,
+    content:r,
+    read:false
+  });
+  if(erreur){toast('<i data-lucide=x-circle class=ic></i> Failed to send: '+erreur.message);return;}
+}
+
+function closeM(){
+  document.getElementById('mo').classList.remove('open');
+  if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
+}
+function cmo(e){if(e.target.id==='mo')closeM();}
+
+function sA(el,msg){el.innerHTML=msg;el.style.display='block';}
+function toast(msg){const t=document.getElementById('t');t.innerHTML=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+
+// ── Vue carte ─────────────────────────────────────────────────
+let mapInstance=null;
+let mapView=false;
+
+// Liste complète des 55 zones (mêmes noms exacts que les cases à cocher
+// des agences) — utilisée pour trouver la zone la plus proche d'une adresse
+// géocodée, afin de faire correspondre un propriétaire aux bonnes agences.
+const AGENCY_ZONE_COORDS={
+  'Paris':[35.8989,14.5146],'Floriana':[35.8934,14.5083],'Paris':[35.9122,14.5017],
+  "Paris's":[35.9181,14.4895],'Paris':[35.8994,14.4890],'Paris':[35.9069,14.4953],
+  'Swieqi':[35.9197,14.4795],'Pembroke':[35.9250,14.4820],"St Andrew's":[35.9280,14.4750],
+  'Paceville':[35.9233,14.4863],'Mellieha':[35.9564,14.3617],"St Paul's Bay":[35.9481,14.3989],
+  'Bugibba':[35.9511,14.4156],'Naxxar':[35.9197,14.4442],'Birkirkara':[35.8958,14.4619],
+  'San Gwann':[35.9106,14.4700],'Attard':[35.8925,14.4322],'Balzan':[35.8975,14.4494],
+  'Lija':[35.9019,14.4489],'Mosta':[35.9086,14.4256],'Qormi':[35.8767,14.4736],
+  'Zebbug':[35.8722,14.4436],'Hamrun':[35.8825,14.4894],'Marsa':[35.8781,14.4967],
+  'Marsaskala':[35.8617,14.5556],'Zabbar':[35.8753,14.5350],'Zejtun':[35.8544,14.5361],
+  'Fgura':[35.8697,14.5192],'Tarxien':[35.8697,14.5089],'Paola':[35.8756,14.5081],
+  'Luqa':[35.8578,14.4878],'Gudja':[35.8478,14.4964],'Mqabba':[35.8378,14.4517],
+  'Zurrieq':[35.8261,14.4711],'Siggiewi':[35.8547,14.4356],'Rabat':[35.8819,14.3990],
+  'Mdina':[35.8869,14.4012],'Dingli':[35.8600,14.3831],'Gharghur':[35.9186,14.4406],
+  'Birgu':[35.8891,14.5214],'Bormla':[35.8875,14.5192],'Senglea':[35.8897,14.5156],
+  'Kalkara':[35.8886,14.5300],'Birzebbuga':[35.8258,14.5275],'Kirkop':[35.8397,14.4906],
+  'Safi':[35.8319,14.4989],'Qrendi':[35.8339,14.4581],'Mgarr':[35.9297,14.3908],
+  'Mtarfa':[35.8933,14.4033],'Pieta':[35.8969,14.4967],'Santa Lucija':[35.8686,14.5039],
+  'Santa Venera':[35.8961,14.4767],"Ta' Xbiex":[35.9028,14.4986],'Xghajra':[35.8858,14.5411],
+  'Gozo':[36.0443,14.2401]
+};
+
+const ZONE_COORDS={
+  'St. Julian\'s':[35.9181,14.4895],'Paris':[35.9122,14.5017],'Paris':[35.8997,14.5148],
+  'Paris':[35.8994,14.4890],'Paris':[35.9069,14.4953],'Paceville':[35.9233,14.4863],
+  'Bugibba':[35.9511,14.4156],'St. Paul\'s Bay':[35.9481,14.3989],'Mellieha':[35.9564,14.3617],
+  'Mosta':[35.9086,14.4256],'Naxxar':[35.9197,14.4442],'Gozo':[36.0440,14.2400],
+  'Birkirkara':[35.8958,14.4619],'Swieqi':[35.9197,14.4795],'Rabat':[35.8819,14.3990],
+  'Mdina':[35.8869,14.4012],'Marsaskala':[35.8617,14.5556],'Marsaxlokk':[35.8428,14.5442],
+  'Birgu':[35.8897,14.5217],'Senglea':[35.8897,14.5156]
+};
+
+function toggleMapView(){
+  mapView=!mapView;
+  const mc=document.getElementById('map-container');
+  const lg=document.getElementById('lg');
+  const btn=document.getElementById('view-toggle');
+  if(mapView){
+    mc.style.display='block';
+    lg.style.display='none';
+    btn.innerHTML='<i data-lucide=clipboard-list class=ic></i> List view';
+    initMap();
+  } else {
+    mc.style.display='none';
+    lg.style.display='grid';
+    btn.innerHTML='<i data-lucide=map class=ic></i> Vue carte';
+  }
+}
+
+function initMap(){
+  if(mapInstance){mapInstance.remove();mapInstance=null;}
+  mapInstance=L.map('annonces-map',{zoomControl:true}).setView([35.9042,14.4700],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OuvrirStreetMap',maxZoom:19
+  }).addTo(mapInstance);
+  // Add markers  depuis  current annonces
+  const grid=document.getElementById('lg');
+  if(window._currentAnnonces){
+    window._currentAnnonces.forEach(l=>{
+      const coords=ZONE_COORDS[l.zone];
+      if(!coords)return;
+      // Slight random offset so pins don't overlap
+      const lat=coords[0]+(Math.random()-0.5)*0.008;
+      const lng=coords[1]+(Math.random()-0.5)*0.008;
+      const marker=L.marker([lat,lng],{
+        icon:L.divIcon({
+          classNom:'',
+          html:`<div style="background:#1B4FD8;color:white;padding:.3rem .6rem;border-radius:100px;font-size:.72rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)">€${l.price}</div>`,
+          iconAnchor:[20,15]
+        })
+      }).addTo(mapInstance);
+      marker.bindPopup(`
+        <div style="min-width:200px">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">${l.title}</div>
+          <div style="font-size:.78rem;color:#666;margin-bottom:.5rem"><i data-lucide=map-pin class=ic></i> ${l.zone} · €${l.price}/mois</div>
+          <button onclick="openDet('${l.id}')" style="background:#1B4FD8;color:white;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600">View annonce →</button>
+        </div>
+      `);
+    });
+  }
+  setTimeout(()=>mapInstance.invalidateSize(),100);
+}
+
+// ── Badge "Propriétaire réactif" ──────────────────────────────────
+async function getAgenceRating(agentId){
+  const{data}=await sb. depuis ('avis').select('rating').eq('target_id',agentId).eq('type','locataire_to_agency');
+  if(!data||!data.length)return null;
+  const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
+  return{avg,count:data.length};
+}
+
+async function getPropriétaireRating(propriétaireId){
+  const{data}=await sb. depuis ('avis').select('rating').eq('propriétaire_id',propriétaireId).eq('type','locataire_to_propriétaire');
+  if(!data||!data.length)return null;
+  const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
+  return{avg,count:data.length};
+}
+
+async function getPropriétaireResponseBadge(propriétaireId){
+  const{data}=await sb. depuis ('messages')
+    .select('created_at,sender_id')
+    .eq('receiver_id',propriétaireId)
+    .order('created_at',{ascending:false})
+    .limit(20);
+  if(!data||data.length<2)return null;
+  // Check if propriétaire replied within 2h on average
+  const replies=data.filter(m=>m.sender_id===propriétaireId);
+  if(replies.length>=3)return'<i data-lucide=zap class=ic></i> Fast responder';
+  return null;
+}
+
+// ── Video visite virtuelle ────────────────────────────────────
+async function uploadVisitVideo(input, listingId){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>50*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Video max 50MB');return;}
+  toast('⏳ Upchargement video...');
+  const ext=file.name.split('.').pop();
+  const path=`videos/${listingId}/visite.${ext}`;
+  const{data,erreur}=await sb.storage. depuis ('annonces').upload(path,file,{upsert:true,cacheControl:'3600'});
+  if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+  const{data:urlData}=sb.storage. depuis ('annonces').getPublicUrl(path);
+  await sb. depuis ('annonces').update({video_url:urlData.publicUrl}).eq('id',listingId);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Visite video uploaded!');
+}
+
+// ── Système de références locataire ─────────────────────────────
+async function requestReference(){
+  if(!U){toast('Pbail sign in first');return;}
+  const email=prompt('Enter votre previous propriétaire\'s email to request a reference:');
+  if(!email||!email.includes('@')){toast('Invalid email');return;}
+  // Store reference request in Supabase
+  try{
+    await sb. depuis ('references').insert({
+      locataire_id:U.id,
+      propriétaire_email:email,
+      statut:'en attente',
+      created_at:new Date().toISOString()
+    });
+  }catch(e){}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Reference request sent to '+email+'! They\'ll receive an email to confirm.');
+}
+
+// PWA Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg=>{
+    reg.update();
+  });
+}
+</script>
+</body>
+</html>
