@@ -555,7 +555,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div class="card">
         <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Identity verification</div><span id="verify-badge" class="badge b-dim">Not vérifié</span></div>
         <div class="cb">
-          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l'équipe vérifiera votre identité sous 24h.</p>
+          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l\'équipe vérifiera votre identité sous 24h.</p>
 
           <div id="verify-upload-section">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
@@ -3286,8 +3286,8 @@ async function loadPaiementsData(){
 
   // "Paiement history" — seulement ce qui est réellement confirmé payé
   const confirmedPaiements=paiements.filter(p=>p.status==='paid');
-  const sc={paid:'b-green',declared:'b-gold',en attente:'b-dim',late:'b-red'};
-  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Confirmered',declared:'<i data-lucide=message-circle class=ic></i> Déclaré — en attente propriétaire',en attente:'⏳ En attente',late:'<i data-lucide=alert-triangle class=ic></i>️ En retard'};
+  const sc={paid:'b-green',declared:'b-gold',pending:'b-dim',late:'b-red'};
+  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Confirmered',declared:'<i data-lucide=message-circle class=ic></i> Déclaré — en attente propriétaire',pending:'⏳ En attente',late:'<i data-lucide=alert-triangle class=ic></i>️ En retard'};
   document.getElementById('pay-list').innerHTML=confirmedPaiements.length
     ?'<div style="padding:0 1.2rem">'+confirmedPaiements.map(p=>`
       <div style="display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)">
@@ -3523,24 +3523,24 @@ async function loadRateAgentCard(){
     if(!visites||!visites.length){card.style.display='none';return;}
 
     const agentIds=[...new Set(visites.map(v=>v.agent_id))];
-    const{data:already}=await sb.from('avis').select('target_id').eq('reviewer_id',U.id).eq('type','locataire_to_agent').in('target_id',agentIds);
+    const{data:already}=await sb.from('reviews').select('target_id').eq('reviewer_id',U.id).eq('type','tenant_to_agent').in('target_id',agentIds);
     const reviewedIds=new Set((already||[]).map(r=>r.target_id));
     // Un seul rappel par agent, même si plusieurs visites avec le même agent
     const seen=new Set();
-    const en attente=visites.filter(v=>{
+    const enAttente=visites.filter(v=>{
       if(reviewedIds.has(v.agent_id)||seen.has(v.agent_id))return false;
       seen.add(v.agent_id);return true;
     });
-    if(!en attente.length){card.style.display='none';return;}
+    if(!enAttente.length){card.style.display='none';return;}
 
     card.style.display='block';
     const{data:agentProfiles}=await sb.from('profiles').select('clerk_id,full_name').in('clerk_id',agentIds);
     const agentNoms={};(agentProfiles||[]).forEach(a=>agentNoms[a.clerk_id]=a.full_name);
-    const listingIds=[...new Set(en attente.map(v=>v.listing_id).filter(Boolean))];
+    const listingIds=[...new Set(enAttente.map(v=>v.listing_id).filter(Boolean))];
     const{data:annonces}=await sb.from('listings').select('id,title').in('id',listingIds);
     const listingTitles={};(annonces||[]).forEach(l=>listingTitles[l.id]=l.title);
 
-    wrap.innerHTML=en attente.map(v=>`
+    wrap.innerHTML=enAttente.map(v=>`
       <div style="background:var(--s2);border-radius:10px;padding:1rem;margin-bottom:.75rem">
         <div style="font-size:.85rem;font-weight:600;margin-bottom:.5rem">${agentNoms[v.agent_id]||'Your agent'} — <span style="font-weight:400;color:var(--tm)">${listingTitles[v.listing_id]||' votre  visite'}</span></div>
         <div style="display:flex;gap:.5rem;margin-bottom:.5rem" id="ta-stars-${v.id}">
@@ -3614,7 +3614,7 @@ async function loadProfilee(){
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center">
         <div style="font-size:2rem;margin-bottom:.4rem">⏳</div>
         <div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">Under avis</div>
-        <div style="font-size:.78rem;color:var(--tm)">Your ID et selfie have been submitted. A Trouve Ton Toit membre de l'équipe vérifiera votre identity within 24 hours.</div>
+        <div style="font-size:.78rem;color:var(--tm)">Your ID et selfie have been submitted. A Trouve Ton Toit membre de l\'équipe vérifiera votre identity within 24 hours.</div>
       </div>`;
   }
 }
@@ -3713,9 +3713,9 @@ async function loadAlertState(){
     document.getElementById('alert-type').value=data.type||'';
     document.getElementById('alert-rooms').value=data.min_rooms||'';
   }
-  const isActif=data?.actif;
-  if(badge){badge.textContent=isActif?'Actif':'Not actif';badge.classNom='badge '+(isActif?'b-green':'b-dim');}
-  if(activateBtn)activateBtn.innerHTML=isActif?'<i data-lucide=bell class=ic></i> Mettre à jour alert →':'<i data-lucide=bell class=ic></i> Activer l'alerte →';
+  const isActif=data?.active;
+  if(badge){badge.textContent=isActif?'Actif':'Not actif';badge.className='badge '+(isActif?'b-green':'b-dim');}
+  if(activateBtn)activateBtn.innerHTML=isActif?'<i data-lucide=bell class=ic></i> Mettre à jour alert →':'<i data-lucide=bell class=ic></i> Activer l\'alerte →';
   if(deactivateBtn)deactivateBtn.style.display=isActif?'block':'none';
   if(document.getElementById('nb-alerts'))document.getElementById('nb-alerts').style.display=isActif?'inline':'none';
   loadAlertMatches(data);
@@ -4040,7 +4040,7 @@ async function submitIDForVerification(){
     const{error:e2} = await sb.storage.from('documents-dossiers').upload(`docs/${U.id}/selfie.${selfieExt}`, _selfieFile, {upsert:true});
     if(e2) throw new Error(e2.message);
     await sb.from('profiles').update({id_submitted:true, id_submitted_at:new Date().toISOString()}).eq('clerk_id',U.id);
-    if(statut) statut.innerHTML = '<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.75rem;text-align:center"><div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=check-circle-2 class=ic></i></div><div style="font-weight:700;color:var(--green);margin-bottom:.2rem">Soumettreted successfully!</div><div style="font-size:.78rem;color:var(--tm)">A Trouve Ton Toit membre de l'équipe vérifiera votre identity within 24 hours.</div></div>';
+    if(statut) statut.innerHTML = '<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.75rem;text-align:center"><div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=check-circle-2 class=ic></i></div><div style="font-weight:700;color:var(--green);margin-bottom:.2rem">Soumettreted successfully!</div><div style="font-size:.78rem;color:var(--tm)">A Trouve Ton Toit membre de l\'équipe vérifiera votre identity within 24 hours.</div></div>';
     toast('<i data-lucide=check-circle-2 class=ic></i> ID + selfie submitted pour verification!');
   }catch(e){
     if(statut) statut.innerHTML = '<div style="color:var(--red)"><i data-lucide=x-circle class=ic></i> '+e.message+'</div>';
