@@ -4798,39 +4798,43 @@ function selectDocType(idx,type){
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
   if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[type]||type)+'</strong>';
-  // Show contextual instructions if available
+  // Garant personne physique: show sub-dossier BEFORE instruction box logic
+  // (instruction box uses insertBefore with .dossier-upload-area which is a grandchild of dupload-5 — would throw DOMException)
+  if(type==='garant_personne'){
+    const simpleUpload=document.getElementById('garant-simple-upload');
+    const subDossier=document.getElementById('garant-sub-dossier');
+    if(simpleUpload)simpleUpload.style.display='none';
+    if(subDossier)subDossier.style.display='block';
+    if(!dossierState[idx])dossierState[idx]={};
+    dossierState[5].type='garant_personne';
+    if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
+    dossierState[idx].files=dossierState[idx].files||[];
+    initGarantSubDossier();
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    return;
+  }
+  // Show contextual instructions if available (only for non-garant_personne)
   const instr=DOSSIER_TYPE_INSTRUCTIONS[type];
-  const instrBox=upload?.querySelector('.dossier-instr-box')||null;
   if(instr&&upload){
     let box=upload.querySelector('.dossier-instr-box');
     if(!box){
       box=document.createElement('div');
       box.className='dossier-instr-box';
       box.style.cssText='background:color-mix(in srgb,var(--bleu) 8%,transparent);border:1px solid color-mix(in srgb,var(--bleu) 25%,transparent);border-radius:10px;padding:.75rem 1rem;font-size:.8rem;color:var(--tm);line-height:1.6;margin-top:.75rem';
-      upload.insertBefore(box,upload.querySelector('.dossier-upload-area')||upload.firstChild);
+      // .dossier-upload-area is a direct child only for steps 0-4; use firstChild as fallback
+      const refNode=Array.from(upload.children).find(c=>c.classList?.contains('dossier-upload-area'))||upload.firstChild;
+      upload.insertBefore(box,refNode);
     }
     box.innerHTML='<span style="font-weight:700;color:var(--bleu)"><i data-lucide=info class=ic></i> Documents à fournir</span><br>'+instr;
   }
-  // Garant personne physique: show sub-dossier, hide simple upload
+  // For non-garant_personne: ensure simple upload visible, sub-dossier hidden
   const simpleUpload=document.getElementById('garant-simple-upload');
   const subDossier=document.getElementById('garant-sub-dossier');
-  if(simpleUpload&&subDossier){
-    if(type==='garant_personne'){
-      simpleUpload.style.display='none';
-      subDossier.style.display='block';
-      // Force type immédiatement pour que la navigation retour fonctionne
-      if(!dossierState[idx])dossierState[idx]={};
-      dossierState[5].type='garant_personne';
-      if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
-      initGarantSubDossier();
-    } else {
-      simpleUpload.style.display='block';
-      subDossier.style.display='none';
-    }
-  }
-  // Store type but not yet confirmed (for non-garant_personne types)
+  if(simpleUpload)simpleUpload.style.display='block';
+  if(subDossier)subDossier.style.display='none';
+  // Store type but not yet confirmed
   if(!dossierState[idx])dossierState[idx]={};
-  if(type!=='garant_personne')dossierState[idx].pendingType=type;
+  dossierState[idx].pendingType=type;
   dossierState[idx].files=dossierState[idx].files||[];
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
@@ -5413,12 +5417,27 @@ function renderDossierCompletion(){
   html+='</div></div>';
   // CTA
   if(allDone){
-    html+=`<div style="display:flex;gap:.75rem;flex-wrap:wrap">
-      <button class="btn bp" onclick="showDossierShare()" style="font-size:.88rem"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
+    const alreadySubmitted=P?.id_submitted;
+    html+=`<div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+      ${alreadySubmitted
+        ?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.65rem 1rem;font-size:.82rem;color:var(--gold)"><i data-lucide=clock class=ic></i> Dossier soumis — en cours de vérification</div>`
+        :`<button class="btn bp" onclick="submitDossierForReview()" style="font-size:.88rem"><i data-lucide=send class=ic></i> Soumettre le dossier →</button>`}
+      <button class="btn bg" onclick="showDossierShare()" style="font-size:.88rem"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
     </div>`;
   }
   container.innerHTML=html;
   if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+async function submitDossierForReview(){
+  try{
+    const{error}=await sb.from('profiles').update({id_submitted:true,id_submitted_at:new Date().toISOString()}).eq('clerk_id',U.id);
+    if(error)throw new Error(error.message);
+    if(P)P.id_submitted=true;
+    toast('<i data-lucide=check-circle-2 class=ic></i> Dossier soumis pour vérification !');
+    renderDossierCompletion();
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> Erreur : '+e.message);}
 }
 
 // ── Vérification dossier avant demande de visite ──────────────
