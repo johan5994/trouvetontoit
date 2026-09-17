@@ -355,6 +355,16 @@ footer ul a:hover{color:var(--terra)}
 }
 </style>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<script>
+// Navigation disponible immédiatement — avant tout autre script
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('actif'));
+  var el=document.getElementById('page-'+id);
+  if(el){el.classList.add('actif');}
+  window.scrollTo(0,0);
+}
+function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');if(el)el.scrollIntoView({behavior:'smooth'});},100);}
+</script>
 <style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NGD9YC7TNK"></script>
@@ -1208,8 +1218,7 @@ function updN(){
   }
 }
 
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('actif'));document.getElementById('page-'+id).classList.add('actif');window.scrollTo(0,0);}
-function stl(){go('home');setTimeout(()=>document.getElementById('la').scrollIntoView({behavior:'smooth'}),100);}
+// go() et stl() définis en haut de page
 
 async function signInWithGoogle(){
   try { clerk.openSignIn({}); } catch(e) { toast('<i data-lucide=x-circle class=ic></i> '+e.message); }
