@@ -165,20 +165,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="logo-sub">Locataire Mon compte</div>
   </div>
   <nav class="sb-nav">
-    <div class="nl">Overview</div>
-    <button class="ni act" onclick="sp('overview',this)"><span class="nico"><i data-lucide=home class=ic></i></span>My locations</button>
-    <button class="ni" onclick="sp('search',this)"><span class="nico"><i data-lucide=search class=ic></i></span>Find a flat<span class="nbadge" id="nb-alerts" style="display:none;background:var(--green)">!</span></button>
-    <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>My visites<span class="nbadge" id="nb-visites-t" style="display:none">0</span></button>
-    <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Applications<span class="nbadge" id="nb-applications-t" style="display:none">0</span></button>
+    <div class="nl">Aperçu</div>
+    <button class="ni act" onclick="sp('overview',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mes annonces</button>
+    <button class="ni" onclick="sp('search',this)"><span class="nico"><i data-lucide=search class=ic></i></span>Chercher un logement<span class="nbadge" id="nb-alerts" style="display:none;background:var(--green)">!</span></button>
+    <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Mes visites<span class="nbadge" id="nb-visites-t" style="display:none">0</span></button>
+    <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Candidatures<span class="nbadge" id="nb-applications-t" style="display:none">0</span></button>
     <div class="nl">Communication</div>
     <button class="ni" onclick="sp('messages',this)"><span class="nico"><i data-lucide=message-circle class=ic></i></span>Messages<span class="nbadge" id="nb-msg" style="display:none">0</span></button>
-    <div class="nl">Documents & Finance</div>
-    <button class="ni" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>My Location</button>
-    <button class="ni" onclick="sp('roommates',this)"><span class="nico"><i data-lucide=users class=ic></i></span>Find a roommate</button>
-    <div class="nl">Reviews & Profil</div>
-    <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Leave a avis</button>
-    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>My profil</button>
-    <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour to site</button>
+    <div class="nl">Documents & Finances</div>
+    <button class="ni" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mon logement</button>
+    <button class="ni" onclick="sp('roommates',this)"><span class="nico"><i data-lucide=users class=ic></i></span>Trouver un colocataire</button>
+    <div class="nl">Avis & Profil</div>
+    <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Mes avis</button>
+    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>Mon profil</button>
+    <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour au site</button>
   </nav>
   <div class="sb-user">
     <div class="uav" id="uav">?</div>
@@ -190,9 +190,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
 <main class="main">
   <div class="topbar">
-    <div><div class="tb-title" id="tbt">My Locations</div><div class="tb-sub" id="tbs">Welcome back!</div></div>
+    <div><div class="tb-title" id="tbt">Mes annonces</div><div class="tb-sub" id="tbs">Bienvenue !</div></div>
     <div style="display:flex;gap:.75rem">
-      <button class="btn bg bsm" onclick="window.location.href='/'"><i data-lucide=search class=ic></i> Browse flats</button>
+      <button class="btn bg bsm" onclick="window.location.href='/'"><i data-lucide=search class=ic></i> Parcourir les annonces</button>
       <button class="btn bg bsm" onclick="doLogout()">Se déconnecter</button>
       <button class="btn bg bsm" id="mob-menu" onclick="document.getElementById('sb').classList.toggle('open')"><i data-lucide=menu class=ic></i></button>
     </div>
@@ -202,22 +202,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- OVERVIEW -->
     <div class="page act" id="page-overview">
       <div class="kgrid">
-        <div class="kcard"><div class="klabel">Actif contacts</div><div class="kval" id="k-contacts" style="color:var(--bleu)">—</div><div class="ksub">Annonces contacted</div><div class="kico"><i data-lucide=home class=ic></i></div></div>
-        <div class="kcard"><div class="klabel">Unread messages</div><div class="kval" id="k-msgs" style="color:var(--marine)">—</div><div class="ksub">De vos propriétaires</div><div class="kico"><i data-lucide=message-circle class=ic></i></div></div>
-        <div class="kcard"><div class="klabel">Ouvrir tickets</div><div class="kval" id="k-tickets" style="color:var(--gold)">—</div><div class="ksub">Maintenance requests</div><div class="kico"><i data-lucide=wrench class=ic></i></div></div>
+        <div class="kcard"><div class="klabel">Contacts actifs</div><div class="kval" id="k-contacts" style="color:var(--bleu)">—</div><div class="ksub">Annonces contactées</div><div class="kico"><i data-lucide=home class=ic></i></div></div>
+        <div class="kcard"><div class="klabel">Messages non lus</div><div class="kval" id="k-msgs" style="color:var(--marine)">—</div><div class="ksub">De vos propriétaires</div><div class="kico"><i data-lucide=message-circle class=ic></i></div></div>
+        <div class="kcard"><div class="klabel">Tickets ouverts</div><div class="kval" id="k-tickets" style="color:var(--gold)">—</div><div class="ksub">Demandes de maintenance</div><div class="kico"><i data-lucide=wrench class=ic></i></div></div>
       </div>
       <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:1rem">
         <div class="card">
-          <div class="ch"><div class="ct">Annonces I contacted</div><button class="btn bg bsm" onclick="window.location.href='/'">Find more →</button></div>
+          <div class="ch"><div class="ct">Mes annonces contactées</div><button class="btn bg bsm" onclick="window.location.href='/'">Chercher plus →</button></div>
           <div class="cb" id="my-contacts"><div class="ld"><div class="sp"></div></div></div>
         </div>
         <div class="card">
-          <div class="ch"><div class="ct">Quick actions</div></div>
+          <div class="ch"><div class="ct">Actions rapides</div></div>
           <div class="cb" style="display:flex;flex-direction:column;gap:.6rem">
-            <button class="btn bp" style="width:100%;justify-content:center" onclick="window.location.href='/'"><i data-lucide=search class=ic></i> Browse new flats</button>
-            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('mylocation',document.querySelectorAll('.ni')[4]);setTimeout(()=>{showMlTab('maintenance');openTicketModal();},300)"><i data-lucide=wrench class=ic></i> Report a problem</button>
-            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('messages',document.querySelectorAll('.ni')[3])"><i data-lucide=message-circle class=ic></i> My messages</button>
-            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('mylocation',document.querySelectorAll('.ni')[4])"><i data-lucide=file-text class=ic></i> My bails</button>
+            <button class="btn bp" style="width:100%;justify-content:center" onclick="window.location.href='/'"><i data-lucide=search class=ic></i> Parcourir les annonces</button>
+            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('mylocation',document.querySelectorAll('.ni')[4]);setTimeout(()=>{showMlTab('maintenance');openTicketModal();},300)"><i data-lucide=wrench class=ic></i> Signaler un problème</button>
+            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('messages',document.querySelectorAll('.ni')[3])"><i data-lucide=message-circle class=ic></i> Mes messages</button>
+            <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('mylocation',document.querySelectorAll('.ni')[4])"><i data-lucide=file-text class=ic></i> Mes baux</button>
             <button class="btn bg" style="width:100%;justify-content:center" onclick="sp('profil',document.querySelectorAll('.ni')[6])"><i data-lucide=user class=ic></i> Compléter mon profil</button>
           </div>
         </div>
@@ -241,7 +241,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       </div>
       <div id="chat-thread" style="display:flex;flex-direction:column;gap:.6rem;max-height:calc(100vh - 280px);overflow-y:auto;padding-bottom:1rem"></div>
       <div style="position:sticky;bottom:0;background:var(--bg);padding-top:.75rem;border-top:1px solid var(--b);margin-top:.75rem">
-        <textarea class="fta" id="chat-reply" rows="3" placeholder="Write votre reply…" style="width:100%;margin-bottom:.5rem"></textarea>
+        <textarea class="fta" id="chat-reply" rows="3" placeholder="Écrire votre réponse…" style="width:100%;margin-bottom:.5rem"></textarea>
         <button class="btn bp" style="width:100%;justify-content:center" onclick="sendChatReply()">Envoyer →</button>
       </div>
     </div>
@@ -253,8 +253,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div id="ml-empty" style="display:none">
         <div class="card" style="text-align:center;padding:2.5rem 1.5rem">
           <div style="font-size:2.5rem;margin-bottom:.75rem"><i data-lucide=home class=ic></i></div>
-          <div style="font-size:1rem;font-weight:700;margin-bottom:.4rem">No location yet</div>
-          <p style="font-size:.85rem;color:var(--tm);max-width:420px;margin:0 auto 1.25rem;line-height:1.6">Once votre application is accepté et the bail is being signed, vous trouverez votre bail, entrée dans les lieux état des lieux, paiements, et maintenance here.</p>
+          <div style="font-size:1rem;font-weight:700;margin-bottom:.4rem">Aucun logement pour l'instant</div>
+          <p style="font-size:.85rem;color:var(--tm);max-width:420px;margin:0 auto 1.25rem;line-height:1.6">Une fois votre candidature acceptée et le bail signé, vous trouverez ici votre bail, l'état des lieux, vos paiements et vos demandes de maintenance.</p>
           <button class="btn bp" onclick="sp('search',document.querySelectorAll('.ni')[1])"><i data-lucide=search class=ic></i> Rechercher un logement →</button>
         </div>
       </div>
@@ -262,20 +262,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Actif bail content -->
       <div id="ml-content" style="display:none">
         <div style="margin-bottom:1.2rem">
-          <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> My Location</div>
+          <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> Mon logement</div>
           <div style="font-size:.78rem;color:var(--tm);margin-top:.15rem" id="ml-bien-name">—</div>
           <div id="ml-tenancy-ended-notice" style="display:none;background:rgba(224,90,90,.08);border:1px solid rgba(224,90,90,.2);border-radius:10px;padding:.65rem .9rem;margin-top:.6rem;font-size:.78rem;color:var(--red);line-height:1.5"></div>
         </div>
 
         <div id="ml-bail-progress"></div>
 
-        <div id="ml-no-tracking-notice" style="display:none;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ️ ce logement's owner n'a pas de compte Trouve Ton Toit, les paiements, l'entretiennance requests et bail management aren't tracked here — coordinate those directly avec votre agence.</div>
+        <div id="ml-no-tracking-notice" style="display:none;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ️ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
 
         <div style="display:flex;gap:.4rem;margin:1rem 0;overflow-x:auto;padding-bottom:.2rem">
           <button class="ml-tab act" id="ml-tabbtn-bail" onclick="showMlTab('bail')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=file-text class=ic></i> Bail & État des lieux</button>
           <button class="ml-tab" id="ml-tabbtn-paiements" onclick="showMlTab('paiements')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=euro class=ic></i> Paiements</button>
           <button class="ml-tab" id="ml-tabbtn-maintenance" onclick="showMlTab('maintenance')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=wrench class=ic></i> Maintenance</button>
-          <button class="ml-tab" id="ml-tabbtn-manage" onclick="showMlTab('manage')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=door-open class=ic></i> Leave</button>
+          <button class="ml-tab" id="ml-tabbtn-manage" onclick="showMlTab('manage')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=door-open class=ic></i> Quitter</button>
         </div>
 
         <!-- Sub-tab: Bail & État des lieux -->
@@ -291,21 +291,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               <div id="pay-pend" style="font-size:1.15rem;font-weight:700;color:var(--gold)">0</div>
             </div></div>
             <div class="card" style="margin-bottom:0"><div class="cb" style="text-align:center;padding:.85rem .5rem">
-              <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.03em;margin-bottom:.25rem">Suivant due</div>
+              <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.03em;margin-bottom:.25rem">Prochain paiement</div>
               <div id="pay-next" style="font-size:1.15rem;font-weight:700;color:var(--txt)">—</div>
             </div></div>
           </div>
           <div id="pay-due-now"></div>
-          <div class="card"><div class="ch"><div class="ct">Paiement history</div></div><div id="pay-list"><div class="ld"><div class="sp"></div></div></div></div>
+          <div class="card"><div class="ch"><div class="ct">Historique des paiements</div></div><div id="pay-list"><div class="ld"><div class="sp"></div></div></div></div>
         </div>
 
         <!-- Sub-tab: Maintenance -->
         <div id="ml-tab-maintenance" style="display:none">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
-            <div style="font-size:.85rem;font-weight:700;color:var(--tm)">Maintenance tickets</div>
-            <button class="btn bp bsm" onclick="openTicketModal()">+ Report problem</button>
+            <div style="font-size:.85rem;font-weight:700;color:var(--tm)">Tickets de maintenance</div>
+            <button class="btn bp bsm" onclick="openTicketModal()">+ Signaler un problème</button>
           </div>
-          <div class="ai"><i data-lucide=wrench class=ic></i> Signalez tout problème dans votre logement et votre propriétaire est notifié instantanément. Track the statut in real time —  depuis  open to in progress to resolved.</div>
+          <div class="ai"><i data-lucide=wrench class=ic></i> Signalez tout problème dans votre logement et votre propriétaire est notifié instantanément. Suivez le statut en temps réel — de "ouvert" à "en cours" puis "résolu".</div>
           <div id="tickets-list"><div class="ld"><div class="sp"></div></div></div>
         </div>
 
@@ -314,7 +314,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="card">
             <div class="ch"><div class="ct"><i data-lucide=door-open class=ic></i> Quitter ce logement</div></div>
             <div class="cb">
-              <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Vous partez ? Cela met fin à votre location sur Trouve Ton Toit — vousr propriétaire will be notified, et ce logement will sortie des lieux of votre actif location so you're free to browse et apply pour a new place.</p>
+              <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Vous partez ? Cela met fin à votre location sur Trouve Ton Toit — votre propriétaire sera notifié, et ce logement sera retiré de votre location active pour que vous puissiez chercher et postuler pour un nouveau logement.</p>
               <button class="btn bg" style="border-color:var(--red);color:var(--red)" onclick="leaveCurrentProperty()"><i data-lucide=door-open class=ic></i> Quitter ce logement</button>
             </div>
           </div>
@@ -328,19 +328,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         <button class="ml-tab" id="rm-tabbtn-channel" onclick="showRmTab('channel')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=message-circle class=ic></i> Community Channel</button>
         <button class="ml-tab" id="rm-tabbtn-dms" onclick="showRmTab('dms')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=mail class=ic></i>️ Mes messages<span class="badge" id="rm-dms-badge" style="display:none;margin-left:.3rem"></span></button>
         <button class="ml-tab" id="rm-tabbtn-profil" onclick="showRmTab('profil')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=user class=ic></i> Mon compte</button>
-        <button class="ml-tab" id="rm-tabbtn-groups" onclick="showRmTab('groups')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=users class=ic></i> My Groups</button>
+        <button class="ml-tab" id="rm-tabbtn-groups" onclick="showRmTab('groups')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=users class=ic></i> Mes groupes</button>
       </div>
 
       <!-- Sub-tab: Community Channel -->
       <div id="rm-tab-channel">
         <div id="rm-profil-required" style="display:none;background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--gold)">
-          <i data-lucide=user class=ic></i> Créez d'abord votre profil colocataire pour que les autres sachent ce que vous cherchez — <span onclick="showRmTab('profil')" style="text-decoration:underline;cursor:pointer;font-weight:700">set it up now</span>.
+          <i data-lucide=user class=ic></i> Créez d'abord votre profil colocataire pour que les autres sachent ce que vous cherchez — <span onclick="showRmTab('profil')" style="text-decoration:underline;cursor:pointer;font-weight:700">configurer maintenant</span>.
+        </div>
+        <!-- Channel list Discord-style -->
+        <div style="overflow-x:auto;padding-bottom:.3rem;margin-bottom:.75rem;scrollbar-width:none">
+          <div id="rm-channel-list" style="display:flex;gap:.4rem;min-width:max-content">
+            <!-- généré par JS -->
+          </div>
         </div>
         <div class="card">
-          <div class="ch"><div class="ct"><i data-lucide=message-circle class=ic></i> Community Channel</div><span style="font-size:.68rem;color:var(--td)">Tous ceux qui cherchent un colocataire sont ici</span></div>
+          <div class="ch" style="padding:.7rem 1rem">
+            <div class="ct" style="font-size:.85rem"><i data-lucide=hash class=ic></i> <span id="rm-channel-title">général</span></div>
+            <span id="rm-channel-subtitle" style="font-size:.68rem;color:var(--td)">Tous ceux qui cherchent un colocataire</span>
+          </div>
           <div id="rm-channel-body" style="height:420px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem"></div>
           <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
-            <input id="rm-channel-input" class="fi" placeholder="Say hi, mention votre budget/zone..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmChannelMsg();}">
+            <input id="rm-channel-input" class="fi" placeholder="Dites bonjour, mentionnez votre budget..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmChannelMsg();}">
             <button class="btn bp bsm" onclick="sendRmChannelMsg()">Envoyer →</button>
           </div>
         </div>
@@ -357,40 +366,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Sub-tab: Mon compte -->
       <div id="rm-tab-profil" style="display:none">
         <div class="card">
-          <div class="ch"><div class="ct"><i data-lucide=user class=ic></i> My roommate search profil</div><span class="badge" id="rm-profil-badge" style="display:none"></span></div>
+          <div class="ch"><div class="ct"><i data-lucide=user class=ic></i> Mon profil colocataire</div><span class="badge" id="rm-profil-badge" style="display:none"></span></div>
           <div class="cb">
-            <p style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">C'est ce que les autres locataires voient à côté de vos messages in the Community Channel.</p>
+            <p style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">C'est ce que les autres locataires voient à côté de vos messages dans le Community Channel.</p>
             <div class="fgrid2">
               <div class="fg"><label class="fl">Budget min (€/mois)</label><input class="fi" type="number" id="rm-budget-min" placeholder="400"></div>
               <div class="fg"><label class="fl">Budget max (€/mois)</label><input class="fi" type="number" id="rm-budget-max" placeholder="700"></div>
             </div>
-            <div class="fg"><label class="fl">Preferred zone(s)</label><input class="fi" id="rm-zones" placeholder="Lyon, Marseille, Toulouse..."></div>
-            <div class="fg"><label class="fl">Entrée dans les lieux date</label><input class="fi" type="date" id="rm-movein"></div>
-            <div class="fg"><label class="fl">Do you already have some roommates et need more?</label>
+            <div class="fg"><label class="fl">Zone(s) préférée(s)</label><input class="fi" id="rm-zones" placeholder="Lyon, Marseille, Toulouse..."></div>
+            <div class="fg"><label class="fl">Date d'entrée dans les lieux</label><input class="fi" type="date" id="rm-movein"></div>
+            <div class="fg"><label class="fl">Avez-vous déjà des colocataires et cherchez-vous quelqu'un de plus ?</label>
               <select class="fsel" id="rm-spots-needed">
-                <option value="0">No — I'm searching alone / open to joining anyone</option>
-                <option value="1">Yes — I need 1 more</option>
-                <option value="2">Yes — I need 2 more</option>
-                <option value="3">Yes — I need 3 more</option>
+                <option value="0">Non — je cherche seul(e)</option>
+                <option value="1">Oui — j'ai besoin de 1 personne de plus</option>
+                <option value="2">Oui — j'ai besoin de 2 personnes de plus</option>
+                <option value="3">Oui — j'ai besoin de 3 personnes de plus</option>
               </select>
             </div>
-            <div class="fg"><label class="fl">Lifestyle</label>
+            <div class="fg"><label class="fl">Mode de vie</label>
               <div style="display:flex;flex-wrap:wrap;gap:.5rem">
-                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-quiet"> <i data-lucide=eye-off class=ic></i> Quiet</label>
-                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-social"> <i data-lucide=party-popper class=ic></i> Social</label>
-                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-nonsmoker"> <i data-lucide=ban class=ic></i> Non-smoker</label>
-                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-pets"> <i data-lucide=paw-print class=ic></i> Pet-friendly</label>
-                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-wfh"> <i data-lucide=laptop class=ic></i> Works  depuis  home</label>
+                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-quiet"> <i data-lucide=eye-off class=ic></i> Calme</label>
+                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-social"> <i data-lucide=party-popper class=ic></i> Sociable</label>
+                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-nonsmoker"> <i data-lucide=ban class=ic></i> Non-fumeur</label>
+                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-pets"> <i data-lucide=paw-print class=ic></i> Animaux OK</label>
+                <label style="display:flex;align-items:center;gap:.3rem;background:var(--s2);border-radius:20px;padding:.3rem .7rem;font-size:.76rem;cursor:pointer"><input type="checkbox" id="rm-life-wfh"> <i data-lucide=laptop class=ic></i> Télétravail</label>
               </div>
             </div>
-            <div class="fg"><label class="fl">Short bio</label><textarea class="fta" id="rm-bio" rows="3" placeholder="A bit about you — where you're  depuis , what you do, what you're looking  pour ..."></textarea></div>
-            <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rm-actif" checked> <span class="fl" style="margin:0">Visible in the Community Channel (turn off once you've found a place)</span></label></div>
+            <div class="fg"><label class="fl">Courte bio</label><textarea class="fta" id="rm-bio" rows="3" placeholder="Quelques mots sur vous — d'où vous venez, ce que vous faites, ce que vous cherchez..."></textarea></div>
+            <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rm-actif" checked> <span class="fl" style="margin:0">Visible dans le Community Channel (désactivez une fois que vous avez trouvé un logement)</span></label></div>
             <button class="btn bp" style="width:100%;justify-content:center" onclick="saveRoommateProfile()">Enregistrer profil →</button>
           </div>
         </div>
 
         <div class="card" style="margin-top:1rem">
-          <div class="ch"><div class="ct"><i data-lucide=ban class=ic></i> Blocked users</div></div>
+          <div class="ch"><div class="ct"><i data-lucide=ban class=ic></i> Utilisateurs bloqués</div></div>
           <div class="cb" id="rm-blocked-list"><div style="font-size:.78rem;color:var(--td)">Chargement...</div></div>
         </div>
       </div>
@@ -398,8 +407,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Sub-tab: My Groups -->
       <div id="rm-tab-groups" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-          <div style="font-size:.85rem;font-weight:700;color:var(--tm)">My roommate groups</div>
-          <button class="btn bp bsm" onclick="openCreateGroupModal()">+ Create group</button>
+          <div style="font-size:.85rem;font-weight:700;color:var(--tm)">Mes groupes de colocation</div>
+          <button class="btn bp bsm" onclick="openCreateGroupModal()">+ Créer un groupe</button>
         </div>
         <div id="rm-groups-list"><div class="ld"><div class="sp"></div></div></div>
       </div>
@@ -416,7 +425,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           </div>
           <div id="rm-dm-thread" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem"></div>
           <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
-            <input id="rm-dm-input" class="fi" placeholder="Write a message..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmDm();}">
+            <input id="rm-dm-input" class="fi" placeholder="Écrire un message..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmDm();}">
             <button class="btn bp bsm" onclick="sendRmDm()">Envoyer →</button>
           </div>
         </div>
@@ -425,11 +434,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Modal: Créer un groupe -->
       <div id="rm-group-modal" onclick="if(event.target.id==='rm-group-modal')document.getElementById('rm-group-modal').style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
         <div style="background:var(--s);border:1px solid var(--b);border-radius:16px;max-width:420px;width:95%;padding:1.5rem">
-          <div style="font-weight:700;font-size:1rem;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Create a group</div>
-          <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Start a group chat avec people  depuis  the channel — good pour coordinating a shared search or applying together.</div>
-          <div class="fg" style="margin-bottom:.75rem"><label class="fl">Group name</label><input class="fi" id="rm-group-name" placeholder="e.g. Lyon 3BR search"></div>
-          <div class="fg" style="margin-bottom:1rem"><label class="fl">Add members</label><div id="rm-group-member-picker" style="max-height:180px;overflow-y:auto;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem"></div></div>
-          <button class="btn bp" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="submitCreateGroup()">Create group →</button>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Créer un groupe</div>
+          <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Démarrez un groupe de discussion avec des personnes du channel — idéal pour coordonner une recherche commune ou postuler ensemble.</div>
+          <div class="fg" style="margin-bottom:.75rem"><label class="fl">Nom du groupe</label><input class="fi" id="rm-group-name" placeholder="ex. Recherche 3 pièces Lyon"></div>
+          <div class="fg" style="margin-bottom:1rem"><label class="fl">Ajouter des membres</label><div id="rm-group-member-picker" style="max-height:180px;overflow-y:auto;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem"></div></div>
+          <button class="btn bp" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="submitCreateGroup()">Créer le groupe →</button>
           <button class="btn bg" style="width:100%;justify-content:center" onclick="document.getElementById('rm-group-modal').style.display='none'">Annuler</button>
         </div>
       </div>
@@ -443,13 +452,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               <div style="font-size:.68rem;color:var(--td)" id="rm-groupchat-members">—</div>
             </div>
             <div style="display:flex;gap:.5rem;align-items:center">
-              <button onclick="leaveRoommateGroup()" title="Leave group" style="background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--td)"><i data-lucide=door-open class=ic></i> Leave</button>
+              <button onclick="leaveRoommateGroup()" title="Quitter le groupe" style="background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--td)"><i data-lucide=door-open class=ic></i> Quitter</button>
               <button onclick="closeRmGroupChat()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--td)"><i data-lucide=x class=ic></i></button>
             </div>
           </div>
           <div id="rm-groupchat-thread" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem"></div>
           <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
-            <input id="rm-groupchat-input" class="fi" placeholder="Write a message..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmGroupMsg();}">
+            <input id="rm-groupchat-input" class="fi" placeholder="Écrire un message..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmGroupMsg();}">
             <button class="btn bp bsm" onclick="sendRmGroupMsg()">Envoyer →</button>
           </div>
         </div>
@@ -459,19 +468,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- DEPOSIT -->
     <!-- REVIEWS -->
     <div class="page" id="page-avis">
-      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Leave a avis</div>
-      <div class="ai"><i data-lucide=star class=ic></i> Your avis help the Trouve Ton Toit community. Propriétaires avec great avis get more visibility — honest feedback makes the platform better pour everyone.</div>
+      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Mes avis</div>
+      <div class="ai"><i data-lucide=star class=ic></i> Vos avis aident la communauté Trouve Ton Toit. Les propriétaires avec de bons avis gagnent en visibilité — des retours honnêtes améliorent la plateforme pour tous.</div>
       <div class="card" id="rate-agent-card" style="display:none;margin-bottom:1rem">
-        <div class="ch"><div class="ct"><i data-lucide=star class=ic></i> Rate votre agent</div></div>
+        <div class="ch"><div class="ct"><i data-lucide=star class=ic></i> Évaluer votre agent</div></div>
         <div class="cb" id="rate-agent-list"></div>
       </div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="ch"><div class="ct">Avis votre propriétaire</div></div>
+        <div class="ch"><div class="ct">Évaluer votre propriétaire</div></div>
         <div class="cb">
-          <div class="fg"><label class="fl">Which propriétaire?</label><select class="fsel" id="rev-propriétaire-select"><option value="">Chargement...</option></select></div>
-          <div id="rev-no-propriétaires" style="display:none;font-size:.82rem;color:var(--tm);margin-bottom:.5rem">You'll be able to avis a propriétaire once you've actually rented  depuis  them.</div>
+          <div class="fg"><label class="fl">Quel propriétaire ?</label><select class="fsel" id="rev-propriétaire-select"><option value="">Chargement...</option></select></div>
+          <div id="rev-no-propriétaires" style="display:none;font-size:.82rem;color:var(--tm);margin-bottom:.5rem">Vous pourrez évaluer un propriétaire une fois que vous aurez réellement loué chez lui.</div>
           <div id="rev-propriétaire-form" style="display:none">
-            <div class="fg"><label class="fl">Rating</label>
+            <div class="fg"><label class="fl">Note</label>
               <div style="display:flex;gap:.5rem;margin-bottom:.5rem" id="stars-wrap">
                 <span class="star-btn actif" onclick="setRating(1)"><i data-lucide=star class=ic></i></span>
                 <span class="star-btn actif" onclick="setRating(2)"><i data-lucide=star class=ic></i></span>
@@ -481,18 +490,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               </div>
               <input type="hidden" id="rev-rating" value="5">
             </div>
-            <div class="fg"><label class="fl">Your experience</label><textarea class="fta" id="rev-comment" rows="4" placeholder="Was the propriétaire responsive? Was the flat as described?"></textarea></div>
+            <div class="fg"><label class="fl">Votre expérience</label><textarea class="fta" id="rev-comment" rows="4" placeholder="Le propriétaire était-il réactif ? Le logement correspondait-il à l'annonce ?"></textarea></div>
             <button class="btn bp" onclick="submitAvis()">Soumettre avis →</button>
           </div>
         </div>
       </div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="ch"><div class="ct">Avis votre agence</div></div>
+        <div class="ch"><div class="ct">Évaluer votre agence</div></div>
         <div class="cb">
-          <div class="fg"><label class="fl">Which agence?</label><select class="fsel" id="rev-agence-select"><option value="">Chargement...</option></select></div>
-          <div id="rev-no-agences" style="display:none;font-size:.82rem;color:var(--tm);margin-bottom:.5rem">You'll be able to avis an agence once you've actually rented through them.</div>
+          <div class="fg"><label class="fl">Quelle agence ?</label><select class="fsel" id="rev-agence-select"><option value="">Chargement...</option></select></div>
+          <div id="rev-no-agences" style="display:none;font-size:.82rem;color:var(--tm);margin-bottom:.5rem">Vous pourrez évaluer une agence une fois que vous aurez réellement loué par son intermédiaire.</div>
           <div id="rev-agence-form" style="display:none">
-            <div class="fg"><label class="fl">Rating</label>
+            <div class="fg"><label class="fl">Note</label>
               <div style="display:flex;gap:.5rem;margin-bottom:.5rem" id="agence-stars-wrap">
                 <span class="star-btn actif" onclick="setAgenceRating(1)"><i data-lucide=star class=ic></i></span>
                 <span class="star-btn actif" onclick="setAgenceRating(2)"><i data-lucide=star class=ic></i></span>
@@ -502,17 +511,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               </div>
               <input type="hidden" id="rev-agence-rating" value="5">
             </div>
-            <div class="fg"><label class="fl">Your experience</label><textarea class="fta" id="rev-agence-comment" rows="4" placeholder="Was the agence responsive? Did they manage the process well?"></textarea></div>
+            <div class="fg"><label class="fl">Votre expérience</label><textarea class="fta" id="rev-agence-comment" rows="4" placeholder="L'agence était-elle réactive ? A-t-elle bien géré le processus ?"></textarea></div>
             <button class="btn bp" onclick="submitAgenceAvis()">Soumettre avis →</button>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="ch"><div class="ct">Reviews I submitted</div></div>
+        <div class="ch"><div class="ct">Mes avis soumis</div></div>
         <div class="cb" id="my-avis"><div class="ld"><div class="sp"></div></div></div>
       </div>
       <div class="card" style="margin-top:1rem">
-        <div class="ch"><div class="ct"><i data-lucide=star class=ic></i> Reviews about me</div></div>
+        <div class="ch"><div class="ct"><i data-lucide=star class=ic></i> Avis sur moi</div></div>
         <div class="cb" id="avis-about-me"><div class="ld"><div class="sp"></div></div></div>
       </div>
     </div>
@@ -537,53 +546,46 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     </div>
 
     <div class="page" id="page-profil">
-      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">My profil</div>
-      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complete votre profil once — all this info is used to auto-generate votre bail. Fields marked * are required before you can contact a propriétaire or request a visite.</div>
+      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Mon profil</div>
+      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complétez votre profil une seule fois — toutes ces informations servent à générer automatiquement votre bail. Les champs marqués * sont requis avant de pouvoir contacter un propriétaire ou demander une visite.</div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="ch"><div class="ct">Personal information</div><span id="complete-pct" style="font-size:.75rem;color:var(--td)"></span></div>
+        <div class="ch"><div class="ct">Informations personnelles</div><span id="complete-pct" style="font-size:.75rem;color:var(--td)"></span></div>
         <div class="cb">
           <!-- Identity -->
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identity</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identité</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">Full legal name * <span style="font-size:.68rem;color:var(--td)">(as on passport)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont"></div>
+            <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(tel que sur le passeport)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont"></div>
             <div class="fg"><label class="fl">E-mail</label><input class="fi" id="p-email" readonly style="opacity:.6"></div>
             <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="+33 1 00 00 00 00" autocomplete="tel"></div>
             <div class="fg"><label class="fl">Nationalité *</label>
               <select class="fsel" id="p-nat">
-                <option value="">Select country...</option>
+                <option value="">Sélectionner le pays...</option>
                 <option value="Afghan">Afghan</option><option value="Albanian">Albanian</option><option value="Algerian">Algerian</option><option value="American">American</option><option value="Andorran">Andorran</option><option value="Angolan">Angolan</option><option value="Argentine">Argentine</option><option value="Armenian">Armenian</option><option value="Australian">Australian</option><option value="Austrian">Austrian</option><option value="Azerbaijani">Azerbaijani</option><option value="Bahraini">Bahraini</option><option value="Bangladeshi">Bangladeshi</option><option value="Belgian">Belgian</option><option value="Bolivian">Bolivian</option><option value="Bosnian">Bosnian</option><option value="Brazilian">Brazilian</option><option value="British">British</option><option value="Bulgarian">Bulgarian</option><option value="Cambodian">Cambodian</option><option value="Cameroonian">Cameroonian</option><option value="Canadian">Canadian</option><option value="Chilean">Chilean</option><option value="Chinese">Chinese</option><option value="Colombian">Colombian</option><option value="Croatian">Croatian</option><option value="Cuban">Cuban</option><option value="Cypriot">Cypriot</option><option value="Czech">Czech</option><option value="Danish">Danish</option><option value="Dominican">Dominican</option><option value="Dutch">Dutch</option><option value="Ecuadorian">Ecuadorian</option><option value="Egyptian">Egyptian</option><option value="Emirati">Emirati</option><option value="Estonian">Estonian</option><option value="Ethiopian">Ethiopian</option><option value="Filipino">Filipino</option><option value="Finnish">Finnish</option><option value="French">French</option><option value="Georgian">Georgian</option><option value="German">German</option><option value="Ghanaian">Ghanaian</option><option value="Greek">Greek</option><option value="Guatemalan">Guatemalan</option><option value="Honduran">Honduran</option><option value="Hungarian">Hungarian</option><option value="Icelandic">Icelandic</option><option value="Indian">Indian</option><option value="Indonesian">Indonesian</option><option value="Iranian">Iranian</option><option value="Iraqi">Iraqi</option><option value="Irish">Irish</option><option value="Israeli">Israeli</option><option value="Italian">Italian</option><option value="Ivorian">Ivorian</option><option value="Jamaican">Jamaican</option><option value="Japanese">Japanese</option><option value="Jordanian">Jordanian</option><option value="Kazakh">Kazakh</option><option value="Kenyan">Kenyan</option><option value="Korean">Korean</option><option value="Kuwaiti">Kuwaiti</option><option value="Latvian">Latvian</option><option value="Lebanese">Lebanese</option><option value="Libyan">Libyan</option><option value="Lithuanian">Lithuanian</option><option value="Luxembourgish">Luxembourgish</option><option value="Macedonian">Macedonian</option><option value="Malaysian">Malaysian</option><option value="français">français</option><option value="Mexican">Mexican</option><option value="Moldovan">Moldovan</option><option value="Mongolian">Mongolian</option><option value="Montenegrin">Montenegrin</option><option value="Moroccan">Moroccan</option><option value="Mozambican">Mozambican</option><option value="Namibian">Namibian</option><option value="Nepali">Nepali</option><option value="New Zealander">New Zealander</option><option value="Nicaraguan">Nicaraguan</option><option value="Nigerian">Nigerian</option><option value="Norwegian">Norwegian</option><option value="Omani">Omani</option><option value="Pakistani">Pakistani</option><option value="Panamanian">Panamanian</option><option value="Paraguayan">Paraguayan</option><option value="Peruvian">Peruvian</option><option value="Polish">Polish</option><option value="Portuguese">Portuguese</option><option value="Qatari">Qatari</option><option value="Romanian">Romanian</option><option value="Russian">Russian</option><option value="Saudi">Saudi</option><option value="Senegalese">Senegalese</option><option value="Serbian">Serbian</option><option value="Singaporean">Singaporean</option><option value="Slovak">Slovak</option><option value="Slovenian">Slovenian</option><option value="South African">South African</option><option value="Spanish">Spanish</option><option value="Sri Lankan">Sri Lankan</option><option value="Sudanese">Sudanese</option><option value="Swedish">Swedish</option><option value="Swiss">Swiss</option><option value="Syrian">Syrian</option><option value="Taiwanese">Taiwanese</option><option value="Tanzanian">Tanzanian</option><option value="Thai">Thai</option><option value="Tunisian">Tunisian</option><option value="Turkish">Turkish</option><option value="Ugandan">Ugandan</option><option value="Ukrainian">Ukrainian</option><option value="Uruguayan">Uruguayan</option><option value="Uzbek">Uzbek</option><option value="Venezuelan">Venezuelan</option><option value="Vietnamese">Vietnamese</option><option value="Yemeni">Yemeni</option><option value="Zambian">Zambian</option><option value="Zimbabwean">Zimbabwean</option>
               </select></div>
-            <div class="fg"><label class="fl">Passport / ID number *</label><input class="fi" id="p-passport" placeholder="e.g. 12345678A"></div>
+            <div class="fg"><label class="fl">Numéro de passeport / CNI *</label><input class="fi" id="p-passport" placeholder="ex. 12345678A"></div>
             <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob"></div>
             <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France"></div>
             <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris"></div>
           </div>
 
-          <!-- Stay en France -->
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0">🇫🇷 Situation professionnelle</div>
-          <div class="fgrid2">
-            <div class="fg"><label class="fl">Profession / Poste *</label><input class="fi" id="p-profession" placeholder="Développeur, Étudiant, Infirmier..."></div>
-            <div class="fg"><label class="fl">Employeur / Université</label><input class="fi" id="p-emprent" placeholder="Nom de l'entreprise ou université"></div>
-            <div class="fg"><label class="fl">Revenus nets mensuels (€) *</label><input class="fi" type="number" id="p-income" placeholder="2500" min="0"></div>
-          </div>
 
           <!-- Profil completeness indicator -->
           <div id="profil-completeness" style="margin-top:1rem;background:var(--tdim);border-radius:10px;padding:.85rem 1rem;font-size:.8rem">
-            <div style="font-weight:700;margin-bottom:.5rem">Profil completeness</div>
+            <div style="font-weight:700;margin-bottom:.5rem">Complétude du profil</div>
             <div id="completeness-bar-wrap" style="background:var(--b);border-radius:100px;height:8px;margin-bottom:.5rem">
               <div id="completeness-bar" style="background:var(--bleu);height:8px;border-radius:100px;width:0%;transition:width .3s"></div>
             </div>
-            <div id="completeness-text" style="color:var(--td)">Fill in all required fields to contact propriétaires</div>
+            <div id="completeness-text" style="color:var(--td)">Remplissez tous les champs requis pour contacter les propriétaires</div>
           </div>
 
           <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem">
             <button class="btn bp" onclick="saveProfilee()">Enregistrer profil →</button>
-            <span id="prof-ok" style="font-size:.82rem;color:var(--green);display:none"><i data-lucide=check-circle-2 class=ic></i> Enregistrerd!</span>
+            <span id="prof-ok" style="font-size:.82rem;color:var(--green);display:none"><i data-lucide=check-circle-2 class=ic></i> Enregistré !</span>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Identity verification</div><span id="verify-badge" class="badge b-dim">Not vérifié</span></div>
+        <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Vérification d'identité</div><span id="verify-badge" class="badge b-dim">Non vérifié</span></div>
         <div class="cb">
           <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l\'équipe vérifiera votre identité sous 24h.</p>
 
@@ -591,10 +593,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
               <!-- ID upload -->
               <div>
-                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=id-card class=ic></i> ID or passport</div>
+                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=id-card class=ic></i> CNI ou passeport</div>
                 <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('id-up').click()">
                   <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=id-card class=ic></i></div>
-                  <div id="id-upload-label" style="font-size:.75rem;color:var(--tm)">Click to upload</div>
+                  <div id="id-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour télécharger</div>
                   <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG, PDF · Max 5MB</div>
                   <input type="file" id="id-up" accepter="image/*,.pdf" style="display:none" onchange="onIDSelected(this)">
                 </div>
@@ -608,8 +610,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=camera class=ic></i> Selfie</div>
                 <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('selfie-up').click()">
                   <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=camera class=ic></i></div>
-                  <div id="selfie-upload-label" style="font-size:.75rem;color:var(--tm)">Click to upload</div>
-                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG · Clear face photo</div>
+                  <div id="selfie-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour télécharger</div>
+                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG · Photo de visage nette</div>
                   <input type="file" id="selfie-up" accepter="image/*" style="display:none" onchange="onSelfieSelected(this)">
                 </div>
                 <div id="selfie-pavis-small" style="display:none;margin-top:.4rem;text-align:center">
@@ -618,7 +620,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 </div>
               </div>
             </div>
-            <button id="submit-verify-btn" onclick="submitIDForVerification()" disabled style="width:100%;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.65rem;font-size:.85rem;font-weight:700;cursor:pointer;opacity:.5">Soumettre pour verification →</button>
+            <button id="submit-verify-btn" onclick="submitIDForVerification()" disabled style="width:100%;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.65rem;font-size:.85rem;font-weight:700;cursor:pointer;opacity:.5">Soumettre pour vérification →</button>
             <div id="upload-statut" style="margin-top:.75rem;display:none"></div>
           </div>
 
@@ -1006,31 +1008,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     </div><!-- /page-profil -->
     <div class="page" id="page-search">
       <div style="max-width:640px;margin:0 auto;width:100%">
-      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700"><i data-lucide=search class=ic></i> Find a flat</div>
+      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700"><i data-lucide=search class=ic></i> Chercher un logement</div>
       <div class="card">
         <!-- Alerts -->
-          <div class="ch"><div class="ct"><i data-lucide=bell class=ic></i> Instant alerts</div><span class="badge b-dim" id="alert-statut-badge">Not actif</span></div>
+          <div class="ch"><div class="ct"><i data-lucide=bell class=ic></i> Alertes instantanées</div><span class="badge b-dim" id="alert-statut-badge">Inactive</span></div>
           <div class="cb">
-            <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Get notifié instantanément when a new annonce matching votre criteria is posted.</p>
+            <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Recevez une notification instantanée dès qu'une nouvelle annonce correspondant à vos critères est publiée.</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
               <div class="fg"><label class="fl">Zone</label>
-                <select class="fsel" id="alert-zone"><option value="">Any zone</option><option>Marseille</option><option>Lyon</option><option>Paris</option><option>Bordeaux</option><option>Toulouse</option><option>Rennes</option><option>Bugibba</option><option>Montpellier</option></select>
+                <select class="fsel" id="alert-zone"><option value="">Toute zone</option><option>Marseille</option><option>Lyon</option><option>Paris</option><option>Bordeaux</option><option>Toulouse</option><option>Rennes</option><option>Montpellier</option></select>
               </div>
-              <div class="fg"><label class="fl">Max budget (€/mois)</label><input class="fi" id="alert-budget" type="number" placeholder="800"></div>
+              <div class="fg"><label class="fl">Budget max (€/mois)</label><input class="fi" id="alert-budget" type="number" placeholder="800"></div>
               <div class="fg"><label class="fl">Type</label>
-                <select class="fsel" id="alert-type"><option value="">Any type</option><option value="short">Location courte durée</option><option value="sublet">Sublet</option><option value="long">Location longue durée</option></select>
+                <select class="fsel" id="alert-type"><option value="">Tout type</option><option value="short">Location courte durée</option><option value="sublet">Sous-location</option><option value="long">Location longue durée</option></select>
               </div>
-              <div class="fg"><label class="fl">Min rooms</label>
-                <select class="fsel" id="alert-rooms"><option value="">Any</option><option value="1">Studio / 1BR</option><option value="2">2+ rooms</option><option value="3">3+ rooms</option></select>
+              <div class="fg"><label class="fl">Pièces min</label>
+                <select class="fsel" id="alert-rooms"><option value="">Indifférent</option><option value="1">Studio / T1</option><option value="2">2+ pièces</option><option value="3">3+ pièces</option></select>
               </div>
             </div>
             <button class="btn bp" style="width:100%;justify-content:center" id="alert-btn" onclick="saveAlert()"><i data-lucide=bell class=ic></i> Activer l'alerte →</button>
-            <button class="btn bg" style="width:100%;justify-content:center;margin-top:.5rem;display:none" id="alert-deactivate-btn" onclick="deactivateAlert()"><i data-lucide=bell-off class=ic></i> Deactivate alert</button>
+            <button class="btn bg" style="width:100%;justify-content:center;margin-top:.5rem;display:none" id="alert-deactivate-btn" onclick="deactivateAlert()"><i data-lucide=bell-off class=ic></i> Désactiver l'alerte</button>
           </div>
       </div>
 
       <div class="card" style="margin-top:1rem;display:none" id="alert-matches-card">
-        <div class="ch"><div class="ct"><i data-lucide=home class=ic></i> Annonces matching votre alert</div><span class="badge b-sea" id="alert-matches-count"></span></div>
+        <div class="ch"><div class="ct"><i data-lucide=home class=ic></i> Annonces correspondant à votre alerte</div><span class="badge b-sea" id="alert-matches-count"></span></div>
         <div class="cb" id="alert-matches-list"></div>
       </div>
       </div>
@@ -1046,7 +1048,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <button class="mclose" onclick="document.getElementById('msg-modal').classList.remove('open');loadMessages()"><i data-lucide=x class=ic></i></button>
     <div class="mt" id="mm-title">Message</div><div class="ms" id="mm-sub"></div>
     <div class="thread" id="mm-thread"></div>
-    <textarea class="fta" id="mm-reply" rows="2" placeholder="Write votre reply…"></textarea>
+    <textarea class="fta" id="mm-reply" rows="2" placeholder="Écrire votre réponse…"></textarea>
     <button class="btn bp" style="margin-top:.5rem;width:100%;justify-content:center" onclick="sendReply()">Envoyer →</button>
   </div>
 </div>
@@ -1055,45 +1057,45 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 <div class="mover" id="tick-modal" onclick="if(event.target.id==='tick-modal')this.classList.remove('open')">
   <div class="modal" style="max-height:90vh;overflow-y:auto">
     <button class="mclose" onclick="document.getElementById('tick-modal').classList.remove('open')"><i data-lucide=x class=ic></i></button>
-    <div class="mt"><i data-lucide=wrench class=ic></i> Report a problem</div>
-    <div class="ms">Describe the issue — vousr propriétaire will be notified immediately</div>
+    <div class="mt"><i data-lucide=wrench class=ic></i> Signaler un problème</div>
+    <div class="ms">Décrivez le problème — votre propriétaire sera notifié immédiatement</div>
 
-    <div class="fg"><label class="fl">Type of problem *</label>
+    <div class="fg"><label class="fl">Type de problème *</label>
       <select class="fsel" id="tick-type">
-        <option value="Plumbing"><i data-lucide=droplet class=ic></i> Plumbing (leak, tap, WC)</option>
-        <option value="Electricity"><i data-lucide=lightbulb class=ic></i> Electricity (outage, socket, lighting)</option>
+        <option value="Plumbing"><i data-lucide=droplet class=ic></i> Plomberie (fuite, robinet, WC)</option>
+        <option value="Electricity"><i data-lucide=lightbulb class=ic></i> Électricité (panne, prise, éclairage)</option>
         <option value="Chauffage/AC"><i data-lucide=snowflake class=ic></i>️ Chauffage / Climatisation</option>
-        <option value="Doors/Windows"><i data-lucide=door-open class=ic></i> Doors / Windows</option>
-        <option value="Pests"><i data-lucide=bug class=ic></i> Pests / Insects</option>
-        <option value="Structure"><i data-lucide=construction class=ic></i>️ Structural damage</option>
-        <option value="Lock"><i data-lucide=lock class=ic></i> Lock / Security</option>
-        <option value="Appliances"><i data-lucide=utensils class=ic></i> Appliances (oven, fridge...)</option>
+        <option value="Doors/Windows"><i data-lucide=door-open class=ic></i> Portes / Fenêtres</option>
+        <option value="Pests"><i data-lucide=bug class=ic></i> Nuisibles / Insectes</option>
+        <option value="Structure"><i data-lucide=construction class=ic></i>️ Dégâts structurels</option>
+        <option value="Lock"><i data-lucide=lock class=ic></i> Serrure / Sécurité</option>
+        <option value="Appliances"><i data-lucide=utensils class=ic></i> Électroménager (four, frigo...)</option>
         <option value="Internet"><i data-lucide=wifi class=ic></i> Internet / TV</option>
-        <option value="Other"><i data-lucide=help-circle class=ic></i> Other</option>
+        <option value="Other"><i data-lucide=help-circle class=ic></i> Autre</option>
       </select>
     </div>
 
     <!-- Diagnostic questions -->
     <div id="tick-questions" style="background:var(--tdim);border-radius:10px;padding:.85rem;margin:.5rem 0;font-size:.82rem">
-      <div style="font-weight:700;margin-bottom:.5rem"><i data-lucide=help-circle class=ic></i> Quelques questions pour votre propriétaire:</div>
+      <div style="font-weight:700;margin-bottom:.5rem"><i data-lucide=help-circle class=ic></i> Quelques questions pour votre propriétaire :</div>
       <div id="tick-q-list" style="display:flex;flex-direction:column;gap:.4rem">
-        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-sudden"> Problem appeared suddenly</label>
-        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-recurring"> Recurring problem</label>
-        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-safety"> Safety issue (water, electricity)</label>
-        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-temp"> Temporary / intermittent problem</label>
+        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-sudden"> Problème apparu soudainement</label>
+        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-recurring"> Problème récurrent</label>
+        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-safety"> Problème de sécurité (eau, électricité)</label>
+        <label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="tq-temp"> Problème temporaire / intermittent</label>
       </div>
     </div>
 
     <div class="fg"><label class="fl">Urgence</label>
       <select class="fsel" id="tick-pri">
-        <option value="high"><i data-lucide=circle class=ic></i> Urgent — must be fixed within 24h</option>
-        <option value="medium" selected><i data-lucide=circle class=ic></i> Normal — within a week</option>
+        <option value="high"><i data-lucide=circle class=ic></i> Urgent — à résoudre sous 24h</option>
+        <option value="medium" selected><i data-lucide=circle class=ic></i> Normal — sous une semaine</option>
         <option value="low"><i data-lucide=circle class=ic></i> Non urgent — quand possible</option>
       </select>
     </div>
 
     <div class="fg"><label class="fl">Description détaillée *</label>
-      <textarea class="fta" id="tick-desc" rows="3" placeholder="Décrivez précisément le problème, since quand, ce que you avez essayé..."></textarea>
+      <textarea class="fta" id="tick-desc" rows="3" placeholder="Décrivez précisément le problème, depuis quand, ce que vous avez essayé..."></textarea>
     </div>
 
     <!-- Photo upload -->
@@ -1108,7 +1110,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div id="tick-photos-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
     </div>
 
-    <button class="btn bp" style="width:100%;justify-content:center" onclick="submitTicket()"><i data-lucide=upload class=ic></i> Envoyer to propriétaire →</button>
+    <button class="btn bp" style="width:100%;justify-content:center" onclick="submitTicket()"><i data-lucide=upload class=ic></i> Envoyer au propriétaire →</button>
   </div>
 </div>
 
@@ -1179,8 +1181,8 @@ function initUI(){
   const n=P?.full_name||'Locataire';
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
-  document.getElementById('tbs').textContent='Welcome back, '+n.split(' ')[0]+'!';
-  if(!P?.full_name||!P?.passport_number)setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complete votre profil to unlock automatic bail generation!'),1000);
+  document.getElementById('tbs').textContent='Bienvenue, '+n.split(' ')[0]+' !';
+  if(!P?.full_name||!P?.passport_number)setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
 }
 
 async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);}
@@ -1192,14 +1194,14 @@ function sp(id,btn){
   if(btn)btn.classList.add('act');
   document.querySelector('.content')?.scrollTo(0,0);
   window.scrollTo(0,0);
-  const titles={overview:'My Locations',messages:'Messages',mylocation:'My Location',depot:'My Dépôt de garantie',avis:'Reviews',profil:'Mon compte',search:'Find a Flat',visites:'Mes visites',dossier:'Mon Dossier'};
+  const titles={overview:'Mes annonces',messages:'Messages',mylocation:'Mon logement',depot:'Mon dépôt de garantie',avis:'Mes avis',profil:'Mon profil',search:'Chercher un logement',visites:'Mes visites',dossier:'Mon Dossier',applications:'Candidatures',roommates:'Trouver un colocataire'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
   if(id==='mylocation')loadMyLocation();
   if(id==='search')loadAlertState();
   if(id==='visites'){loadLocataireVisits();}
   if(id==='applications'){loadLocataireApplicationsPage();}
-  if(id==='roommates'){showRmTab('channel');loadRmDmsList();}
+  if(id==='roommates'){renderRmChannelList();showRmTab('channel');loadRmDmsList();}
   if(id==='profil'){loadProfilee();loadDossierStatut();initDossierPage();setTimeout(initPhonePicker,200);}
 }
 
@@ -1210,6 +1212,45 @@ let rmBlockedIds=new Set();
 let rmProfilesCache={};
 let rmDmOtherId=null;
 let rmActifGroupId=null;
+let rmCurrentZone='Général';
+
+const RM_VILLES=[
+  {zone:'Général',   label:'🌐 Général',      subtitle:'Tous ceux qui cherchent un colocataire'},
+  {zone:'Paris',     label:'🗼 Paris',          subtitle:'Île-de-France'},
+  {zone:'Lyon',      label:'🦁 Lyon',           subtitle:'Auvergne-Rhône-Alpes'},
+  {zone:'Marseille', label:'⛵ Marseille',      subtitle:'Provence-Alpes-Côte d\'Azur'},
+  {zone:'Bordeaux',  label:'🍷 Bordeaux',       subtitle:'Nouvelle-Aquitaine'},
+  {zone:'Toulouse',  label:'🌸 Toulouse',       subtitle:'Occitanie'},
+  {zone:'Nice',      label:'🌊 Nice',           subtitle:'Côte d\'Azur'},
+  {zone:'Nantes',    label:'🦢 Nantes',         subtitle:'Pays de la Loire'},
+  {zone:'Lille',     label:'🌻 Lille',          subtitle:'Hauts-de-France'},
+  {zone:'Rennes',    label:'🎭 Rennes',         subtitle:'Bretagne'},
+  {zone:'Strasbourg',label:'🥨 Strasbourg',     subtitle:'Grand Est'},
+  {zone:'Montpellier',label:'🌴 Montpellier',   subtitle:'Occitanie'},
+];
+
+function renderRmChannelList(){
+  const el=document.getElementById('rm-channel-list');
+  if(!el)return;
+  el.innerHTML=RM_VILLES.map(v=>`
+    <button onclick="selectRmZone('${v.zone}')" id="rm-zone-btn-${v.zone}"
+      style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.38rem .85rem;font-size:.77rem;font-weight:600;cursor:pointer;
+             background:${rmCurrentZone===v.zone?'var(--bleu)':'var(--s2)'};
+             color:${rmCurrentZone===v.zone?'white':'var(--tm)'};
+             transition:background .15s,color .15s;white-space:nowrap">${v.label}</button>
+  `).join('');
+}
+
+function selectRmZone(zone){
+  rmCurrentZone=zone;
+  const v=RM_VILLES.find(x=>x.zone===zone);
+  const titleEl=document.getElementById('rm-channel-title');
+  const subEl=document.getElementById('rm-channel-subtitle');
+  if(titleEl)titleEl.textContent=v?.zone?.toLowerCase()||zone.toLowerCase();
+  if(subEl)subEl.textContent=v?.subtitle||'';
+  renderRmChannelList();
+  loadRmChannel();
+}
 
 function showRmTab(tab){
   ['channel','dms','profil','groups'].forEach(t=>{
@@ -1218,7 +1259,7 @@ function showRmTab(tab){
     if(panel)panel.style.display=t===tab?'block':'none';
     if(btn){btn.style.background=t===tab?'var(--bleu)':'var(--s2)';btn.style.color=t===tab?'white':'var(--tm)';}
   });
-  if(tab==='channel')loadRmChannel();
+  if(tab==='channel'){renderRmChannelList();loadRmChannel();}
   if(tab==='dms')loadRmDmsList();
   if(tab==='profil')loadRoommateProfile();
   if(tab==='groups')loadRmGroups();
@@ -1244,7 +1285,7 @@ async function loadRoommateProfile(){
     document.getElementById('rm-life-pets').checked=!!life.pets;
     document.getElementById('rm-life-wfh').checked=!!life.wfh;
     const badge=document.getElementById('rm-profil-badge');
-    if(badge){badge.style.display='inline';badge.classNom='badge '+(p.actif!==false?'b-green':'b-dim');badge.textContent=p.actif!==false?'Visible in channel':'Hidden';}
+    if(badge){badge.style.display='inline';badge.classNom='badge '+(p.actif!==false?'b-green':'b-dim');badge.textContent=p.actif!==false?'Visible dans le channel':'Masqué';}
   }catch(e){}
 }
 
@@ -1272,7 +1313,7 @@ async function unblockRoommateUser(blockId){
   try{
     const{error}=await sb.from('roommate_blocks').delete().eq('id',blockId);
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-    toast('<i data-lucide=check-circle-2 class=ic></i> Unblocked');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Débloqué');
     loadBlockedUsersList();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -1301,7 +1342,7 @@ async function saveRoommateProfile(){
   try{
     const{error}=await sb.from('roommate_profiles').upsert(payload,{onConflict:'locataire_id'});
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-    toast('<i data-lucide=check-circle-2 class=ic></i> Profil saved!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
     loadRoommateProfile();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -1330,7 +1371,9 @@ async function loadRmChannel(){
     const{data:blocks}=await sb.from('roommate_blocks').select('blocked_id').eq('blocker_id',U.id);
     rmBlockedIds=new Set((blocks||[]).map(b=>b.blocked_id));
 
-    const{data:msgs}=await sb.from('roommate_channel_messages').select('*').order('created_at',{ascending:true}).limit(150);
+    let q=sb.from('roommate_channel_messages').select('*').order('created_at',{ascending:true}).limit(150);
+    if(rmCurrentZone!=='Général')q=q.eq('zone',rmCurrentZone);
+    const{data:msgs}=await q;
     const visibleMsgs=(msgs||[]).filter(m=>!rmBlockedIds.has(m.sender_id));
 
     const senderIds=[...new Set(visibleMsgs.map(m=>m.sender_id))];
@@ -1341,7 +1384,8 @@ async function loadRmChannel(){
     }
 
     if(!visibleMsgs.length){
-      body.innerHTML='<div style="text-align:center;font-size:.8rem;color:var(--td);padding:2rem">Aucun message — soyez le premier à dire bonjour <i data-lucide=hand class=ic></i></div>';
+      const zoneLabel=rmCurrentZone==='Général'?'dans ce channel':'à '+rmCurrentZone;
+      body.innerHTML=`<div style="text-align:center;font-size:.8rem;color:var(--td);padding:2rem">Aucun message ${zoneLabel} — soyez le premier à dire bonjour <i data-lucide=hand class=ic></i></div>`;
     }else{
       body.innerHTML=visibleMsgs.map(m=>{
         const prof=rmProfilesCache[m.sender_id];
@@ -1366,10 +1410,11 @@ async function sendRmChannelMsg(){
   const content=input?.value.trim();
   if(!content)return;
   const{data:myProfile}=await sb.from('roommate_profiles').select('id').eq('locataire_id',U.id).maybeSingle();
-  if(!myProfile){toast('<i data-lucide=alert-triangle class=ic></i>️ Set up votre profil first so others know who you are');showRmTab('profil');return;}
+  if(!myProfile){toast('<i data-lucide=alert-triangle class=ic></i>️ Configurez d\'abord votre profil pour que les autres sachent qui vous êtes');showRmTab('profil');return;}
   input.value='';
   try{
-    const{error}=await sb.from('roommate_channel_messages').insert({sender_id:U.id,content});
+    const zoneVal=rmCurrentZone==='Général'?null:rmCurrentZone;
+    const{error}=await sb.from('roommate_channel_messages').insert({sender_id:U.id,content,zone:zoneVal});
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
     loadRmChannel();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
@@ -1389,7 +1434,7 @@ async function loadRmDmsList(){
     const{data}=await sb.from('messages').select('*').is('listing_id',null).eq('type','roommate_dm').or(`sender_id.eq.${U.id},receiver_id.eq.${U.id}`).order('created_at',{ascending:false});
     const msgs=data||[];
     if(!msgs.length){
-      wrap.innerHTML='<div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--td)">No private messages yet — say hello to someone in the Community Channel <i data-lucide=hand class=ic></i></div>';
+      wrap.innerHTML='<div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--td)">Aucun message privé pour l\'instant — dites bonjour à quelqu\'un dans le Community Channel <i data-lucide=hand class=ic></i></div>';
       const badge=document.getElementById('rm-dms-badge');if(badge)badge.style.display='none';
       return;
     }
@@ -1475,17 +1520,17 @@ async function sendRmDm(){
 
 async function reportRoommateUser(){
   if(!rmDmOtherId)return;
-  const reason=prompt('What happened? (helps us avis)');
+  const reason=prompt('Que s\'est-il passé ? (aide-nous à traiter le signalement)');
   if(reason===null)return;
   try{
     await sb.from('roommate_reports').insert({reporter_id:U.id,reported_id:rmDmOtherId,context:reason||''});
-    if(confirm('Report sent. Do you also want to block this person  depuis  the channel?')){
+    if(confirm('Signalement envoyé. Voulez-vous également bloquer cette personne du channel ?')){
       await sb.from('roommate_blocks').insert({blocker_id:U.id,blocked_id:rmDmOtherId});
-      toast('<i data-lucide=ban class=ic></i> Blocked et reported');
+      toast('<i data-lucide=ban class=ic></i> Bloqué et signalé');
       closeRmDm();
       loadRmChannel();
     }else{
-      toast('<i data-lucide=flag class=ic></i> Reported — thank you');
+      toast('<i data-lucide=flag class=ic></i> Signalé — merci');
     }
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -1508,15 +1553,15 @@ async function openCreateGroupModal(){
 async function submitCreateGroup(){
   const name=document.getElementById('rm-group-name').value.trim();
   const selected=[...document.querySelectorAll('.rm-member-cb:checked')].map(cb=>cb.value);
-  if(!name){toast('<i data-lucide=alert-triangle class=ic></i>️ Give votre group a name');return;}
-  if(!selected.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Pick at least one member');return;}
+  if(!name){toast('<i data-lucide=alert-triangle class=ic></i>️ Donnez un nom à votre groupe');return;}
+  if(!selected.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez au moins un membre');return;}
   try{
     const{data:group,error}=await sb.from('roommate_groups').insert({name,created_by:U.id}).select().single();
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
     const members=[U.id,...selected].map(tid=>({group_id:group.id,locataire_id:tid}));
     await sb.from('roommate_group_members').insert(members);
     document.getElementById('rm-group-modal').style.display='none';
-    toast('<i data-lucide=check-circle-2 class=ic></i> Group created!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Groupe créé !');
     showRmTab('groups');
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -1529,7 +1574,7 @@ async function loadRmGroups(){
     const{data:myMemberships}=await sb.from('roommate_group_members').select('group_id').eq('locataire_id',U.id);
     const groupIds=(myMemberships||[]).map(m=>m.group_id);
     if(!groupIds.length){
-      wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=users class=ic></i></div><p>No groups yet.<br>Create one  depuis  the channel to coordinate avec others.</p></div>';
+      wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=users class=ic></i></div><p>Pas encore de groupes.<br>Créez-en un depuis le channel pour vous coordonner avec d\'autres.</p></div>';
       return;
     }
     const{data:groups}=await sb.from('roommate_groups').select('*').in('id',groupIds);
@@ -1593,11 +1638,11 @@ async function loadRmGroupMessages(){
 
 async function leaveRoommateGroup(){
   if(!rmActifGroupId)return;
-  if(!confirm('Leave this group? You\'ll need to be re-added to come back.'))return;
+  if(!confirm('Quitter ce groupe ? Vous devrez être réinvité pour y revenir.'))return;
   try{
     const{error}=await sb.from('roommate_group_members').delete().eq('group_id',rmActifGroupId).eq('locataire_id',U.id);
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-    toast('<i data-lucide=check-circle-2 class=ic></i> You left the group');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Vous avez quitté le groupe');
     closeRmGroupChat();
     loadRmGroups();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
@@ -2012,7 +2057,7 @@ async function declarePaidFromMessage(msgId, listingId){
 
   // Vérifier que le bail est bien signé avant de permettre le paiement
   if(bail&&bail.status!=='signed'&&bail.status!=='pending_signature'){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail sign votre bail first before declaring paiement.');
+    toast('<i data-lucide=alert-triangle class=ic></i>️ Veuillez d\'abord signer votre bail avant de déclarer un paiement.');
     return;
   }
 
@@ -2088,7 +2133,7 @@ async function declarePaidFromMessage(msgId, listingId){
         listing_id:listingId,
         sender_id:'system',
         receiver_id:bail.landlord_id,
-        content:`💶 ${P?.full_name||'Your locataire'} has declared paiement of €${total}.\n\n🔒 Dépôt de garantie: €${depot}\n🏠 First month: €${firstMonth}\n${quittanceUrl?`\n📎 Transfer quittance: ${quittanceUrl}`:''}\n\nPbail check votre bank compte / Revolut et confirm quittance in votre tableau de bord → Paiements.`,
+        content:`💶 ${P?.full_name||'Votre locataire'} a déclaré un paiement de €${total}.\n\n🔒 Dépôt de garantie : €${depot}\n🏠 Premier mois : €${firstMonth}\n${quittanceUrl?`\n📎 Quittance : ${quittanceUrl}`:''}\n\nVeuillez vérifier votre compte bancaire / Revolut et confirmer la quittance dans votre tableau de bord → Paiements.`,
         type:'paiement_declared'
       });
     }catch(e){}
@@ -2148,7 +2193,7 @@ async function loadTickets(){
   }catch(e){}
 
   if(!hasBail){
-    wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=home class=ic></i></div><p>You don\'t have an actif bail yet.<br>Maintenance tickets are only disponible once you have a signed bail.</p></div>';
+    wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=home class=ic></i></div><p>Vous n\'avez pas encore de bail actif.<br>Les tickets de maintenance sont disponibles une fois le bail signé.</p></div>';
     // Also hide the + button in the topbar
     const tickBtn=document.getElementById('open-ticket-btn');
     if(tickBtn)tickBtn.style.display='none';
@@ -2156,10 +2201,10 @@ async function loadTickets(){
   }
 
   const{data}=await sb.from('tickets').select('*').eq('locataire_id',U.id).order('created_at',{ascending:false});
-  if(!data||!data.length){wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=check-circle-2 class=ic></i></div><p>No maintenance tickets.<br>Report a problem if something needs fixing.</p><button class="btn bp bsm" onclick="openTicketModal()">+ Report problem</button></div>';return;}
+  if(!data||!data.length){wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=check-circle-2 class=ic></i></div><p>Aucun ticket de maintenance.<br>Signalez un problème si quelque chose nécessite une intervention.</p><button class="btn bp bsm" onclick="openTicketModal()">+ Signaler un problème</button></div>';return;}
   const pc={high:'ph',medium:'pm',low:'pl'};
   const sc={open:'to',in_progress:'tip',resolved:'tr'};
-  const sl={open:'Ouvrir',in_progress:'In progress <i data-lucide=paramètres class=ic></i>️',resolved:'Resolved <i data-lucide=check class=ic></i>'};
+  const sl={open:'Ouvert',in_progress:'En cours <i data-lucide=settings class=ic></i>',resolved:'Résolu <i data-lucide=check class=ic></i>'};
   wrap.innerHTML=data.map(t=>'<div class="tcard"><div class="tpri '+(pc[t.priority]||'pm')+'"></div><div style="font-size:1.2rem">'+(t.title?.includes('Plumb')?'<i data-lucide=droplet class=ic></i>':t.title?.includes('Elect')?'<i data-lucide=lightbulb class=ic></i>':t.title?.includes('A/C')?'<i data-lucide=snowflake class=ic></i>️':'<i data-lucide=wrench class=ic></i>')+'</div><div style="flex:1"><div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">'+t.title+'</div><div style="font-size:.72rem;color:var(--tm)">'+(t.description||'')+' · '+new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div></div><span class="tst '+(sc[t.statut]||'to')+'">'+(sl[t.statut]||'Ouvrir')+'</span></div>').join('');
 }
 
@@ -2171,7 +2216,7 @@ async function openTicketModal(){
     bk=d;
   }catch(e){bk=null;}
   if(!bk){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ You need an actif bail to report maintenance issues.');
+    toast('<i data-lucide=alert-triangle class=ic></i>️ Vous avez besoin d\'un bail actif pour signaler des problèmes de maintenance.');
     return;
   }
   window._activeTicketBooking=bk;
@@ -2196,14 +2241,14 @@ async function submitTicket(){
   const title=document.getElementById('tick-type').value;
   const desc=document.getElementById('tick-desc').value.trim();
   const priority=document.getElementById('tick-pri').value;
-  if(!desc){toast('Pbail describe the problem');return;}
+  if(!desc){toast('Veuillez décrire le problème');return;}
   // Build diagnostic info
   const diag=[];
-  if(document.getElementById('tq-sudden')?.checked)diag.push('Appeared suddenly');
-  if(document.getElementById('tq-recurring')?.checked)diag.push('Recurring');
-  if(document.getElementById('tq-safety')?.checked)diag.push('Safety issue');
+  if(document.getElementById('tq-sudden')?.checked)diag.push('Apparu soudainement');
+  if(document.getElementById('tq-recurring')?.checked)diag.push('Récurrent');
+  if(document.getElementById('tq-safety')?.checked)diag.push('Problème de sécurité');
   if(document.getElementById('tq-temp')?.checked)diag.push('Intermittent');
-  const fullDesc=desc+(diag.length?`\n\nAdditional info: ${diag.join(', ')}`:''
+  const fullDesc=desc+(diag.length?`\n\nInfos complémentaires : ${diag.join(', ')}`:''
   );
   const bk=window._activeTicketBooking;
   const{data:ticket,erreur}=await sb.from('tickets').insert({
@@ -2245,7 +2290,7 @@ async function submitTicket(){
   document.getElementById('tick-desc').value='';
   document.getElementById('tick-photos-pavis').innerHTML='';
   ticketPhotos=[];
-  toast('<i data-lucide=check-circle-2 class=ic></i> Ticket sent! Your propriétaire has been notified.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Ticket envoyé ! Votre propriétaire a été notifié.');
   loadTickets();
 }
 
@@ -2429,7 +2474,7 @@ function renderLocataireVisitCard(v){
         <div style="font-size:.7rem;color:var(--td);margin-bottom:.5rem">${dateStr}</div>
         <div style="display:flex;gap:.4rem">
           <button onclick="locataireConfirmerProposedVisit('${v.id}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Yes, that works!</button>
-          <button onclick="locataireDeclineProposedVisit('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer">Propose another date</button>
+          <button onclick="locataireDeclineProposedVisit('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer">Proposer une autre date</button>
         </div>
       </div>`:''}
 
@@ -2450,7 +2495,7 @@ function renderLocataireVisitCard(v){
         <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.4rem">How did the visite go?</div>
         <div style="display:flex;gap:.4rem">
           <button onclick="locataireInterested('${v.id}','${v.listing_id}',${v.listing_price||0},'${(v.listing_title||'').replace(/'/g,"\\'")}','${v.landlord_id||''}' )" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=home class=ic></i> I want to loyer!</button>
-          <button onclick="locataireNotInterested('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Not interested</button>
+          <button onclick="locataireNotInterested('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Plus intéressé(e)</button>
         </div>
       </div>`:''} 
 
@@ -2485,7 +2530,7 @@ function renderLocataireDoneCard(item,isBooking){
         <div style="font-size:.72rem;color:var(--td)">${item.statut==='declined'?'<i data-lucide=x-circle class=ic></i> Declined by propriétaire':'<i data-lucide=x-circle class=ic></i> Annulerled'} · Refunded €${item.total_amount||0}</div>
       </div>`;
   }
-  const doneLabels={'cancelled':'<i data-lucide=x-circle class=ic></i> Annulerled','declined':'<i data-lucide=x-circle class=ic></i> Declined','locataire_declined':'<i data-lucide=thumbs-down class=ic></i> Not interested','no_show':'<i data-lucide=ban class=ic></i> No-show','date_refusé':'<i data-lucide=calendar class=ic></i> Date not disponible'};
+  const doneLabels={'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée','declined':'<i data-lucide=x-circle class=ic></i> Refusée','locataire_declined':'<i data-lucide=thumbs-down class=ic></i> Plus intéressé(e)','no_show':'<i data-lucide=ban class=ic></i> Absent(e)','date_refusé':'<i data-lucide=calendar class=ic></i> Date indisponible'};
   const dateStr=item.visit_date?new Date(item.visit_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
   return`<div style="padding:.75rem;background:var(--s2);border:1px solid var(--b);border-radius:10px;margin-bottom:.5rem;opacity:.7">
         <div style="font-size:.82rem;font-weight:600;margin-bottom:.2rem">${item.listing_title||'Bien'}</div>
@@ -2573,7 +2618,7 @@ async function loadLocataireApplicationsPage(){
   const coLocataireHtml=await renderLocataireCoLocataireSection(coLocataireBookings);
 
   if(!visites.length&&!coLocataireHtml){
-    wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=clipboard-list class=ic></i></div><p>No applications yet<br>Once you apply to loyer a place, it will show up here</p></div>';
+    wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=clipboard-list class=ic></i></div><p>Aucune candidature pour l\'instant<br>Vos candidatures apparaîtront ici une fois que vous aurez postulé</p></div>';
     return;
   }
 
@@ -2797,7 +2842,7 @@ async function locataireEdlSelfDecision(bookingId,wantsIt){
   try{
     if(wantsIt){
       await sb.from('bookings').update({edl_handler:'locataire'}).eq('id',bookingId);
-      toast('<i data-lucide=check-circle-2 class=ic></i> Starting entrée dans les lieux état des lieux');
+      toast('<i data-lucide=check-circle-2 class=ic></i> Début de l\'état des lieux d\'entrée');
       openLocataireEdl(bookingId);
     }else{
       await sb.from('bookings').update({edl_locataire_declined:true}).eq('id',bookingId);
@@ -2809,10 +2854,10 @@ async function locataireEdlSelfDecision(bookingId,wantsIt){
 
 // ── Entrée dans les lieux état des lieux (État des lieux) — le locataire prend en charge lui-même ────
 async function openLocataireEdl(bookingId){
-  if(!bookingId){toast('<i data-lucide=x-circle class=ic></i> No booking ID');return;}
+  if(!bookingId){toast('<i data-lucide=x-circle class=ic></i> Identifiant de réservation introuvable');return;}
   let booking=null,annonce=null,landlord=null;
   try{const{data:b}=await sb.from('bookings').select('*').eq('id',bookingId).single();booking=b;}catch(e){}
-  if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
+  if(!booking){toast('<i data-lucide=x-circle class=ic></i> Réservation introuvable');return;}
   try{const{data:l}=await sb.from('listings').select('*').eq('id',booking.listing_id).single();annonce=l;}catch(e){}
   if(booking.landlord_id)try{const{data:lp}=await sb.from('profiles').select('*').eq('clerk_id',booking.landlord_id).maybeSingle();landlord=lp;}catch(e){}
 
@@ -2832,17 +2877,17 @@ async function openLocataireEdl(bookingId){
   }
 
   const rooms=[
-    {name:'Exterior',items:['Mailbox','Fences & Gates','Pool/Spa','Lawn & Jardin','Roof','Water tank','Garage']},
-    {name:'Entrance',items:['Main door','Corridor','Security system']},
-    {name:'Living Room',items:['Sofa','Coffee table','Dining table & chairs','TV & unit','Curtains','Climatisation','Lights','Walls & Ceiling','Étage']},
-    {name:'Kitchen',items:['Cabinets','Worktop','Sink & Taps','Oven/Stove','Microwave','Refrigerator','Dishwasher','Washing machine','Extractor fan','Étage','Walls']},
-    {name:'Master Chambre',items:['Bed & Mattress','Wardrobe','Bedside tables','Curtains','Lights','Walls','Étage']},
-    {name:'Chambre 2',items:['Bed & Mattress','Wardrobe','Furniture','Curtains','Lights','Walls','Étage']},
-    {name:'Chambre 3',items:['Bed & Mattress','Wardrobe','Furniture','Curtains','Lights','Walls','Étage']},
-    {name:'Salle de bain',items:['Bath/Shower','WC','Sink & Taps','Tiles','Étage','Lights']},
-    {name:'Salle de bain 2',items:['Bath/Shower','WC','Sink & Taps','Tiles','Étage']},
-    {name:'Balcon/Terrasse',items:['Jardin furniture','Lighting','Étage','Railings']},
-    {name:'Keys & Access',items:['Main door keys','Mailbox key','Garage remote','Other keys']}
+    {name:'Extérieur',items:['Boîte aux lettres','Clôtures & Portails','Piscine/Spa','Pelouse & Jardin','Toiture','Ballon d\'eau','Garage']},
+    {name:'Entrée',items:['Porte principale','Couloir','Système de sécurité']},
+    {name:'Salon',items:['Canapé','Table basse','Table à manger & chaises','TV & meuble','Rideaux','Climatisation','Luminaires','Murs & Plafond','Sol']},
+    {name:'Cuisine',items:['Placards','Plan de travail','Évier & Robinetterie','Four/Cuisinière','Micro-ondes','Réfrigérateur','Lave-vaisselle','Lave-linge','Hotte aspirante','Sol','Murs']},
+    {name:'Chambre principale',items:['Lit & Matelas','Armoire','Tables de chevet','Rideaux','Luminaires','Murs','Sol']},
+    {name:'Chambre 2',items:['Lit & Matelas','Armoire','Mobilier','Rideaux','Luminaires','Murs','Sol']},
+    {name:'Chambre 3',items:['Lit & Matelas','Armoire','Mobilier','Rideaux','Luminaires','Murs','Sol']},
+    {name:'Salle de bain',items:['Baignoire/Douche','WC','Évier & Robinetterie','Carrelage','Sol','Luminaires']},
+    {name:'Salle de bain 2',items:['Baignoire/Douche','WC','Évier & Robinetterie','Carrelage','Sol']},
+    {name:'Balcon/Terrasse',items:['Mobilier extérieur','Éclairage','Sol','Garde-corps']},
+    {name:'Clés & Accès',items:['Clés porte principale','Clé boîte aux lettres','Télécommande garage','Autres clés']}
   ];
   window._tnEdlRooms=rooms;
   window._tnEdlPhotos={};
@@ -3053,10 +3098,10 @@ function collectEdlRoomsTn(){
 function showEdlSigningOptionsScreenLocataire(bookingId,signLink,landlordEmail,propertyTitle,landlordPhone){
   const modal=document.createElement('div');
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  const mailBody=encodeURIComponent(`Hello,\n\nPbail avis et sign the entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} using the link below:\n\n${signLink}\n\nThank you!`);
-  const mailSubject=encodeURIComponent(`Entrée dans les lieux état des lieux to sign — ${propertyTitle}`);
+  const mailBody=encodeURIComponent(`Bonjour,\n\nVeuillez consulter et signer l'état des lieux d'entrée pour ${propertyTitle} via le lien ci-dessous :\n\n${signLink}\n\nMerci !`);
+  const mailSubject=encodeURIComponent(`État des lieux à signer — ${propertyTitle}`);
   const mailtoHref=landlordEmail&&landlordEmail.includes('@')?`mailto:${landlordEmail}?subject=${mailSubject}&body=${mailBody}`:`mailto:?subject=${mailSubject}&body=${mailBody}`;
-  const waText=encodeURIComponent(`Hello! Pbail avis et sign the entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} using this link:\n\n${signLink}`);
+  const waText=encodeURIComponent(`Bonjour ! Veuillez consulter et signer l'état des lieux d'entrée pour ${propertyTitle} via ce lien :\n\n${signLink}`);
   const waPhone=landlordPhone?landlordPhone.replace(/[^0-9+]/g,'').replace(/^\+/,''):'';
   const waHref=`https://wa.me/${waPhone}?text=${waText}`;
   modal.innerHTML=`
@@ -3144,9 +3189,9 @@ async function generateAnnexAndCompleteTn(){
 }
 
 async function viewEdlDossierLocataire(bookingId){
-  if(!bookingId){toast('<i data-lucide=x-circle class=ic></i> No booking ID');return;}
+  if(!bookingId){toast('<i data-lucide=x-circle class=ic></i> Identifiant de réservation introuvable');return;}
   const{data:bk}=await sb.from('bookings').select('edl_rooms,edl_photos,meter_water,meter_electricity,edl_completed_at').eq('id',bookingId).single();
-  if(!bk){toast('<i data-lucide=x-circle class=ic></i> Could not load dossier');return;}
+  if(!bk){toast('<i data-lucide=x-circle class=ic></i> Impossible de charger le dossier');return;}
 
   let rooms=[],photos={};
   try{rooms=bk.edl_rooms?JSON.parse(bk.edl_rooms):[];}catch(e){}
@@ -3204,7 +3249,7 @@ async function viewEdlDossierLocataire(bookingId){
 
 async function openLocataireEdlDoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('edl_locataire_embed,id,listing_id,landlord_id').eq('id',bookingId).single();
-  if(!bk?.edl_locataire_embed){toast('<i data-lucide=x-circle class=ic></i> Document not ready yet');return;}
+  if(!bk?.edl_locataire_embed){toast('<i data-lucide=x-circle class=ic></i> Document pas encore prêt');return;}
   if(window.docusealLoaded){doOuvrirLocataireDoc(bk,bookingId,bk.edl_tenant_embed,'edl_signed_locataire','<i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (Annex A)');}
   else{
     const s=document.createElement('script');
@@ -3259,7 +3304,7 @@ function doOuvrirLocataireDoc(bk,bookingId,embedSrc,dbField,title){
 
 async function confirmLocatairePresence(visitId){
   try{await sb.from('visits').update({status:'confirmed',locataire_confirmed:true}).eq('id',visitId);}catch(e){}
-  toast('<i data-lucide=check-circle-2 class=ic></i> Presence confirmed! See you at the visite.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Présence confirmée ! À bientôt pour la visite.');
   loadLocataireVisits();
 }
 
@@ -3272,23 +3317,23 @@ async function locataireInterested(visitId, listingId, price, listingTitle, land
 }
 
 async function locataireNotInterested(visitId){
-  if(!confirm('Confirmer you are not interested in ce logement?')) return;
+  if(!confirm('Confirmer que vous n\'êtes plus intéressé(e) par ce logement ?')) return;
   await sb.from('visits').update({status:'locataire_declined'}).eq('id',visitId);
   toast('OK — visite moved to past.');
   loadLocataireVisits();
 }
 
 async function declareLocatairePaiement(bookingId){
-  if(!confirm('Confirmer you have transferred the paiement to the propriétaire?')) return;
+  if(!confirm('Confirmez-vous avoir effectué le virement au propriétaire ?')) return;
   const{error}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement declared! Propriétaire will confirm.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré ! Le propriétaire va confirmer.');
   loadLocataireVisits();
 }
 
 async function openLocataireBailDoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('bail_locataire_embed,id,listing_id,landlord_id').eq('id',bookingId).single();
-  if(!bk?.bail_locataire_embed){toast('<i data-lucide=x-circle class=ic></i> Bail document not ready yet');return;}
+  if(!bk?.bail_locataire_embed){toast('<i data-lucide=x-circle class=ic></i> Document de bail pas encore prêt');return;}
 
   if(window.docusealLoaded){doOuvrirLocataireBailDoc(bk,bookingId);}
   else{
@@ -3317,7 +3362,7 @@ function doOuvrirLocataireBailDoc(bk,bookingId){
   form.setAttribute('data-send-copy-email','false');
   form.style.cssText='width:100%;display:block;min-height:100vh';
   form.addEventListener('completed',async()=>{
-    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signed!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé !');
     try{
       const{error:signErr}=await sb.from('bookings').update({bail_signed_tenant:true,bail_signed_tenant_at:new Date().toISOString()}).eq('id',bookingId);
       if(signErr)console.error('Could not save signature statut (webhook should catch up):',signErr.message);
@@ -3340,7 +3385,7 @@ async function openCoLocataireBailDoc(bookingId){
   let coLocataires=[];
   try{coLocataires=bk?.co_locataires_embed_src?JSON.parse(bk.co_locataires_embed_src):[];}catch(e){}
   const myEntry=coLocataires.find(cl=>cl.tenant_id===U.id);
-  if(!myEntry?.embed_src){toast('<i data-lucide=x-circle class=ic></i> Bail document not ready yet');return;}
+  if(!myEntry?.embed_src){toast('<i data-lucide=x-circle class=ic></i> Document de bail pas encore prêt');return;}
 
   if(window.docusealLoaded){doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry);}
   else{
@@ -3369,7 +3414,7 @@ function doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry){
   form2.setAttribute('data-send-copy-email','false');
   form2.style.cssText='width:100%;display:block;min-height:100vh';
   form2.addEventListener('completed',async()=>{
-    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signed!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé !');
     try{
       const{data:current}=await sb.from('bookings').select('co_locataires_embed_src').eq('id',bookingId).single();
       let cl2=[];
@@ -3458,7 +3503,7 @@ function doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry){
 async function locataireConfirmerProposedVisit(visitId){
   try{
     const{data:v}=await sb.from('visits').select('*').eq('id',visitId).maybeSingle();
-    if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite not found');return;}
+    if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite introuvable');return;}
     const{data:annonce}=await sb.from('listings').select('wants_agent,agent_service,title').eq('id',v.listing_id).maybeSingle();
     const wantsAgent=annonce?.wants_agent&&annonce?.agent_service==='full';
     await sb.from('visits').update({status:wantsAgent?'agent_assigned':'confirmed'}).eq('id',visitId);
@@ -3467,7 +3512,7 @@ async function locataireConfirmerProposedVisit(visitId){
       content:`✅ ${P?.full_name||'The locataire'} confirmed the proposed visite pour ${annonce?.title||'the bien'}.`,
       type:'visit_confirmed'
     });
-    toast('<i data-lucide=check-circle-2 class=ic></i> Visite confirmed!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Visite confirmée !');
     loadLocataireVisits();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -3475,7 +3520,7 @@ async function locataireConfirmerProposedVisit(visitId){
 async function locataireDeclineProposedVisit(visitId){
   try{
     const{data:v}=await sb.from('visits').select('*').eq('id',visitId).maybeSingle();
-    if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite not found');return;}
+    if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite introuvable');return;}
     await sb.from('visits').delete().eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:v.listing_id,sender_id:'system',receiver_id:v.landlord_id,
@@ -3488,7 +3533,7 @@ async function locataireDeclineProposedVisit(visitId){
 }
 
 async function cancelVisit(visitId, agentId, listingId){
-  if(!confirm('Annuler this visite? Free if 24h+ before the visite date.'))return;
+  if(!confirm('Annuler cette visite ? Gratuit si elle a lieu dans plus de 24h.'))return;
 
   let visite=null;
   try{const{data:v}=await sb.from('visits').select('*').eq('id',visitId).single();visite=v;}catch(e){}
@@ -3498,7 +3543,7 @@ async function cancelVisit(visitId, agentId, listingId){
   const hoursUntil=visitDate?(visitDate-now)/(1000*60*60):999;
   const isLate=hoursUntil<24;
 
-  if(!confirm('Annuler this visite? The propriétaire/agent will be notified.'))return;
+  if(!confirm('Annuler cette visite ? Le propriétaire/agent sera notifié.'))return;
 
   // Marquer la visite comme annulée
   try{await sb.from('visits').update({status:'cancelled'}).eq('id',visitId);}catch(e){}
@@ -3532,7 +3577,7 @@ async function cancelVisit(visitId, agentId, listingId){
     });}catch(e){}
   }
 
-  toast('<i data-lucide=check-circle-2 class=ic></i> Visite cancelled.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Visite annulée.');
   loadLocataireVisits();
 }
 
@@ -3550,11 +3595,11 @@ async function leaveCurrentProperty(){
     }
   }catch(e){}
 
-  if(!bk){toast('<i data-lucide=alert-triangle class=ic></i>️ No actif location found');return;}
+  if(!bk){toast('<i data-lucide=alert-triangle class=ic></i> Aucun logement actif trouvé');return;}
 
   const{error:updateErreur}=await sb.from('bookings').update({status:'tenancy_ended',tenancy_ended_at:new Date().toISOString()}).eq('id',bk.id);
   if(updateErreur){
-    toast('<i data-lucide=x-circle class=ic></i> Something went wrong — pbail try again or contact support.');
+    toast('<i data-lucide=x-circle class=ic></i> Une erreur est survenue — réessayez ou contactez le support.');
     return;
   }
 
@@ -3568,7 +3613,7 @@ async function leaveCurrentProperty(){
     });}catch(e){}
   }
 
-  toast('<i data-lucide=check-circle-2 class=ic></i> You have left the bien. It stays visible pour 7 more days.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Vous avez quitté le logement. Il reste visible encore 7 jours.');
   setTimeout(()=>{sp('dash',document.querySelectorAll('.ni')[0]);loadOverview();},1200);
 }
 
@@ -3642,28 +3687,28 @@ function downloadLocataireQuittance(paiementId,montant,date){
     doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(40,40,40);
     doc.text('Trouve Ton Toit',20,y);
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120,120,120);
-    doc.text('France plateforme locative',20,y+6);
+    doc.text('Plateforme locative française',20,y+6);
     y+=22;
 
     doc.setDrawColor(220,220,220);doc.line(20,y,pageW-20,y);y+=12;
 
     doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(30,30,30);
-    doc.text('RENT RECEIPT — QUITTANCE DE LOYER',20,y);y+=12;
+    doc.text('QUITTANCE DE LOYER',20,y);y+=12;
 
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(80,80,80);
-    doc.text(`Date: ${d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=8;
-    doc.text(`Locataire: ${P?.full_name||'Locataire'}`,20,y);y+=14;
+    doc.text(`Date : ${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=8;
+    doc.text(`Locataire : ${P?.full_name||'Locataire'}`,20,y);y+=14;
 
     doc.setFontSize(11);doc.setTextColor(40,40,40);
-    doc.text(`I confirm paiement of the sum of €${(parseFloat(montant)||0).toLocaleString()}`,20,y);y+=7;
-    doc.text(` pour  loyer paiement pour the period of ${month}.`,20,y);y+=18;
+    doc.text(`Je confirme le paiement de la somme de €${(parseFloat(montant)||0).toLocaleString()}`,20,y);y+=7;
+    doc.text(` au titre du loyer pour la période de ${month}.`,20,y);y+=18;
 
     doc.setDrawColor(220,220,220);doc.line(20,y,pageW-20,y);y+=10;
     doc.setFont('helvetica','italic');doc.setFontSize(8.5);doc.setTextColor(140,140,140);
-    doc.text('This quittance was generated automatically by Trouve Ton Toit — trouvetonoit.fr',20,y);
+    doc.text('Cette quittance a été générée automatiquement par Trouve Ton Toit — trouvetonoit.fr',20,y);
 
     doc.save(`Quittance_rent_${month.replace(' ','_')}.pdf`);
-    toast('<i data-lucide=file-text class=ic></i> Quittance downloaded!');
+    toast('<i data-lucide=file-text class=ic></i> Quittance téléchargée !');
   };
   if(window.jspdf){build();return;}
   const s=document.createElement('script');
@@ -3685,7 +3730,7 @@ async function declarePaid(paiementId){
     if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=check-circle-2 class=ic></i> I paid →';}
     return;
   }
-  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement declared! Your propriétaire will confirm quittance.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré ! Votre propriétaire va confirmer la quittance.');
   loadPaiementsData();
 }
 
@@ -3726,7 +3771,7 @@ async function loadReviewableLandlords(){
     ]);
     const nameMap={};(profiles||[]).forEach(p=>{nameMap[p.clerk_id]=p.full_name;});
     (agencyProfiles||[]).forEach(a=>{if(a.agency_name)nameMap[a.clerk_id]=a.agency_name+' (Agence)';});
-    sel.innerHTML='<option value="">Select a propriétaire...</option>'+remaining.map(id=>`<option value="${id}">${nameMap[id]||'Propriétaire'}</option>`).join('');
+    sel.innerHTML='<option value="">Choisir un propriétaire...</option>'+remaining.map(id=>`<option value="${id}">${nameMap[id]||'Propriétaire'}</option>`).join('');
     sel.style.display='block';
     if(noneEl)noneEl.style.display='none';
     if(formEl)formEl.style.display='block';
@@ -3762,7 +3807,7 @@ async function loadReviewableAgencies(){
     }
     const{data:agencyProfiles}=await sb.from('agency_profiles').select('clerk_id,agency_name').in('clerk_id',remaining);
     const nameMap={};(agencyProfiles||[]).forEach(a=>{nameMap[a.clerk_id]=a.agency_name;});
-    sel.innerHTML='<option value="">Select an agence...</option>'+remaining.map(id=>`<option value="${id}">${nameMap[id]||'Agence'}</option>`).join('');
+    sel.innerHTML='<option value="">Choisir une agence...</option>'+remaining.map(id=>`<option value="${id}">${nameMap[id]||'Agence'}</option>`).join('');
     sel.style.display='block';
     if(noneEl)noneEl.style.display='none';
     if(formEl)formEl.style.display='block';
@@ -3781,23 +3826,23 @@ function setAgenceRating(r){
 async function submitAgenceAvis(){
   const agencyId=document.getElementById('rev-agence-select')?.value;
   const comment=document.getElementById('rev-agence-comment').value.trim();
-  if(!agencyId){toast('<i data-lucide=alert-triangle class=ic></i>️ Select an agence');return;}
-  if(!comment){toast('Pbail write a comment');return;}
-  if(!selectedAgenceRating){toast('<i data-lucide=alert-triangle class=ic></i>️ Select a rating');return;}
+  if(!agencyId){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez une agence');return;}
+  if(!comment){toast('<i data-lucide=alert-triangle class=ic></i> Écrivez un commentaire');return;}
+  if(!selectedAgenceRating){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez une note');return;}
 
   const{data:realAnnonce}=await sb.from('listings').select('id').eq('agent_id',agencyId).eq('agency_annonce',true).in('id',
     (await sb.from('bookings').select('listing_id').eq('locataire_id',U.id).in('statut',['move_in_ready','completed','actif'])).data?.map(b=>b.listing_id)||[]
   ).limit(1).maybeSingle();
-  if(!realAnnonce){toast('<i data-lucide=x-circle class=ic></i> You can only avis an agence you\'ve actually rented through');return;}
+  if(!realAnnonce){toast('<i data-lucide=x-circle class=ic></i> Vous ne pouvez évaluer qu\'une agence via laquelle vous avez réellement loué');return;}
   const{data:existingAvis}=await sb.from('avis').select('id').eq('reviewer_id',U.id).eq('target_id',agencyId).eq('type','locataire_to_agency').maybeSingle();
-  if(existingAvis){toast('<i data-lucide=x-circle class=ic></i> You already reviewed this agence');return;}
+  if(existingAvis){toast('<i data-lucide=x-circle class=ic></i> Vous avez déjà évalué cette agence');return;}
 
   const{error}=await sb.from('avis').insert({
     reviewer_id:U.id,rating:selectedAgenceRating,comment,type:'locataire_to_agency',
     target_id:agencyId
   });
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  toast('<i data-lucide=check-circle-2 class=ic></i> Avis submitted! Thank you.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Avis soumis ! Merci.');
   document.getElementById('rev-agence-comment').value='';
   selectedAgenceRating=5;
   loadMyReviews();
@@ -3807,24 +3852,24 @@ async function submitAgenceAvis(){
 async function submitAvis(){
   const landlordId=document.getElementById('rev-propriétaire-select')?.value;
   const comment=document.getElementById('rev-comment').value.trim();
-  if(!landlordId){toast('<i data-lucide=alert-triangle class=ic></i>️ Select a propriétaire');return;}
-  if(!comment){toast('Pbail write a comment');return;}
-  if(!selectedRating){toast('<i data-lucide=alert-triangle class=ic></i>️ Select a rating');return;}
+  if(!landlordId){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez un propriétaire');return;}
+  if(!comment){toast('<i data-lucide=alert-triangle class=ic></i> Écrivez un commentaire');return;}
+  if(!selectedRating){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez une note');return;}
 
   // Double vérification — s'assurer qu'un bail réel existe bien avec ce
   // propriétaire, et qu'aucun avis n'a déjà été laissé (protège même contre
   // un id manipulé directement, en plus du filtre déjà appliqué côté select)
   const{data:realBooking}=await sb.from('bookings').select('id').eq('locataire_id',U.id).eq('landlord_id',landlordId).in('statut',['move_in_ready','completed','actif']).limit(1).maybeSingle();
-  if(!realBooking){toast('<i data-lucide=x-circle class=ic></i> You can only avis a propriétaire you\'ve actually rented  depuis ');return;}
+  if(!realBooking){toast('<i data-lucide=x-circle class=ic></i> Vous ne pouvez évaluer qu\'un propriétaire chez qui vous avez réellement loué');return;}
   const{data:existingAvis}=await sb.from('avis').select('id').eq('reviewer_id',U.id).eq('target_id',landlordId).eq('type','locataire_to_propriétaire').maybeSingle();
-  if(existingAvis){toast('<i data-lucide=x-circle class=ic></i> You already reviewed this propriétaire');return;}
+  if(existingAvis){toast('<i data-lucide=x-circle class=ic></i> Vous avez déjà évalué ce propriétaire');return;}
 
   const{error}=await sb.from('avis').insert({
     reviewer_id:U.id,rating:selectedRating,comment,type:'locataire_to_propriétaire',
     landlord_id:landlordId,target_id:landlordId
   });
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  toast('<i data-lucide=check-circle-2 class=ic></i> Avis submitted! Thank you.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Avis soumis ! Merci.');
   document.getElementById('rev-comment').value='';
   selectedRating=0;
   document.querySelectorAll('.star-btn').forEach(s=>s.classList.remove('actif'));
@@ -3890,7 +3935,7 @@ function setLocataireAgentRating(visitId,n){
 
 async function submitLocataireAgentAvis(visitId,agentId){
   const rating=locataireAgentRatings[visitId];
-  if(!rating){toast('<i data-lucide=alert-triangle class=ic></i>️ Select a star rating');return;}
+  if(!rating){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez une note');return;}
   const comment=document.getElementById(`ta-comment-${visitId}`)?.value.trim()||'';
   try{
     const{error}=await sb.from('avis').insert({
@@ -3898,7 +3943,7 @@ async function submitLocataireAgentAvis(visitId,agentId){
       target_id:agentId,locataire_id:U.id
     });
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-    toast('<i data-lucide=check-circle-2 class=ic></i> Thanks pour the feedback!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Merci pour votre retour !');
     loadRateAgentCard();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -3997,7 +4042,7 @@ async function saveProfilee(){
   Object.assign(P,updates);
   updateProfileeCompleteness();
   const ok=document.getElementById('prof-ok');ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
-  toast('<i data-lucide=check-circle-2 class=ic></i> Profil saved!');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
 }
 
 async function uploadID(input){
@@ -4032,7 +4077,7 @@ async function saveAlert(){
 async function deactivateAlert(){
   const{error}=await sb.from('alerts').update({actif:false}).eq('locataire_id',U.id);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  toast('<i data-lucide=bell-off class=ic></i> Alert deactivated');
+  toast('<i data-lucide=bell-off class=ic></i> Alerte désactivée');
   document.getElementById('nb-alerts').style.display='none';
   loadAlertState();
 }
@@ -4051,7 +4096,7 @@ async function loadAlertState(){
     document.getElementById('alert-rooms').value=data.min_rooms||'';
   }
   const isActif=data?.active;
-  if(badge){badge.textContent=isActif?'Actif':'Not actif';badge.className='badge '+(isActif?'b-green':'b-dim');}
+  if(badge){badge.textContent=isActif?'Actif':'Inactif';badge.className='badge '+(isActif?'b-green':'b-dim');}
   if(activateBtn)activateBtn.innerHTML=isActif?'<i data-lucide=bell class=ic></i> Mettre à jour alert →':'<i data-lucide=bell class=ic></i> Activer l\'alerte →';
   if(deactivateBtn)deactivateBtn.style.display=isActif?'block':'none';
   if(document.getElementById('nb-alerts'))document.getElementById('nb-alerts').style.display=isActif?'inline':'none';
@@ -4080,7 +4125,7 @@ async function loadAlertMatches(alert){
     listEl.innerHTML='<div class="empty"><div class="em"><i data-lucide=search class=ic></i></div><p>Aucune annonce ne correspond encore à votre alerte.<br>You\'ll see them here as soon as one is posted.</p></div>';
     return;
   }
-  const types={short:'Location courte durée',sublet:'Sublet',long:'Location longue durée'};
+  const types={short:'Location courte durée',sublet:'Sous-location',long:'Location longue durée'};
   listEl.innerHTML=results.map(l=>`<div style="display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)">
     <div style="width:48px;height:48px;border-radius:10px;background:var(--tdim);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden">${l.photos&&l.photos[0]?`<img src="${l.photos[0]}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:'<i data-lucide=home class=ic></i>'}</div>
     <div style="flex:1;min-width:0">
@@ -4096,7 +4141,7 @@ const DOC_STATUS_ID_MAP={'bank_statement':'doc-bank-statut','emprent_letter':'do
 async function uploadSupportDoc(input,docType){
   const file=input.files[0];
   if(!file)return;
-  if(file.size>10*1024*1024){toast('<i data-lucide=x-circle class=ic></i> File too large — max 10MB');return;}
+  if(file.size>10*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Fichier trop volumineux — max 10 Mo');return;}
   const statusEl=document.getElementById(DOC_STATUS_ID_MAP[docType]||`doc-${docType.replace(/_/g,'-')}-statut`);
   if(statusEl){statusEl.textContent='⏳ Upchargement...';statusEl.style.color='var(--gold)';statusEl.classNom='';}
 
@@ -4127,7 +4172,7 @@ async function uploadSupportDoc(input,docType){
     uploadedDocs[docType]=true;
     updateDossierBadge();
     checkDossierComplete();
-    toast('<i data-lucide=check-circle-2 class=ic></i> Document uploaded!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Document envoyé !');
   }catch(e){
     if(statusEl){statusEl.innerHTML='<i data-lucide=x-circle class=ic></i> Téléverser failed';statusEl.style.color='var(--red)';}
     toast('<i data-lucide=x-circle class=ic></i> '+e.message);
@@ -4138,17 +4183,17 @@ async function viewDocument(docType){
   const docs=P?.documents||{};
   const doc=typeof docs==='string'?JSON.parse(docs):docs;
   const d=doc[docType];
-  if(!d?.path){toast('<i data-lucide=alert-triangle class=ic></i>️ No document uploaded');return;}
+  if(!d?.path){toast('<i data-lucide=alert-triangle class=ic></i> Aucun document téléversé');return;}
   try{
     const{data}=await sb.storage.from('documents-dossiers').createSignedUrl(d.path,604800);
     if(data?.signedUrl)window.open(data.signedUrl,'_blank');
-  }catch(e){toast('<i data-lucide=x-circle class=ic></i> Could not open document');}
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> Impossible d\'ouvrir le document');}
 }
 
 
 
 function openSigningDoc(embedSrc, title, bookingId){
-  if(!embedSrc){toast('<i data-lucide=alert-triangle class=ic></i>️ Document not ready yet');return;}
+  if(!embedSrc){toast('<i data-lucide=alert-triangle class=ic></i> Document pas encore prêt');return;}
 
   const doOuvrir = () => {
     const modal=document.createElement('div');
@@ -4168,7 +4213,7 @@ function openSigningDoc(embedSrc, title, bookingId){
     form.setAttribute('data-send-copy-email','false');
     form.style.cssText='width:100%;display:block;min-height:100vh';
     form.addEventListener('completed', async () => {
-      toast('<i data-lucide=check-circle-2 class=ic></i> Signed! Updating statut...');
+      toast('<i data-lucide=check-circle-2 class=ic></i> Signé ! Mise à jour du statut...');
       if(bookingId){
         try{
           const{error:signErr2}=await sb.from('bookings').update({bail_signed_tenant:true}).eq('id',bookingId);
@@ -4208,17 +4253,17 @@ async function confirmLocatairePaiement(bookingId){
   if(!confirm('Confirmer that you have transferred the paiement to the propriétaire?'))return;
   try{
     const{error:payErr}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
-    if(payErr){toast('<i data-lucide=x-circle class=ic></i> Could not save — pbail try again: '+payErr.message);return;}
+    if(payErr){toast('<i data-lucide=x-circle class=ic></i> Impossible d\'enregistrer — réessayez : '+payErr.message);return;}
     // Notifier le propriétaire
     const{data:b}=await sb.from('bookings').select('listing_id,landlord_id').eq('id',bookingId).single();
     if(b?.landlord_id){
       await sb.from('messages').insert({
         listing_id:b.listing_id,sender_id:'system',receiver_id:b.landlord_id,
-        content:'💶 Paiement notification!\n\nYour locataire has confirmed transferring the first paiement (depot + first month prorata).\n\nPbail check votre bank compte et confirm quittance in votre visites page.',
+        content:'💶 Notification de paiement !\n\nVotre locataire a confirmé le virement du premier paiement (dépôt + premier mois prorata).\n\nVeuillez vérifier votre compte bancaire et confirmer la quittance dans votre page visites.',
         type:'paiement_sent'
       });
     }
-    toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed! Waiting pour propriétaire to verify quittance.');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé ! En attente de vérification de la quittance par le propriétaire.');
     await loadLocataireVisits();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -4299,9 +4344,9 @@ function checkDossierComplete(){
   if(!res)return;
   const missing=DOCS_REQUIRED.filter(d=>!uploadedDocs[d]);
   if(!missing.length){
-    res.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Profil complete — vous can now request visites!</div>`;
+    res.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez maintenant demander des visites !</div>`;
   } else {
-    res.innerHTML=`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ Missing documents: ${missing.map(d=>d==='id'?'Passport/ID':'Employer letter').join(', ')}</div>`;
+    res.innerHTML=`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Documents manquants : ${missing.map(d=>d==='id'?'Passeport/CNI':'Justificatif employeur').join(', ')}</div>`;
   }
 }
 
@@ -4581,7 +4626,7 @@ function checkBothReady(){
 }
 
 async function submitIDForVerification(){
-  if(!_idFile || !_selfieFile){ toast('Pbail upload both votre ID et a selfie'); return; }
+  if(!_idFile || !_selfieFile){ toast('Veuillez téléverser votre pièce d\'identité et un selfie'); return; }
   const statut = document.getElementById('upload-statut');
   const btn = document.getElementById('submit-verify-btn');
   if(statut){ statut.style.display='block'; statut.innerHTML='<div style="color:var(--gold)">⏳ Upchargement...</div>'; }
@@ -4637,7 +4682,7 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
         <div style="font-size:.8rem;font-weight:600;color:#F0EDE8;margin-bottom:.2rem"><i data-lucide=users class=ic></i> Moving in avec someone?</div>
         <div style="font-size:.7rem;color:rgba(240,237,232,.35);margin-bottom:.65rem">Add anyone else who will be on the bail avec you</div>
         <div id="colocataires-list"></div>
-        <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1px dashed rgba(255,255,255,.15);color:rgba(240,237,232,.5);border-radius:10px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer">+ Add a co-locataire</button>
+        <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1px dashed rgba(255,255,255,.15);color:rgba(240,237,232,.5);border-radius:10px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer">+ Ajouter un co-locataire</button>
       </div>
 
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
@@ -4740,7 +4785,7 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
       if(P)P.stripe_customer_id=data.customer_id;
 
       modal.remove();
-      toast('<i data-lucide=check-circle-2 class=ic></i> Card saved!');
+      toast('<i data-lucide=check-circle-2 class=ic></i> Carte enregistrée !');
 
       // Mettre à jour la modal de candidature EN PLACE plutôt que de la
       // reconstruire — la reconstruire effaçait les co-locataires déjà ajoutés
@@ -4777,7 +4822,7 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
   if(window._submittingApplication)return; // double-clic protégé même hors du bouton
   window._submittingApplication=true;
   const moveIn=document.getElementById('neg-movein')?.value;
-  if(!moveIn){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select votre desired entrée dans les lieux date');window._submittingApplication=false;return;}
+  if(!moveIn){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner votre date d\'entrée souhaitée');window._submittingApplication=false;return;}
   const proposedPrix=parseInt(document.getElementById('neg-price')?.value)||originalPrix;
   const extras=[...document.querySelectorAll('.neg-extra:checked')].map(e=>e.value);
   const message=document.getElementById('neg-message')?.value.trim()||'';
@@ -4797,7 +4842,7 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
   // Vérifier qu'il n'y a pas déjà une demande pour ce annonce
   const{data:existing}=await sb.from('bookings').select('id,statut').eq('locataire_id',U.id).eq('listing_id',listingId).maybeSingle();
   if(existing){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ You already have a request pour this annonce.');
+    toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une demande pour cette annonce.');
     sp('visites',document.querySelector('.ni[onclick*="visites"]'));
     window._submittingApplication=false;
     return;
@@ -4810,19 +4855,19 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
 // Modal de paiement autonome (holding + commission) — utilisable depuis n'importe quelle
 // page (Messages, annonce, etc.).
 async function requestVisitFromContact(listingId, landlordId, listingTitle){
-  if(!listingId||!landlordId){toast('<i data-lucide=x-circle class=ic></i> Missing annonce info');return;}
+  if(!listingId||!landlordId){toast('<i data-lucide=x-circle class=ic></i> Informations d\'annonce manquantes');return;}
 
   const missing=[];
-  if(!P?.full_name)missing.push('Full name');
-  if(!P?.passport_number)missing.push('Passport/ID');
+  if(!P?.full_name)missing.push('Nom complet');
+  if(!P?.passport_number)missing.push('Passeport/CNI');
   if(!P?.nationality)missing.push('Nationalité');
   if(!P?.date_of_birth)missing.push('Date de naissance');
   if(!P?.place_of_birth)missing.push('Lieu de naissance');
   if(!P?.profession)missing.push('Profession');
   if(!P?.home_address)missing.push('Adresse actuelle');
   if(missing.length>0){
-    toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before requesting a visite');
-    alert(`Pbail complete votre profil first.\n\nMissing: ${missing.join(', ')}`);
+    toast('<i data-lucide=x-circle class=ic></i> Complétez votre profil avant de demander une visite');
+    alert(`Veuillez d'abord compléter votre profil.\n\nManquant : ${missing.join(', ')}`);
     return;
   }
 
@@ -4845,9 +4890,9 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
   document.getElementById('vr-send-btn').onclick=async()=>{
     const visitDate=document.getElementById('vr-date')?.value;
     const visitTime=document.getElementById('vr-time')?.value||'14:00';
-    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a date');return;}
+    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner une date');return;}
     const today=new Date();today.setHours(0,0,0,0);
-    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
+    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner une date future');return;}
 
     let annonce=null;
     try{const{data:l}=await sb.from('listings').select('zone,title').eq('id',listingId).single();annonce=l;}catch(e){}
@@ -4876,7 +4921,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
     }catch(e){}
 
     modal.remove();
-    toast('<i data-lucide=check-circle-2 class=ic></i> Visite request sent!');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Demande de visite envoyée !');
     sp('visites',document.querySelector('.ni[onclick*="visites"]'));
     loadLocataireVisits();
   };
@@ -4914,14 +4959,14 @@ function removeCoLocataireSlot(slotId){
 
 async function lookupCoLocataire(slotId){
   const email=document.getElementById(`ct-email-${slotId}`)?.value.trim();
-  if(!email||!email.includes('@')){toast('<i data-lucide=alert-triangle class=ic></i>️ Enter a valid email');return;}
+  if(!email||!email.includes('@')){toast('<i data-lucide=alert-triangle class=ic></i> Entrez une adresse e-mail valide');return;}
   if(email.toLowerCase()===U.email?.toLowerCase()){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ That\'s votre own email — enter votre co-locataire\'s email instead');
+    toast('<i data-lucide=alert-triangle class=ic></i> C\'est votre propre adresse — entrez celle de votre co-locataire');
     return;
   }
   const alreadyUsed=(window._coLocatairesData||[]).some((d,i)=>i!==slotId&&d&&d.email&&d.email.toLowerCase()===email.toLowerCase());
   if(alreadyUsed){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ You already added this person as a co-locataire');
+    toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà ajouté cette personne comme co-locataire');
     return;
   }
   const resultEl=document.getElementById(`ct-result-${slotId}`);
@@ -4960,7 +5005,7 @@ async function lookupCoLocataire(slotId){
     resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ Found their Trouve Ton Toit compte, but their profil is missing: ${missingFields.join(', ')}. Ask them to complete their profil first, or fill in their details manually below.</span>`;
     manualEl.style.display='block';
     manualEl.innerHTML=`
-      <div class="fg"><label class="fl">Full name</label><input class="fi" id="ct-name-${slotId}" type="text" value="${(profil.full_name||'').replace(/"/g,'&quot;')}"></div>
+      <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="ct-name-${slotId}" type="text" value="${(profil.full_name||'').replace(/"/g,'&quot;')}"></div>
       <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ct-phone-${slotId}" type="text" value="${(profil.phone||'').replace(/"/g,'&quot;')}"></div>
       <div class="fg"><label class="fl">Passport / ID number</label><input class="fi" id="ct-passport-${slotId}" type="text" value="${(profil.passport_number||'').replace(/"/g,'&quot;')}"></div>
       <div class="fg"><label class="fl">Nationalité</label><input class="fi" id="ct-nat-${slotId}" type="text" value="${(profil.nationality||'').replace(/"/g,'&quot;')}"></div>
@@ -4971,10 +5016,10 @@ async function lookupCoLocataire(slotId){
     // final revalidera avant de permettre de continuer.
     window._coLocatairesData[slotId]={hasAccount:true,incomplete:true,locataire_id:profil.clerk_id,email};
   }else{
-    resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ No Trouve Ton Toit locataire compte found pour this email — pbail fill in their details below.</span>`;
+    resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Aucun compte Trouve Ton Toit trouvé pour cet e-mail — veuillez remplir leurs informations ci-dessous.</span>`;
     manualEl.style.display='block';
     manualEl.innerHTML=`
-      <div class="fg"><label class="fl">Full name</label><input class="fi" id="ct-name-${slotId}" type="text"></div>
+      <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="ct-name-${slotId}" type="text"></div>
       <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ct-phone-${slotId}" type="text"></div>
       <div class="fg"><label class="fl">Passport / ID number</label><input class="fi" id="ct-passport-${slotId}" type="text"></div>
       <div class="fg"><label class="fl">Nationalité</label><input class="fi" id="ct-nat-${slotId}" type="text"></div>
@@ -5015,7 +5060,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
     hasAgent=l?.wants_agent&&l?.agent_service==='full'&&!isAgence;
   }catch(e){}
   price=annonce?.price||price||0; // toujours faire confiance au prix réel en base, pas à ce qui a été passé
-  if(!price){toast('<i data-lucide=x-circle class=ic></i> This annonce has no price set — contact Trouve Ton Toit support.');return;}
+  if(!price){toast('<i data-lucide=x-circle class=ic></i> Cette annonce n\'a pas de prix défini — contactez le support Trouve Ton Toit.');return;}
 
   // Empêcher une double candidature sur le même bien — sans ça, annuler une
   // visite puis en redemander une autre avant de re-cliquer "louer" créait
@@ -5023,7 +5068,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
   try{
     const{data:existingBooking}=await sb.from('bookings').select('id,statut').eq('locataire_id',U.id).eq('listing_id',listingId).not('statut','in','("declined","cancelled_by_locataire")').maybeSingle();
     if(existingBooking){
-      toast('<i data-lucide=alert-triangle class=ic></i> You already have an actif application pour ce logement — check Mes visites.');
+      toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une candidature active pour ce logement — vérifiez Mes visites.');
       sp('visites',document.querySelector('.ni[onclick*="visites"]'));
       return;
     }
@@ -5080,7 +5125,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
           });
         }catch(e){}
         modal.remove();
-        toast('<i data-lucide=check-circle-2 class=ic></i> Application sent! Track it in Mes visites.');
+        toast('<i data-lucide=check-circle-2 class=ic></i> Candidature envoyée ! Suivez-la dans Mes visites.');
         sp('visites',document.querySelector('.ni[onclick*="visites"]'));
         loadLocataireVisits();
       }catch(e){
@@ -5171,7 +5216,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       }catch(e){}
 
       modal.remove();
-      toast('<i data-lucide=check-circle-2 class=ic></i> Application sent! Track it in Mes visites.');
+      toast('<i data-lucide=check-circle-2 class=ic></i> Candidature envoyée ! Suivez-la dans Mes visites.');
       sp('visites',document.querySelector('.ni[onclick*="visites"]'));
       loadLocataireVisits();
     }catch(e){
@@ -5225,8 +5270,8 @@ function addCoLocataireField(){
 async function checkCoLocataire(idx){
   const email = document.getElementById('colocataire-email-'+idx)?.value.trim();
   const statut = document.getElementById('colocataire-statut-'+idx);
-  if(!email || !statut){ toast('Pbail enter an email'); return; }
-  statut.innerHTML = '<span style="color:var(--td)">⏳ Checking...</span>';
+  if(!email || !statut){ toast('Veuillez saisir une adresse e-mail'); return; }
+  statut.innerHTML = '<span style="color:var(--td)">⏳ Vérification...</span>';
 
   try{
     // Vérifier si un profil existe avec cet email
