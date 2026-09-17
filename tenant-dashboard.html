@@ -419,7 +419,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div style="padding:1rem 1.2rem;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
             <div style="font-weight:700;font-size:.95rem" id="rm-dm-title">—</div>
             <div style="display:flex;gap:.5rem;align-items:center">
-              <button onclick="reportRoommateUser()" title="Report" style="background:none;border:none;font-size:.9rem;cursor:pointer;color:var(--td)"><i data-lucide=flag class=ic></i></button>
+              <button onclick="openCreateGroupModalWith(rmDmOtherId)" title="Créer un groupe avec cette personne" style="background:none;border:none;font-size:.9rem;cursor:pointer;color:var(--tm);display:flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:600;padding:.25rem .5rem;border-radius:6px;border:1px solid var(--b2)"><i data-lucide=users class=ic></i> Groupe</button>
+              <button onclick="reportRoommateUser()" title="Signaler" style="background:none;border:none;font-size:.9rem;cursor:pointer;color:var(--td)"><i data-lucide=flag class=ic></i></button>
               <button onclick="closeRmDm()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--td)"><i data-lucide=x class=ic></i></button>
             </div>
           </div>
@@ -437,7 +438,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div style="font-weight:700;font-size:1rem;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Créer un groupe</div>
           <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Démarrez un groupe de discussion avec des personnes du channel — idéal pour coordonner une recherche commune ou postuler ensemble.</div>
           <div class="fg" style="margin-bottom:.75rem"><label class="fl">Nom du groupe</label><input class="fi" id="rm-group-name" placeholder="ex. Recherche 3 pièces Lyon"></div>
-          <div class="fg" style="margin-bottom:1rem"><label class="fl">Ajouter des membres</label><div id="rm-group-member-picker" style="max-height:180px;overflow-y:auto;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem"></div></div>
+          <div class="fg" style="margin-bottom:.5rem">
+            <label class="fl">Ajouter par e-mail</label>
+            <div style="display:flex;gap:.4rem">
+              <input class="fi" id="rm-group-email-search" placeholder="email@exemple.com" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();searchMemberByEmail();}">
+              <button class="btn bp bsm" onclick="searchMemberByEmail()">Chercher</button>
+            </div>
+            <div id="rm-group-email-result" style="margin-top:.35rem;font-size:.78rem;color:var(--td)"></div>
+          </div>
+          <div class="fg" style="margin-bottom:1rem"><label class="fl">Membres sélectionnés</label><div id="rm-group-member-picker" style="max-height:180px;overflow-y:auto;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem"></div></div>
           <button class="btn bp" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="submitCreateGroup()">Créer le groupe →</button>
           <button class="btn bg" style="width:100%;justify-content:center" onclick="document.getElementById('rm-group-modal').style.display='none'">Annuler</button>
         </div>
@@ -1394,7 +1403,11 @@ async function loadRmChannel(){
         const zones=prof?.zones||'';
         const spotsNote=prof?.spots_needed>0?`· needs ${prof.spots_needed} more`:'';
         return`<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
-          ${!isMe?`<div onclick="openRmProfileFromChannel('${m.sender_id}')" style="font-size:.68rem;color:var(--bleu);font-weight:700;margin-bottom:.15rem;cursor:pointer">${name}${budget?' · '+budget:''}${zones?' · <i data-lucide=map-pin class=ic></i>'+zones:''} ${spotsNote} ${rmLifestyleIcons(prof?.lifestyle?JSON.parse(prof.lifestyle):null)}</div>`:''}
+          ${!isMe?`<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.15rem">
+            <span style="font-size:.68rem;color:var(--bleu);font-weight:700">${name}${budget?' · '+budget:''}${zones?' · <i data-lucide=map-pin class=ic></i>'+zones:''} ${spotsNote} ${rmLifestyleIcons(prof?.lifestyle?JSON.parse(prof.lifestyle):null)}</span>
+            <button onclick="viewRmProfile('${m.sender_id}')" title="Voir le profil" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=eye class=ic></i></button>
+            <button onclick="openRmDm('${m.sender_id}','${name.replace(/'/g,"\\'")}')" title="Envoyer un message privé" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=message-circle class=ic></i></button>
+          </div>`:''}
           <div style="max-width:78%;background:${isMe?'var(--bleu)':'var(--s2)'};color:${isMe?'white':'var(--txt)'};border-radius:12px;padding:.55rem .8rem;font-size:.83rem;white-space:pre-wrap;line-height:1.5">${m.content}</div>
           <div style="font-size:.6rem;color:var(--td);margin-top:.15rem">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
         </div>`;
@@ -1424,6 +1437,77 @@ function openRmProfileFromChannel(otherId){
   const prof=rmProfilesCache[otherId];
   const name=prof?.full_name||'This person';
   openRmDm(otherId,name);
+}
+
+function viewRmProfile(otherId){
+  if(otherId===U.id)return;
+  const prof=rmProfilesCache[otherId];
+  if(!prof){toast('<i data-lucide=user-x class=ic></i> Profil non disponible');return;}
+  const name=prof.full_name||'Anonyme';
+  const life=prof.lifestyle?(typeof prof.lifestyle==='string'?JSON.parse(prof.lifestyle):prof.lifestyle):{};
+
+  // Lifestyle labels
+  const lifeMap={quiet:'Calme',social:'Sociable',nonsmoker:'Non-fumeur',pets:'Animaux OK',wfh:'Télétravail'};
+  const lifeIcons={quiet:'eye-off',social:'party-popper',nonsmoker:'ban',pets:'paw-print',wfh:'laptop'};
+  const lifeTags=Object.entries(lifeMap).filter(([k])=>life[k]).map(([k,label])=>
+    `<span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.74rem;padding:.28rem .7rem;border-radius:100px;background:var(--tdim);color:var(--bleu);font-weight:500"><i data-lucide=${lifeIcons[k]} class=ic></i>${label}</span>`
+  ).join('');
+
+  // Tiles — n'affiche que les champs remplis
+  const tiles=[];
+  if(prof.budget_min||prof.budget_max)tiles.push(['Budget',`€${prof.budget_min||'?'} – €${prof.budget_max||'?'}/mois`,'euro']);
+  const zonesStr=Array.isArray(prof.zones)?prof.zones.join(', '):(prof.zones||'');
+  if(zonesStr)tiles.push(['Zone(s)',zonesStr,'map-pin']);
+  if(prof.move_in_date)tiles.push(['Disponible dès',new Date(prof.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),'calendar']);
+  if(prof.lease_duration)tiles.push(['Durée bail',prof.lease_duration,'clock']);
+  if(prof.spots_needed>0)tiles.push(['Colocataires cherchés',prof.spots_needed+' personne'+(prof.spots_needed>1?'s':''),'users']);
+
+  const tilesHtml=tiles.map(([label,val,icon])=>`
+    <div style="background:var(--s2);border-radius:10px;padding:.65rem .85rem;display:flex;flex-direction:column;gap:.2rem">
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--td);display:flex;align-items:center;gap:.3rem"><i data-lucide=${icon} class=ic></i>${label}</div>
+      <div style="font-size:.84rem;font-weight:600;color:var(--txt)">${val}</div>
+    </div>`).join('');
+
+  document.getElementById('rm-profile-modal')?.remove();
+  const modal=document.createElement('div');
+  modal.id='rm-profile-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto';
+  modal.innerHTML=`
+    <div style="background:var(--s);border-radius:18px;padding:1.6rem;max-width:460px;width:100%;box-shadow:0 12px 50px rgba(0,0,0,.3);position:relative">
+      <button onclick="document.getElementById('rm-profile-modal').remove()" style="position:absolute;top:.9rem;right:.9rem;background:var(--s2);border:none;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--td);line-height:1">✕</button>
+
+      <!-- En-tête -->
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem">
+        ${prof.avatar_url
+          ?`<img src="${prof.avatar_url}" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--b2);flex-shrink:0">`
+          :`<div style="width:58px;height:58px;border-radius:50%;background:var(--tdim);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:var(--bleu);flex-shrink:0">${(name[0]||'?').toUpperCase()}</div>`}
+        <div>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--txt)">${name}</div>
+          <div style="font-size:.75rem;color:var(--td);margin-top:.15rem">${prof.age?prof.age+' ans · ':''}<i data-lucide=search class=ic></i> Cherche une colocation</div>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      ${prof.bio?`<div style="font-size:.83rem;color:var(--tm);line-height:1.6;margin-bottom:1.1rem;padding:.8rem 1rem;background:var(--s2);border-radius:10px;border-left:3px solid var(--bleu)">${prof.bio}</div>`:''}
+
+      <!-- Tiles infos -->
+      ${tilesHtml?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem">${tilesHtml}</div>`:''}
+
+      <!-- Mode de vie -->
+      ${lifeTags?`<div style="margin-bottom:1.1rem">
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--td);margin-bottom:.5rem">Mode de vie</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem">${lifeTags}</div>
+      </div>`:''}
+
+      <!-- CTA -->
+      <button onclick="document.getElementById('rm-profile-modal').remove();openRmDm('${otherId}','${name.replace(/'/g,"\\'")}');"
+        style="width:100%;padding:.7rem;background:var(--bleu);color:white;border:none;border-radius:11px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">
+        <i data-lucide=message-circle class=ic></i> Envoyer un message privé
+      </button>
+    </div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+  if(window.lucide)lucide.createIcons();
 }
 
 async function loadRmDmsList(){
@@ -1534,19 +1618,69 @@ async function reportRoommateUser(){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
-async function openCreateGroupModal(){
+async function openCreateGroupModal(preselectedId){
   document.getElementById('rm-group-modal').style.display='flex';
   document.getElementById('rm-group-name').value='';
+  document.getElementById('rm-group-email-search').value='';
+  document.getElementById('rm-group-email-result').textContent='';
   const picker=document.getElementById('rm-group-member-picker');
   picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Chargement...</div>';
   try{
     const{data:profiles}=await sb.from('roommate_profiles').select('locataire_id,full_name').neq('locataire_id',U.id).eq('actif',true);
-    if(!profiles?.length){picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Aucun autre profil actif pour l\'instant</div>';return;}
-    picker.innerHTML=profiles.map(p=>`
-      <label style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem">
-        <input type="checkbox" value="${p.locataire_id}" class="rm-member-cb"> ${p.full_name||'Locataire'}
-      </label>`).join('');
+    if(!profiles?.length){
+      picker.innerHTML='<div style="font-size:.75rem;color:var(--td)">Aucun autre profil actif pour l\'instant</div>';
+    }else{
+      picker.innerHTML=profiles.map(p=>`
+        <label style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem">
+          <input type="checkbox" value="${p.locataire_id}" class="rm-member-cb"${preselectedId&&p.locataire_id===preselectedId?' checked':''}> ${p.full_name||'Locataire'}
+        </label>`).join('');
+    }
+    // If preselectedId is not in roommate_profiles, fetch their name from profiles table and add them
+    if(preselectedId&&!(profiles||[]).find(p=>p.locataire_id===preselectedId)){
+      const{data:extProfile}=await sb.from('profiles').select('full_name,email').eq('clerk_id',preselectedId).single();
+      if(extProfile){
+        const name=extProfile.full_name||extProfile.email||'Locataire';
+        const extraLabel=document.createElement('label');
+        extraLabel.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem';
+        extraLabel.innerHTML=`<input type="checkbox" value="${preselectedId}" class="rm-member-cb" checked> ${name}`;
+        picker.appendChild(extraLabel);
+      }
+    }
   }catch(e){picker.innerHTML='<div style="font-size:.75rem;color:var(--red)">Could not load</div>';}
+}
+
+async function openCreateGroupModalWith(otherId){
+  await openCreateGroupModal(otherId);
+}
+
+async function searchMemberByEmail(){
+  const email=document.getElementById('rm-group-email-search').value.trim().toLowerCase();
+  const resultDiv=document.getElementById('rm-group-email-result');
+  if(!email){resultDiv.textContent='Saisissez un e-mail.';return;}
+  resultDiv.textContent='Recherche…';
+  try{
+    const{data:found}=await sb.from('profiles').select('clerk_id,full_name,email').ilike('email',email).neq('clerk_id',U.id).limit(1);
+    if(!found?.length){resultDiv.innerHTML='<span style="color:var(--red)">Aucun profil trouvé pour cet e-mail.</span>';return;}
+    const p=found[0];
+    const name=p.full_name||p.email||'Locataire';
+    // Check if already in picker
+    const existing=document.querySelector(`.rm-member-cb[value="${p.clerk_id}"]`);
+    if(existing){
+      existing.checked=true;
+      resultDiv.innerHTML=`<span style="color:var(--bleu)">${name} est déjà dans la liste — coché !</span>`;
+      document.getElementById('rm-group-email-search').value='';
+      return;
+    }
+    // Add to picker
+    const picker=document.getElementById('rm-group-member-picker');
+    const newLabel=document.createElement('label');
+    newLabel.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.35rem 0;cursor:pointer;font-size:.8rem;background:color-mix(in srgb,var(--bleu) 8%,transparent);border-radius:6px;padding-inline:.4rem';
+    newLabel.innerHTML=`<input type="checkbox" value="${p.clerk_id}" class="rm-member-cb" checked> ${name} <span style="font-size:.7rem;color:var(--td);margin-left:auto">${p.email}</span>`;
+    picker.appendChild(newLabel);
+    resultDiv.innerHTML=`<span style="color:var(--bleu)"><i data-lucide=check-circle-2 class=ic></i> ${name} ajouté !</span>`;
+    lucide.createIcons();
+    document.getElementById('rm-group-email-search').value='';
+  }catch(e){resultDiv.innerHTML=`<span style="color:var(--red)">${e.message}</span>`;}
 }
 
 async function submitCreateGroup(){
@@ -1812,14 +1946,15 @@ function renderEdlDocCard(bk){
 
 async function loadOverview(){
   const[{data:msgs},{data:tickets},{data:sentMsgs}]=await Promise.all([
-    sb.from('messages').select('*').eq('receiver_id',U.id).eq('read',false),
+    sb.from('messages').select('*').eq('receiver_id',U.id).eq('read',false).neq('type','roommate_dm'),
     sb.from('tickets').select('*').eq('locataire_id',U.id).neq('statut','resolved'),
     sb.from('messages').select('*, annonces(*)').eq('sender_id',U.id).order('created_at',{ascending:false})
   ]);
-  const unread=(msgs||[]).length;
+  const unread=(msgs||[]).filter(m=>m.type!=='roommate_dm').length;
   document.getElementById('k-msgs').textContent=unread;
   document.getElementById('k-tickets').textContent=(tickets||[]).length;
   if(unread>0){document.getElementById('nb-msg').textContent=unread;document.getElementById('nb-msg').style.display='inline';}
+  else{document.getElementById('nb-msg').style.display='none';}
   const seen=new Set(),ul=[];
   (sentMsgs||[]).forEach(m=>{if(m.listings&&!seen.has(m.listings.id)){seen.add(m.listings.id);ul.push(m.listings);}});
   document.getElementById('k-contacts').textContent=ul.length;
@@ -2015,7 +2150,7 @@ async function openMsg(threadKey, title, subtitle, listingId, receiverId, thread
   thread.scrollTop=thread.scrollHeight;
   try{await sb.from('messages').update({read:true}).eq('listing_id',listingId).eq('receiver_id',U.id);}catch(e){}
   let stillUnread=[];
-  try{const{data:u}=await sb.from('messages').select('id').eq('receiver_id',U.id).eq('read',false);stillUnread=u||[];}catch(e){}
+  try{const{data:u}=await sb.from('messages').select('id').eq('receiver_id',U.id).eq('read',false).neq('type','roommate_dm');stillUnread=u||[];}catch(e){}
   const count=(stillUnread||[]).length;
   const badge=document.getElementById('nb-msg');
   if(badge){if(count>0){badge.textContent=count;badge.style.display='inline';}else{badge.style.display='none';}}
@@ -4034,6 +4169,10 @@ async function saveProfilee(){
   }
   Object.assign(P,updates);
   updateProfileeCompleteness();
+  // Sync le nom dans roommate_profiles si le profil colocataire existe
+  if(updates.full_name){
+    await sb.from('roommate_profiles').update({full_name:updates.full_name}).eq('locataire_id',U.id);
+  }
   const ok=document.getElementById('prof-ok');ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
   toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
 }
