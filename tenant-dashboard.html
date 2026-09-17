@@ -145,6 +145,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .badge-uploaded{background:var(--grdim);color:var(--green);padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700}
 .dossier-progress{background:var(--b);border-radius:100px;height:6px;margin:.75rem 0}
 .dossier-progress-bar{background:var(--bleu);height:6px;border-radius:100px;transition:width .4s ease}
+.garant-sub-nav{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.garant-sub-tab{padding:.4rem .9rem;border-radius:100px;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);border:1px solid var(--b2);color:var(--tm);transition:all .15s;display:flex;align-items:center;gap:.35rem}
+.garant-sub-tab:hover{border-color:var(--bleu);color:var(--bleu)}
+.garant-sub-tab.gst-act{background:var(--bleu);color:white;border-color:var(--bleu)}
+.garant-sub-tab.gst-done{background:var(--grdim);color:var(--green);border-color:var(--green)}
+.garant-sub-screen{display:none}.garant-sub-screen.gss-vis{display:block;animation:fi .15s ease}
+.dossier-finish-badge{background:linear-gradient(135deg,var(--bleu),var(--marine));border-radius:20px;padding:2.5rem 2rem;text-align:center;color:white;margin-bottom:1.5rem}
+.dossier-finish-badge .dfb-icon{font-size:3rem;margin-bottom:.75rem}
+.dossier-finish-badge .dfb-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:800;margin-bottom:.4rem}
+.dossier-finish-badge .dfb-sub{font-size:.85rem;opacity:.85;line-height:1.5}
+.ressources-multi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.65rem;margin-top:1rem}
+@media(max-width:600px){.ressources-multi-grid{grid-template-columns:1fr}}
+.ressource-check-card{border:2px solid var(--b2);border-radius:12px;padding:.85rem 1rem;cursor:pointer;display:flex;align-items:flex-start;gap:.75rem;transition:all .15s;background:var(--s)}
+.ressource-check-card:hover{border-color:var(--bleu);background:var(--tdim)}
+.ressource-check-card.rcc-sel{border-color:var(--bleu);background:var(--tdim)}
+.rcc-cb{width:18px;height:18px;border-radius:5px;border:2px solid var(--b2);flex-shrink:0;margin-top:2px;background:var(--s2);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.rcc-cb.rcc-checked{background:var(--bleu);border-color:var(--bleu)}
+.rcc-cb.rcc-checked::after{content:'✓';color:white;font-size:.7rem;font-weight:700}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
 <style>
@@ -686,6 +704,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="dossier-step" id="dstep-5" onclick="showDossierStep(5)">
             <div class="dossier-step-num">6</div><span>Garant</span>
           </div>
+          <div class="ds-connector"></div>
+          <div class="dossier-step" id="dstep-6" onclick="showDossierStep(6)">
+            <div class="dossier-step-num">7</div><span>Validation</span>
+          </div>
 
           <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--b)">
             <div style="font-size:.72rem;color:var(--td);line-height:1.5">Vos documents sont stockés de façon sécurisée et partagés uniquement avec les propriétaires qui examinent votre candidature.</div>
@@ -763,7 +785,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(1,'heberge')">
-                    <div><div style="font-weight:600;font-size:.88rem">Hébergé chez quelqu\'un</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation d\'hébergement</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Hébergé (avec participation)</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Bail ou attestation + loyer payé</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(1,'heberge_gratuit')">
+                    <div><div style="font-weight:600;font-size:.88rem">Hébergé à titre gratuit</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation d\'hébergement gratuit</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(1,'proprietaire')">
@@ -836,7 +862,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(2,'stage')">
-                    <div><div style="font-weight:600;font-size:.88rem">Stage / Service civique</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Convention de stage</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Stage</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Convention de stage signée</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'service_civique')">
+                    <div><div style="font-weight:600;font-size:.88rem">Service civique</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat de service civique</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="selectDocType(2,'intermittent')">
+                    <div><div style="font-weight:600;font-size:.88rem">Intermittent / Artiste auteur</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation Pôle Emploi ou AGESSA</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(2,'allocations_rsa')">
@@ -908,6 +942,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div><div style="font-weight:600;font-size:.88rem">Revenus fonciers</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Loyers perçus, quittances</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
+                  <div class="doc-type-card" onclick="selectDocType(3,'aide_logement')">
+                    <div><div style="font-weight:600;font-size:.88rem">Aide au logement CAF/MSA</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Simulation ou attestation APL/ALS</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
                   <div class="doc-type-card" onclick="selectDocType(3,'autre_ressources')">
                     <div><div style="font-weight:600;font-size:.88rem">Autres ressources</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Rentes, aide familiale...</div></div>
                     <span class="dtc-arrow">›</span>
@@ -950,8 +988,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <div class="doc-type-card" onclick="skipDossierStep(4)">
                     <div>
-                      <div style="font-weight:600;font-size:.88rem">Vous n\'avez pas d\'avis d\'impôt</div>
-                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Première année ou non imposable</div>
+                      <div style="font-weight:600;font-size:.88rem">Non imposable / Pas d\'avis d\'impôt</div>
+                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Première année de travail, revenus faibles</div>
+                    </div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
+                  <div class="doc-type-card" onclick="skipDossierStep(4,'rattache')">
+                    <div>
+                      <div style="font-weight:600;font-size:.88rem">Rattaché au foyer fiscal de mes parents</div>
+                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pas d\'avis d\'impôt personnel</div>
                     </div>
                     <span class="dtc-arrow">›</span>
                   </div>
@@ -1003,20 +1048,91 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 </div>
                 <div id="dupload-5" style="display:none;margin-top:1rem">
                   <div class="ai" id="dtype-label-5"></div>
-                  <div id="garant-guidance" style="display:none"></div>
-                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
-                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
-                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
-                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
-                    <input type="file" id="dfile-5" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(5,this.files)">
+                  <!-- Garant organisme / moral: simple upload -->
+                  <div id="garant-simple-upload">
+                    <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
+                      <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                      <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                      <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
+                      <input type="file" id="dfile-5" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(5,this.files)">
+                    </div>
+                    <div id="dfile-preview-5" style="display:none;margin-top:.75rem"></div>
+                    <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                      <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
+                      <button class="btn bp bsm" onclick="confirmDossierStep(5)">Confirmer et continuer →</button>
+                    </div>
                   </div>
-                  <div id="dfile-preview-5" style="display:none;margin-top:.75rem"></div>
-                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
-                    <button class="btn bp bsm" onclick="confirmDossierStep(5)">Confirmer et continuer →</button>
+                  <!-- Garant personne physique: 4 sous-étapes -->
+                  <div id="garant-sub-dossier" style="display:none">
+                    <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
+                      <strong style="color:var(--deep)">Dossier garant — 4 documents requis :</strong> Le garant doit fournir sa pièce d'identité, un justificatif de domicile, ses justificatifs de revenus, et son avis d'imposition.
+                    </div>
+                    <!-- Sous-étape nav -->
+                    <div class="garant-sub-nav" id="garant-sub-nav"></div>
+                    <!-- Sous-étapes -->
+                    <div id="garant-sub-0" class="garant-sub-screen">
+                      <div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=id-card class=ic></i> Pièce d'identité du garant</div>
+                      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">CNI, passeport ou titre de séjour en cours de validité.</div>
+                      <div class="dossier-upload-area" onclick="document.getElementById('gfile-0').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,0)">
+                        <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Cliquer ou déposer</div>
+                        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                        <input type="file" id="gfile-0" accept="image/*,.pdf" style="display:none" onchange="uploadGarantFile(0,this.files)">
+                      </div>
+                      <div id="gpreview-0" style="display:none;margin-top:.6rem"></div>
+                      <button class="btn bp bsm" style="margin-top:.75rem" onclick="confirmGarantSub(0)">Valider et continuer →</button>
+                    </div>
+                    <div id="garant-sub-1" class="garant-sub-screen">
+                      <div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=home class=ic></i> Justificatif de domicile du garant</div>
+                      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">Facture (EDF, eau, internet) datée de moins de 3 mois, ou une quittance de loyer récente.</div>
+                      <div class="dossier-upload-area" onclick="document.getElementById('gfile-1').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,1)">
+                        <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Cliquer ou déposer</div>
+                        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                        <input type="file" id="gfile-1" accept="image/*,.pdf" style="display:none" onchange="uploadGarantFile(1,this.files)">
+                      </div>
+                      <div id="gpreview-1" style="display:none;margin-top:.6rem"></div>
+                      <button class="btn bp bsm" style="margin-top:.75rem" onclick="confirmGarantSub(1)">Valider et continuer →</button>
+                    </div>
+                    <div id="garant-sub-2" class="garant-sub-screen">
+                      <div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=banknote class=ic></i> Justificatifs de revenus du garant</div>
+                      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">Les 3 derniers bulletins de salaire, bilans comptables, ou autre justificatif de revenus selon la situation du garant.</div>
+                      <div class="dossier-upload-area" onclick="document.getElementById('gfile-2').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,2)">
+                        <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Cliquer ou déposer (plusieurs fichiers)</div>
+                        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo · Plusieurs fichiers acceptés</div>
+                        <input type="file" id="gfile-2" accept="image/*,.pdf" multiple style="display:none" onchange="uploadGarantFile(2,this.files)">
+                      </div>
+                      <div id="gpreview-2" style="display:none;margin-top:.6rem"></div>
+                      <button class="btn bp bsm" style="margin-top:.75rem" onclick="confirmGarantSub(2)">Valider et continuer →</button>
+                    </div>
+                    <div id="garant-sub-3" class="garant-sub-screen">
+                      <div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=file-text class=ic></i> Avis d'imposition du garant</div>
+                      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">Avis d'imposition complet disponible sur impots.gouv.fr — toutes les pages. Le revenu fiscal de référence doit être visible.</div>
+                      <div class="dossier-upload-area" onclick="document.getElementById('gfile-3').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,3)">
+                        <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Cliquer ou déposer</div>
+                        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                        <input type="file" id="gfile-3" accept="image/*,.pdf" style="display:none" onchange="uploadGarantFile(3,this.files)">
+                      </div>
+                      <div id="gpreview-3" style="display:none;margin-top:.6rem"></div>
+                      <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+                        <button class="btn bp bsm" onclick="confirmGarantSub(3)">Valider le dossier garant →</button>
+                      </div>
+                    </div>
+                    <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
+                      <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- STEP 6: Validation / Fin -->
+          <div class="dossier-screen" id="dscreen-6">
+            <div id="dossier-completion-content">
+              <!-- Filled dynamically by renderDossierCompletion() -->
             </div>
           </div>
 
@@ -4535,17 +4651,18 @@ const DOSSIER_STEPS=[
   {key:'profession',label:'Situation professionnelle'},
   {key:'ressources',label:'Justificatif de ressources'},
   {key:'impot',label:'Avis d\'imposition'},
-  {key:'garant',label:'Garant'}
+  {key:'garant',label:'Garant'},
+  {key:'validation',label:'Validation',isValidation:true}
 ];
 
 const DOSSIER_TYPE_LABELS={
   cni:'Carte nationale d\'identité',passeport:'Passeport',sejour:'Carte / titre de séjour',permis:'Permis de conduire',france_identite:'France Identité',autre_id:'Autre document',
-  locataire:'Locataire (bail + quittances)',heberge:'Hébergé chez quelqu\'un',proprietaire:'Propriétaire (titre de propriété)',autre_heberg:'Autres situations',
-  cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage / Service civique',allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
-  bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',bourse:'Bourse d\'études (CROUS)',are_allocation:'ARE — indemnités chômage',caf_rsa:'Allocations CAF / RSA',revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
+  locataire:'Locataire (bail + quittances)',heberge:'Hébergé (avec participation)',heberge_gratuit:'Hébergé à titre gratuit',proprietaire:'Propriétaire (titre de propriété)',autre_heberg:'Autres situations',
+  cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',service_civique:'Service civique',intermittent:'Intermittent / Artiste auteur',allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
+  bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',bourse:'Bourse d\'études (CROUS)',are_allocation:'ARE — indemnités chômage',caf_rsa:'Allocations CAF / RSA',aide_logement:'Aide au logement CAF/MSA',revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
   avec_impot:'Avis d\'imposition',
-  garant_personne:'Garant — une personne',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
-  skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_garant:'Pas de garant'
+  garant_personne:'Garant — une personne physique',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
+  skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_rattache:'Rattaché au foyer fiscal des parents',skipped_garant:'Pas de garant'
 };
 
 // Contextual instructions shown after type selection — like DossierFacile
@@ -4581,7 +4698,11 @@ const DOSSIER_TYPE_INSTRUCTIONS={
   revenus_fonciers:'Vos 3 dernières quittances de loyer perçues ou déclaration fiscale des revenus fonciers (formulaire 2044).',
   autre_ressources:'Tout justificatif officiel de vos revenus (aide familiale, rente, pension alimentaire, etc.).',
   avec_impot:'Avis d\'imposition complet disponible sur impots.gouv.fr — toutes les pages. Assurez-vous que le montant du revenu fiscal de référence est visible.',
-  garant_personne:'Votre garant doit fournir un dossier complet : <strong>pièce d\'identité</strong> + <strong>justificatif de domicile</strong> (facture < 3 mois ou 1 quittance) + <strong>justificatifs de revenus</strong> (3 bulletins de salaire ou équivalent) + <strong>avis d\'imposition</strong>. Regroupez tous ces documents dans un seul PDF pour simplifier l\'envoi.',
+  heberge_gratuit:'Attestation d\'hébergement à titre gratuit signée par l\'hébergeur + copie de sa pièce d\'identité en cours de validité + un justificatif de domicile à son nom (facture EDF, eau ou téléphone < 3 mois). Aucun loyer ne doit être mentionné.',
+  service_civique:'Contrat de service civique signé par l\'organisme d\'accueil et Unis-Cité ou l\'Agence du Service Civique. Toutes les pages.',
+  intermittent:'Attestation Pôle Emploi / France Travail mentionnant le régime d\'intermittent du spectacle, ou attestation AGESSA / MDA / IRCEC pour les artistes auteurs.',
+  aide_logement:'Simulation de droits APL/ALS/ALF sur caf.fr, ou attestation CAF/MSA de droits à l\'aide au logement. Document daté de moins de 3 mois.',
+  garant_personne:'Votre garant doit fournir un dossier complet en 4 parties : <strong>pièce d\'identité</strong> + <strong>justificatif de domicile</strong> (facture < 3 mois) + <strong>justificatifs de revenus</strong> (3 derniers bulletins ou équivalent) + <strong>avis d\'imposition</strong>. Utilisez les 4 onglets ci-dessous pour uploader chaque document séparément.',
   garant_organisme:'Attestation Visale, Garantme, Cautionnéo ou autre organisme de cautionnement. Le document doit mentionner votre nom, être daté et en cours de validité.',
   garant_moral:'Extrait Kbis de l\'entreprise (moins de 3 mois) + pièce d\'identité du représentant légal signataire.',
 };
@@ -4604,11 +4725,24 @@ async function initDossierPage(){
 
 function renderDossierState(){
   let done=0;
+  const docSteps=DOSSIER_STEPS.filter(s=>!s.isValidation);
   DOSSIER_STEPS.forEach((s,i)=>{
     const st=dossierState[i];
     const stepEl=document.getElementById('dstep-'+i);
     const badgeEl=document.getElementById('dstatus-'+i);
-    if(st?.type){
+    if(s.isValidation){
+      // Validation step: mark done only if all other steps done
+      const allDocDone=docSteps.every((_,j)=>dossierState[j]?.type);
+      if(stepEl){
+        stepEl.classList.remove('ds-done','ds-act');
+        if(allDocDone)stepEl.classList.add('ds-done');
+      }
+      return;
+    }
+    const isGarantPersonne=st?.type==='garant_personne';
+    const garantComplete=isGarantPersonne?(st?.garant_subs&&Object.keys(st.garant_subs).length===4&&Object.values(st.garant_subs).every(gs=>gs?.files?.length>0)):true;
+    const isDone=st?.type&&(!isGarantPersonne||garantComplete);
+    if(isDone){
       if(stepEl){stepEl.classList.remove('ds-act');stepEl.classList.add('ds-done');}
       if(badgeEl){badgeEl.textContent=st.skipped?'Non applicable':'Fourni';badgeEl.className=st.skipped?'badge b-gold':'badge b-green';}
       done++;
@@ -4617,17 +4751,15 @@ function renderDossierState(){
       if(badgeEl){badgeEl.textContent='Non fourni';badgeEl.className='badge b-dim';}
     }
   });
-  const pct=Math.round(done/DOSSIER_STEPS.length*100);
+  const pct=Math.round(done/docSteps.length*100);
   const bar=document.getElementById('dossier-pct-bar');
   const lbl=document.getElementById('dossier-pct-label');
   if(bar)bar.style.width=pct+'%';
-  if(lbl)lbl.textContent=done+' / '+DOSSIER_STEPS.length+' documents';
-  // Show "Partager" button when complete
+  if(lbl)lbl.textContent=done+' / '+docSteps.length+' documents';
   const shareBtn=document.getElementById('dossier-share-btn');
-  if(shareBtn)shareBtn.style.display=done===DOSSIER_STEPS.length?'inline-flex':'none';
-  // Show badge in sidebar nav if incomplete
+  if(shareBtn)shareBtn.style.display=done===docSteps.length?'inline-flex':'none';
   const nb=document.getElementById('nb-dossier');
-  if(nb)nb.style.display=done<DOSSIER_STEPS.length?'inline-flex':'none';
+  if(nb)nb.style.display=done<docSteps.length?'inline-flex':'none';
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
@@ -4638,7 +4770,7 @@ function showDossierStep(idx){
   const st=document.getElementById('dstep-'+idx);
   if(sc)sc.classList.add('ds-visible');
   if(st&&!st.classList.contains('ds-done'))st.classList.add('ds-act');
-  // If step already has data, restore it
+  if(idx===6){renderDossierCompletion();if(typeof lucide!=='undefined')lucide.createIcons();return;}
   const saved=dossierState[idx];
   if(saved?.type){restoreUploadedStep(idx,saved);}
   if(typeof lucide!=='undefined')lucide.createIcons();
@@ -4651,7 +4783,16 @@ function restoreUploadedStep(idx,saved){
   const preview=document.getElementById('dfile-preview-'+idx);
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
-  if(label)label.textContent='Type sélectionné : '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type);
+  if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+'</strong>';
+  // Handle garant personne sub-dossier restore
+  if(idx===5&&saved.type==='garant_personne'){
+    const simpleUpload=document.getElementById('garant-simple-upload');
+    const subDossier=document.getElementById('garant-sub-dossier');
+    if(simpleUpload)simpleUpload.style.display='none';
+    if(subDossier)subDossier.style.display='block';
+    initGarantSubDossier();
+    return;
+  }
   if(preview&&saved.files&&saved.files.length>0){
     preview.style.display='block';
     preview.innerHTML=saved.files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
@@ -4683,24 +4824,17 @@ function selectDocType(idx,type){
     }
     box.innerHTML='<span style="font-weight:700;color:var(--bleu)"><i data-lucide=info class=ic></i> Documents à fournir</span><br>'+instr;
   }
-  // Special guidance for garant physique
-  const garantGuide=document.getElementById('garant-guidance');
-  if(garantGuide){
+  // Garant personne physique: show sub-dossier, hide simple upload
+  const simpleUpload=document.getElementById('garant-simple-upload');
+  const subDossier=document.getElementById('garant-sub-dossier');
+  if(simpleUpload&&subDossier){
     if(type==='garant_personne'){
-      garantGuide.style.display='block';
-      garantGuide.innerHTML=`<div style="background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.8rem;color:var(--tm);line-height:1.6">
-        <div style="font-weight:700;margin-bottom:.4rem"><i data-lucide=list-checks class=ic></i> Documents requis du garant</div>
-        <div style="display:flex;flex-direction:column;gap:.3rem">
-          <div>✅ <strong>Pièce d'identité</strong> (CNI, passeport — en cours de validité)</div>
-          <div>✅ <strong>Justificatif de domicile</strong> (facture < 3 mois ou 1 quittance de loyer)</div>
-          <div>✅ <strong>Justificatifs de revenus</strong> (3 derniers bulletins ou équivalent)</div>
-          <div>✅ <strong>Avis d'imposition</strong> (impots.gouv.fr — toutes les pages)</div>
-        </div>
-        <div style="margin-top:.5rem;font-size:.75rem;color:var(--td)">Conseil : regroupez tous ces documents dans un seul PDF avant d'uploader.</div>
-      </div>`;
-    }else{
-      garantGuide.style.display='none';
-      garantGuide.innerHTML='';
+      simpleUpload.style.display='none';
+      subDossier.style.display='block';
+      initGarantSubDossier();
+    } else {
+      simpleUpload.style.display='block';
+      subDossier.style.display='none';
     }
   }
   // Store type but not yet confirmed
@@ -4717,19 +4851,27 @@ function resetDocType(idx){
   if(grid)grid.style.display='';
   if(upload)upload.style.display='none';
   if(preview){preview.style.display='none';preview.innerHTML='';}
+  // Reset garant sub-dossier UI
+  const simpleUpload=document.getElementById('garant-simple-upload');
+  const subDossier=document.getElementById('garant-sub-dossier');
+  if(simpleUpload)simpleUpload.style.display='block';
+  if(subDossier)subDossier.style.display='none';
   if(dossierState[idx]){delete dossierState[idx].pendingType;}
 }
 
-async function skipDossierStep(idx){
+async function skipDossierStep(idx,variant){
   dossierState[idx]={type:'skipped',skipped:true,files:[]};
-  // For impot skip
-  if(idx===4)dossierState[idx].type='skipped_impot';
+  if(idx===4){
+    dossierState[idx].type=variant==='rattache'?'skipped_rattache':'skipped_impot';
+    if(variant==='rattache')dossierState[idx].label='Rattaché au foyer fiscal des parents';
+  }
   if(idx===5)dossierState[idx].type='skipped_garant';
   await saveDossierState();
   renderDossierState();
+  const docStepsLen=DOSSIER_STEPS.filter(s=>!s.isValidation).length;
   const next=idx+1;
-  if(next<DOSSIER_STEPS.length)setTimeout(()=>showDossierStep(next),300);
-  else showDossierSummary();
+  if(next<docStepsLen)setTimeout(()=>showDossierStep(next),300);
+  else setTimeout(()=>showDossierStep(6),300);
   toast('<i data-lucide=check-circle-2 class=ic></i> Étape '+(idx+1)+' — non applicable');
 }
 
@@ -4777,13 +4919,13 @@ async function confirmDossierStep(idx){
   const st=dossierState[idx];
   if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
   if(!st?.files?.length&&!st?.skipped){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
-  // Confirm the pending type
   if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
   await saveDossierState();
   renderDossierState();
+  const docStepsLen=DOSSIER_STEPS.filter(s=>!s.isValidation).length;
   const next=idx+1;
-  if(next<DOSSIER_STEPS.length)setTimeout(()=>showDossierStep(next),300);
-  else showDossierSummary();
+  if(next<docStepsLen)setTimeout(()=>showDossierStep(next),300);
+  else setTimeout(()=>showDossierStep(6),300);
   toast('<i data-lucide=check-circle-2 class=ic></i> Étape '+(idx+1)+' enregistrée !');
 }
 
@@ -4798,9 +4940,11 @@ function showDossierSummary(){
   if(!list)return;
   let html='';
   let allDone=true;
-  DOSSIER_STEPS.forEach((s,i)=>{
+  DOSSIER_STEPS.filter(s=>!s.isValidation).forEach((s,i)=>{
     const st=dossierState[i];
-    const hasDoc=st?.type&&!st?.skipped&&st?.files?.length>0;
+    const isGarantP=st?.type==='garant_personne';
+    const garantOk=isGarantP?(st?.garant_subs&&Object.values(st.garant_subs).every(gs=>gs?.files?.length>0)):true;
+    const hasDoc=st?.type&&!st?.skipped&&(!isGarantP||garantOk);
     const skipped=st?.skipped;
     if(!hasDoc&&!skipped)allDone=false;
     html+=`<div class="doc-status-row" style="margin-bottom:.5rem">
@@ -4862,6 +5006,166 @@ function copyDossierLinks(){
     ta.select();document.execCommand('copy');
     toast('<i data-lucide=check-circle-2 class=ic></i> Liens copiés !');
   });
+}
+
+// ══ Garant — sous-dossier (4 sous-étapes) ══════════════════════
+const GARANT_SUB_LABELS=['Pièce d'identité','Domicile','Revenus','Avis d'impôt'];
+const GARANT_SUB_ICONS=['id-card','home','banknote','file-text'];
+let garantSubStep=0;
+
+function initGarantSubDossier(){
+  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
+  if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
+  garantSubStep=0;
+  // Find first incomplete sub-step
+  for(let i=0;i<4;i++){
+    if(!dossierState[5].garant_subs[i]?.files?.length){garantSubStep=i;break;}
+    if(i===3)garantSubStep=3;
+  }
+  renderGarantSubNav();
+  showGarantSubStep(garantSubStep);
+}
+
+function renderGarantSubNav(){
+  const nav=document.getElementById('garant-sub-nav');
+  if(!nav)return;
+  nav.innerHTML=GARANT_SUB_LABELS.map((lbl,i)=>{
+    const done=dossierState[5]?.garant_subs?.[i]?.files?.length>0;
+    const act=i===garantSubStep&&!done;
+    const cls=done?'garant-sub-tab gst-done':act?'garant-sub-tab gst-act':'garant-sub-tab';
+    const icon=done?'✓':(i+1);
+    return `<div class="${cls}" onclick="showGarantSubStep(${i})"><span>${icon}</span>${lbl}</div>`;
+  }).join('');
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+function showGarantSubStep(i){
+  garantSubStep=i;
+  document.querySelectorAll('.garant-sub-screen').forEach(s=>s.classList.remove('gss-vis'));
+  const sc=document.getElementById('garant-sub-'+i);
+  if(sc)sc.classList.add('gss-vis');
+  // Restore uploaded files if any
+  const subs=dossierState[5]?.garant_subs||{};
+  const preview=document.getElementById('gpreview-'+i);
+  if(preview&&subs[i]?.files?.length>0){
+    preview.style.display='block';
+    preview.innerHTML=subs[i].files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('');
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  }
+  renderGarantSubNav();
+}
+
+async function uploadGarantFile(subIdx,files){
+  if(!files||!files.length)return;
+  if(!dossierState[5])dossierState[5]={type:'garant_personne',garant_subs:{}};
+  if(!dossierState[5].garant_subs)dossierState[5].garant_subs={};
+  const area=document.getElementById('gfile-'+subIdx)?.closest('.dossier-upload-area')||document.querySelector('#garant-sub-'+subIdx+' .dossier-upload-area');
+  if(area)area.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;justify-content:center"><div class="sp"></div><span style="font-size:.82rem;color:var(--tm)">Envoi...</span></div>';
+  const uploaded=[];
+  try{
+    for(const file of Array.from(files)){
+      const ext=file.name.split('.').pop();
+      const subKey=['identite','domicile','revenus','impot'][subIdx]||('sub'+subIdx);
+      const path=`dossier/${U.id}/garant_${subKey}_${Date.now()}.${ext}`;
+      const{error}=await sb.storage.from('documents-dossiers').upload(path,file,{upsert:true,contentType:file.type});
+      if(error)throw error;
+      const{data:urlData}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
+      uploaded.push({name:file.name,path,url:urlData?.signedUrl||'',ext});
+    }
+    if(!dossierState[5].garant_subs[subIdx])dossierState[5].garant_subs[subIdx]={files:[]};
+    dossierState[5].garant_subs[subIdx].files=(dossierState[5].garant_subs[subIdx].files||[]).concat(uploaded);
+    const preview=document.getElementById('gpreview-'+subIdx);
+    if(preview){
+      preview.style.display='block';
+      const allF=dossierState[5].garant_subs[subIdx].files;
+      preview.innerHTML=allF.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('');
+    }
+    if(area)area.innerHTML=`<div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div><div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Ajouter d'autres fichiers</div><div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>`;
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
+  }catch(e){
+    if(area)area.innerHTML='<div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div><div style="font-weight:600;font-size:.85rem">Glisser ou cliquer</div>';
+    toast('<i data-lucide=alert-triangle class=ic></i>️ Erreur : '+e.message);
+  }
+}
+
+function handleGarantDrop(event,subIdx){
+  event.preventDefault();
+  event.currentTarget.classList.remove('dua-dragover');
+  uploadGarantFile(subIdx,event.dataTransfer.files);
+}
+
+async function confirmGarantSub(subIdx){
+  const sub=dossierState[5]?.garant_subs?.[subIdx];
+  if(!sub?.files?.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+  renderGarantSubNav();
+  if(subIdx<3){
+    // Move to next sub-step
+    setTimeout(()=>showGarantSubStep(subIdx+1),200);
+    toast('<i data-lucide=check-circle-2 class=ic></i> Document garant '+(subIdx+1)+'/4 enregistré');
+  } else {
+    // All 4 sub-steps done — confirm the garant step
+    dossierState[5].type='garant_personne';
+    await saveDossierState();
+    renderDossierState();
+    setTimeout(()=>showDossierStep(6),300);
+    toast('<i data-lucide=check-circle-2 class=ic></i> Dossier garant complet ! Passez à la validation.');
+  }
+}
+
+// ══ Étape 7 — Validation / Dossier complet ══════════════════════
+function renderDossierCompletion(){
+  const container=document.getElementById('dossier-completion-content');
+  if(!container)return;
+  const docSteps=DOSSIER_STEPS.filter(s=>!s.isValidation);
+  let done=0,missing=[];
+  docSteps.forEach((s,i)=>{
+    const st=dossierState[i];
+    const isGarantP=st?.type==='garant_personne';
+    const garantOk=isGarantP?(st?.garant_subs&&Object.values(st.garant_subs).every(gs=>gs?.files?.length>0)):true;
+    if(st?.type&&(!isGarantP||garantOk))done++;
+    else missing.push(s.label);
+  });
+  const allDone=missing.length===0;
+  let html='';
+  if(allDone){
+    html=`<div class="dossier-finish-badge">
+      <div class="dfb-icon">🎉</div>
+      <div class="dfb-title">Dossier complet !</div>
+      <div class="dfb-sub">Tous vos documents sont prêts. Vous pouvez maintenant partager votre dossier avec des propriétaires ou des agences.</div>
+    </div>`;
+  } else {
+    html=`<div style="background:var(--rdim);border:1px solid rgba(201,85,58,.2);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem">
+      <div style="font-weight:700;font-size:.95rem;margin-bottom:.75rem"><i data-lucide=alert-triangle class=ic></i> Dossier incomplet</div>
+      <div style="font-size:.82rem;color:var(--tm);margin-bottom:.75rem">Documents manquants :</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem">${missing.map(m=>`<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem"><span style="color:var(--red)">✗</span> <strong>${m}</strong></div>`).join('')}</div>
+    </div>`;
+  }
+  // Récap de tous les docs
+  html+=`<div class="card" style="margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=folder-open class=ic></i> Récapitulatif</div><span class="badge ${allDone?'b-green':'b-gold'}">${done}/${docSteps.length} docs</span></div><div class="cb">`;
+  docSteps.forEach((s,i)=>{
+    const st=dossierState[i];
+    const isGarantP=st?.type==='garant_personne';
+    const garantOk=isGarantP?(st?.garant_subs&&Object.values(st.garant_subs).every(gs=>gs?.files?.length>0)):true;
+    const ok=st?.type&&(!isGarantP||garantOk);
+    html+=`<div class="doc-status-row" style="margin-bottom:.5rem">
+      <div style="flex:1"><div class="dsr-label">${s.label}</div>${st?.type?`<div class="dsr-sub">${DOSSIER_TYPE_LABELS[st.type]||st.type}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        ${ok?'<span class="badge-uploaded">✓ Fourni</span>':st?.skipped?'<span class="badge b-gold" style="font-size:.68rem">Non applicable</span>':'<span class="badge-missing">MANQUANT</span>'}
+        <button class="btn bg bsm" onclick="showDossierStep(${i})" style="font-size:.72rem;padding:.25rem .65rem">${ok||st?.skipped?'Modifier':'Ajouter →'}</button>
+      </div>
+    </div>`;
+  });
+  html+='</div></div>';
+  // CTA
+  if(allDone){
+    html+=`<div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <button class="btn bp" onclick="showDossierShare()" style="font-size:.88rem"><i data-lucide=share-2 class=ic></i> Partager mon dossier</button>
+    </div>`;
+  }
+  container.innerHTML=html;
+  if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
 // ── Vérification dossier avant demande de visite ──────────────
