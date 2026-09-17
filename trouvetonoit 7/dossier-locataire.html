@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trouve Ton Toit — Dossier de Location</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+<script>
+  window.__clerk_publishable_key = 'pk_live_REPLACE_ME';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<script>
+  if(localStorage.getItem('rm_theme')==='dark')document.documentElement.classList.add('dark');
+</script>
+<style>
+:root{
+  --bg:#F5EFE0;--s:#FDFAF4;--s2:#EDE8D8;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);
+  --bleu:#1B4FD8;--tdim:rgba(201,85,58,.1);--tdim2:rgba(201,85,58,.18);
+  --gold:#E8A020;--gdim:rgba(212,168,71,.1);
+  --marine:#0F2D7A;--sdim:rgba(46,107,138,.1);
+  --green:#4CAF7D;--grdim:rgba(76,175,125,.1);
+  --red:#1B4FD8;--rdim:rgba(201,85,58,.1);
+  --violet:#7C3AED;--vdim:rgba(124,58,237,.1);
+  --deep:#1A1410;--stone:#6B5F52;--txt:#1A1410;--tm:#6B5F52;--td:#887A68
+}
+html.dark{
+  --bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);
+  --bleu:#1B4FD8;--tdim:rgba(224,90,58,.15);--tdim2:rgba(224,90,58,.25);
+  --gold:#E8A020;--gdim:rgba(212,168,71,.12);
+  --sea:#3A8FB5;--sdim:rgba(58,143,181,.12);
+  --green:#4CAF7D;--grdim:rgba(76,175,125,.12);
+  --red:#E05A3A;--rdim:rgba(224,90,90,.12);
+  --violet:#9F6CF5;--vdim:rgba(159,108,245,.12);
+  --deep:#F0EDE8;--stone:rgba(240,237,232,.48);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+a{color:var(--bleu);text-decoration:none}a:hover{text-decoration:underline}
+
+/* ── Topbar ── */
+.topbar{background:var(--s);border-bottom:1px solid var(--b);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--bleu)}
+.logo span{font-weight:400;font-style:italic;font-size:1rem;color:var(--stone);margin-left:.3rem}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+
+/* ── Layout ── */
+.wrap{max-width:760px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+/* ── Page header ── */
+.page-hd{margin-bottom:2rem}
+.page-hd h1{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;color:var(--deep);margin-bottom:.35rem}
+.page-hd p{color:var(--tm);font-size:.9rem}
+
+/* ── Progress steps ── */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:2.5rem;background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.2rem 1.5rem;overflow-x:auto}
+.step{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;border:2px solid var(--b2);color:var(--td);background:transparent;transition:all .2s}
+.step.done .step-num{background:var(--green);border-color:var(--green);color:white}
+.step.actif .step-num{background:var(--bleu);border-color:var(--bleu);color:white}
+.step-label{font-size:.78rem;font-weight:600;color:var(--td);white-space:nowrap}
+.step.actif .step-label{color:var(--bleu)}
+.step.done .step-label{color:var(--green)}
+.step-sep{width:32px;height:2px;background:var(--b2);flex-shrink:0;margin:0 .4rem}
+.step.done+.step-sep,.step-sep.done{background:var(--green)}
+@media(max-width:600px){.step-label{display:none}.step-sep{width:16px}}
+
+/* ── Card ── */
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.ch{padding:1rem 1.3rem .8rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.6rem}
+.ch-ico{font-size:1.1rem;width:32px;height:32px;background:var(--tdim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-title{font-weight:700;font-size:.92rem;color:var(--deep)}
+.ch-sub{font-size:.75rem;color:var(--tm);margin-top:.1rem}
+.cb{padding:1.2rem 1.3rem}
+
+/* ── Form ── */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.fgrid.three{grid-template-columns:1fr 1fr 1fr}
+.fgrid.full{grid-template-columns:1fr}
+@media(max-width:540px){.fgrid,.fgrid.three{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:.35rem}
+.fl{font-size:.75rem;font-weight:600;color:var(--tm);display:flex;align-items:center;gap:.4rem}
+.fl .req{color:var(--bleu);font-size:.8rem}
+.fi{padding:.6rem .85rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%}
+.fi:focus{border-color:var(--bleu)}
+.fsel{padding:.6rem .85rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;cursor:pointer;width:100%}
+.fsel:focus{border-color:var(--bleu)}
+.fradio-group{display:flex;gap:.5rem;flex-wrap:wrap}
+.fradio{display:none}
+.fradio-lbl{padding:.45rem 1rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--tm);transition:all .15s;background:var(--s)}
+.fradio:checked+.fradio-lbl{border-color:var(--bleu);color:var(--bleu);background:var(--tdim)}
+.finput-hint{font-size:.72rem;color:var(--td);margin-top:.2rem}
+.divider{border:none;border-top:1px solid var(--b);margin:1.2rem 0}
+
+/* ── Téléverser zones ── */
+.upload-zone{border:2px dashed var(--b2);border-radius:10px;padding:1.2rem;text-align:center;cursor:pointer;transition:all .15s;background:var(--s2);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--bleu);background:var(--tdim)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-ico{font-size:1.5rem;margin-bottom:.4rem}
+.upload-title{font-size:.82rem;font-weight:600;color:var(--deep)}
+.upload-sub{font-size:.72rem;color:var(--td);margin-top:.2rem}
+.upload-files{margin-top:.7rem;display:flex;flex-direction:column;gap:.3rem}
+.upload-file{display:flex;align-items:center;gap:.5rem;padding:.4rem .7rem;background:var(--grdim);border-radius:6px;font-size:.78rem;font-weight:500;color:var(--green)}
+.upload-file-rm{margin-left:auto;cursor:pointer;color:var(--td);font-size:.9rem;padding:.1rem .3rem;border-radius:4px}
+.upload-file-rm:hover{color:var(--red)}
+.upload-req{display:flex;align-items:flex-start;gap:.5rem;font-size:.78rem;color:var(--tm);margin-top:.5rem;padding:.5rem .7rem;background:rgba(26,20,16,.04);border-radius:6px}
+
+/* ── Doc checklist ── */
+.doc-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem}
+.doc-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:var(--s2);border:1px solid var(--b);border-radius:10px;transition:all .15s}
+.doc-item.uploaded{background:var(--grdim);border-color:rgba(76,175,125,.25)}
+.doc-item.uploaded .doc-statut{color:var(--green)}
+.doc-num{width:22px;height:22px;border-radius:50%;background:var(--tdim);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--bleu);flex-shrink:0}
+.doc-info{flex:1}
+.doc-name{font-size:.83rem;font-weight:600;color:var(--deep)}
+.doc-desc{font-size:.72rem;color:var(--td);margin-top:.1rem}
+.doc-statut{font-size:.75rem;font-weight:600;color:var(--td)}
+.doc-upload-btn{font-size:.75rem;font-weight:600;padding:.35rem .8rem;border:1.5px solid var(--b2);border-radius:6px;cursor:pointer;color:var(--tm);background:var(--s);transition:all .15s;position:relative;overflow:hidden;white-space:nowrap;flex-shrink:0}
+.doc-upload-btn:hover{border-color:var(--bleu);color:var(--bleu)}
+.doc-upload-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* ── Ratio widget ── */
+.ratio-box{border-radius:12px;padding:1rem 1.2rem;margin-top:1rem;display:flex;align-items:center;gap:1rem;border:1.5px solid transparent}
+.ratio-box.ok{background:var(--grdim);border-color:rgba(76,175,125,.3)}
+.ratio-box.warn{background:var(--gdim);border-color:rgba(212,168,71,.4)}
+.ratio-box.nok{background:var(--rdim);border-color:rgba(201,85,58,.3)}
+.ratio-icon{font-size:1.5rem;flex-shrink:0}
+.ratio-title{font-weight:700;font-size:.88rem}
+.ratio-sub{font-size:.75rem;margin-top:.15rem;opacity:.8}
+.ratio-box.ok .ratio-title{color:var(--green)}
+.ratio-box.warn .ratio-title{color:var(--gold)}
+.ratio-box.nok .ratio-title{color:var(--red)}
+.ratio-val{margin-left:auto;font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;flex-shrink:0}
+.ratio-box.ok .ratio-val{color:var(--green)}
+.ratio-box.warn .ratio-val{color:var(--gold)}
+.ratio-box.nok .ratio-val{color:var(--red)}
+
+/* ── Garant type cards ── */
+.garant-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.5rem}
+@media(max-width:540px){.garant-cards{grid-template-columns:1fr}}
+.garant-card{border:2px solid var(--b2);border-radius:12px;padding:1rem;cursor:pointer;text-align:center;transition:all .15s;background:var(--s)}
+.garant-card:hover{border-color:var(--bleu)}
+.garant-card.selected{border-color:var(--bleu);background:var(--tdim)}
+.garant-card-ico{font-size:1.8rem;margin-bottom:.5rem}
+.garant-card-title{font-size:.83rem;font-weight:700;color:var(--deep)}
+.garant-card-desc{font-size:.72rem;color:var(--td);margin-top:.2rem;line-height:1.4}
+
+/* ── Visale info ── */
+.visale-box{background:var(--sdim);border:1.5px solid rgba(46,107,138,.25);border-radius:12px;padding:1.1rem 1.2rem}
+.visale-title{font-weight:700;font-size:.88rem;color:var(--marine);margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem}
+.visale-steps{display:flex;flex-direction:column;gap:.4rem;margin-top:.7rem}
+.visale-step{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:var(--tm)}
+.visale-step-num{width:20px;height:20px;border-radius:50%;background:var(--marine);color:white;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:.05rem}
+
+/* ── Info alert ── */
+.info-alert{display:flex;gap:.75rem;padding:.85rem 1rem;border-radius:10px;font-size:.8rem;margin:.75rem 0}
+.info-alert.blue{background:var(--sdim);border:1px solid rgba(46,107,138,.2);color:var(--marine)}
+.info-alert.orange{background:var(--gdim);border:1px solid rgba(212,168,71,.3);color:#8a6000}
+html.dark .info-alert.orange{color:var(--gold)}
+.info-alert.green{background:var(--grdim);border:1px solid rgba(76,175,125,.25);color:var(--green)}
+.info-alert.red{background:var(--rdim);border:1px solid rgba(201,85,58,.2);color:var(--red)}
+.info-alert-icon{font-size:1rem;flex-shrink:0;margin-top:.05rem}
+.info-alert p{line-height:1.5}
+.info-alert strong{font-weight:700}
+
+/* ── Récap step 5 ── */
+.recap-section{margin-bottom:1.25rem}
+.recap-title{font-size:.78rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--td);margin-bottom:.6rem}
+.recap-row{display:flex;justify-content:space-between;align-items:baseline;padding:.5rem 0;border-bottom:1px solid var(--b);font-size:.85rem}
+.recap-row:last-child{border-bottom:none}
+.recap-key{color:var(--tm)}
+.recap-val{font-weight:600;color:var(--deep);text-align:right}
+.score-bar{height:8px;background:var(--b2);border-radius:4px;overflow:hidden;margin:.4rem 0}
+.score-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.score-100{background:var(--green)}
+.score-66{background:var(--gold)}
+.score-33{background:var(--red)}
+
+/* ── Buttons ── */
+.btn{padding:.6rem 1.3rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}
+.bp{background:var(--bleu);color:white}.bp:hover{background:#e06545;transform:translateY(-1px)}
+.bp:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.bg{background:rgba(26,20,16,.06);color:var(--stone);border:1px solid var(--b2)}.bg:hover{background:rgba(26,20,16,.1);color:var(--deep)}
+html.dark .bg{background:rgba(255,255,255,.08);color:var(--stone)}.html.dark .bg:hover{background:rgba(255,255,255,.13)}
+
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--b)}
+
+/* ── Badge ── */
+.badge{padding:.2rem .6rem;border-radius:100px;font-size:.68rem;font-weight:700}
+.b-green{background:var(--grdim);color:var(--green)}.b-gold{background:var(--gdim);color:var(--gold)}.b-red{background:var(--rdim);color:var(--red)}.b-sea{background:var(--sdim);color:var(--marine)}.b-dim{background:rgba(26,20,16,.06);color:var(--td)}
+
+/* ── Legal note ── */
+.legal-note{font-size:.72rem;color:var(--td);margin-top:.75rem;padding:.6rem .8rem;background:rgba(26,20,16,.03);border-radius:8px;line-height:1.5}
+.legal-note strong{font-weight:600;color:var(--tm)}
+
+/* ── Page sections show/hide ── */
+.step-section{display:none}.step-section.actif{display:block}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--deep);color:white;padding:.75rem 1.4rem;border-radius:10px;font-size:.84rem;font-weight:500;z-index:999;transition:transform .25s ease;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── Overlay ── */
+#overlay{position:fixed;inset:0;background:rgba(26,20,16,.5);z-index:100;display:none;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+.modal{background:var(--s);border-radius:16px;padding:2rem;max-width:440px;width:90%;text-align:center}
+.modal h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.5rem;color:var(--deep)}
+.modal p{color:var(--tm);font-size:.88rem;margin-bottom:1.5rem;line-height:1.6}
+
+/* ── Responsive topbar ── */
+@media(max-width:500px){.topbar{padding:.8rem 1rem}.wrap{padding:1.25rem 1rem 3rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span style="color:var(--bleu)">T</span>rouve<span style="color:var(--bleu)">T</span>on<span style="color:var(--bleu)">T</span>oit <span>— Location</span></div>
+  <div class="topbar-right">
+    <button class="btn bg" onclick="toggleTheme()" title="Thème">☀️</button>
+    <div id="clerk-user-btn" style="display:none"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-hd">
+    <h1>Dossier de location</h1>
+    <p>Constituez votre dossier conforme au décret du 5 novembre 2015. Renseignez toutes les étapes pour maximiser vos chances d'obtenir le logement.</p>
+  </div>
+
+  <!-- ── Progress ── -->
+  <div class="steps" id="steps-bar">
+    <div class="step actif" id="s1"><div class="step-num">1</div><div class="step-label">Identité</div></div>
+    <div class="step-sep" id="sep1"></div>
+    <div class="step" id="s2"><div class="step-num">2</div><div class="step-label">Situation & Revenus</div></div>
+    <div class="step-sep" id="sep2"></div>
+    <div class="step" id="s3"><div class="step-num">3</div><div class="step-label">Domicile</div></div>
+    <div class="step-sep" id="sep3"></div>
+    <div class="step" id="s4"><div class="step-num">4</div><div class="step-label">Garant</div></div>
+    <div class="step-sep" id="sep4"></div>
+    <div class="step" id="s5"><div class="step-num">5</div><div class="step-label">Récapitulatif</div></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ÉTAPE 1 — IDENTITÉ
+  ══════════════════════════════════════════════ -->
+  <div class="step-section actif" id="sec1">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">🪪</div>
+        <div><div class="ch-title">Votre identité</div><div class="ch-sub">Pièce d'identité en cours de validité obligatoire</div></div>
+      </div>
+      <div class="cb">
+        <!-- Civilité -->
+        <div class="fg" style="margin-bottom:.85rem">
+          <div class="fl">Civilité <span class="req">*</span></div>
+          <div class="fradio-group">
+            <input type="radio" name="civilite" id="c_m" value="M." class="fradio" checked>
+            <label  pour ="c_m" class="fradio-lbl">M.</label>
+            <input type="radio" name="civilite" id="c_mme" value="Mme" class="fradio">
+            <label  pour ="c_mme" class="fradio-lbl">Mme</label>
+          </div>
+        </div>
+
+        <div class="fgrid" style="margin-bottom:.85rem">
+          <div class="fg">
+            <label class="fl">Nom <span class="req">*</span></label>
+            <input class="fi" id="nom" type="text" placeholder="Dupont" autocomplete="family-name">
+          </div>
+          <div class="fg">
+            <label class="fl">Prénom <span class="req">*</span></label>
+            <input class="fi" id="prenom" type="text" placeholder="Marie" autocomplete="given-name">
+          </div>
+        </div>
+
+        <div class="fgrid" style="margin-bottom:.85rem">
+          <div class="fg">
+            <label class="fl">Date de naissance <span class="req">*</span></label>
+            <input class="fi" id="ddn" type="date" autocomplete="bday">
+          </div>
+          <div class="fg">
+            <label class="fl">Nationalité <span class="req">*</span></label>
+            <select class="fsel" id="nationalite">
+              <option value="">Sélectionner…</option>
+              <option value="fr">Française</option>
+              <option value="ue">Union Européenne / EEE</option>
+              <option value="hors-ue">Hors UE</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="fg" style="margin-bottom:.85rem">
+          <label class="fl">Type de pièce d'identité <span class="req">*</span></label>
+          <select class="fsel" id="type-piece-id" onchange="updatePieceIdLabel()">
+            <option value="">Sélectionner…</option>
+            <option value="cni">Carte nationale d'identité (CNI)</option>
+            <option value="passeport">Passeport</option>
+            <option value="titre-sejour">Titre de séjour</option>
+            <option value="permis">Permis de conduire</option>
+            <option value="carte-resident">Carte de résident</option>
+          </select>
+        </div>
+
+        <!-- Téléverser pièce d'identité -->
+        <div class="doc-list">
+          <div class="doc-item" id="doc-piece-id">
+            <div class="doc-num">1</div>
+            <div class="doc-info">
+              <div class="doc-name" id="doc-piece-id-name">Pièce d'identité</div>
+              <div class="doc-desc">Recto-verso en cours de validité — format PDF ou image</div>
+            </div>
+            <div class="doc-statut" id="doc-piece-id-statut">Non fourni</div>
+            <div class="doc-upload-btn">
+              Joindre
+              <input type="file" accepter="image/*,.pdf" onchange="markDoc('doc-piece-id','doc-piece-id-statut',this)">
+            </div>
+          </div>
+        </div>
+
+        <div id="titre-sejour-extra" style="display:none;margin-top:.75rem">
+          <div class="info-alert blue">
+            <span class="info-alert-icon">ℹ️</span>
+            <p>Pour un titre de séjour : joignez également le <strong>récépissé de première demande</strong> ou de <strong>renouvellement</strong> si votre titre est en cours de renouvellement.</p>
+          </div>
+        </div>
+
+        <div class="legal-note" style="margin-top:1rem">
+          <strong>⚖️ Décret du 5 novembre 2015</strong> — Le bailleur ne peut demander qu'une seule pièce d'identité parmi la liste autorisée. Il est interdit de demander une photo, un extrait de casier judiciaire ou une carte Vitale.
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <span></span>
+      <button class="btn bp" onclick="goStep(2)">Continuer → Situation & Revenus</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ÉTAPE 2 — SITUATION PROFESSIONNELLE & REVENUS
+  ══════════════════════════════════════════════ -->
+  <div class="step-section" id="sec2">
+
+    <!-- Loyer cible (pour ratio) -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">🏠</div>
+        <div><div class="ch-title">Logement visé</div><div class="ch-sub">Utilisé pour calculer votre ratio revenus/loyer</div></div>
+      </div>
+      <div class="cb">
+        <div class="fgrid">
+          <div class="fg">
+            <label class="fl">Loyer mensuel HC (€) <span class="req">*</span></label>
+            <input class="fi" id="loyer-cible" type="number" min="0" placeholder="900" oninput="updateRatio()">
+          </div>
+          <div class="fg">
+            <label class="fl">Charges mensuelles (€)</label>
+            <input class="fi" id="charges-cible" type="number" min="0" placeholder="80" oninput="updateRatio()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Situation pro -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">💼</div>
+        <div><div class="ch-title">Situation professionnelle</div><div class="ch-sub">Les documents demandés s'adaptent à votre statut</div></div>
+      </div>
+      <div class="cb">
+        <div class="fg" style="margin-bottom:.85rem">
+          <label class="fl">Statut professionnel <span class="req">*</span></label>
+          <select class="fsel" id="statut-pro" onchange="updateDocsPro()">
+            <option value="">Sélectionner…</option>
+            <optgroup label="Salarié">
+              <option value="cdi">Salarié CDI — secteur privé</option>
+              <option value="cdd">Salarié CDD / Intérimaire</option>
+              <option value="fonctionnaire">Fonctionnaire / Agent de la fonction publique</option>
+            </optgroup>
+            <optgroup label="Non-salarié">
+              <option value="independant">Travailleur indépendant / Micro-entrepreneur</option>
+              <option value="gerant">Gérant / Chef d'entreprise</option>
+              <option value="profession-liberale">Profession libérale</option>
+            </optgroup>
+            <optgroup label="Autres">
+              <option value="etudiant">Étudiant(e)</option>
+              <option value="retraite">Retraité(e) / Pensionné(e)</option>
+              <option value="sans-emploi">Sans emploi (ARE, RSA, AAH…)</option>
+              <option value="intermittent">Intermittent du spectacle</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div id="pro-employeur" style="display:none">
+          <div class="fgrid" style="margin-bottom:.85rem">
+            <div class="fg">
+              <label class="fl" id="lbl-employeur">Nom de l'employeur</label>
+              <input class="fi" id="employeur" type="text" placeholder="Entreprise SAS">
+            </div>
+            <div class="fg">
+              <label class="fl">Poste / Fonction</label>
+              <input class="fi" id="poste" type="text" placeholder="Développeur, Infirmier…">
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents pro dynamiques -->
+        <div id="docs-pro-list" class="doc-list"></div>
+
+        <div class="divider"></div>
+
+        <!-- Revenus -->
+        <div class="fgrid" style="margin-bottom:.85rem">
+          <div class="fg">
+            <label class="fl">Revenus nets mensuels (€) <span class="req">*</span></label>
+            <input class="fi" id="revenus" type="number" min="0" placeholder="2500" oninput="updateRatio()">
+            <div class="finput-hint">Indiquez votre revenu net avant impôt mensuel moyen</div>
+          </div>
+          <div class="fg">
+            <label class="fl">Aides au logement (APL/AL/ALS)</label>
+            <input class="fi" id="aides-logement" type="number" min="0" placeholder="0" oninput="updateRatio()">
+            <div class="finput-hint">Montant mensuel estimé — CAF simulateur</div>
+          </div>
+        </div>
+
+        <!-- Ratio box -->
+        <div id="ratio-box" style="display:none" class="ratio-box ok">
+          <div class="ratio-icon" id="ratio-icon">✅</div>
+          <div>
+            <div class="ratio-title" id="ratio-title">Dossier solide</div>
+            <div class="ratio-sub" id="ratio-sub">Vos revenus représentent X fois le loyer</div>
+          </div>
+          <div class="ratio-val" id="ratio-val">— ×</div>
+        </div>
+
+        <!-- Avis d'imposition -->
+        <div class="divider"></div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--tm);margin-bottom:.7rem">Documents fiscaux</div>
+        <div class="doc-list">
+          <div class="doc-item" id="doc-avis-1">
+            <div class="doc-num">1</div>
+            <div class="doc-info">
+              <div class="doc-name">Avis d'imposition N-1</div>
+              <div class="doc-desc">Dernier avis d'imposition sur le revenu — teleimpots.gouv.fr</div>
+            </div>
+            <div class="doc-statut" id="doc-avis-1-statut">Non fourni</div>
+            <div class="doc-upload-btn">Joindre<input type="file" accepter=".pdf,image/*" onchange="markDoc('doc-avis-1','doc-avis-1-statut',this)"></div>
+          </div>
+          <div class="doc-item" id="doc-avis-2">
+            <div class="doc-num">2</div>
+            <div class="doc-info">
+              <div class="doc-name">Avis d'imposition N-2 <span class="badge b-dim">optionnel</span></div>
+              <div class="doc-desc">Avant-dernier avis — recommandé pour renforcer le dossier</div>
+            </div>
+            <div class="doc-statut" id="doc-avis-2-statut">Non fourni</div>
+            <div class="doc-upload-btn">Joindre<input type="file" accepter=".pdf,image/*" onchange="markDoc('doc-avis-2','doc-avis-2-statut',this)"></div>
+          </div>
+        </div>
+
+        <div class="legal-note" style="margin-top:1rem">
+          <strong>⚖️ Documents autorisés</strong> — Le bailleur ne peut pas demander vos <strong>relevés de compte bancaire</strong>, un RIB ou des informations sur votre état de santé. Seuls les justificatifs de revenus listés au décret de 2015 sont autorisés.
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn bg" onclick="goStep(1)">← Retour</button>
+      <button class="btn bp" onclick="goStep(3)">Continuer → Domicile actuel</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ÉTAPE 3 — DOMICILE ACTUEL
+  ══════════════════════════════════════════════ -->
+  <div class="step-section" id="sec3">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">📍</div>
+        <div><div class="ch-title">Votre domicile actuel</div><div class="ch-sub">Justificatif de la situation de logement actuelle</div></div>
+      </div>
+      <div class="cb">
+        <div class="fg" style="margin-bottom:.85rem">
+          <label class="fl">Situation actuelle <span class="req">*</span></label>
+          <select class="fsel" id="situation-domicile" onchange="updateDocsDomicile()">
+            <option value="">Sélectionner…</option>
+            <option value="locataire">Locataire (logement actuel)</option>
+            <option value="proprietaire">Propriétaire</option>
+            <option value="heberge">Hébergé(e) à titre gratuit</option>
+            <option value="residence-u">Résidence universitaire / CROUS</option>
+            <option value="mobilite">Mobilité professionnelle / Logement de fonction</option>
+          </select>
+        </div>
+
+        <div id="docs-domicile-list" class="doc-list"></div>
+
+        <div id="heberge-extra" style="display:none;margin-top:.75rem">
+          <div class="info-alert blue">
+            <span class="info-alert-icon">ℹ️</span>
+            <p>Si vous êtes hébergé(e), joignez l'attestation sur l'honneur + la pièce d'identité + un justificatif de domicile de la personne qui vous héberge.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn bg" onclick="goStep(2)">← Retour</button>
+      <button class="btn bp" onclick="goStep(4)">Continuer → Garant</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ÉTAPE 4 — GARANT
+  ══════════════════════════════════════════════ -->
+  <div class="step-section" id="sec4">
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">🛡️</div>
+        <div><div class="ch-title">Garantie</div><div class="ch-sub">Caution solidaire, Visale ou sans garant</div></div>
+      </div>
+      <div class="cb">
+        <div class="fl" style="margin-bottom:.6rem">Type de garantie <span class="req">*</span></div>
+        <div class="garant-cards">
+          <div class="garant-card" id="gc-physique" onclick="selectGarant('physique')">
+            <div class="garant-card-ico">👥</div>
+            <div class="garant-card-title">Caution solidaire</div>
+            <div class="garant-card-desc">Une personne physique (parent, tiers) se porte garant</div>
+          </div>
+          <div class="garant-card" id="gc-visale" onclick="selectGarant('visale')">
+            <div class="garant-card-ico">🏛️</div>
+            <div class="garant-card-title">Visale</div>
+            <div class="garant-card-desc">Garantie gratuite Action Logement — accepterée largement</div>
+          </div>
+          <div class="garant-card" id="gc-sans" onclick="selectGarant('sans')">
+            <div class="garant-card-ico">🚫</div>
+            <div class="garant-card-title">Sans garant</div>
+            <div class="garant-card-desc">Revenus suffisants, pas de garant tiers nécessaire</div>
+          </div>
+        </div>
+
+        <!-- Section caution physique -->
+        <div id="garant-physique-section" style="display:none;margin-top:1.25rem">
+          <div class="divider"></div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--deep);margin-bottom:1rem">Informations sur le garant</div>
+
+          <div class="fgrid" style="margin-bottom:.85rem">
+            <div class="fg">
+              <label class="fl">Nom <span class="req">*</span></label>
+              <input class="fi" id="g-nom" type="text" placeholder="Nom du garant">
+            </div>
+            <div class="fg">
+              <label class="fl">Prénom <span class="req">*</span></label>
+              <input class="fi" id="g-prenom" type="text" placeholder="Prénom du garant">
+            </div>
+          </div>
+          <div class="fgrid" style="margin-bottom:.85rem">
+            <div class="fg">
+              <label class="fl">Revenus nets mensuels (€)</label>
+              <input class="fi" id="g-revenus" type="number" placeholder="3500" oninput="updateRatioGarant()">
+            </div>
+            <div class="fg">
+              <label class="fl">Lien de parenté</label>
+              <select class="fsel" id="g-lien">
+                <option value="parent">Parent</option>
+                <option value="conjoint">Conjoint(e) / Partenaire</option>
+                <option value="ami">Ami(e)</option>
+                <option value="employeur">Employeur</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ratio-garant-box" style="display:none;margin-bottom:1rem" class="ratio-box ok">
+            <div class="ratio-icon">🛡️</div>
+            <div>
+              <div class="ratio-title" id="g-ratio-title">Garant solide</div>
+              <div class="ratio-sub" id="g-ratio-sub">Les revenus du garant sont suffisants</div>
+            </div>
+            <div class="ratio-val" id="g-ratio-val">— ×</div>
+          </div>
+
+          <div style="font-size:.8rem;font-weight:600;color:var(--tm);margin-bottom:.7rem">Documents du garant (même liste qu'un locataire)</div>
+          <div class="doc-list">
+            <div class="doc-item" id="doc-g-id">
+              <div class="doc-num">1</div>
+              <div class="doc-info"><div class="doc-name">Pièce d'identité du garant</div><div class="doc-desc">CNI ou passeport en cours de validité</div></div>
+              <div class="doc-statut" id="doc-g-id-statut">Non fourni</div>
+              <div class="doc-upload-btn">Joindre<input type="file" accepter="image/*,.pdf" onchange="markDoc('doc-g-id','doc-g-id-statut',this)"></div>
+            </div>
+            <div class="doc-item" id="doc-g-revenu">
+              <div class="doc-num">2</div>
+              <div class="doc-info"><div class="doc-name">3 derniers bulletins de salaire</div><div class="doc-desc">Ou justificatifs de revenus équivalents selon statut</div></div>
+              <div class="doc-statut" id="doc-g-revenu-statut">Non fourni</div>
+              <div class="doc-upload-btn">Joindre<input type="file" accepter="image/*,.pdf" onchange="markDoc('doc-g-revenu','doc-g-revenu-statut',this)"></div>
+            </div>
+            <div class="doc-item" id="doc-g-avis">
+              <div class="doc-num">3</div>
+              <div class="doc-info"><div class="doc-name">Avis d'imposition du garant</div><div class="doc-desc">Dernier avis d'imposition N-1</div></div>
+              <div class="doc-statut" id="doc-g-avis-statut">Non fourni</div>
+              <div class="doc-upload-btn">Joindre<input type="file" accepter=".pdf,image/*" onchange="markDoc('doc-g-avis','doc-g-avis-statut',this)"></div>
+            </div>
+            <div class="doc-item" id="doc-g-domicile">
+              <div class="doc-num">4</div>
+              <div class="doc-info"><div class="doc-name">Justificatif de domicile du garant</div><div class="doc-desc">Quittance de loyer ou taxe foncière</div></div>
+              <div class="doc-statut" id="doc-g-domicile-statut">Non fourni</div>
+              <div class="doc-upload-btn">Joindre<input type="file" accepter=".pdf,image/*" onchange="markDoc('doc-g-domicile','doc-g-domicile-statut',this)"></div>
+            </div>
+          </div>
+
+          <div class="info-alert orange" style="margin-top:1rem">
+            <span class="info-alert-icon">⚠️</span>
+            <p>L'acte de cautionnement doit respecter les mentions obligatoires de l'article 22-1 de la loi du 6 juillet 1989. Il sera généré automatiquement à la signature du bail.</p>
+          </div>
+        </div>
+
+        <!-- Section Visale -->
+        <div id="garant-visale-section" style="display:none;margin-top:1.25rem">
+          <div class="divider"></div>
+          <div class="visale-box">
+            <div class="visale-title">🏛️ Comment obtenir votre Visa Visale</div>
+            <p style="font-size:.8rem;color:var(--tm);line-height:1.5">Visale est une garantie <strong>gratuite</strong> proposée par Action Logement. Elle remplace la caution solidaire et couvre les loyers impayés.</p>
+            <div class="visale-steps">
+              <div class="visale-step"><div class="visale-step-num">1</div><span>Rendez-vous sur <strong>visale.fr</strong> et créez votre compte</span></div>
+              <div class="visale-step"><div class="visale-step-num">2</div><span>Vérifiez votre éligibilité (moins de 30 ans, ou mobilité pro, ou autre critère)</span></div>
+              <div class="visale-step"><div class="visale-step-num">3</div><span>Obtenez votre <strong>numéro de visa Visale</strong> (format XXXX-XXXXXXXX)</span></div>
+              <div class="visale-step"><div class="visale-step-num">4</div><span>Renseignez ce numéro ci-dessous et transmettez-le au bailleur</span></div>
+            </div>
+          </div>
+          <div class="fg" style="margin-top:1rem">
+            <label class="fl">Numéro de visa Visale <span class="req">*</span></label>
+            <input class="fi" id="visale-num" type="text" placeholder="XXXX-XXXXXXXX" style="font-family:monospace;letter-spacing:.05em">
+            <div class="finput-hint">Retrouvez ce numéro dans votre espace Visale après validation de votre demande</div>
+          </div>
+          <div class="fg" style="margin-top:.75rem">
+            <label class="fl">Date d'expiration du visa</label>
+            <input class="fi" id="visale-exp" type="date">
+          </div>
+        </div>
+
+        <!-- Section sans garant -->
+        <div id="garant-sans-section" style="display:none;margin-top:1.25rem">
+          <div class="divider"></div>
+          <div class="info-alert green">
+            <span class="info-alert-icon">✅</span>
+            <p>Vous avez sélectionné <strong>sans garant</strong>. Assurez-vous que votre ratio revenus/loyer est suffisant (≥ 3×). Un dossier solide compense l'absence de garant.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn bg" onclick="goStep(3)">← Retour</button>
+      <button class="btn bp" onclick="goStep(5)">Continuer → Récapitulatif</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ÉTAPE 5 — RÉCAPITULATIF & ENVOI
+  ══════════════════════════════════════════════ -->
+  <div class="step-section" id="sec5">
+
+    <!-- Score dossier -->
+    <div class="card" id="score-card">
+      <div class="ch">
+        <div class="ch-ico">📊</div>
+        <div><div class="ch-title">Score de votre dossier</div><div class="ch-sub">Évaluation automatique avant envoi</div></div>
+      </div>
+      <div class="cb">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+          <span style="font-size:.83rem;font-weight:600;color:var(--tm)">Complétude</span>
+          <span style="font-size:.83rem;font-weight:700" id="score-pct">—</span>
+        </div>
+        <div class="score-bar"><div class="score-fill score-100" id="score-fill" style="width:0%"></div></div>
+        <div id="score-items" style="margin-top:.75rem;display:flex;flex-direction:column;gap:.3rem"></div>
+      </div>
+    </div>
+
+    <!-- Récap identité -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">🪪</div>
+        <div><div class="ch-title">Identité</div></div>
+        <button class="btn bg" style="margin-left:auto;padding:.3rem .8rem;font-size:.75rem" onclick="goStep(1)">Modifier</button>
+      </div>
+      <div class="cb">
+        <div class="recap-section">
+          <div class="recap-row"><span class="recap-key">Nom complet</span><span class="recap-val" id="r-nom">—</span></div>
+          <div class="recap-row"><span class="recap-key">Date de naissance</span><span class="recap-val" id="r-ddn">—</span></div>
+          <div class="recap-row"><span class="recap-key">Nationalité</span><span class="recap-val" id="r-nat">—</span></div>
+          <div class="recap-row"><span class="recap-key">Pièce d'identité</span><span class="recap-val" id="r-pid">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Récap situation & revenus -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">💼</div>
+        <div><div class="ch-title">Situation & Revenus</div></div>
+        <button class="btn bg" style="margin-left:auto;padding:.3rem .8rem;font-size:.75rem" onclick="goStep(2)">Modifier</button>
+      </div>
+      <div class="cb">
+        <div class="recap-section">
+          <div class="recap-row"><span class="recap-key">Statut</span><span class="recap-val" id="r-statut">—</span></div>
+          <div class="recap-row"><span class="recap-key">Revenus nets mensuels</span><span class="recap-val" id="r-revenus">—</span></div>
+          <div class="recap-row"><span class="recap-key">Aides logement</span><span class="recap-val" id="r-aides">—</span></div>
+          <div class="recap-row"><span class="recap-key">Ratio revenus/loyer</span><span class="recap-val" id="r-ratio">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Récap garant -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">🛡️</div>
+        <div><div class="ch-title">Garantie</div></div>
+        <button class="btn bg" style="margin-left:auto;padding:.3rem .8rem;font-size:.75rem" onclick="goStep(4)">Modifier</button>
+      </div>
+      <div class="cb">
+        <div id="r-garant">—</div>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <div class="card">
+      <div class="ch">
+        <div class="ch-ico">✉️</div>
+        <div><div class="ch-title">Message au propriétaire</div><div class="ch-sub">Optionnel — présentez-vous brièvement</div></div>
+      </div>
+      <div class="cb">
+        <textarea class="fi" id="message-prop" rows="4" placeholder="Bonjour, je suis [prénom], [situation]. Je cherche à louer ce logement pour [raison]. Mon dossier est complet…" style="resize:vertical;height:100px"></textarea>
+        <div class="finput-hint">Max. 500 caractères — visible par le propriétaire ou l'agence</div>
+      </div>
+    </div>
+
+    <!-- RGPD -->
+    <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;background:var(--s);border:1px solid var(--b);border-radius:12px;margin-bottom:1rem">
+      <input type="checkbox" id="rgpd" style="margin-top:.2rem;accent-color:var(--bleu);width:16px;height:16px;flex-shrink:0;cursor:pointer">
+      <label  pour ="rgpd" style="font-size:.8rem;color:var(--tm);cursor:pointer;line-height:1.5">
+        J'accepte que mes données personnelles soient transmises au propriétaire ou à l'agence concernée dans le cadre de ma demande de location. Mes données seront conservées 3 mois maximum si ma candidature n'est pas retenue. Conformément au RGPD, je peux exercer mes droits à tout moment.
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn bg" onclick="goStep(4)">← Retour</button>
+      <button class="btn bp" id="btn-envoyer" onclick="envoyerDossier()" style="padding:.7rem 1.8rem;font-size:.9rem">
+        📤 Envoyer mon dossier
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Overlay succès ── -->
+<div id="overlay">
+  <div class="modal">
+    <div style="font-size:3rem;margin-bottom:.75rem">🎉</div>
+    <h2>Dossier envoyé !</h2>
+    <p>Votre dossier a été transmis au propriétaire. Vous recevrez une réponse par email sous 48h. Vous pouvez suivre l'avancement depuis votre espace.</p>
+    <button class="btn bp" onclick="document.getElementById('overlay').classList.remove('show');window.location.href='./locataire-tableau de bord.html'" style="margin-right:.5rem">Mon espace</button>
+    <button class="btn bg" onclick="document.getElementById('overlay').classList.remove('show')">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── State ── */
+let currentStep = 1;
+let uploadedDocs = {};
+let selectedGarant = null;
+
+const STATUT_LABELS = {
+  cdi:'Salarié CDI',cdd:'Salarié CDD / Intérimaire',fonctionnaire:'Fonctionnaire',
+  independant:'Indépendant / Micro-entrepreneur',gerant:'Gérant / Chef d\'entreprise',
+  'profession-liberale':'Profession libérale',etudiant:'Étudiant(e)',
+  retraite:'Retraité(e)',  'sans-emploi':'Sans emploi','intermittent':'Intermittent du spectacle'
+};
+const NAT_LABELS = {fr:'Française',ue:'UE / EEE','hors-ue':'Hors UE'};
+const PIECE_LABELS = {cni:'CNI',passeport:'Passeport','titre-sejour':'Titre de séjour',permis:'Permis de conduire','carte-resident':'Carte de résident'};
+
+/* ── Navigation ── */
+function goStep(n){
+  document.getElementById('sec'+currentStep).classList.remove('actif');
+  currentStep = n;
+  document.getElementById('sec'+n).classList.add('actif');
+  updateStepsBar();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===5) buildRecap();
+}
+
+function updateStepsBar(){
+   pour (let i=1;i<=5;i++){
+    const el = document.getElementById('s'+i);
+    const sep = document.getElementById('sep'+i);
+    el.classList.remove('actif','done');
+    if(sep) sep.classList.remove('done');
+    if(i < currentStep){ el.classList.add('done'); if(sep) sep.classList.add('done'); }
+    else if(i === currentStep){ el.classList.add('actif'); }
+  }
+}
+
+/* ── Theme ── */
+function toggleTheme(){
+  document.documentElement.classList.toggle('dark');
+  const t = document.documentElement.classList.contains('dark')?'dark':'light';
+  try{localStorage.setItem('rm_theme',t);}catch(e){}
+}
+
+/* ── Piece id label ── */
+function updatePieceIdLabel(){
+  const v = document.getElementById('type-piece-id').value;
+  document.getElementById('doc-piece-id-name').textContent = PIECE_LABELS[v]||'Pièce d\'identité';
+  document.getElementById('titre-sejour-extra').style.display = v==='titre-sejour'?'block':'none';
+}
+
+/* ── Mark doc as uploaded ── */
+function markDoc(itemId, statusId, input){
+  if(!input.files||!input.files.length) return;
+  const fname = input.files[0].name;
+  document.getElementById(statusId).textContent = '✓ Fourni';
+  document.getElementById(itemId).classList.add('uploaded');
+  uploadedDocs[itemId] = fname;
+  toast('Document « '+fname+' » ajouté ✓');
+}
+
+/* ── Docs pro dynamiques ── */
+const DOCS_PRO = {
+  cdi:[
+    {id:'doc-p1',n:'Bulletin de salaire M-1',d:'Dernier bulletin (mois précédent)'},
+    {id:'doc-p2',n:'Bulletin de salaire M-2',d:'Il y a 2 mois'},
+    {id:'doc-p3',n:'Bulletin de salaire M-3',d:'Il y a 3 mois'},
+    {id:'doc-p4',n:'Contrat de travail CDI',d:'Pages signées — ou attestation employeur'},
+  ],
+  cdd:[
+    {id:'doc-p1',n:'Bulletin de salaire M-1',d:'Dernier bulletin'},
+    {id:'doc-p2',n:'Bulletin de salaire M-2',d:'Il y a 2 mois'},
+    {id:'doc-p3',n:'Bulletin de salaire M-3',d:'Il y a 3 mois'},
+    {id:'doc-p4',n:'Contrat de travail CDD',d:'Contrat en cours + renouvellements éventuels'},
+  ],
+  fonctionnaire:[
+    {id:'doc-p1',n:'Bulletins de salaire (x3)',d:'3 derniers mois'},
+    {id:'doc-p2',n:'Arrêté de nomination ou contrat',d:'Preuve d\'emploi fonctionnaire'},
+  ],
+  independant:[
+    {id:'doc-p1',n:'Bilan comptable N-1',d:'Dernier bilan ou liasse fiscale'},
+    {id:'doc-p2',n:'Bilan comptable N-2',d:'Avant-dernier bilan'},
+    {id:'doc-p3',n:'Extrait Kbis ou SIREN',d:'Moins de 3 mois — infogreffe.fr ou sirene.fr'},
+  ],
+  gerant:[
+    {id:'doc-p1',n:'Bilan comptable N-1',d:'Bilan ou compte de résultat'},
+    {id:'doc-p2',n:'Extrait Kbis',d:'Moins de 3 mois — infogreffe.fr'},
+    {id:'doc-p3',n:'3 derniers bulletins',d:'Si rémunération en salaire'},
+  ],
+  'profession-liberale':[
+    {id:'doc-p1',n:'Bilan / Compte de résultat',d:'N-1 et N-2 si possible'},
+    {id:'doc-p2',n:'Attestation URSSAF / CARPIMKO…',d:'Preuve d\'exercice de la profession'},
+  ],
+  etudiant:[
+    {id:'doc-p1',n:'Carte d\'étudiant',d:'En cours de validité'},
+    {id:'doc-p2',n:'Attestation de bourse',d:'Si boursier CROUS — montant mensuel'},
+    {id:'doc-p3',n:'Certificat de scolarité',d:'Pour l\'année académique en cours'},
+  ],
+  retraite:[
+    {id:'doc-p1',n:'Attestation de pension de retraite',d:'Ou titre de pension — organisme payeur'},
+    {id:'doc-p2',n:'3 derniers bulletins de pension',d:'Ou relevés de paiement'},
+  ],
+  'sans-emploi':[
+    {id:'doc-p1',n:'Attestation Pôle Emploi / France Travail',d:'Attestation d\'ouverture de droits ARE'},
+    {id:'doc-p2',n:'Justificatif de versement RSA / AAH',d:'Si applicable — notification CAF'},
+  ],
+  intermittent:[
+    {id:'doc-p1',n:'Attestation Pôle Emploi',d:'Attestation d\'ouverture de droits'},
+    {id:'doc-p2',n:'Contrats de travail récents',d:'3 derniers contrats'},
+    {id:'doc-p3',n:'3 derniers bulletins de salaire',d:''},
+  ],
+};
+
+function updateDocsPro(){
+  const v = document.getElementById('statut-pro').value;
+  const emp = ['cdi','cdd','fonctionnaire','gerant'].includes(v);
+  document.getElementById('pro-employeur').style.display = emp?'block':'none';
+  if(v==='independant'||v==='gerant'||v==='profession-liberale')
+    document.getElementById('lbl-employeur').textContent = 'Raison sociale / Entreprise';
+  else document.getElementById('lbl-employeur').textContent = 'Nom de l\'employeur';
+  renderDocList('docs-pro-list', DOCS_PRO[v]||[]);
+}
+
+const DOCS_DOMICILE = {
+  locataire:[
+    {id:'doc-d1',n:'Quittance de loyer M-1',d:'Dernier mois'},
+    {id:'doc-d2',n:'Quittance de loyer M-2',d:'Il y a 2 mois'},
+    {id:'doc-d3',n:'Quittance de loyer M-3',d:'Il y a 3 mois'},
+  ],
+  proprietaire:[
+    {id:'doc-d1',n:'Taxe foncière',d:'Dernier avis de taxe foncière'},
+  ],
+  heberge:[
+    {id:'doc-d1',n:'Attestation d\'hébergement',d:'Signée par la personne qui vous héberge'},
+    {id:'doc-d2',n:'Pièce d\'identité de l\'hébergeant',d:'CNI ou passeport en cours de validité'},
+    {id:'doc-d3',n:'Justificatif de domicile de l\'hébergeant',d:'Quittance, facture EDF, taxe foncière'},
+  ],
+  'residence-u':[
+    {id:'doc-d1',n:'Attestation de résidence CROUS',d:'Ou quittance CROUS'},
+  ],
+  mobilite:[
+    {id:'doc-d1',n:'Attestation employeur',d:'Précisant logement de fonction ou mobilité'},
+  ],
+};
+
+function updateDocsDomicile(){
+  const v = document.getElementById('situation-domicile').value;
+  document.getElementById('heberge-extra').style.display = v==='heberge'?'block':'none';
+  renderDocList('docs-domicile-list', DOCS_DOMICILE[v]||[]);
+}
+
+function renderDocList(containerId, docs){
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  docs.forEach((doc,i)=>{
+    c.innerHTML += `<div class="doc-item" id="${doc.id}">
+      <div class="doc-num">${i+1}</div>
+      <div class="doc-info">
+        <div class="doc-name">${doc.n}</div>
+        <div class="doc-desc">${doc.d}</div>
+      </div>
+      <div class="doc-statut" id="${doc.id}-statut">Non fourni</div>
+      <div class="doc-upload-btn">Joindre<input type="file" accepter="image/*,.pdf" onchange="markDoc('${doc.id}','${doc.id}-statut',this)"></div>
+    </div>`;
+  });
+}
+
+/* ── Ratio ── */
+function updateRatio(){
+  const loyer = parseFloat(document.getElementById('loyer-cible').value)||0;
+  const rev   = parseFloat(document.getElementById('revenus').value)||0;
+  const aides = parseFloat(document.getElementById('aides-logement').value)||0;
+  if(!loyer||!rev){ document.getElementById('ratio-box').style.display='none'; return; }
+  const total = rev + aides;
+  const ratio = total / loyer;
+  const box = document.getElementById('ratio-box');
+  box.style.display = 'flex';
+  box.classNom = 'ratio-box '+(ratio>=3?'ok':ratio>=2?'warn':'nok');
+  document.getElementById('ratio-val').textContent = ratio.toFixed(1)+' ×';
+  document.getElementById('ratio-icon').textContent = ratio>=3?'✅':ratio>=2?'⚠️':'❌';
+  document.getElementById('ratio-title').textContent = ratio>=3?'Dossier solide':ratio>=2?'Dossier limite':'Revenus insuffisants';
+  document.getElementById('ratio-sub').textContent = `Revenus + aides = ${total.toLocaleString('fr-FR')} €/mois — Le standard est 3× le loyer`;
+}
+
+function updateRatioGarant(){
+  const loyer = parseFloat(document.getElementById('loyer-cible').value)||0;
+  const rev   = parseFloat(document.getElementById('g-revenus').value)||0;
+  if(!rev){ document.getElementById('ratio-garant-box').style.display='none'; return; }
+  const ratio = rev / (loyer||1);
+  const box = document.getElementById('ratio-garant-box');
+  box.style.display = 'flex';
+  box.classNom = 'ratio-box '+(ratio>=3?'ok':ratio>=2?'warn':'nok');
+  document.getElementById('g-ratio-val').textContent = ratio.toFixed(1)+' ×';
+  document.getElementById('g-ratio-title').textContent = ratio>=3?'Garant solide':ratio>=2?'Garant limite':'Revenus insuffisants';
+  document.getElementById('g-ratio-sub').textContent = `Revenus garant = ${rev.toLocaleString('fr-FR')} €/mois`;
+}
+
+/* ── Garant selection ── */
+function selectGarant(type){
+  selectedGarant = type;
+  ['physique','visale','sans'].forEach(t=>{
+    document.getElementById('gc-'+t).classList.toggle('selected',t===type);
+    document.getElementById('garant-'+t+'-section').style.display = t===type?'block':'none';
+  });
+}
+
+/* ── Récapitulatif ── */
+function buildRecap(){
+  const nom = document.getElementById('nom').value;
+  const prenom = document.getElementById('prenom').value;
+  const ddn = document.getElementById('ddn').value;
+  const nat = document.getElementById('nationalite').value;
+  const pid = document.getElementById('type-piece-id').value;
+  const statut = document.getElementById('statut-pro').value;
+  const rev = document.getElementById('revenus').value;
+  const aides = document.getElementById('aides-logement').value;
+  const loyer = document.getElementById('loyer-cible').value;
+
+  document.getElementById('r-nom').textContent = [nom,prenom].filter(Boolean).join(' ')||'—';
+  document.getElementById('r-ddn').textContent = ddn ? new Date(ddn).toLocaleDateString('fr-FR') : '—';
+  document.getElementById('r-nat').textContent = NAT_LABELS[nat]||'—';
+  document.getElementById('r-pid').textContent = (PIECE_LABELS[pid]||'—')+(uploadedDocs['doc-piece-id']?' ✓':' ⚠ Non fourni');
+  document.getElementById('r-statut').textContent = STATUT_LABELS[statut]||'—';
+  document.getElementById('r-revenus').textContent = rev ? parseInt(rev).toLocaleString('fr-FR')+' €/mois' : '—';
+  document.getElementById('r-aides').textContent = aides&&aides!='0' ? parseInt(aides).toLocaleString('fr-FR')+' €/mois' : 'Aucune';
+
+  if(rev&&loyer){
+    const total = parseFloat(rev)+(parseFloat(aides)||0);
+    const ratio = total/parseFloat(loyer);
+    document.getElementById('r-ratio').innerHTML = `<span style="color:${ratio>=3?'var(--green)':ratio>=2?'var(--gold)':'var(--red)'};font-weight:700">${ratio.toFixed(1)}×</span> <span style="font-size:.78rem;color:var(--td)">(${ratio>=3?'Excellent':ratio>=2?'Limite':'Insuffisant'})</span>`;
+  } else document.getElementById('r-ratio').textContent = '—';
+
+  // Garant
+  const gr = document.getElementById('r-garant');
+  if(!selectedGarant) gr.innerHTML = '<span style="color:var(--td);font-size:.83rem">Non renseigné</span>';
+  else if(selectedGarant==='physique'){
+    const gn = document.getElementById('g-nom').value;
+    const gp = document.getElementById('g-prenom').value;
+    gr.innerHTML = `<div style="font-size:.83rem"><strong>Caution solidaire</strong> — ${[gn,gp].filter(Boolean).join(' ')||'Garant'}</div>`;
+  } else if(selectedGarant==='visale'){
+    const vn = document.getElementById('visale-num').value;
+    gr.innerHTML = `<div style="font-size:.83rem"><strong>Visale</strong>${vn?' — Visa '+vn:' — Numéro non renseigné'}</div>`;
+  } else gr.innerHTML = '<div style="font-size:.83rem"><strong>Sans garant</strong></div>';
+
+  // Score
+  buildScore(nom,prenom,pid,statut,rev,loyer,nat);
+}
+
+function buildScore(nom,prenom,pid,statut,rev,loyer,nat){
+  const checks = [
+    {lbl:'Identité renseignée', ok: !!(nom&&prenom&&nat)},
+    {lbl:'Pièce d\'identité jointe', ok: !!uploadedDocs['doc-piece-id']},
+    {lbl:'Situation professionnelle', ok: !!statut},
+    {lbl:'Revenus renseignés', ok: !!rev},
+    {lbl:'Avis d\'imposition fourni', ok: !!uploadedDocs['doc-avis-1']},
+    {lbl:'Ratio 3× loyer atteint', ok: loyer&&rev && (parseFloat(rev)/parseFloat(loyer))>=3},
+    {lbl:'Garant renseigné', ok: !!selectedGarant},
+  ];
+  const done = checks.filter(c=>c.ok).length;
+  const pct = Math.round(done/checks.length*100);
+  document.getElementById('score-pct').textContent = pct+'%';
+  const fill = document.getElementById('score-fill');
+  fill.style.width = pct+'%';
+  fill.classNom = 'score-fill '+(pct>=80?'score-100':pct>=50?'score-66':'score-33');
+  const items = document.getElementById('score-items');
+  items.innerHTML = checks.map(c=>`<div style="display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:${c.ok?'var(--green)':'var(--red)'}">
+    <span>${c.ok?'✓':'✗'}</span><span style="color:var(--tm)">${c.lbl}</span>
+  </div>`).join('');
+}
+
+/* ── Envoi ── */
+function envoyerDossier(){
+  const rgpd = document.getElementById('rgpd').checked;
+  if(!rgpd){ toast('⚠️ Veuillez accepter la politique de confidentialité'); return; }
+  const nom = document.getElementById('nom').value;
+  const prenom = document.getElementById('prenom').value;
+  if(!nom||!prenom){ toast('⚠️ Renseignez votre nom et prénom (étape 1)'); return; }
+  // → Ici : appel Supabase insert + upload fichiers vers storage
+  document.getElementById('overlay').classList.add('show');
+}
+
+/* ── Toast ── */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
