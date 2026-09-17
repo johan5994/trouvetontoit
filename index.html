@@ -1026,7 +1026,7 @@ async function submitEstimationRequest(agencyId){
   const requestType=document.getElementById('est-req-type')?.value||'location';
   const notes=document.getElementById('est-req-notes')?.value.trim()||'';
   try{
-    const{erreur}=await sb.from('estimation_requests').insert({
+    const{error}=await sb.from('estimation_requests').insert({
       landlord_id:U.id,
       propriétaire_name:P?.full_name||'Propriétaire',
       propriétaire_email:U.email,
@@ -1035,7 +1035,7 @@ async function submitEstimationRequest(agencyId){
       address,notes,
       statut:'en attente'
     });
-    if(erreur){console.erreur('[estimation_requests] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+    if(error){console.error('[estimation_requests] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
     document.getElementById('est-req-modal')?.remove();
     toast('<i data-lucide=check-circle-2 class=ic></i> Estimation request sent!');
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
@@ -1046,11 +1046,11 @@ async function contactAgence(agencyId,agencyNom){
   const msg=prompt(`Envoyer a message to ${agencyNom}:`,`Hi, I'd like to discuss managing my bien avec votre agence.`);
   if(!msg)return;
   try{
-    const{erreur}=await sb.from('messages').insert({
+    const{error}=await sb.from('messages').insert({
       sender_id:U.id,receiver_id:agencyId,
       content:msg,type:'propriétaire_to_agency'
     });
-    if(erreur){console.erreur('[contactAgence] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+    if(error){console.error('[contactAgence] insert failed:',erreur);toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
     toast('<i data-lucide=check-circle-2 class=ic></i> Message sent! The agence will get back to you.');
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
@@ -1159,14 +1159,14 @@ async function setRoleAndContinue(role) {
 
     if(existing) {
       // Profil existe → update le rôle
-      const {data:updated, erreur} = await sb.from('profiles').update({role, full_name, email}).eq('clerk_id', U.id).select().single();
-      if(erreur) throw new Erreur(erreur.message);
+      const {data:updated, error} = await sb.from('profiles').update({role, full_name, email}).eq('clerk_id', U.id).select().single();
+      if(error) throw new Error(error.message);
       data = updated;
     } else {
       // Pas de profil → insert avec id généré
       const newId = crypto.randomUUID();
-      const {data:inserted, erreur} = await sb.from('profiles').insert({id: newId, clerk_id: U.id, full_name, email, role}).select().single();
-      if(erreur) throw new Erreur(erreur.message);
+      const {data:inserted, error} = await sb.from('profiles').insert({id: newId, clerk_id: U.id, full_name, email, role}).select().single();
+      if(error) throw new Error(error.message);
       data = inserted;
     }
 
@@ -1195,7 +1195,7 @@ async function setRoleAndContinue(role) {
     else { loadL(); updC(); go('home'); }
 
   } catch(e) {
-    console.erreur('setRoleAndContinue erreur:', e);
+    console.error('setRoleAndContinue erreur:', e);
     toast('<i data-lucide=x-circle class=ic></i> ' + e.message);
   }
 }
@@ -1206,7 +1206,7 @@ function updN(){
   const na=document.getElementById('na'),np=document.getElementById('np'),nd=document.getElementById('nd');
   if(U&&P){
     const n=P.full_name?.split(' ')[0]||'?';
-    const avatar=`<div style="width:32px;height:32px;border-radius:50%;background:var(--terra);color:white;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer" onclick="goToDash()">${n[0].toUpperCase()}</div>`;
+    const avatar=`<div style="width:32px;height:32px;border-radius:50%;background:var(--bleu);color:white;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer" onclick="goToDash()">${n[0].toUpperCase()}</div>`;
     na.innerHTML=avatar+`<span style="font-size:.82rem;color:var(--stone);font-weight:500;cursor:pointer" onclick="goToDash()">${n}</span><button class="btn btn-p btn-sm" onclick="goToDash()"><i data-lucide=bar-chart-3 class=ic></i> Tableau de bord</button><button class="btn btn-s btn-sm" onclick="doLogout()">Se déconnecter</button>`;
     np.style.display=P.role==='bailleur'?'inline':'none';
     nd.style.display='inline';
@@ -1379,11 +1379,11 @@ async function openDet(id){
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({listingId:id})
       }).then(r=>r.json()).then(d=>{
-        if(d.erreur)console.erreur('[views] server-side tracking failed:',d.erreur);
+        if(d.erreur)console.error('[views] server-side tracking failed:',d.erreur);
         else console.log('[views] tracked, new total:',d.views);
-      }).catch(e=>console.erreur('[views] fetch failed:',e.message));
+      }).catch(e=>console.error('[views] fetch failed:',e.message));
     }
-  }catch(e){console.erreur('[views] outer erreur:',e.message);}
+  }catch(e){console.error('[views] outer erreur:',e.message);}
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️'},bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)'};
   // Photos carousel
   const photos=l.photos&&l.photos.length>0?l.photos:[];
@@ -1706,13 +1706,13 @@ async function sendMsg(){
     c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireEmails.join(', ')}`;
   }
 
-  const{erreur}=await sb.from('messages').insert({
+  const{error}=await sb.from('messages').insert({
     listing_id:AL.id,
     sender_id:U.id,
     receiver_id:AL.propriétaire_id,
     content:filterContactData(c) // masquer numéros/emails
   });
-  if(erreur){toast('Erreur: '+erreur.message);return;}
+  if(error){toast('Erreur: '+erreur.message);return;}
   toast('<i data-lucide=check-circle-2 class=ic></i> Message sent!');
   document.getElementById('dmsg').value='';
   const vBtn=document.getElementById('visite-req-btn'),vHint=document.getElementById('visite-req-hint');
@@ -2009,7 +2009,7 @@ async function confirmSaleActivation(listingId,listingTitle){
       body:JSON.stringify({listing_id:listingId,propriétaire_email:email,listing_title:listingTitle})
     });
     const data=await res.json();
-    if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+    if(!data.success)throw new Error(data.erreur||'Could not start subscription');
     window.location.href=data.checkout_url;
   }catch(e){
     toast('<i data-lucide=x-circle class=ic></i> '+e.message);
@@ -2022,9 +2022,9 @@ async function uploadPhotos(listingId) {
   for (const file of uploadedPhotos) {
     const ext = file.name.split('.').pop();
     const path = `${listingId}/${Date.now()}.${ext}`;
-    const { erreur } = await sb.storage. depuis ('annonces').upload(path, file, { cacheControl: '3600', upsert: false });
+    const { erreur } = await sb.storage.from('annonces').upload(path, file, { cacheControl: '3600', upsert: false });
     if (!erreur) {
-      const { data } = sb.storage. depuis ('annonces').getPublicUrl(path);
+      const { data } = sb.storage.from('annonces').getPublicUrl(path);
       urls.push(data.publicUrl);
     }
   }
@@ -2102,8 +2102,8 @@ async function doPost(){
     locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant'
   };
 
-  const{data:annonce,erreur}=await sb.from('listings').insert(fields).select().single();
-  if(erreur){sA(err,erreur.message);ok.style.display='none';return;}
+  const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
+  if(error){sA(err,erreur.message);ok.style.display='none';return;}
   // Enregistrer extra amenities
   const extraData = {
     ac: document.getElementById('pac')?.checked||false,
@@ -2137,7 +2137,7 @@ async function doPost(){
         body:JSON.stringify({listing_id:annonce.id,propriétaire_email:U.email,listing_title:annonce.title})
       });
       const data=await res.json();
-      if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+      if(!data.success)throw new Error(data.erreur||'Could not start subscription');
       window.location.href=data.checkout_url;
     }catch(e){
       sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
@@ -2153,7 +2153,7 @@ async function doPost(){
         body:JSON.stringify({listing_id:annonce.id,payer_email:U.email,listing_title:annonce.title})
       });
       const data=await res.json();
-      if(!data.success)throw new Erreur(data.erreur||'Could not start paiement');
+      if(!data.success)throw new Error(data.erreur||'Could not start paiement');
       window.location.href=data.checkout_url;
     }catch(e){
       sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
@@ -2226,7 +2226,7 @@ async function startBoostPaiement(listingId,listingTitle,listingType){
       body:JSON.stringify({listing_id:listingId,listing_title:listingTitle,listing_type:listingType,payer_email:U.email,payer_name:P?.full_name||''})
     });
     const data=await res.json();
-    if(!data.success)throw new Erreur(data.erreur||'Could not start paiement');
+    if(!data.success)throw new Error(data.erreur||'Could not start paiement');
     window.location.href=data.checkout_url;
   }catch(e){
     toast('<i data-lucide=x-circle class=ic></i> '+e.message);
@@ -2243,7 +2243,7 @@ async function retrySaleActivation(listingId,listingTitle){
       body:JSON.stringify({listing_id:listingId,propriétaire_email:U.email,listing_title:listingTitle})
     });
     const data=await res.json();
-    if(!data.success)throw new Erreur(data.erreur||'Could not start subscription');
+    if(!data.success)throw new Error(data.erreur||'Could not start subscription');
     window.location.href=data.checkout_url;
   }catch(e){
     toast('<i data-lucide=x-circle class=ic></i> '+e.message);
@@ -2330,14 +2330,14 @@ async function sendR(){
   const r=document.getElementById('mre').value.trim();
   if(!r||!U)return;
   document.getElementById('mre').value='';
-  const{erreur}=await sb.from('messages').insert({
+  const{error}=await sb.from('messages').insert({
     listing_id:currentChatListingId||AMI,
     sender_id:U.id,
     receiver_id:currentChatReceiverId,
     content:r,
     read:false
   });
-  if(erreur){toast('<i data-lucide=x-circle class=ic></i> Failed to send: '+erreur.message);return;}
+  if(error){toast('<i data-lucide=x-circle class=ic></i> Failed to send: '+erreur.message);return;}
 }
 
 function closeM(){
@@ -2475,9 +2475,9 @@ async function uploadVisitVideo(input, listingId){
   toast('⏳ Upchargement video...');
   const ext=file.name.split('.').pop();
   const path=`videos/${listingId}/visite.${ext}`;
-  const{data,erreur}=await sb.storage. depuis ('annonces').upload(path,file,{upsert:true,cacheControl:'3600'});
-  if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
-  const{data:urlData}=sb.storage. depuis ('annonces').getPublicUrl(path);
+  const{data,error}=await sb.storage.from('annonces').upload(path,file,{upsert:true,cacheControl:'3600'});
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
+  const{data:urlData}=sb.storage.from('annonces').getPublicUrl(path);
   await sb.from('listings').update({video_url:urlData.publicUrl}).eq('id',listingId);
   toast('<i data-lucide=check-circle-2 class=ic></i> Visite video uploaded!');
 }
