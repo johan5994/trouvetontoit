@@ -554,20 +554,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <!-- Identity -->
           <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identité</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(tel que sur le passeport)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont"></div>
+            <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(tel que sur le passeport)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">E-mail</label><input class="fi" id="p-email" readonly style="opacity:.6"></div>
-            <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="+33 1 00 00 00 00" autocomplete="tel"></div>
+            <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="+33 1 00 00 00 00" autocomplete="tel" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Nationalité *</label>
-              <select class="fsel" id="p-nat">
+              <select class="fsel" id="p-nat" onchange="updateProfileeCompleteness()">
                 <option value="">Sélectionner le pays...</option>
                 <option value="Afghan">Afghan</option><option value="Albanian">Albanian</option><option value="Algerian">Algerian</option><option value="American">American</option><option value="Andorran">Andorran</option><option value="Angolan">Angolan</option><option value="Argentine">Argentine</option><option value="Armenian">Armenian</option><option value="Australian">Australian</option><option value="Austrian">Austrian</option><option value="Azerbaijani">Azerbaijani</option><option value="Bahraini">Bahraini</option><option value="Bangladeshi">Bangladeshi</option><option value="Belgian">Belgian</option><option value="Bolivian">Bolivian</option><option value="Bosnian">Bosnian</option><option value="Brazilian">Brazilian</option><option value="British">British</option><option value="Bulgarian">Bulgarian</option><option value="Cambodian">Cambodian</option><option value="Cameroonian">Cameroonian</option><option value="Canadian">Canadian</option><option value="Chilean">Chilean</option><option value="Chinese">Chinese</option><option value="Colombian">Colombian</option><option value="Croatian">Croatian</option><option value="Cuban">Cuban</option><option value="Cypriot">Cypriot</option><option value="Czech">Czech</option><option value="Danish">Danish</option><option value="Dominican">Dominican</option><option value="Dutch">Dutch</option><option value="Ecuadorian">Ecuadorian</option><option value="Egyptian">Egyptian</option><option value="Emirati">Emirati</option><option value="Estonian">Estonian</option><option value="Ethiopian">Ethiopian</option><option value="Filipino">Filipino</option><option value="Finnish">Finnish</option><option value="French">French</option><option value="Georgian">Georgian</option><option value="German">German</option><option value="Ghanaian">Ghanaian</option><option value="Greek">Greek</option><option value="Guatemalan">Guatemalan</option><option value="Honduran">Honduran</option><option value="Hungarian">Hungarian</option><option value="Icelandic">Icelandic</option><option value="Indian">Indian</option><option value="Indonesian">Indonesian</option><option value="Iranian">Iranian</option><option value="Iraqi">Iraqi</option><option value="Irish">Irish</option><option value="Israeli">Israeli</option><option value="Italian">Italian</option><option value="Ivorian">Ivorian</option><option value="Jamaican">Jamaican</option><option value="Japanese">Japanese</option><option value="Jordanian">Jordanian</option><option value="Kazakh">Kazakh</option><option value="Kenyan">Kenyan</option><option value="Korean">Korean</option><option value="Kuwaiti">Kuwaiti</option><option value="Latvian">Latvian</option><option value="Lebanese">Lebanese</option><option value="Libyan">Libyan</option><option value="Lithuanian">Lithuanian</option><option value="Luxembourgish">Luxembourgish</option><option value="Macedonian">Macedonian</option><option value="Malaysian">Malaysian</option><option value="français">français</option><option value="Mexican">Mexican</option><option value="Moldovan">Moldovan</option><option value="Mongolian">Mongolian</option><option value="Montenegrin">Montenegrin</option><option value="Moroccan">Moroccan</option><option value="Mozambican">Mozambican</option><option value="Namibian">Namibian</option><option value="Nepali">Nepali</option><option value="New Zealander">New Zealander</option><option value="Nicaraguan">Nicaraguan</option><option value="Nigerian">Nigerian</option><option value="Norwegian">Norwegian</option><option value="Omani">Omani</option><option value="Pakistani">Pakistani</option><option value="Panamanian">Panamanian</option><option value="Paraguayan">Paraguayan</option><option value="Peruvian">Peruvian</option><option value="Polish">Polish</option><option value="Portuguese">Portuguese</option><option value="Qatari">Qatari</option><option value="Romanian">Romanian</option><option value="Russian">Russian</option><option value="Saudi">Saudi</option><option value="Senegalese">Senegalese</option><option value="Serbian">Serbian</option><option value="Singaporean">Singaporean</option><option value="Slovak">Slovak</option><option value="Slovenian">Slovenian</option><option value="South African">South African</option><option value="Spanish">Spanish</option><option value="Sri Lankan">Sri Lankan</option><option value="Sudanese">Sudanese</option><option value="Swedish">Swedish</option><option value="Swiss">Swiss</option><option value="Syrian">Syrian</option><option value="Taiwanese">Taiwanese</option><option value="Tanzanian">Tanzanian</option><option value="Thai">Thai</option><option value="Tunisian">Tunisian</option><option value="Turkish">Turkish</option><option value="Ugandan">Ugandan</option><option value="Ukrainian">Ukrainian</option><option value="Uruguayan">Uruguayan</option><option value="Uzbek">Uzbek</option><option value="Venezuelan">Venezuelan</option><option value="Vietnamese">Vietnamese</option><option value="Yemeni">Yemeni</option><option value="Zambian">Zambian</option><option value="Zimbabwean">Zimbabwean</option>
               </select></div>
-            <div class="fg"><label class="fl">Numéro de passeport / CNI *</label><input class="fi" id="p-passport" placeholder="ex. 12345678A"></div>
-            <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob"></div>
-            <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France"></div>
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris"></div>
+            <div class="fg"><label class="fl">Numéro de passeport / CNI *</label><input class="fi" id="p-passport" placeholder="ex. 12345678A" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob" onchange="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris" oninput="updateProfileeCompleteness()"></div>
           </div>
 
+          <!-- Situation professionnelle -->
+          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:1rem 0 .75rem"><i data-lucide=briefcase class=ic></i> Situation professionnelle</div>
+          <div class="fgrid2">
+            <div class="fg"><label class="fl">Profession *</label><input class="fi" id="p-profession" placeholder="Ingénieur, étudiant, indépendant…" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Revenu mensuel net * (€)</label><input class="fi" type="number" id="p-income" placeholder="2000" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Employeur / Établissement</label><input class="fi" id="p-emprent" placeholder="Entreprise, université…"></div>
+            <div class="fg"><label class="fl">Attestation employeur</label>
+              <select class="fsel" id="p-attestation">
+                <option value="no">Non requis</option>
+                <option value="yes">Oui — mon employeur peut fournir une attestation</option>
+              </select>
+            </div>
+          </div>
 
           <!-- Profil completeness indicator -->
           <div id="profil-completeness" style="margin-top:1rem;background:var(--tdim);border-radius:10px;padding:.85rem 1rem;font-size:.8rem">
@@ -4015,11 +4028,11 @@ function updateProfileeCompleteness(){
   if(bar)bar.style.width=pct+'%';
   if(bar)bar.style.background=pct===100?'var(--green)':pct>50?'var(--marine)':'var(--bleu)';
   if(text){
-    if(pct===100)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Profil complete — vous can contact propriétaires et request visites';
-    else text.innerHTML=`${pct}% complete — fill in all required fields to unlock contact & visites`;
+    if(pct===100)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez contacter les propriétaires et demander des visites';
+    else text.innerHTML=`${pct}% — remplissez tous les champs requis (*) pour débloquer le contact et les visites`;
     text.style.color=pct===100?'var(--green)':'var(--td)';
   }
-  if(pctEl)pctEl.textContent=pct+'% complete';
+  if(pctEl)pctEl.textContent=pct+'% complété';
   return pct;
 }
 
