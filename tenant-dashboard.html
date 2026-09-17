@@ -568,20 +568,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris" oninput="updateProfileeCompleteness()"></div>
           </div>
 
-          <!-- Situation professionnelle -->
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:1rem 0 .75rem"><i data-lucide=briefcase class=ic></i> Situation professionnelle</div>
-          <div class="fgrid2">
-            <div class="fg"><label class="fl">Profession *</label><input class="fi" id="p-profession" placeholder="Ingénieur, étudiant, indépendant…" oninput="updateProfileeCompleteness()"></div>
-            <div class="fg"><label class="fl">Revenu mensuel net * (€)</label><input class="fi" type="number" id="p-income" placeholder="2000" oninput="updateProfileeCompleteness()"></div>
-            <div class="fg"><label class="fl">Employeur / Établissement</label><input class="fi" id="p-emprent" placeholder="Entreprise, université…"></div>
-            <div class="fg"><label class="fl">Attestation employeur</label>
-              <select class="fsel" id="p-attestation">
-                <option value="no">Non requis</option>
-                <option value="yes">Oui — mon employeur peut fournir une attestation</option>
-              </select>
-            </div>
-          </div>
-
           <!-- Profil completeness indicator -->
           <div id="profil-completeness" style="margin-top:1rem;background:var(--tdim);border-radius:10px;padding:.85rem 1rem;font-size:.8rem">
             <div style="font-weight:700;margin-bottom:.5rem">Complétude du profil</div>
@@ -4017,8 +4003,6 @@ function updateProfileeCompleteness(){
     document.getElementById('p-dob')?.value,
     document.getElementById('p-pob')?.value,
     document.getElementById('p-address')?.value,
-    document.getElementById('p-profession')?.value,
-    document.getElementById('p-income')?.value,
   ];
   const filled=required.filter(v=>v&&v.trim()!=='').length;
   const pct=Math.round(filled/required.length*100);
