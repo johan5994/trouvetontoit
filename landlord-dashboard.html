@@ -344,14 +344,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div id="edit-annonce-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='edit-annonce-modal')closeModifierAnnonce()">
         <div style="background:var(--s);border:1px solid var(--b);border-radius:16px;padding:1.5rem;max-width:480px;width:100%;max-height:85vh;overflow-y:auto">
           <div style="font-weight:700;font-size:1rem;margin-bottom:1rem"><i data-lucide=pencil class=ic></i>️ Modifier annonce</div>
-          <div class="fg"><label class="fl">Title</label><input class="fi" id="edit-title"></div>
+          <div class="fg"><label class="fl">Titre</label><input class="fi" id="edit-title"></div>
           <div class="fgrid2">
-            <div class="fg" id="edit-price-wrap"><label class="fl" id="edit-price-label">Prix (€)</label><input class="fi" type="number" id="edit-price"></div>
+            <div class="fg" id="edit-price-wrap"><label class="fl" id="edit-price-label">Loyer mensuel (€)</label><input class="fi" type="number" id="edit-price"></div>
+            <div class="fg"><label class="fl">Charges (€/mois)</label><input class="fi" type="number" id="edit-charges" placeholder="80"></div>
+          </div>
+          <div class="fgrid2">
             <div class="fg"><label class="fl">Chambres</label><input class="fi" type="number" id="edit-beds"></div>
+            <div class="fg"><label class="fl">Surface séjour (m²)</label><input class="fi" type="number" id="edit-surface-sejour" placeholder="20"></div>
+          </div>
+          <div class="fgrid2">
+            <div class="fg"><label class="fl">Type de cuisine</label>
+              <select class="fi" id="edit-type-cuisine">
+                <option value="">Non précisé</option>
+                <option value="americaine">Américaine</option>
+                <option value="separee">Séparée</option>
+                <option value="equipee">Équipée</option>
+                <option value="ouverte">Ouverte</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Terrasse/Balcon (m²)</label><input class="fi" type="number" id="edit-terrasse-sqm" placeholder="8"></div>
+          </div>
+          <div class="fgrid2">
+            <div class="fg"><label class="fl">Année de construction</label><input class="fi" type="number" id="edit-annee-construction" placeholder="1975"></div>
+            <div class="fg" style="display:flex;flex-direction:column;gap:.4rem;padding-top:.4rem">
+              <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.82rem"><input type="checkbox" id="edit-cave"> Cave</label>
+              <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.82rem"><input type="checkbox" id="edit-copropriete"> Copropriété</label>
+            </div>
           </div>
           <div class="fg"><label class="fl">Description</label><textarea class="fi" id="edit-desc" rows="4"></textarea></div>
-          <div class="fg"><label class="fl">Full Adresse</label><input class="fi" id="edit-address"></div>
-          <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="edit-actif"> <span class="fl" style="margin:0">Actif (visible in search)</span></label></div>
+          <div class="fg"><label class="fl">Adresse complète</label><input class="fi" id="edit-address"></div>
+          <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="edit-actif"> <span class="fl" style="margin:0">Actif (visible dans la recherche)</span></label></div>
           <button class="btn bp" style="width:100%;justify-content:center;margin-top:.5rem" onclick="saveModifieredAnnonce()">Enregistrer changes →</button>
           <button class="btn bg" style="width:100%;justify-content:center;margin-top:.5rem" onclick="closeModifierAnnonce()">Annuler</button>
         </div>
@@ -1124,8 +1147,15 @@ async function editAnnonce(id){
     document.getElementById('edit-annonce-modal').dataset.listingId=id;
     document.getElementById('edit-title').value=l.title||'';
     document.getElementById('edit-price').value=(l.type==='for_sale'?l.sale_price:l.price)||'';
-    document.getElementById('edit-price-label').textContent=l.type==='for_sale'?'Sale Prix (€)':'Monthly Loyer (€)';
-    document.getElementById('edit-beds').value=l.chambres||'';
+    document.getElementById('edit-price-label').textContent=l.type==='for_sale'?'Prix de vente (€)':'Loyer mensuel (€)';
+    document.getElementById('edit-beds').value=l.spots||'';
+    document.getElementById('edit-charges').value=l.charges_mensuelles||'';
+    document.getElementById('edit-surface-sejour').value=l.surface_sejour||'';
+    document.getElementById('edit-type-cuisine').value=l.type_cuisine||'';
+    document.getElementById('edit-terrasse-sqm').value=l.terrasse_sqm||'';
+    document.getElementById('edit-annee-construction').value=l.annee_construction||'';
+    document.getElementById('edit-cave').checked=!!l.cave;
+    document.getElementById('edit-copropriete').checked=!!l.copropriete;
     document.getElementById('edit-desc').value=l.description||'';
     document.getElementById('edit-address').value=l.full_address||'';
     document.getElementById('edit-actif').checked=!!l.actif;
@@ -1148,8 +1178,15 @@ async function saveModifieredAnnonce(){
       title:document.getElementById('edit-title').value.trim(),
       description:document.getElementById('edit-desc').value.trim(),
       full_address:document.getElementById('edit-address').value.trim(),
-      chambres:parseInt(document.getElementById('edit-beds').value)||0,
-      actif:document.getElementById('edit-actif').checked
+      spots:parseInt(document.getElementById('edit-beds').value)||0,
+      actif:document.getElementById('edit-actif').checked,
+      charges_mensuelles:parseInt(document.getElementById('edit-charges').value)||null,
+      surface_sejour:parseFloat(document.getElementById('edit-surface-sejour').value)||null,
+      type_cuisine:document.getElementById('edit-type-cuisine').value||null,
+      terrasse_sqm:parseInt(document.getElementById('edit-terrasse-sqm').value)||null,
+      annee_construction:parseInt(document.getElementById('edit-annee-construction').value)||null,
+      cave:document.getElementById('edit-cave').checked,
+      copropriete:document.getElementById('edit-copropriete').checked
     };
     if(isSale)updates.sale_price=price;else updates.price=price;
     const{error}=await sb.from('listings').update(updates).eq('id',id);
