@@ -226,6 +226,16 @@ footer ul a:hover{color:var(--terra)}
 .cbwrap{display:flex;gap:1.5rem;flex-wrap:wrap}
 .cl{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--stone);cursor:pointer}
 .cl input{accent-color:var(--terra);width:15px;height:15px;cursor:pointer}
+/* Type de bien cards */
+.tbien-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.4rem}
+.tbien-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border:2px solid var(--b2);border-radius:12px;background:var(--s);color:var(--stone);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;font-weight:500}
+.tbien-btn svg{width:22px;height:22px;stroke:currentColor}
+.tbien-btn.actif{border-color:var(--terra);color:var(--terra);background:rgba(201,85,58,.06);font-weight:700}
+/* Chauffage + toggle pills */
+.tpill-wrap{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem}
+.tpill{padding:.4rem .85rem;border:1.5px solid var(--b2);border-radius:20px;background:var(--s);color:var(--stone);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tpill.actif{border-color:var(--terra);background:rgba(201,85,58,.09);color:var(--terra);font-weight:600}
+@media(max-width:500px){.tbien-grid{grid-template-columns:repeat(3,1fr)!important}}
 
 /* DETAIL */
 .dwrap{max-width:900px;margin:0 auto;padding:2rem 2rem 5rem}
@@ -568,23 +578,73 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
         <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — Trouve Ton Toit ne génère pas de bail pour les colocations. Le propriétaire et le locataire gèrent le contrat directement entre eux.</div>
       </div>
+      <!-- Type de bien -->
+      <div class="fg2" style="margin-top:.75rem">
+        <label>Type de bien *</label>
+        <div class="tbien-grid">
+          <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
+          <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
+          <button type="button" class="tbien-btn" onclick="setTB(this,'terrain')"><i data-lucide=map class=ic></i><span>Terrain</span></button>
+          <button type="button" class="tbien-btn" onclick="setTB(this,'parking')"><i data-lucide=car class=ic></i><span>Parking</span></button>
+          <button type="button" class="tbien-btn" onclick="setTB(this,'autre')"><i data-lucide=package class=ic></i><span>Autre</span></button>
+        </div>
+        <input type="hidden" id="p-type-bien" value="appartement">
+      </div>
+
+      <!-- Étage (appartement uniquement) -->
+      <div id="section-etage" class="frow" style="margin-top:.5rem">
+        <div class="fg2"><label>Étage *</label><input class="fi" type="number" id="p-etage" placeholder="0" min="0" max="50"><div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">0 = rez-de-chaussée</div></div>
+        <div class="fg2"><label>Nb d'étages dans l'immeuble</label><input class="fi" type="number" id="p-nb-etages" placeholder="5" min="1" max="100"></div>
+        <div class="fg2"><label>Ascenseur</label>
+          <div class="tpill-wrap" style="margin-top:.3rem">
+            <button type="button" class="tpill" id="asc-oui" onclick="setAscenseur('oui')">Oui</button>
+            <button type="button" class="tpill" id="asc-non" onclick="setAscenseur('non')">Non</button>
+          </div>
+          <input type="hidden" id="p-ascenseur" value="">
+        </div>
+      </div>
+
       <div class="frow" style="margin-top:.75rem">
-        <div class="fg2" style="grid-column:1/-1"><label>Title *</label><input class="fi" type="text" id="pti" placeholder="e.g. Bright meublé studio near the sea, St. Julian's"></div>
-        <div class="fg2"><label>Zone *</label><input list="zones-post" id="pz" class="fi" placeholder="e.g. St. Julian's, Paris...">
-<datalist id="zones-post">
-  <option value="St. Julian's"><option value="Paris"><option value="Paris"><option value="Paris">
-  <option value="Paris"><option value="Gozo"><option value="Birkirkara"><option value="Swieqi">
-  <option value="Paceville"><option value="Bugibba"><option value="St. Paul's Bay"><option value="Mellieha">
-  <option value="Mosta"><option value="Naxxar"><option value="Rabat"><option value="Mdina">
-  <option value="Marsaskala"><option value="Marsaxlokk"><option value="Birgu"><option value="Senglea">
-</datalist></div>
-        <div class="fg2"><label>Size (m²)</label><input class="fi" type="number" id="p-sqm" placeholder="e.g. 65" min="10" max="1000"></div>
-        <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Monthly loyer (€) *</label><input class="fi" type="number" id="ppr" placeholder="650"></div>
-        <div class="fg2" id="pt-depot-wrap"><label id="pt-depot-label">Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
+        <!-- Titre -->
+        <div class="fg2" style="grid-column:1/-1"><label>Titre *</label><input class="fi" type="text" id="pti" placeholder="ex. Bel appartement T3 lumineux — Paris 11e, proche Bastille"></div>
+        <!-- Typologie + Commune -->
+        <div class="fg2"><label>Typologie *</label>
+          <select class="fi" id="p-typology" style="cursor:pointer" onchange="onTypologyChange(this.value)">
+            <option value="studio">Studio</option>
+            <option value="t1">T1</option>
+            <option value="t2" selected>T2</option>
+            <option value="t3">T3</option>
+            <option value="t4">T4</option>
+            <option value="t5">T5</option>
+            <option value="t6plus">T6+</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Commune / Arrondissement *</label><input class="fi" id="p-commune" placeholder="ex. Paris 11e, Lyon 6e, Bordeaux..."></div>
+        <!-- Zone de recherche -->
+        <div class="fg2"><label>Zone (recherche) *</label><input list="zones-post" id="pz" class="fi" placeholder="ex. Paris, Lyon, Bordeaux...">
+          <datalist id="zones-post">
+            <option value="Paris"><option value="Lyon"><option value="Marseille"><option value="Bordeaux">
+            <option value="Toulouse"><option value="Nantes"><option value="Strasbourg"><option value="Lille">
+            <option value="Montpellier"><option value="Nice"><option value="Rennes"><option value="Grenoble">
+          </datalist>
+        </div>
+        <!-- Surface + disponible -->
+        <div class="fg2"><label>Surface totale (m²) *</label><input class="fi" type="number" id="p-sqm" placeholder="65" min="10" max="1000"></div>
+        <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+        <!-- Loyer + charges -->
+        <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Loyer mensuel (€) *</label><input class="fi" type="number" id="ppr" placeholder="850"></div>
+        <div class="fg2" id="pt-bills-wrap"><label>Charges</label>
+          <select class="fi" id="p-bills" style="cursor:pointer">
+            <option value="excluded">Hors charges (HC)</option>
+            <option value="included">Charges comprises (CC)</option>
+          </select>
+        </div>
         <div class="fg2" id="pt-charges-wrap"><label>Charges mensuelles (€) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">en sus du loyer</span></label><input class="fi" type="number" id="p-charges" placeholder="80" min="0"></div>
-        <div class="fg2" id="section-beds"><label>Number of chambres</label>
+        <div class="fg2" id="pt-depot-wrap"><label id="pt-depot-label">Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="850"></div>
+        <!-- Chambres + bains -->
+        <div class="fg2" id="section-beds"><label>Chambres</label>
           <select class="fi" id="psp" style="cursor:pointer">
-            <option value="0">Studio</option>
+            <option value="0">Studio / aucune chambre</option>
             <option value="1" selected>1 chambre</option>
             <option value="2">2 chambres</option>
             <option value="3">3 chambres</option>
@@ -595,23 +655,79 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="fg2"><label>Salles de bain</label>
           <select class="fi" id="p-baths" style="cursor:pointer">
             <option value="1" selected>1 salle de bain</option>
-            <option value="2">2 salle de bains</option>
-            <option value="3">3+ salle de bains</option>
+            <option value="2">2 salles de bain</option>
+            <option value="3">3+ salles de bain</option>
           </select>
         </div>
+        <!-- Séjour + cuisine -->
         <div class="fg2"><label>Surface séjour (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-surface-sejour" placeholder="20" min="0"></div>
         <div class="fg2"><label>Type de cuisine</label>
           <select class="fi" id="p-type-cuisine" style="cursor:pointer">
             <option value="">Non précisé</option>
-            <option value="americaine">Cuisine américaine (ouverte)</option>
-            <option value="separee">Cuisine séparée</option>
-            <option value="equipee">Cuisine équipée</option>
-            <option value="ouverte">Cuisine ouverte</option>
+            <option value="americaine">Américaine / ouverte</option>
+            <option value="separee">Séparée</option>
+            <option value="equipee">Équipée</option>
           </select>
         </div>
+        <!-- Terrasse + année -->
         <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
         <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
-        <div class="fg2" id="pt-avail-wrap"><label>Disponible  depuis </label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+        <!-- Chauffage -->
+        <div class="fg2"><label>Type de chauffage</label>
+          <div class="tpill-wrap">
+            <button type="button" class="tpill" id="chauf-individuel" onclick="setChauffageType('individuel')">Individuel</button>
+            <button type="button" class="tpill" id="chauf-collectif" onclick="setChauffageType('collectif')">Collectif</button>
+          </div>
+          <input type="hidden" id="p-chauffage-type" value="">
+        </div>
+        <div class="fg2"><label>Mode de chauffage</label>
+          <div class="tpill-wrap">
+            <button type="button" class="tpill" id="chauf-electrique" onclick="setChauffageMode('electrique')">Électrique</button>
+            <button type="button" class="tpill" id="chauf-gaz" onclick="setChauffageMode('gaz')">Gaz</button>
+            <button type="button" class="tpill" id="chauf-fioul" onclick="setChauffageMode('fioul')">Fioul</button>
+            <button type="button" class="tpill" id="chauf-solaire" onclick="setChauffageMode('solaire')">Solaire</button>
+            <button type="button" class="tpill" id="chauf-autre" onclick="setChauffageMode('autre')">Autre</button>
+          </div>
+          <input type="hidden" id="p-chauffage-mode" value="">
+        </div>
+        <!-- Adresse complète -->
+        <div class="fg2" style="grid-column:1/-1">
+          <label>Adresse complète *</label>
+          <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" onblur="geocodeAdresse()">
+          <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
+          <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
+        </div>
+        <!-- Zone tendue -->
+        <div class="fg2"><label>Zone tendue <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">encadrement des loyers</span></label>
+          <select class="fi" id="p-zone-tendue" style="cursor:pointer">
+            <option value="">Non précisé</option>
+            <option value="oui">Oui — zone tendue</option>
+            <option value="non">Non — hors zone tendue</option>
+          </select>
+        </div>
+        <!-- DPE -->
+        <div class="fg2"><label>DPE — Classe énergie <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+          <select class="fi" id="p-dpe" style="cursor:pointer" onchange="onDpeChange()">
+            <option value="">Non communiqué</option>
+            <option value="A">A — Très performant</option>
+            <option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
+            <option value="F">F</option>
+            <option value="G">G — Très énergivore</option>
+            <option value="NS">Non soumis au DPE</option>
+          </select>
+        </div>
+        <div class="fg2"><label>DPE — Classe GES <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+          <select class="fi" id="p-ges" style="cursor:pointer" onchange="onDpeChange()">
+            <option value="">Non communiqué</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option>
+            <option value="NS">Non soumis au DPE</option>
+          </select>
+        </div>
+        <div id="dpe-warning" style="display:none;grid-column:1/-1;background:rgba(201,85,58,.07);border:1px solid rgba(201,85,58,.3);border-radius:8px;padding:.7rem 1rem;font-size:.78rem;color:var(--terra);line-height:1.5">
+          <i data-lucide=alert-triangle class=ic></i>️ <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022). Interdiction progressive de mise en location : G dès 2025, F dès 2028.
+        </div>
       </div>
 
       <!-- Champs spécifiques à une vente — n'apparaissent qu'en mode "À vendre" -->
@@ -632,15 +748,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">SDAs let foreign buyers purchase without an AIP permit — worth flagging if it applies.</div>
       </div>
 
-      <!-- Bail Agreement Attestation -->
-      <div id="section-attestation" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:#8B5CF6;margin-bottom:.4rem"><i data-lucide=clipboard-list class=ic></i> Bail Agreement Attestation <span style="font-size:.65rem;font-weight:400;color:var(--stone-l)">(France — required pour some non-EU residence permits)</span></div>
-        <div style="font-size:.73rem;color:var(--stone);margin-bottom:.6rem;line-height:1.5">Certains locataires hors UE ont besoin d'un bail attesté par notaire pour leur titre de séjour. Acceptez-vous ces locataires? If yes, un badge apparaîtra sur votre annonce. Le locataire gère la procédure notariale lui-même — Trouve Ton Toit ne gère pas cela.</div>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer"><input type="radio" name="attestation" id="att-no" value="no" checked> <i data-lucide=x-circle class=ic></i> No — standard bail only</label>
-          <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer"><input type="radio" name="attestation" id="att-yes" value="yes"> <i data-lucide=check-circle-2 class=ic></i> Yes — I accepter locataires needing attestation</label>
-        </div>
-      </div>
 
       <!-- Colocation legal notice (point 3) -->
       <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
@@ -680,41 +787,41 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <div class="fg2" style="margin-top:.75rem"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Describe votre flat — meublé, WiFi, near transport, bills included, house rules…"></textarea></div>
 
-      <!-- Bail conditions — auto-fills the bail -->
-      <div id="section-bail-cond" style="background:rgba(46,107,138,.06);border:1px solid rgba(46,107,138,.15);border-radius:12px;padding:1rem;margin-bottom:1rem">
-        <div style="font-size:.85rem;font-weight:700;color:var(--sea);margin-bottom:.75rem"><i data-lucide=file-text class=ic></i> Bail conditions <span style="font-weight:400;font-size:.75rem;color:var(--stone-l)">— used to auto-generate votre France bail</span></div>
-        <div class="frow">
-          <div class="fg2" style="grid-column:1/-1">
-            <label>Full bien address in France *</label>
-            <input class="fi" id="p-full-address" placeholder="12 Triq il-Kbira, St. Julian's STJ 1234, France" onblur="geocodeAdresse()">
-            <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
-            <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
-          </div>
-        </div>
-        <div class="frow">
-
-          <div class="fg2"><label>Bills situation</label>
-            <select class="fi" id="p-bills" style="cursor:pointer">
-              <option value="included"><i data-lucide=check-circle-2 class=ic></i> All bills included in loyer</option>
-              <option value="excluded"><i data-lucide=x-circle class=ic></i> Bills not included — locataire pays separately</option>
-            </select>
-          </div>
+      <div class="fg2"><label>Équipements</label>
+        <div class="cbwrap">
+          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
+          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
+          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
+          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
+          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
+          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
+          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
+          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
+          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
         </div>
       </div>
 
-      <div class="fg2"><label>Amenities</label>
-        <div class="cbwrap">
-          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i>️ Meublé</label>
-          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi disponible</label>
-          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i>️ A/C</label>
-          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
-          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Pool</label>
-          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
-          <label class="cl"><input type="checkbox" id="p-cave"> <i data-lucide=archive class=ic></i> Cave</label>
-          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
-          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
-          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
-          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i>️ Lave-vaisselle</label>
+      <!-- Pièces annexes -->
+      <div class="fg2"><label>Pièces annexes</label>
+        <div class="tpill-wrap" style="margin-top:.4rem">
+          <button type="button" class="tpill" id="ann-cave" onclick="toggleAnnexe(this,'cave')">Cave</button>
+          <button type="button" class="tpill" id="ann-sous-sol" onclick="toggleAnnexe(this,'sous_sol')">Sous-sol</button>
+          <button type="button" class="tpill" id="ann-grenier" onclick="toggleAnnexe(this,'grenier')">Grenier</button>
+          <button type="button" class="tpill" id="ann-dependance" onclick="toggleAnnexe(this,'dependance')">Avec dépendance</button>
+        </div>
+        <input type="hidden" id="p-annexes" value="">
+      </div>
+
+      <!-- Caractéristiques -->
+      <div class="fg2"><label>Caractéristiques</label>
+        <div class="cbwrap" style="margin-top:.4rem">
+          <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
+          <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
+          <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
+          <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
+          <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
+          <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
         </div>
       </div>
       <div class="fg2">
@@ -1811,17 +1918,15 @@ function setT(el,t){
   const availWrap=document.getElementById('pt-avail-wrap');
   if(depotWrap)depotWrap.style.display=noBail?'none':'block';
   if(availWrap)availWrap.style.display=noBail?'none':'block';
-  const billsWrap=document.getElementById('p-bills')?.closest('.fg2');
+  const billsWrap=document.getElementById('pt-bills-wrap');
   if(billsWrap)billsWrap.style.display=noBail?'none':'block';
+  const chargesWrap=document.getElementById('pt-charges-wrap');
+  if(chargesWrap)chargesWrap.style.display=noBail?'none':'block';
   const saleDetailsWrap=document.getElementById('pt-sale-details-wrap');
   if(saleDetailsWrap)saleDetailsWrap.style.display=isSale?'block':'none';
 
   const secBeds=document.getElementById('section-beds');
-  const secAtt=document.getElementById('section-attestation');
-  const secBail=document.getElementById('section-bail-cond');
   if(secBeds)secBeds.style.display='block';
-  if(secAtt)secAtt.style.display=noBail?'none':'block';
-  if(secBail)secBail.style.display=noBail?'none':'block';
 
   const infos={
     bail_vide:'<i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans (loi du 6 juillet 1989). Dépôt plafonné à 1 mois de loyer hors charges.',
@@ -1839,6 +1944,68 @@ function setT(el,t){
     start.setFullYear(start.getFullYear()+(t==='bail_vide'?3:1));
     punInput.value=start.toISOString().split('T')[0];
   }
+}
+
+// Type de bien
+function setTB(el,v){
+  document.querySelectorAll('.tbien-btn').forEach(b=>b.classList.remove('actif'));
+  el.classList.add('actif');
+  document.getElementById('p-type-bien').value=v;
+  const sec=document.getElementById('section-etage');
+  if(sec)sec.style.display=(v==='appartement')?'grid':'none';
+}
+
+// Ascenseur toggle
+function setAscenseur(v){
+  document.getElementById('p-ascenseur').value=v;
+  document.getElementById('asc-oui').classList.toggle('actif',v==='oui');
+  document.getElementById('asc-non').classList.toggle('actif',v==='non');
+}
+
+// Chauffage type (individuel/collectif) — single select
+function setChauffageType(v){
+  const cur=document.getElementById('p-chauffage-type').value;
+  const nv=cur===v?'':v;
+  document.getElementById('p-chauffage-type').value=nv;
+  document.getElementById('chauf-individuel').classList.toggle('actif',nv==='individuel');
+  document.getElementById('chauf-collectif').classList.toggle('actif',nv==='collectif');
+}
+
+// Chauffage mode — single select
+function setChauffageMode(v){
+  const cur=document.getElementById('p-chauffage-mode').value;
+  const nv=cur===v?'':v;
+  document.getElementById('p-chauffage-mode').value=nv;
+  ['electrique','gaz','fioul','solaire','autre'].forEach(m=>
+    document.getElementById('chauf-'+m).classList.toggle('actif',nv===m)
+  );
+}
+
+// Pièces annexes — multi-select, stored as comma-separated
+function toggleAnnexe(el,v){
+  el.classList.toggle('actif');
+  const inp=document.getElementById('p-annexes');
+  const cur=inp.value?inp.value.split(',').filter(Boolean):[];
+  const idx=cur.indexOf(v);
+  if(idx>-1)cur.splice(idx,1);else cur.push(v);
+  inp.value=cur.join(',');
+}
+
+// Typology → auto-suggest chambres count
+function onTypologyChange(v){
+  const m={studio:0,t1:0,t2:1,t3:2,t4:3,t5:4,t6plus:5};
+  const sel=document.getElementById('psp');
+  if(sel&&m[v]!==undefined)sel.value=m[v];
+}
+
+// DPE warning for F/G
+function onDpeChange(){
+  const dpe=document.getElementById('p-dpe')?.value;
+  const ges=document.getElementById('p-ges')?.value;
+  const warn=document.getElementById('dpe-warning');
+  if(!warn)return;
+  const bad=['F','G'];
+  warn.style.display=(bad.includes(dpe)||bad.includes(ges))?'block':'none';
 }
 
 // Auto-update end date when start date changes
@@ -2076,8 +2243,6 @@ async function doPost(){
   sA(ok,'⏳ Publishing  votre annonce…');
   ok.style.background='rgba(46,107,138,0.08)';
   ok.style.color='var(--sea)';
-  const accepts_attestation=document.getElementById('att-yes')?.checked===true;
-
   const fields={
     title:ti,
     type:document.getElementById('pt').value,
@@ -2117,7 +2282,6 @@ async function doPost(){
     bail_duration:document.getElementById('p-bail-duration')?.value||null,
     di_fermo:document.getElementById('p-di-fermo')?.value||null,
     available_indefinitely:document.getElementById('p-indefinite')?.checked||false,
-    accepts_attestation,
     propriétaire_present:document.getElementById('p-visite-presence')?.value||'not_needed',
     inventory_presence:document.getElementById('p-état des lieux-presence')?.value||'mandatory',
     key_type:document.getElementById('p-key-type')?.value||'bailleur',
@@ -2129,7 +2293,19 @@ async function doPost(){
     surface_sejour:parseFloat(document.getElementById('p-surface-sejour')?.value)||null,
     type_cuisine:document.getElementById('p-type-cuisine')?.value||null,
     terrasse_sqm:parseInt(document.getElementById('p-terrasse-sqm')?.value)||null,
-    annee_construction:parseInt(document.getElementById('p-annee-construction')?.value)||null
+    annee_construction:parseInt(document.getElementById('p-annee-construction')?.value)||null,
+    typology:document.getElementById('p-typology')?.value||null,
+    commune:document.getElementById('p-commune')?.value.trim()||null,
+    zone_tendue:document.getElementById('p-zone-tendue')?.value||null,
+    dpe:document.getElementById('p-dpe')?.value||null,
+    ges:document.getElementById('p-ges')?.value||null,
+    type_bien:document.getElementById('p-type-bien')?.value||null,
+    etage:document.getElementById('p-etage')?.value!==''?parseInt(document.getElementById('p-etage')?.value):null,
+    nb_etages:parseInt(document.getElementById('p-nb-etages')?.value)||null,
+    ascenseur:document.getElementById('p-ascenseur')?.value||null,
+    chauffage_type:document.getElementById('p-chauffage-type')?.value||null,
+    chauffage_mode:document.getElementById('p-chauffage-mode')?.value||null,
+    annexes:document.getElementById('p-annexes')?.value||null
   };
 
   const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
@@ -2143,8 +2319,13 @@ async function doPost(){
     pets: document.getElementById('ppets')?.checked||false,
     washing_machine: document.getElementById('pwash')?.checked||false,
     dishwasher: document.getElementById('pdish')?.checked||false,
-    cave: document.getElementById('p-cave')?.checked||false,
     copropriete: document.getElementById('p-copropriete')?.checked||false,
+    pmr: document.getElementById('p-pmr')?.checked||false,
+    chauffage_sol: document.getElementById('p-chauffage-sol')?.checked||false,
+    baignoire: document.getElementById('p-baignoire')?.checked||false,
+    plusieurs_wc: document.getElementById('p-plusieurs-wc')?.checked||false,
+    construction_ancienne: document.getElementById('p-construction-ancienne')?.checked||false,
+    construction_recente: document.getElementById('p-construction-recente')?.checked||false,
   };
   if(annonce) await sb.from('listings').update(extraData).eq('id',annonce.id);
   if(uploadedPhotos.length>0&&annonce){
