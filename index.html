@@ -236,6 +236,8 @@ footer ul a:hover{color:var(--terra)}
 .tpill{padding:.4rem .85rem;border:1.5px solid var(--b2);border-radius:20px;background:var(--s);color:var(--stone);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
 .tpill.actif{border-color:var(--terra);background:rgba(201,85,58,.09);color:var(--terra);font-weight:600}
 @media(max-width:500px){.tbien-grid{grid-template-columns:repeat(3,1fr)!important}}
+/* Form section headers */
+.fsect-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.06em;padding:.55rem 0 .3rem;border-top:2px solid var(--b2);margin-top:1.4rem}
 
 /* DETAIL */
 .dwrap{max-width:900px;margin:0 auto;padding:2rem 2rem 5rem}
@@ -544,9 +546,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     </div>
 
     <div class="fcard" id="post-self-form" style="display:none">
-      <h3><i data-lucide=clipboard-list class=ic></i> Annonce details</h3>
+      <h3><i data-lucide=clipboard-list class=ic></i> Déposer une annonce</h3>
 
-      <!-- Bail type -->
+      <!-- ═══ 1. TYPE DE CONTRAT ═══ -->
+      <div class="fsect-hd" style="border-top:none;margin-top:.5rem"><i data-lucide=file-text class=ic></i> Type de contrat</div>
       <div class="fg2">
         <label>Bail type *</label>
         <div class="ttog">
@@ -560,26 +563,22 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans. Le locataire bénéficie du droit au maintien dans les lieux.
         </div>
       </div>
-
-      <!-- Bail vide info -->
       <div id="bail-vide-opts" style="background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Bail vide (non meublé)</div>
         <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges. Le locataire peut résilier avec 3 mois de préavis (1 mois en zone tendue).</div>
       </div>
-
-      <!-- Bail meublé info -->
       <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=sofa class=ic></i> Bail meublé</div>
         <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges. Le logement doit comporter la liste légale de mobilier obligatoire.</div>
       </div>
-
-      <!-- Chambre / Coloc info -->
       <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
         <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — Trouve Ton Toit ne génère pas de bail pour les colocations. Le propriétaire et le locataire gèrent le contrat directement entre eux.</div>
       </div>
-      <!-- Type de bien -->
-      <div class="fg2" style="margin-top:.75rem">
+
+      <!-- ═══ 2. TYPE DE BIEN ═══ -->
+      <div class="fsect-hd"><i data-lucide=home class=ic></i> Type de bien</div>
+      <div class="fg2">
         <label>Type de bien *</label>
         <div class="tbien-grid">
           <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
@@ -590,8 +589,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
         <input type="hidden" id="p-type-bien" value="appartement">
       </div>
-
-      <!-- Étage (appartement uniquement) -->
       <div id="section-etage" class="frow" style="margin-top:.5rem">
         <div class="fg2"><label>Étage *</label><input class="fi" type="number" id="p-etage" placeholder="0" min="0" max="50"><div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">0 = rez-de-chaussée</div></div>
         <div class="fg2"><label>Nb d'étages dans l'immeuble</label><input class="fi" type="number" id="p-nb-etages" placeholder="5" min="1" max="100"></div>
@@ -604,10 +601,36 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
       </div>
 
-      <div class="frow" style="margin-top:.75rem">
-        <!-- Titre -->
-        <div class="fg2" style="grid-column:1/-1"><label>Titre *</label><input class="fi" type="text" id="pti" placeholder="ex. Bel appartement T3 lumineux — Paris 11e, proche Bastille"></div>
-        <!-- Typologie + Commune -->
+      <!-- ═══ 3. LOCALISATION ═══ -->
+      <div class="fsect-hd"><i data-lucide=map-pin class=ic></i> Localisation</div>
+      <div class="frow">
+        <div class="fg2"><label>Commune / Arrondissement *</label><input class="fi" id="p-commune" placeholder="ex. Paris 11e, Lyon 6e, Bordeaux..."></div>
+        <div class="fg2"><label>Zone (recherche) *</label><input list="zones-post" id="pz" class="fi" placeholder="ex. Paris, Lyon, Bordeaux...">
+          <datalist id="zones-post">
+            <option value="Paris"><option value="Lyon"><option value="Marseille"><option value="Bordeaux">
+            <option value="Toulouse"><option value="Nantes"><option value="Strasbourg"><option value="Lille">
+            <option value="Montpellier"><option value="Nice"><option value="Rennes"><option value="Grenoble">
+          </datalist>
+        </div>
+        <div class="fg2" style="grid-column:1/-1">
+          <label>Adresse complète *</label>
+          <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" onblur="geocodeAdresse()">
+          <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
+          <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
+        </div>
+        <div class="fg2"><label>Zone tendue <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">encadrement des loyers</span></label>
+          <select class="fi" id="p-zone-tendue" style="cursor:pointer">
+            <option value="">Non précisé</option>
+            <option value="oui">Oui — zone tendue</option>
+            <option value="non">Non — hors zone tendue</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ═══ 4. LE BIEN ═══ -->
+      <div class="fsect-hd"><i data-lucide=layout class=ic></i> Le bien</div>
+      <div class="frow">
+        <div class="fg2" style="grid-column:1/-1"><label>Titre de l'annonce *</label><input class="fi" type="text" id="pti" placeholder="ex. Bel appartement T3 lumineux — Paris 11e, proche Bastille"></div>
         <div class="fg2"><label>Typologie *</label>
           <select class="fi" id="p-typology" style="cursor:pointer" onchange="onTypologyChange(this.value)">
             <option value="studio">Studio</option>
@@ -619,29 +642,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <option value="t6plus">T6+</option>
           </select>
         </div>
-        <div class="fg2"><label>Commune / Arrondissement *</label><input class="fi" id="p-commune" placeholder="ex. Paris 11e, Lyon 6e, Bordeaux..."></div>
-        <!-- Zone de recherche -->
-        <div class="fg2"><label>Zone (recherche) *</label><input list="zones-post" id="pz" class="fi" placeholder="ex. Paris, Lyon, Bordeaux...">
-          <datalist id="zones-post">
-            <option value="Paris"><option value="Lyon"><option value="Marseille"><option value="Bordeaux">
-            <option value="Toulouse"><option value="Nantes"><option value="Strasbourg"><option value="Lille">
-            <option value="Montpellier"><option value="Nice"><option value="Rennes"><option value="Grenoble">
-          </datalist>
-        </div>
-        <!-- Surface + disponible -->
         <div class="fg2"><label>Surface totale (m²) *</label><input class="fi" type="number" id="p-sqm" placeholder="65" min="10" max="1000"></div>
-        <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
-        <!-- Loyer + charges -->
-        <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Loyer mensuel (€) *</label><input class="fi" type="number" id="ppr" placeholder="850"></div>
-        <div class="fg2" id="pt-bills-wrap"><label>Charges</label>
-          <select class="fi" id="p-bills" style="cursor:pointer">
-            <option value="excluded">Hors charges (HC)</option>
-            <option value="included">Charges comprises (CC)</option>
-          </select>
-        </div>
-        <div class="fg2" id="pt-charges-wrap"><label>Charges mensuelles (€) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">en sus du loyer</span></label><input class="fi" type="number" id="p-charges" placeholder="80" min="0"></div>
-        <div class="fg2" id="pt-depot-wrap"><label id="pt-depot-label">Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="850"></div>
-        <!-- Chambres + bains -->
         <div class="fg2" id="section-beds"><label>Chambres</label>
           <select class="fi" id="psp" style="cursor:pointer">
             <option value="0">Studio / aucune chambre</option>
@@ -659,7 +660,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <option value="3">3+ salles de bain</option>
           </select>
         </div>
-        <!-- Séjour + cuisine -->
         <div class="fg2"><label>Surface séjour (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-surface-sejour" placeholder="20" min="0"></div>
         <div class="fg2"><label>Type de cuisine</label>
           <select class="fi" id="p-type-cuisine" style="cursor:pointer">
@@ -669,10 +669,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <option value="equipee">Équipée</option>
           </select>
         </div>
-        <!-- Terrasse + année -->
         <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
         <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
-        <!-- Chauffage -->
         <div class="fg2"><label>Type de chauffage</label>
           <div class="tpill-wrap">
             <button type="button" class="tpill" id="chauf-individuel" onclick="setChauffageType('individuel')">Individuel</button>
@@ -690,23 +688,27 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           </div>
           <input type="hidden" id="p-chauffage-mode" value="">
         </div>
-        <!-- Adresse complète -->
-        <div class="fg2" style="grid-column:1/-1">
-          <label>Adresse complète *</label>
-          <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" onblur="geocodeAdresse()">
-          <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
-          <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
-        </div>
-        <!-- Zone tendue -->
-        <div class="fg2"><label>Zone tendue <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">encadrement des loyers</span></label>
-          <select class="fi" id="p-zone-tendue" style="cursor:pointer">
-            <option value="">Non précisé</option>
-            <option value="oui">Oui — zone tendue</option>
-            <option value="non">Non — hors zone tendue</option>
+      </div>
+
+      <!-- ═══ 5. PRIX & DISPONIBILITÉ ═══ -->
+      <div class="fsect-hd"><i data-lucide=euro class=ic></i> Prix & disponibilité</div>
+      <div class="frow">
+        <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+        <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Loyer mensuel (€) *</label><input class="fi" type="number" id="ppr" placeholder="850"></div>
+        <div class="fg2" id="pt-bills-wrap"><label>Charges</label>
+          <select class="fi" id="p-bills" style="cursor:pointer">
+            <option value="excluded">Hors charges (HC)</option>
+            <option value="included">Charges comprises (CC)</option>
           </select>
         </div>
-        <!-- DPE -->
-        <div class="fg2"><label>DPE — Classe énergie <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+        <div class="fg2" id="pt-charges-wrap"><label>Charges mensuelles (€) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">en sus du loyer</span></label><input class="fi" type="number" id="p-charges" placeholder="80" min="0"></div>
+        <div class="fg2" id="pt-depot-wrap"><label id="pt-depot-label">Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="850"></div>
+      </div>
+
+      <!-- ═══ 6. DIAGNOSTIC ÉNERGÉTIQUE (DPE) ═══ -->
+      <div class="fsect-hd"><i data-lucide=zap class=ic></i> Diagnostic énergétique (DPE)</div>
+      <div class="frow">
+        <div class="fg2"><label>Classe énergie <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
           <select class="fi" id="p-dpe" style="cursor:pointer" onchange="onDpeChange()">
             <option value="">Non communiqué</option>
             <option value="A">A — Très performant</option>
@@ -716,7 +718,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <option value="NS">Non soumis au DPE</option>
           </select>
         </div>
-        <div class="fg2"><label>DPE — Classe GES <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+        <div class="fg2"><label>Classe GES <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
           <select class="fi" id="p-ges" style="cursor:pointer" onchange="onDpeChange()">
             <option value="">Non communiqué</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
@@ -730,9 +732,70 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
       </div>
 
+      <!-- ═══ 7. ÉQUIPEMENTS & CARACTÉRISTIQUES ═══ -->
+      <div class="fsect-hd"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
+      <div class="fg2"><label>Équipements</label>
+        <div class="cbwrap">
+          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
+          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
+          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
+          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
+          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
+          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
+          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
+          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
+          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
+        </div>
+      </div>
+      <div class="fg2" style="margin-top:.6rem"><label>Pièces annexes</label>
+        <div class="tpill-wrap" style="margin-top:.4rem">
+          <button type="button" class="tpill" id="ann-cave" onclick="toggleAnnexe(this,'cave')">Cave</button>
+          <button type="button" class="tpill" id="ann-sous-sol" onclick="toggleAnnexe(this,'sous_sol')">Sous-sol</button>
+          <button type="button" class="tpill" id="ann-grenier" onclick="toggleAnnexe(this,'grenier')">Grenier</button>
+          <button type="button" class="tpill" id="ann-dependance" onclick="toggleAnnexe(this,'dependance')">Avec dépendance</button>
+        </div>
+        <input type="hidden" id="p-annexes" value="">
+      </div>
+      <div class="fg2" style="margin-top:.6rem"><label>Caractéristiques</label>
+        <div class="cbwrap" style="margin-top:.4rem">
+          <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
+          <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
+          <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
+          <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
+          <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
+          <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
+        </div>
+      </div>
+
+      <!-- ═══ 8. DESCRIPTION & MÉDIAS ═══ -->
+      <div class="fsect-hd"><i data-lucide=image class=ic></i> Description & médias</div>
+      <div class="fg2"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Décrivez votre logement — meublé, WiFi, proche transport, charges comprises, règles de la maison…"></textarea></div>
+      <div class="fg2">
+        <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise pour publier</span></label>
+        <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
+          <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
+          <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
+          <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
+          <input type="file" id="photo-input" multiple accepter="image/*" style="display:none" onchange="handlePhotos(this.files)">
+        </div>
+        <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+        <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Ajoutez au moins 1 photo avant de publier.</div>
+      </div>
+      <div class="fg2" style="grid-column:1/-1">
+        <label><i data-lucide=video class=ic></i> Visite virtuelle vidéo <span style="font-weight:400;color:var(--stone-l)">(optionnel)</span></label>
+        <div style="border:2px dashed rgba(107,95,82,.2);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--warm)" onclick="document.getElementById('video-input').click()">
+          <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=video class=ic></i></div>
+          <div style="font-size:.82rem;color:var(--stone)">Téléversez une visite vidéo de votre logement (max 50 Mo)</div>
+          <div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">MP4, MOV — les locataires peuvent visionner avant de demander une visite</div>
+          <input type="file" id="video-input" accepter="video/*" style="display:none" onchange="handleVideo(this)">
+        </div>
+        <div id="video-pavis" style="margin-top:.5rem"></div>
+      </div>
+
       <!-- Champs spécifiques à une vente — n'apparaissent qu'en mode "À vendre" -->
       <div id="pt-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Sale details</div>
+        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Détails de la vente</div>
         <div class="frow">
           <div class="fg2"><label>Tenure *</label><select class="fi" id="p-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
           <div class="fg2"><label>Finish statut *</label><select class="fi" id="p-finish"><option value="finished">Fully finished</option><option value="meublé">Finished & meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
@@ -748,105 +811,44 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">SDAs let foreign buyers purchase without an AIP permit — worth flagging if it applies.</div>
       </div>
 
-
-      <!-- Colocation legal notice (point 3) -->
+      <!-- Colocation legal notice -->
       <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Colocation / Colocation details</div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Détails de la colocation</div>
         <div class="frow">
-          <div class="fg2"><label>Room type</label>
+          <div class="fg2"><label>Type de chambre</label>
             <select class="fi" id="p-room-type" style="cursor:pointer">
-              <option value="private"><i data-lucide=door-open class=ic></i> Private room (own chambre)</option>
-              <option value="shared"><i data-lucide=users class=ic></i> Shared room</option>
+              <option value="private">Chambre privée</option>
+              <option value="shared">Chambre partagée</option>
             </select>
           </div>
           <div class="fg2"><label>Salle de bain</label>
             <select class="fi" id="p-room-salle de bain" style="cursor:pointer">
-              <option value="shared"><i data-lucide=shower-head class=ic></i> Shared salle de bain</option>
-              <option value="private"><i data-lucide=shower-head class=ic></i> Private salle de bain</option>
+              <option value="shared">Partagée</option>
+              <option value="private">Privée</option>
             </select>
           </div>
           <div class="fg2"><label>Personnes déjà dans le logement</label>
             <select class="fi" id="p-roommates" style="cursor:pointer">
-              <option value="1">1 person (you)</option>
-              <option value="2">2 people</option>
-              <option value="3">3 people</option>
-              <option value="4">4+ people</option>
+              <option value="1">1 personne (vous)</option>
+              <option value="2">2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="4">4+ personnes</option>
             </select>
           </div>
-          <div class="fg2"><label>Disponible  depuis </label>
+          <div class="fg2"><label>Disponible depuis</label>
             <input class="fi" type="date" id="p-room-disponible">
           </div>
         </div>
         <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem">
-          <i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.<br>
+          <i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.
         </div>
         <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer">
-          <input type="checkbox" id="room_rental-confirm" required> I confirm I have read et accepter these obligations
+          <input type="checkbox" id="room_rental-confirm" required> Je confirme avoir lu et accepté ces conditions
         </label>
       </div>
 
-      <div class="fg2" style="margin-top:.75rem"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Describe votre flat — meublé, WiFi, near transport, bills included, house rules…"></textarea></div>
-
-      <div class="fg2"><label>Équipements</label>
-        <div class="cbwrap">
-          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
-          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
-          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
-          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
-          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
-          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
-          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
-          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
-          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
-          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
-        </div>
-      </div>
-
-      <!-- Pièces annexes -->
-      <div class="fg2"><label>Pièces annexes</label>
-        <div class="tpill-wrap" style="margin-top:.4rem">
-          <button type="button" class="tpill" id="ann-cave" onclick="toggleAnnexe(this,'cave')">Cave</button>
-          <button type="button" class="tpill" id="ann-sous-sol" onclick="toggleAnnexe(this,'sous_sol')">Sous-sol</button>
-          <button type="button" class="tpill" id="ann-grenier" onclick="toggleAnnexe(this,'grenier')">Grenier</button>
-          <button type="button" class="tpill" id="ann-dependance" onclick="toggleAnnexe(this,'dependance')">Avec dépendance</button>
-        </div>
-        <input type="hidden" id="p-annexes" value="">
-      </div>
-
-      <!-- Caractéristiques -->
-      <div class="fg2"><label>Caractéristiques</label>
-        <div class="cbwrap" style="margin-top:.4rem">
-          <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
-          <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
-          <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
-          <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
-          <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
-          <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
-        </div>
-      </div>
-      <div class="fg2">
-        <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo required to publish</span></label>
-        <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
-          <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
-          <div style="font-size:.85rem;color:var(--terra);font-weight:600">Click or drag & drop votre photos here</div>
-          <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5MB each · Max 5 photos · At least 1 required</div>
-          <input type="file" id="photo-input" multiple accepter="image/*" style="display:none" onchange="handlePhotos(this.files)">
-        </div>
-        <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
-        <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Pbail add at least 1 photo before publishing.</div>
-      </div>
-      <div class="fg2" style="grid-column:1/-1">
-        <label><i data-lucide=video class=ic></i> Virtual visite video <span style="font-weight:400;color:var(--stone-l)">(optional)</span></label>
-        <div style="border:2px dashed rgba(107,95,82,.2);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--warm)" onclick="document.getElementById('video-input').click()">
-          <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=video class=ic></i></div>
-          <div style="font-size:.82rem;color:var(--stone)">Téléversez une visite vidéo de votre logement (max 50MB)</div>
-          <div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">MP4, MOV — locataires can watch before requesting a visite</div>
-          <input type="file" id="video-input" accepter="video/*" style="display:none" onchange="handleVideo(this)">
-        </div>
-        <div id="video-pavis" style="margin-top:.5rem"></div>
-      </div>
       <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
-      <button class="btn btn-p" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:.5rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publish my annonce →</button>
+      <button class="btn btn-p" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:1rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publier mon annonce →</button>
     </div>
   </div>
 </div>
