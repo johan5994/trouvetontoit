@@ -1433,12 +1433,12 @@ function updN(){
     const avatar=`<div style="width:32px;height:32px;border-radius:50%;background:var(--bleu);color:white;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer" onclick="goToDash()">${n[0].toUpperCase()}</div>`;
     na.innerHTML=avatar+`<span style="font-size:.82rem;color:var(--stone);font-weight:500;cursor:pointer" onclick="goToDash()">${n}</span><button class="btn btn-p btn-sm" onclick="goToDash()"><i data-lucide=bar-chart-3 class=ic></i> Tableau de bord</button><button class="btn btn-s btn-sm" onclick="doLogout()">Se déconnecter</button>`;
     np.style.display=P.role==='bailleur'?'inline':'none';
-    nd.style.display='inline';
+    if(nd)nd.style.display='inline';
     const heroAgLink=document.getElementById('hero-agences-link');
     if(heroAgLink)heroAgLink.style.display=P.role==='bailleur'?'inline-flex':'none';
   } else {
     na.innerHTML=`<button class="btn btn-s btn-sm" onclick="go('auth')">Se connecter</button><button class="btn btn-p btn-sm" onclick="go('auth')">Publier votre logement →</button>`;
-    np.style.display='none';nd.style.display='none';
+    np.style.display='none';if(nd)nd.style.display='none';
   }
 }
 
