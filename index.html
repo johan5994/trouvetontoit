@@ -269,7 +269,7 @@ footer ul a:hover{color:var(--terra)}
 .cprice{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--terra)}
 .cper{font-size:.78rem;color:var(--stone-l);margin-bottom:1.2rem}
 .cinfo{display:flex;flex-direction:column;gap:.6rem;padding-bottom:1.2rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(107,95,82,.1)}
-.crow{display:flex;justify-content:space-between;font-size:.83rem}
+.crow{display:flex;justify-content:space-between;align-items:baseline;font-size:.92rem;padding:.1rem 0}
 .crow span:first-child{color:var(--stone-l)}
 .crow span:last-child{font-weight:600}
 
@@ -1014,7 +1014,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
         <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1.1rem">
-          <div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--terra)">💶 Ce que vous payez</div>
+          <div style="font-size:.98rem;font-weight:700;margin-bottom:.8rem;color:var(--bleu,#1B4FD8)">💶 Ce que vous payez</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -1784,16 +1784,16 @@ async function openDet(id){
   // ─── Caractéristiques ───────────────────────────────────────────
   {
     // Chip standard pour équipements
-    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.4rem;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:.4rem .8rem;font-size:.84rem;color:var(--stone)">'+icon+' '+text+'</div>';
-    // Section avec titre
-    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:.85rem"><div style="font-size:.68rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.5rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">'+fi.join('')+'</div></div>';};
+    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.45rem;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.45rem .9rem;font-size:.9rem;color:var(--stone)">'+icon+' '+text+'</div>';
+    // Section avec titre bleu
+    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:1rem"><div style="font-size:.72rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.55rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.45rem">'+fi.join('')+'</div></div>';};
     const _nb=l.chambres||l.spots;
 
-    // Tuiles de surface (plus grandes, visuelles)
-    const _tile=(icon,val,unit)=>'<div style="background:var(--s2);border:1.5px solid var(--b2);border-radius:12px;padding:.65rem .9rem;display:flex;flex-direction:column;align-items:center;gap:.1rem;min-width:72px;text-align:center">'
-      +'<div style="font-size:.9rem;color:var(--stone-l)">'+icon+'</div>'
-      +'<div style="font-size:1.1rem;font-weight:800;color:var(--stone);line-height:1.1">'+val+'</div>'
-      +(unit?'<div style="font-size:.68rem;color:var(--stone-l);font-weight:500">'+unit+'</div>':'')
+    // Tuiles de surface (grandes, visuelles)
+    const _tile=(icon,val,unit)=>'<div style="background:var(--s2);border:1.5px solid var(--b2);border-radius:12px;padding:.8rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;min-width:80px;text-align:center">'
+      +'<div style="font-size:1rem;color:var(--bleu,#1B4FD8)">'+icon+'</div>'
+      +'<div style="font-size:1.3rem;font-weight:800;color:var(--stone);line-height:1.1">'+val+'</div>'
+      +(unit?'<div style="font-size:.74rem;color:var(--stone-l);font-weight:500">'+unit+'</div>':'')
       +'</div>';
 
     const surfTiles=[];
@@ -1804,8 +1804,8 @@ async function openDet(id){
     if(l.surface_sejour) surfTiles.push(_tile('<i data-lucide=armchair class=ic></i>',l.surface_sejour,'m² séjour'));
 
     const surfSection=surfTiles.length
-      ?'<div style="margin-bottom:.9rem"><div style="font-size:.68rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.5rem">Surface &amp; espace de vie</div>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:.45rem">'+surfTiles.join('')+'</div></div>':'';
+      ?'<div style="margin-bottom:1rem"><div style="font-size:.72rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.55rem">Surface &amp; espace de vie</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:.5rem">'+surfTiles.join('')+'</div></div>':'';
 
     const _int=[
       l.type_cuisine&&l.type_cuisine!=='aucune'?_ch('<i data-lucide=chef-hat class=ic></i>','Cuisine '+(_cusMap[l.type_cuisine]||l.type_cuisine)):null,
@@ -1959,7 +1959,7 @@ async function openDet(id){
     const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
     if(_iw&&hasContent){
       _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)">'
-        +'<div style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'
+        +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'
         +resumeHtml+inclSection+chargeSection+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
@@ -1980,7 +1980,7 @@ async function openDet(id){
     const zoneTendue=l.zone_tendue==='oui'?'<div style="margin-top:.65rem;background:rgba(240,180,15,.1);border:1px solid rgba(240,180,15,.3);border-radius:8px;padding:.45rem .75rem;font-size:.75rem;color:#9a7000"><i data-lucide=alert-triangle class=ic></i> Zone tendue — encadrement des loyers applicable</div>':'';
 
     document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0">'
-      +'<div style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;color:var(--stone)"><i data-lucide=euro class=ic></i> Finances</div>'
+      +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=euro class=ic></i> Finances</div>'
       +(badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
       +ratingHtml
       +rows+zoneTendue+'</div>';
@@ -1990,7 +1990,7 @@ async function openDet(id){
   {
     const _dh=makeDpeWidget(l.dpe,l.ges);
     const _dw=document.getElementById('d-dpe-wrap');
-    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)">🏷 DPE — Diagnostic de Performance Énergétique</div>'+_dh+'</div>':'';
+    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:.98rem;font-weight:700;margin-bottom:.7rem;color:var(--bleu,#1B4FD8)">🏷 DPE — Diagnostic de Performance Énergétique</div>'+_dh+'</div>':'';
   }
 
   // ─── Coût premier mois ──────────────────────────────────────────
