@@ -397,7 +397,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     <li><a onclick="go('home');stl()">Parcourir les logements</a></li>
     <li><a href="/how-it-works.html">Comment ça marche</a></li>
     <li id="np" style="display:none"><a onclick="chkPost()">Publier un logement</a></li>
-    <li id="nd" style="display:none"><a onclick="goToDash()">My Tableau de bord</a></li>
   </ul>
   <div class="nav-act" id="na">
     <button class="btn btn-s btn-sm" onclick="go('auth')">Se connecter</button>
@@ -603,11 +602,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
         </div>
         <div class="fg2"><label>Zone tendue <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">encadrement des loyers</span></label>
-          <select class="fi" id="p-zone-tendue" style="cursor:pointer">
-            <option value="">Non précisé</option>
-            <option value="oui">Oui — zone tendue</option>
-            <option value="non">Non — hors zone tendue</option>
-          </select>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="zt-oui" onchange="setZoneTendue('oui',this)"> <i data-lucide=alert-triangle class=ic></i> Oui — zone tendue</label>
+            <label class="cl"><input type="checkbox" id="zt-non" onchange="setZoneTendue('non',this)"> Hors zone tendue</label>
+          </div>
+          <input type="hidden" id="p-zone-tendue" value="">
         </div>
         <!-- hidden: auto-remplis par géocodage -->
         <input type="hidden" id="p-commune">
@@ -1672,21 +1671,26 @@ async function openDet(id){
   if(l.video_url)specs.push('<i data-lucide=video class=ic></i> Virtual tour');
   document.getElementById('dspecs').innerHTML=specs.map(s=>`<span class="dfeat" style="background:var(--s2);border:1px solid var(--b2);font-size:.78rem;padding:.3rem .7rem;border-radius:20px">${s}</span>`).join('');
 
-  // Amenities
+  // Équipements
   const fe=[
-    l.meublé?'<i data-lucide=check-circle-2 class=ic></i> Meublé':null,
-    l.wifi?'<i data-lucide=wifi class=ic></i> WiFi disponible':null,
-    l.bills_included?'<i data-lucide=lightbulb class=ic></i> Bills included':null,
-    l.ac?'<i data-lucide=snowflake class=ic></i>️ A/C':null,
+    l.meublé?'<i data-lucide=sofa class=ic></i> Meublé':null,
+    l.wifi?'<i data-lucide=wifi class=ic></i> WiFi':null,
+    l.ac?'<i data-lucide=snowflake class=ic></i> Clim / A/C':null,
     l.parking?'<i data-lucide=car class=ic></i> Parking':null,
-    l.pool?'<i data-lucide=waves class=ic></i> Pool':null,
-    l.balcon?'<i data-lucide=leaf class=ic></i> Balcon/Terrasse':null,
-    l.washing_machine?'<i data-lucide=washing-machine class=ic></i> Washing machine':null,
-    l.dishwasher?'<i data-lucide=utensils class=ic></i> Dishwasher':null,
-    l.ascenseur?'<i data-lucide=arrow-up-down class=ic></i> Ascenseur':null,
+    l.pool?'<i data-lucide=waves class=ic></i> Piscine':null,
+    l.balcon?'<i data-lucide=flower-2 class=ic></i> Balcon / Terrasse':null,
+    l.washing_machine?'<i data-lucide=rotate-ccw class=ic></i> Lave-linge':null,
+    l.dishwasher?'<i data-lucide=utensils class=ic></i> Lave-vaisselle':null,
+    l.ascenseur==='oui'?'<i data-lucide=arrow-up-down class=ic></i> Ascenseur':null,
+    l.copropriete?'<i data-lucide=building-2 class=ic></i> Copropriété':null,
+    l.pmr?'<i data-lucide=accessibility class=ic></i> Accès PMR':null,
+    l.chauffage_sol?'<i data-lucide=flame class=ic></i> Chauffage au sol':null,
+    l.baignoire?'<i data-lucide=bath class=ic></i> Baignoire':null,
+    l.plusieurs_wc?'<i data-lucide=door-open class=ic></i> Plusieurs WC':null,
+    l.construction_ancienne?'<i data-lucide=landmark class=ic></i> Construction ancienne':null,
+    l.construction_recente?'<i data-lucide=hard-hat class=ic></i> Construction récente':null,
     l.jardin?'<i data-lucide=trees class=ic></i> Jardin':null,
-    l.sea_view?'<i data-lucide=waves class=ic></i> Sea view':null,
-    l.accepts_attestation?'<i data-lucide=clipboard-list class=ic></i> Attestation accepté':null,
+    l.accepts_attestation?'<i data-lucide=clipboard-list class=ic></i> Attestation acceptée':null,
   ].filter(Boolean);
   // Fusionner avec les features cochées côté agence (tableau JSON libre) —
   // "Meublé" est explicitement exclu ici : il a déjà sa propre étiquette
@@ -1740,7 +1744,7 @@ async function openDet(id){
     ${l.chauffage_type?`<div class="crow"><span>Type de chauffage</span><span>${({individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois/Poêle',autre:'Autre'}[l.chauffage_type]||l.chauffage_type)+(l.chauffage_mode?' — '+({eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'}[l.chauffage_mode]||l.chauffage_mode):'')}</span></div>`:''}
     ${l.dpe?`<div class="crow"><span>DPE</span><span style="font-weight:700;background:${{A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'}[l.dpe]||'#ccc'};color:${['A','B','C'].includes(l.dpe)?'white':'#222'};padding:.1rem .5rem;border-radius:4px">${l.dpe}${l.ges?' &nbsp;<span style="font-weight:400;font-size:.8rem">GES ${l.ges}</span>':''}</span></div>`:''}
     ${l.copropriete?`<div class="crow"><span>Copropriété</span><span><i data-lucide=check-circle-2 class=ic></i> Oui</span></div>`:''}
-    ${l.zone_tendue?`<div class="crow"><span>Zone tendue</span><span><i data-lucide=alert-triangle class=ic></i> Oui — encadrement des loyers applicable</span></div>`:''}
+    ${l.zone_tendue==='oui'?`<div class="crow"><span>Zone tendue</span><span><i data-lucide=alert-triangle class=ic></i> Oui — encadrement des loyers applicable</span></div>`:''}
     ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
 
   // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
@@ -2070,6 +2074,10 @@ function setTB(el,v){
 }
 
 // Ascenseur — deux checkboxes exclusives (radio behaviour)
+function setZoneTendue(v,cb){
+  ['oui','non'].forEach(m=>{const el=document.getElementById('zt-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-zone-tendue').value=cb.checked?v:'';
+}
 function setAscenseurFromCb(v,cb){
   ['oui','non'].forEach(m=>{
     const el=document.getElementById('asc-cb-'+m);
