@@ -593,7 +593,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <!-- ═══ 3. LOCALISATION ═══ -->
       <div class="fsect-hd"><i data-lucide=map-pin class=ic></i> Localisation</div>
       <div class="frow">
-        <div class="fg2" style="grid-column:1/-1">
+        <div class="fg2" style="grid-column:1/-1;position:relative;z-index:50">
           <label>Adresse complète *</label>
           <div style="position:relative">
             <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" autocomplete="off" oninput="onAdresseInput(this.value)" onblur="setTimeout(hideAdresseSugg,200)">
@@ -748,14 +748,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <!-- ═══ 7. ÉQUIPEMENTS & CARACTÉRISTIQUES ═══ -->
       <div class="fsect-hd"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
-      <div class="fg2"><label>Ascenseur</label>
+      <div class="fg2" style="margin-top:.9rem"><label>Ascenseur</label>
         <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" id="asc-cb-oui" onchange="setAscenseurFromCb('oui',this)"> Oui</label>
           <label class="cl"><input type="checkbox" id="asc-cb-non" onchange="setAscenseurFromCb('non',this)"> Non</label>
         </div>
         <input type="hidden" id="p-ascenseur" value="">
       </div>
-      <div class="fg2" style="margin-top:.6rem"><label>Pièces annexes</label>
+      <div class="fg2" style="margin-top:1.2rem"><label>Pièces annexes</label>
         <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"> Cave</label>
           <label class="cl"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"> Sous-sol</label>
@@ -764,8 +764,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
         <input type="hidden" id="p-annexes" value="">
       </div>
-      <div class="fg2" style="margin-top:.6rem"><label>Équipements</label>
-        <div class="cbwrap">
+      <div class="fg2" style="margin-top:1.2rem"><label>Équipements</label>
+        <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
           <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
           <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
@@ -778,8 +778,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
         </div>
       </div>
-      <div class="fg2" style="margin-top:.6rem"><label>Caractéristiques</label>
-        <div class="cbwrap" style="margin-top:.4rem">
+      <div class="fg2" style="margin-top:1.2rem"><label>Caractéristiques</label>
+        <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
           <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
           <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
@@ -915,19 +915,19 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
         <!-- Amenities -->
         <div style="margin-top:1rem">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)"><i data-lucide=sparkles class=ic></i> Features & amenities</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
           <div id="dfe" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
         </div>
 
         <!-- Infos bail -->
         <div style="margin-top:1.2rem;background:white;border-radius:14px;padding:1rem;border:1px solid rgba(107,95,82,.08)">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Bail details</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>
           <div id="din"></div>
         </div>
 
         <!-- Coût pour le locataire -->
         <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1rem">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--terra)">💶 What you'll pay</div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--terra)">💶 Ce que vous payez</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -1558,8 +1558,10 @@ function rCard(l){
   const bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)',for_sale:'linear-gradient(135deg,#F3EEFB,#E1D4F5)'};
   const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',long:l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'};
   const lbColor={short:'#1B4FD8',room_rental:'#3B82F6',long:'#2E6B8A',for_sale:'#6366F1'};
-  const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Bills incl.':null,l.ac?'A/C':null,l.parking?'Parking':null,l.pool?'Pool':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} spots`:null].filter(Boolean).slice(0,3);
-  const fr=l.available_indefinitely?'Disponible indefinitely':l.available_from?'From '+new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Disponible now';
+  const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Charges incl.':null,l.ac?'Clim':null,l.parking?'Parking':null,l.pool?'Piscine':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} chambres`:null].filter(Boolean).slice(0,3);
+  const _avDate=l.available_from?new Date(l.available_from):null;
+  const _today=new Date(); _today.setHours(0,0,0,0);
+  const fr=l.available_indefinitely?'Disponible immédiatement':!_avDate||_avDate<=_today?'Disponible maintenant':'Dispo le '+_avDate.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
   // Annonce source badge — agence or direct  depuis  owner
   const sourceBadge=l.agency_annonce?
     `<span style="position:absolute;top:.5rem;left:.5rem;background:#8B5CF6;color:white;font-size:.58rem;font-weight:700;padding:.2rem .45rem;border-radius:100px"><i data-lucide=building-2 class=ic></i> ${l.agency_name||'Agence immobilière'}</span>`:
@@ -1704,7 +1706,7 @@ async function openDet(id){
   document.getElementById('dfe').innerHTML=fe.map(f=>`<span class="dfeat">${f}</span>`).join('');
 
   // Infos bail — ou infos de vente si l'annonce est "À vendre"
-  const tl={short:'Location courte durée (1-6 months)',room_rental:'Colocation',long:'Location longue durée (1 year+)',for_sale:'À vendre'};
+  const tl={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:'Location longue durée (1 an+)',for_sale:'À vendre'};
   const badge=await getLandlordResponseBadge(l.landlord_id);
   const propriétaireRating=await getLandlordRating(l.landlord_id);
   const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
@@ -1725,11 +1727,11 @@ async function openDet(id){
     ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`:`
     ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
     ${ratingHtml}
-    <div class="crow"><span>Type</span><span>${tl[l.type]||l.type}</span></div>
-    <div class="crow"><span>Disponible  depuis </span><span>${l.available_from?new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'Now'}</span></div>
-    <div class="crow"><span>Dépôt de garantie</span><span>${l.deposit?'€'+l.deposit:'None'}</span></div>
-    ${l.bills_situation?`<div class="crow"><span>Bills</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Included in loyer':'<i data-lucide=x-circle class=ic></i> Locataire pays separately'}</span></div>`:''}
-    ${l.paiement_due_day?`<div class="crow"><span>Loyer due</span><span>${l.paiement_due_day==='last'?'Last day of month':l.paiement_due_day+' of the month'}</span></div>`:''}
+    <div class="crow"><span>Type de bail</span><span>${tl[l.type]||l.type}</span></div>
+    <div class="crow"><span>Disponible depuis</span><span>${l.available_from?new Date(l.available_from).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'Disponible maintenant'}</span></div>
+    <div class="crow"><span>Dépôt de garantie</span><span>${l.depot?'€'+l.depot:'Non renseigné'}</span></div>
+    ${l.bills_situation?`<div class="crow"><span>Charges</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'}</span></div>`:''}
+    ${l.paiement_due_day?`<div class="crow"><span>Loyer exigible le</span><span>${l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'}</span></div>`:''}
     ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
 
   // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
@@ -1741,14 +1743,14 @@ async function openDet(id){
     if(dcostCard)dcostCard.style.display='block';
     const commissionRate=isAgence?0.50:0.10;
     const commission=Math.round(l.price*commissionRate);
-    const commissionLabel=isAgence?'Agence fee (50%)':'Trouve Ton Toit fee (10%)';
+    const commissionLabel=isAgence?'Frais d\'agence (50%)':'Commission Trouve Ton Toit (10%)';
     document.getElementById('dcost-inner').innerHTML=`
-      <div class="crow"><span>First month loyer</span><span style="font-weight:700">€${l.price}</span></div>
-      <div class="crow"><span>Security dépôt de garantie</span><span style="font-weight:700">${l.deposit?'€'+l.deposit:'None'}</span></div>
+      <div class="crow"><span>Premier mois de loyer</span><span style="font-weight:700">€${l.price}</span></div>
+      <div class="crow"><span>Dépôt de garantie</span><span style="font-weight:700">${l.depot?'€'+l.depot:'Non renseigné'}</span></div>
       <div class="crow"><span>${commissionLabel}</span><span style="font-weight:700;color:var(--terra)">€${commission}</span></div>
       <div style="height:1px;background:rgba(201,85,58,.15);margin:.5rem 0"></div>
-      <div class="crow" style="font-size:.92rem"><span style="font-weight:700">Total at signing</span><span style="font-weight:900;color:var(--terra);font-size:1.1rem">€${l.price+(l.deposit||0)+commission}</span></div>
-      <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">Dépôt de garantie et loyer are paid directly to the propriétaire once the bail is signed.</div>`;
+      <div class="crow" style="font-size:.92rem"><span style="font-weight:700">Total à la signature</span><span style="font-weight:900;color:var(--terra);font-size:1.1rem">€${l.price+(l.depot||0)+commission}</span></div>
+      <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">Le dépôt de garantie et le loyer sont versés directement au propriétaire à la signature du bail.</div>`;
   }
 
   // Si un message existe déjà avec ce propriétaire pour cette annonce, pas besoin
