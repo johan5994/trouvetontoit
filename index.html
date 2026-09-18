@@ -1706,7 +1706,7 @@ async function openDet(id){
   document.getElementById('dfe').innerHTML=fe.map(f=>`<span class="dfeat">${f}</span>`).join('');
 
   // Infos bail — ou infos de vente si l'annonce est "À vendre"
-  const tl={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:'Location longue durée (1 an+)',for_sale:'À vendre'};
+  const tl={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
   const badge=await getLandlordResponseBadge(l.landlord_id);
   const propriétaireRating=await getLandlordRating(l.landlord_id);
   const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
@@ -1728,10 +1728,19 @@ async function openDet(id){
     ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
     ${ratingHtml}
     <div class="crow"><span>Type de bail</span><span>${tl[l.type]||l.type}</span></div>
-    <div class="crow"><span>Disponible depuis</span><span>${l.available_from?new Date(l.available_from).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'Disponible maintenant'}</span></div>
-    <div class="crow"><span>Dépôt de garantie</span><span>${l.depot?'€'+l.depot:'Non renseigné'}</span></div>
-    ${l.bills_situation?`<div class="crow"><span>Charges</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'}</span></div>`:''}
+    ${(()=>{const _d=l.available_from?new Date(l.available_from):null;const _t=new Date();_t.setHours(0,0,0,0);return`<div class="crow"><span>Disponibilité</span><span>${!_d||_d<=_t?'<i data-lucide=check-circle-2 class=ic></i> Disponible maintenant':'Disponible le '+_d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</span></div>`;})()}
+    <div class="crow"><span>Dépôt de garantie</span><span>${l.depot?'€'+l.depot+' <span style="font-size:.72rem;color:var(--stone-l)">(remboursé en fin de bail)</span>':'Non renseigné'}</span></div>
+    ${l.bills_situation?`<div class="crow"><span>Charges locatives</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'+(l.charges_mensuelles?` — €${l.charges_mensuelles}/mois`:'')}</span></div>`:''}
+    ${l.charges_mensuelles&&l.bills_situation==='included'?`<div class="crow"><span>Montant des charges</span><span>€${l.charges_mensuelles}/mois</span></div>`:''}
+    ${l.charges_inclus?`<div class="crow"><span>Charges incluent</span><span>${l.charges_inclus.split(',').map(c=>({eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'}[c]||c)).join(', ')}</span></div>`:''}
     ${l.paiement_due_day?`<div class="crow"><span>Loyer exigible le</span><span>${l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'}</span></div>`:''}
+    ${(l.etage!=null&&l.etage!=='')?`<div class="crow"><span>Étage</span><span>${l.etage==0?'Rez-de-chaussée':'Étage '+l.etage+(l.nb_etages?' / '+l.nb_etages:'')}</span></div>`:''}
+    ${(l.ascenseur!=null&&l.ascenseur!=='')?`<div class="crow"><span>Ascenseur</span><span>${l.ascenseur==='oui'?'<i data-lucide=check-circle-2 class=ic></i> Oui':'<i data-lucide=x-circle class=ic></i> Non'}</span></div>`:''}
+    ${l.annexes?`<div class="crow"><span>Pièces annexes</span><span>${l.annexes.split(',').map(a=>({cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'}[a]||a)).join(', ')}</span></div>`:''}
+    ${l.chauffage_type?`<div class="crow"><span>Type de chauffage</span><span>${({individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois/Poêle',autre:'Autre'}[l.chauffage_type]||l.chauffage_type)+(l.chauffage_mode?' — '+({eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'}[l.chauffage_mode]||l.chauffage_mode):'')}</span></div>`:''}
+    ${l.dpe?`<div class="crow"><span>DPE</span><span style="font-weight:700;background:${{A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'}[l.dpe]||'#ccc'};color:${['A','B','C'].includes(l.dpe)?'white':'#222'};padding:.1rem .5rem;border-radius:4px">${l.dpe}${l.ges?' &nbsp;<span style="font-weight:400;font-size:.8rem">GES ${l.ges}</span>':''}</span></div>`:''}
+    ${l.copropriete?`<div class="crow"><span>Copropriété</span><span><i data-lucide=check-circle-2 class=ic></i> Oui</span></div>`:''}
+    ${l.zone_tendue?`<div class="crow"><span>Zone tendue</span><span><i data-lucide=alert-triangle class=ic></i> Oui — encadrement des loyers applicable</span></div>`:''}
     ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
 
   // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
