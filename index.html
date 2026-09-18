@@ -797,7 +797,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
           <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
           <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
-          <input type="file" id="photo-input" multiple accepter="image/*" style="display:none" onchange="handlePhotos(this.files)">
+          <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
         </div>
         <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
         <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Ajoutez au moins 1 photo avant de publier.</div>
@@ -2348,8 +2348,8 @@ async function uploadPhotos(listingId) {
   for (const file of uploadedPhotos) {
     const ext = file.name.split('.').pop();
     const path = `${listingId}/${Date.now()}.${ext}`;
-    const { erreur } = await sb.storage.from('annonces').upload(path, file, { cacheControl: '3600', upsert: false });
-    if (!erreur) {
+    const { error: uploadErr } = await sb.storage.from('annonces').upload(path, file, { cacheControl: '3600', upsert: true });
+    if (!uploadErr) {
       const { data } = sb.storage.from('annonces').getPublicUrl(path);
       urls.push(data.publicUrl);
     }
@@ -2462,7 +2462,10 @@ async function doPost(){
     chauffage_mode: document.getElementById('p-chauffage-mode')?.value||null,
     annexes: document.getElementById('p-annexes')?.value||null,
   };
-  if(annonce) await sb.from('listings').update(extraData).eq('id',annonce.id);
+  if(annonce){
+    const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
+    if(extraErr){console.error('extraData update error:',extraErr);sA(err,'Erreur sauvegarde équipements : '+extraErr.message);return;}
+  }
   if(uploadedPhotos.length>0&&annonce){
     const photoUrls=await uploadPhotos(annonce.id);
     if(photoUrls.length>0){
