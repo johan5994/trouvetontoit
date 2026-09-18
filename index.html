@@ -1777,7 +1777,7 @@ async function openDet(id){
       _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.08)',
       _dispoOk?'rgba(76,175,125,.3)':'rgba(27,79,216,.2)',
       _dispoOk?'#2e7d52':'var(--bleu)'));
-    if(l.ecs_type)_bs.push(_tb('<i data-lucide=droplets class=ic></i>',l.ecs_type==='collectif'?'ECS collective':'ECS individuelle'));
+    // ECS type retiré des badges — déjà affiché dans la section "Ce qui est inclus"
     const _ti=document.getElementById('d-topinfo');if(_ti)_ti.innerHTML=_bs.join('');
   }
 
@@ -1950,8 +1950,27 @@ async function openDet(id){
     } else if(_iw) _iw.innerHTML='';
   }
 
-  const _tlabel={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
-  document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>'+buildDinHtml(l,badge,ratingHtml,_tlabel,tenureLabels,finishLabels)+'</div>';
+  // ─── Carte Finances ──────────────────────────────────────────────
+  {
+    const loyerCC=l.price?'€'+l.price+' / mois':null;
+    const charges=l.charges_mensuelles?parseInt(l.charges_mensuelles):0;
+    const loyerHC=(l.price&&charges)?(l.price-charges):null;
+    const loyerHCStr=loyerHC?'€'+loyerHC+' / mois':null;
+
+    let rows='';
+    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)">💶 Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--bleu,#1B4FD8)">'+loyerCC+'</span></div>';
+    if(loyerHCStr) rows+='<div class="crow"><span style="color:var(--stone-l)">dont loyer HC</span><span style="color:var(--stone)">'+loyerHCStr+'</span></div>';
+    if(charges) rows+='<div class="crow"><span style="color:var(--stone-l)">dont charges</span><span style="color:var(--stone)">€'+charges+' / mois</span></div>';
+    if(l.depot) rows+='<div class="crow" style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--b2)"><span style="color:var(--stone-l)">Dépôt de garantie</span><span style="color:var(--stone);font-weight:600">€'+l.depot+' <span style="font-size:.72rem;font-weight:400">(remboursé en fin de bail)</span></span></div>';
+    if(l.paiement_due_day) rows+='<div class="crow"><span style="color:var(--stone-l)">Loyer exigible le</span><span style="color:var(--stone)">'+(l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois')+'</span></div>';
+    const zoneTendue=l.zone_tendue==='oui'?'<div style="margin-top:.65rem;background:rgba(240,180,15,.1);border:1px solid rgba(240,180,15,.3);border-radius:8px;padding:.45rem .75rem;font-size:.75rem;color:#9a7000"><i data-lucide=alert-triangle class=ic></i> Zone tendue — encadrement des loyers applicable</div>':'';
+
+    document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0">'
+      +'<div style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;color:var(--stone)"><i data-lucide=euro class=ic></i> Finances</div>'
+      +(badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
+      +ratingHtml
+      +rows+zoneTendue+'</div>';
+  }
 
   // ─── DPE section ────────────────────────────────────────────────
   {
