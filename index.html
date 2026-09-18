@@ -698,7 +698,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
         </div>
         <div class="fg2" style="grid-column:1/-1" id="charges-inclus-wrap">
-          <label>Ce qu'incluent ces charges <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label>
+          <label>Ce qu'incluent ces charges *</label>
           <div class="cbwrap" style="margin-top:.3rem">
             <label class="cl"><input type="checkbox" class="charges-cb" value="eau_froide" onchange="updateChargesInclus()"> Eau froide</label>
             <label class="cl"><input type="checkbox" class="charges-cb" value="eau_chaude" onchange="updateChargesInclus()"> Eau chaude</label>
@@ -748,7 +748,23 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <!-- ═══ 7. ÉQUIPEMENTS & CARACTÉRISTIQUES ═══ -->
       <div class="fsect-hd"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
-      <div class="fg2"><label>Équipements</label>
+      <div class="fg2"><label>Ascenseur</label>
+        <div class="cbwrap" style="margin-top:.3rem">
+          <label class="cl"><input type="checkbox" id="asc-cb-oui" onchange="setAscenseurFromCb('oui',this)"> Oui</label>
+          <label class="cl"><input type="checkbox" id="asc-cb-non" onchange="setAscenseurFromCb('non',this)"> Non</label>
+        </div>
+        <input type="hidden" id="p-ascenseur" value="">
+      </div>
+      <div class="fg2" style="margin-top:.6rem"><label>Pièces annexes</label>
+        <div class="cbwrap" style="margin-top:.3rem">
+          <label class="cl"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"> Cave</label>
+          <label class="cl"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"> Sous-sol</label>
+          <label class="cl"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"> Grenier</label>
+          <label class="cl"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"> Avec dépendance</label>
+        </div>
+        <input type="hidden" id="p-annexes" value="">
+      </div>
+      <div class="fg2" style="margin-top:.6rem"><label>Équipements</label>
         <div class="cbwrap">
           <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
           <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
@@ -762,18 +778,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
         </div>
       </div>
-      <div class="fg2" style="margin-top:.6rem"><label>Pièces annexes</label>
-        <div class="tpill-wrap" style="margin-top:.4rem">
-          <button type="button" class="tpill" id="ann-cave" onclick="toggleAnnexe(this,'cave')">Cave</button>
-          <button type="button" class="tpill" id="ann-sous-sol" onclick="toggleAnnexe(this,'sous_sol')">Sous-sol</button>
-          <button type="button" class="tpill" id="ann-grenier" onclick="toggleAnnexe(this,'grenier')">Grenier</button>
-          <button type="button" class="tpill" id="ann-dependance" onclick="toggleAnnexe(this,'dependance')">Avec dépendance</button>
-        </div>
-        <input type="hidden" id="p-annexes" value="">
-      </div>
       <div class="fg2" style="margin-top:.6rem"><label>Caractéristiques</label>
         <div class="cbwrap" style="margin-top:.4rem">
-          <label class="cl"><input type="checkbox" id="p-ascenseur-cb" onchange="document.getElementById('p-ascenseur').value=this.checked?'oui':'non'"> Ascenseur</label>
           <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
           <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
           <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
@@ -781,7 +787,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
           <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
         </div>
-        <input type="hidden" id="p-ascenseur" value="">
       </div>
 
       <!-- ═══ 8. DESCRIPTION & MÉDIAS ═══ -->
@@ -2053,11 +2058,13 @@ function setTB(el,v){
   if(sec)sec.style.display=(v==='appartement')?'grid':'none';
 }
 
-// Ascenseur toggle
-function setAscenseur(v){
-  document.getElementById('p-ascenseur').value=v;
-  document.getElementById('asc-oui').classList.toggle('actif',v==='oui');
-  document.getElementById('asc-non').classList.toggle('actif',v==='non');
+// Ascenseur — deux checkboxes exclusives (radio behaviour)
+function setAscenseurFromCb(v,cb){
+  ['oui','non'].forEach(m=>{
+    const el=document.getElementById('asc-cb-'+m);
+    if(el)el.checked=(m===v)?cb.checked:false;
+  });
+  document.getElementById('p-ascenseur').value=cb.checked?v:'';
 }
 
 // Chauffage type — checkbox, mutually exclusive (radio behaviour)
@@ -2092,14 +2099,11 @@ function updateChargesInclus(){
   if(inp)inp.value=Array.from(cbs).map(cb=>cb.value).join(',');
 }
 
-// Pièces annexes — multi-select, stored as comma-separated
-function toggleAnnexe(el,v){
-  el.classList.toggle('actif');
+// Pièces annexes — checkboxes, stored as comma-separated
+function updateAnnexes(){
+  const cbs=document.querySelectorAll('.annexe-cb:checked');
   const inp=document.getElementById('p-annexes');
-  const cur=inp.value?inp.value.split(',').filter(Boolean):[];
-  const idx=cur.indexOf(v);
-  if(idx>-1)cur.splice(idx,1);else cur.push(v);
-  inp.value=cur.join(',');
+  if(inp)inp.value=Array.from(cbs).map(cb=>cb.value).join(',');
 }
 
 // Typology → auto-suggest chambres count
