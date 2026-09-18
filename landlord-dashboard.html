@@ -225,11 +225,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="logo-sub">Propriétaire Mon compte</div>
   </div>
   <nav class="sb-nav">
-    <div class="nl">Overview</div>
+    <div class="nl">Tableau de bord</div>
     <button class="ni act" onclick="sp('dash',this)"><span class="nico"><i data-lucide=bar-chart-3 class=ic></i></span>Mon compte</button>
-    <button class="ni" onclick="sp('biens',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Rented biens</button>
+    <button class="ni" onclick="sp('biens',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Biens loués</button>
     <div class="nl">Biens</div>
-    <button class="ni" onclick="sp('annonces',this)"><span class="nico"><i data-lucide=home class=ic></i></span>My annonces</button>
+    <button class="ni" onclick="sp('annonces',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mes annonces</button>
     <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Visites<span class="nbadge" id="nb-visites-ll" style="display:none">0</span></button>
     <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Applications<span class="nbadge" id="nb-applications-ll" style="display:none">0</span></button>
 
@@ -238,10 +238,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="nl">Communication</div>
     <button class="ni" onclick="sp('messages',this)"><span class="nico"><i data-lucide=message-circle class=ic></i></span>Messages<span class="nbadge" id="nb-msg" style="display:none">0</span></button>
     <button class="ni" onclick="sp('maintenance',this)"><span class="nico"><i data-lucide=wrench class=ic></i></span>Maintenance<span class="nbadge g" id="nb-tick" style="display:none">0</span></button>
-    <div class="nl">Reviews & Profil</div>
-    <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Reviews</button>
-    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>My profil</button>
-    <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour to site</button>
+    <div class="nl">Avis & Profil</div>
+    <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Avis</button>
+    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=user class=ic></i></span>Mon profil</button>
+    <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour au site</button>
   </nav>
   <div class="sb-user">
     <div class="uav" id="uav">?</div>
@@ -258,10 +258,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   <div class="topbar">
     <div>
       <div class="tb-title" id="tbt">Mon compte</div>
-      <div class="tb-sub" id="tbs">Welcome back!</div>
+      <div class="tb-sub" id="tbs">Bon retour !</div>
     </div>
     <div class="tb-acts">
-      <button class="btn bp bsm" onclick="sp('annonces',null);openNewAnnonce()">+ New annonce</button>
+      <button class="btn bp bsm" onclick="sp('annonces',null);openNewAnnonce()">+ Nouvelle annonce</button>
       <button class="btn bg bsm" id="mob-menu" onclick="document.getElementById('sb').classList.toggle('open')"><i data-lucide=menu class=ic></i></button>
     </div>
   </div>
@@ -273,7 +273,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div class="kgrid">
         <div class="kcard"><div class="klabel">Monthly Revenue</div><div class="kval" id="k-rev" style="color:var(--green)">—</div><div class="ksub" id="k-rev-sub">collecté ce mois-ci</div><div class="kico"><i data-lucide=euro class=ic></i></div></div>
         <div class="kcard"><div class="klabel">Actif Annonces</div><div class="kval" id="k-list" style="color:var(--marine)">—</div><div class="ksub">actuellement en ligne</div><div class="kico"><i data-lucide=home class=ic></i></div></div>
-        <div class="kcard"><div class="klabel">En attente Paiements</div><div class="kval" id="k-pend" style="color:var(--gold)">—</div><div class="ksub" id="k-pend-sub">overdue or due soon</div><div class="kico">⏳</div></div>
+        <div class="kcard"><div class="klabel">En attente Paiements</div><div class="kval" id="k-pend" style="color:var(--gold)">—</div><div class="ksub" id="k-pend-sub">en retard ou à venir</div><div class="kico">⏳</div></div>
         <div class="kcard"><div class="klabel">Ouvrir Tickets</div><div class="kval" id="k-tick" style="color:var(--bleu)">—</div><div class="ksub">maintenance requests</div><div class="kico"><i data-lucide=wrench class=ic></i></div></div>
       </div>
 
@@ -532,14 +532,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
       <div class="card" style="margin-bottom:1rem">
         <div class="ch">
-          <div class="ct">Personal information</div>
-          <span id="ll-profil-pct" style="font-size:.75rem;color:var(--td)">Used to auto-générer des baux</span>
+          <div class="ct">Informations personnelles</div>
+          <span id="ll-profil-pct" style="font-size:.75rem;color:var(--td)">Utilisées pour générer les baux automatiquement</span>
         </div>
         <div class="cb">
           <!-- <i data-lucide=id-card class=ic></i> Identity -->
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identity</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identité</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">Full legal name * <span style="font-size:.68rem;color:var(--td)">(as on passport)</span></label><input class="fi" id="prof-name" placeholder="Jean Dupont" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl">Nom complet légal * <span style="font-size:.68rem;color:var(--td)">(tel que sur le passeport)</span></label><input class="fi" id="prof-name" placeholder="Jean Dupont" oninput="updateLLCompleteness()"></div>
             <div class="fg"><label class="fl">E-mail</label><input class="fi" id="prof-email" readonly style="opacity:.6"></div>
             <div class="fg">
               <label class="fl">Téléphone *</label>
@@ -691,60 +691,48 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 <option value="Zimbabwean">Zimbabwéen</option>
               </select>
             </div>
-            <div class="fg"><label class="fl">ID / Passport number *</label><input class="fi" id="prof-id" placeholder="e.g. 12345678A" oninput="updateLLCompleteness()"></div>
-            <div class="fg"><label class="fl">Date of birth *</label><input class="fi" type="date" id="prof-dob" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl">N° pièce d'identité / passeport *</label><input class="fi" id="prof-id" placeholder="ex. 12345678A" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="prof-dob" oninput="updateLLCompleteness()"></div>
           </div>
 
           <!-- <i data-lucide=file-text class=ic></i> Requis pour le bail -->
           <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0"><i data-lucide=file-text class=ic></i> Requis pour le bail</div>
-          <div style="font-size:.72rem;color:var(--td);margin-bottom:.75rem">Required by loi française (PRL Act Cap. 604) — included in contrat de bails.</div>
+          <div style="font-size:.72rem;color:var(--td);margin-bottom:.75rem">Obligatoire par la loi française — ces informations apparaissent dans le contrat de bail.</div>
           <div class="fgrid2">
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Accueil / residence address * <span style="font-size:.68rem;color:var(--td)">(apparaît sur le bail comme votre résidence légale)</span></label><input class="fi" id="prof-home-address" placeholder="12 Triq il-Kbira, Marseille STJ 1234, France" oninput="updateLLCompleteness()"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse de résidence * <span style="font-size:.68rem;color:var(--td)">(apparaît sur le bail comme votre résidence légale)</span></label><input class="fi" id="prof-home-address" placeholder="12 rue de la Paix, 75001 Paris, France" oninput="updateLLCompleteness()"></div>
           </div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0"><i data-lucide=euro class=ic></i> Financial</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0"><i data-lucide=euro class=ic></i> Finances</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">IBAN ( pour  receiving loyer) *</label><input class="fi" id="prof-iban" placeholder="MT84 MALT 0110 0001 2345 MTLC AST0 01" oninput="updateLLCompleteness()"></div>
-            <div class="fg"><label class="fl"><i data-lucide=heart class=ic></i> Revolut tag (optional)</label><input class="fi" id="prof-revolut" placeholder="@yourname" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl">IBAN (pour recevoir les loyers) *</label><input class="fi" id="prof-iban" placeholder="FR76 3000 6000 0112 3456 7890 189" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl"><i data-lucide=heart class=ic></i> Tag Revolut (optionnel)</label><input class="fi" id="prof-revolut" placeholder="@votreprénom" oninput="updateLLCompleteness()"></div>
           </div>
-          <!-- Co-bailleur (couple, SCI, indivision) -->
+          <!-- Co-bailleurs (couple, SCI, indivision) -->
           <div style="margin-top:1rem;border-top:1px solid var(--b);padding-top:1rem">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
               <div>
-                <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em"><i data-lucide=users class=ic></i> Co-bailleur</div>
-                <div style="font-size:.7rem;color:var(--td);margin-top:.15rem">Couple, SCI, indivision — apparaît sur le bail</div>
+                <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em"><i data-lucide=users class=ic></i> Co-bailleurs</div>
+                <div style="font-size:.7rem;color:var(--td);margin-top:.15rem">Couple, SCI, indivision — apparaissent sur le bail</div>
               </div>
-              <div class="tgl off" id="co-bailleur-toggle" onclick="toggleCoBailleur()" style="flex-shrink:0"><div class="tgl-dot"></div></div>
+              <button class="btn bg bsm" onclick="addCoBailleur()" style="font-size:.75rem"><i data-lucide=plus class=ic></i> Ajouter</button>
             </div>
-            <div id="co-bailleur-section" style="display:none">
-              <div class="fgrid2" style="margin-bottom:.5rem">
-                <div class="fg"><label class="fl">Nom complet légal *</label><input class="fi" id="prof-co-name" placeholder="Marie Dupont"></div>
-                <div class="fg"><label class="fl">N° pièce d'identité / passeport *</label><input class="fi" id="prof-co-id" placeholder="AB123456"></div>
-                <div class="fg"><label class="fl">Nationalité</label>
-                  <select class="fsel" id="prof-co-nat">
-                    <option value="">Sélectionner...</option>
-                    <option value="Afghan">Afghan</option><option value="Albanian">Albanais</option><option value="Algerian">Algérien</option><option value="American">Américain</option><option value="Argentine">Argentin</option><option value="Armenian">Arménien</option><option value="Australian">Australien</option><option value="Austrian">Autrichien</option><option value="Belgian">Belge</option><option value="Brazilian">Brésilien</option><option value="British">Britannique</option><option value="Bulgarian">Bulgare</option><option value="Canadian">Canadien</option><option value="Chinese">Chinois</option><option value="Croatian">Croate</option><option value="Czech">Tchèque</option><option value="Danish">Danois</option><option value="Dutch">Néerlandais</option><option value="Egyptian">Égyptien</option><option value="Finnish">Finlandais</option><option value="French">Français</option><option value="German">Allemand</option><option value="Greek">Grec</option><option value="Hungarian">Hongrois</option><option value="Indian">Indien</option><option value="Indonesian">Indonésien</option><option value="Iranian">Iranien</option><option value="Irish">Irlandais</option><option value="Israeli">Israélien</option><option value="Italian">Italien</option><option value="Japanese">Japonais</option><option value="Jordanian">Jordanien</option><option value="Korean">Coréen</option><option value="Latvian">Letton</option><option value="Lebanese">Libanais</option><option value="Lithuanian">Lituanien</option><option value="Luxembourgish">Luxembourgeois</option><option value="Malaysian">Malaisien</option><option value="Mexican">Mexicain</option><option value="Moroccan">Marocain</option><option value="Norwegian">Norvégien</option><option value="Pakistani">Pakistanais</option><option value="Polish">Polonais</option><option value="Portuguese">Portugais</option><option value="Romanian">Roumain</option><option value="Russian">Russe</option><option value="Saudi">Saoudien</option><option value="Senegalese">Sénégalais</option><option value="Serbian">Serbe</option><option value="Slovak">Slovaque</option><option value="South African">Sud-Africain</option><option value="Spanish">Espagnol</option><option value="Swedish">Suédois</option><option value="Swiss">Suisse</option><option value="Tunisian">Tunisien</option><option value="Turkish">Turc</option><option value="Ukrainian">Ukrainien</option>
-                  </select>
-                </div>
-                <div class="fg"><label class="fl">E-mail</label><input class="fi" id="prof-co-email" placeholder="marie@exemple.fr" type="email"></div>
-              </div>
-            </div>
+            <div id="co-bailleurs-list" style="display:flex;flex-direction:column;gap:.75rem"></div>
           </div>
           <button class="btn bp" onclick="saveProfilee()" style="margin-top:.75rem;width:100%;justify-content:center">Enregistrer profil →</button>
         </div>
       </div>
       <div class="card">
-        <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Identity verification</div><span id="verify-badge-ll" class="badge b-dim">Not vérifié</span></div>
+        <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Vérification d'identité</div><span id="verify-badge-ll" class="badge b-dim">Non vérifié</span></div>
         <div class="cb">
-          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié propriétaires get a <i data-lucide=check-circle-2 class=ic></i> badge on all their annonces et are font confiance par locataires. A Trouve Ton Toit membre de l'équipe vérifiera votre identité sous 24h.</p>
+          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Les propriétaires vérifiés obtiennent un badge <i data-lucide=check-circle-2 class=ic></i> sur toutes leurs annonces et inspirent confiance aux locataires. Un membre de l'équipe Trouve Ton Toit vérifiera votre identité sous 24h.</p>
 
           <div id="ll-verify-upload-section">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
               <!-- ID -->
               <div>
-                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=id-card class=ic></i> ID or passport</div>
+                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=id-card class=ic></i> Pièce d'identité ou passeport</div>
                 <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('ll-id-up').click()">
                   <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=id-card class=ic></i></div>
-                  <div id="ll-id-upload-label" style="font-size:.75rem;color:var(--tm)">Click to upload</div>
+                  <div id="ll-id-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour téléverser</div>
                   <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG, PDF · Max 5MB</div>
                   <input type="file" id="ll-id-up" accepter="image/*,.pdf" style="display:none" onchange="llOnIDSelected(this)">
                 </div>
@@ -758,8 +746,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=camera class=ic></i> Selfie</div>
                 <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('ll-selfie-up').click()">
                   <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=camera class=ic></i></div>
-                  <div id="ll-selfie-upload-label" style="font-size:.75rem;color:var(--tm)">Click to upload</div>
-                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG · Clear face photo</div>
+                  <div id="ll-selfie-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour téléverser</div>
+                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG · Photo de visage nette</div>
                   <input type="file" id="ll-selfie-up" accepter="image/*" style="display:none" onchange="llOnSelfieSelected(this)">
                 </div>
                 <div id="ll-selfie-pavis-small" style="display:none;margin-top:.4rem;text-align:center">
@@ -917,7 +905,7 @@ function initUI(){
   const n=P.full_name||'Propriétaire';
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
-  document.getElementById('tbs').textContent=`Welcome back, ${n.split(' ')[0]}! · ${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`;
+  document.getElementById('tbs').textContent=`Bon retour, ${n.split(' ')[0]} ! · ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`;
 }
 
 async function loadAll(){
@@ -1053,11 +1041,11 @@ async function loadAnnonces(){
     const boostBtn=!pendingSale?(l.actif?`<button class="btn bg bsm" style="${isBoosted?'':'background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;border:none'}" onclick="startBoostPaiementLL('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn bg bsm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — paused annonces don't show in search"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
     return`<tr>
     <td style="color:var(--txt);font-weight:500">${l.title}
-      <div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${l.zone}${isBoosted?` · <i data-lucide=flame class=ic></i> Boosted until ${new Date(l.boosted_until).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`:''}</div></td>
+      <div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${l.zone}${isBoosted?` · <i data-lucide=flame class=ic></i> Boosté jusqu'au ${new Date(l.boosted_until).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`:''}</div></td>
     <td><span class="badge b-sea">${tl[l.type]||l.type}</span></td>
     <td style="color:var(--txt);font-weight:600">${priceLabel}</td>
     <td>${statusBadge}</td>
-    <td style="font-size:.75rem;color:var(--td)">${l.available_indefinitely?'Indefinitely':l.available_from?new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Now'}</td>
+    <td style="font-size:.75rem;color:var(--td)">${l.available_indefinitely?'Indéfiniment':l.available_from?new Date(l.available_from).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'Maintenant'}</td>
     <td><div style="display:flex;gap:.4rem;flex-wrap:wrap">
       <button class="btn bg bsm" onclick="viewAnnonce('${l.id}')">View</button>
       <button class="btn bg bsm" onclick="editAnnonce('${l.id}')"><i data-lucide=pencil class=ic></i>️ Modifier</button>
@@ -1432,7 +1420,7 @@ function renderCoLocatairesSummary(booking){
     <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:.55rem .65rem;margin-bottom:.35rem">
       <div style="font-size:.6rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Co-locataire ${i+1}${ct.hasAccount?' — Trouve Ton Toit compte':' — no compte yet'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;font-size:.72rem;margin-bottom:.4rem">
-        <div><div style="color:var(--td);font-size:.58rem">Full name</div><div style="font-weight:600">${ct.name||'—'}</div></div>
+        <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:600">${ct.name||'—'}</div></div>
         <div><div style="color:var(--td);font-size:.58rem">Vérifié</div>${vérifiéCell}</div>
         <div><div style="color:var(--td);font-size:.58rem">Nationalité</div><div style="font-weight:600">${ct.nationality||'—'}</div></div>
         <div><div style="color:var(--td);font-size:.58rem">Téléphone</div>${phoneCell}</div>
@@ -1464,7 +1452,7 @@ async function loadCoLocatairesLiveInfo(booking){
       const phoneEl=document.getElementById(`ct-phone-${booking.id}-${i}`);
       const verEl=document.getElementById(`ct-ver-${booking.id}-${i}`);
       if(phoneEl)phoneEl.textContent=p?.phone||ct.phone||'—';
-      if(verEl)verEl.innerHTML=p?.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p?.id_submitted?'<span style="color:var(--gold)">⏳ En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
+      if(verEl)verEl.innerHTML=p?.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p?.id_submitted?'<span style="color:var(--gold)">⏳ En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Non vérifié</span>';
 
       const docsEl=document.getElementById(`ct-docs-${booking.id}-${i}`);
       if(docsEl){
@@ -1503,12 +1491,12 @@ async function loadBookingDossier(booking){
   let age='—';
   if(profil.date_of_birth){
     const dob=new Date(profil.date_of_birth);
-    age=Math.étage((Date.now()-dob)/(365.25*24*3600*1000))+' years old';
+    age=Math.floor((Date.now()-dob)/(365.25*24*3600*1000))+' ans';
   }
 
   const verif=profil.vérifié
     ?'<span style="background:var(--grdim);color:var(--green);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> ID Vérifié</span>'
-    :'<span style="background:rgba(212,168,71,.15);color:var(--gold);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=alert-triangle class=ic></i>️ Not vérifié</span>';
+    :'<span style="background:rgba(212,168,71,.15);color:var(--gold);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=alert-triangle class=ic></i>️ Non vérifié</span>';
 
   const fields=[profil.full_name,profil.passport_number,profil.nationality,profil.date_of_birth,profil.phone,profil.email,profil.emprent];
   const pct=Math.round(fields.filter(Boolean).length/fields.length*100);
@@ -1521,7 +1509,7 @@ async function loadBookingDossier(booking){
     </div>
     <div style="margin-bottom:.75rem">
       <div style="display:flex;justify-content:space-between;font-size:.63rem;color:var(--td);margin-bottom:.2rem">
-        <span>Profil completeness</span><span style="color:${progressColor};font-weight:600">${pct}%</span>
+        <span>Complétude du profil</span><span style="color:${progressColor};font-weight:600">${pct}%</span>
       </div>
       <div style="height:4px;background:var(--s2);border-radius:100px">
         <div style="height:100%;width:${pct}%;background:${progressColor};border-radius:100px"></div>
@@ -1534,14 +1522,14 @@ async function loadBookingDossier(booking){
     </div>`:''}
 
     <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
-      <div style="font-size:.63rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem"><i data-lucide=user class=ic></i> Identity</div>
+      <div style="font-size:.63rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem"><i data-lucide=user class=ic></i> Identité</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:.77rem">
-        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Full name</div><div style="font-weight:700">${profil.full_name||'—'}</div></div>
-        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Age</div><div style="font-weight:600">${age}</div></div>
-        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Date of birth</div><div style="font-weight:600">${profil.date_of_birth||'—'}</div></div>
+        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Nom complet</div><div style="font-weight:700">${profil.full_name||'—'}</div></div>
+        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Âge</div><div style="font-weight:600">${age}</div></div>
+        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Date de naissance</div><div style="font-weight:600">${profil.date_of_birth||'—'}</div></div>
 
         <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Nationalité</div><div style="font-weight:600">${profil.nationality||'—'}</div></div>
-        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Passport / ID No.</div><div style="font-weight:600">${profil.passport_number||'—'}</div></div>
+        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">N° passeport / pièce d'identité</div><div style="font-weight:600">${profil.passport_number||'—'}</div></div>
 
       </div>
     </div>
@@ -1687,9 +1675,9 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
     const dueSuffix=dueDay===1?'st':dueDay===2?'nd':dueDay===3?'rd':'th';
     try{
       const bailType=annonce?.type==='short'?'short':'long';
-      const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-      const startFmt=startDate?new Date(startDate).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):today;
-      const endFmt=endDate?new Date(endDate).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'—';
+      const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      const startFmt=startDate?new Date(startDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):today;
+      const endFmt=endDate?new Date(endDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
       const price=booking?.monthly_rent||annonce?.price||0; // prix réellement convenu (négocié ou non), pas juste le prix affiché sur l'annonce
       const depot=annonce?.depot||price;
 
@@ -1713,7 +1701,7 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
 </head><body>
 <h1>${bailType==='long'?'LONG':'SHORT'} PRIVATE RESIDENTIAL LEASE</h1>
 <p>This, day of <u>${today}</u></p>
-${(()=>{const co=propriétaireProfile?.co_bailleur_data;if(co&&co.name){return`<p>Par le présent acte sous seing privé comparaissent d'une part :<br>— <u>${propriétaireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${propriétaireProfile?.passport_number||'_______________'}</u>, demeurant au <u>${propriétaireProfile?.home_address||'_______________'}</u>, e-mail <u>${propriétaireProfile?.email||'_______________'}</u> ;<br>— <u>${co.name}</u>, titulaire de la pièce d'identité n° <u>${co.passport||'_______________'}</u>, de nationalité <u>${co.nationality||'_______________'}</u>, e-mail <u>${co.email||'_______________'}</u> ;<br>ci-après dénommés conjointement les <strong>propriétaires</strong>.</p>`;}return`<p>Par le présent acte sous seing privé comparaissent d'une part <u>${propriétaireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${propriétaireProfile?.passport_number||'_______________'}</u>, demeurant au <u>${propriétaireProfile?.home_address||'_______________'}</u>, e-mail <u>${propriétaireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>propriétaire</strong>.</p>`;})()}
+${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isArray(coList))coList=[coList];const coArr=(coList||[]).filter(c=>c&&c.name);if(coArr.length){const parts=['— <u>'+(propriétaireProfile?.full_name||'_______________')+'</u>, titulaire de la pièce d\'identité n° <u>'+(propriétaireProfile?.passport_number||'_______________')+'</u>, demeurant au <u>'+(propriétaireProfile?.home_address||'_______________')+'</u>, e-mail <u>'+(propriétaireProfile?.email||'_______________')+'</u>',...coArr.map(co=>'— <u>'+co.name+'</u>, titulaire de la pièce d\'identité n° <u>'+(co.passport||'_______________')+'</u>, de nationalité <u>'+(co.nationality||'_______________')+'</u>, e-mail <u>'+(co.email||'_______________')+'</u>')];return'<p>Par le présent acte sous seing privé comparaissent d\'une part :<br>'+parts.join(' ;<br>')+' ;<br>ci-après dénommés conjointement les <strong>propriétaires</strong>.</p>';}return'<p>Par le présent acte sous seing privé comparaissent d\'une part <u>'+(propriétaireProfile?.full_name||'_______________')+'</u>, titulaire de la pièce d\'identité n° <u>'+(propriétaireProfile?.passport_number||'_______________')+'</u>, demeurant au <u>'+(propriétaireProfile?.home_address||'_______________')+'</u>, e-mail <u>'+(propriétaireProfile?.email||'_______________')+'</u>, ci-après dénommé le <strong>propriétaire</strong>.</p>';})()} 
 <p>Et d'autre part <u>${locataireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${locataireProfile?.passport_number||'_______________'}</u>, de nationalité <u>${locataireProfile?.nationality||'_______________'}</u>, e-mail <u>${locataireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>locataire</strong>.</p>
 <p>Le propriétaire donne en location au locataire les locaux situés au <u>${annonce?.full_address||annonce?.zone||'_______________'}</u>, aux conditions suivantes :</p>
 <h2>Paiement &amp; Duration</h2>
@@ -1742,7 +1730,7 @@ ${bailType==='long'?'<li>Après la 1ère année, le loyer peut augmenter proport
 <li>Both parties declare that water et electricity meter readings shall be recorded in <strong>Annex A on entrée dans les lieux day</strong> et form an integral part of this agreement.</li>
 </ol>
 ${bailType==='long'?`<h2>Termination &amp; Renewal</h2><ol><li>The locataire may terminate after the compulsory period avec one (1) month written notice by registered letter.</li><li>The propriétaire must notify non-renewal at least 3 months before expiry, otherwise the bail renews automatically.</li></ol>`:''}
-${(()=>{const co=propriétaireProfile?.co_bailleur_data;const lessorBoxes=`<div class="sig-box"><p><strong>Bailleur</strong></p><p>${propriétaireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>`+(co&&co.name?`<div class="sig-box"><p><strong>Co-bailleur</strong></p><p>${co.name}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>`:'');return`<div class="sig-block">${lessorBoxes}<div class="sig-box"><p><strong>Locataire</strong></p><p>${locataireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div></div>`;})()}
+${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isArray(coList))coList=[coList];const coArr=(coList||[]).filter(c=>c&&c.name);const sigBoxes='<div class="sig-box"><p><strong>Bailleur</strong></p><p>'+(propriétaireProfile?.full_name||'_______________')+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>'+coArr.map((co,i)=>'<div class="sig-box"><p><strong>Co-bailleur '+(i+1)+'</strong></p><p>'+co.name+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>').join('');return'<div class="sig-block">'+sigBoxes+'<div class="sig-box"><p><strong>Locataire</strong></p><p>'+(locataireProfile?.full_name||'_______________')+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div></div>';})()} 
 <p style="font-size:8pt;color:#888;text-align:center;margin-top:20px">Ce contrat est établi conformément à la loi n° 89-462 du 6 juillet 1989 régissant les locations résidentielles en France.<br>Doit être enregistré sur rentregistration.fr dans les 30 jours.</p>
 </body></html>`;
 
@@ -1909,7 +1897,7 @@ async function propriétaireConfirmerVisit(visitId, response, listingId, locatai
     const keyLabels={keysafe:'<i data-lucide=lock class=ic></i> Key safe on site',neighbor:'<i data-lucide=home class=ic></i>️ With neighbour/concierge',agent:'<i data-lucide=award class=ic></i> Agent has the keys',propriétaire:'<i data-lucide=phone class=ic></i> Contact propriétaire'};
     const keyInfo=keyLabels[listingFull?.key_type]||'Contact propriétaire';
     const keyDetail=listingFull?.key_location?`\nKey details: ${listingFull.key_location}`:'';
-    const visitDateStr=visite?.visit_date?new Date(visite.visit_date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})+' at '+(visite?.visit_time||'TBD'):'TBD';
+    const visitDateStr=visite?.visit_date?new Date(visite.visit_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' at '+(visite?.visit_time||'TBD'):'TBD';
 
     if(listingFull?.agent_id){
       try{
@@ -2002,7 +1990,7 @@ async function openGroupChatModal(groupId, listingTitle, locataireNom){
     const isMe=m.sender_id===U.id;
     const div=document.createElement('div');
     div.style.cssText=`display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};gap:.1rem`;
-    div.innerHTML=`<div style="font-size:.65rem;color:var(--td);margin-bottom:.1rem">${m.sender_name||'Unknown'}</div><div class="${isMe?'bm':'bt'}">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    div.innerHTML=`<div style="font-size:.65rem;color:var(--td);margin-bottom:.1rem">${m.sender_name||'Unknown'}</div><div class="${isMe?'bm':'bt'}">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     body.appendChild(div);
   });
   body.scrollTop=body.scrollHeight;
@@ -2086,7 +2074,7 @@ function loadAwaitingConfirmeration(data){
     <div style="display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)">
       <div style="flex:1">
         <div style="font-size:.88rem;font-weight:600;color:var(--txt)">€${(p.montant||0).toLocaleString()} — ${p.tenant_name||'Locataire'}</div>
-        <div style="font-size:.72rem;color:var(--tm);margin-top:.15rem">Declared paid on ${new Date(p.updated_at||p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
+        <div style="font-size:.72rem;color:var(--tm);margin-top:.15rem">Déclaré payé le ${new Date(p.updated_at||p.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}</div>
       </div>
       <span class="badge b-gold">⏳ En attente de confirmation</span>
       <button class="btn bp bsm" onclick="confirmPaiementReceived('${p.id}')"><i data-lucide=check class=ic></i> Confirmer la réception</button>
@@ -2188,7 +2176,7 @@ async function confirmPaiementReceived(id){
 
 function generateQuittance(pay){
   const today=new Date();
-  const month=today.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const month=today.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   const build=()=>{
     const{jsPDF}=window.jspdf;
     const doc=new jsPDF();
@@ -2207,7 +2195,7 @@ function generateQuittance(pay){
     doc.text('RENT RECEIPT — QUITTANCE DE LOYER',20,y);y+=12;
 
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(80,80,80);
-    doc.text(`Date: ${today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=8;
+    doc.text(`Date: ${today.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=8;
     doc.text(`Propriétaire: ${P?.full_name||'Propriétaire'}`,20,y);y+=6;
     if(P?.passport_number){doc.text(`ID/Passport: ${P.passport_number}`,20,y);y+=6;}
     if(P?.home_address){doc.text(`Adresse: ${P.home_address}`,20,y);y+=6;}
@@ -2222,7 +2210,7 @@ function generateQuittance(pay){
 
     doc.setFontSize(10);doc.setTextColor(80,80,80);
     doc.text('Paiement method: Bank transfer / Revolut',20,y);y+=6;
-    doc.text(`Paiement date: ${today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=18;
+    doc.text(`Paiement date: ${today.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=18;
 
     doc.setDrawColor(220,220,220);doc.line(20,y,pageW-20,y);y+=10;
     doc.setFont('helvetica','italic');doc.setFontSize(8.5);doc.setTextColor(140,140,140);
@@ -2325,7 +2313,7 @@ async function loadPaiements(filter){
     <td style="color:var(--txt);font-weight:500">${p.tenant_name||p.tenant_id?.substring(0,8)||'—'}<div style="font-size:.68rem;color:var(--td);font-weight:400;margin-top:.1rem">${tl[p.type]||p.type||''}</div></td>
     <td style="font-size:.78rem;color:var(--tm)">${titles[p.listing_id]||'—'}</td>
     <td style="color:var(--txt);font-weight:600">€${(p.montant||0).toLocaleString()}</td>
-    <td style="font-size:.75rem;color:var(--td)">${p.due_date?new Date(p.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
+    <td style="font-size:.75rem;color:var(--td)">${p.due_date?new Date(p.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
     <td><span class="badge ${sc[p.statut]||'b-dim'}">${sl[p.statut]||p.statut}</span></td>
     <td style="display:flex;gap:.4rem">
       ${p.statut==='declared'?`<button class="btn bp bsm" onclick="confirmPaiementReceived('${p.id}')"><i data-lucide=check class=ic></i> Confirmer</button>`:''}
@@ -2339,7 +2327,7 @@ function loadDepotGaranties(pays){
   const deps=pays.filter(p=>p.type==='depot');
   const wrap=document.getElementById('dépôt de garanties-list');
   if(!wrap)return;
-  wrap.innerHTML=deps.map(d=>`<div class="prow"><div class="pinf"><div class="pname">Dépôt de garantie — ${d.tenant_name||d.tenant_id?.substring(0,8)||'Locataire'}</div><div class="psub">Held since ${new Date(d.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div><span style="font-weight:700;color:var(--marine);flex-shrink:0">€${(d.montant||0).toLocaleString()}</span></div>`).join('')||'<div style="font-size:.82rem;color:var(--td);text-align:center;padding:1rem">No dépôt de garanties held yet</div>';
+  wrap.innerHTML=deps.map(d=>`<div class="prow"><div class="pinf"><div class="pname">Dépôt de garantie — ${d.tenant_name||d.tenant_id?.substring(0,8)||'Locataire'}</div><div class="psub">Détenu depuis le ${new Date(d.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div><span style="font-weight:700;color:var(--marine);flex-shrink:0">€${(d.montant||0).toLocaleString()}</span></div>`).join('')||'<div style="font-size:.82rem;color:var(--td);text-align:center;padding:1rem">Aucun dépôt de garantie détenu</div>';
 }
 
 async function sendReminder(id){
@@ -2347,7 +2335,7 @@ async function sendReminder(id){
     const{data:pay}=await sb.from('paiements').select('*').eq('id',id).single();
     if(!pay){toast('<i data-lucide=x-circle class=ic></i> Paiement introuvable');return;}
     if(!pay.tenant_id){toast('<i data-lucide=x-circle class=ic></i> No locataire linked to this paiement');return;}
-    const dueLabel=pay.due_date?new Date(pay.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'soon';
+    const dueLabel=pay.due_date?new Date(pay.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'bientôt';
     const{error}=await sb.from('messages').insert({
       listing_id:pay.listing_id,sender_id:'system',receiver_id:pay.tenant_id,
       content:`💶 Rappel : votre loyer de €${pay.montant||0} était dû le ${dueLabel}. Veuillez effectuer le virement bancaire ou via Revolut et le marquer comme payé dans votre tableau de bord une fois envoyé.`,
@@ -2369,7 +2357,7 @@ async function sendAllReminders(){
     const toRemind=(due||[]).filter(p=>p.due_date&&new Date(p.due_date)<=soonThreshold&&p.tenant_id);
     if(!toRemind.length){toast('No locataires avec imminent en attente paiements right now.');return;}
      for (const pay of toRemind){
-      const dueLabel=pay.due_date?new Date(pay.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'soon';
+      const dueLabel=pay.due_date?new Date(pay.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'bientôt';
       await sb.from('messages').insert({
         listing_id:pay.listing_id,sender_id:'system',receiver_id:pay.tenant_id,
         content:`💶 Rappel : votre loyer de €${pay.montant||0} était dû le ${dueLabel}. Veuillez effectuer le virement bancaire ou via Revolut et le marquer comme payé dans votre tableau de bord une fois envoyé.`,
@@ -2506,7 +2494,7 @@ function renderMessages(){
         <div class="mprev" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${m.sender_id===U.id?'You: ':''}${m.content}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
-        <span style="font-size:.65rem;color:var(--td)">${new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+        <span style="font-size:.65rem;color:var(--td)">${new Date(m.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
         ${isUnread?'<div style="width:7px;height:7px;border-radius:50%;background:var(--bleu)"></div>':''}
       </div>
     </div>`;
@@ -2577,7 +2565,7 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
             <button onclick="disputePaiement('${m.id}','${listingId}')" style="flex:1;background:rgba(224,90,90,.2);color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Not received yet</button>
           </div>
         </div>
-        <div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+        <div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     } else if(m.type==='locataire_interested'&&m.receiver_id===U.id){
       div.innerHTML=`
         <div class="bt" style="max-width:85%">
@@ -2586,12 +2574,12 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
             <button onclick="sp('applications',document.querySelector('.ni[onclick*=applications]'))" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide=arrow-right class=ic></i> Avis dossier in Applications →</button>
           </div>
         </div>
-        <div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+        <div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     } else {
       const isSystem=m.sender_id==='system';
       div.innerHTML=isSystem
-        ?`<div class="bs"><i data-lucide=bot class=ic style="width:.85em;height:.85em;opacity:.6"></i> Trouve Ton Toit — ${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`
-        :`<div class="${isMe?'bm':'bt'}" style="max-width:80%;word-wrap:break-word">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+        ?`<div class="bs"><i data-lucide=bot class=ic style="width:.85em;height:.85em;opacity:.6"></i> Trouve Ton Toit — ${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`
+        :`<div class="${isMe?'bm':'bt'}" style="max-width:80%;word-wrap:break-word">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     }
     body.appendChild(div);
   });
@@ -2612,8 +2600,8 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
       div.style.cssText=`display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};gap:.1rem;animation:fi .2s ease`;
       const isSystemLive=m.sender_id==='system';
       div.innerHTML=isSystemLive
-        ?`<div class="bs"><i data-lucide=bot class=ic style="width:.85em;height:.85em;opacity:.6"></i> Trouve Ton Toit — ${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`
-        :`<div class="${isMe?'bm':'bt'}" style="max-width:80%;word-wrap:break-word">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+        ?`<div class="bs"><i data-lucide=bot class=ic style="width:.85em;height:.85em;opacity:.6"></i> Trouve Ton Toit — ${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`
+        :`<div class="${isMe?'bm':'bt'}" style="max-width:80%;word-wrap:break-word">${m.content}</div><div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
       body.appendChild(div);body.scrollTop=body.scrollHeight;
       // Mark as read immediately
       sb.from('messages').update({read:true}).eq('id',m.id);
@@ -2668,7 +2656,7 @@ async function proposeVisitFromChat(){
         zone:annonce?.zone||'',
         statut:'awaiting_locataire'
       });
-      const dateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      const dateStr=new Date(visitDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       await sb.from('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:locataireId,
         content:`📅 Le propriétaire propose une visite :\n\n${annonce?.title||'Bien'}\n📅 ${dateStr} à ${visitTime}\n\nRendez-vous dans Mes visites pour confirmer ou décliner.`,
@@ -2954,7 +2942,7 @@ async function sendMsg(){
   const body=document.getElementById('msg-chat-body');
   const div=document.createElement('div');
   div.style.cssText='display:flex;flex-direction:column;align-items:flex-end;gap:.1rem;animation:fi .2s ease';
-  div.innerHTML=`<div class="bm" style="max-width:80%;word-wrap:break-word">${content}</div><div style="font-size:.6rem;color:var(--td)">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  div.innerHTML=`<div class="bm" style="max-width:80%;word-wrap:break-word">${content}</div><div style="font-size:.6rem;color:var(--td)">${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
   body.appendChild(div);
   body.scrollTop=body.scrollHeight;
   input.value='';
@@ -3029,7 +3017,7 @@ async function loadMaintenance(){
           <div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">${t.title}</div>
           <div style="font-size:.7rem;font-weight:700;margin-bottom:.25rem">${pl[t.priority]||pl.medium}</div>
           <div style="font-size:.72rem;color:var(--tm);line-height:1.4">${t.description||''}</div>
-          <div style="font-size:.68rem;color:var(--td);margin-top:.2rem">${t.tenant_id?`<i data-lucide=user class=ic></i> ${locataireNoms[t.tenant_id]||'Locataire'} · `:'<i data-lucide=home class=ic></i> Reported by you · '}${listingTitles[t.listing_id]||'No bien linked'} · ${new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+          <div style="font-size:.68rem;color:var(--td);margin-top:.2rem">${t.tenant_id?`<i data-lucide=user class=ic></i> ${locataireNoms[t.tenant_id]||'Locataire'} · `:'<i data-lucide=home class=ic></i> Signalé par vous · '}${listingTitles[t.listing_id]||'Aucun bien lié'} · ${new Date(t.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div>
         </div>
         <span class="tst ${sc[t.statut]||'to'}">${sl[t.statut]||'Ouvrir'}</span>
       </div>
@@ -3106,7 +3094,7 @@ async function loadReviews(){
   document.getElementById('my-rating').innerHTML=avg?`${avg} <i data-lucide=star class=ic></i>`:'—';
   document.getElementById('total-avis').textContent=(data||[]).length;
   const wrap=document.getElementById('avis-list');
-  wrap.innerHTML=(data||[]).map(r=>`<div class="rcard"><div class="stars">${'<i data-lucide=star class=ic></i>'.repeat(r.rating)}</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">${r.comment||'No comment'}</div><div class="rauthor">${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('')||'<div class="empty"><div class="em"><i data-lucide=star class=ic></i></div><p>No avis yet</p></div>';
+  wrap.innerHTML=(data||[]).map(r=>`<div class="rcard"><div class="stars">${'<i data-lucide=star class=ic></i>'.repeat(r.rating)}</div><div style="font-size:.83rem;color:var(--tm);margin-top:.3rem;line-height:1.5">${r.comment||'Aucun commentaire'}</div><div class="rauthor">${new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('')||'<div class="empty"><div class="em"><i data-lucide=star class=ic></i></div><p>Aucun avis pour l\'instant</p></div>';
   loadRateAgentsCard();
   loadReviewableLocataires();
 }
@@ -3231,8 +3219,8 @@ function updateLLCompleteness(){
     {id:'prof-phone',label:'Téléphone'},
     {id:'prof-nat',label:'Nationalité'},
     {id:'prof-id',label:'ID/Passport'},
-    {id:'prof-dob',label:'Date of birth'},
-    {id:'prof-home-address',label:'Accueil address'},
+    {id:'prof-dob',label:'Date de naissance'},
+    {id:'prof-home-address',label:'Adresse de résidence'},
     {id:'prof-iban',label:'IBAN'},
   ];
   // Vérifier depuis le DOM si disponible, sinon depuis P
@@ -3310,7 +3298,7 @@ async function loadProfilee(){
   const llBadge = document.getElementById('verify-badge-ll');
   if(P.vérifié){
     if(llBadge){llBadge.classNom='badge b-green';llBadge.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vérifié';}
-    if(llUploadSection) llUploadSection.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=check-circle-2 class=ic></i></div><div style="font-weight:700;color:var(--green);margin-bottom:.3rem">Identity Vérifié</div><div style="font-size:.78rem;color:var(--tm)">Your <i data-lucide=check-circle-2 class=ic></i> badge is visible on all  votre annonces.</div></div>`;
+    if(llUploadSection) llUploadSection.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=check-circle-2 class=ic></i></div><div style="font-weight:700;color:var(--green);margin-bottom:.3rem">Identité vérifiée</div><div style="font-size:.78rem;color:var(--tm)">Votre badge <i data-lucide=check-circle-2 class=ic></i> est visible sur toutes vos annonces.</div></div>`;
   } else if(P.id_submitted){
     if(llBadge){llBadge.classNom='badge b-gold';llBadge.textContent='⏳ En attente';}
     if(llUploadSection) llUploadSection.innerHTML=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">⏳</div><div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">Under avis</div><div style="font-size:.78rem;color:var(--tm)">Verification within 24 hours.</div></div>`;
@@ -3326,32 +3314,63 @@ async function loadProfilee(){
     else{phoneInput.value=ph;}
   }
   updateLLCompleteness();
-  // Charger co-bailleur si présent
-  const co = P.co_bailleur_data;
-  if(co && co.name){
-    const tog = document.getElementById('co-bailleur-toggle');
-    const sec = document.getElementById('co-bailleur-section');
-    if(tog){tog.classList.remove('off');tog.classList.add('on');}
-    if(sec) sec.style.display='block';
-    if(document.getElementById('prof-co-name')) document.getElementById('prof-co-name').value = co.name||'';
-    if(document.getElementById('prof-co-id')) document.getElementById('prof-co-id').value = co.passport||'';
-    if(document.getElementById('prof-co-nat')) document.getElementById('prof-co-nat').value = co.nationality||'';
-    if(document.getElementById('prof-co-email')) document.getElementById('prof-co-email').value = co.email||'';
+  // Charger co-bailleurs (tableau ou objet legacy)
+  const list = document.getElementById('co-bailleurs-list');
+  if(list) list.innerHTML = '';
+  let coList = P.co_bailleur_data;
+  if(coList){
+    // Migration legacy : objet unique → tableau
+    if(!Array.isArray(coList)) coList = [coList];
+    coList.filter(c=>c&&c.name).forEach(co => addCoBailleur(co));
   }
 }
 
-function toggleCoBailleur(){
-  const tog = document.getElementById('co-bailleur-toggle');
-  const sec = document.getElementById('co-bailleur-section');
-  if(!tog||!sec) return;
-  const on = tog.classList.contains('on');
-  if(on){
-    tog.classList.remove('on'); tog.classList.add('off');
-    sec.style.display='none';
-  } else {
-    tog.classList.remove('off'); tog.classList.add('on');
-    sec.style.display='block';
-  }
+const CO_NAT_OPTIONS=`<option value="">Sélectionner...</option><option value="Afghan">Afghan</option><option value="Albanian">Albanais</option><option value="Algerian">Algérien</option><option value="American">Américain</option><option value="Argentine">Argentin</option><option value="Armenian">Arménien</option><option value="Australian">Australien</option><option value="Austrian">Autrichien</option><option value="Belgian">Belge</option><option value="Brazilian">Brésilien</option><option value="British">Britannique</option><option value="Bulgarian">Bulgare</option><option value="Canadian">Canadien</option><option value="Chinese">Chinois</option><option value="Croatian">Croate</option><option value="Czech">Tchèque</option><option value="Danish">Danois</option><option value="Dutch">Néerlandais</option><option value="Egyptian">Égyptien</option><option value="Finnish">Finlandais</option><option value="French">Français</option><option value="German">Allemand</option><option value="Greek">Grec</option><option value="Hungarian">Hongrois</option><option value="Indian">Indien</option><option value="Indonesian">Indonésien</option><option value="Iranian">Iranien</option><option value="Irish">Irlandais</option><option value="Israeli">Israélien</option><option value="Italian">Italien</option><option value="Japanese">Japonais</option><option value="Jordanian">Jordanien</option><option value="Korean">Coréen</option><option value="Latvian">Letton</option><option value="Lebanese">Libanais</option><option value="Lithuanian">Lituanien</option><option value="Luxembourgish">Luxembourgeois</option><option value="Malaysian">Malaisien</option><option value="Mexican">Mexicain</option><option value="Moroccan">Marocain</option><option value="Norwegian">Norvégien</option><option value="Pakistani">Pakistanais</option><option value="Polish">Polonais</option><option value="Portuguese">Portugais</option><option value="Romanian">Roumain</option><option value="Russian">Russe</option><option value="Saudi">Saoudien</option><option value="Senegalese">Sénégalais</option><option value="Serbian">Serbe</option><option value="Slovak">Slovaque</option><option value="South African">Sud-Africain</option><option value="Spanish">Espagnol</option><option value="Swedish">Suédois</option><option value="Swiss">Suisse</option><option value="Tunisian">Tunisien</option><option value="Turkish">Turc</option><option value="Ukrainian">Ukrainien</option>`;
+
+function renderCoBailleurRow(idx, co){
+  const list = document.getElementById('co-bailleurs-list');
+  if(!list) return;
+  const div = document.createElement('div');
+  div.id = 'co-row-'+idx;
+  div.style.cssText = 'background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.85rem 1rem;position:relative';
+  div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem"><span style="font-size:.72rem;font-weight:700;color:var(--bleu)"><i data-lucide=user class=ic></i> Co-bailleur ${idx+1}</span><button onclick="removeCoBailleur(${idx})" style="background:var(--rdim);color:var(--red);border:1px solid rgba(224,90,90,.2);border-radius:6px;padding:.2rem .6rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=trash-2 class=ic></i> Retirer</button></div>
+<div class="fgrid2">
+  <div class="fg"><label class="fl">Nom complet légal *</label><input class="fi" id="co-name-${idx}" placeholder="Marie Dupont" value="${co?.name||''}"></div>
+  <div class="fg"><label class="fl">N° pièce d\'identité / passeport *</label><input class="fi" id="co-id-${idx}" placeholder="AB123456" value="${co?.passport||''}"></div>
+  <div class="fg"><label class="fl">Nationalité</label><select class="fsel" id="co-nat-${idx}">${CO_NAT_OPTIONS}</select></div>
+  <div class="fg"><label class="fl">E-mail</label><input class="fi" id="co-email-${idx}" placeholder="marie@exemple.fr" type="email" value="${co?.email||''}"></div>
+</div>`;
+  list.appendChild(div);
+  if(co?.nationality) document.getElementById('co-nat-'+idx).value = co.nationality;
+  if(window.lucide) lucide.createIcons();
+}
+
+function addCoBailleur(co){
+  const list = document.getElementById('co-bailleurs-list');
+  if(!list) return;
+  const idx = list.children.length;
+  renderCoBailleurRow(idx, co||null);
+}
+
+function removeCoBailleur(idx){
+  // Reconstruire la liste sans cet élément
+  const list = document.getElementById('co-bailleurs-list');
+  if(!list) return;
+  const current = getCoBailleursFromForm();
+  current.splice(idx, 1);
+  list.innerHTML = '';
+  current.forEach((co, i) => renderCoBailleurRow(i, co));
+}
+
+function getCoBailleursFromForm(){
+  const list = document.getElementById('co-bailleurs-list');
+  if(!list) return [];
+  return Array.from({length: list.children.length}, (_,i) => ({
+    name: document.getElementById('co-name-'+i)?.value?.trim()||'',
+    passport: document.getElementById('co-id-'+i)?.value?.trim()||'',
+    nationality: document.getElementById('co-nat-'+i)?.value||'',
+    email: document.getElementById('co-email-'+i)?.value?.trim()||'',
+  })).filter(c => c.name);
 }
 
 async function saveProfilee(){
@@ -3365,15 +3384,9 @@ async function saveProfilee(){
     iban:document.getElementById('prof-iban').value.trim(),
     revolut_tag:document.getElementById('prof-revolut').value.trim(),
   };
-  // Co-bailleur (optionnel)
-  const coOn = document.getElementById('co-bailleur-toggle')?.classList.contains('on');
-  const coName = document.getElementById('prof-co-name')?.value?.trim()||'';
-  updates.co_bailleur_data = (coOn && coName) ? {
-    name: coName,
-    passport: document.getElementById('prof-co-id')?.value?.trim()||'',
-    nationality: document.getElementById('prof-co-nat')?.value||'',
-    email: document.getElementById('prof-co-email')?.value?.trim()||'',
-  } : null;
+  // Co-bailleurs (liste, peut être vide)
+  const coArr = getCoBailleursFromForm();
+  updates.co_bailleur_data = coArr.length ? coArr : null;
   const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
   if(error){toast('Erreur: '+error.message);return;}
   Object.assign(P,updates);
@@ -3515,7 +3528,7 @@ async function loadRentedProperties(){
       const urgent=daysLeft<=60;
       const soon=daysLeft<=90;
       const color=daysLeft<0?'var(--red)':urgent?'var(--gold)':'var(--td)';
-      const label=daysLeft<0?`<i data-lucide=alert-triangle class=ic></i>️ Bail ended ${Math.abs(daysLeft)} days ago`:`<i data-lucide=calendar class=ic></i> Bail ends in ${daysLeft} days (${new Date(bk.bail_end).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})})`;
+      const label=daysLeft<0?`<i data-lucide=alert-triangle class=ic></i>️ Bail terminé il y a ${Math.abs(daysLeft)} jours`:`<i data-lucide=calendar class=ic></i> Bail se termine dans ${daysLeft} jours (${new Date(bk.bail_end).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})})`;
       bailEndHtml=`<div style="font-size:.72rem;color:${color};font-weight:${soon?700:400}">${label}</div>`;
     }
 
@@ -3528,7 +3541,7 @@ async function loadRentedProperties(){
     const recentPays=pays.filter(p=>p.statut==='paid').sort((a,b)=>new Date(b.paid_at||b.due_date)-new Date(a.paid_at||a.due_date)).slice(0,5);
     const quittancesHtml=recentPays.length?recentPays.map(p=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--b);font-size:.75rem">
-        <span style="color:var(--tm)">${p.type==='first_rent'?'First month':p.type==='depot'?'Dépôt de garantie':p.type==='loyer'?'Loyer':p.type} — ${p.due_date?new Date(p.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—'}</span>
+        <span style="color:var(--tm)">${p.type==='first_rent'?'Premier mois':p.type==='depot'?'Dépôt de garantie':p.type==='loyer'?'Loyer':p.type} — ${p.due_date?new Date(p.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'—'}</span>
         <span style="font-weight:600">€${p.montant||0} <i data-lucide=check-circle-2 class=ic></i></span>
       </div>`).join(''):'<div style="font-size:.75rem;color:var(--td);padding:.5rem 0">Aucun paiement confirmé pour l\'instant</div>';
 
@@ -3784,7 +3797,7 @@ async function confirmFirstPaiementReceived(bookingId,received){
       if(bk.move_in_date){
         const moveIn=new Date(bk.move_in_date);
         const nextDue=new Date(moveIn.getFullYear(),moveIn.getMonth()+1,moveIn.getDate());
-        nextDueLabel=nextDue.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+        nextDueLabel=nextDue.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
       }
 
       if(!bk.tenant_id||!bk.listing_id||!bk.monthly_rent){
@@ -3932,7 +3945,7 @@ function renderBailSection(g){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
         <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
           <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=clipboard-list class=ic></i> État des lieux / Key handover</div>
-          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${edlDate?new Date(edlDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${edlDate?new Date(edlDate).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
           ${!edlDate?`<div style="display:flex;gap:.4rem;margin-top:.3rem">
             <input type="date" id="edl-date-${bk?.id||''}" style="flex:1;padding:.3rem .5rem;background:var(--s);border:1px solid var(--b2);border-radius:6px;color:var(--txt);font-size:.72rem" min="${new Date().toISOString().slice(0,10)}">
             <button onclick="setEDLDate('${bk?.id||''}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.3rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer">Set →</button>
@@ -3940,7 +3953,7 @@ function renderBailSection(g){
         </div>
         <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
           <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=home class=ic></i> Entrée dans les lieux date</div>
-          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${moveIn?new Date(moveIn).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${moveIn?new Date(moveIn).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
         </div>
       </div>
 
@@ -4051,7 +4064,7 @@ function renderVisitGroup(g, isPast){
     'declined':{label:'<i data-lucide=x-circle class=ic></i> Dossier declined',cls:'b-dim'},
   };
   const sc=statusConfig[g.statut]||{label:g.statut,cls:'b-dim'};
-  const visitDateStr=g.visit_date?new Date(g.visit_date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(g.visit_time?' at '+g.visit_time:''):'Date TBD';
+  const visitDateStr=g.visit_date?new Date(g.visit_date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(g.visit_time?' à '+g.visit_time:''):'Date à confirmer';
   const borderColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.25)':sc.cls==='b-sea'?'rgba(58,143,181,.25)':'var(--b)';
   const bgColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.04)':sc.cls==='b-sea'?'rgba(58,143,181,.04)':'var(--s2)';
   const bk=g.booking||null;
@@ -4103,7 +4116,7 @@ function renderVisitGroup(g, isPast){
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
           ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
-          ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée dans les lieux date</div><div style="font-size:.73rem;font-weight:600">${new Date(bk.move_in_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div>`:''}
+          ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée dans les lieux date</div><div style="font-size:.73rem;font-weight:600">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div>`:''}
         </div>
         ${bk?.negotiation_note?`
         <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:7px;padding:.5rem .65rem;margin-bottom:.5rem">
@@ -4529,7 +4542,7 @@ async function viewEdlDossier(bookingId){
     <div style="background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0">
       <div>
         <div style="font-weight:700;font-size:.9rem"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux Dossier</div>
-        <div style="font-size:.68rem;color:var(--td)">${bk.edl_completed_at?'Completed '+new Date(bk.edl_completed_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):''}</div>
+        <div style="font-size:.68rem;color:var(--td)">${bk.edl_completed_at?'Completed '+new Date(bk.edl_completed_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''}</div>
       </div>
       <button onclick="document.getElementById('edl-dossier-modal').remove()" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer"><i data-lucide=x class=ic></i></button>
     </div>
@@ -4713,7 +4726,7 @@ async function confirmLocatairePaiement(bookingId){
   if(bk?.move_in_date){
     const moveIn=new Date(bk.move_in_date);
     const nextDue=new Date(moveIn.getFullYear(),moveIn.getMonth()+1,moveIn.getDate());
-    nextDueLabel=nextDue.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    nextDueLabel=nextDue.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
   }
 
   // Record the depot et first month's loyer as clearly labeled paiements —
@@ -4755,7 +4768,7 @@ function generateFirstPaiementQuittanceLL(bk,listingTitle,locataireNom){
   const text=`PAYMENT RECEIPT — REÇU DE PAIEMENT
 Trouve Ton Toit Platform
 
-Date: ${today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
+Date: ${today.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}
 
 Propriétaire: ${P?.full_name||'Propriétaire'}
 Locataire: ${locataireNom||'Locataire'}
