@@ -667,6 +667,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
           </div>
           <input type="hidden" id="p-chauffage-type" value="">
+          <div id="chauffage-hint" style="display:none;margin-top:.4rem;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.45rem .65rem;font-size:.75rem;color:var(--stone);gap:.4rem;align-items:flex-start"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.05rem"></i><span>Chauffage collectif — le chauffage est généralement compris dans les charges. La case "Chauffage" a été cochée automatiquement dans les postes de charges ci-dessous.</span></div>
         </div>
         <div class="fg2"><label>Mode de chauffage</label>
           <div class="cbwrap" style="margin-top:.3rem">
@@ -1694,7 +1695,6 @@ async function openDet(id){
       _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.08)',
       _dispoOk?'rgba(76,175,125,.3)':'rgba(27,79,216,.2)',
       _dispoOk?'#2e7d52':'var(--bleu)'));
-    if(l.chauffage_type)_bs.push(_tb('<i data-lucide=flame class=ic></i>',(_chMap[l.chauffage_type]||l.chauffage_type)+' chauffage'));
     if(l.ecs_type)_bs.push(_tb('<i data-lucide=droplets class=ic></i>',l.ecs_type==='collectif'?'ECS collective':'ECS individuelle'));
     const _ti=document.getElementById('d-topinfo');if(_ti)_ti.innerHTML=_bs.join('');
   }
@@ -1734,7 +1734,6 @@ async function openDet(id){
       l.annee_construction?_ch('<i data-lucide=landmark class=ic></i>','Const. '+l.annee_construction):(l.construction_ancienne?_ch('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_ch('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
       l.copropriete?_ch('<i data-lucide=building-2 class=ic></i>','Copropriété'+(l.nb_lots_copro?' — '+l.nb_lots_copro+' lots':'')):null,
       l.annexes?l.annexes.split(',').filter(Boolean).map(a=>_ch('<i data-lucide=archive class=ic></i>',_aMap[a]||a)):null,
-      l.zone_tendue==='oui'?_ch('<i data-lucide=alert-triangle class=ic></i>','Zone tendue'):null,
     ];
     const _h2=_sc('Surface et espace de vie',_surf)+_sc('Intérieur',_int)+_sc('Extérieur',_ext)+_sc('Autres',_aut);
     const _dc=document.getElementById('d-carac');
@@ -1793,13 +1792,11 @@ async function openDet(id){
       +ratingHtml
       +secHd('Bail')
       +drow('Type',tl[l.type]||l.type)
-      +'<div class="crow"><span>Disponibilité</span><span>'+dispoHtml+'</span></div>'
       +(l.paiement_due_day?drow('Loyer exigible le',l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'):'')
       +secHd('Finances')
       +(l.depot?drow('Dépôt de garantie','€'+l.depot+' <span style="font-size:.72rem;color:var(--stone-l)">(remboursé en fin de bail)</span>'):'')
       +(l.bills_situation==='excluded'?drow('Charges locatives','<i data-lucide=x-circle class=ic></i> En sus du loyer'):'')
       +(l.charges_mensuelles?drow('Montant des charges','€'+l.charges_mensuelles+' / mois'):'')
-      +(l.charges_inclus?drow('Charges incluent',l.charges_inclus.split(',').map(c=>_cMap[c]||c).join(', ')):'')
       +(l.zone_tendue==='oui'?'<div style="margin-top:.5rem;background:rgba(240,180,15,.1);border:1px solid rgba(240,180,15,.3);border-radius:8px;padding:.5rem .75rem;font-size:.75rem;color:#9a7000"><i data-lucide=alert-triangle class=ic></i> Zone tendue — encadrement des loyers applicable</div>':'')
       ;
   }
@@ -1827,10 +1824,22 @@ async function openDet(id){
       const items=l.charges_inclus.split(',').filter(c=>c&&c!=='chauffage').map(c=>'<span style="display:inline-block;background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.15);border-radius:6px;padding:.15rem .5rem;font-size:.74rem;margin:.1rem .15rem 0 0">'+(_cMapL[c]||c)+'</span>');
       if(items.length)rows.push(['<i data-lucide=package-check class=ic></i> Charges comprises',items.join('')]);
     }
+    // Ce qui est à la charge du locataire
+    const inclus=l.charges_inclus?l.charges_inclus.split(','):[];
+    const aCharge=[];
+    // Électricité perso : presque toujours à la charge du locataire
+    if(!inclus.includes('electricite'))aCharge.push('⚡ Électricité — contrat individuel à souscrire');
+    // Chauffage individuel : locataire paie sa conso directement
+    if(l.chauffage_type==='individuel')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
+    // ECS individuelle
+    if(l.ecs_type==='individuel')aCharge.push('🚿 Eau chaude — chauffe-eau individuel, consommation à votre charge');
+
     const _iw=document.getElementById('d-inclus-wrap');
-    if(_iw&&rows.length){
-      const inner=rows.map(([k,v])=>'<div class="crow"><span style="white-space:nowrap">'+k+'</span><span style="text-align:right">'+v+'</span></div>').join('');
-      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'+inner+'</div>';
+    if(_iw&&(rows.length||aCharge.length)){
+      const inclInner=rows.map(([k,v])=>'<div class="crow"><span style="white-space:nowrap">'+k+'</span><span style="text-align:right">'+v+'</span></div>').join('');
+      const chargeInner=aCharge.length?'<div style="margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--b2)"><div style="font-size:.75rem;font-weight:700;color:var(--stone-l);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px">À la charge du locataire</div>'
+        +aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);padding:.2rem 0"><i data-lucide=circle-alert class=ic style="color:#e8900a"></i> '+t+'</div>').join('')+'</div>':'';
+      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'+inclInner+chargeInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
 
@@ -2206,6 +2215,15 @@ function setChauffageTypeFromCb(v,cb){
     if(el)el.checked=(m===v)?cb.checked:false;
   });
   document.getElementById('p-chauffage-type').value=cb.checked?v:'';
+  // Chauffage collectif → auto-cocher "Chauffage" dans charges_inclus + afficher hint
+  const chaufCb=document.querySelector('.charges-cb[value="chauffage"]');
+  const hint=document.getElementById('chauffage-hint');
+  if(cb.checked&&v==='collectif'){
+    if(chaufCb&&!chaufCb.checked){chaufCb.checked=true;updateChargesInclus();}
+    if(hint)hint.style.display='flex';
+  } else if(v==='collectif'){
+    if(hint)hint.style.display='none';
+  }
 }
 
 // Chauffage mode — checkbox, mutually exclusive (radio behaviour)
