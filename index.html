@@ -661,42 +661,131 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
         <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
         <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
-        <div class="fg2"><label>Type de chauffage</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="chauf-cb-individuel" onchange="setChauffageTypeFromCb('individuel',this)"> Individuel</label>
-            <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
+      </div><!-- close characteristics frow -->
+
+      <!-- ═══ 5. CHARGES & CONSOMMATIONS ═══ -->
+      <div class="fsect-hd"><i data-lucide=zap class=ic></i> Charges &amp; consommations</div>
+      <div class="frow">
+        <!-- Chauffage -->
+        <div class="fg2" style="grid-column:1/-1">
+          <label>🔥 Chauffage</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-top:.4rem">
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Type</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="chauf-cb-individuel" onchange="setChauffageTypeFromCb('individuel',this)"> Individuel</label>
+                <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Énergie</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="chauf-cb-electrique" onchange="setChauffageModeFromCb('electrique',this)"> Électrique</label>
+                <label class="cl"><input type="checkbox" id="chauf-cb-gaz" onchange="setChauffageModeFromCb('gaz',this)"> Gaz</label>
+                <label class="cl"><input type="checkbox" id="chauf-cb-fioul" onchange="setChauffageModeFromCb('fioul',this)"> Fioul</label>
+                <label class="cl"><input type="checkbox" id="chauf-cb-solaire" onchange="setChauffageModeFromCb('solaire',this)"> Solaire</label>
+                <label class="cl"><input type="checkbox" id="chauf-cb-autre" onchange="setChauffageModeFromCb('autre',this)"> Autre</label>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Compris dans les charges ?</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="chauf-inclus-oui" onchange="setChauffageInclus('oui',this)"> Oui</label>
+                <label class="cl"><input type="checkbox" id="chauf-inclus-non" onchange="setChauffageInclus('non',this)"> Non</label>
+              </div>
+              <div id="chauffage-hint" style="display:none;margin-top:.3rem;font-size:.72rem;color:var(--stone-l);line-height:1.4"><i data-lucide=info class=ic></i> Chauffage collectif → généralement compris dans les charges.</div>
+            </div>
           </div>
           <input type="hidden" id="p-chauffage-type" value="">
-          <div id="chauffage-hint" style="display:none;margin-top:.4rem;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.45rem .65rem;font-size:.75rem;color:var(--stone);gap:.4rem;align-items:flex-start"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.05rem"></i><span>Chauffage collectif — le chauffage est généralement compris dans les charges. La case "Chauffage" a été cochée automatiquement dans les postes de charges ci-dessous.</span></div>
-        </div>
-        <div class="fg2"><label>Mode de chauffage</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="chauf-cb-electrique" onchange="setChauffageModeFromCb('electrique',this)"> Électrique</label>
-            <label class="cl"><input type="checkbox" id="chauf-cb-gaz" onchange="setChauffageModeFromCb('gaz',this)"> Gaz</label>
-            <label class="cl"><input type="checkbox" id="chauf-cb-fioul" onchange="setChauffageModeFromCb('fioul',this)"> Fioul</label>
-            <label class="cl"><input type="checkbox" id="chauf-cb-solaire" onchange="setChauffageModeFromCb('solaire',this)"> Solaire</label>
-            <label class="cl"><input type="checkbox" id="chauf-cb-autre" onchange="setChauffageModeFromCb('autre',this)"> Autre</label>
-          </div>
           <input type="hidden" id="p-chauffage-mode" value="">
-        </div>
-      </div>
-        <div class="fg2" style="margin-top:.75rem"><label>Eau chaude sanitaire (ECS)</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
-            <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
-          </div>
-          <input type="hidden" id="p-ecs-type" value="">
-          <div class="cbwrap" style="margin-top:.4rem" id="ecs-energie-wrap">
-            <span style="font-size:.75rem;color:var(--stone-l);align-self:center">Énergie :</span>
-            <label class="cl"><input type="checkbox" id="ecs-en-electrique" onchange="setEcsEnergie('electrique',this)"> Électrique</label>
-            <label class="cl"><input type="checkbox" id="ecs-en-gaz" onchange="setEcsEnergie('gaz',this)"> Gaz</label>
-            <label class="cl"><input type="checkbox" id="ecs-en-autre" onchange="setEcsEnergie('autre',this)"> Autre</label>
-          </div>
-          <input type="hidden" id="p-ecs-energie" value="">
+          <input type="hidden" id="p-chauffage-inclus" value="">
         </div>
 
-      <!-- ═══ 5. PRIX & DISPONIBILITÉ ═══ -->
-      <div class="fsect-hd"><i data-lucide=euro class=ic></i> Prix & disponibilité</div>
+        <!-- ECS -->
+        <div class="fg2" style="grid-column:1/-1">
+          <label>🚿 Eau chaude sanitaire (ECS)</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-top:.4rem">
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Production</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
+                <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Énergie</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="ecs-en-electrique" onchange="setEcsEnergie('electrique',this)"> Électrique</label>
+                <label class="cl"><input type="checkbox" id="ecs-en-gaz" onchange="setEcsEnergie('gaz',this)"> Gaz</label>
+                <label class="cl"><input type="checkbox" id="ecs-en-autre" onchange="setEcsEnergie('autre',this)"> Autre</label>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Comprise dans les charges ?</div>
+              <div class="cbwrap">
+                <label class="cl"><input type="checkbox" id="ecs-inclus-oui" onchange="setEcsInclus('oui',this)"> Oui</label>
+                <label class="cl"><input type="checkbox" id="ecs-inclus-non" onchange="setEcsInclus('non',this)"> Non</label>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="p-ecs-type" value="">
+          <input type="hidden" id="p-ecs-energie" value="">
+          <input type="hidden" id="p-ecs-inclus" value="">
+        </div>
+
+        <!-- Eau froide -->
+        <div class="fg2">
+          <label>💧 Eau froide</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
+            <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
+            <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
+          </div>
+          <input type="hidden" id="p-eau-froide" value="">
+        </div>
+
+        <!-- Électricité -->
+        <div class="fg2">
+          <label>⚡ Électricité du logement</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)" checked> À la charge du locataire</label>
+            <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
+          </div>
+          <input type="hidden" id="p-electricite-situation" value="locataire">
+        </div>
+
+        <!-- Autres postes -->
+        <div class="fg2" style="grid-column:1/-1">
+          <label>Autres postes compris dans les charges</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Entretien parties communes</label>
+            <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
+            <label class="cl"><input type="checkbox" class="charges-cb" value="ordures_menageres" onchange="updateChargesInclus()"> Ordures ménagères</label>
+            <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
+            <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
+          </div>
+          <input type="hidden" id="p-charges-inclus" value="">
+        </div>
+
+        <!-- Régularisation -->
+        <div class="fg2">
+          <label>Type de charges</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Avec régularisation annuelle</label>
+            <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires</label>
+            <label class="cl"><input type="checkbox" id="reg-inconnu" onchange="setChargesRegularisation('inconnu',this)"> Je ne sais pas</label>
+          </div>
+          <input type="hidden" id="p-charges-regularisation" value="">
+        </div>
+
+        <!-- Résumé automatique -->
+        <div id="charges-summary" style="display:none;grid-column:1/-1;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.15);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--stone);line-height:1.7"></div>
+
+        <input type="hidden" id="p-bills" value="included">
+      </div>
+
+      <!-- ═══ 6. PRIX & DISPONIBILITÉ ═══ -->
+      <div class="fsect-hd"><i data-lucide=euro class=ic></i> Prix &amp; disponibilité</div>
       <div class="frow">
         <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
         <div class="fg2" id="pt-price-wrap">
@@ -708,24 +797,9 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           </div>
         </div>
         <div class="fg2" id="pt-charges-wrap">
-          <label>Charges locatives (€) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">incluses dans le loyer CC</span></label>
+          <label>Montant des charges (€/mois) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">incluses dans le loyer CC</span></label>
           <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
         </div>
-        <div class="fg2" style="grid-column:1/-1" id="charges-inclus-wrap">
-          <label>Ce qu'incluent ces charges *</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" class="charges-cb" value="eau_froide" onchange="updateChargesInclus()"> Eau froide</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="eau_chaude" onchange="updateChargesInclus()"> Eau chaude</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="chauffage" onchange="updateChargesInclus()"> Chauffage</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="electricite" onchange="updateChargesInclus()"> Électricité</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Entretien parties communes</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="ordures_menageres" onchange="updateChargesInclus()"> Ordures ménagères</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre (non spécifié)</label>
-          </div>
-          <input type="hidden" id="p-charges-inclus" value="">
-        </div>
-        <input type="hidden" id="p-bills" value="included">
         <div class="fg2" id="pt-depot-wrap">
           <label id="pt-depot-label">Dépôt de garantie (€)</label>
           <input class="fi" type="number" id="pdep" placeholder="850">
@@ -1790,8 +1864,6 @@ async function openDet(id){
     const secHd=t=>'<div style="font-size:.7rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin:.85rem 0 .4rem">'+t+'</div>';
     return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
       +ratingHtml
-      +secHd('Bail')
-      +drow('Type',tl[l.type]||l.type)
       +(l.paiement_due_day?drow('Loyer exigible le',l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'):'')
       +secHd('Finances')
       +(l.depot?drow('Dépôt de garantie','€'+l.depot+' <span style="font-size:.72rem;color:var(--stone-l)">(remboursé en fin de bail)</span>'):'')
@@ -1824,22 +1896,27 @@ async function openDet(id){
       const items=l.charges_inclus.split(',').filter(c=>c&&c!=='chauffage').map(c=>'<span style="display:inline-block;background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.15);border-radius:6px;padding:.15rem .5rem;font-size:.74rem;margin:.1rem .15rem 0 0">'+(_cMapL[c]||c)+'</span>');
       if(items.length)rows.push(['<i data-lucide=package-check class=ic></i> Charges comprises',items.join('')]);
     }
-    // Ce qui est à la charge du locataire
+    // Ce qui est à la charge du locataire (basé sur les champs explicites si dispo, sinon déduction)
     const inclus=l.charges_inclus?l.charges_inclus.split(','):[];
     const aCharge=[];
-    // Électricité perso : presque toujours à la charge du locataire
-    if(!inclus.includes('electricite'))aCharge.push('⚡ Électricité — contrat individuel à souscrire');
-    // Chauffage individuel : locataire paie sa conso directement
-    if(l.chauffage_type==='individuel')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
-    // ECS individuelle
-    if(l.ecs_type==='individuel')aCharge.push('🚿 Eau chaude — chauffe-eau individuel, consommation à votre charge');
+    const elecSit=l.electricite_situation||(!inclus.includes('electricite')?'locataire':null);
+    if(elecSit==='locataire')aCharge.push('⚡ Électricité — contrat individuel à souscrire');
+    const chIncl=l.chauffage_inclus||(inclus.includes('chauffage')?'oui':l.chauffage_type==='individuel'?'non':null);
+    if(l.chauffage_type==='individuel'&&chIncl!=='oui')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
+    const ecsIncl=l.ecs_inclus||(inclus.includes('eau_chaude')?'oui':l.ecs_type==='individuel'?'non':null);
+    if(l.ecs_type==='individuel'&&ecsIncl!=='oui')aCharge.push('🚿 Eau chaude — chauffe-eau individuel, consommation à votre charge');
+    const efFact=l.eau_froide_facturation||(inclus.includes('eau_froide')?'charges':null);
+    if(efFact==='individuelle')aCharge.push('💧 Eau froide — facturée individuellement (compteur)');
+    // Régularisation note
+    const regNote=l.charges_regularisation==='annuelle'?'Régularisation des charges effectuée annuellement.':l.charges_regularisation==='forfaitaire'?'Charges forfaitaires — pas de régularisation.':null;
 
     const _iw=document.getElementById('d-inclus-wrap');
     if(_iw&&(rows.length||aCharge.length)){
       const inclInner=rows.map(([k,v])=>'<div class="crow"><span style="white-space:nowrap">'+k+'</span><span style="text-align:right">'+v+'</span></div>').join('');
       const chargeInner=aCharge.length?'<div style="margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--b2)"><div style="font-size:.75rem;font-weight:700;color:var(--stone-l);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px">À la charge du locataire</div>'
         +aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);padding:.2rem 0"><i data-lucide=circle-alert class=ic style="color:#e8900a"></i> '+t+'</div>').join('')+'</div>':'';
-      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'+inclInner+chargeInner+'</div>';
+      const regInner=regNote?'<div style="margin-top:.55rem;font-size:.77rem;color:var(--stone-l);font-style:italic"><i data-lucide=info class=ic></i> '+regNote+'</div>':'';
+      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'+inclInner+chargeInner+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
 
@@ -2199,6 +2276,7 @@ function setEcsType(v,cb){
     if(el)el.checked=(m===v)?cb.checked:false;
   });
   document.getElementById('p-ecs-type').value=cb.checked?v:'';
+  updateChargesInclus();
 }
 function setEcsEnergie(v,cb){
   ['electrique','gaz','autre'].forEach(m=>{
@@ -2206,6 +2284,30 @@ function setEcsEnergie(v,cb){
     if(el)el.checked=(m===v)?cb.checked:false;
   });
   document.getElementById('p-ecs-energie').value=cb.checked?v:'';
+}
+function setEcsInclus(v,cb){
+  ['oui','non'].forEach(m=>{const el=document.getElementById('ecs-inclus-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-ecs-inclus').value=cb.checked?v:'';
+  updateChargesInclus();
+}
+function setChauffageInclus(v,cb){
+  ['oui','non'].forEach(m=>{const el=document.getElementById('chauf-inclus-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-chauffage-inclus').value=cb.checked?v:'';
+  updateChargesInclus();
+}
+function setEauFroide(v,cb){
+  ['charges','individuelle','inconnu'].forEach(m=>{const el=document.getElementById('ef-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-eau-froide').value=cb.checked?v:'';
+  updateChargesInclus();
+}
+function setElectricite(v,cb){
+  ['locataire','charges'].forEach(m=>{const el=document.getElementById('elec-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-electricite-situation').value=cb.checked?v:'locataire';
+  updateChargesInclus();
+}
+function setChargesRegularisation(v,cb){
+  ['annuelle','forfaitaire','inconnu'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  document.getElementById('p-charges-regularisation').value=cb.checked?v:'';
 }
 
 // Chauffage type — checkbox, mutually exclusive (radio behaviour)
@@ -2215,15 +2317,18 @@ function setChauffageTypeFromCb(v,cb){
     if(el)el.checked=(m===v)?cb.checked:false;
   });
   document.getElementById('p-chauffage-type').value=cb.checked?v:'';
-  // Chauffage collectif → auto-cocher "Chauffage" dans charges_inclus + afficher hint
-  const chaufCb=document.querySelector('.charges-cb[value="chauffage"]');
+  // Chauffage collectif → auto-cocher inclus:oui + afficher hint
   const hint=document.getElementById('chauffage-hint');
   if(cb.checked&&v==='collectif'){
-    if(chaufCb&&!chaufCb.checked){chaufCb.checked=true;updateChargesInclus();}
-    if(hint)hint.style.display='flex';
-  } else if(v==='collectif'){
+    const oi=document.getElementById('chauf-inclus-oui');
+    const no=document.getElementById('chauf-inclus-non');
+    if(oi){oi.checked=true;}if(no){no.checked=false;}
+    document.getElementById('p-chauffage-inclus').value='oui';
+    if(hint)hint.style.display='block';
+  } else if(v==='collectif'&&!cb.checked){
     if(hint)hint.style.display='none';
   }
+  updateChargesInclus();
 }
 
 // Chauffage mode — checkbox, mutually exclusive (radio behaviour)
@@ -2244,9 +2349,34 @@ function updateLoyerHC(){
   if(el)el.textContent=cc>0?(hc>=0?hc+' € / mois':'—'):'—';
 }
 function updateChargesInclus(){
-  const cbs=document.querySelectorAll('.charges-cb:checked');
+  // Build charges_inclus from utility fields + manual checkboxes
+  const auto=[];
+  if(document.getElementById('p-chauffage-inclus')?.value==='oui')auto.push('chauffage');
+  if(document.getElementById('p-ecs-inclus')?.value==='oui')auto.push('eau_chaude');
+  if(document.getElementById('p-eau-froide')?.value==='charges')auto.push('eau_froide');
+  if(document.getElementById('p-electricite-situation')?.value==='charges')auto.push('electricite');
+  const manual=Array.from(document.querySelectorAll('.charges-cb:checked')).map(cb=>cb.value);
+  const all=[...new Set([...auto,...manual])];
   const inp=document.getElementById('p-charges-inclus');
-  if(inp)inp.value=Array.from(cbs).map(cb=>cb.value).join(',');
+  if(inp)inp.value=all.join(',');
+  // Auto-summary
+  const _labels={chauffage:'Chauffage',eau_chaude:'Eau chaude',eau_froide:'Eau froide',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+  const sum=document.getElementById('charges-summary');
+  if(!sum)return;
+  const chMode=document.getElementById('p-chauffage-type')?.value;
+  const ecsType=document.getElementById('p-ecs-type')?.value;
+  const elec=document.getElementById('p-electricite-situation')?.value||'locataire';
+  const montant=document.getElementById('p-charges')?.value;
+  const reg=document.getElementById('p-charges-regularisation')?.value;
+  const parts=[];
+  if(montant)parts.push('<strong>Charges : '+montant+' €/mois'+(reg==='annuelle'?' (avec régularisation annuelle)':reg==='forfaitaire'?' (forfaitaires)':'')+'</strong>');
+  const incl=all.filter(c=>c).map(c=>_labels[c]||c);
+  if(incl.length)parts.push('Comprend : '+incl.join(', ')+'.');
+  if(chMode==='individuel'&&document.getElementById('p-chauffage-inclus')?.value!=='oui')parts.push('Chauffage individuel — consommation à la charge du locataire.');
+  if(ecsType==='individuel'&&document.getElementById('p-ecs-inclus')?.value!=='oui')parts.push('Eau chaude individuelle — chauffe-eau à la charge du locataire.');
+  if(elec==='locataire')parts.push('Électricité — contrat individuel à souscrire par le locataire.');
+  if(parts.length){sum.innerHTML=parts.join('<br>');sum.style.display='block';}
+  else sum.style.display='none';
 }
 
 // Pièces annexes — checkboxes, stored as comma-separated
@@ -2595,6 +2725,11 @@ async function doPost(){
     nb_lots_copro: parseInt(document.getElementById('p-nb-lots-copro')?.value)||null,
     ecs_type: document.getElementById('p-ecs-type')?.value||null,
     ecs_energie: document.getElementById('p-ecs-energie')?.value||null,
+    ecs_inclus: document.getElementById('p-ecs-inclus')?.value||null,
+    chauffage_inclus: document.getElementById('p-chauffage-inclus')?.value||null,
+    eau_froide_facturation: document.getElementById('p-eau-froide')?.value||null,
+    electricite_situation: document.getElementById('p-electricite-situation')?.value||null,
+    charges_regularisation: document.getElementById('p-charges-regularisation')?.value||null,
   };
   if(annonce){
     const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
