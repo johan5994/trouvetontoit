@@ -382,7 +382,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 <nav>
   <div class="logo" onclick="go('home')"><svg width="16" height="16" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-2px;margin-right:.35rem"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="var(--terra)"/></svg>Trouve<span> Ton Toit</span></div>
   <ul class="nav-links">
-    <li><a onclick="go('home');stl()">Browse flats</a></li>
+    <li><a onclick="go('home');stl()">Parcourir les logements</a></li>
     <li><a href="/how-it-works.html">Comment ça marche</a></li>
     <li id="np" style="display:none"><a onclick="chkPost()">Publier un logement</a></li>
     <li id="nd" style="display:none"><a onclick="goToDash()">My Tableau de bord</a></li>
@@ -400,14 +400,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     <div class="hero-l">
       <div class="hero-tag">🇲🇹 La première plateforme locative intelligente de France</div>
       <h1><em>Trouve Ton Toit</em> — La façon sécurisée de louer en France.</h1>
-      <p class="hero-desc">Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. No cash to strangers, no vanishing "agents"  depuis  a WhatsApp group.</p>
+      <p class="hero-desc">Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Zéro cash à des inconnus, zéro "agents" fantômes  depuis  a WhatsApp group.</p>
       <div class="hero-acts">
         <button class="btn btn-p" onclick="stl()"><i data-lucide=search class=ic></i> Browse annonces</button>
         <button class="btn btn-s" onclick="chkPost()"><i data-lucide=home class=ic></i> Publier votre logement</button>
       </div>
       <div id="hero-agences-link" onclick="go('agences')" style="display:none;margin-top:1rem;align-items:center;gap:.6rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:100px;padding:.55rem 1.1rem;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(99,102,241,.16)'" onmouseout="this.style.background='rgba(99,102,241,.1)'">
         <span style="font-size:1.1rem"><i data-lucide=building-2 class=ic></i></span>
-        <span style="font-size:.85rem;font-weight:700;color:#4F46E5">Selling or renting through an agence? Browse agences →</span>
+        <span style="font-size:.85rem;font-weight:700;color:#4F46E5">Selling or renting through an agence? Parcourir les agences →</span>
       </div>
 
       <div class="hero-stats">
@@ -420,7 +420,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="pitems" id="hero-live-annonces">
           <div class="pitem"><div class="pi"><div class="pt">Chargement real annonces…</div></div></div>
         </div>
-        <div style="padding:0 1rem 1rem"><a onclick="stl()" style="display:block;text-align:center;background:var(--terra);color:white;text-decoration:none;padding:.7rem;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer">Browse all annonces →</a></div>
+        <div style="padding:0 1rem 1rem"><a onclick="stl()" style="display:block;text-align:center;background:var(--terra);color:white;text-decoration:none;padding:.7rem;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer">Toutes les annonces →</a></div>
       </div>
     </div>
   </div>
@@ -436,11 +436,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
   <option value="Marsaskala"><option value="Marsaxlokk"><option value="Birgu"><option value="Senglea">
 </datalist></div>
       <div class="sf"><label><i data-lucide=calendar class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
-        <option value="">All types</option>
-        <option value="short"><i data-lucide=home class=ic></i> Location courte durée only</option>
-        <option value="long"><i data-lucide=calendar class=ic></i> Location longue durée only</option>
-        <option value="room_rental"><i data-lucide=key class=ic></i> Room location</option>
-        <option value="for_sale"><i data-lucide=tag class=ic></i>️ À vendre</option>
+        <option value="">Tous les types</option>
+        <option value="long">Bail vide ou meublé</option>
+        <option value="room_rental">Chambre / Coloc</option>
+        <option value="for_sale">À vendre</option>
       </select></div>
       <div class="sf" id="fp-wrap"><label>💶 Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
       <div class="sf"><label><i data-lucide=clipboard-list class=ic></i> Attestation</label><select id="fa" onchange="loadL()"><option value="">All</option><option value="yes"><i data-lucide=check-circle-2 class=ic></i> Attestation OK</option></select></div>
@@ -486,8 +485,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
   <footer>
     <div class="fg">
       <div><div class="flogo"><svg width="16" height="16" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-2px;margin-right:.35rem"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="var(--terra)"/></svg>Trouve Ton Toit</div><p class="fdesc">La première plateforme locative intelligente de France. Real-time chat, visites guidées, baux e-signés et a photographed entrée dans les lieux état des lieux. Built pour interns, expats et independent propriétaires.</p></div>
-      <div><h4>Pour les locataires</h4><ul><li><a onclick="stl()">Browse annonces</a></li><li><a onclick="stl()">Virtual visites</a></li><li><a onclick="go('auth')">Build votre dossier</a></li><li><a onclick="stl()">Room location</a></li></ul></div>
-      <div><h4>For propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Browse agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
+      <div><h4>Pour les locataires</h4><ul><li><a onclick="stl()">Parcourir les annonces</a></li><li><a onclick="stl()">Visites virtuelles</a></li><li><a onclick="go('auth')">Constituer mon dossier</a></li><li><a onclick="stl()">Colocation</a></li></ul></div>
+      <div><h4>Pour les propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Parcourir les agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
       <div><h4>Legal</h4><ul><li><a href="/terms.html">Terms of service</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/cookies.html">Cookie policy</a></li><li><a href="/contact.html">Contact us</a></li></ul></div>
     </div>
     <div class="fbot"><p>© 2026 Trouve Ton Toit. Made avec <i data-lucide=sun class=ic></i>️ in France.</p><p>Pas affilié au gouvernement français. Trouve Ton Toit n'est pas une agence immobilière.</p></div>
@@ -541,30 +540,33 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <div class="fg2">
         <label>Bail type *</label>
         <div class="ttog">
-          <button class="tbtn actif" onclick="setT(this,'short')"><i data-lucide=home class=ic></i> Location courte durée only</button>
-          <button class="tbtn" onclick="setT(this,'long')"><i data-lucide=calendar class=ic></i> Location longue durée only</button>
-          <button class="tbtn" onclick="setT(this,'room_rental')"><i data-lucide=key class=ic></i> Room location</button>
+          <button class="tbtn actif" onclick="setT(this,'bail_vide')"><i data-lucide=home class=ic></i> Bail vide</button>
+          <button class="tbtn" onclick="setT(this,'bail_meuble')"><i data-lucide=sofa class=ic></i> Bail meublé</button>
+          <button class="tbtn" onclick="setT(this,'room_rental')"><i data-lucide=bed-double class=ic></i> Chambre / Coloc</button>
           <button class="tbtn" onclick="setT(this,'for_sale')"><i data-lucide=tag class=ic></i>️ À vendre</button>
         </div>
-        <input type="hidden" id="pt" value="short">
+        <input type="hidden" id="pt" value="long"><input type="hidden" id="pt-bail-subtype" value="vide">
         <div id="type-info" style="margin-top:.5rem;font-size:.72rem;color:var(--stone-l);line-height:1.5">
-          <i data-lucide=home class=ic></i> Location courte durée: short-term location (tourism, internship, expat). France-specific bail.
+          <i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans. Le locataire bénéficie du droit au maintien dans les lieux.
         </div>
       </div>
 
-      <!-- Location courte durée specific options -->
-      <div id="shortlet-opts" style="background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--terra);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Location courte durée</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=alert-triangle class=ic></i>️ Duration fixed by Français law (Cap. 604) — minimum 1 month, maximum 6 months. Cannot be renewed.</div>
+      <!-- Bail vide info -->
+      <div id="bail-vide-opts" style="background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Bail vide (non meublé)</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges. Le locataire peut résilier avec 3 mois de préavis (1 mois en zone tendue).</div>
       </div>
 
-      <!-- Location longue durée options -->
-      <div id="longlet-opts" style="display:none;background:rgba(46,107,138,.05);border:1px solid rgba(46,107,138,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--sea);margin-bottom:.3rem"><i data-lucide=calendar class=ic></i> Location longue durée</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=alert-triangle class=ic></i>️ Minimum 1 year bail required by Français law (Cap. 604).</div>
-        <div class="frow" style="margin-top:.5rem">
-        </div>
-        <div style="font-size:.68rem;color:var(--stone-l);margin-top:.3rem">ℹ️ Di Fermo = minimum period during which locataire cannot leave without penalty. Must be minimum 1 year.</div>
+      <!-- Bail meublé info -->
+      <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=sofa class=ic></i> Bail meublé</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges. Le logement doit comporter la liste légale de mobilier obligatoire.</div>
+      </div>
+
+      <!-- Chambre / Coloc info -->
+      <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+        <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — Trouve Ton Toit ne génère pas de bail pour les colocations. Le propriétaire et le locataire gèrent le contrat directement entre eux.</div>
       </div>
       <div class="frow" style="margin-top:.75rem">
         <div class="fg2" style="grid-column:1/-1"><label>Title *</label><input class="fi" type="text" id="pti" placeholder="e.g. Bright meublé studio near the sea, St. Julian's"></div>
@@ -627,9 +629,9 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
       </div>
 
-      <!-- Room location legal notice (point 3) -->
+      <!-- Colocation legal notice (point 3) -->
       <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Room location / Colocation details</div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Colocation / Colocation details</div>
         <div class="frow">
           <div class="fg2"><label>Room type</label>
             <select class="fi" id="p-room-type" style="cursor:pointer">
@@ -863,7 +865,7 @@ function initLucideIcons(){
       // personnalisé) est ouvert ou qu'un champ a le focus — c'est ce qui
       // provoquait les menus qui disparaissent une fraction de seconde.
       const actif=document.activeElement;
-      if(actif&&(actif.tagNom==='SELECT'||actif.tagNom==='INPUT'||actif.tagNom==='TEXTAREA'))return;
+      if(actif&&(actif.tagName==='SELECT'||actif.tagName==='INPUT'||actif.tagName==='TEXTAREA'))return;
       lucide.createIcons();
     },2000);
   }else{
@@ -923,7 +925,7 @@ async function sU(clerkUser, showPicker=true) {
         const listingIds=(manualAnnonces||[]).map(l=>l.id);
         if(listingIds.length){
           await sb.from('listings').update({real_landlord_id:U.id}).in('id',listingIds);
-          await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+          await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('landlord_id',null);
         }
       }catch(e){}
     }
@@ -1185,7 +1187,7 @@ async function setRoleAndContinue(role) {
           const listingIds=(manualAnnonces||[]).map(l=>l.id);
           if(listingIds.length){
             await sb.from('listings').update({real_landlord_id:U.id}).in('id',listingIds);
-            await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('propriétaire_id',null);
+            await sb.from('bookings').update({landlord_id:U.id,no_landlord_tracking:false}).in('listing_id',listingIds).is('landlord_id',null);
           }
         }catch(e){console.warn('Auto-link manual propriétaire:',e);}
       }
@@ -1246,7 +1248,7 @@ async function loadHeroAnnonces(){
   if(!wrap)return;
   try{
     const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
-    if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">No annonces live yet</div><div class="ps">Be the first to post one!</div></div></div>';return;}
+    if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Aucune annonce en ligne</div><div class="ps">Soyez le premier à publier!</div></div></div>';return;}
     const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
     const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
     wrap.innerHTML=data.map(l=>`
@@ -1280,7 +1282,7 @@ async function loadL(){
     return new Date(b.created_at)-new Date(a.created_at);
   });
   window._currentAnnonces=sorted;
-  if(!sorted.length){g.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>No annonces found. Try adjusting votre filters!</p><button class="btn btn-p" onclick="chkPost()">Post votre flat →</button></div>`;document.getElementById('lc').innerHTML='';document.getElementById('lpagination').innerHTML='';return;}
+  if(!sorted.length){g.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Aucune annonce trouvée. Essayez d'ajuster vos filtres!</p><button class="btn btn-p" onclick="chkPost()">Publier votre logement →</button></div>`;document.getElementById('lc').innerHTML='';document.getElementById('lpagination').innerHTML='';return;}
   document.getElementById('lc').textContent=`${sorted.length} annonce${sorted.length>1?'s':''} found`;
 
   // Repartir de la page 1 à chaque nouveau résultat (changement de filtre) —
@@ -1331,7 +1333,7 @@ async function updC(){const{count}=await sb.from('listings').select('*',{count:'
 function rCard(l){
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
   const bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)',for_sale:'linear-gradient(135deg,#F3EEFB,#E1D4F5)'};
-  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Room location',long:'<i data-lucide=calendar class=ic></i> Location longue durée',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'};
+  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',long:l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'};
   const lbColor={short:'#1B4FD8',room_rental:'#3B82F6',long:'#2E6B8A',for_sale:'#6366F1'};
   const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Bills incl.':null,l.ac?'A/C':null,l.parking?'Parking':null,l.pool?'Pool':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} spots`:null].filter(Boolean).slice(0,3);
   const fr=l.available_indefinitely?'Disponible indefinitely':l.available_from?'From '+new Date(l.available_from).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'Disponible now';
@@ -1441,7 +1443,7 @@ async function openDet(id){
   if(l.chambres||l.spots)specs.push(`<i data-lucide=bed-double class=ic></i> ${l.chambres||l.spots} chambre${(l.chambres||l.spots)>1?'s':''}`);
   if(l.baths)specs.push(`<i data-lucide=shower-head class=ic></i> ${l.baths} salle de bain${l.baths>1?'s':''}`);
   if(l.sqm)specs.push(`<i data-lucide=ruler class=ic></i> ${l.sqm} m²`);
-  specs.push({short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Room location',long:'<i data-lucide=landmark class=ic></i> Location longue durée',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'}[l.type]||l.type);
+  specs.push(l.type==='long'?(l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide'):{short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'}[l.type]||l.type);
   if(l.video_url)specs.push('<i data-lucide=video class=ic></i> Virtual tour');
   document.getElementById('dspecs').innerHTML=specs.map(s=>`<span class="dfeat" style="background:var(--s2);border:1px solid var(--b2);font-size:.78rem;padding:.3rem .7rem;border-radius:20px">${s}</span>`).join('');
 
@@ -1479,9 +1481,9 @@ async function openDet(id){
   document.getElementById('dfe').innerHTML=fe.map(f=>`<span class="dfeat">${f}</span>`).join('');
 
   // Infos bail — ou infos de vente si l'annonce est "À vendre"
-  const tl={short:'Location courte durée (1-6 months)',room_rental:'Room location',long:'Location longue durée (1 year+)',for_sale:'À vendre'};
-  const badge=await getPropriétaireResponseBadge(l.propriétaire_id);
-  const propriétaireRating=await getPropriétaireRating(l.propriétaire_id);
+  const tl={short:'Location courte durée (1-6 months)',room_rental:'Colocation',long:'Location longue durée (1 year+)',for_sale:'À vendre'};
+  const badge=await getLandlordResponseBadge(l.landlord_id);
+  const propriétaireRating=await getLandlordRating(l.landlord_id);
   const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
   const ratingHtml=(propriétaireRating?`<div style="background:rgba(212,168,71,.1);color:var(--ochre);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${propriétaireRating.avg.toFixed(1)} propriétaire rating <span style="font-weight:400;color:var(--stone-l)">(${propriétaireRating.count} avis${propriétaireRating.count>1?'s':''})</span></div>`:'')
     +(agencyRating?`<div style="background:rgba(46,107,138,.1);color:var(--sea);border:1px solid rgba(46,107,138,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${agencyRating.avg.toFixed(1)} agence rating <span style="font-weight:400;color:var(--stone-l)">(${agencyRating.count} avis${agencyRating.count>1?'s':''})</span></div>`:'');
@@ -1652,7 +1654,7 @@ async function requestVisitFromDetail(){
       await sb.from('visites').insert({
         listing_id:AL.id,
         tenant_id:U.id,
-        landlord_id:AL.propriétaire_id,
+        landlord_id:AL.landlord_id,
         tenant_name:P?.full_name||'',
         tenant_email:P?.email||'',
         visit_date:visitDate,
@@ -1665,7 +1667,7 @@ async function requestVisitFromDetail(){
     try{
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
       await sb.from('messages').insert({
-        listing_id:AL.id,sender_id:'system',receiver_id:AL.propriétaire_id,
+        listing_id:AL.id,sender_id:'system',receiver_id:AL.landlord_id,
         content:'📅 '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
         type:'visit_request'
       });
@@ -1709,7 +1711,7 @@ async function sendMsg(){
   const{error}=await sb.from('messages').insert({
     listing_id:AL.id,
     sender_id:U.id,
-    receiver_id:AL.propriétaire_id,
+    receiver_id:AL.landlord_id,
     content:filterContactData(c) // masquer numéros/emails
   });
   if(error){toast('Erreur: '+erreur.message);return;}
@@ -1755,60 +1757,71 @@ function setT(el,t){
     const label=el.querySelector('div:nth-child(2)');
     if(label)label.style.color='var(--terra)';
   }
-  document.getElementById('pt').value=t;
-  const shortOpts=document.getElementById('shortlet-opts');
-  const longOpts=document.getElementById('longlet-opts');
-  const room_rentalNotice=document.getElementById('room_rental-notice');
-  const room_rentalOpts=document.getElementById('room_rental-opts');
-  const typeInfo=document.getElementById('type-info');
-  if(shortOpts)shortOpts.style.display=t==='short'?'block':'none';
-  if(longOpts)longOpts.style.display=t==='long'?'block':'none';
-  if(room_rentalNotice)room_rentalNotice.style.display=t==='room_rental'?'block':'none';
-  if(room_rentalOpts)room_rentalOpts.style.display=t==='room_rental'?'block':'none';
+  // bail_vide et bail_meuble → type DB = 'long', seul le sous-type change
+  const dbType = (t==='bail_vide'||t==='bail_meuble') ? 'long' : t;
+  document.getElementById('pt').value=dbType;
+  const subtypeEl=document.getElementById('pt-bail-subtype');
+  if(subtypeEl) subtypeEl.value=(t==='bail_vide')?'vide':(t==='bail_meuble')?'meuble':'';
 
-  // "À vendre" est un mode complètement à part : pas de bail, pas de caution,
-  // pas de disponibilité, pas d'agent — juste une annonce + abonnement 2€/semaine.
+  const bailVideOpts=document.getElementById('bail-vide-opts');
+  const bailMeubleOpts=document.getElementById('bail-meuble-opts');
+  const roomRentalOpts=document.getElementById('room-rental-opts');
+  const typeInfo=document.getElementById('type-info');
+  if(bailVideOpts)bailVideOpts.style.display=t==='bail_vide'?'block':'none';
+  if(bailMeubleOpts)bailMeubleOpts.style.display=t==='bail_meuble'?'block':'none';
+  if(roomRentalOpts)roomRentalOpts.style.display=t==='room_rental'?'block':'none';
+
+  // Auto-gérer la case Meublé selon le sous-type (caché, auto-set)
+  const pfuInput=document.getElementById('pfu');
+  const pfuLabel=pfuInput?.closest('label');
+  if(t==='bail_vide'){if(pfuInput)pfuInput.checked=false;if(pfuLabel)pfuLabel.style.display='none';}
+  else if(t==='bail_meuble'){if(pfuInput)pfuInput.checked=true;if(pfuLabel)pfuLabel.style.display='none';}
+  else{if(pfuLabel)pfuLabel.style.display='';}
+
+  // Dépôt plafonné : hint selon le type
+  const depotLabel=document.getElementById('pt-depot-wrap')?.querySelector('label');
+  if(depotLabel){
+    if(t==='bail_vide') depotLabel.textContent='Dépôt de garantie (€) — max 1 mois de loyer';
+    else if(t==='bail_meuble') depotLabel.textContent='Dépôt de garantie (€) — max 2 mois de loyer';
+    else depotLabel.textContent='Dépôt de garantie (€)';
+  }
+
+  // "À vendre" et "Chambre/Coloc" : pas de bail généré, pas de caution
   const isSale=t==='for_sale';
+  const isRoom=t==='room_rental';
+  const noBail=isSale||isRoom;
   const priceLabel=document.getElementById('pt-price-label');
-  if(priceLabel)priceLabel.textContent=isSale?'Sale price (€) *':'Monthly loyer (€) *';
+  if(priceLabel)priceLabel.textContent=isSale?'Prix de vente (€) *':'Loyer mensuel (€) *';
   const depotWrap=document.getElementById('pt-depot-wrap');
   const availWrap=document.getElementById('pt-avail-wrap');
-  if(depotWrap)depotWrap.style.display=isSale?'none':'block';
-  if(availWrap)availWrap.style.display=isSale?'none':'block';
+  if(depotWrap)depotWrap.style.display=noBail?'none':'block';
+  if(availWrap)availWrap.style.display=noBail?'none':'block';
   const billsWrap=document.getElementById('p-bills')?.closest('.fg2');
-  if(billsWrap)billsWrap.style.display=isSale?'none':'block';
+  if(billsWrap)billsWrap.style.display=noBail?'none':'block';
   const saleDetailsWrap=document.getElementById('pt-sale-details-wrap');
   if(saleDetailsWrap)saleDetailsWrap.style.display=isSale?'block':'none';
 
-  // Cacher sections non pertinentes pour room_rental
-  const isRoom=t==='room_rental';
   const secBeds=document.getElementById('section-beds');
   const secAtt=document.getElementById('section-attestation');
   const secBail=document.getElementById('section-bail-cond');
-  if(secBeds)secBeds.style.display=isRoom?'none':'block';
-  if(secAtt)secAtt.style.display=(isRoom||isSale)?'none':'block';
-  if(secBail)secBail.style.display=(isRoom||isSale)?'none':'block';
-  const infos={
-    short:'<i data-lucide=home class=ic></i> Location courte durée: short-term location (tourism, internship, expat). Max 6 months by Français law. Cannot be renewed.',
-    long:'<i data-lucide=calendar class=ic></i> Location longue durée only: minimum 1 year bail. You refuse short-term locations.',
-    room_rental:'<i data-lucide=key class=ic></i> Room location: written owner consent required. Housing Authority registration is votre responsibility.',
-    for_sale:'<i data-lucide=tag class=ic></i>️ À vendre:  votre annonce stays online pour €2/week, billed automatically after publishing. Annuler anytime.'
-  };
-  if(typeInfo)typeInfo.textContent=infos[t]||'';
+  if(secBeds)secBeds.style.display='block';
+  if(secAtt)secAtt.style.display=noBail?'none':'block';
+  if(secBail)secBail.style.display=noBail?'none':'block';
 
-  // Auto-set date fields based on type
+  const infos={
+    bail_vide:'<i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans (loi du 6 juillet 1989). Dépôt plafonné à 1 mois de loyer hors charges.',
+    bail_meuble:'<i data-lucide=sofa class=ic></i> Bail meublé : durée minimum 1 an (9 mois pour les étudiants). Dépôt plafonné à 2 mois de loyer hors charges.',
+    room_rental:'<i data-lucide=bed-double class=ic></i> Chambre / Coloc : mise en relation uniquement. Trouve Ton Toit ne génère pas de bail — le contrat est géré directement entre les parties.',
+    for_sale:'<i data-lucide=tag class=ic></i>️ À vendre : votre annonce reste en ligne pour 2€/semaine, facturé automatiquement. Annulable à tout moment.'
+  };
+  if(typeInfo)typeInfo.innerHTML=infos[t]||'';
+
+  // Auto-set date de fin : 1 an pour bail vide et meublé
   const punInput=document.getElementById('pun');
   const pfrInput=document.getElementById('pfr');
-  if(t==='short'&&pfrInput&&pfrInput.value&&punInput){
-    // Location courte durée: auto set end date to 6 months after start
+  if((t==='bail_vide'||t==='bail_meuble')&&pfrInput&&pfrInput.value&&punInput){
     const start=new Date(pfrInput.value);
-    start.setMonth(start.getMonth()+6);
-    punInput.value=start.toISOString().split('T')[0];
-  }
-  if(t==='long'&&pfrInput&&pfrInput.value&&punInput){
-    // Location longue durée: auto set end date to 1 year after start (minimum)
-    const start=new Date(pfrInput.value);
-    start.setFullYear(start.getFullYear()+1);
+    start.setFullYear(start.getFullYear()+(t==='bail_vide'?3:1));
     punInput.value=start.toISOString().split('T')[0];
   }
 }
@@ -1819,15 +1832,12 @@ function onDisponibleFromChange(val){
   const punInput=document.getElementById('pun');
   if(!val||!punInput)return;
   const start=new Date(val);
-  if(type==='short'){
-    start.setMonth(start.getMonth()+6);
+  if(type==='long'){
+    const subtype=document.getElementById('pt-bail-subtype')?.value;
+    const years=subtype==='vide'?3:1;
+    start.setFullYear(start.getFullYear()+years);
     punInput.value=start.toISOString().split('T')[0];
-    punInput.style.background='rgba(201,85,58,.05)';
-    setTimeout(()=>punInput.style.background='',1000);
-  } else if(type==='long'){
-    start.setFullYear(start.getFullYear()+1);
-    punInput.value=start.toISOString().split('T')[0];
-    punInput.style.background='rgba(46,107,138,.05)';
+    punInput.style.background='rgba(27,79,216,.05)';
     setTimeout(()=>punInput.style.background='',1000);
   }
 }
@@ -2071,7 +2081,7 @@ async function doPost(){
     bills_included:document.getElementById('pbi')?.checked||false,
     landlord_id:U.id,
     // mandat_exclusif retiré — fonctionnalité jamais utile, supprimée
-    actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // reste caché tant que le paiement requis (abonnement vente, ou frais room location) n'est pas fait
+    actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // vente et coloc restent cachées jusqu'au paiement
     sale_price:document.getElementById('pt').value==='for_sale'?parseInt(pr):null,
     sale_subscription_status:document.getElementById('pt').value==='for_sale'?'en attente':null,
     tenure:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-tenure')?.value||null):null,
@@ -2195,8 +2205,8 @@ async function loadDash(){
 async function loadML(){
   const w=document.getElementById('myl');
   if(P?.role!=='bailleur'){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Switch to a propriétaire compte to post et manage annonces.</p></div>';return;}
-  const{data}=await sb.from('listings').select('*').eq('propriétaire_id',U.id).order('created_at',{ascending:false});
-  if(!data||data.length===0){w.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=clipboard-list class=ic></i></div><p>No annonces yet. Post votre first flat et start receiving messages!</p><button class="btn btn-p" onclick="go('post')">Post my first annonce →</button></div>`;return;}
+  const{data}=await sb.from('listings').select('*').eq('landlord_id',U.id).order('created_at',{ascending:false});
+  if(!data||data.length===0){w.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=clipboard-list class=ic></i></div><p>Aucune annonce. Publiez votre premier logement et commencez à recevoir des messages!</p><button class="btn btn-p" onclick="go('post')">Publier ma première annonce →</button></div>`;return;}
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️',for_sale:'<i data-lucide=tag class=ic></i>️'};
   w.innerHTML=data.map(l=>{
     const isSale=l.type==='for_sale';
@@ -2441,28 +2451,28 @@ function initMap(){
 
 // ── Badge "Propriétaire réactif" ──────────────────────────────────
 async function getAgenceRating(agentId){
-  const{data}=await sb.from('avis').select('rating').eq('target_id',agentId).eq('type','locataire_to_agency');
+  const{data}=await sb.from('reviews').select('rating').eq('target_id',agentId).eq('type','locataire_to_agency');
   if(!data||!data.length)return null;
   const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
   return{avg,count:data.length};
 }
 
-async function getPropriétaireRating(propriétaireId){
-  const{data}=await sb.from('avis').select('rating').eq('propriétaire_id',propriétaireId).eq('type','locataire_to_propriétaire');
+async function getLandlordRating(landlordId){
+  const{data}=await sb.from('reviews').select('rating').eq('landlord_id',landlordId).eq('type','tenant_to_landlord');
   if(!data||!data.length)return null;
   const avg=data.reduce((s,r)=>s+r.rating,0)/data.length;
   return{avg,count:data.length};
 }
 
-async function getPropriétaireResponseBadge(propriétaireId){
+async function getLandlordResponseBadge(landlordId){
   const{data}=await sb.from('messages')
     .select('created_at,sender_id')
-    .eq('receiver_id',propriétaireId)
+    .eq('receiver_id',landlordId)
     .order('created_at',{ascending:false})
     .limit(20);
   if(!data||data.length<2)return null;
   // Check if propriétaire replied within 2h on average
-  const replies=data.filter(m=>m.sender_id===propriétaireId);
+  const replies=data.filter(m=>m.sender_id===landlordId);
   if(replies.length>=3)return'<i data-lucide=zap class=ic></i> Fast responder';
   return null;
 }
