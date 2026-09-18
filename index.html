@@ -1783,16 +1783,30 @@ async function openDet(id){
 
   // ─── Caractéristiques ───────────────────────────────────────────
   {
-    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.3rem .62rem;font-size:.78rem">'+icon+' '+text+'</div>';
-    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:.7rem"><div style="font-size:.65rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.42rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.32rem">'+fi.join('')+'</div></div>';};
+    // Chip standard pour équipements
+    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.4rem;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:.4rem .8rem;font-size:.84rem;color:var(--stone)">'+icon+' '+text+'</div>';
+    // Section avec titre
+    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:.85rem"><div style="font-size:.68rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.5rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">'+fi.join('')+'</div></div>';};
     const _nb=l.chambres||l.spots;
-    const _surf=[
-      l.typology?_ch('<i data-lucide=layout-template class=ic></i>',_typMap[l.typology]||l.typology.toUpperCase()):null,
-      l.sqm?_ch('<i data-lucide=ruler class=ic></i>',l.sqm+' m²'):null,
-      _nb?_ch('<i data-lucide=bed-double class=ic></i>',_nb+' chambre'+(_nb>1?'s':'')):null,
-      l.baths?_ch('<i data-lucide=shower-head class=ic></i>',l.baths+' sdb'):null,
-      l.surface_sejour?_ch('<i data-lucide=armchair class=ic></i>','Séjour '+l.surface_sejour+' m²'):null,
-    ];
+
+    // Tuiles de surface (plus grandes, visuelles)
+    const _tile=(icon,val,unit)=>'<div style="background:var(--s2);border:1.5px solid var(--b2);border-radius:12px;padding:.65rem .9rem;display:flex;flex-direction:column;align-items:center;gap:.1rem;min-width:72px;text-align:center">'
+      +'<div style="font-size:.9rem;color:var(--stone-l)">'+icon+'</div>'
+      +'<div style="font-size:1.1rem;font-weight:800;color:var(--stone);line-height:1.1">'+val+'</div>'
+      +(unit?'<div style="font-size:.68rem;color:var(--stone-l);font-weight:500">'+unit+'</div>':'')
+      +'</div>';
+
+    const surfTiles=[];
+    if(l.typology) surfTiles.push(_tile('<i data-lucide=layout-template class=ic></i>',_typMap[l.typology]?.split(' — ')[0]||l.typology.toUpperCase(),_typMap[l.typology]?.split(' — ')[1]||''));
+    if(l.sqm) surfTiles.push(_tile('<i data-lucide=ruler class=ic></i>',l.sqm,'m²'));
+    if(_nb) surfTiles.push(_tile('<i data-lucide=bed-double class=ic></i>',_nb,'chambre'+(_nb>1?'s':'')));
+    if(l.baths) surfTiles.push(_tile('<i data-lucide=shower-head class=ic></i>',l.baths,'salle'+( l.baths>1?'s':'')+' de bain'));
+    if(l.surface_sejour) surfTiles.push(_tile('<i data-lucide=armchair class=ic></i>',l.surface_sejour,'m² séjour'));
+
+    const surfSection=surfTiles.length
+      ?'<div style="margin-bottom:.9rem"><div style="font-size:.68rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.5rem">Surface &amp; espace de vie</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:.45rem">'+surfTiles.join('')+'</div></div>':'';
+
     const _int=[
       l.type_cuisine&&l.type_cuisine!=='aucune'?_ch('<i data-lucide=chef-hat class=ic></i>','Cuisine '+(_cusMap[l.type_cuisine]||l.type_cuisine)):null,
       l.ascenseur==='oui'?_ch('<i data-lucide=arrow-up-down class=ic></i>','Ascenseur'):null,
@@ -1808,18 +1822,18 @@ async function openDet(id){
     ];
     const _ext=[
       l.parking?_ch('<i data-lucide=car class=ic></i>','Parking'):null,
-      l.balcon?(l.terrasse_sqm?_ch('<i data-lucide=flower-2 class=ic></i>','Balcon/Terrasse '+l.terrasse_sqm+' m²'):_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
+      l.balcon?(l.terrasse_sqm?_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse '+l.terrasse_sqm+' m²'):_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
       l.pool?_ch('<i data-lucide=waves class=ic></i>','Piscine'):null,
       l.jardin?_ch('<i data-lucide=trees class=ic></i>','Jardin'):null,
     ];
     const _aut=[
-      l.annee_construction?_ch('<i data-lucide=landmark class=ic></i>','Const. '+l.annee_construction):(l.construction_ancienne?_ch('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_ch('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
+      l.annee_construction?_ch('<i data-lucide=landmark class=ic></i>','Construit en '+l.annee_construction):(l.construction_ancienne?_ch('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_ch('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
       l.copropriete?_ch('<i data-lucide=building-2 class=ic></i>','Copropriété'+(l.nb_lots_copro?' — '+l.nb_lots_copro+' lots':'')):null,
       l.annexes?l.annexes.split(',').filter(Boolean).map(a=>_ch('<i data-lucide=archive class=ic></i>',_aMap[a]||a)):null,
     ];
-    const _h2=_sc('Surface et espace de vie',_surf)+_sc('Intérieur',_int)+_sc('Extérieur',_ext)+_sc('Autres',_aut);
+    const _h2=surfSection+_sc('Intérieur',_int)+_sc('Extérieur',_ext)+_sc('Autres',_aut);
     const _dc=document.getElementById('d-carac');
-    if(_dc)_dc.innerHTML=_h2?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;margin-top:.25rem">'+_h2+'</div>':'';
+    if(_dc)_dc.innerHTML=_h2?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-top:.25rem">'+_h2+'</div>':'';
   }
 
   // ─── DPE widget ──────────────────────────────────────────────────
