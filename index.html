@@ -580,7 +580,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 </datalist></div>
         <div class="fg2"><label>Size (m²)</label><input class="fi" type="number" id="p-sqm" placeholder="e.g. 65" min="10" max="1000"></div>
         <div class="fg2" id="pt-price-wrap"><label id="pt-price-label">Monthly loyer (€) *</label><input class="fi" type="number" id="ppr" placeholder="650"></div>
-        <div class="fg2" id="pt-depot-wrap"><label>Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
+        <div class="fg2" id="pt-depot-wrap"><label id="pt-depot-label">Dépôt de garantie (€)</label><input class="fi" type="number" id="pdep" placeholder="650"></div>
+        <div class="fg2" id="pt-charges-wrap"><label>Charges mensuelles (€) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">en sus du loyer</span></label><input class="fi" type="number" id="p-charges" placeholder="80" min="0"></div>
         <div class="fg2" id="section-beds"><label>Number of chambres</label>
           <select class="fi" id="psp" style="cursor:pointer">
             <option value="0">Studio</option>
@@ -598,6 +599,18 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <option value="3">3+ salle de bains</option>
           </select>
         </div>
+        <div class="fg2"><label>Surface séjour (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-surface-sejour" placeholder="20" min="0"></div>
+        <div class="fg2"><label>Type de cuisine</label>
+          <select class="fi" id="p-type-cuisine" style="cursor:pointer">
+            <option value="">Non précisé</option>
+            <option value="americaine">Cuisine américaine (ouverte)</option>
+            <option value="separee">Cuisine séparée</option>
+            <option value="equipee">Cuisine équipée</option>
+            <option value="ouverte">Cuisine ouverte</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
+        <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
         <div class="fg2" id="pt-avail-wrap"><label>Disponible  depuis </label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
       </div>
 
@@ -697,9 +710,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
           <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Pool</label>
           <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
+          <label class="cl"><input type="checkbox" id="p-cave"> <i data-lucide=archive class=ic></i> Cave</label>
+          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
           <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
-          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Washing machine</label>
-          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i>️ Dishwasher</label>
+          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
+          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i>️ Lave-vaisselle</label>
         </div>
       </div>
       <div class="fg2">
@@ -2109,7 +2124,12 @@ async function doPost(){
     key_location:document.getElementById('p-key-location')?.value?.trim()||null,
     current_locataire_phone:document.getElementById('p-current-locataire-phone')?.value?.trim()||null,
     bail_end_date:document.getElementById('p-bail-end-date')?.value||null,
-    locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant'
+    locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant',
+    charges_mensuelles:parseInt(document.getElementById('p-charges')?.value)||null,
+    surface_sejour:parseFloat(document.getElementById('p-surface-sejour')?.value)||null,
+    type_cuisine:document.getElementById('p-type-cuisine')?.value||null,
+    terrasse_sqm:parseInt(document.getElementById('p-terrasse-sqm')?.value)||null,
+    annee_construction:parseInt(document.getElementById('p-annee-construction')?.value)||null
   };
 
   const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
@@ -2123,6 +2143,8 @@ async function doPost(){
     pets: document.getElementById('ppets')?.checked||false,
     washing_machine: document.getElementById('pwash')?.checked||false,
     dishwasher: document.getElementById('pdish')?.checked||false,
+    cave: document.getElementById('p-cave')?.checked||false,
+    copropriete: document.getElementById('p-copropriete')?.checked||false,
   };
   if(annonce) await sb.from('listings').update(extraData).eq('id',annonce.id);
   if(uploadedPhotos.length>0&&annonce){
