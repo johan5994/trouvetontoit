@@ -1882,49 +1882,71 @@ async function openDet(id){
   }
   // ─── Section "Ce qui est inclus dans le loyer" ──────────────────
   {
-    const _eeMap={electrique:'Électrique',gaz:'Gaz',autre:'Autre'};
-    const _cmMap2={eau:'Radiateurs',air:'Air soufflé',sol:'Sol',autre:'Autre'};
-    const _cMapL={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
-    const rows=[];
-    // Chauffage
-    if(l.chauffage_type){
-      const mode=l.chauffage_type==='individuel'?'Individuel':l.chauffage_type==='collectif'?'Collectif':null;
-      const energie=l.chauffage_mode?(_eeMap[l.chauffage_mode]||l.chauffage_mode):null;
-      const label=[mode,energie].filter(Boolean).join(' — ');
-      rows.push(['<i data-lucide=flame class=ic></i> Chauffage',label||'—']);
-    }
-    // ECS
-    if(l.ecs_type){
-      const mode=l.ecs_type==='individuel'?'Individuelle (chauffe-eau)':'Collective (immeuble)';
-      const energie=l.ecs_energie?(' — '+(_eeMap[l.ecs_energie]||l.ecs_energie)):'';
-      rows.push(['<i data-lucide=droplets class=ic></i> Eau chaude (ECS)',mode+energie]);
-    }
-    // Charges incluses
-    if(l.charges_inclus){
-      const items=l.charges_inclus.split(',').filter(c=>c&&c!=='chauffage').map(c=>'<span style="display:inline-block;background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.15);border-radius:6px;padding:.15rem .5rem;font-size:.74rem;margin:.1rem .15rem 0 0">'+(_cMapL[c]||c)+'</span>');
-      if(items.length)rows.push(['<i data-lucide=package-check class=ic></i> Charges comprises',items.join('')]);
-    }
-    // Ce qui est à la charge du locataire (basé sur les champs explicites si dispo, sinon déduction)
-    const inclus=l.charges_inclus?l.charges_inclus.split(','):[];
-    const aCharge=[];
-    const elecSit=l.electricite_situation||(!inclus.includes('electricite')?'locataire':null);
-    if(elecSit==='locataire')aCharge.push('⚡ Électricité — contrat individuel à souscrire');
+    const _eeMap={electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',solaire:'Solaire',autre:'Autre'};
+    const _cMapL={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+    const inclus=l.charges_inclus?l.charges_inclus.split(',').filter(Boolean):[];
+
+    // ── Résolution statut de chaque fluide ──
     const chIncl=l.chauffage_inclus||(inclus.includes('chauffage')?'oui':l.chauffage_type==='individuel'?'non':null);
-    if(l.chauffage_type==='individuel'&&chIncl!=='oui')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
     const ecsIncl=l.ecs_inclus||(inclus.includes('eau_chaude')?'oui':l.ecs_type==='individuel'?'non':null);
-    if(l.ecs_type==='individuel'&&ecsIncl!=='oui')aCharge.push('🚿 Eau chaude — chauffe-eau individuel, consommation à votre charge');
     const efFact=l.eau_froide_facturation||(inclus.includes('eau_froide')?'charges':null);
-    if(efFact==='individuelle')aCharge.push('💧 Eau froide — facturée individuellement (compteur)');
-    // Régularisation note
+    const elecSit=l.electricite_situation||(inclus.includes('electricite')?'charges':'locataire');
+
+    // ── Résumé — 4 tuiles fluides ──
+    function _pill(inclus,label){
+      return inclus
+        ?'<span style="display:inline-block;background:rgba(34,139,34,.1);border:1px solid rgba(34,139,34,.25);color:#1a7a1a;border-radius:20px;padding:.15rem .55rem;font-size:.72rem;font-weight:600">✓ Inclus</span>'
+        :'<span style="display:inline-block;background:rgba(232,144,10,.1);border:1px solid rgba(232,144,10,.3);color:#b06800;border-radius:20px;padding:.15rem .55rem;font-size:.72rem;font-weight:600">À la charge</span>';
+    }
+    const chaufDetail=l.chauffage_type?(l.chauffage_type==='collectif'?'Collectif':'Individuel')+(l.chauffage_mode?' — '+(_eeMap[l.chauffage_mode]||l.chauffage_mode):''):'—';
+    const ecsDetail=l.ecs_type?(l.ecs_type==='collectif'?'Collective':'Individuelle (chauffe-eau)')+(l.ecs_energie?' — '+(_eeMap[l.ecs_energie]||l.ecs_energie):''):'—';
+    const efDetail=efFact==='charges'?'Comprise dans les charges':efFact==='individuelle'?'Compteur individuel':'—';
+    const elecDetail=elecSit==='charges'?'Comprise dans les charges':'Contrat individuel à souscrire';
+
+    const tuiles=[
+      {em:'🔥',nom:'Chauffage',detail:chaufDetail,incl:chIncl==='oui'},
+      {em:'🚿',nom:'Eau chaude',detail:ecsDetail,incl:ecsIncl==='oui'},
+      {em:'💧',nom:'Eau froide',detail:efDetail,incl:efFact==='charges'},
+      {em:'⚡',nom:'Électricité',detail:elecDetail,incl:elecSit==='charges'},
+    ];
+    const resumeHtml='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem;margin-bottom:.9rem">'
+      +tuiles.map(t=>'<div style="background:var(--s,#faf9f7);border:1.5px solid var(--b2);border-radius:10px;padding:.6rem .75rem;display:flex;flex-direction:column;gap:.2rem">'
+        +'<div style="font-size:.82rem;font-weight:700;color:var(--stone)">'+t.em+' '+t.nom+'</div>'
+        +'<div style="font-size:.74rem;color:var(--stone-l)">'+t.detail+'</div>'
+        +_pill(t.incl)
+        +'</div>').join('')+'</div>';
+
+    // ── Section Compris dans les charges ──
+    const inclItems=[];
+    if(chIncl==='oui')inclItems.push('🔥 Chauffage');
+    if(ecsIncl==='oui')inclItems.push('🚿 Eau chaude');
+    if(efFact==='charges')inclItems.push('💧 Eau froide');
+    if(elecSit==='charges')inclItems.push('⚡ Électricité');
+    inclus.filter(c=>!['chauffage','eau_chaude','eau_froide','electricite'].includes(c)).forEach(c=>inclItems.push((_cMapL[c]||c)));
+    const inclSection=inclItems.length
+      ?'<div style="margin-bottom:.75rem"><div style="font-size:.72rem;font-weight:700;color:#1a7a1a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">✓ Compris dans les charges</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:.35rem">'+inclItems.map(t=>'<span style="background:rgba(34,139,34,.08);border:1px solid rgba(34,139,34,.2);color:#1a7a1a;border-radius:7px;padding:.22rem .6rem;font-size:.8rem">'+t+'</span>').join('')+'</div></div>':'';
+
+    // ── Section À la charge du locataire ──
+    const aCharge=[];
+    if(elecSit==='locataire')aCharge.push('⚡ Électricité — contrat individuel à souscrire');
+    if(l.chauffage_type==='individuel'&&chIncl!=='oui')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
+    if(l.ecs_type==='individuel'&&ecsIncl!=='oui')aCharge.push('🚿 Eau chaude — chauffe-eau individuel à votre charge');
+    if(efFact==='individuelle')aCharge.push('💧 Eau froide — compteur individuel');
+    const chargeSection=aCharge.length
+      ?'<div style="margin-bottom:.6rem"><div style="font-size:.72rem;font-weight:700;color:#b06800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">⚠ À la charge du locataire</div>'
+        +'<div style="display:flex;flex-direction:column;gap:.3rem">'+aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);display:flex;align-items:flex-start;gap:.4rem"><span style="flex-shrink:0;color:#b06800">→</span>'+t+'</div>').join('')+'</div></div>':'';
+
+    // ── Note régularisation ──
     const regNote=l.charges_regularisation==='annuelle'?'Régularisation des charges effectuée annuellement.':l.charges_regularisation==='forfaitaire'?'Charges forfaitaires — pas de régularisation.':null;
+    const regInner=regNote?'<div style="margin-top:.5rem;font-size:.76rem;color:var(--stone-l);font-style:italic;border-top:1px solid var(--b2);padding-top:.5rem"><i data-lucide=info class=ic></i> '+regNote+'</div>':'';
 
     const _iw=document.getElementById('d-inclus-wrap');
-    if(_iw&&(rows.length||aCharge.length)){
-      const inclInner=rows.map(([k,v])=>'<div class="crow"><span style="white-space:nowrap">'+k+'</span><span style="text-align:right">'+v+'</span></div>').join('');
-      const chargeInner=aCharge.length?'<div style="margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--b2)"><div style="font-size:.75rem;font-weight:700;color:var(--stone-l);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px">À la charge du locataire</div>'
-        +aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);padding:.2rem 0"><i data-lucide=circle-alert class=ic style="color:#e8900a"></i> '+t+'</div>').join('')+'</div>':'';
-      const regInner=regNote?'<div style="margin-top:.55rem;font-size:.77rem;color:var(--stone-l);font-style:italic"><i data-lucide=info class=ic></i> '+regNote+'</div>':'';
-      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'+inclInner+chargeInner+regInner+'</div>';
+    const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
+    if(_iw&&hasContent){
+      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)">'
+        +'<div style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;color:var(--stone)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'
+        +resumeHtml+inclSection+chargeSection+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
 
