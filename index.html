@@ -919,14 +919,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
 
         <!-- Infos bail -->
-        <div style="margin-top:1.2rem;background:white;border-radius:14px;padding:1rem;border:1px solid rgba(107,95,82,.08)">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>
-          <div id="din"></div>
-        </div>
+        <div id="din-wrap" style="margin-top:1.2rem"></div>
 
         <!-- Coût pour le locataire -->
-        <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1rem">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--terra)">💶 Ce que vous payez</div>
+        <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1.1rem">
+          <div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--terra)">💶 Ce que vous payez</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -938,13 +935,13 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div class="cper" id="dpr-per">/mois</div>
 
           <div id="contact-direct-wrap">
-            <div class="fg2"><label>Your message to the propriétaire</label><textarea class="fta" id="dmsg" rows="3" placeholder="Hi! I'm interested in  votre annonce. I'm looking  pour …"></textarea></div>
-            <button class="btn btn-p" style="width:100%;justify-content:center" onclick="sendMsg()">Envoyer message →</button>
-            <button class="btn btn-s" id="visite-req-btn" style="width:100%;justify-content:center;margin-top:.5rem;display:none" onclick="requestVisitFromDetail()"><i data-lucide=calendar class=ic></i> Request a visite</button>
-            <div id="visite-req-hint" style="font-size:.7rem;color:var(--stone-l);text-align:center;margin-top:.5rem">Envoyer a message first — vous'll be able to request a visite once you've reached out.</div>
+            <div class="fg2"><label>Votre message au propriétaire</label><textarea class="fta" id="dmsg" rows="3" placeholder="Bonjour, je suis intéressé(e) par votre annonce. Je cherche …"></textarea></div>
+            <button class="btn btn-p" style="width:100%;justify-content:center" onclick="sendMsg()">Envoyer le message →</button>
+            <button class="btn btn-s" id="visite-req-btn" style="width:100%;justify-content:center;margin-top:.5rem;display:none" onclick="requestVisitFromDetail()"><i data-lucide=calendar class=ic></i> Demander une visite</button>
+            <div id="visite-req-hint" style="font-size:.7rem;color:var(--stone-l);text-align:center;margin-top:.5rem">Envoyez d'abord un message — vous pourrez ensuite demander une visite.</div>
           </div>
 
-          <p style="margin-top:.6rem;font-size:.68rem;color:var(--stone-l);text-align:center"><i data-lucide=lock class=ic></i> Your contact details are never shared directly</p>
+          <p style="margin-top:.6rem;font-size:.68rem;color:var(--stone-l);text-align:center"><i data-lucide=lock class=ic></i> Vos coordonnées ne sont jamais partagées directement</p>
         </div>
       </div>
     </div>
@@ -1718,34 +1715,67 @@ async function openDet(id){
     +(agencyRating?`<div style="background:rgba(46,107,138,.1);color:var(--sea);border:1px solid rgba(46,107,138,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${agencyRating.avg.toFixed(1)} agence rating <span style="font-weight:400;color:var(--stone-l)">(${agencyRating.count} avis${agencyRating.count>1?'s':''})</span></div>`:'');
   const tenureLabels={freehold:'Freehold',bailhold:'Bailhold',perpetual_ground_rent:'Perpetual ground loyer'};
   const finishLabels={finished:'Fully finished',meublé:'Finished & meublé',semi_finished:'Semi-finished',shell:'Shell form (bare)'};
-  document.getElementById('din').innerHTML=l.type==='for_sale'?`
-    ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
-    ${ratingHtml}
-    <div class="crow"><span>Type</span><span><i data-lucide=tag class=ic></i>️ À vendre</span></div>
-    ${l.tenure?`<div class="crow"><span>Tenure</span><span>${tenureLabels[l.tenure]||l.tenure}</span></div>`:''}
-    ${l.finish_status?`<div class="crow"><span>Finish statut</span><span>${finishLabels[l.finish_status]||l.finish_status}</span></div>`:''}
-    <div class="crow"><span>EPC rating</span><span>${l.epc_rating?'Class '+l.epc_rating:'Not disponible yet'}</span></div>
-    ${l.service_charge?`<div class="crow"><span>Annual service charge</span><span>€${l.service_charge}/year</span></div>`:''}
-    ${l.permit_number?`<div class="crow"><span>Planning permit</span><span>${l.permit_number}</span></div>`:''}
-    ${l.sda?`<div class="crow"><span>Special Designated Area</span><span><i data-lucide=check-circle-2 class=ic></i> Yes — no AIP permit needed pour foreign buyers</span></div>`:''}
-    ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`:`
-    ${badge?`<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">${badge}</div>`:''}
-    ${ratingHtml}
-    <div class="crow"><span>Type de bail</span><span>${tl[l.type]||l.type}</span></div>
-    ${(()=>{const _d=l.available_from?new Date(l.available_from):null;const _t=new Date();_t.setHours(0,0,0,0);return`<div class="crow"><span>Disponibilité</span><span>${!_d||_d<=_t?'<i data-lucide=check-circle-2 class=ic></i> Disponible maintenant':'Disponible le '+_d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</span></div>`;})()}
-    <div class="crow"><span>Dépôt de garantie</span><span>${l.depot?'€'+l.depot+' <span style="font-size:.72rem;color:var(--stone-l)">(remboursé en fin de bail)</span>':'Non renseigné'}</span></div>
-    ${l.bills_situation?`<div class="crow"><span>Charges locatives</span><span>${l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'+(l.charges_mensuelles?` — €${l.charges_mensuelles}/mois`:'')}</span></div>`:''}
-    ${l.charges_mensuelles&&l.bills_situation==='included'?`<div class="crow"><span>Montant des charges</span><span>€${l.charges_mensuelles}/mois</span></div>`:''}
-    ${l.charges_inclus?`<div class="crow"><span>Charges incluent</span><span>${l.charges_inclus.split(',').map(c=>({eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'}[c]||c)).join(', ')}</span></div>`:''}
-    ${l.paiement_due_day?`<div class="crow"><span>Loyer exigible le</span><span>${l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'}</span></div>`:''}
-    ${(l.etage!=null&&l.etage!=='')?`<div class="crow"><span>Étage</span><span>${l.etage==0?'Rez-de-chaussée':'Étage '+l.etage+(l.nb_etages?' / '+l.nb_etages:'')}</span></div>`:''}
-    ${(l.ascenseur!=null&&l.ascenseur!=='')?`<div class="crow"><span>Ascenseur</span><span>${l.ascenseur==='oui'?'<i data-lucide=check-circle-2 class=ic></i> Oui':'<i data-lucide=x-circle class=ic></i> Non'}</span></div>`:''}
-    ${l.annexes?`<div class="crow"><span>Pièces annexes</span><span>${l.annexes.split(',').map(a=>({cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'}[a]||a)).join(', ')}</span></div>`:''}
-    ${l.chauffage_type?`<div class="crow"><span>Type de chauffage</span><span>${({individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois/Poêle',autre:'Autre'}[l.chauffage_type]||l.chauffage_type)+(l.chauffage_mode?' — '+({eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'}[l.chauffage_mode]||l.chauffage_mode):'')}</span></div>`:''}
-    ${l.dpe?`<div class="crow"><span>DPE</span><span style="font-weight:700;background:${{A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'}[l.dpe]||'#ccc'};color:${['A','B','C'].includes(l.dpe)?'white':'#222'};padding:.1rem .5rem;border-radius:4px">${l.dpe}${l.ges?' &nbsp;<span style="font-weight:400;font-size:.8rem">GES ${l.ges}</span>':''}</span></div>`:''}
-    ${l.copropriete?`<div class="crow"><span>Copropriété</span><span><i data-lucide=check-circle-2 class=ic></i> Oui</span></div>`:''}
-    ${l.zone_tendue==='oui'?`<div class="crow"><span>Zone tendue</span><span><i data-lucide=alert-triangle class=ic></i> Oui — encadrement des loyers applicable</span></div>`:''}
-    ${l.full_address?`<div class="crow"><span>Adresse</span><span>${l.full_address}</span></div>`:''}`;
+  // ── DPE widget ────────────────────────────────────────────────
+  const dpeColors={A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'};
+  const dpeTextCol={A:'#fff',B:'#fff',C:'#222',D:'#222',E:'#222',F:'#fff',G:'#fff'};
+  const dpeWidths={A:38,B:46,C:54,D:62,E:70,F:80,G:90};
+  function makeDpeWidget(dpe,ges){
+    if(!dpe)return'';
+    const bands=['A','B','C','D','E','F','G'].map(b=>{
+      const active=b===dpe;
+      return'<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:'+(active?'3':'1')+'px">'
+        +'<div style="width:'+dpeWidths[b]+'%;background:'+dpeColors[b]+';color:'+dpeTextCol[b]+';border-radius:0 4px 4px 0;padding:'+(active?'.3rem .6rem':'.16rem .4rem')+';font-size:'+(active?'1rem':'.72rem')+';font-weight:700;display:flex;align-items:center;justify-content:space-between;'+(active?'box-shadow:0 2px 8px rgba(0,0,0,.2)':'opacity:.7')+'">'
+        +'<span>'+b+'</span>'+(active&&ges?'<span style="font-size:.62rem;font-weight:400;opacity:.85">GES '+ges+'</span>':'')
+        +'</div>'+(active?'<span style="font-size:.68rem;font-weight:700;color:var(--stone)">◀ sélectionné</span>':'')
+        +'</div>';
+    }).join('');
+    return'<div style="margin-top:.9rem"><div style="font-size:.7rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">DPE — Performance Énergétique</div>'+bands+'</div>';
+  }
+  function drow(label,val){return val?'<div class="crow"><span>'+label+'</span><span>'+val+'</span></div>':'';}
+
+  // ── Rendu din-wrap ─────────────────────────────────────────────
+  const _avD=l.available_from?new Date(l.available_from):null;
+  const _tod=new Date();_tod.setHours(0,0,0,0);
+  const dispoHtml=!_avD||_avD<=_tod
+    ?'<span style="color:#4CAF7D;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> Disponible maintenant</span>'
+    :'Disponible le '+_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+  const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'};
+  const _chMap={individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois / Poêle',autre:'Autre'};
+  const _cmMap={eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'};
+
+  function buildDinHtml(l,badge,ratingHtml,tl,tenureLabels,finishLabels){
+    if(l.type==='for_sale') return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">'+badge+'</div>':'')
+      +ratingHtml
+      +drow('Type','<i data-lucide=tag class=ic></i>️ À vendre')
+      +(l.tenure?drow('Régime',tenureLabels[l.tenure]||l.tenure):'')
+      +(l.finish_status?drow('État',finishLabels[l.finish_status]||l.finish_status):'')
+      +(l.full_address?drow('Adresse',l.full_address):'');
+
+    const secHd=t=>'<div style="font-size:.7rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin:.85rem 0 .4rem">'+t+'</div>';
+    return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
+      +ratingHtml
+      +secHd('Bail')
+      +drow('Type',tl[l.type]||l.type)
+      +'<div class="crow"><span>Disponibilité</span><span>'+dispoHtml+'</span></div>'
+      +(l.paiement_due_day?drow('Loyer exigible le',l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois'):'')
+      +secHd('Finances')
+      +(l.depot?drow('Dépôt de garantie','€'+l.depot+' <span style="font-size:.72rem;color:var(--stone-l)">(remboursé en fin de bail)</span>'):'')
+      +(l.bills_situation?drow('Charges locatives',l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'):'')
+      +(l.charges_mensuelles?drow('Montant des charges','€'+l.charges_mensuelles+' / mois'):'')
+      +(l.charges_inclus?drow('Charges incluent',l.charges_inclus.split(',').map(c=>_cMap[c]||c).join(', ')):'')
+      +secHd('Logement')
+      +((l.etage!=null&&l.etage!=='')?drow('Étage',l.etage==0?'Rez-de-chaussée':'Étage '+l.etage+(l.nb_etages?' / '+l.nb_etages+' niveaux':'')):'')
+      +((l.ascenseur!=null&&l.ascenseur!=='')?drow('Ascenseur',l.ascenseur==='oui'?'<i data-lucide=check-circle-2 class=ic></i> Oui':'<i data-lucide=x-circle class=ic></i> Non'):'')
+      +(l.annexes?drow('Pièces annexes',l.annexes.split(',').map(a=>_aMap[a]||a).join(', ')):'')
+      +(l.chauffage_type?drow('Chauffage',(_chMap[l.chauffage_type]||l.chauffage_type)+(l.chauffage_mode?' — '+(_cmMap[l.chauffage_mode]||l.chauffage_mode):'')):'')
+      +(l.copropriete?drow('Copropriété','<i data-lucide=check-circle-2 class=ic></i> Oui'):'')
+      +(l.zone_tendue==='oui'?'<div style="margin-top:.5rem;background:rgba(240,180,15,.1);border:1px solid rgba(240,180,15,.3);border-radius:8px;padding:.5rem .75rem;font-size:.75rem;color:#9a7000"><i data-lucide=alert-triangle class=ic></i> Zone tendue — encadrement des loyers applicable</div>':'')
+      +makeDpeWidget(l.dpe,l.ges)
+      +(l.full_address?'<div style="margin-top:.8rem;padding:.55rem .75rem;background:var(--sand);border-radius:8px;font-size:.78rem;color:var(--stone)"><i data-lucide=map-pin class=ic></i> '+l.full_address+'</div>':'');
+  }
+  document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>'+buildDinHtml(l,badge,ratingHtml,tl,tenureLabels,finishLabels)+'</div>';
+
 
   // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
   const dcostCard=document.getElementById('dcost');
