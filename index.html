@@ -1781,59 +1781,77 @@ async function openDet(id){
     const _ti=document.getElementById('d-topinfo');if(_ti)_ti.innerHTML=_bs.join('');
   }
 
-  // ─── Caractéristiques ───────────────────────────────────────────
+  // ─── Caractéristiques (style Laforêt) ───────────────────────────
   {
-    // Chip standard pour équipements
-    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.45rem;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.45rem .9rem;font-size:.9rem;color:var(--stone)">'+icon+' '+text+'</div>';
-    // Section avec titre bleu
-    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:1rem"><div style="font-size:.72rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.55rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.45rem">'+fi.join('')+'</div></div>';};
     const _nb=l.chambres||l.spots;
 
-    // Tuiles de surface (grandes, visuelles)
-    const _tile=(icon,val,unit)=>'<div style="background:var(--s2);border:1.5px solid var(--b2);border-radius:12px;padding:.8rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;min-width:80px;text-align:center">'
-      +'<div style="font-size:1rem;color:var(--bleu,#1B4FD8)">'+icon+'</div>'
-      +'<div style="font-size:1.3rem;font-weight:800;color:var(--stone);line-height:1.1">'+val+'</div>'
-      +(unit?'<div style="font-size:.74rem;color:var(--stone-l);font-weight:500">'+unit+'</div>':'')
+    // Item style Laforêt : icône dans un carré + label à droite
+    const _item=(icon,text)=>'<div style="display:flex;align-items:center;gap:.75rem">'
+      +'<div style="flex-shrink:0;width:48px;height:48px;border:1.5px solid var(--b2);border-radius:10px;background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--bleu,#1B4FD8);font-size:1.15rem">'
+      +icon+'</div>'
+      +'<span style="font-size:.95rem;font-weight:500;color:var(--stone);line-height:1.25">'+text+'</span>'
       +'</div>';
 
-    const surfTiles=[];
-    if(l.typology) surfTiles.push(_tile('<i data-lucide=layout-template class=ic></i>',_typMap[l.typology]?.split(' — ')[0]||l.typology.toUpperCase(),_typMap[l.typology]?.split(' — ')[1]||''));
-    if(l.sqm) surfTiles.push(_tile('<i data-lucide=ruler class=ic></i>',l.sqm,'m²'));
-    if(_nb) surfTiles.push(_tile('<i data-lucide=bed-double class=ic></i>',_nb,'chambre'+(_nb>1?'s':'')));
-    if(l.baths) surfTiles.push(_tile('<i data-lucide=shower-head class=ic></i>',l.baths,'salle'+( l.baths>1?'s':'')+' de bain'));
-    if(l.surface_sejour) surfTiles.push(_tile('<i data-lucide=armchair class=ic></i>',l.surface_sejour,'m² séjour'));
+    // Section avec grand titre gras (style Laforêt)
+    const _sc=(title,items)=>{
+      const fi=items.flat().filter(Boolean);
+      if(!fi.length)return'';
+      return '<div style="margin-bottom:1.5rem">'
+        +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">'+title+'</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.85rem">'+fi.join('')+'</div>'
+        +'</div>';
+    };
 
-    const surfSection=surfTiles.length
-      ?'<div style="margin-bottom:1rem"><div style="font-size:.72rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.55rem">Surface &amp; espace de vie</div>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:.5rem">'+surfTiles.join('')+'</div></div>':'';
+    // Tuiles surface : grand chiffre + unité + icône
+    const _stile=(icon,val,unit,sub)=>'<div style="display:flex;align-items:center;gap:.85rem">'
+      +'<div style="flex-shrink:0;width:56px;height:56px;border:2px solid var(--bleu,#1B4FD8);border-radius:12px;background:rgba(27,79,216,.06);display:flex;align-items:center;justify-content:center;color:var(--bleu,#1B4FD8);font-size:1.3rem">'
+      +icon+'</div>'
+      +'<div>'
+        +'<div style="font-size:1.45rem;font-weight:800;color:var(--stone);line-height:1.1">'+val+(unit?'<span style="font-size:.85rem;font-weight:500;color:var(--stone-l);margin-left:.2rem">'+unit+'</span>':'')+'</div>'
+        +(sub?'<div style="font-size:.78rem;color:var(--stone-l);font-weight:500;margin-top:.1rem">'+sub+'</div>':'')
+      +'</div>'
+      +'</div>';
+
+    const surfItems=[];
+    if(l.typology) surfItems.push(_stile('<i data-lucide=layout-template class=ic></i>',_typMap[l.typology]?.split(' — ')[0]||l.typology.toUpperCase(),'',_typMap[l.typology]?.split(' — ')[1]||''));
+    if(l.sqm) surfItems.push(_stile('<i data-lucide=ruler class=ic></i>',l.sqm,'m²','Surface habitable'));
+    if(_nb) surfItems.push(_stile('<i data-lucide=bed-double class=ic></i>',_nb,'','chambre'+(_nb>1?'s':'')));
+    if(l.baths) surfItems.push(_stile('<i data-lucide=shower-head class=ic></i>',l.baths,'','salle'+( l.baths>1?'s':'')+' de bain'));
+    if(l.surface_sejour) surfItems.push(_stile('<i data-lucide=armchair class=ic></i>',l.surface_sejour,'m²','Séjour'));
+
+    const surfSection=surfItems.length
+      ?'<div style="margin-bottom:1.5rem">'
+        +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">Surface et espace de vie</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">'+surfItems.join('')+'</div>'
+        +'</div>':'';
 
     const _int=[
-      l.type_cuisine&&l.type_cuisine!=='aucune'?_ch('<i data-lucide=chef-hat class=ic></i>','Cuisine '+(_cusMap[l.type_cuisine]||l.type_cuisine)):null,
-      l.ascenseur==='oui'?_ch('<i data-lucide=arrow-up-down class=ic></i>','Ascenseur'):null,
-      l.meublé?_ch('<i data-lucide=sofa class=ic></i>','Meublé'):null,
-      l.ac?_ch('<i data-lucide=snowflake class=ic></i>','Climatisation'):null,
-      l.chauffage_sol?_ch('<i data-lucide=flame class=ic></i>','Chauffage au sol'):null,
-      l.washing_machine?_ch('<i data-lucide=washing-machine class=ic></i>','Lave-linge'):null,
-      l.dishwasher?_ch('<i data-lucide=utensils class=ic></i>','Lave-vaisselle'):null,
-      l.wifi?_ch('<i data-lucide=wifi class=ic></i>','WiFi'):null,
-      l.baignoire?_ch('<i data-lucide=bath class=ic></i>','Baignoire'):null,
-      l.plusieurs_wc?_ch('<i data-lucide=door-open class=ic></i>','WC séparés'):null,
-      l.pmr?_ch('<i data-lucide=accessibility class=ic></i>','Accès PMR'):null,
+      l.type_cuisine&&l.type_cuisine!=='aucune'?_item('<i data-lucide=chef-hat class=ic></i>','Cuisine '+(_cusMap[l.type_cuisine]||l.type_cuisine)):null,
+      l.ascenseur==='oui'?_item('<i data-lucide=arrow-up-down class=ic></i>','Ascenseur'):null,
+      l.meublé?_item('<i data-lucide=sofa class=ic></i>','Meublé'):null,
+      l.ac?_item('<i data-lucide=snowflake class=ic></i>','Climatisation'):null,
+      l.chauffage_sol?_item('<i data-lucide=flame class=ic></i>','Chauffage au sol'):null,
+      l.washing_machine?_item('<i data-lucide=washing-machine class=ic></i>','Lave-linge'):null,
+      l.dishwasher?_item('<i data-lucide=utensils class=ic></i>','Lave-vaisselle'):null,
+      l.wifi?_item('<i data-lucide=wifi class=ic></i>','WiFi'):null,
+      l.baignoire?_item('<i data-lucide=bath class=ic></i>','Baignoire'):null,
+      l.plusieurs_wc?_item('<i data-lucide=door-open class=ic></i>','WC séparés'):null,
+      l.pmr?_item('<i data-lucide=accessibility class=ic></i>','Accès PMR'):null,
     ];
     const _ext=[
-      l.parking?_ch('<i data-lucide=car class=ic></i>','Parking'):null,
-      l.balcon?(l.terrasse_sqm?_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse '+l.terrasse_sqm+' m²'):_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
-      l.pool?_ch('<i data-lucide=waves class=ic></i>','Piscine'):null,
-      l.jardin?_ch('<i data-lucide=trees class=ic></i>','Jardin'):null,
+      l.parking?_item('<i data-lucide=car class=ic></i>','Parking'):null,
+      l.balcon?(l.terrasse_sqm?_item('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse '+l.terrasse_sqm+' m²'):_item('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
+      l.pool?_item('<i data-lucide=waves class=ic></i>','Piscine'):null,
+      l.jardin?_item('<i data-lucide=trees class=ic></i>','Jardin'):null,
     ];
     const _aut=[
-      l.annee_construction?_ch('<i data-lucide=landmark class=ic></i>','Construit en '+l.annee_construction):(l.construction_ancienne?_ch('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_ch('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
-      l.copropriete?_ch('<i data-lucide=building-2 class=ic></i>','Copropriété'+(l.nb_lots_copro?' — '+l.nb_lots_copro+' lots':'')):null,
-      l.annexes?l.annexes.split(',').filter(Boolean).map(a=>_ch('<i data-lucide=archive class=ic></i>',_aMap[a]||a)):null,
+      l.annee_construction?_item('<i data-lucide=landmark class=ic></i>','Construit en '+l.annee_construction):(l.construction_ancienne?_item('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_item('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
+      l.copropriete?_item('<i data-lucide=building-2 class=ic></i>','Copropriété'+(l.nb_lots_copro?' — '+l.nb_lots_copro+' lots':'')):null,
+      l.annexes?l.annexes.split(',').filter(Boolean).map(a=>_item('<i data-lucide=archive class=ic></i>',_aMap[a]||a)):null,
     ];
     const _h2=surfSection+_sc('Intérieur',_int)+_sc('Extérieur',_ext)+_sc('Autres',_aut);
     const _dc=document.getElementById('d-carac');
-    if(_dc)_dc.innerHTML=_h2?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-top:.25rem">'+_h2+'</div>':'';
+    if(_dc)_dc.innerHTML=_h2?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem;margin-top:.25rem">'+_h2+'</div>':'';
   }
 
   // ─── DPE widget ──────────────────────────────────────────────────
@@ -1959,7 +1977,7 @@ async function openDet(id){
     const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
     if(_iw&&hasContent){
       _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)">'
-        +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=package-check class=ic></i> Ce qui est inclus dans le loyer</div>'
+        +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=zap class=ic></i> Énergie &amp; charges</div>'
         +resumeHtml+inclSection+chargeSection+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
