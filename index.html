@@ -679,6 +679,13 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <input type="hidden" id="p-chauffage-mode" value="">
         </div>
       </div>
+        <div class="fg2" style="margin-top:.75rem"><label>Eau chaude sanitaire (ECS)</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
+            <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
+          </div>
+          <input type="hidden" id="p-ecs-type" value="">
+        </div>
 
       <!-- ═══ 5. PRIX & DISPONIBILITÉ ═══ -->
       <div class="fsect-hd"><i data-lucide=euro class=ic></i> Prix & disponibilité</div>
@@ -773,7 +780,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
           <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
           <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
-          <label class="cl"><input type="checkbox" id="p-copropriete"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+          <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+          <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
           <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
         </div>
       </div>
@@ -903,25 +911,17 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="dtitle" id="dti"></div>
         <div class="dzone" id="dzo"></div>
 
-        <!-- Specs rapides : chambres, bains, m², type -->
-        <div id="dspecs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0"></div>
+        <div id="d-topinfo" style="display:flex;flex-wrap:wrap;gap:.45rem;margin:.7rem 0"></div>
+        <div id="d-carac"></div>
 
-        <!-- Description -->
-        <div style="margin-top:.5rem">
+        <div style="margin-top:1.1rem">
           <div style="font-size:.82rem;font-weight:700;margin-bottom:.4rem;color:var(--stone)">Description</div>
           <div class="ddesc" id="dde"></div>
         </div>
 
-        <!-- Amenities -->
-        <div style="margin-top:1rem">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
-          <div id="dfe" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
-        </div>
-
-        <!-- Infos bail -->
         <div id="din-wrap" style="margin-top:1.2rem"></div>
+        <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
-        <!-- Coût pour le locataire -->
         <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1px solid rgba(201,85,58,.15);border-radius:14px;padding:1.1rem">
           <div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--terra)">💶 Ce que vous payez</div>
           <div id="dcost-inner"></div>
@@ -1659,55 +1659,112 @@ async function openDet(id){
   const dprPer=document.getElementById('dpr-per');
   if(dprPer)dprPer.style.display=l.type==='for_sale'?'none':'block';
 
-  // Specs rapides
-  const specs=[];
-  if(l.chambres||l.spots)specs.push(`<i data-lucide=bed-double class=ic></i> ${l.chambres||l.spots} chambre${(l.chambres||l.spots)>1?'s':''}`);
-  if(l.baths)specs.push(`<i data-lucide=shower-head class=ic></i> ${l.baths} salle de bain${l.baths>1?'s':''}`);
-  if(l.sqm)specs.push(`<i data-lucide=ruler class=ic></i> ${l.sqm} m²`);
-  specs.push(l.type==='long'?(l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide'):{short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'}[l.type]||l.type);
-  if(l.video_url)specs.push('<i data-lucide=video class=ic></i> Virtual tour');
-  document.getElementById('dspecs').innerHTML=specs.map(s=>`<span class="dfeat" style="background:var(--s2);border:1px solid var(--b2);font-size:.78rem;padding:.3rem .7rem;border-radius:20px">${s}</span>`).join('');
+  // ─── Maps de traduction ────────────────────────────────────────
+  const _chMap={individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois / Poêle',autre:'Autre'};
+  const _cmMap={eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'};
+  const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+  const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'};
+  const _typMap={studio:'Studio',t1:'T1 — 1 pièce',t2:'T2 — 2 pièces',t3:'T3 — 3 pièces',t4:'T4 — 4 pièces',t5:'T5 — 5 pièces',t6plus:'T6 et plus'};
+  const _cusMap={equipee:'Équipée',amenagee:'Aménagée',equipee_amenagee:'Équipée / Aménagée',americaine:'Américaine',ouverte:'Ouverte',separee:'Séparée'};
 
-  // Équipements
-  const fe=[
-    l.meublé?'<i data-lucide=sofa class=ic></i> Meublé':null,
-    l.wifi?'<i data-lucide=wifi class=ic></i> WiFi':null,
-    l.ac?'<i data-lucide=snowflake class=ic></i> Clim / A/C':null,
-    l.parking?'<i data-lucide=car class=ic></i> Parking':null,
-    l.pool?'<i data-lucide=waves class=ic></i> Piscine':null,
-    l.balcon?'<i data-lucide=flower-2 class=ic></i> Balcon / Terrasse':null,
-    l.washing_machine?'<i data-lucide=rotate-ccw class=ic></i> Lave-linge':null,
-    l.dishwasher?'<i data-lucide=utensils class=ic></i> Lave-vaisselle':null,
-    l.ascenseur==='oui'?'<i data-lucide=arrow-up-down class=ic></i> Ascenseur':null,
-    l.copropriete?'<i data-lucide=building-2 class=ic></i> Copropriété':null,
-    l.pmr?'<i data-lucide=accessibility class=ic></i> Accès PMR':null,
-    l.chauffage_sol?'<i data-lucide=flame class=ic></i> Chauffage au sol':null,
-    l.baignoire?'<i data-lucide=bath class=ic></i> Baignoire':null,
-    l.plusieurs_wc?'<i data-lucide=door-open class=ic></i> Plusieurs WC':null,
-    l.construction_ancienne?'<i data-lucide=landmark class=ic></i> Construction ancienne':null,
-    l.construction_recente?'<i data-lucide=hard-hat class=ic></i> Construction récente':null,
-    l.jardin?'<i data-lucide=trees class=ic></i> Jardin':null,
-    l.accepts_attestation?'<i data-lucide=clipboard-list class=ic></i> Attestation acceptée':null,
-  ].filter(Boolean);
-  // Fusionner avec les features cochées côté agence (tableau JSON libre) —
-  // "Meublé" est explicitement exclu ici : il a déjà sa propre étiquette
-  // fiable et mutuellement exclusive juste au-dessus (<i data-lucide=check-circle-2 class=ic></i>/<i data-lucide=x-circle class=ic></i> selon l.meublé).
-  // Le laisser passer créait "<i data-lucide=x-circle class=ic></i> Non meublé" ET "<i data-lucide=check-circle-2 class=ic></i> Meublé" ensemble,
-  // car la vérification de doublon (substring, sensible à la casse) ne
-  // détectait jamais que les deux décrivaient la même chose.
-  try{
-    if(l.features){
-      const extra=JSON.parse(l.features);
-      extra.forEach(f=>{
-        if(f.toLowerCase().includes('meublé'))return;
-        if(!fe.some(x=>x.toLowerCase().includes(f.toLowerCase())))fe.push('<i data-lucide=check-circle-2 class=ic></i> '+f);
-      });
-    }
-  }catch(e){}
-  document.getElementById('dfe').innerHTML=fe.map(f=>`<span class="dfeat">${f}</span>`).join('');
+  // ─── Disponibilité ──────────────────────────────────────────────
+  const _avD=l.available_from?new Date(l.available_from):null;
+  const _tod=new Date();_tod.setHours(0,0,0,0);
+  const _dispoOk=l.available_indefinitely||!_avD||_avD<=_tod;
+  const dispoHtml=_dispoOk
+    ?'<span style="color:#4CAF7D;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> Disponible maintenant</span>'
+    :'Disponible le '+_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
 
-  // Infos bail — ou infos de vente si l'annonce est "À vendre"
-  const tl={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
+  // ─── Badges top info ────────────────────────────────────────────
+  {
+    const _tb=(icon,text,bg,bdr,col)=>'<span style="background:'+(bg||'var(--s2)')+';border:1px solid '+(bdr||'var(--b2)')+';border-radius:20px;padding:.28rem .72rem;font-size:.76rem;font-weight:600;color:'+(col||'var(--txt)')+';display:inline-flex;align-items:center;gap:.3rem">'+icon+' '+text+'</span>';
+    const _bs=[];
+    const _bl={short:'Location courte durée',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
+    _bs.push(_tb('<i data-lucide=file-text class=ic></i>',_bl[l.type]||l.type));
+    _bs.push(_tb('<i data-lucide='+(_dispoOk?'check-circle-2':'calendar')+' class=ic></i>',
+      _dispoOk?'Disponible maintenant':'Dispo le '+(_avD?_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):''),
+      _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.08)',
+      _dispoOk?'rgba(76,175,125,.3)':'rgba(27,79,216,.2)',
+      _dispoOk?'#2e7d52':'var(--bleu)'));
+    if(l.chauffage_type)_bs.push(_tb('<i data-lucide=flame class=ic></i>',(_chMap[l.chauffage_type]||l.chauffage_type)+' chauffage'));
+    if(l.ecs_type)_bs.push(_tb('<i data-lucide=droplets class=ic></i>',l.ecs_type==='collectif'?'ECS collective':'ECS individuelle'));
+    const _ti=document.getElementById('d-topinfo');if(_ti)_ti.innerHTML=_bs.join('');
+  }
+
+  // ─── Caractéristiques ───────────────────────────────────────────
+  {
+    const _ch=(icon,text)=>'<div style="display:inline-flex;align-items:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.3rem .62rem;font-size:.78rem">'+icon+' '+text+'</div>';
+    const _sc=(title,items)=>{const fi=items.flat().filter(Boolean);if(!fi.length)return'';return'<div style="margin-bottom:.7rem"><div style="font-size:.65rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.42rem">'+title+'</div><div style="display:flex;flex-wrap:wrap;gap:.32rem">'+fi.join('')+'</div></div>';};
+    const _nb=l.chambres||l.spots;
+    const _surf=[
+      l.typology?_ch('<i data-lucide=layout-template class=ic></i>',_typMap[l.typology]||l.typology.toUpperCase()):null,
+      l.sqm?_ch('<i data-lucide=ruler class=ic></i>',l.sqm+' m²'):null,
+      _nb?_ch('<i data-lucide=bed-double class=ic></i>',_nb+' chambre'+(_nb>1?'s':'')):null,
+      l.baths?_ch('<i data-lucide=shower-head class=ic></i>',l.baths+' sdb'):null,
+      l.surface_sejour?_ch('<i data-lucide=armchair class=ic></i>','Séjour '+l.surface_sejour+' m²'):null,
+    ];
+    const _int=[
+      l.type_cuisine&&l.type_cuisine!=='aucune'?_ch('<i data-lucide=chef-hat class=ic></i>','Cuisine '+(_cusMap[l.type_cuisine]||l.type_cuisine)):null,
+      l.ascenseur==='oui'?_ch('<i data-lucide=arrow-up-down class=ic></i>','Ascenseur'):null,
+      l.meublé?_ch('<i data-lucide=sofa class=ic></i>','Meublé'):null,
+      l.ac?_ch('<i data-lucide=snowflake class=ic></i>','Climatisation'):null,
+      l.chauffage_sol?_ch('<i data-lucide=flame class=ic></i>','Chauffage au sol'):null,
+      l.washing_machine?_ch('<i data-lucide=washing-machine class=ic></i>','Lave-linge'):null,
+      l.dishwasher?_ch('<i data-lucide=utensils class=ic></i>','Lave-vaisselle'):null,
+      l.wifi?_ch('<i data-lucide=wifi class=ic></i>','WiFi'):null,
+      l.baignoire?_ch('<i data-lucide=bath class=ic></i>','Baignoire'):null,
+      l.plusieurs_wc?_ch('<i data-lucide=door-open class=ic></i>','WC séparés'):null,
+      l.pmr?_ch('<i data-lucide=accessibility class=ic></i>','Accès PMR'):null,
+    ];
+    const _ext=[
+      l.parking?_ch('<i data-lucide=car class=ic></i>','Parking'):null,
+      l.balcon?(l.terrasse_sqm?_ch('<i data-lucide=flower-2 class=ic></i>','Balcon/Terrasse '+l.terrasse_sqm+' m²'):_ch('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
+      l.pool?_ch('<i data-lucide=waves class=ic></i>','Piscine'):null,
+      l.jardin?_ch('<i data-lucide=trees class=ic></i>','Jardin'):null,
+    ];
+    const _aut=[
+      l.annee_construction?_ch('<i data-lucide=landmark class=ic></i>','Const. '+l.annee_construction):(l.construction_ancienne?_ch('<i data-lucide=landmark class=ic></i>','Ancienne'):(l.construction_recente?_ch('<i data-lucide=hard-hat class=ic></i>','Récente'):null)),
+      l.copropriete?_ch('<i data-lucide=building-2 class=ic></i>','Copropriété'+(l.nb_lots_copro?' — '+l.nb_lots_copro+' lots':'')):null,
+      l.annexes?l.annexes.split(',').filter(Boolean).map(a=>_ch('<i data-lucide=archive class=ic></i>',_aMap[a]||a)):null,
+      l.zone_tendue==='oui'?_ch('<i data-lucide=alert-triangle class=ic></i>','Zone tendue'):null,
+    ];
+    const _h2=_sc('Surface et espace de vie',_surf)+_sc('Intérieur',_int)+_sc('Extérieur',_ext)+_sc('Autres',_aut);
+    const _dc=document.getElementById('d-carac');
+    if(_dc)_dc.innerHTML=_h2?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;margin-top:.25rem">'+_h2+'</div>':'';
+  }
+
+  // ─── DPE widget ──────────────────────────────────────────────────
+  const dpeColors={A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'};
+  const dpeTextCol={A:'#fff',B:'#fff',C:'#222',D:'#222',E:'#222',F:'#fff',G:'#fff'};
+  const dpeWidths={A:38,B:46,C:54,D:62,E:70,F:80,G:90};
+  const gesColors={A:'#c9d9e8',B:'#a8bfd4',C:'#7fa3bc',D:'#5785a0',E:'#376682',F:'#1e4a63',G:'#0d2e43'};
+  const gesTextCol={A:'#222',B:'#222',C:'#fff',D:'#fff',E:'#fff',F:'#fff',G:'#fff'};
+  const gesWidths={A:38,B:46,C:54,D:62,E:70,F:80,G:90};
+  function makeDpeWidget(dpe,ges){
+    if(!dpe)return'';
+    const dpeBands=['A','B','C','D','E','F','G'].map(b=>{
+      const active=b===dpe;
+      return'<div style="display:flex;align-items:center;gap:.35rem;margin-bottom:'+(active?'3':'1')+'px">'
+        +'<div style="width:'+dpeWidths[b]+'%;background:'+dpeColors[b]+';color:'+dpeTextCol[b]+';border-radius:0 5px 5px 0;padding:'+(active?'.28rem .55rem':'.14rem .35rem')+';font-size:'+(active?'.95rem':'.7rem')+';font-weight:700;display:flex;align-items:center;justify-content:space-between;'+(active?'box-shadow:0 2px 8px rgba(0,0,0,.2)':'opacity:.72')+'">'
+        +'<span>'+b+'</span>'
+        +'</div>'+(active?'<span style="font-size:.66rem;font-weight:700;color:var(--stone)">◀</span>':'')
+        +'</div>';
+    }).join('');
+    const gesBands=['A','B','C','D','E','F','G'].map(b=>{
+      const active=b===ges;
+      return'<div style="display:flex;align-items:center;gap:.35rem;margin-bottom:'+(active?'3':'1')+'px">'
+        +'<div style="width:'+gesWidths[b]+'%;background:'+gesColors[b]+';color:'+gesTextCol[b]+';border-radius:0 5px 5px 0;padding:'+(active?'.28rem .55rem':'.14rem .35rem')+';font-size:'+(active?'.95rem':'.7rem')+';font-weight:700;display:flex;align-items:center;justify-content:space-between;'+(active?'box-shadow:0 2px 8px rgba(0,0,0,.2)':'opacity:.72')+'">'
+        +'<span>'+b+'</span>'
+        +'</div>'+(active?'<span style="font-size:.66rem;font-weight:700;color:var(--stone)">◀</span>':'')
+        +'</div>';
+    }).join('');
+    const lbl='<div style="font-size:.62rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.45rem">';
+    const dpeBlock='<div style="flex:1;min-width:0">'+lbl+'⚡ Consommation</div>'+dpeBands+'</div>';
+    const gesBlock=ges?'<div style="flex:1;min-width:0">'+lbl+'☁ Émissions GES</div>'+gesBands+'</div>':'';
+    return'<div style="margin-top:.9rem"><div style="display:flex;gap:.75rem;align-items:flex-start">'+dpeBlock+gesBlock+'</div></div>';
+  }
+
+  // ─── Infos bail & finances ──────────────────────────────────────
   const badge=await getLandlordResponseBadge(l.landlord_id);
   const propriétaireRating=await getLandlordRating(l.landlord_id);
   const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
@@ -1715,35 +1772,7 @@ async function openDet(id){
     +(agencyRating?`<div style="background:rgba(46,107,138,.1);color:var(--sea);border:1px solid rgba(46,107,138,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${agencyRating.avg.toFixed(1)} agence rating <span style="font-weight:400;color:var(--stone-l)">(${agencyRating.count} avis${agencyRating.count>1?'s':''})</span></div>`:'');
   const tenureLabels={freehold:'Freehold',bailhold:'Bailhold',perpetual_ground_rent:'Perpetual ground loyer'};
   const finishLabels={finished:'Fully finished',meublé:'Finished & meublé',semi_finished:'Semi-finished',shell:'Shell form (bare)'};
-  // ── DPE widget ────────────────────────────────────────────────
-  const dpeColors={A:'#319834',B:'#51A14E',C:'#A3C543',D:'#F2E70C',E:'#F0B40F',F:'#ED7D31',G:'#E8232A'};
-  const dpeTextCol={A:'#fff',B:'#fff',C:'#222',D:'#222',E:'#222',F:'#fff',G:'#fff'};
-  const dpeWidths={A:38,B:46,C:54,D:62,E:70,F:80,G:90};
-  function makeDpeWidget(dpe,ges){
-    if(!dpe)return'';
-    const bands=['A','B','C','D','E','F','G'].map(b=>{
-      const active=b===dpe;
-      return'<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:'+(active?'3':'1')+'px">'
-        +'<div style="width:'+dpeWidths[b]+'%;background:'+dpeColors[b]+';color:'+dpeTextCol[b]+';border-radius:0 4px 4px 0;padding:'+(active?'.3rem .6rem':'.16rem .4rem')+';font-size:'+(active?'1rem':'.72rem')+';font-weight:700;display:flex;align-items:center;justify-content:space-between;'+(active?'box-shadow:0 2px 8px rgba(0,0,0,.2)':'opacity:.7')+'">'
-        +'<span>'+b+'</span>'+(active&&ges?'<span style="font-size:.62rem;font-weight:400;opacity:.85">GES '+ges+'</span>':'')
-        +'</div>'+(active?'<span style="font-size:.68rem;font-weight:700;color:var(--stone)">◀ sélectionné</span>':'')
-        +'</div>';
-    }).join('');
-    return'<div style="margin-top:.9rem"><div style="font-size:.7rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">DPE — Performance Énergétique</div>'+bands+'</div>';
-  }
-  function drow(label,val){return val?'<div class="crow"><span>'+label+'</span><span>'+val+'</span></div>':'';}
-
-  // ── Rendu din-wrap ─────────────────────────────────────────────
-  const _avD=l.available_from?new Date(l.available_from):null;
-  const _tod=new Date();_tod.setHours(0,0,0,0);
-  const dispoHtml=!_avD||_avD<=_tod
-    ?'<span style="color:#4CAF7D;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> Disponible maintenant</span>'
-    :'Disponible le '+_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-  const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
-  const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'};
-  const _chMap={individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois / Poêle',autre:'Autre'};
-  const _cmMap={eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'};
-
+  function drow(label,val){return val?'<div class="crow"><span>'+label+'</span><span>'+val+'</span></div>':''}
   function buildDinHtml(l,badge,ratingHtml,tl,tenureLabels,finishLabels){
     if(l.type==='for_sale') return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">'+badge+'</div>':'')
       +ratingHtml
@@ -1751,7 +1780,6 @@ async function openDet(id){
       +(l.tenure?drow('Régime',tenureLabels[l.tenure]||l.tenure):'')
       +(l.finish_status?drow('État',finishLabels[l.finish_status]||l.finish_status):'')
       +(l.full_address?drow('Adresse',l.full_address):'');
-
     const secHd=t=>'<div style="font-size:.7rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin:.85rem 0 .4rem">'+t+'</div>';
     return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
       +ratingHtml
@@ -1764,20 +1792,20 @@ async function openDet(id){
       +(l.bills_situation?drow('Charges locatives',l.bills_situation==='included'?'<i data-lucide=check-circle-2 class=ic></i> Comprises dans le loyer':'<i data-lucide=x-circle class=ic></i> En sus du loyer'):'')
       +(l.charges_mensuelles?drow('Montant des charges','€'+l.charges_mensuelles+' / mois'):'')
       +(l.charges_inclus?drow('Charges incluent',l.charges_inclus.split(',').map(c=>_cMap[c]||c).join(', ')):'')
-      +secHd('Logement')
-      +((l.etage!=null&&l.etage!=='')?drow('Étage',l.etage==0?'Rez-de-chaussée':'Étage '+l.etage+(l.nb_etages?' / '+l.nb_etages+' niveaux':'')):'')
-      +((l.ascenseur!=null&&l.ascenseur!=='')?drow('Ascenseur',l.ascenseur==='oui'?'<i data-lucide=check-circle-2 class=ic></i> Oui':'<i data-lucide=x-circle class=ic></i> Non'):'')
-      +(l.annexes?drow('Pièces annexes',l.annexes.split(',').map(a=>_aMap[a]||a).join(', ')):'')
-      +(l.chauffage_type?drow('Chauffage',(_chMap[l.chauffage_type]||l.chauffage_type)+(l.chauffage_mode?' — '+(_cmMap[l.chauffage_mode]||l.chauffage_mode):'')):'')
-      +(l.copropriete?drow('Copropriété','<i data-lucide=check-circle-2 class=ic></i> Oui'):'')
       +(l.zone_tendue==='oui'?'<div style="margin-top:.5rem;background:rgba(240,180,15,.1);border:1px solid rgba(240,180,15,.3);border-radius:8px;padding:.5rem .75rem;font-size:.75rem;color:#9a7000"><i data-lucide=alert-triangle class=ic></i> Zone tendue — encadrement des loyers applicable</div>':'')
-      +makeDpeWidget(l.dpe,l.ges)
       +(l.full_address?'<div style="margin-top:.8rem;padding:.55rem .75rem;background:var(--sand);border-radius:8px;font-size:.78rem;color:var(--stone)"><i data-lucide=map-pin class=ic></i> '+l.full_address+'</div>':'');
   }
-  document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>'+buildDinHtml(l,badge,ratingHtml,tl,tenureLabels,finishLabels)+'</div>';
+  const _tlabel={short:'Location courte durée (1 à 6 mois)',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
+  document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0"><div style="font-size:.88rem;font-weight:700;margin-bottom:.7rem;color:var(--stone)"><i data-lucide=clipboard-list class=ic></i> Détails du bail</div>'+buildDinHtml(l,badge,ratingHtml,_tlabel,tenureLabels,finishLabels)+'</div>';
 
+  // ─── DPE section ────────────────────────────────────────────────
+  {
+    const _dh=makeDpeWidget(l.dpe,l.ges);
+    const _dw=document.getElementById('d-dpe-wrap');
+    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--stone)">🏷 DPE — Diagnostic de Performance Énergétique</div>'+_dh+'</div>':'';
+  }
 
-  // Coût total pour le locataire — n'a aucun sens pour une annonce "À vendre"
+  // ─── Coût premier mois ──────────────────────────────────────────
   const dcostCard=document.getElementById('dcost');
   const isAgence=!!AL.agency_annonce;
   if(l.type==='for_sale'){
@@ -2114,6 +2142,15 @@ function setAscenseurFromCb(v,cb){
     if(el)el.checked=(m===v)?cb.checked:false;
   });
   document.getElementById('p-ascenseur').value=cb.checked?v:'';
+}
+
+// ECS type — checkbox, mutually exclusive (radio behaviour)
+function setEcsType(v,cb){
+  ['individuel','collectif'].forEach(m=>{
+    const el=document.getElementById('ecs-cb-'+m);
+    if(el)el.checked=(m===v)?cb.checked:false;
+  });
+  document.getElementById('p-ecs-type').value=cb.checked?v:'';
 }
 
 // Chauffage type — checkbox, mutually exclusive (radio behaviour)
@@ -2491,6 +2528,8 @@ async function doPost(){
     chauffage_type: document.getElementById('p-chauffage-type')?.value||null,
     chauffage_mode: document.getElementById('p-chauffage-mode')?.value||null,
     annexes: document.getElementById('p-annexes')?.value||null,
+    nb_lots_copro: parseInt(document.getElementById('p-nb-lots-copro')?.value)||null,
+    ecs_type: document.getElementById('p-ecs-type')?.value||null,
   };
   if(annonce){
     const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
