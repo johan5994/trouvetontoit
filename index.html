@@ -238,6 +238,13 @@ footer ul a:hover{color:var(--terra)}
 @media(max-width:500px){.tbien-grid{grid-template-columns:repeat(3,1fr)!important}}
 /* Form section headers */
 .fsect-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.06em;padding:.55rem 0 .3rem;border-top:2px solid var(--b2);margin-top:1.4rem}
+/* Charges sub-cards */
+.cblock{background:var(--s,#faf9f7);border:1.5px solid var(--b2);border-radius:12px;padding:.75rem .9rem}
+.cblock-hd{font-size:.82rem;font-weight:700;color:var(--stone,#4a3f35);margin-bottom:.55rem}
+.cblabel{font-size:.7rem;font-weight:700;color:var(--stone-l,#8a7a6e);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem}
+.cblock-cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.cbcol{flex-direction:column;gap:.45rem}
+@media(max-width:600px){.cblock-cols3{grid-template-columns:1fr!important}}
 
 /* DETAIL */
 .dwrap{max-width:900px;margin:0 auto;padding:2rem 2rem 5rem}
@@ -665,21 +672,22 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <!-- ═══ 5. CHARGES & CONSOMMATIONS ═══ -->
       <div class="fsect-hd"><i data-lucide=zap class=ic></i> Charges &amp; consommations</div>
-      <div class="frow">
-        <!-- Chauffage -->
-        <div class="fg2" style="grid-column:1/-1">
-          <label>🔥 Chauffage</label>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-top:.4rem">
+      <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.25rem">
+
+        <!-- Chauffage card -->
+        <div class="cblock">
+          <div class="cblock-hd">🔥 Chauffage</div>
+          <div class="cblock-cols3">
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Type</div>
-              <div class="cbwrap">
+              <div class="cblabel">Type</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="chauf-cb-individuel" onchange="setChauffageTypeFromCb('individuel',this)"> Individuel</label>
                 <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
               </div>
             </div>
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Énergie</div>
-              <div class="cbwrap">
+              <div class="cblabel">Énergie</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="chauf-cb-electrique" onchange="setChauffageModeFromCb('electrique',this)"> Électrique</label>
                 <label class="cl"><input type="checkbox" id="chauf-cb-gaz" onchange="setChauffageModeFromCb('gaz',this)"> Gaz</label>
                 <label class="cl"><input type="checkbox" id="chauf-cb-fioul" onchange="setChauffageModeFromCb('fioul',this)"> Fioul</label>
@@ -688,12 +696,12 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               </div>
             </div>
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Compris dans les charges ?</div>
-              <div class="cbwrap">
+              <div class="cblabel">Compris dans les charges</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="chauf-inclus-oui" onchange="setChauffageInclus('oui',this)"> Oui</label>
                 <label class="cl"><input type="checkbox" id="chauf-inclus-non" onchange="setChauffageInclus('non',this)"> Non</label>
               </div>
-              <div id="chauffage-hint" style="display:none;margin-top:.3rem;font-size:.72rem;color:var(--stone-l);line-height:1.4"><i data-lucide=info class=ic></i> Chauffage collectif → généralement compris dans les charges.</div>
+              <div id="chauffage-hint" style="display:none;margin-top:.4rem;font-size:.75rem;color:var(--bleu);line-height:1.4;background:rgba(27,79,216,.07);padding:.35rem .6rem;border-radius:7px"><i data-lucide=info class=ic></i> Collectif → généralement inclus</div>
             </div>
           </div>
           <input type="hidden" id="p-chauffage-type" value="">
@@ -701,28 +709,28 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <input type="hidden" id="p-chauffage-inclus" value="">
         </div>
 
-        <!-- ECS -->
-        <div class="fg2" style="grid-column:1/-1">
-          <label>🚿 Eau chaude sanitaire (ECS)</label>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-top:.4rem">
+        <!-- ECS card -->
+        <div class="cblock">
+          <div class="cblock-hd">🚿 Eau chaude sanitaire (ECS)</div>
+          <div class="cblock-cols3">
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Production</div>
-              <div class="cbwrap">
+              <div class="cblabel">Production</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
                 <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
               </div>
             </div>
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Énergie</div>
-              <div class="cbwrap">
+              <div class="cblabel">Énergie</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="ecs-en-electrique" onchange="setEcsEnergie('electrique',this)"> Électrique</label>
                 <label class="cl"><input type="checkbox" id="ecs-en-gaz" onchange="setEcsEnergie('gaz',this)"> Gaz</label>
                 <label class="cl"><input type="checkbox" id="ecs-en-autre" onchange="setEcsEnergie('autre',this)"> Autre</label>
               </div>
             </div>
             <div>
-              <div style="font-size:.72rem;font-weight:600;color:var(--stone-l);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.4px">Comprise dans les charges ?</div>
-              <div class="cbwrap">
+              <div class="cblabel">Comprise dans les charges</div>
+              <div class="cbwrap cbcol">
                 <label class="cl"><input type="checkbox" id="ecs-inclus-oui" onchange="setEcsInclus('oui',this)"> Oui</label>
                 <label class="cl"><input type="checkbox" id="ecs-inclus-non" onchange="setEcsInclus('non',this)"> Non</label>
               </div>
@@ -733,53 +741,53 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <input type="hidden" id="p-ecs-inclus" value="">
         </div>
 
-        <!-- Eau froide -->
-        <div class="fg2">
-          <label>💧 Eau froide</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
-            <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
-            <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
+        <!-- Eau froide + Électricité sur la même ligne -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">💧 Eau froide</div>
+            <div class="cbwrap cbcol" style="margin-top:.1rem">
+              <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
+              <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
+              <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
+            </div>
+            <input type="hidden" id="p-eau-froide" value="">
           </div>
-          <input type="hidden" id="p-eau-froide" value="">
+          <div class="cblock">
+            <div class="cblock-hd">⚡ Électricité</div>
+            <div class="cbwrap cbcol" style="margin-top:.1rem">
+              <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)" checked> À la charge du locataire</label>
+              <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
+            </div>
+            <input type="hidden" id="p-electricite-situation" value="locataire">
+          </div>
         </div>
 
-        <!-- Électricité -->
-        <div class="fg2">
-          <label>⚡ Électricité du logement</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)" checked> À la charge du locataire</label>
-            <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
+        <!-- Autres postes + Régularisation -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd" style="font-size:.78rem">📋 Autres postes inclus</div>
+            <div class="cbwrap cbcol" style="margin-top:.1rem">
+              <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Parties communes</label>
+              <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
+              <label class="cl"><input type="checkbox" class="charges-cb" value="ordures_menageres" onchange="updateChargesInclus()"> Ordures ménagères</label>
+              <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
+              <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
+            </div>
+            <input type="hidden" id="p-charges-inclus" value="">
           </div>
-          <input type="hidden" id="p-electricite-situation" value="locataire">
-        </div>
-
-        <!-- Autres postes -->
-        <div class="fg2" style="grid-column:1/-1">
-          <label>Autres postes compris dans les charges</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Entretien parties communes</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="ordures_menageres" onchange="updateChargesInclus()"> Ordures ménagères</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
-            <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
+          <div class="cblock">
+            <div class="cblock-hd" style="font-size:.78rem">🔄 Type de charges</div>
+            <div class="cbwrap cbcol" style="margin-top:.1rem">
+              <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
+              <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
+              <label class="cl"><input type="checkbox" id="reg-inconnu" onchange="setChargesRegularisation('inconnu',this)"> Je ne sais pas</label>
+            </div>
+            <input type="hidden" id="p-charges-regularisation" value="">
           </div>
-          <input type="hidden" id="p-charges-inclus" value="">
-        </div>
-
-        <!-- Régularisation -->
-        <div class="fg2">
-          <label>Type de charges</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Avec régularisation annuelle</label>
-            <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires</label>
-            <label class="cl"><input type="checkbox" id="reg-inconnu" onchange="setChargesRegularisation('inconnu',this)"> Je ne sais pas</label>
-          </div>
-          <input type="hidden" id="p-charges-regularisation" value="">
         </div>
 
         <!-- Résumé automatique -->
-        <div id="charges-summary" style="display:none;grid-column:1/-1;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.15);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--stone);line-height:1.7"></div>
+        <div id="charges-summary" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.18);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--stone);line-height:1.7"></div>
 
         <input type="hidden" id="p-bills" value="included">
       </div>
