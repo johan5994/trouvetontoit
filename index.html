@@ -1214,7 +1214,7 @@ async function fetchAdresseSugg(q){
   const sugg=document.getElementById('adresse-sugg');
   if(!sugg)return;
   try{
-    const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5&type=housenumber,street`);
+    const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=6`);
     const data=await res.json();
     if(!data.features||!data.features.length){sugg.style.display='none';return;}
     _adresseSuggData=data.features;
@@ -2263,7 +2263,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Propriétaire arrivant depuis l'email d'activation d'une annonce "À vendre"
   // — aucun compte requis, juste confirmer son email et payer.
-  const urlParams=new URLRechercherParams(window.location.search);
+  const urlParams=new URLSearchParams(window.location.search);
   const activateId=urlParams.get('activate_sale');
   if(activateId)setTimeout(()=>openSaleActivation(activateId),600);
   if(urlParams.get('sale_activated')){
@@ -2404,27 +2404,10 @@ async function doPost(){
     current_locataire_phone:document.getElementById('p-current-locataire-phone')?.value?.trim()||null,
     bail_end_date:document.getElementById('p-bail-end-date')?.value||null,
     locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant',
-    charges_mensuelles:parseInt(document.getElementById('p-charges')?.value)||null,
-    surface_sejour:parseFloat(document.getElementById('p-surface-sejour')?.value)||null,
-    type_cuisine:document.getElementById('p-type-cuisine')?.value||null,
-    terrasse_sqm:parseInt(document.getElementById('p-terrasse-sqm')?.value)||null,
-    annee_construction:parseInt(document.getElementById('p-annee-construction')?.value)||null,
-    typology:document.getElementById('p-typology')?.value||null,
-    commune:document.getElementById('p-commune')?.value.trim()||null,
-    zone_tendue:document.getElementById('p-zone-tendue')?.value||null,
-    dpe:document.getElementById('p-dpe')?.value||null,
-    ges:document.getElementById('p-ges')?.value||null,
-    type_bien:document.getElementById('p-type-bien')?.value||null,
-    etage:document.getElementById('p-etage')?.value!==''?parseInt(document.getElementById('p-etage')?.value):null,
-    nb_etages:parseInt(document.getElementById('p-nb-etages')?.value)||null,
-    ascenseur:document.getElementById('p-ascenseur')?.value||null,
-    chauffage_type:document.getElementById('p-chauffage-type')?.value||null,
-    chauffage_mode:document.getElementById('p-chauffage-mode')?.value||null,
-    annexes:document.getElementById('p-annexes')?.value||null
   };
 
   const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
-  if(error){sA(err,erreur.message);ok.style.display='none';return;}
+  if(error){sA(err,error.message);ok.style.display='none';return;}
   // Enregistrer extra amenities
   const extraData = {
     ac: document.getElementById('pac')?.checked||false,
@@ -2442,6 +2425,23 @@ async function doPost(){
     construction_ancienne: document.getElementById('p-construction-ancienne')?.checked||false,
     construction_recente: document.getElementById('p-construction-recente')?.checked||false,
     charges_inclus: document.getElementById('p-charges-inclus')?.value||null,
+    charges_mensuelles: parseInt(document.getElementById('p-charges')?.value)||null,
+    surface_sejour: parseFloat(document.getElementById('p-surface-sejour')?.value)||null,
+    type_cuisine: document.getElementById('p-type-cuisine')?.value||null,
+    terrasse_sqm: parseInt(document.getElementById('p-terrasse-sqm')?.value)||null,
+    annee_construction: parseInt(document.getElementById('p-annee-construction')?.value)||null,
+    typology: document.getElementById('p-typology')?.value||null,
+    commune: document.getElementById('p-commune')?.value.trim()||null,
+    zone_tendue: document.getElementById('p-zone-tendue')?.value||null,
+    dpe: document.getElementById('p-dpe')?.value||null,
+    ges: document.getElementById('p-ges')?.value||null,
+    type_bien: document.getElementById('p-type-bien')?.value||null,
+    etage: document.getElementById('p-etage')?.value!==''?parseInt(document.getElementById('p-etage')?.value):null,
+    nb_etages: parseInt(document.getElementById('p-nb-etages')?.value)||null,
+    ascenseur: document.getElementById('p-ascenseur')?.value||null,
+    chauffage_type: document.getElementById('p-chauffage-type')?.value||null,
+    chauffage_mode: document.getElementById('p-chauffage-mode')?.value||null,
+    annexes: document.getElementById('p-annexes')?.value||null,
   };
   if(annonce) await sb.from('listings').update(extraData).eq('id',annonce.id);
   if(uploadedPhotos.length>0&&annonce){
