@@ -706,6 +706,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div class="fg"><label class="fl">IBAN ( pour  receiving loyer) *</label><input class="fi" id="prof-iban" placeholder="MT84 MALT 0110 0001 2345 MTLC AST0 01" oninput="updateLLCompleteness()"></div>
             <div class="fg"><label class="fl"><i data-lucide=heart class=ic></i> Revolut tag (optional)</label><input class="fi" id="prof-revolut" placeholder="@yourname" oninput="updateLLCompleteness()"></div>
           </div>
+          <!-- Co-bailleur (couple, SCI, indivision) -->
+          <div style="margin-top:1rem;border-top:1px solid var(--b);padding-top:1rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+              <div>
+                <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em"><i data-lucide=users class=ic></i> Co-bailleur</div>
+                <div style="font-size:.7rem;color:var(--td);margin-top:.15rem">Couple, SCI, indivision — apparaît sur le bail</div>
+              </div>
+              <div class="tgl off" id="co-bailleur-toggle" onclick="toggleCoBailleur()" style="flex-shrink:0"><div class="tgl-dot"></div></div>
+            </div>
+            <div id="co-bailleur-section" style="display:none">
+              <div class="fgrid2" style="margin-bottom:.5rem">
+                <div class="fg"><label class="fl">Nom complet légal *</label><input class="fi" id="prof-co-name" placeholder="Marie Dupont"></div>
+                <div class="fg"><label class="fl">N° pièce d'identité / passeport *</label><input class="fi" id="prof-co-id" placeholder="AB123456"></div>
+                <div class="fg"><label class="fl">Nationalité</label>
+                  <select class="fsel" id="prof-co-nat">
+                    <option value="">Sélectionner...</option>
+                    <option value="Afghan">Afghan</option><option value="Albanian">Albanais</option><option value="Algerian">Algérien</option><option value="American">Américain</option><option value="Argentine">Argentin</option><option value="Armenian">Arménien</option><option value="Australian">Australien</option><option value="Austrian">Autrichien</option><option value="Belgian">Belge</option><option value="Brazilian">Brésilien</option><option value="British">Britannique</option><option value="Bulgarian">Bulgare</option><option value="Canadian">Canadien</option><option value="Chinese">Chinois</option><option value="Croatian">Croate</option><option value="Czech">Tchèque</option><option value="Danish">Danois</option><option value="Dutch">Néerlandais</option><option value="Egyptian">Égyptien</option><option value="Finnish">Finlandais</option><option value="French">Français</option><option value="German">Allemand</option><option value="Greek">Grec</option><option value="Hungarian">Hongrois</option><option value="Indian">Indien</option><option value="Indonesian">Indonésien</option><option value="Iranian">Iranien</option><option value="Irish">Irlandais</option><option value="Israeli">Israélien</option><option value="Italian">Italien</option><option value="Japanese">Japonais</option><option value="Jordanian">Jordanien</option><option value="Korean">Coréen</option><option value="Latvian">Letton</option><option value="Lebanese">Libanais</option><option value="Lithuanian">Lituanien</option><option value="Luxembourgish">Luxembourgeois</option><option value="Malaysian">Malaisien</option><option value="Mexican">Mexicain</option><option value="Moroccan">Marocain</option><option value="Norwegian">Norvégien</option><option value="Pakistani">Pakistanais</option><option value="Polish">Polonais</option><option value="Portuguese">Portugais</option><option value="Romanian">Roumain</option><option value="Russian">Russe</option><option value="Saudi">Saoudien</option><option value="Senegalese">Sénégalais</option><option value="Serbian">Serbe</option><option value="Slovak">Slovaque</option><option value="South African">Sud-Africain</option><option value="Spanish">Espagnol</option><option value="Swedish">Suédois</option><option value="Swiss">Suisse</option><option value="Tunisian">Tunisien</option><option value="Turkish">Turc</option><option value="Ukrainian">Ukrainien</option>
+                  </select>
+                </div>
+                <div class="fg"><label class="fl">E-mail</label><input class="fi" id="prof-co-email" placeholder="marie@exemple.fr" type="email"></div>
+              </div>
+            </div>
+          </div>
           <button class="btn bp" onclick="saveProfilee()" style="margin-top:.75rem;width:100%;justify-content:center">Enregistrer profil →</button>
         </div>
       </div>
@@ -1690,7 +1713,7 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
 </head><body>
 <h1>${bailType==='long'?'LONG':'SHORT'} PRIVATE RESIDENTIAL LEASE</h1>
 <p>This, day of <u>${today}</u></p>
-<p>Par le présent acte sous seing privé comparaissent d'une part <u>${propriétaireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${propriétaireProfile?.passport_number||'_______________'}</u>, demeurant au <u>${propriétaireProfile?.home_address||'_______________'}</u>, e-mail <u>${propriétaireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>propriétaire</strong>.</p>
+${(()=>{const co=propriétaireProfile?.co_bailleur_data;if(co&&co.name){return`<p>Par le présent acte sous seing privé comparaissent d'une part :<br>— <u>${propriétaireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${propriétaireProfile?.passport_number||'_______________'}</u>, demeurant au <u>${propriétaireProfile?.home_address||'_______________'}</u>, e-mail <u>${propriétaireProfile?.email||'_______________'}</u> ;<br>— <u>${co.name}</u>, titulaire de la pièce d'identité n° <u>${co.passport||'_______________'}</u>, de nationalité <u>${co.nationality||'_______________'}</u>, e-mail <u>${co.email||'_______________'}</u> ;<br>ci-après dénommés conjointement les <strong>propriétaires</strong>.</p>`;}return`<p>Par le présent acte sous seing privé comparaissent d'une part <u>${propriétaireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${propriétaireProfile?.passport_number||'_______________'}</u>, demeurant au <u>${propriétaireProfile?.home_address||'_______________'}</u>, e-mail <u>${propriétaireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>propriétaire</strong>.</p>`;})()}
 <p>Et d'autre part <u>${locataireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${locataireProfile?.passport_number||'_______________'}</u>, de nationalité <u>${locataireProfile?.nationality||'_______________'}</u>, e-mail <u>${locataireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>locataire</strong>.</p>
 <p>Le propriétaire donne en location au locataire les locaux situés au <u>${annonce?.full_address||annonce?.zone||'_______________'}</u>, aux conditions suivantes :</p>
 <h2>Paiement &amp; Duration</h2>
@@ -1719,7 +1742,7 @@ ${bailType==='long'?'<li>Après la 1ère année, le loyer peut augmenter proport
 <li>Both parties declare that water et electricity meter readings shall be recorded in <strong>Annex A on entrée dans les lieux day</strong> et form an integral part of this agreement.</li>
 </ol>
 ${bailType==='long'?`<h2>Termination &amp; Renewal</h2><ol><li>The locataire may terminate after the compulsory period avec one (1) month written notice by registered letter.</li><li>The propriétaire must notify non-renewal at least 3 months before expiry, otherwise the bail renews automatically.</li></ol>`:''}
-<div class="sig-block"><div class="sig-box"><p><strong>LESSOR (Propriétaire)</strong></p><p>${propriétaireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div><div class="sig-box"><p><strong>LESSEE (Locataire)</strong></p><p>${locataireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div></div>
+${(()=>{const co=propriétaireProfile?.co_bailleur_data;const lessorBoxes=`<div class="sig-box"><p><strong>Bailleur</strong></p><p>${propriétaireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>`+(co&&co.name?`<div class="sig-box"><p><strong>Co-bailleur</strong></p><p>${co.name}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>`:'');return`<div class="sig-block">${lessorBoxes}<div class="sig-box"><p><strong>Locataire</strong></p><p>${locataireProfile?.full_name||'_______________'}</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div></div>`;})()}
 <p style="font-size:8pt;color:#888;text-align:center;margin-top:20px">Ce contrat est établi conformément à la loi n° 89-462 du 6 juillet 1989 régissant les locations résidentielles en France.<br>Doit être enregistré sur rentregistration.fr dans les 30 jours.</p>
 </body></html>`;
 
@@ -3303,6 +3326,32 @@ async function loadProfilee(){
     else{phoneInput.value=ph;}
   }
   updateLLCompleteness();
+  // Charger co-bailleur si présent
+  const co = P.co_bailleur_data;
+  if(co && co.name){
+    const tog = document.getElementById('co-bailleur-toggle');
+    const sec = document.getElementById('co-bailleur-section');
+    if(tog){tog.classList.remove('off');tog.classList.add('on');}
+    if(sec) sec.style.display='block';
+    if(document.getElementById('prof-co-name')) document.getElementById('prof-co-name').value = co.name||'';
+    if(document.getElementById('prof-co-id')) document.getElementById('prof-co-id').value = co.passport||'';
+    if(document.getElementById('prof-co-nat')) document.getElementById('prof-co-nat').value = co.nationality||'';
+    if(document.getElementById('prof-co-email')) document.getElementById('prof-co-email').value = co.email||'';
+  }
+}
+
+function toggleCoBailleur(){
+  const tog = document.getElementById('co-bailleur-toggle');
+  const sec = document.getElementById('co-bailleur-section');
+  if(!tog||!sec) return;
+  const on = tog.classList.contains('on');
+  if(on){
+    tog.classList.remove('on'); tog.classList.add('off');
+    sec.style.display='none';
+  } else {
+    tog.classList.remove('off'); tog.classList.add('on');
+    sec.style.display='block';
+  }
 }
 
 async function saveProfilee(){
@@ -3316,9 +3365,19 @@ async function saveProfilee(){
     iban:document.getElementById('prof-iban').value.trim(),
     revolut_tag:document.getElementById('prof-revolut').value.trim(),
   };
+  // Co-bailleur (optionnel)
+  const coOn = document.getElementById('co-bailleur-toggle')?.classList.contains('on');
+  const coName = document.getElementById('prof-co-name')?.value?.trim()||'';
+  updates.co_bailleur_data = (coOn && coName) ? {
+    name: coName,
+    passport: document.getElementById('prof-co-id')?.value?.trim()||'',
+    nationality: document.getElementById('prof-co-nat')?.value||'',
+    email: document.getElementById('prof-co-email')?.value?.trim()||'',
+  } : null;
   const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
   if(error){toast('Erreur: '+error.message);return;}
   Object.assign(P,updates);
+  if('co_bailleur_data' in updates) P.co_bailleur_data=updates.co_bailleur_data;
   updateLLCompleteness();
   const complete=checkLLProfileComplete();
   if(complete){
