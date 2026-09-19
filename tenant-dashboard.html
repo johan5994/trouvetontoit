@@ -2764,31 +2764,22 @@ async function fetchLocataireVisitData(){
 }
 
 // Statuts de visite pure — avant toute candidature de location
-const TENANT_VISIT_ONLY_STATUSES=['awaiting_propriétaire','awaiting_locataire','awaiting_landlord','awaiting_tenant','agents_applying','agent_assigned','confirmed','completed','cancelled','locataire_declined','no_show','date_refusé'];
+const TENANT_VISIT_ONLY_STATUSES=['pending','confirmed','declined','cancelled','completed'];
 // Statuts de candidature — dès que le locataire a dit "je veux louer"
 const TENANT_APPLICATION_STATUSES=['booking_pending','accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','declined'];
 
 function renderLocataireVisitCard(v){
   const bk=v.booking||null;
   const statusColors={
-    'awaiting_landlord':'b-gold','awaiting_tenant':'b-gold','agents_applying':'b-sea','agent_assigned':'b-green',
-    'confirmed':'b-green','completed':'b-sea','locataire_interested':'b-green',
-    'booking_pending':'b-gold','accepted':'b-green','lease_pending':'b-sea',
-    'edl_scheduled':'b-green','signing_day':'b-green','move_in_ready':'b-green'
+    'pending':'b-gold','confirmed':'b-green','completed':'b-sea',
+    'cancelled':'b-dim','declined':'b-dim'
   };
   const statusLabels={
-    'awaiting_landlord':'⏳ Awaiting propriétaire confirmation',
-    'awaiting_tenant':'<i data-lucide=calendar class=ic></i> Propriétaire proposed a visite',
-    'agents_applying':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmed by propriétaire',
-    'agent_assigned':v.has_agent?'<i data-lucide=check-circle-2 class=ic></i> Visite confirmed':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmed by propriétaire',
-    'confirmed':v.has_agent?'<i data-lucide=check-circle-2 class=ic></i> You confirmed':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmed',
-    'completed':'<i data-lucide=flag class=ic></i> Visite done',
-    'booking_pending':'<i data-lucide=lock class=ic></i> Awaiting propriétaire decision',
-    'accepted':'<i data-lucide=party-popper class=ic></i> Application accepté!',
-    'lease_pending':'<i data-lucide=file-text class=ic></i> Bail being signed',
-    'edl_scheduled':'<i data-lucide=clipboard-list class=ic></i> État des lieux scheduled',
-    'signing_day':'<i data-lucide=party-popper class=ic></i> Signing Day',
-    'move_in_ready':'<i data-lucide=home class=ic></i> Moved in'
+    'pending':'⏳ En attente de confirmation',
+    'confirmed':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmée',
+    'completed':'<i data-lucide=flag class=ic></i> Visite effectuée',
+    'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée',
+    'declined':'<i data-lucide=x-circle class=ic></i> Refusée'
   };
   const dateStr=v.visit_date?new Date(v.visit_date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(v.visit_time?' at '+v.visit_time:''):'Date TBD';
   const sc=statusColors[v.status]||'b-dim';
@@ -2810,32 +2801,18 @@ function renderLocataireVisitCard(v){
       </div>
 
       <!-- ÉTAPE 1 : En attente confirmation propriétaire -->
-      ${(v.status==='awaiting_landlord'||v.status==='awaiting_propriétaire')?`
+      ${v.status==='pending'?`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
-        ⏳ Waiting pour the propriétaire to confirm the date is disponible.
-      </div>`:''} 
-
-      <!-- ÉTAPE 2.5 : Le propriétaire propose une date — un clic pour confirmer -->
-      ${(v.status==='awaiting_tenant'||v.status==='awaiting_locataire')?`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.6rem .7rem;margin-top:.3rem">
-        <div style="font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:.3rem"><i data-lucide=calendar class=ic></i> Your propriétaire proposed this visite</div>
-        <div style="font-size:.7rem;color:var(--td);margin-bottom:.5rem">${dateStr}</div>
-        <div style="display:flex;gap:.4rem">
-          <button onclick="locataireConfirmerProposedVisit('${v.id}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Yes, that works!</button>
-          <button onclick="locataireDeclineProposedVisit('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer">Proposer une autre date</button>
-        </div>
+        ⏳ En attente de confirmation du propriétaire.
       </div>`:''}
 
       <!-- ÉTAPE 3 : Visite confirmée -->
-      ${(v.status==='confirmed'||v.status==='agent_assigned')?`
+      ${v.status==='confirmed'?`
       <div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem">
         <div style="font-size:.75rem;font-weight:600;color:var(--green);margin-bottom:.15rem"><i data-lucide=check-circle-2 class=ic></i> Visite confirmed — see you there!</div>
         <div style="font-size:.7rem;color:var(--td)"><i data-lucide=calendar class=ic></i> ${dateStr}</div>
       </div>
-      ${v.has_agent&&!v.locataire_confirmed?`
-      <div style="margin-top:.4rem">
-        <button onclick="confirmLocatairePresence('${v.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Confirmer I will attend</button>
-      </div>`:''} `:''} 
+      `:''} 
 
       <!-- ÉTAPE 4 : Visite faite — intéressé ou non -->
       ${v.status==='completed'&&!bk?`
@@ -2864,7 +2841,7 @@ function renderLocataireVisitCard(v){
 
       <!-- Bouton annuler si début du flow -->
       <div style="margin-top:.4rem">
-        ${['awaiting_landlord','awaiting_propriétaire','agents_applying','agent_assigned','confirmed'].includes(v.status)?`<button class="btn bg bsm" style="font-size:.68rem" onclick="cancelVisit('${v.id}','${v.agent_id||''}','${v.listing_id||''}')">Annuler visite</button>`:''}
+        ${['pending','confirmed'].includes(v.status)?`<button class="btn bg bsm" style="font-size:.68rem" onclick="cancelVisit('${v.id}','${v.agent_id||''}','${v.listing_id||''}')">Annuler visite</button>`:''}
       </div>
 
     </div>`;
@@ -2878,11 +2855,11 @@ function renderLocataireDoneCard(item,isBooking){
         <div style="font-size:.72rem;color:var(--td)">${item.statut==='declined'?'<i data-lucide=x-circle class=ic></i> Declined by propriétaire':'<i data-lucide=x-circle class=ic></i> Annulerled'} · Refunded €${item.total_amount||0}</div>
       </div>`;
   }
-  const doneLabels={'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée','declined':'<i data-lucide=x-circle class=ic></i> Refusée','locataire_declined':'<i data-lucide=thumbs-down class=ic></i> Plus intéressé(e)','no_show':'<i data-lucide=ban class=ic></i> Absent(e)','date_refusé':'<i data-lucide=calendar class=ic></i> Date indisponible'};
+  const doneLabels={'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée','declined':'<i data-lucide=x-circle class=ic></i> Refusée'};
   const dateStr=item.visit_date?new Date(item.visit_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
   return`<div style="padding:.75rem;background:var(--s2);border:1px solid var(--b);border-radius:10px;margin-bottom:.5rem;opacity:.7">
         <div style="font-size:.82rem;font-weight:600;margin-bottom:.2rem">${item.listing_title||'Bien'}</div>
-        <div style="font-size:.72rem;color:var(--td)">${doneLabels[item.statut]||item.statut} · ${dateStr}</div>
+        <div style="font-size:.72rem;color:var(--td)">${doneLabels[item.status]||item.status} · ${dateStr}</div>
       </div>`;
 }
 
@@ -2924,13 +2901,13 @@ async function loadLocataireVisits(){
   const visites=allVisits.filter(v=>TENANT_VISIT_ONLY_STATUSES.includes(v.status));
 
   const badge=document.getElementById('nb-visites-t');
-  const actionCount=visites.filter(v=>v.status==='agent_assigned'&&!v.locataire_confirmed).length;
+  const actionCount=0;
   if(badge){badge.textContent=actionCount||'';badge.style.display=actionCount>0?'inline':'none';}
 
   if(!visites.length){
     wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=calendar class=ic></i></div><p>Aucune visite<br>Demandez une visite depuis n\'importe quelle annonce</p></div>';
   }else{
-    const doneStatutes=['cancelled','locataire_declined','no_show','date_refusé'];
+    const doneStatutes=['cancelled','declined'];
     const activeVisits=visites.filter(v=>!doneStatutes.includes(v.status));
     const doneVisits=visites.filter(v=>doneStatutes.includes(v.status));
 
@@ -3666,7 +3643,7 @@ async function locataireInterested(visitId, listingId, price, listingTitle, land
 
 async function locataireNotInterested(visitId){
   if(!confirm('Confirmer que vous n\'êtes plus intéressé(e) par ce logement ?')) return;
-  await sb.from('visits').update({status:'locataire_declined'}).eq('id',visitId);
+  await sb.from('visits').update({status:'declined'}).eq('id',visitId);
   toast('OK — visite moved to past.');
   loadLocataireVisits();
 }
@@ -3854,7 +3831,7 @@ async function locataireConfirmerProposedVisit(visitId){
     if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite introuvable');return;}
     const{data:annonce}=await sb.from('listings').select('wants_agent,agent_service,title').eq('id',v.listing_id).maybeSingle();
     const wantsAgent=annonce?.wants_agent&&annonce?.agent_service==='full';
-    await sb.from('visits').update({status:wantsAgent?'agent_assigned':'confirmed'}).eq('id',visitId);
+    await sb.from('visits').update({status:'confirmed'}).eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:v.listing_id,sender_id:'system',receiver_id:v.landlord_id,
       content:`✅ ${P?.full_name||'The locataire'} confirmed the proposed visite pour ${annonce?.title||'the bien'}.`,
@@ -6063,7 +6040,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
       visit_date:visitDate,
       visit_time:visitTime,
       zone:annonce?.zone||'',
-      status:'awaiting_propriétaire'
+      status:'pending'
     });
     if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
 
