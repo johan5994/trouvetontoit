@@ -1008,7 +1008,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
         <div id="d-topinfo" style="display:flex;flex-wrap:wrap;gap:.45rem;margin:.4rem 0"></div>
         <div id="d-carac"></div>
-        <div id="din-wrap" style="margin-top:1rem"></div>
+        <div id="din-wrap" style="margin-top:0"></div>
 
         <div style="margin-top:1.3rem;border-top:1px solid var(--b2);padding-top:1.1rem">
           <div style="font-size:1rem;font-weight:700;margin-bottom:.65rem;color:var(--deep)">Description</div>
@@ -1856,7 +1856,7 @@ async function openDet(id){
     const _sc=(title,items)=>{
       const fi=items.flat().filter(Boolean);
       if(!fi.length)return'';
-      return '<div style="margin-bottom:1.5rem">'
+      return '<div style="margin-bottom:1rem">'
         +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">'+title+'</div>'
         +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.85rem">'+fi.join('')+'</div>'
         +'</div>';
@@ -2052,7 +2052,7 @@ async function openDet(id){
     const _iw=document.getElementById('d-inclus-wrap');
     const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
     if(_iw&&hasContent){
-      _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)">'
+      _iw.innerHTML='<div style="margin-bottom:1rem">'
         +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">Énergie &amp; charges</div>'
         +resumeHtml+inclSection+chargeSection+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
@@ -2072,7 +2072,7 @@ async function openDet(id){
     if(l.depot) rows+='<div class="crow"><span style="color:var(--stone-l)">Dépôt de garantie</span><span style="color:var(--stone);font-weight:600">€'+l.depot+' <span style="font-size:.72rem;font-weight:400">(remboursé en fin de bail)</span></span></div>';
     if(l.paiement_due_day) rows+='<div class="crow"><span style="color:var(--stone-l)">Loyer exigible le</span><span style="color:var(--stone)">'+(l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois')+'</span></div>';
 
-    document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0">'
+    document.getElementById('din-wrap').innerHTML='<div style="margin-bottom:1rem">'
       +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">Finances</div>'
       +(badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
       +ratingHtml
@@ -2083,7 +2083,7 @@ async function openDet(id){
   {
     const _dh=makeDpeWidget(l.dpe,l.ges);
     const _dw=document.getElementById('d-dpe-wrap');
-    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">DPE — Performance Énergétique</div>'+_dh+'</div>':'';
+    if(_dw)_dw.innerHTML=_dh?'<div style="margin-bottom:1rem"><div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">DPE — Performance Énergétique</div>'+_dh+'</div>':'';
   }
 
   // ─── Coût premier mois ──────────────────────────────────────────
