@@ -1935,39 +1935,40 @@ async function openDet(id){
     const efDetail=efFact==='charges'?'Comprise dans les charges':efFact==='individuelle'?'Compteur individuel':'—';
     const elecDetail=elecSit==='charges'?'Comprise dans les charges':'Contrat individuel à souscrire';
 
+    const _ic=n=>`<i data-lucide="${n}" style="width:14px;height:14px;vertical-align:-2px;color:var(--bleu,#1B4FD8)"></i>`;
     const tuiles=[
-      {em:'🔥',nom:'Chauffage',detail:chaufDetail,incl:chIncl==='oui'},
-      {em:'🚿',nom:'Eau chaude',detail:ecsDetail,incl:ecsIncl==='oui'},
-      {em:'💧',nom:'Eau froide',detail:efDetail,incl:efFact==='charges'},
-      {em:'⚡',nom:'Électricité',detail:elecDetail,incl:elecSit==='charges'},
+      {ic:'flame',nom:'Chauffage',detail:chaufDetail,incl:chIncl==='oui'},
+      {ic:'shower-head',nom:'Eau chaude',detail:ecsDetail,incl:ecsIncl==='oui'},
+      {ic:'droplets',nom:'Eau froide',detail:efDetail,incl:efFact==='charges'},
+      {ic:'zap',nom:'Électricité',detail:elecDetail,incl:elecSit==='charges'},
     ];
     const resumeHtml='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem;margin-bottom:.9rem">'
       +tuiles.map(t=>'<div style="background:var(--s,#faf9f7);border:1.5px solid var(--b2);border-radius:10px;padding:.6rem .75rem;display:flex;flex-direction:column;gap:.2rem">'
-        +'<div style="font-size:.82rem;font-weight:700;color:var(--stone)">'+t.em+' '+t.nom+'</div>'
+        +'<div style="font-size:.82rem;font-weight:700;color:var(--bleu,#1B4FD8);display:flex;align-items:center;gap:.35rem">'+_ic(t.ic)+' '+t.nom+'</div>'
         +'<div style="font-size:.74rem;color:var(--stone-l)">'+t.detail+'</div>'
         +_pill(t.incl)
         +'</div>').join('')+'</div>';
 
     // ── Section Compris dans les charges ──
     const inclItems=[];
-    if(chIncl==='oui')inclItems.push('🔥 Chauffage');
-    if(ecsIncl==='oui')inclItems.push('🚿 Eau chaude');
-    if(efFact==='charges')inclItems.push('💧 Eau froide');
-    if(elecSit==='charges')inclItems.push('⚡ Électricité');
-    inclus.filter(c=>!['chauffage','eau_chaude','eau_froide','electricite'].includes(c)).forEach(c=>inclItems.push((_cMapL[c]||c)));
+    if(chIncl==='oui')inclItems.push({ic:'flame',label:'Chauffage'});
+    if(ecsIncl==='oui')inclItems.push({ic:'shower-head',label:'Eau chaude'});
+    if(efFact==='charges')inclItems.push({ic:'droplets',label:'Eau froide'});
+    if(elecSit==='charges')inclItems.push({ic:'zap',label:'Électricité'});
+    inclus.filter(c=>!['chauffage','eau_chaude','eau_froide','electricite'].includes(c)).forEach(c=>inclItems.push({ic:'check',label:_cMapL[c]||c}));
     const inclSection=inclItems.length
       ?'<div style="margin-bottom:.75rem"><div style="font-size:.72rem;font-weight:700;color:#1a7a1a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">✓ Compris dans les charges</div>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:.35rem">'+inclItems.map(t=>'<span style="background:rgba(34,139,34,.08);border:1px solid rgba(34,139,34,.2);color:#1a7a1a;border-radius:7px;padding:.22rem .6rem;font-size:.8rem">'+t+'</span>').join('')+'</div></div>':'';
+        +'<div style="display:flex;flex-wrap:wrap;gap:.35rem">'+inclItems.map(t=>'<span style="background:rgba(34,139,34,.08);border:1px solid rgba(34,139,34,.2);color:#1a7a1a;border-radius:7px;padding:.22rem .6rem;font-size:.8rem;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide="'+t.ic+'" style="width:12px;height:12px;color:#1a7a1a"></i>'+t.label+'</span>').join('')+'</div></div>':'';
 
     // ── Section À la charge du locataire ──
     const aCharge=[];
-    if(elecSit==='locataire')aCharge.push('⚡ Électricité — contrat individuel à souscrire');
-    if(l.chauffage_type==='individuel'&&chIncl!=='oui')aCharge.push('🔥 Chauffage individuel — consommation à votre charge');
-    if(l.ecs_type==='individuel'&&ecsIncl!=='oui')aCharge.push('🚿 Eau chaude — chauffe-eau individuel à votre charge');
-    if(efFact==='individuelle')aCharge.push('💧 Eau froide — compteur individuel');
+    if(elecSit==='locataire')aCharge.push({ic:'zap',label:'Électricité — contrat individuel à souscrire'});
+    if(l.chauffage_type==='individuel'&&chIncl!=='oui')aCharge.push({ic:'flame',label:'Chauffage individuel — consommation à votre charge'});
+    if(l.ecs_type==='individuel'&&ecsIncl!=='oui')aCharge.push({ic:'shower-head',label:'Eau chaude — chauffe-eau individuel à votre charge'});
+    if(efFact==='individuelle')aCharge.push({ic:'droplets',label:'Eau froide — compteur individuel'});
     const chargeSection=aCharge.length
       ?'<div style="margin-bottom:.6rem"><div style="font-size:.72rem;font-weight:700;color:#b06800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">⚠ À la charge du locataire</div>'
-        +'<div style="display:flex;flex-direction:column;gap:.3rem">'+aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);display:flex;align-items:flex-start;gap:.4rem"><span style="flex-shrink:0;color:#b06800">→</span>'+t+'</div>').join('')+'</div></div>':'';
+        +'<div style="display:flex;flex-direction:column;gap:.3rem">'+aCharge.map(t=>'<div style="font-size:.8rem;color:var(--stone);display:flex;align-items:flex-start;gap:.5rem"><i data-lucide="'+t.ic+'" style="width:13px;height:13px;flex-shrink:0;margin-top:2px;color:var(--bleu,#1B4FD8)"></i>'+t.label+'</div>').join('')+'</div></div>':'';
 
     // ── Note régularisation ──
     const regNote=l.charges_regularisation==='annuelle'?'Régularisation des charges effectuée annuellement.':l.charges_regularisation==='forfaitaire'?'Charges forfaitaires — pas de régularisation.':null;
@@ -2701,10 +2702,29 @@ async function uploadPhotos(listingId) {
     const ext = file.name.split('.').pop();
     const path = `${listingId}/${Date.now()}.${ext}`;
     const { error: uploadErr } = await sb.storage.from('annonces').upload(path, file, { cacheControl: '3600', upsert: true });
-    if (!uploadErr) {
-      const { data } = sb.storage.from('annonces').getPublicUrl(path);
-      urls.push(data.publicUrl);
+    if (uploadErr) {
+      console.error('[upload photo] erreur Supabase Storage:', uploadErr.message, uploadErr);
+      throw new Error('Échec upload photo : ' + uploadErr.message);
     }
+    const { data } = sb.storage.from('annonces').getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
+// Upload photos pour une annonce existante (depuis le dashboard)
+async function uploadPhotosForListing(listingId, files) {
+  const urls = [];
+  for (const file of files) {
+    const ext = file.name.split('.').pop();
+    const path = `${listingId}/${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+    const { error: uploadErr } = await sb.storage.from('annonces').upload(path, file, { cacheControl: '3600', upsert: true });
+    if (uploadErr) {
+      console.error('[upload photo existante]', uploadErr.message);
+      throw new Error('Échec upload : ' + uploadErr.message);
+    }
+    const { data } = sb.storage.from('annonces').getPublicUrl(path);
+    urls.push(data.publicUrl);
   }
   return urls;
 }
@@ -2827,9 +2847,14 @@ async function doPost(){
     if(extraErr){console.error('extraData update error:',extraErr);sA(err,'Erreur sauvegarde équipements : '+extraErr.message);return;}
   }
   if(uploadedPhotos.length>0&&annonce){
-    const photoUrls=await uploadPhotos(annonce.id);
-    if(photoUrls.length>0){
-      await sb.from('listings').update({photos:photoUrls}).eq('id',annonce.id);
+    try{
+      const photoUrls=await uploadPhotos(annonce.id);
+      if(photoUrls.length>0){
+        await sb.from('listings').update({photos:photoUrls}).eq('id',annonce.id);
+      }
+    }catch(photoErr){
+      sA(err,'<i data-lucide=alert-triangle class=ic></i> Erreur upload photos : '+photoErr.message+' — Vérifiez que le bucket Supabase "annonces" est en mode Public.');
+      return;
     }
   }
   // Téléverser video if provided
@@ -2923,8 +2948,70 @@ async function loadML(){
         ?`<button class="btn btn-s btn-sm" onclick="togL('${l.id}',true)">Pause</button>`
         :`<button class="btn btn-p btn-sm" onclick="retrySaleActivation('${l.id}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer</button>`)
       :`<button class="btn ${l.actif?'btn-s':'btn-p'} btn-sm" onclick="togL('${l.id}',${l.actif})">${l.actif?'Pause':'Activer'}</button>`;
-    return`<div class="mlcard"><div class="mlico">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div><div class="mli"><div class="mlt">${l.title}</div><div class="mls">${priceLabel} · ${l.zone} · <span class="dot ${dotClass}"></span>${statusLabel}${boostLabel?' · '+boostLabel:''}</div></div><div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-s btn-sm" onclick="openDet('${l.id}')">View</button>${actionBtn}${boostBtn}</div></div>`;
+    const hasPhotos=l.photos&&l.photos.length>0;
+    const photoBtn=`<button class="btn btn-s btn-sm" onclick="editPhotos('${l.id}')" title="${hasPhotos?l.photos.length+' photo(s)':'Aucune photo !'}"><i data-lucide=camera class=ic></i>${hasPhotos?'':'⚠'}</button>`;
+    return`<div class="mlcard"><div class="mlico">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div><div class="mli"><div class="mlt">${l.title}</div><div class="mls">${priceLabel} · ${l.zone} · <span class="dot ${dotClass}"></span>${statusLabel}${boostLabel?' · '+boostLabel:''}</div></div><div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-s btn-sm" onclick="openDet('${l.id}')">Voir</button>${photoBtn}${actionBtn}${boostBtn}</div></div>`;
   }).join('');
+}
+
+async function editPhotos(listingId){
+  // Récupérer les photos existantes
+  const{data:l}=await sb.from('listings').select('id,title,photos').eq('id',listingId).single();
+  const existing=(l?.photos||[]);
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  overlay.innerHTML=`
+    <div style="background:var(--card);border-radius:16px;padding:1.5rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+      <div style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--bleu)"><i data-lucide=camera></i> Photos — ${l?.title||''}</div>
+      ${existing.length>0?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${existing.map((p,i)=>`<div style="position:relative"><img src="${p}" style="width:80px;height:60px;object-fit:cover;border-radius:8px"><button onclick="removeExistingPhoto(${i})" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button></div>`).join('')}</div>`:'<div style="font-size:.8rem;color:var(--stone-l);margin-bottom:.75rem">Aucune photo pour cette annonce.</div>'}
+      <label style="display:block;border:2px dashed var(--terra);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;font-size:.85rem;color:var(--terra);font-weight:600" onclick="document.getElementById('ep-input').click()">
+        <i data-lucide=plus-circle></i> Ajouter des photos<br><span style="font-weight:400;color:var(--stone-l);font-size:.75rem">JPG/PNG · max 5 Mo</span>
+        <input type="file" id="ep-input" multiple accept="image/*" style="display:none" onchange="previewEpPhotos(this.files)">
+      </label>
+      <div id="ep-preview" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.75rem"></div>
+      <div id="ep-err" style="display:none;color:var(--terra);font-size:.78rem;margin-top:.5rem"></div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <button class="btn btn-p" style="flex:1;justify-content:center" onclick="saveEditPhotos('${listingId}')">Enregistrer</button>
+        <button class="btn btn-s" onclick="this.closest('[style*=fixed]').remove()">Annuler</button>
+      </div>
+    </div>`;
+  window._epFiles=[];
+  window._epExisting=[...existing];
+  window.previewEpPhotos=(files)=>{
+    window._epFiles=[...window._epFiles,...Array.from(files)];
+    const prev=document.getElementById('ep-preview');
+    if(prev)prev.innerHTML=window._epFiles.map((f,i)=>`<div style="position:relative"><img src="${URL.createObjectURL(f)}" style="width:80px;height:60px;object-fit:cover;border-radius:8px"><button onclick="window._epFiles.splice(${i},1);window.previewEpPhotos([])" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:.75rem;cursor:pointer;line-height:1">×</button></div>`).join('');
+    if(lucide)lucide.createIcons();
+  };
+  window.removeExistingPhoto=(idx)=>{
+    window._epExisting.splice(idx,1);
+    // Retirer la vignette du DOM
+    const thumbs=overlay.querySelectorAll('[style*="position:relative"]');
+    if(thumbs[idx])thumbs[idx].remove();
+  };
+  document.body.appendChild(overlay);
+  if(lucide)lucide.createIcons();
+}
+
+async function saveEditPhotos(listingId){
+  const errEl=document.getElementById('ep-err');
+  const btn=document.querySelector('[onclick*="saveEditPhotos"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Upload...';}
+  try{
+    let newUrls=[];
+    if(window._epFiles&&window._epFiles.length>0){
+      newUrls=await uploadPhotosForListing(listingId,window._epFiles);
+    }
+    const allPhotos=[...(window._epExisting||[]),...newUrls];
+    const{error}=await sb.from('listings').update({photos:allPhotos}).eq('id',listingId);
+    if(error)throw new Error(error.message);
+    document.querySelector('[style*="rgba(0,0,0,.6)"]')?.remove();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Photos mises à jour — '+allPhotos.length+' photo(s)');
+    loadML();
+  }catch(e){
+    if(errEl){errEl.style.display='block';errEl.textContent='Erreur : '+e.message+' — Vérifiez que le bucket Supabase "annonces" est Public (Storage → annonces → Make public).';}
+    if(btn){btn.disabled=false;btn.textContent='Enregistrer';}
+  }
 }
 
 async function startBoostPaiement(listingId,listingTitle,listingType){
