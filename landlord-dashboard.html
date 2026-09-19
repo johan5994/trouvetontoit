@@ -2468,8 +2468,8 @@ async function loadMessages(){
   // "Find a roommate" (locataire à locataire, n'ont rien à faire ici).
   // Filtré côté JS plutôt qu'avec .neq() en base : .neq() exclurait aussi
   // par erreur les messages sans type du tout (assez courants ici).
-  const{data:received}=await sb.from('messages').select('*, annonces(title,zone,id)').eq('receiver_id',U.id).order('created_at',{ascending:false});
-  const{data:sent}=await sb.from('messages').select('*, annonces(title,zone,id)').eq('sender_id',U.id).order('created_at',{ascending:false});
+  const{data:received}=await sb.from('messages').select('*, listings(title,zone,id)').eq('receiver_id',U.id).order('created_at',{ascending:false});
+  const{data:sent}=await sb.from('messages').select('*, listings(title,zone,id)').eq('sender_id',U.id).order('created_at',{ascending:false});
 
   const all=[...(received||[]),...(sent||[])].filter(m=>m.type!=='roommate_dm');
 
