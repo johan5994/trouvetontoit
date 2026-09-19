@@ -1340,7 +1340,7 @@ async function loadVisitsPage(){
     // Seulement les statuts de visite pure — les candidatures vivent dans Applications
     const groups=allGroups.filter(g=>VISIT_ONLY_STATUSES.includes(g.statut)&&!(g.statut==='agents_applying'&&!g.has_agent));
 
-    const pendingCount=groups.filter(g=>g.statut==='awaiting_propriétaire').length;
+    const pendingCount=groups.filter(g=>g.statut==='pending'||g.statut==='awaiting_propriétaire').length;
     if(cnt)cnt.textContent=pendingCount>0?`${pendingCount} en attente`:'All good';
     const badge=document.getElementById('nb-visites-ll');
     if(badge){badge.textContent=pendingCount;badge.style.display=pendingCount>0?'inline':'none';}
@@ -1350,7 +1350,7 @@ async function loadVisitsPage(){
       return;
     }
 
-    const doneStatutes=['done','completed','cancelled','locataire_declined','no_show','date_refusé'];
+    const doneStatutes=['completed','cancelled','declined'];
     const activeGroups=groups.filter(g=>!doneStatutes.includes(g.statut));
     const pastGroups=groups.filter(g=>doneStatutes.includes(g.statut));
 
@@ -1874,7 +1874,7 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
       const{data:visite}=await sb.from('visits').select('agent_id').eq('listing_id',listingId).in('statut',['completed','agent_assigned','confirmed','booking_en attente']).order('created_at',{ascending:false}).limit(1).maybeSingle();
       if(visite?.agent_id){
         try{await sb.from('messages').insert({listing_id:listingId,sender_id:'system',receiver_id:visite.agent_id,content:'📋 Application accepté!\n\n🏠 '+(annonce?.title||'Bien')+'\n👤 Locataire: '+(locataireProfile?.full_name||'—')+'\n\nBail being signed.',type:'booking_accepté'});}catch(e){}
-        try{await sb.from('visits').update({status:'edl_scheduled'}).eq('agent_id',visite.agent_id).eq('listing_id',listingId);}catch(e){}
+        try{await sb.from('visits').update({status:'completed'}).eq('agent_id',visite.agent_id).eq('listing_id',listingId);}catch(e){}
       }
     }catch(e){}
 
@@ -1891,7 +1891,7 @@ async function sendLLProposedDate(visitId, listingId, locataireId, overlay){
   if(!newDate){toast('<i data-lucide=alert-triangle class=ic></i>️ Veuillez sélectionner une date');return;}
   overlay?.remove();
   try{
-    await sb.from('visits').update({status:'date_refusé',proposed_date:newDate,proposed_time:newTime}).eq('id',visitId);
+    await sb.from('visits').update({status:'declined',proposed_date:newDate,proposed_time:newTime}).eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:listingId,sender_id:'system',receiver_id:locataireId,
       content:`📅 Le propriétaire propose une nouvelle date pour votre visite :\n\n📅 ${new Date(newDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} à ${newTime}\n\nRendez-vous sur votre tableau de bord → Mes visites pour confirmer ou demander une autre date.`,
@@ -1906,7 +1906,7 @@ async function propriétaireConfirmerVisit(visitId, response, listingId, locatai
     // Vérifier si le annonce veut un agent
     const{data:annonce}=await sb.from('listings').select('wants_agent,agent_service').eq('id',listingId).maybeSingle();
     const wantsAgent=annonce?.wants_agent&&annonce?.agent_service==='full';
-    const newStatut=wantsAgent?'agent_assigned':'confirmed';
+    const newStatut='confirmed';
     await sb.from('visits').update({status:newStatut}).eq('id',visitId);
     
     // Si pas d'agent — notifier directement le locataire
@@ -1962,7 +1962,7 @@ async function propriétaireConfirmerVisit(visitId, response, listingId, locatai
     loadVisitsPage();
 
   } else if(response==='wrong_date'){
-    await sb.from('visits').update({status:'date_refusé'}).eq('id',visitId);
+    await sb.from('visits').update({status:'declined'}).eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:listingId,
       sender_id:'system',
@@ -2200,7 +2200,7 @@ async function confirmPaiementReceived(id){
 
       // Mettre à jour le statut de la visite
       if(visite?.agent_id){
-        try{await sb.from('visits').update({status:'entry_inventory_en attente'})
+        try{await sb.from('visits').update({status:'completed'})
           .eq('listing_id',pay.listing_id)
           .eq('agent_id',agentId);}catch(e){}
       }
@@ -2780,7 +2780,7 @@ async function acceptLocataireFromVisits(visitId, listingId, locataireId){
 async function declineLocataireFromVisits(visitId, listingId, locataireId){
   if(!confirm('Refuser ce locataire ?'))return;
 
-  try{await sb.from('visits').update({status:'propriétaire_declined'}).eq('id',visitId);}catch(e){}
+  try{await sb.from('visits').update({status:'declined'}).eq('id',visitId);}catch(e){}
 
   // Notifier locataire
   try{
@@ -2820,7 +2820,7 @@ async function acceptAndGenerateBail(visitId, listingId, locataireId, startDate,
     }
   }catch(e){}
 
-  try{await sb.from('visits').update({status:'bail_en attente'}).eq('id',visitId);}catch(e){}
+  try{await sb.from('visits').update({status:'completed'}).eq('id',visitId);}catch(e){}
 
   let annonce=null,locataireProfile=null,propriétaireProfile=null,visite=null;
   try{const{data:v}=await sb.from('visits').select('*').eq('id',visitId).single();visite=v;}catch(e){}
@@ -2886,7 +2886,7 @@ async function respondToLocataireInterest(msgId, visitId, listingId, accepter){
   try{await sb.from('messages').update({read:true}).eq('id',msgId);}catch(e){}
 
   if(!accepter){
-    try{await sb.from('visits').update({status:'propriétaire_declined'}).eq('id',visitId);}catch(e){}
+    try{await sb.from('visits').update({status:'declined'}).eq('id',visitId);}catch(e){}
     if(visite?.tenant_id){
       try{await sb.from('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:visite.tenant_id,
@@ -2920,7 +2920,7 @@ async function respondToLocataireInterest(msgId, visitId, listingId, accepter){
       }
     }catch(e){}
 
-    try{await sb.from('visits').update({status:'bail_en attente'}).eq('id',visitId);}catch(e){}
+    try{await sb.from('visits').update({status:'completed'}).eq('id',visitId);}catch(e){}
 
     let annonce=null;
     try{const{data:l}=await sb.from('listings').select('*').eq('id',listingId).single();annonce=l;}catch(e){}
@@ -4091,6 +4091,7 @@ function renderBailPayStatut(bk){
 
 function renderVisitGroup(g, isPast){
   const statusConfig={
+    'pending':{label:'⏳ En attente de votre confirmation',cls:'b-gold'},
     'awaiting_propriétaire':{label:'⏳ En attente de votre confirmation',cls:'b-gold'},
     'agents_applying':{label:'<i data-lucide=check-circle-2 class=ic></i> Visite confirmed',cls:'b-sea'},
     'agent_assigned':{label:'<i data-lucide=check-circle-2 class=ic></i> Agent assigned',cls:'b-green'},
@@ -4136,7 +4137,7 @@ function renderVisitGroup(g, isPast){
       <span class="badge ${sc.cls}" style="font-size:.62rem;flex-shrink:0">${sc.label}</span>
     </div>
 
-    ${g.statut==='awaiting_propriétaire'?`
+    ${(g.statut==='pending'||g.statut==='awaiting_propriétaire')?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.6rem .75rem;margin-top:.4rem">
       <div style="font-size:.78rem;font-weight:600;color:var(--gold);margin-bottom:.3rem">⏳ Locataire requested a visite</div>
       <div style="font-size:.7rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
@@ -4889,7 +4890,7 @@ async function acceptDirectBooking(listingId, locataireId){
     // Exclure explicitement les visites déjà annulées/refusées — leur
     // statut est définitif, elles ne doivent plus jamais bouger, même
     // si le même locataire a depuis redemandé une nouvelle visite.
-    try{await sb.from('visits').update({status:'bail_en attente'}).eq('listing_id',listingId).eq('tenant_id',locataireId).not('statut','in','("cancelled","locataire_declined","propriétaire_declined","date_refusé")');}catch(e){}
+    try{await sb.from('visits').update({status:'bail_en attente'}).eq('listing_id',listingId).eq('tenant_id',locataireId).not('status','in','("cancelled","declined")');}catch(e){}
 
     // Notifier le locataire principal
     try{
