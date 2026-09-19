@@ -2246,7 +2246,7 @@ async function requestVisitFromDetail(){
       visit_date:visitDate,
       visit_time:visitTime,
       zone:AL.zone||'',
-      status:'awaiting_propriétaire'
+      status:'pending'
     });
     if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
 
