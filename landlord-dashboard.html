@@ -1005,7 +1005,7 @@ async function loadDash(){
 
   // Visites en cours widget — charger depuis visites directement
   try{
-    const{data:visitData}=await sb.from('visits').select('id,statut').eq('landlord_id',U.id).in('statut',['awaiting_propriétaire','agents_applying','agent_assigned','confirmed']);
+    const{data:visitData}=await sb.from('visits').select('id,statut').eq('landlord_id',U.id).in('status',['pending','confirmed']);
     const vCount=(visitData||[]).length;
     const vc=document.getElementById('visite-groups-count');
     if(vc)vc.textContent=vCount;
@@ -1279,7 +1279,7 @@ async function fetchVisitAndApplicationGroups(){
     const booking=bookingMap[key]||null;
     const annonce=lMap[v.listing_id]||null;
     // Si un booking existe, utiliser son statut pour les étapes après la visite
-    let statut=v.statut;
+    let statut=v.status||v.statut;
     const has_agent=!!(annonce?.wants_agent&&annonce?.agent_service==='full');
     if(statut==='agents_applying'&&!has_agent) statut='awaiting_propriétaire';
     if(booking){
@@ -1325,7 +1325,7 @@ async function fetchVisitAndApplicationGroups(){
 }
 
 // Statuts de visite pure — avant toute candidature de location
-const VISIT_ONLY_STATUSES=['awaiting_propriétaire','agents_applying','agent_assigned','confirmed','done','completed','cancelled','no_show','locataire_declined','date_refusé'];
+const VISIT_ONLY_STATUSES=['pending','confirmed','completed','cancelled','declined'];
 // Statuts de candidature/location — à partir du moment où le locataire a dit "je veux louer"
 const APPLICATION_STATUSES=['booking_en attente','en attente','accepté','bail_en attente','edl_scheduled','signing_day','move_in_ready','declined','locataire_ghosted'];
 
@@ -2701,7 +2701,7 @@ async function proposeVisitFromChat(){
         visit_date:visitDate,
         visit_time:visitTime,
         zone:annonce?.zone||'',
-        statut:'awaiting_locataire'
+        status:'pending'
       });
       const dateStr=new Date(visitDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       await sb.from('messages').insert({
@@ -4916,7 +4916,7 @@ async function acceptDirectBooking(listingId, locataireId){
           tenant_id:coLocataireId,
           listing_id:listingId,
           landlord_id:U.id,
-          statut:'edl_scheduled',
+          status:'completed',
           visit_type:'direct',
           move_in_date:booking.move_in_date||null,
           listing_price:monthlyRent,
