@@ -608,6 +608,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob" onchange="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France" oninput="updateProfileeCompleteness()"></div>
             <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Profession * <span style="font-size:.68rem;color:var(--td)">(mentionnée sur le bail)</span></label><input class="fi" id="p-profession" placeholder="ex. Ingénieur, Étudiant, Auto-entrepreneur..." oninput="updateProfileeCompleteness()"></div>
           </div>
 
           <!-- Profil completeness indicator -->
@@ -4308,6 +4309,7 @@ async function loadProfilee(){
   document.getElementById('p-dob').value=P.date_of_birth||'';
   document.getElementById('p-address').value=P.home_address||'';
   document.getElementById('p-pob').value=P.place_of_birth||'';
+  document.getElementById('p-profession').value=P.profession||'';
   updateProfileeCompleteness();
 
   // Gestion section vérification
@@ -4343,6 +4345,7 @@ function updateProfileeCompleteness(){
     document.getElementById('p-dob')?.value,
     document.getElementById('p-pob')?.value,
     document.getElementById('p-address')?.value,
+    document.getElementById('p-profession')?.value,
   ];
   const filled=required.filter(v=>v&&v.trim()!=='').length;
   const pct=Math.round(filled/required.length*100);
@@ -4368,7 +4371,8 @@ async function saveProfilee(){
     passport_number:document.getElementById('p-passport').value.trim(),
     date_of_birth:document.getElementById('p-dob').value||null,
     home_address:document.getElementById('p-address').value.trim(),
-    place_of_birth:document.getElementById('p-pob').value.trim()
+    place_of_birth:document.getElementById('p-pob').value.trim(),
+    profession:document.getElementById('p-profession').value.trim()
   };
   const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
   if(error){
