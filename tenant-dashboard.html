@@ -2161,7 +2161,7 @@ async function loadOverview(){
   const[{data:msgs},{data:tickets},{data:sentMsgs}]=await Promise.all([
     sb.from('messages').select('*').eq('receiver_id',U.id).eq('read',false).neq('type','roommate_dm'),
     sb.from('tickets').select('*').eq('locataire_id',U.id).neq('statut','resolved'),
-    sb.from('messages').select('*, annonces(*)').eq('sender_id',U.id).order('created_at',{ascending:false})
+    sb.from('messages').select('*').eq('sender_id',U.id).order('created_at',{ascending:false})
   ]);
   const unread=(msgs||[]).filter(m=>m.type!=='roommate_dm').length;
   document.getElementById('k-msgs').textContent=unread;
@@ -2192,8 +2192,8 @@ async function loadMessages(){
   const wrap=document.getElementById('messages-list');
   try{
     const[{data:sent},{data:received}]=await Promise.all([
-      sb.from('messages').select('*,annonces(title,zone,price)').eq('sender_id',U.id).order('created_at',{ascending:false}),
-      sb.from('messages').select('*,annonces(title,zone,price)').eq('receiver_id',U.id).order('created_at',{ascending:false})
+      sb.from('messages').select('*,listings(title,zone,price)').eq('sender_id',U.id).order('created_at',{ascending:false}),
+      sb.from('messages').select('*,listings(title,zone,price)').eq('receiver_id',U.id).order('created_at',{ascending:false})
     ]);
     // Filtré côté JS (pas .neq() en base) : ça exclurait aussi par erreur les
     // messages sans type du tout. Exclut les demandes de visite (gérées
