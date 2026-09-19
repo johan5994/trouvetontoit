@@ -2736,7 +2736,7 @@ async function fetchLocataireVisitData(){
   visites=visites.map(v=>{
     const bk=sortedBookings.find(b=>b.listing_id===v.listing_id&&!usedBookingIds.has(b.id))||null;
     if(bk) usedBookingIds.add(bk.id);
-    let statusVal=v.statut||v.status;
+    let statusVal=v.status||v.statut;
     if(bk){
       if(bk.status==='pending'||bk.status==='booking_pending') statusVal='booking_pending';
       else if(bk.status==='accepted') statusVal='accepted';
@@ -3651,7 +3651,7 @@ function doOuvrirLocataireDoc(bk,bookingId,embedSrc,dbField,title){
 }
 
 async function confirmLocatairePresence(visitId){
-  try{await sb.from('visits').update({statut:'confirmed',locataire_confirmed:true}).eq('id',visitId);}catch(e){}
+  try{await sb.from('visits').update({status:'confirmed',locataire_confirmed:true}).eq('id',visitId);}catch(e){}
   toast('<i data-lucide=check-circle-2 class=ic></i> Présence confirmée ! À bientôt pour la visite.');
   loadLocataireVisits();
 }
@@ -3666,7 +3666,7 @@ async function locataireInterested(visitId, listingId, price, listingTitle, land
 
 async function locataireNotInterested(visitId){
   if(!confirm('Confirmer que vous n\'êtes plus intéressé(e) par ce logement ?')) return;
-  await sb.from('visits').update({statut:'locataire_declined'}).eq('id',visitId);
+  await sb.from('visits').update({status:'locataire_declined'}).eq('id',visitId);
   toast('OK — visite moved to past.');
   loadLocataireVisits();
 }
@@ -3854,7 +3854,7 @@ async function locataireConfirmerProposedVisit(visitId){
     if(!v){toast('<i data-lucide=x-circle class=ic></i> Visite introuvable');return;}
     const{data:annonce}=await sb.from('listings').select('wants_agent,agent_service,title').eq('id',v.listing_id).maybeSingle();
     const wantsAgent=annonce?.wants_agent&&annonce?.agent_service==='full';
-    await sb.from('visits').update({statut:wantsAgent?'agent_assigned':'confirmed'}).eq('id',visitId);
+    await sb.from('visits').update({status:wantsAgent?'agent_assigned':'confirmed'}).eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:v.listing_id,sender_id:'system',receiver_id:v.landlord_id,
       content:`✅ ${P?.full_name||'The locataire'} confirmed the proposed visite pour ${annonce?.title||'the bien'}.`,
@@ -3894,7 +3894,7 @@ async function cancelVisit(visitId, agentId, listingId){
   if(!confirm('Annuler cette visite ? Le propriétaire/agent sera notifié.'))return;
 
   // Marquer la visite comme annulée
-  try{await sb.from('visits').update({statut:'cancelled'}).eq('id',visitId);}catch(e){}
+  try{await sb.from('visits').update({status:'cancelled'}).eq('id',visitId);}catch(e){}
 
   const agentToNotify=agentId||visite?.agent_id;
   const listingToNotify=listingId||visite?.listing_id;
@@ -6063,7 +6063,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
       visit_date:visitDate,
       visit_time:visitTime,
       zone:annonce?.zone||'',
-      statut:'awaiting_propriétaire'
+      status:'awaiting_propriétaire'
     });
     if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
 
