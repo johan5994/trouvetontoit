@@ -267,7 +267,7 @@ footer ul a:hover{color:var(--terra)}
 .bbtn{position:absolute;top:1.2rem;left:1.2rem;background:white;border:none;padding:.5rem 1.2rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.1);transition:all .2s}
 .bbtn:hover{transform:translateX(-2px)}
 .dgrid{display:grid;grid-template-columns:1.4fr 1fr;gap:2.5rem}
-.dtitle{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.5rem}
+.dtitle{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.5rem;color:var(--bleu,#1B4FD8)}
 .dzone{color:var(--stone-l);font-size:.9rem;margin-bottom:1.2rem}
 .dfeats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
 .dfeat{background:var(--sand);padding:.35rem .85rem;border-radius:100px;font-size:.78rem;color:var(--stone)}
@@ -1006,7 +1006,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="dtitle" id="dti"></div>
         <div class="dzone" id="dzo"></div>
 
-        <div id="d-topinfo" style="display:flex;flex-wrap:wrap;gap:.45rem;margin:.7rem 0"></div>
+        <div id="d-topinfo" style="display:flex;flex-wrap:wrap;gap:.45rem;margin:.4rem 0"></div>
         <div id="d-carac"></div>
         <div id="din-wrap" style="margin-top:1rem"></div>
 
@@ -1019,7 +1019,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
         <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1.5px solid rgba(201,85,58,.2);border-radius:16px;padding:1.4rem 1.5rem">
-          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:var(--terra)"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à la signature</div>
+          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:#C9553A"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à la signature</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -1828,15 +1828,15 @@ async function openDet(id){
 
   // ─── Badges top info ────────────────────────────────────────────
   {
-    const _tb=(icon,text,bg,bdr,col)=>'<span style="background:'+(bg||'var(--s2)')+';border:1px solid '+(bdr||'var(--b2)')+';border-radius:20px;padding:.28rem .72rem;font-size:.76rem;font-weight:600;color:'+(col||'var(--txt)')+';display:inline-flex;align-items:center;gap:.3rem">'+icon+' '+text+'</span>';
+    const _tb=(icon,text,bg,bdr,col)=>'<span style="background:'+(bg||'rgba(27,79,216,.07)')+';border:1.5px solid '+(bdr||'rgba(27,79,216,.2)')+';border-radius:20px;padding:.35rem .85rem;font-size:.82rem;font-weight:700;color:'+(col||'var(--bleu,#1B4FD8)')+';display:inline-flex;align-items:center;gap:.35rem">'+icon+' '+text+'</span>';
     const _bs=[];
     const _bl={short:'Location courte durée',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
     _bs.push(_tb('<i data-lucide=file-text class=ic></i>',_bl[l.type]||l.type));
     _bs.push(_tb('<i data-lucide='+(_dispoOk?'check-circle-2':'calendar')+' class=ic></i>',
       _dispoOk?'Disponible maintenant':'Dispo le '+(_avD?_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):''),
-      _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.08)',
+      _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.07)',
       _dispoOk?'rgba(76,175,125,.3)':'rgba(27,79,216,.2)',
-      _dispoOk?'#2e7d52':'var(--bleu)'));
+      _dispoOk?'#2e7d52':'var(--bleu,#1B4FD8)'));
     // ECS type retiré des badges — déjà affiché dans la section "Ce qui est inclus"
     const _ti=document.getElementById('d-topinfo');if(_ti)_ti.innerHTML=_bs.join('');
   }
@@ -2066,7 +2066,7 @@ async function openDet(id){
     const loyerHCStr=loyerHC?'€'+loyerHC+' / mois':null;
 
     let rows='';
-    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)"><i data-lucide="banknote" style="width:14px;height:14px;vertical-align:-2px;color:var(--stone);margin-right:.3rem"></i>Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--stone)">'+loyerCC+'</span></div>';
+    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)"><i data-lucide="banknote" style="width:14px;height:14px;vertical-align:-2px;color:var(--bleu,#1B4FD8);margin-right:.3rem"></i>Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--stone)">'+loyerCC+'</span></div>';
     if(loyerHCStr) rows+='<div class="crow"><span style="color:var(--stone-l)">dont loyer HC</span><span style="color:var(--stone)">'+loyerHCStr+'</span></div>';
     if(charges) rows+='<div class="crow"><span style="color:var(--stone-l)">dont charges</span><span style="color:var(--stone)">€'+charges+' / mois</span></div>';
     if(l.depot) rows+='<div class="crow"><span style="color:var(--stone-l)">Dépôt de garantie</span><span style="color:var(--stone);font-weight:600">€'+l.depot+' <span style="font-size:.72rem;font-weight:400">(remboursé en fin de bail)</span></span></div>';
@@ -2107,10 +2107,10 @@ async function openDet(id){
     document.getElementById('dcost-inner').innerHTML=
       _cline('Premier mois de loyer',l.price,'','var(--stone)')
       +_cline('Dépôt de garantie',l.depot||0,'Remboursé en fin de bail','var(--stone)')
-      +_cline(commissionLabel,commission,'','var(--terra)')
+      +_cline(commissionLabel,commission,'','#C9553A')
       +`<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .3rem;margin-top:.35rem">
         <div style="font-size:1rem;font-weight:700;color:var(--stone)">Total à la signature</div>
-        <div style="font-size:1.7rem;font-weight:900;color:var(--terra);font-variant-numeric:tabular-nums">€${l.price+(l.depot||0)+commission}</div>
+        <div style="font-size:1.7rem;font-weight:900;color:#C9553A;font-variant-numeric:tabular-nums">€${l.price+(l.depot||0)+commission}</div>
       </div>
       <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le loyer sont versés directement au propriétaire à la signature du bail.</div>`;
   }
