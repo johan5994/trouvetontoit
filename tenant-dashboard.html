@@ -5820,35 +5820,6 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
       </div>
 
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
-        <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
-          <input type="checkbox" id="nego-toggle" onchange="document.getElementById('nego-fields').style.display=this.checked?'block':'none'" style="accent-color:var(--bleu);width:15px;height:15px;cursor:pointer">
-          <div>
-            <div style="font-size:.8rem;font-weight:600;color:#F0EDE8"><i data-lucide=handshake class=ic></i> I want to negotiate</div>
-            <div style="font-size:.7rem;color:rgba(240,237,232,.35)">Propose a different loyer or request extras</div>
-          </div>
-        </label>
-        <div id="nego-fields" style="display:none;margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.07)">
-          <div style="margin-bottom:.85rem">
-            <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.35rem"><i data-lucide=euro class=ic></i> Propose a loyer</label>
-            <div style="display:flex;align-items:center;gap:.5rem">
-              <span style="color:rgba(240,237,232,.4)">€</span>
-              <input type="number" id="neg-price" value="${price||''}" style="flex:1;padding:.55rem .8rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#F0EDE8;font-size:.86rem;outline:none;font-family:'DM Sans',sans-serif">
-              <span style="font-size:.75rem;color:rgba(240,237,232,.3)">/mois</span>
-            </div>
-          </div>
-          <div style="margin-bottom:.85rem">
-            <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.35rem"><i data-lucide=gift class=ic></i> Extras to request</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem">
-              ${['<i data-lucide=flame class=ic></i> Microwave','<i data-lucide=snowflake class=ic></i>️ A/C','<i data-lucide=shirt class=ic></i> Washing machine','<i data-lucide=car class=ic></i> Parking','<i data-lucide=tv class=ic></i> Smart TV','<i data-lucide=wifi class=ic></i> Faster WiFi','<i data-lucide=sofa class=ic></i>️ Extra furniture','<i data-lucide=sparkles class=ic></i> 1st clean'].map(e=>`<label style="display:flex;align-items:center;gap:.4rem;padding:.4rem .55rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:7px;cursor:pointer;font-size:.72rem;color:rgba(240,237,232,.6)"><input type="checkbox" class="neg-extra" value="${e.replace(/[<i data-lucide=flame class=ic></i><i data-lucide=snowflake class=ic></i>️<i data-lucide=shirt class=ic></i><i data-lucide=car class=ic></i><i data-lucide=tv class=ic></i><i data-lucide=wifi class=ic></i><i data-lucide=sofa class=ic></i>️<i data-lucide=sparkles class=ic></i>]/g,'').trim()}" style="accent-color:var(--bleu);cursor:pointer">${e}</label>`).join('')}
-            </div>
-          </div>
-          <div>
-            <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.35rem"><i data-lucide=message-circle class=ic></i> Message to propriétaire</label>
-            <textarea id="neg-message" rows="2" placeholder="Hi, I'm very interested in votre flat…" style="width:100%;padding:.55rem .8rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#F0EDE8;font-size:.8rem;outline:none;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5"></textarea>
-          </div>
-        </div>
-      </div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
         <div style="font-size:.8rem;font-weight:600;color:#F0EDE8;margin-bottom:.6rem"><i data-lucide=calendar class=ic></i> Your entrée dans les lieux details</div>
         <div>
           <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.3rem">Desired entrée dans les lieux date *</label>
@@ -5957,10 +5928,6 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
   window._submittingApplication=true;
   const moveIn=document.getElementById('neg-movein')?.value;
   if(!moveIn){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner votre date d\'entrée souhaitée');window._submittingApplication=false;return;}
-  const proposedPrix=parseInt(document.getElementById('neg-price')?.value)||originalPrix;
-  const extras=[...document.querySelectorAll('.neg-extra:checked')].map(e=>e.value);
-  const message=document.getElementById('neg-message')?.value.trim()||'';
-
   // Collecter les co-locataires MAINTENANT — leurs champs DOM disparaissent
   // avec cette modal, donc on résout tout avant de la fermer.
   const coLocatairesFull=(window._coLocatairesData||[])
@@ -5968,10 +5935,6 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
     .filter(Boolean);
 
   document.querySelector('#nego-modal-overlay')?.remove();
-  let negotiationNote='';
-  if(proposedPrix!==originalPrix) negotiationNote+=`€ Proposed loyer: €${proposedPrix}/mois (listed at €${originalPrix}/mois)\n`;
-  if(extras.length) negotiationNote+=`+ Requested extras: ${extras.join(', ')}\n`;
-  if(message) negotiationNote+=`💬 "${message}"`;
 
   // Vérifier qu'il n'y a pas déjà une demande pour ce annonce
   const{data:existing}=await sb.from('bookings').select('id,statut').eq('tenant_id',U.id).eq('listing_id',listingId).maybeSingle();
@@ -5982,7 +5945,7 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
     return;
   }
 
-  openDirectRentPaiement(listingId, listingTitle, contactId, proposedPrix, negotiationNote, extras, moveIn, coLocatairesFull);
+  openDirectRentPaiement(listingId, listingTitle, contactId, originalPrix, '', [], moveIn, coLocatairesFull);
   window._submittingApplication=false;
 }
 
