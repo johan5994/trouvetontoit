@@ -942,7 +942,7 @@ function sp(id,btn){
   if(btn)btn.classList.add('act');
   const titles={dash:'Mon compte',biens:'Rented Biens',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Reviews',profil:'Profil & Paramètres'};
   document.getElementById('tbt').textContent=titles[id]||id;
-  if(id==='messages')renderMessages();
+  if(id==='messages')loadMessages();
   if(id==='maintenance')loadMaintenance();
   if(id==='visites')loadVisitsPage();
   if(id==='applications')loadApplicationsPageLL();
@@ -994,7 +994,7 @@ async function loadDash(){
   dp.innerHTML=(annonces||[]).slice(0,5).map(l=>`<div class="prow"><div class="pico" style="background:var(--tdim)"><i data-lucide=home class=ic></i></div><div class="pinf"><div class="pname">${l.title}</div><div class="psub">€${l.price}/mois · ${l.zone}</div></div><span class="badge ${l.actif?'b-green':'b-dim'}">${l.active?'Actif':'En pause'}</span></div>`).join('')||'<div class="empty"><div class="em"><i data-lucide=home class=ic></i></div><p>Aucune annonce</p></div>';
 
   // Recent messages
-  const{data:recentMsgs}=await sb.from('messages').select('*, annonces(title)').eq('receiver_id',U.id).order('created_at',{ascending:false}).limit(5);
+  const{data:recentMsgs}=await sb.from('messages').select('*').eq('receiver_id',U.id).order('created_at',{ascending:false}).limit(5);
   allMsgs=recentMsgs||[];
   const dm=document.getElementById('dash-msgs');
   dm.innerHTML=(recentMsgs||[]).map(m=>`<div class="mitem ${!m.read?'unread':''}" onclick="sp('messages',null);openMsgChat('${m.id}','${(m.listings?.title||'').replace(/'/g,"\\'")}','${m.content.replace(/'/g,"\\'")}')"><div class="mav">${(m.listings?.title||'?')[0].toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:.83rem;font-weight:600">${m.listings?.title||'Annonce'}</div><div class="mprev">${m.content}</div></div></div>`).join('')||'<div style="padding:1rem;font-size:.82rem;color:var(--td);text-align:center">Aucun message</div>';
@@ -2468,8 +2468,8 @@ async function loadMessages(){
   // "Find a roommate" (locataire à locataire, n'ont rien à faire ici).
   // Filtré côté JS plutôt qu'avec .neq() en base : .neq() exclurait aussi
   // par erreur les messages sans type du tout (assez courants ici).
-  const{data:received}=await sb.from('messages').select('*, listings(title,zone,id)').eq('receiver_id',U.id).order('created_at',{ascending:false});
-  const{data:sent}=await sb.from('messages').select('*, listings(title,zone,id)').eq('sender_id',U.id).order('created_at',{ascending:false});
+  const{data:received}=await sb.from('messages').select('*').eq('receiver_id',U.id).order('created_at',{ascending:false});
+  const{data:sent}=await sb.from('messages').select('*').eq('sender_id',U.id).order('created_at',{ascending:false});
 
   const all=[...(received||[]),...(sent||[])].filter(m=>m.type!=='roommate_dm');
 
@@ -2495,6 +2495,16 @@ async function loadMessages(){
   });
 
   allMsgs=Array.from(convMap.values()).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  // Récupérer les titres des annonces liées
+  const listingIds=[...new Set(allMsgs.filter(m=>m.listing_id).map(m=>m.listing_id))];
+  if(listingIds.length){
+    try{
+      const{data:listingTitles}=await sb.from('listings').select('id,title,zone').in('id',listingIds);
+      const ltMap={};(listingTitles||[]).forEach(l=>{ltMap[l.id]=l;});
+      allMsgs=allMsgs.map(m=>m.listing_id&&ltMap[m.listing_id]?{...m,listings:ltMap[m.listing_id]}:m);
+    }catch(e){}
+  }
 
   // Récupérer le nom de l'interlocuteur pour toute conversation où il
   // pourrait s'agir d'une agence — sinon l'affichage retombe sur le titre
