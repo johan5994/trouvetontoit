@@ -2008,8 +2008,9 @@ async function openDet(id){
         const isIncl=t.incl;
         const rowBg=isIncl?'rgba(34,139,34,.04)':'rgba(232,144,10,.04)';
         const rowBorder=isIncl?'rgba(34,139,34,.15)':'rgba(232,144,10,.2)';
+        const iconColor=isIncl?'#1a7a1a':'#b06800';
         return '<div style="display:flex;align-items:center;gap:.75rem;background:'+rowBg+';border:1.5px solid '+rowBorder+';border-radius:10px;padding:.6rem .85rem">'
-          +'<div style="flex-shrink:0;width:38px;height:38px;border-radius:9px;background:var(--card);border:1.5px solid var(--b2);display:flex;align-items:center;justify-content:center;color:var(--bleu,#1B4FD8)">'
+          +'<div style="flex-shrink:0;width:38px;height:38px;border-radius:9px;background:var(--card);border:1.5px solid var(--b2);display:flex;align-items:center;justify-content:center;color:'+iconColor+'">'
             +'<i data-lucide="'+t.ic+'" style="width:18px;height:18px"></i>'
           +'</div>'
           +'<div style="flex:1;min-width:0">'
@@ -2052,7 +2053,7 @@ async function openDet(id){
     const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
     if(_iw&&hasContent){
       _iw.innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border)">'
-        +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=zap class=ic></i> Énergie &amp; charges</div>'
+        +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">Énergie &amp; charges</div>'
         +resumeHtml+inclSection+chargeSection+regInner+'</div>';
     } else if(_iw) _iw.innerHTML='';
   }
@@ -2065,7 +2066,7 @@ async function openDet(id){
     const loyerHCStr=loyerHC?'€'+loyerHC+' / mois':null;
 
     let rows='';
-    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)"><i data-lucide="banknote" style="width:14px;height:14px;vertical-align:-2px;color:var(--bleu,#1B4FD8);margin-right:.3rem"></i>Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--bleu,#1B4FD8)">'+loyerCC+'</span></div>';
+    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)"><i data-lucide="banknote" style="width:14px;height:14px;vertical-align:-2px;color:var(--stone);margin-right:.3rem"></i>Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--stone)">'+loyerCC+'</span></div>';
     if(loyerHCStr) rows+='<div class="crow"><span style="color:var(--stone-l)">dont loyer HC</span><span style="color:var(--stone)">'+loyerHCStr+'</span></div>';
     if(charges) rows+='<div class="crow"><span style="color:var(--stone-l)">dont charges</span><span style="color:var(--stone)">€'+charges+' / mois</span></div>';
     if(l.depot) rows+='<div class="crow" style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--b2)"><span style="color:var(--stone-l)">Dépôt de garantie</span><span style="color:var(--stone);font-weight:600">€'+l.depot+' <span style="font-size:.72rem;font-weight:400">(remboursé en fin de bail)</span></span></div>';
@@ -2082,7 +2083,7 @@ async function openDet(id){
   {
     const _dh=makeDpeWidget(l.dpe,l.ges);
     const _dw=document.getElementById('d-dpe-wrap');
-    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:.98rem;font-weight:700;margin-bottom:.7rem;color:var(--bleu,#1B4FD8)">🏷 DPE — Diagnostic de Performance Énergétique</div>'+_dh+'</div>':'';
+    if(_dw)_dw.innerHTML=_dh?'<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem"><div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">DPE — Performance Énergétique</div>'+_dh+'</div>':'';
   }
 
   // ─── Coût premier mois ──────────────────────────────────────────
