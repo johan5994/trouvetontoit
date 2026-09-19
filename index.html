@@ -2237,20 +2237,18 @@ async function requestVisitFromDetail(){
     const today=new Date();today.setHours(0,0,0,0);
     if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
 
-    try{
-      await sb.from('visits').insert({
-        listing_id:AL.id,
-        tenant_id:U.id,
-        landlord_id:AL.landlord_id,
-        tenant_name:P?.full_name||'',
-        tenant_email:P?.email||U.email||'',
-        listing_title:AL.title||'',
-        visit_date:visitDate,
-        visit_time:visitTime,
-        zone:AL.zone||'',
-        statut:'awaiting_propriétaire'
-      });
-    }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);return;}
+    const{error:visitInsertErr}=await sb.from('visits').insert({
+      listing_id:AL.id,
+      tenant_id:U.id,
+      landlord_id:AL.landlord_id,
+      tenant_name:P?.full_name||'',
+      tenant_email:P?.email||U.email||'',
+      visit_date:visitDate,
+      visit_time:visitTime,
+      zone:AL.zone||'',
+      statut:'awaiting_propriétaire'
+    });
+    if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
 
     try{
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
