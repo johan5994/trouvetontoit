@@ -6054,19 +6054,18 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
     let annonce=null;
     try{const{data:l}=await sb.from('listings').select('zone,title').eq('id',listingId).single();annonce=l;}catch(e){}
 
-    try{
-      await sb.from('visits').insert({
-        listing_id:listingId,
-        tenant_id:U.id,
-        landlord_id:landlordId,
-        tenant_name:P?.full_name||'',
-        tenant_email:P?.email||'',
-        visit_date:visitDate,
-        visit_time:visitTime,
-        zone:annonce?.zone||'',
-        statut:'awaiting_propriétaire'
-      });
-    }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);return;}
+    const{error:visitInsertErr}=await sb.from('visits').insert({
+      listing_id:listingId,
+      tenant_id:U.id,
+      landlord_id:landlordId,
+      tenant_name:P?.full_name||'',
+      tenant_email:P?.email||'',
+      visit_date:visitDate,
+      visit_time:visitTime,
+      zone:annonce?.zone||'',
+      statut:'awaiting_propriétaire'
+    });
+    if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
 
     try{
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
