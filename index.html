@@ -1019,7 +1019,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
         <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1.5px solid rgba(201,85,58,.2);border-radius:16px;padding:1.4rem 1.5rem">
-          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:var(--bleu,#1B4FD8)">💶 Ce que vous payez</div>
+          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:var(--bleu,#1B4FD8)"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à la signature</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -1735,9 +1735,24 @@ async function openDet(id){
     let cur=startIdx||0;
     const ov=document.createElement('div');
     ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
-    const render=()=>{
+    // Fermeture — intercepte aussi le bouton retour navigateur
+    history.pushState({lightbox:true},'');
+    const closeLb=()=>{
+      document.removeEventListener('keydown',keyH);
+      window.removeEventListener('popstate',popH);
+      if(history.state&&history.state.lightbox)history.back();
+      ov.remove();
+    };
+    const popH=()=>{document.removeEventListener('keydown',keyH);ov.remove();};
+    window.addEventListener('popstate',popH,{once:true});
+    const keyH=e=>{if(e.key==='ArrowLeft')prev();else if(e.key==='ArrowRight')next();else if(e.key==='Escape')closeLb();};
+    document.addEventListener('keydown',keyH);
+    const prev=()=>{cur=(cur-1+ps.length)%ps.length;render();};
+    const next=()=>{cur=(cur+1)%ps.length;render();};
+    window._lbPrev=prev;window._lbNext=next;window._lbGo=i=>{cur=i;render();};
+    function render(){
       ov.innerHTML=`
-        <button onclick="this.closest('[style]').remove()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:white;font-size:1.4rem;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2">×</button>
+        <button data-lbclose style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:white;font-size:1.4rem;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2">×</button>
         <div style="position:absolute;top:1rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.15);color:white;font-size:.82rem;padding:.3rem .9rem;border-radius:20px;font-weight:600">${cur+1} / ${ps.length}</div>
         <img src="${ps[cur]}" style="max-width:92vw;max-height:80vh;object-fit:contain;border-radius:10px;user-select:none">
         ${ps.length>1?`
@@ -1747,15 +1762,9 @@ async function openDet(id){
           ${ps.map((p,i)=>`<img src="${p}" onclick="_lbGo(${i})" style="width:56px;height:42px;object-fit:cover;border-radius:6px;cursor:pointer;flex-shrink:0;opacity:${i===cur?1:.5};border:2px solid ${i===cur?'white':'transparent'};transition:all .15s">`).join('')}
         </div>
       `;
+      ov.querySelector('[data-lbclose]').onclick=closeLb;
       lucide.createIcons();
-    };
-    window._lbPrev=()=>{cur=(cur-1+ps.length)%ps.length;render();};
-    window._lbNext=()=>{cur=(cur+1)%ps.length;render();};
-    window._lbGo=i=>{cur=i;render();};
-    // Touches clavier
-    const keyH=e=>{if(e.key==='ArrowLeft')_lbPrev();else if(e.key==='ArrowRight')_lbNext();else if(e.key==='Escape')ov.remove();};
-    document.addEventListener('keydown',keyH);
-    ov.addEventListener('remove',()=>document.removeEventListener('keydown',keyH),{once:true});
+    }
     render();
     document.body.appendChild(ov);
   };
@@ -2037,8 +2046,7 @@ async function openDet(id){
         +'</div>':'';
 
     // ── Note régularisation ──
-    const regNote=l.charges_regularisation==='annuelle'?'Régularisation des charges effectuée annuellement.':l.charges_regularisation==='forfaitaire'?'Charges forfaitaires — pas de régularisation.':null;
-    const regInner=regNote?'<div style="margin-top:.5rem;font-size:.76rem;color:var(--stone-l);font-style:italic;border-top:1px solid var(--b2);padding-top:.5rem"><i data-lucide=info class=ic></i> '+regNote+'</div>':'';
+    const regInner='';
 
     const _iw=document.getElementById('d-inclus-wrap');
     const hasContent=inclItems.length||aCharge.length||l.chauffage_type||l.ecs_type;
@@ -2057,14 +2065,14 @@ async function openDet(id){
     const loyerHCStr=loyerHC?'€'+loyerHC+' / mois':null;
 
     let rows='';
-    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)">💶 Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--bleu,#1B4FD8)">'+loyerCC+'</span></div>';
+    if(loyerCC) rows+='<div class="crow" style="font-size:.95rem"><span style="font-weight:700;color:var(--stone)"><i data-lucide="banknote" style="width:14px;height:14px;vertical-align:-2px;color:var(--bleu,#1B4FD8);margin-right:.3rem"></i>Loyer CC</span><span style="font-weight:800;font-size:1.05rem;color:var(--bleu,#1B4FD8)">'+loyerCC+'</span></div>';
     if(loyerHCStr) rows+='<div class="crow"><span style="color:var(--stone-l)">dont loyer HC</span><span style="color:var(--stone)">'+loyerHCStr+'</span></div>';
     if(charges) rows+='<div class="crow"><span style="color:var(--stone-l)">dont charges</span><span style="color:var(--stone)">€'+charges+' / mois</span></div>';
     if(l.depot) rows+='<div class="crow" style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--b2)"><span style="color:var(--stone-l)">Dépôt de garantie</span><span style="color:var(--stone);font-weight:600">€'+l.depot+' <span style="font-size:.72rem;font-weight:400">(remboursé en fin de bail)</span></span></div>';
     if(l.paiement_due_day) rows+='<div class="crow"><span style="color:var(--stone-l)">Loyer exigible le</span><span style="color:var(--stone)">'+(l.paiement_due_day==='last'?'Dernier jour du mois':l.paiement_due_day+' du mois')+'</span></div>';
 
     document.getElementById('din-wrap').innerHTML='<div style="background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:0">'
-      +'<div style="font-size:.98rem;font-weight:700;margin-bottom:.85rem;color:var(--bleu,#1B4FD8)"><i data-lucide=euro class=ic></i> Finances</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">Finances</div>'
       +(badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.6rem">'+badge+'</div>':'')
       +ratingHtml
       +rows+'</div>';
