@@ -3988,6 +3988,15 @@ function renderBailSection(g){
     </div>
     <div style="padding:.75rem .85rem">
 
+      <!-- Bouton bail meublé loi ALUR -->
+      <a href="/bail-meuble.html?booking_id=${bk?.id||''}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:rgba(27,79,216,.1);border:1px solid rgba(27,79,216,.25);border-radius:9px;padding:.55rem .75rem;margin-bottom:.75rem;text-decoration:none;cursor:pointer">
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--bleu)"><i data-lucide=file-text style="vertical-align:middle"></i> Bail meublé loi ALUR</div>
+          <div style="font-size:.67rem;color:var(--td);margin-top:.1rem">Décret n° 2015-587 · 17 articles · e-signature intégrée</div>
+        </div>
+        <div style="font-size:.72rem;font-weight:700;color:var(--bleu);white-space:nowrap">Ouvrir →</div>
+      </a>
+
       <!-- Dates -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
         <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
@@ -4148,11 +4157,22 @@ function renderVisitGroup(g, isPast){
     </div>`:''} 
 
     ${g.statut==='confirmed'?`
-    <div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.6rem .75rem;margin-top:.4rem">
-      <div style="font-size:.78rem;font-weight:600;color:var(--green);margin-bottom:.2rem"><i data-lucide=check-circle-2 class=ic></i> Visite confirmed</div>
-      <div style="font-size:.7rem;color:var(--td)"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
-    </div>
-    ${!g.has_agent?`<div style="margin-top:.4rem"><button class="btn bg bsm" style="font-size:.72rem" onclick="markVisitDone('${g.id}')"><i data-lucide=check-circle-2 class=ic></i> Mark visite as done</button></div>`:`<div style="font-size:.68rem;color:var(--td);margin-top:.3rem"><i data-lucide=hard-hat class=ic></i> Agent handles this visite</div>`}`:''} 
+    <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:.75rem;margin-top:.4rem">
+      <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">
+        <i data-lucide=check-circle-2 style="color:var(--green);flex-shrink:0"></i>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green)">Visite confirmée</div>
+      </div>
+      <div style="font-size:.72rem;color:var(--tm);margin-bottom:.6rem"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
+      ${!g.has_agent?`
+      <div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.2);border-radius:8px;padding:.55rem .65rem;margin-bottom:.5rem">
+        <div style="font-size:.72rem;color:var(--bleu);font-weight:600;margin-bottom:.15rem"><i data-lucide=info class=ic></i> Après la visite</div>
+        <div style="font-size:.68rem;color:var(--td);line-height:1.4">Une fois la visite effectuée, cliquez sur le bouton ci-dessous pour l'indiquer. Cela permettra au locataire de vous faire un retour.</div>
+      </div>
+      <button onclick="markVisitDone('${g.id}')" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.6rem;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.35rem">
+        <i data-lucide=flag></i> Visite terminée ✓
+      </button>`:`
+      <div style="font-size:.68rem;color:var(--td);display:flex;align-items:center;gap:.3rem"><i data-lucide=hard-hat class=ic></i> L'agent s'occupe de cette visite</div>`}
+    </div>`:''}
 
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
