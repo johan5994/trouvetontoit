@@ -165,6 +165,28 @@
     .submit-bar-inner{max-width:840px;margin:0 auto;width:100%;display:flex;gap:.75rem;align-items:center}
     #submit-hint{font-size:.77rem;color:var(--td);flex:1}
 
+    /* TRACK CHANGES */
+    .modif-hl-ll{background:#dbeafe;border-radius:3px;padding:1px 4px;border-bottom:2px solid #3b82f6;cursor:help}
+    .modif-hl-t {background:#fef3c7;border-radius:3px;padding:1px 4px;border-bottom:2px solid #f59e0b;cursor:help}
+    .modifs-panel{background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.4rem;font-size:.79rem}
+    .modifs-panel-hd{display:flex;align-items:center;gap:.5rem;font-weight:700;color:#1e40af;margin-bottom:.7rem}
+    .modif-cnt-badge{background:#3b82f6;color:#fff;border-radius:20px;padding:.05rem .45rem;font-size:.65rem;font-weight:700}
+    .modif-entry{display:flex;gap:.6rem;align-items:flex-start;padding:.4rem 0;border-bottom:1px solid #dbeafe}
+    .modif-entry:last-child{border-bottom:none;padding-bottom:0}
+    .modif-badge{padding:.15rem .45rem;border-radius:12px;font-size:.67rem;font-weight:700;white-space:nowrap;flex-shrink:0;margin-top:.05rem}
+    .modif-badge-ll{background:#dbeafe;color:#1e40af}
+    .modif-badge-t {background:#fef3c7;color:#92400e}
+    .modif-body{flex:1;min-width:0}
+    .modif-date{color:#6b7280;font-size:.7rem;margin-bottom:.2rem}
+    .modif-note{color:#44403c;font-style:italic;line-height:1.45}
+    .modif-champ{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;line-height:1.5}
+    .modif-field{font-weight:600;color:#374151}
+    .modif-old{color:#9ca3af;text-decoration:line-through;font-size:.76rem}
+    .modif-arrow{color:#9ca3af;font-size:.8rem}
+    .modif-new{color:#1d4ed8;font-weight:600}
+    .modif-legend{display:flex;gap:.75rem;align-items:center;margin-top:.65rem;padding-top:.55rem;border-top:1px solid #dbeafe;font-size:.72rem;color:#6b7280}
+    .modif-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;display:inline-block;margin-right:3px;vertical-align:middle}
+
     /* LOADER */
     #loader{text-align:center;padding:4rem 1rem;color:var(--td);font-size:.9rem}
     .spin{display:inline-block;width:28px;height:28px;border:3px solid #E5E7EB;border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.75rem}
@@ -199,6 +221,27 @@
 
 <!-- STATUS BAR -->
 <div id="status-bar"></div>
+
+<!-- NEGOTIATION BAR (non imprimable) -->
+<div id="negoc-bar" style="display:none;background:var(--s2,#f8f9fa);border-bottom:1px solid var(--border);padding:.85rem 1.5rem" class="no-print">
+  <div style="max-width:840px;margin:0 auto;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+    <div id="negoc-step" style="flex:1;min-width:0;font-size:.82rem;font-weight:600"></div>
+    <div id="negoc-actions" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>
+  </div>
+</div>
+
+<!-- MODAL DEMANDE DE MODIFICATION -->
+<div id="modif-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='modif-modal')closeModifModal()">
+  <div style="background:var(--s,#fff);border-radius:16px;padding:1.5rem;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="font-weight:700;font-size:1rem;margin-bottom:.75rem">📝 Demande de modification</div>
+    <div style="font-size:.82rem;color:var(--td);margin-bottom:.75rem">Indiquez au bailleur les points que vous souhaitez modifier ou discuter avant de signer.</div>
+    <textarea id="modif-notes" rows="5" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.65rem;font-size:.83rem;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="ex. Souhait de modifier la durée du bail, date d'entrée, montant des charges…"></textarea>
+    <div style="display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModifModal()">Annuler</button>
+      <button class="btn btn-orange" onclick="submitModifRequest()">Envoyer la demande →</button>
+    </div>
+  </div>
+</div>
 
 <!-- COMPLETER PANEL -->
 <div class="completer-panel" id="completer-panel">
@@ -346,6 +389,9 @@
 
       <!-- BODY -->
       <div class="bail-body">
+
+        <!-- PANNEAU MODIFICATIONS (visible si négociation en cours) -->
+        <div id="modifs-panel" style="display:none" class="modifs-panel no-print"></div>
 
         <!-- PARTIES -->
         <div class="section">
@@ -846,6 +892,34 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
 let myRole=null; // 'landlord'|'tenant'|'garant'|null
+let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
+
+// Labels lisibles des champs traqués
+const FIELD_LABELS={
+  annee_construction:'Année de construction',
+  surface_boutin:'Surface habitable (Boutin)',
+  numero_fiscal:'Numéro fiscal',
+  mode_chauffage:'Mode de chauffage',
+  mode_ecs:'Production ECS',
+  dpe_ges_rating:'DPE GES',
+  diag_amiante:'Diagnostic amiante',
+  diag_plomb:'Diagnostic plomb',
+  diag_elec:'Diagnostic électricité',
+  diag_gaz:'Diagnostic gaz',
+  diag_erp:'ERP',
+  diag_bruit:'Nuisances sonores',
+  regime_copro:'Copropriété',
+  numero_lot:'Numéro de lot',
+  zone_tendue:'Zone tendue',
+  loyer_ref:'Loyer de référence',
+  loyer_ref_majore:'Loyer de référence majoré',
+  garant_name:'Garant — Nom',
+  garant_address:'Garant — Adresse',
+  garant_email:'Garant — Email',
+  garant_phone:'Garant — Téléphone',
+  garant_montant:'Garant — Montant caution',
+  garant_pro:'Garant — Profession',
+};
 const QP=new URLSearchParams(location.search);
 const BOOKING_ID=QP.get('booking_id');
 const LEASE_ID=QP.get('lease_id');
@@ -862,6 +936,64 @@ function toast(msg,dur=3000){
 }
 function dpeColor(c){return{A:'#1E7E34',B:'#28a745',C:'#94C11F',D:'#F5A623',E:'#E67E22',F:'#E74C3C',G:'#C0392B'}[c]||'var(--td)';}
 function gesColor(c){return{A:'#6B21A8',B:'#7E22CE',C:'#A855F7',D:'#F59E0B',E:'#F97316',F:'#EF4444',G:'#991B1B'}[c]||'var(--td)';}
+
+// ── TRACK CHANGES ─────────────────────────────────────────────────────────────
+function buildRecentChanges(){
+  RECENT_SET=new Map();
+  const log=LEASE?.modifs_log;
+  if(!log||!log.length)return;
+  // Dernière entrée bailleur = champs à mettre en surbrillance pour le locataire
+  const lastLlEntry=[...log].reverse().find(e=>e.par==='landlord'&&e.champs?.length);
+  if(lastLlEntry) lastLlEntry.champs.forEach(c=>RECENT_SET.set(c.cle,'landlord'));
+  // Dernière entrée locataire = surlignée en ambre pour le bailleur
+  const lastTEntry=[...log].reverse().find(e=>e.par==='tenant');
+  if(lastTEntry&&lastTEntry.note) RECENT_SET.set('_tenant_note','tenant');
+}
+
+// Renvoie la valeur enveloppée dans un span coloré si le champ a été modifié récemment
+function hl(fieldKey,value){
+  if(!value||value==='—')return value;
+  const who=RECENT_SET.get(fieldKey);
+  if(!who)return value;
+  const cls=who==='landlord'?'modif-hl-ll':'modif-hl-t';
+  const lbl=who==='landlord'?'Modifié par le bailleur':'Demandé par le locataire';
+  return `<span class="${cls}" title="${lbl}">${value}</span>`;
+}
+
+function renderModifsPanel(){
+  const panel=q('modifs-panel');
+  if(!panel)return;
+  const log=LEASE?.modifs_log;
+  if(!log||!log.length){panel.style.display='none';return;}
+
+  const recent=log.slice(-8).reverse(); // 8 dernières entrées, les plus récentes en premier
+  const total=log.length;
+
+  panel.style.display='block';
+  panel.innerHTML=`
+    <div class="modifs-panel-hd">📝 Historique des modifications <span class="modif-cnt-badge">${total}</span></div>
+    <div>
+      ${recent.map(e=>{
+        const d=new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const badge=e.par==='landlord'
+          ?'<span class="modif-badge modif-badge-ll">🔵 Bailleur</span>'
+          :'<span class="modif-badge modif-badge-t">🟠 Locataire</span>';
+        let body='';
+        if(e.note) body+=`<div class="modif-note">« ${e.note} »</div>`;
+        if(e.champs?.length) body+=e.champs.map(c=>`
+          <div class="modif-champ">
+            <span class="modif-field">${c.label}</span> :
+            ${c.ancien!=null?`<span class="modif-old">${c.ancien||'—'}</span><span class="modif-arrow">→</span>`:''}
+            <span class="modif-new">${c.nouveau!=null?c.nouveau:'—'}</span>
+          </div>`).join('');
+        return `<div class="modif-entry">${badge}<div class="modif-body"><div class="modif-date">${d}</div>${body}</div></div>`;
+      }).join('')}
+    </div>
+    <div class="modif-legend">
+      <span><span class="modif-legend-dot" style="background:#dbeafe;border:1px solid #3b82f6"></span>Modifié par le bailleur</span>
+      <span><span class="modif-legend-dot" style="background:#fef3c7;border:1px solid #f59e0b"></span>Demandé par le locataire</span>
+    </div>`;
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 (async()=>{
@@ -928,7 +1060,19 @@ async function loadBail(){
       else if(U.id===LEASE.tenant_id) myRole='tenant';
     }
 
+    // Auto-charger garant depuis dossier si pas encore dans le bail
+    if(!LEASE.garant_name&&LEASE.tenant_id){
+      const{data:dos}=await sb.from('dossiers').select('*').eq('candidat_id',LEASE.tenant_id).eq('has_garant',true).eq('garant_type','physique').order('created_at',{ascending:false}).limit(1).maybeSingle();
+      if(dos?.garant_nom){
+        const gName=[dos.garant_nom,dos.garant_prenom].filter(Boolean).join(' ');
+        const upd={garant_name:gName,garant_address:dos.garant_adresse||null,garant_email:dos.garant_email||null,garant_phone:dos.garant_telephone||null};
+        await sb.from('leases').update(upd).eq('id',LEASE.id);
+        Object.assign(LEASE,upd);
+      }
+    }
+
     renderBail();
+    renderNegocBar();
   }catch(e){showError('Erreur : '+e.message);}
 }
 
@@ -936,6 +1080,9 @@ async function loadBail(){
 function renderBail(){
   const L=LEASE,Li=LISTING;
   const rent=L.rent||0, deposit=L.deposit||(rent*2), charges=L.charges||0;
+
+  buildRecentChanges();   // construire les highlights
+  renderModifsPanel();    // afficher le panneau historique
 
   q('loader').style.display='none';
   q('bail-wrap').style.display='block';
@@ -959,8 +1106,8 @@ function renderBail(){
   if(L.garant_name){partiesHtml+=`
     <div class="partie-card garant-card" style="grid-column:1/-1">
       <div class="role">Le Garant (Caution solidaire)</div>
-      <div class="name">${L.garant_name}</div>
-      <div class="detail">${L.garant_address||''}<br>${L.garant_email||''}<br>${L.garant_phone||''}</div>
+      <div class="name">${hl('garant_name',L.garant_name)}</div>
+      <div class="detail">${hl('garant_address',L.garant_address||'')}<br>${hl('garant_email',L.garant_email||'')}<br>${hl('garant_phone',L.garant_phone||'')}</div>
     </div>`;}
   show('parties-grid',partiesHtml);
   show('sig-ll-name',LL_PROFILE?.full_name||'Bailleur');
@@ -981,7 +1128,7 @@ function renderBail(){
   const items1=[
     {label:'Adresse complète',value:Li?.full_address||'—'},
     {label:'Type de logement',value:Li?.type||'Appartement'},
-    {label:'Surface habitable (loi Boutin)',value:surfBoutin?surfBoutin+' m²':'—'},
+    {label:'Surface habitable (loi Boutin)',value:hl('surface_boutin',surfBoutin?surfBoutin+' m²':'—')},
     {label:'Nombre de pièces',value:Li?.spots?nb(Li.spots)+' pièce'+(Li.spots>1?'s':''):'—'},
     {label:'Étage',value:Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?'/'+Li.total_floors:''):'Rez-de-chaussée ou non renseigné'},
     {label:'Statut',value:'Résidence principale'}
@@ -989,10 +1136,10 @@ function renderBail(){
   show('logement-grid',items1.map(i=>`<div class="info-item"><div class="label">${i.label}</div><div class="value">${i.value}</div></div>`).join(''));
 
   const items2=[
-    {label:'Année de construction',value:anneeCons||'Non renseignée'},
-    {label:'Mode de chauffage',value:modeChauffage},
-    {label:'Production ECS',value:modeEcs},
-    {label:'Numéro fiscal',value:numFiscal},
+    {label:'Année de construction',value:hl('annee_construction',anneeCons||'Non renseignée')},
+    {label:'Mode de chauffage',value:hl('mode_chauffage',modeChauffage)},
+    {label:'Production ECS',value:hl('mode_ecs',modeEcs)},
+    {label:'Numéro fiscal',value:hl('numero_fiscal',numFiscal)},
   ];
   if(L.regime_copro||Li?.regime_copro){items2.push({label:'Copropriété',value:'Oui'+(L.numero_lot?` — lot ${L.numero_lot}`:'')});}
   if(L.cave||Li?.cave){items2.push({label:'Cave',value:'Incluse'});}
@@ -1074,16 +1221,16 @@ function renderBail(){
   const dErp=Li?.diag_erp||L.diag_erp;
   const dBruit=Li?.diag_bruit||L.diag_bruit;
   const diagRows=[
-    {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné'},
-    {name:'GES (Gaz à effet de serre)',oblig:'Toujours obligatoire',res:ges?`Classe ${ges}`:'Non renseigné'},
-    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️',na:'Non applicable'})},
-    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️',na:'Non applicable'})},
-    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(dElec,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Non applicable'})},
-    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(dGaz,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Pas d\'installation gaz'})},
-    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'})},
-    {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'})}
+    {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné',fk:'dpe_ges_rating'},
+    {name:'GES (Gaz à effet de serre)',oblig:'Toujours obligatoire',res:ges?`Classe ${ges}`:'Non renseigné',fk:'dpe_ges_rating'},
+    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️',na:'Non applicable'}),fk:'diag_amiante'},
+    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️',na:'Non applicable'}),fk:'diag_plomb'},
+    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(dElec,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Non applicable'}),fk:'diag_elec'},
+    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(dGaz,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Pas d\'installation gaz'}),fk:'diag_gaz'},
+    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'}),fk:'diag_erp'},
+    {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'}),fk:'diag_bruit'}
   ];
-  show('diag-tbody',diagRows.map(r=>`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na'}">${r.res}</td></tr>`).join(''));
+  show('diag-tbody',diagRows.map(r=>`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na'}">${hl(r.fk,r.res)}</td></tr>`).join(''));
 
   // ERP
   if(dErp==='ok'){
@@ -1158,6 +1305,99 @@ function renderBail(){
 }
 
 // ── STATUS & SIGNATURES ───────────────────────────────────────────────────────
+// ── NÉGOCIATION DU BAIL ───────────────────────────────────────────────────────
+function renderNegocBar(){
+  const L=LEASE;
+  const ns=L.negotiation_status||'draft';
+  const bar=q('negoc-bar'),step=q('negoc-step'),acts=q('negoc-actions');
+  if(!bar)return;
+  // Masquer si déjà signé des deux côtés
+  const allSigned=!!L.landlord_signed_at&&!!L.tenant_signed_at&&(!L.garant_name||!!L.garant_signed_at);
+  if(allSigned){bar.style.display='none';return;}
+  bar.style.display='block';
+
+  const steps={
+    draft:        {label:'📋 Brouillon — En attente d\'envoi au locataire',    color:'#6b7280'},
+    pending_tenant:{label:'📨 Envoyé au locataire — en attente de sa relecture', color:'#1d4ed8'},
+    pending_landlord:{label:'🔄 Le locataire a demandé des modifications',       color:'#d97706'},
+    agreed:       {label:'✅ Modèle accepté par les deux parties — signatures ouvertes', color:'#16a34a'},
+    signed:       {label:'✅ Bail entièrement signé',                            color:'#16a34a'},
+  };
+  const s=steps[ns]||steps.draft;
+  step.innerHTML=`<span style="color:${s.color}">${s.label}</span>`
+    +(L.tenant_notes&&ns==='pending_landlord'?`<div style="font-size:.76rem;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.4rem .65rem;margin-top:.4rem;color:#92400e"><strong>Note du locataire :</strong> ${L.tenant_notes}</div>`:'');
+
+  acts.innerHTML='';
+  const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=label;b.onclick=fn;acts.appendChild(b);};
+
+  if(myRole==='landlord'){
+    if(ns==='draft')                  btn('📨 Envoyer au locataire →','btn-blue',sendToTenant);
+    if(ns==='pending_landlord')       btn('✅ Valider le modèle final →','btn-green',landlordValidateModel);
+    if(ns==='pending_landlord')       btn('📨 Renvoyer au locataire →','btn-outline',sendToTenant);
+    if(ns==='agreed'||ns==='draft')   btn('✏️ Compléter le bail','btn-outline',openCompleter);
+  }
+  if(myRole==='tenant'){
+    if(ns==='pending_tenant'){
+      btn('✅ J\'accepte le modèle','btn-green',tenantAcceptsModel);
+      btn('📝 Demander une modification','btn-orange',openModifModal);
+    }
+    if(ns==='pending_landlord') step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Votre demande a été transmise au bailleur. En attente de sa réponse.</div>`;
+  }
+}
+
+async function sendToTenant(){
+  const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message);return;}
+  LEASE.negotiation_status='pending_tenant';
+  // Message au locataire
+  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
+  toast('✅ Bail envoyé au locataire pour relecture !');
+  renderNegocBar();
+}
+
+async function tenantAcceptsModel(){
+  if(!confirm('Confirmez-vous accepter le modèle du bail tel quel ?')) return;
+  const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString()}).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message);return;}
+  LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
+  // Message au bailleur
+  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`✅ Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
+  toast('✅ Modèle accepté ! Le bail est maintenant prêt pour signature.');
+  renderNegocBar();renderStatusAndSigs();
+}
+
+function openModifModal(){q('modif-modal').style.display='flex';}
+function closeModifModal(){q('modif-modal').style.display='none';}
+
+async function submitModifRequest(){
+  const notes=q('modif-notes')?.value?.trim();
+  if(!notes){toast('⚠️ Décrivez votre demande');return;}
+  // Logger la demande du locataire dans le journal
+  const tenantEntry={par:'tenant',date:new Date().toISOString(),champs:[],note:notes};
+  const newLog=[...(LEASE.modifs_log||[]),tenantEntry];
+  const{error}=await sb.from('leases').update({negotiation_status:'pending_landlord',tenant_notes:notes,modifs_log:newLog}).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message);return;}
+  LEASE.negotiation_status='pending_landlord';LEASE.tenant_notes=notes;LEASE.modifs_log=newLog;
+  // Message au bailleur
+  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`📝 Le locataire a demandé des modifications au bail :\n\n« ${notes} »\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
+  closeModifModal();toast('✅ Demande envoyée au bailleur !');
+  renderNegocBar();
+}
+
+async function landlordValidateModel(){
+  if(!confirm('Confirmer le modèle final ? Le locataire pourra ensuite signer.')) return;
+  const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString(),tenant_notes:null}).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message);return;}
+  LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
+  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`✅ Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
+  toast('✅ Modèle validé ! Signatures ouvertes.');
+  renderNegocBar();renderStatusAndSigs();
+}
+
 function renderStatusAndSigs(){
   const L=LEASE;
   const llSigned=!!L.landlord_signed_at, tSigned=!!L.tenant_signed_at;
@@ -1172,28 +1412,35 @@ function renderStatusAndSigs(){
   else if(llSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='🔵 Bail signé par le bailleur — en attente de la signature du locataire';}
   else{sb2.className='sb-pending';sb2.innerHTML='⏳ Bail en attente de signatures';}
 
+  // Bloquer signatures si modèle pas encore accepté
+  const ns=L.negotiation_status||'agreed'; // rétrocompat: pas de statut = signable direct
+  const canSign=ns==='agreed'||ns==='signed'||!ns;
+
   // Sig bailleur
   if(llSigned&&L.landlord_signature){
     show('sig-ll-pad-area',`<div class="sig-done"><img src="${L.landlord_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature bailleur"><div class="ts">✅ Signé le ${fmtDate(L.landlord_signed_at)}</div></div>`);
-  }else if(myRole==='landlord'&&!llSigned){
+  }else if(myRole==='landlord'&&!llSigned&&canSign){
     show('sig-ll-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-ll" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('ll')">Effacer</button><button class="sign" onclick="prepareSign('ll')">Valider →</button></div>`);
     setTimeout(()=>initCanvas('ll'),50);
+  }else if(myRole==='landlord'&&!llSigned&&!canSign){
+    show('sig-ll-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-ll-pad-area','<div class="sig-awaiting">—</div>');}
 
   // Sig locataire
   if(tSigned&&L.tenant_signature){
     show('sig-t-pad-area',`<div class="sig-done"><img src="${L.tenant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature locataire"><div class="ts">✅ Signé le ${fmtDate(L.tenant_signed_at)}</div></div>`);
-  }else if(myRole==='tenant'&&!tSigned){
+  }else if(myRole==='tenant'&&!tSigned&&canSign){
     if(!llSigned){show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente de la signature du bailleur d\'abord</div>');}
     else{show('sig-t-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-t" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('t')">Effacer</button><button class="sign" onclick="prepareSign('t')">Valider →</button></div>`);setTimeout(()=>initCanvas('t'),50);}
+  }else if(myRole==='tenant'&&!tSigned&&!canSign){
+    show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-t-pad-area','<div class="sig-awaiting">—</div>');}
 
   // Sig garant
   if(L.garant_name){
     if(gSigned&&L.garant_signature){
       show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts">✅ Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
-    }else if(!gSigned&&llSigned&&tSigned){
-      // garant can sign via link — for now just show pad if identified
+    }else if(!gSigned&&llSigned&&tSigned&&canSign){
       show('sig-g-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-g" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('g')">Effacer</button><button class="sign" onclick="prepareSign('g')">Valider →</button></div>`);
       setTimeout(()=>initCanvas('g'),50);
     }else{show('sig-g-pad-area','<div class="sig-awaiting">⏳ Attend la signature des deux parties</div>');}
@@ -1202,6 +1449,7 @@ function renderStatusAndSigs(){
   // Submit bar
   const hint=q('submit-hint'),btn=q('submit-btn');
   if(allSigned){hint.textContent='✅ Bail entièrement signé. Téléchargez-le en PDF.';btn.style.display='none';}
+  else if(!canSign){hint.textContent='⏳ Bail en cours de négociation — signatures disponibles une fois le modèle accepté.';btn.style.display='none';}
   else if(myRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que bailleur';}
   else if(myRole==='landlord'&&llSigned){hint.innerHTML='✅ Vous avez signé. Envoyez ce lien au locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'</code>';btn.style.display='none';}
   else if(myRole==='tenant'&&!tSigned&&llSigned){hint.textContent='Le bailleur a signé. Dessinez votre signature pour finaliser.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que locataire';}
@@ -1368,13 +1616,29 @@ async function saveCompleter(){
     garant_montant:gb('cp-has-garant')?gn('cp-garant-montant'):null,
     garant_pro:gb('cp-has-garant')?gv('cp-garant-pro'):null
   };
+
+  // ── Détecter les champs modifiés et construire l'entrée du log ──
+  const changedChamps=[];
+  for(const [k,v] of Object.entries(upd)){
+    if(!FIELD_LABELS[k]) continue;
+    const old=LEASE[k];
+    if(String(v??'')!==String(old??'')){
+      changedChamps.push({cle:k,label:FIELD_LABELS[k],ancien:old??null,nouveau:v??null});
+    }
+  }
+  if(changedChamps.length){
+    const entry={par:'landlord',date:new Date().toISOString(),champs:changedChamps,note:null};
+    const newLog=[...(LEASE.modifs_log||[]),entry];
+    upd.modifs_log=newLog;
+  }
+
   // remove null keys to avoid overwriting existing data accidentally
-  Object.keys(upd).forEach(k=>{if(upd[k]===null)delete upd[k];});
+  Object.keys(upd).forEach(k=>{if(upd[k]===null&&k!=='modifs_log')delete upd[k];});
 
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
   if(error){toast('⚠️ Erreur d\'enregistrement : '+error.message,5000);return;}
   Object.assign(LEASE,upd);
-  toast('✅ Bail mis à jour');
+  toast('✅ Bail mis à jour'+(changedChamps.length?` — ${changedChamps.length} modification(s) enregistrée(s)`:''));
   renderBail();
   toggleCompleter();
 }
