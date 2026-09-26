@@ -6172,6 +6172,60 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
 
   const coLocataireIds=coLocatairesFull.filter(c=>c.hasAccount&&c.locataire_id).map(c=>c.locataire_id);
 
+  // ── Charger les garants disponibles depuis les dossiers du locataire ──────
+  let _availableGarants=[];
+  try{
+    const{data:dosG}=await sb.from('dossiers')
+      .select('id,garant_nom,garant_prenom,garant_email,garant_telephone,garant_adresse,garant_profession,garant_lien,garant_revenus')
+      .eq('candidat_id',U.id).eq('has_garant',true).eq('garant_type','physique')
+      .not('garant_nom','is',null).order('created_at',{ascending:false});
+    if(dosG){
+      const seen=new Set();
+      for(const d of dosG){
+        const k=`${d.garant_nom||''}|${d.garant_prenom||''}`;
+        if(!seen.has(k)){seen.add(k);_availableGarants.push(d);}
+      }
+    }
+  }catch(e){}
+
+  // Stocke les data garant par id pour le submit
+  const _garantsById={};
+  _availableGarants.forEach(g=>{_garantsById[g.id]=g;});
+
+  function _buildGarantSection(){
+    const lienLbl={parent:'Parent',conjoint:'Conjoint(e)',ami:'Ami(e)',employeur:'Employeur',autre:'Autre'};
+    if(!_availableGarants.length){
+      return `<div style="background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem">
+        <div style="font-weight:700;margin-bottom:.25rem">🛡️ Garant</div>
+        <div style="color:var(--td)">Aucun garant renseigné dans vos dossiers.
+          <a href="./dossier-locataire.html" target="_blank" style="color:var(--bleu);font-weight:600">Compléter mon dossier →</a>
+        </div>
+      </div>`;
+    }
+    return `<div style="background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem">
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:.55rem">🛡️ Sélectionner un ou plusieurs garants</div>
+      <div style="display:flex;flex-direction:column;gap:.35rem" id="garant-select-list">
+        ${_availableGarants.map(g=>{
+          const name=[g.garant_prenom,g.garant_nom].filter(Boolean).join(' ');
+          const sub=[lienLbl[g.garant_lien]||g.garant_lien,g.garant_profession,g.garant_revenus?g.garant_revenus.toLocaleString('fr-FR')+' €/mois':null].filter(Boolean).join(' · ');
+          return `<label id="garant-lbl-${g.id}" style="display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:8px;padding:.5rem .65rem;cursor:pointer;transition:all .15s">
+            <input type="checkbox" id="garant-chk-${g.id}" onchange="(function(id){const lbl=document.getElementById('garant-lbl-'+id);lbl.style.borderColor=this.checked?'var(--bleu)':'var(--b)';lbl.style.background=this.checked?'#EFF6FF':'var(--s)';}).call(this,'${g.id}')" style="width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0;cursor:pointer">
+            <div style="min-width:0">
+              <div style="font-size:.83rem;font-weight:700;color:var(--txt)">${name}</div>
+              ${sub?`<div style="font-size:.71rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>`:''}
+            </div>
+          </label>`;
+        }).join('')}
+      </div>
+      <div style="font-size:.68rem;color:var(--td);margin-top:.4rem">Optionnel — cochez les personnes qui se portent caution solidaire pour ce bien.</div>
+    </div>`;
+  }
+
+  function _getSelectedGarants(){
+    return _availableGarants.filter(g=>document.getElementById('garant-chk-'+g.id)?.checked)
+      .map(g=>({dossier_id:g.id,nom:g.garant_nom,prenom:g.garant_prenom,email:g.garant_email,telephone:g.garant_telephone,adresse:g.garant_adresse,profession:g.garant_profession,lien:g.garant_lien,revenus:g.garant_revenus}));
+  }
+
   // Une agence gérée directement — pas de frais Trouve Ton Toit côté locataire,
   // donc pas besoin de carte ni de Stripe, on envoie la candidature directement
   if(isAgence){
@@ -6186,6 +6240,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
           <div style="font-weight:700;color:var(--green)"><i data-lucide=building-2 class=ic></i> ce logement is managed by an agence</div>
           <div style="font-size:.7rem;color:var(--td);margin-top:.3rem">You pay nothing to Trouve Ton Toit to apply — no card needed.</div>
         </div>
+        ${_buildGarantSection()}
         <div id="loyer-pay-erreur" style="color:var(--red);font-size:.78rem;margin-bottom:.5rem;display:none"></div>
         <div style="display:flex;gap:.5rem">
           <button id="loyer-pay-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>
@@ -6200,6 +6255,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       errEl.style.display='none';
       btn.textContent='Sending...';btn.disabled=true;
       try{
+        const selectedGarants=_getSelectedGarants();
         const{error:bookingErreur}=await sb.from('bookings').insert({
           listing_id:listingId,locataire_id:U.id,landlord_id:landlordId,
           locataire_name:P?.full_name||'',locataire_email:P?.email||'',
@@ -6209,7 +6265,9 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
           negotiation_note:negotiationNote||null,
           requested_extras:extras.length?JSON.stringify(extras):null,
           co_locataire_ids:coLocataireIds.length?JSON.stringify(coLocataireIds):null,
-          co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null
+          co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null,
+          garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map(g=>g.dossier_id)):null,
+          garant_data:selectedGarants.length?JSON.stringify(selectedGarants):null
         });
         if(bookingErreur)throw new Error(bookingErreur.message);
         try{await sb.from('listings').update({status:'reserved',reserved_by:U.id}).eq('id',listingId);}catch(e){}
@@ -6250,6 +6308,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         ${agentDirectAmount?`<div style="margin-top:.5rem;padding-top:.5rem;border-top:1px dashed var(--b)"><div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tm)"><span><i data-lucide=handshake class=ic></i> Agent fee (${agentMustCreate?40:30}%) — paid directly to votre agent, not here</span><span>€${agentDirectAmount}</span></div></div>`:''}
         <div style="font-size:.65rem;color:var(--td);margin-top:.4rem"><i data-lucide=heart class=ic></i> This is only charged once the propriétaire accepts votre request. If declined, nothing is taken. You'll then pay depot + first month directly to the propriétaire.</div>
       </div>
+      ${_buildGarantSection()}
       <div id="loyer-pay-card" style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:1rem;margin-bottom:.75rem"></div>
       <div id="loyer-pay-erreur" style="color:var(--red);font-size:.78rem;margin-bottom:.5rem;display:none"></div>
       <div style="display:flex;gap:.5rem">
@@ -6287,6 +6346,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       const{error:erreur,paymentIntent:paiementIntent}=await stripeInstance.confirmCardPayment(data.client_secret,{payment_method:{card}});
       if(erreur)throw new Error(erreur.message);
 
+      const selectedGarants=_getSelectedGarants();
       const{error:bookingErreur}=await sb.from('bookings').insert({
         listing_id:listingId,locataire_id:U.id,landlord_id:landlordId,
         locataire_name:P?.full_name||'',locataire_email:P?.email||'',
@@ -6298,7 +6358,9 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         negotiation_note:negotiationNote||null,
         requested_extras:extras.length?JSON.stringify(extras):null,
         co_locataire_ids:coLocataireIds.length?JSON.stringify(coLocataireIds):null,
-        co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null
+        co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null,
+        garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map(g=>g.dossier_id)):null,
+        garant_data:selectedGarants.length?JSON.stringify(selectedGarants):null
       });
       if(bookingErreur)throw new Error(bookingErreur.message);
 
