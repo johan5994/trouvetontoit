@@ -620,7 +620,15 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <label class="cl"><input type="checkbox" id="zt-non" onchange="setZoneTendue('non',this)"> Hors zone tendue</label>
           </div>
           <input type="hidden" id="p-zone-tendue" value="">
+          <div id="zt-loyers-wrap" style="display:none;margin-top:.6rem;display:none;gap:.5rem;flex-direction:column">
+            <div style="font-size:.72rem;color:var(--stone-l);line-height:1.4"><i data-lucide=info class=ic></i> Loyers de référence (€/m²) — consultez l'observatoire local des loyers</div>
+            <div style="display:flex;gap:.5rem">
+              <div style="flex:1"><label style="font-size:.75rem;font-weight:600">Loyer référence €/m²</label><input class="fi" type="number" step="0.01" id="p-loyer-ref" placeholder="ex. 22.50" min="0"></div>
+              <div style="flex:1"><label style="font-size:.75rem;font-weight:600">Loyer référence majoré €/m²</label><input class="fi" type="number" step="0.01" id="p-loyer-ref-maj" placeholder="ex. 27.00" min="0"></div>
+            </div>
+          </div>
         </div>
+        <div class="fg2"><label>Surface Boutin (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">surface habitable loi Boutin</span></label><input class="fi" type="number" step="0.01" id="p-surface-boutin" placeholder="ex. 32.5" min="1"></div>
         <!-- hidden: auto-remplis par géocodage -->
         <input type="hidden" id="p-commune">
         <input type="hidden" id="pz">
@@ -845,6 +853,59 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
         <div id="dpe-warning" style="display:none;grid-column:1/-1;background:rgba(201,85,58,.07);border:1px solid rgba(201,85,58,.3);border-radius:8px;padding:.7rem 1rem;font-size:.78rem;color:var(--terra);line-height:1.5">
           <i data-lucide=alert-triangle class=ic></i>️ <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022). Interdiction progressive de mise en location : G dès 2025, F dès 2028.
+        </div>
+      </div>
+
+      <!-- ═══ 6b. DIAGNOSTICS OBLIGATOIRES ═══ -->
+      <div class="fsect-hd"><i data-lucide=clipboard-list class=ic></i> Diagnostics obligatoires</div>
+      <div class="frow">
+        <div class="fg2"><label>Amiante <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">permis de construire avant juil. 1997</span></label>
+          <select class="fi" id="p-diag-amiante" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="absence">Absence constatée ✅</option>
+            <option value="presence">Présence détectée — surveillance</option>
+            <option value="travaux">Amiante — travaux requis ⚠️</option>
+            <option value="na">Non applicable (bien après 1997)</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Plomb / CREP <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">immeuble avant 1949</span></label>
+          <select class="fi" id="p-diag-plomb" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="absence">Absence constatée ✅</option>
+            <option value="presence">Présence &lt; seuil réglementaire</option>
+            <option value="risque">Risque d'exposition ⚠️</option>
+            <option value="na">Non applicable (bien après 1949)</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Électricité <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">installation &gt; 15 ans</span></label>
+          <select class="fi" id="p-diag-elec" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="conforme">Conforme ✅</option>
+            <option value="anomalie">Anomalie(s) détectée(s) ⚠️</option>
+            <option value="na">Non applicable / &lt; 15 ans</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Gaz <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">installation &gt; 15 ans</span></label>
+          <select class="fi" id="p-diag-gaz" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="conforme">Conforme ✅</option>
+            <option value="anomalie">Anomalie(s) détectée(s) ⚠️</option>
+            <option value="na">Pas d'installation gaz</option>
+          </select>
+        </div>
+        <div class="fg2"><label>État des risques (ERP) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">zones inondation, sismicité…</span></label>
+          <select class="fi" id="p-diag-erp" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="ok">Fourni au locataire ✅</option>
+            <option value="na">Hors zone à risque</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Nuisances sonores (IAB) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">arrêté préfectoral</span></label>
+          <select class="fi" id="p-diag-bruit" style="cursor:pointer">
+            <option value="">Non renseigné</option>
+            <option value="non">Zone non concernée</option>
+            <option value="oui">Zone de bruit — IAB annexé</option>
+          </select>
         </div>
       </div>
 
@@ -1483,6 +1544,10 @@ function confirmRoleChoice(role,icon,label,description){
 async function setRoleAndContinue(role) {
   const modal = document.getElementById('role-picker-modal');
   if(modal) modal.remove();
+
+  // Normalise — accepte aussi bien 'locataire'/'bailleur' que 'tenant'/'landlord'
+  const ROLE_MAP={'locataire':'locataire','tenant':'locataire','bailleur':'bailleur','landlord':'bailleur','agency':'agency','admin':'admin','agent':'agent'};
+  role=ROLE_MAP[role]||role;
 
   try {
     if(!U){toast('<i data-lucide=x-circle class=ic></i> Pbail sign in first');return;}
@@ -2425,6 +2490,8 @@ function setTB(el,v){
 function setZoneTendue(v,cb){
   ['oui','non'].forEach(m=>{const el=document.getElementById('zt-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
   document.getElementById('p-zone-tendue').value=cb.checked?v:'';
+  const wrap=document.getElementById('zt-loyers-wrap');
+  if(wrap)wrap.style.display=(cb.checked&&v==='oui')?'flex':'none';
 }
 function setAscenseurFromCb(v,cb){
   ['oui','non'].forEach(m=>{
@@ -2914,6 +2981,15 @@ async function doPost(){
     eau_froide_facturation: document.getElementById('p-eau-froide')?.value||null,
     electricite_situation: document.getElementById('p-electricite-situation')?.value||null,
     charges_regularisation: document.getElementById('p-charges-regularisation')?.value||null,
+    surface_boutin: parseFloat(document.getElementById('p-surface-boutin')?.value)||null,
+    loyer_reference: parseFloat(document.getElementById('p-loyer-ref')?.value)||null,
+    loyer_reference_majore: parseFloat(document.getElementById('p-loyer-ref-maj')?.value)||null,
+    diag_amiante: document.getElementById('p-diag-amiante')?.value||null,
+    diag_plomb: document.getElementById('p-diag-plomb')?.value||null,
+    diag_elec: document.getElementById('p-diag-elec')?.value||null,
+    diag_gaz: document.getElementById('p-diag-gaz')?.value||null,
+    diag_erp: document.getElementById('p-diag-erp')?.value||null,
+    diag_bruit: document.getElementById('p-diag-bruit')?.value||null,
   };
   if(annonce){
     const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
