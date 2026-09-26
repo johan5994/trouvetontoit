@@ -6172,25 +6172,32 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
 
   const coLocataireIds=coLocatairesFull.filter(c=>c.hasAccount&&c.locataire_id).map(c=>c.locataire_id);
 
-  // ── Charger les garants disponibles depuis les dossiers du locataire ──────
+  // ── Charger les garants depuis profiles.dossier_data (étape 5 = garant) ──
   let _availableGarants=[];
   try{
-    const{data:dosG}=await sb.from('dossiers')
-      .select('id,garant_nom,garant_prenom,garant_email,garant_telephone,garant_adresse,garant_profession,garant_lien,garant_revenus')
-      .eq('candidat_id',U.id).eq('has_garant',true).eq('garant_type','physique')
-      .not('garant_nom','is',null).order('created_at',{ascending:false});
-    if(dosG){
-      const seen=new Set();
-      for(const d of dosG){
-        const k=`${d.garant_nom||''}|${d.garant_prenom||''}`;
-        if(!seen.has(k)){seen.add(k);_availableGarants.push(d);}
-      }
+    const dd=P?.dossier_data
+      ? (typeof P.dossier_data==='string'?JSON.parse(P.dossier_data):P.dossier_data)
+      : dossierState;
+    const step5=dd?.[5];
+    if(step5?.type==='garant_personne'){
+      const garants=step5.garants||[{garant_name:step5.garant_name||{},garant_subs:step5.garant_subs||{}}];
+      garants.forEach((g,i)=>{
+        const gn=g.garant_name||{};
+        if(!gn.nom&&!gn.prenom) return; // garant vide
+        _availableGarants.push({
+          id:'garant_'+i,
+          garant_prenom:gn.prenom||null,
+          garant_nom:gn.nom||null,
+          garant_email:gn.email||null,
+          garant_telephone:null,
+          garant_adresse:null,
+          garant_profession:null,
+          garant_lien:null,
+          garant_revenus:null
+        });
+      });
     }
-  }catch(e){}
-
-  // Stocke les data garant par id pour le submit
-  const _garantsById={};
-  _availableGarants.forEach(g=>{_garantsById[g.id]=g;});
+  }catch(e){console.warn('_availableGarants:',e);}
 
   function _buildGarantSection(){
     const lienLbl={parent:'Parent',conjoint:'Conjoint(e)',ami:'Ami(e)',employeur:'Employeur',autre:'Autre'};
@@ -6198,7 +6205,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       return `<div style="background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem">
         <div style="font-weight:700;margin-bottom:.25rem">🛡️ Garant</div>
         <div style="color:var(--td)">Aucun garant renseigné dans vos dossiers.
-          <a href="./dossier-locataire.html" target="_blank" style="color:var(--bleu);font-weight:600">Compléter mon dossier →</a>
+          <a href="#" onclick="sp('profil',document.querySelector('.ni[onclick*=profil]'));return false" style="color:var(--bleu);font-weight:600">Compléter mon profil →</a>
         </div>
       </div>`;
     }
@@ -6223,7 +6230,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
 
   function _getSelectedGarants(){
     return _availableGarants.filter(g=>document.getElementById('garant-chk-'+g.id)?.checked)
-      .map(g=>({dossier_id:g.id,nom:g.garant_nom,prenom:g.garant_prenom,email:g.garant_email,telephone:g.garant_telephone,adresse:g.garant_adresse,profession:g.garant_profession,lien:g.garant_lien,revenus:g.garant_revenus}));
+      .map(g=>({nom:g.garant_nom,prenom:g.garant_prenom,email:g.garant_email,telephone:g.garant_telephone,adresse:g.garant_adresse,profession:g.garant_profession,lien:g.garant_lien,revenus:g.garant_revenus}));
   }
 
   // Une agence gérée directement — pas de frais Trouve Ton Toit côté locataire,
@@ -6266,7 +6273,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
           requested_extras:extras.length?JSON.stringify(extras):null,
           co_locataire_ids:coLocataireIds.length?JSON.stringify(coLocataireIds):null,
           co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null,
-          garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map(g=>g.dossier_id)):null,
+          garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map((_,i)=>i)):null,
           garant_data:selectedGarants.length?JSON.stringify(selectedGarants):null
         });
         if(bookingErreur)throw new Error(bookingErreur.message);
@@ -6359,7 +6366,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         requested_extras:extras.length?JSON.stringify(extras):null,
         co_locataire_ids:coLocataireIds.length?JSON.stringify(coLocataireIds):null,
         co_locataires_data:coLocatairesFull.length?JSON.stringify(coLocatairesFull):null,
-        garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map(g=>g.dossier_id)):null,
+        garant_ids:selectedGarants.length?JSON.stringify(selectedGarants.map((_,i)=>i)):null,
         garant_data:selectedGarants.length?JSON.stringify(selectedGarants):null
       });
       if(bookingErreur)throw new Error(bookingErreur.message);
