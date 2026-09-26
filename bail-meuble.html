@@ -968,9 +968,15 @@ function renderBail(){
 
   // Logement grid 1
   const anneeCons=L.annee_construction||Li?.annee_construction;
-  const surfBoutin=L.surface_boutin||Li?.sqm;
-  const modeChauffage=L.mode_chauffage||'Non renseigné';
-  const modeEcs=L.mode_ecs||'Non renseigné';
+  const surfBoutin=L.surface_boutin||Li?.surface_boutin||Li?.sqm;
+  // Chauffage — lecture depuis listing (colonnes réelles) en priorité
+  const _eeMap={gaz:'Gaz naturel',elec:'Électrique',fioul:'Fioul',pac:'Pompe à chaleur',bois:'Bois/Granulés',reseau:'Réseau de chaleur'};
+  const modeChauffage=Li?.chauffage_type
+    ?(Li.chauffage_type==='collectif'?'Collectif':'Individuel')+(Li.chauffage_mode?' — '+(_eeMap[Li.chauffage_mode]||Li.chauffage_mode):'')
+    :(L.mode_chauffage||'Non renseigné');
+  const modeEcs=Li?.ecs_type
+    ?(Li.ecs_type==='collectif'?'Collectif':'Individuel (chauffe-eau)')+(Li.ecs_energie?' — '+(_eeMap[Li.ecs_energie]||Li.ecs_energie):'')
+    :(L.mode_ecs||'Non renseigné');
   const numFiscal=L.numero_fiscal||'—';
   const items1=[
     {label:'Adresse complète',value:Li?.full_address||'—'},
@@ -998,8 +1004,11 @@ function renderBail(){
   if(feats.length)show('equipements-block','<p>Équipements inclus : '+feats.join(', ')+'.</p>');
 
   // Zone tendue
-  if(L.zone_tendue||Li?.zone_tendue){
-    const refMaj=L.loyer_ref_majore||'—';const ref=L.loyer_ref||'—';
+  // Loyers de référence — listing en priorité
+  const loyerRef=Li?.loyer_reference||L.loyer_ref;
+  const loyerRefMaj=Li?.loyer_reference_majore||L.loyer_ref_majore;
+  if(L.zone_tendue||Li?.zone_tendue==='oui'){
+    const refMaj=loyerRefMaj||'—';const ref=loyerRef||'—';
     show('zone-tendue-block',`<div class="alert-red">🏙️ <strong>Zone tendue — Encadrement des loyers applicable</strong><br>
       Loyer de référence : <strong>${ref} €/m²</strong> · Loyer de référence majoré : <strong>${refMaj} €/m²</strong><br>
       Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
@@ -1021,11 +1030,11 @@ function renderBail(){
   }
 
   // Encadrement
-  if(L.zone_tendue){
+  if(L.zone_tendue||Li?.zone_tendue==='oui'){
     const s=surfBoutin,lpraM2=s?(rent/s).toFixed(2):null;
     show('encadrement-block',`<div class="alert-red" style="margin-top:.5rem">📋 <strong>Encadrement des loyers (zone tendue)</strong><br>
-      Loyer de référence majoré : <strong>${fmt(L.loyer_ref_majore)}/m²</strong> · Surface : <strong>${s||'?'} m²</strong><br>
-      Loyer maximum autorisé : <strong>${s&&L.loyer_ref_majore?fmt(s*L.loyer_ref_majore):' —'}</strong> · Loyer pratiqué : <strong>${fmt(rent)}</strong><br>
+      Loyer de référence majoré : <strong>${loyerRefMaj?fmt(loyerRefMaj)+'/m²':'—'}</strong> · Surface : <strong>${s||'?'} m²</strong><br>
+      Loyer maximum autorisé : <strong>${s&&loyerRefMaj?fmt(s*loyerRefMaj):' —'}</strong> · Loyer pratiqué : <strong>${fmt(rent)}</strong><br>
       <em>Tout complément de loyer éventuel doit être justifié par des caractéristiques exceptionnelles.</em></div>`);
   }
 
@@ -1040,8 +1049,9 @@ function renderBail(){
     show('bills-block','<div class="highlight">✅ Charges comprises dans le loyer — eau, électricité, internet inclus.</div>');
   }
 
-  // DPE
-  const epc=Li?.epc_rating,ges=L.dpe_ges_rating;
+  // DPE — lecture depuis listing (colonnes réelles : dpe, ges)
+  const epc=Li?.dpe||Li?.epc_rating;
+  const ges=Li?.ges||L.dpe_ges_rating;
   let dpeHtml='';
   if(epc){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:${dpeColor(epc)}">${epc}</div><div class="dpe-sub">kWhEP/m²/an</div></div>`;}
   else{dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:var(--td)">—</div><div class="dpe-sub">non renseigné</div></div>`;}
@@ -1056,20 +1066,27 @@ function renderBail(){
 
   // Diagnostics
   const getLabel=(v,map)=>map[v]||v||'—';
+  // Diagnostics — listing en priorité, fallback lease
+  const dAmiante=Li?.diag_amiante||L.diag_amiante;
+  const dPlomb=Li?.diag_plomb||L.diag_plomb;
+  const dElec=Li?.diag_elec||L.diag_elec;
+  const dGaz=Li?.diag_gaz||L.diag_gaz;
+  const dErp=Li?.diag_erp||L.diag_erp;
+  const dBruit=Li?.diag_bruit||L.diag_bruit;
   const diagRows=[
     {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné'},
     {name:'GES (Gaz à effet de serre)',oblig:'Toujours obligatoire',res:ges?`Classe ${ges}`:'Non renseigné'},
-    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(L.diag_amiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️'})},
-    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(L.diag_plomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️'})},
-    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(L.diag_elec,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️'})},
-    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(L.diag_gaz,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️'})},
-    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(L.diag_erp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'})},
-    {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(L.diag_bruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'})}
+    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️',na:'Non applicable'})},
+    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️',na:'Non applicable'})},
+    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(dElec,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Non applicable'})},
+    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(dGaz,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Pas d\'installation gaz'})},
+    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'})},
+    {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'})}
   ];
   show('diag-tbody',diagRows.map(r=>`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na'}">${r.res}</td></tr>`).join(''));
 
   // ERP
-  if(L.diag_erp==='ok'){
+  if(dErp==='ok'){
     show('diag-erp-block','<p>L\'état des risques et pollutions (ERP) a été communiqué au locataire, qui reconnaît en avoir pris connaissance. Ce document est établi conformément à l\'arrêté préfectoral en vigueur.</p>');
   }
 
@@ -1097,7 +1114,7 @@ function renderBail(){
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)'},
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives'},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
-    ...(L.diag_amiante&&L.diag_amiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)'}]:[]),
+    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)'}]:[]),
     ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)'}]:[]),
     ...(L.garant_name?[{n:10,txt:'Acte de caution solidaire (ci-après)'}]:[])
   ];
