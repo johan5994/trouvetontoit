@@ -1289,7 +1289,9 @@ async function fetchVisitAndApplicationGroups(){
       else if(bst==='declined') statut='declined';
       else if(['edl_scheduled','signing_day','move_in_ready'].includes(bst)) statut=bst;
     }
-    return{...v,booking,statut,has_agent,
+    // Si visit.tenant_id null, utiliser booking.tenant_id ou booking.locataire_id
+    const effectiveTenantId=v.tenant_id||booking?.tenant_id||booking?.locataire_id||null;
+    return{...v,tenant_id:effectiveTenantId,booking,statut,has_agent,
       listing_title:annonce?.title||v.listing_title||null,
       full_address:annonce?.full_address||null,
       zone:annonce?.zone||v.zone||null,
@@ -1315,8 +1317,8 @@ async function fetchVisitAndApplicationGroups(){
     else if(bst2==='locataire_ghosted') displayStatut='locataire_ghosted';
     else displayStatut=bst2;
     return{
-      id:'bk_'+b.id,listing_id:b.listing_id,tenant_id:b.tenant_id,
-      tenant_name:b.tenant_name,statut:displayStatut,booking:b,landlord_id:U.id,
+      id:'bk_'+b.id,listing_id:b.listing_id,tenant_id:b.tenant_id||b.locataire_id||null,
+      tenant_name:b.tenant_name||b.locataire_name||null,statut:displayStatut,booking:b,landlord_id:U.id,
       listing_title:annonce?.title||null,zone:annonce?.zone||null,
       listing_price:annonce?.price||null,has_agent:!!(annonce?.wants_agent&&annonce?.agent_service==='full'),
       agency_annonce:!!annonce?.agency_annonce
@@ -1699,7 +1701,7 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
 
     // 1 — Capturer Holding Dépôt de garantie
     try{
-      const res=await fetch('/.netlify/functions/holding-depot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'propriétaire_accepter',booking_id:bookingId})});
+      const res=await fetch('/.netlify/functions/holding-depot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'landlord_accept',booking_id:bookingId})});
       const d=await res.json();
       if(!d.success&&!d.erreur?.includes('already'))console.warn('Holding:',d.erreur);
     }catch(e){console.warn('Holding:',e.message);}
@@ -4214,7 +4216,8 @@ function renderVisitGroup(g, isPast){
 
 async function loadLocataireDossierForLL(locataireId){
   try{
-    const{data:p}=await sb.from('profiles').select('full_name,nationality,phone,vérifié,id_submitted,documents').eq('clerk_id',locataireId).maybeSingle();
+    const{data:p,error:profErr}=await sb.from('profiles').select('*').eq('clerk_id',locataireId).maybeSingle();
+    if(profErr)console.warn('loadLocataireDossierForLL error:',profErr.message);
     if(!p)return;
     const nat=document.getElementById('t-nat-'+locataireId);
     const ver=document.getElementById('t-ver-'+locataireId);
@@ -4866,14 +4869,14 @@ async function acceptDirectBooking(listingId, locataireId){
   try{
     // Empêcher d'accepter deux locataires pour le même bien — vérifier
     // qu'aucune autre réservation n'est déjà en cours pour cette annonce
-    const{data:existingActif}=await sb.from('bookings').select('id,tenant_id').eq('listing_id',listingId).neq('tenant_id',locataireId).in('statut',['accepté','bail_en attente','edl_scheduled','signing_day','move_in_ready']).limit(1);
+    const{data:existingActif}=await sb.from('bookings').select('id,tenant_id').eq('listing_id',listingId).neq('tenant_id',locataireId).in('status',['accepted','bail_en attente','edl_scheduled','signing_day','move_in_ready']).limit(1);
     if(existingActif&&existingActif.length){
       toast('<i data-lucide=x-circle class=ic></i> ce logement already has another accepté locataire — decline this application first if that\'s a mistake, or check Mes annonces.');
       return;
     }
 
     // Trouver le booking avec co-locataires
-    const{data:booking}=await sb.from('bookings').select('*').eq('listing_id',listingId).eq('tenant_id',locataireId).in('statut',['en attente','booking_en attente']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const{data:booking}=await sb.from('bookings').select('*').eq('listing_id',listingId).or(`tenant_id.eq.${locataireId},locataire_id.eq.${locataireId}`).in('status',['pending','booking_pending']).order('created_at',{ascending:false}).limit(1).maybeSingle();
     if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
 
     // Nombre total de locataires (principal + co-locataires)
@@ -4886,7 +4889,7 @@ async function acceptDirectBooking(listingId, locataireId){
     try{
       await fetch('/.netlify/functions/holding-depot',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'propriétaire_accepter',booking_id:booking.id})
+        body:JSON.stringify({action:'landlord_accept',booking_id:booking.id})
       });
     }catch(e){console.warn('Commission capture:',e.message);}
 
@@ -4898,7 +4901,7 @@ async function acceptDirectBooking(listingId, locataireId){
     // d'emménagement convenue, pas à la date de la visite initiale du bien
     // (qui a souvent lieu bien avant et n'a aucun rapport)
     await sb.from('bookings').update({
-      statut:'accepté',
+      status:'accepted',statut:'accepté',
       accepté_at:new Date().toISOString(),
       landlord_id:U.id,
       total_locataires:totalLocataires,
@@ -4979,12 +4982,12 @@ async function acceptDirectBooking(listingId, locataireId){
 async function declineDirectBooking(listingId, locataireId){
   if(!confirm('Refuser ce locataire ? L\'autorisation de frais Trouve Ton Toit sera remboursée.'))return;
   try{
-    const{data:booking}=await sb.from('bookings').select('*').eq('listing_id',listingId).eq('tenant_id',locataireId).in('statut',['en attente','booking_en attente']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const{data:booking}=await sb.from('bookings').select('*').eq('listing_id',listingId).or(`tenant_id.eq.${locataireId},locataire_id.eq.${locataireId}`).in('status',['pending','booking_pending']).order('created_at',{ascending:false}).limit(1).maybeSingle();
     if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
 
     await fetch('/.netlify/functions/holding-depot',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'propriétaire_decline',booking_id:booking.id,reason:'Propriétaire declined'})
+      body:JSON.stringify({action:'landlord_decline',booking_id:booking.id,reason:'Propriétaire declined'})
     });
 
     try{
