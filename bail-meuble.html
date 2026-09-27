@@ -885,9 +885,9 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const CLERK_KEY='pk_live_Y2xlcmsubHl0dWNhcnNwaXJpbmcuY29tJA';
-const SB_URL='https://dcpozxklyxhypwyjbwph.supabase.co';
-const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjcG96eGtseXhoeXB3eWpid3BoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU4NTYxODcsImV4cCI6MjAzMTQzMjE4N30.JVuU3eTEp5cTqmVHQYfKO67OMqFknilJJVHp-zblAT4';
+const CLERK_KEY='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+const SB_URL='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
@@ -1498,16 +1498,29 @@ async function submitSignature(){
   if(LEASE.landlord_signed_at&&LEASE.tenant_signed_at&&(who==='t'||who==='g'))upd.status='active';
 
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
-  if(error){alert('⚠️ Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL.\n\nDétail : '+error.message);return;}
+  if(error){alert('⚠️ Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL (migration-leases.sql).\n\nDétail : '+error.message);return;}
   Object.assign(LEASE,upd);
   window._pendingSigWho=null;window._pendingSigData=null;
+
+  // ── Sync booking status ──────────────────────────────────────────────────
+  if(LEASE.booking_id){
+    let newBookingStatus=null;
+    if(who==='ll') newBookingStatus='bail_en_attente';
+    else if(who==='t'){
+      const allSigned=!!LEASE.landlord_signed_at&&!!LEASE.tenant_signed_at&&(!LEASE.garant_name||!!LEASE.garant_signed_at);
+      if(allSigned) newBookingStatus='bail_signé';
+    }
+    if(newBookingStatus){
+      await sb.from('bookings').update({status:newBookingStatus}).eq('id',LEASE.booking_id);
+    }
+  }
 
   if(who==='ll'){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
     await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
-    toast('✅ Bail signé — lien envoyé au locataire');
+    toast('✅ Bail signé — lien envoyé au locataire par messagerie');
   }else if(who==='t'){
-    toast('✅ Bail signé par les deux parties');
+    toast('✅ Bail signé par les deux parties !');
     if(LEASE.garant_name){
       const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
       toast('📤 Envoyez ce lien au garant pour sa signature',5000);
