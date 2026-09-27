@@ -1283,10 +1283,11 @@ async function fetchVisitAndApplicationGroups(){
     const has_agent=!!(annonce?.wants_agent&&annonce?.agent_service==='full');
     if(statut==='agents_applying'&&!has_agent) statut='awaiting_propriétaire';
     if(booking){
-      if(booking.statut==='en attente'||booking.statut==='booking_en attente') statut='booking_en attente';
-      else if(booking.statut==='accepté') statut='bail_en attente';
-      else if(booking.statut==='declined') statut='declined';
-      else if(['edl_scheduled','signing_day','move_in_ready'].includes(booking.statut)) statut=booking.statut;
+      const bst=booking.status||booking.statut||'';
+      if(['pending','booking_pending','en attente','booking_en attente'].includes(bst)) statut='booking_en attente';
+      else if(['accepted','accepté','bail_en attente'].includes(bst)) statut='bail_en attente';
+      else if(bst==='declined') statut='declined';
+      else if(['edl_scheduled','signing_day','move_in_ready'].includes(bst)) statut=bst;
     }
     return{...v,booking,statut,has_agent,
       listing_title:annonce?.title||v.listing_title||null,
@@ -1301,17 +1302,18 @@ async function fetchVisitAndApplicationGroups(){
   const visitKeys=new Set(allVisits.map(v=>(v.listing_id||'')+'_'+(v.tenant_id||'')));
   const orphans=allBookings.filter(b=>{
     const key=(b.listing_id||'')+'_'+(b.tenant_id||'');
-    return !visitKeys.has(key)&&!['declined','cancelled'].includes(b.statut);
+    return !visitKeys.has(key)&&!['declined','cancelled','cancelled_by_locataire','cancelled_by_tenant'].includes(b.status||b.statut);
   }).map(b=>{
     const annonce=lMap[b.listing_id]||null;
     // Même traduction statut que pour les visites enrichies —
     // sinon un booking accepteré reste affiché comme "en attente" pour toujours.
+    const bst2=b.status||b.statut||'';
     let displayStatut='booking_en attente';
-    if(b.statut==='en attente'||b.statut==='booking_en attente') displayStatut='booking_en attente';
-    else if(['accepté','bail_en attente','edl_scheduled','signing_day'].includes(b.statut)) displayStatut='bail_en attente';
-    else if(b.statut==='move_in_ready') displayStatut='move_in_ready';
-    else if(b.statut==='locataire_ghosted') displayStatut='locataire_ghosted';
-    else displayStatut=b.statut;
+    if(['pending','booking_pending','en attente','booking_en attente'].includes(bst2)) displayStatut='booking_en attente';
+    else if(['accepted','accepté','bail_en attente','edl_scheduled','signing_day'].includes(bst2)) displayStatut='bail_en attente';
+    else if(bst2==='move_in_ready') displayStatut='move_in_ready';
+    else if(bst2==='locataire_ghosted') displayStatut='locataire_ghosted';
+    else displayStatut=bst2;
     return{
       id:'bk_'+b.id,listing_id:b.listing_id,tenant_id:b.tenant_id,
       tenant_name:b.tenant_name,statut:displayStatut,booking:b,landlord_id:U.id,
