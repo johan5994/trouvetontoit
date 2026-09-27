@@ -914,7 +914,7 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
   loadAll();
 
   // Gérer le paramètre ?tab=profil (redirection depuis chkPost)
-  const urlParams=new URLRechercherParams(window.location.search);
+  const urlParams=new URLSearchParams(window.location.search);
   if(urlParams.get('tab')==='profil'){
     setTimeout(()=>{
       const profileBtn=document.querySelector('.ni[onclick*="profil"]');
@@ -1005,7 +1005,7 @@ async function loadDash(){
 
   // Visites en cours widget — charger depuis visites directement
   try{
-    const{data:visitData}=await sb.from('visits').select('id,statut').eq('landlord_id',U.id).in('status',['pending','confirmed']);
+    const{data:visitData}=await sb.from('visits').select('id,status').eq('landlord_id',U.id).in('status',['pending','confirmed']);
     const vCount=(visitData||[]).length;
     const vc=document.getElementById('visite-groups-count');
     if(vc)vc.textContent=vCount;
@@ -1822,19 +1822,8 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
     // 3 — Mettre à jour booking
     const{error:bookingUpdateErr}=await sb.from('bookings').update({
-      statut:'accepté',
-      accepté_at:new Date().toISOString(),
-      landlord_id:U.id,
-      bail_propriétaire_embed:propriétaireEmbed,
-      bail_locataire_embed:locataireEmbed,
-      co_locataires_embed_src:coLocatairesEmbed.length?JSON.stringify(coLocatairesEmbed):null,
-      bail_submission_id:submissionId?String(submissionId):null,
-      bail_start:startDate,
-      bail_end:endDate,
-      propriétaire_iban:propriétaireProfile?.iban||null,
-      propriétaire_revolut:propriétaireProfile?.revolut_tag||null,
-      paiement_due_day:dueDay,
-      depot:annonce?.depot||annonce?.price||0
+      status:'accepted',statut:'accepté',
+      landlord_id:U.id
     }).eq('id',bookingId);
     if(bookingUpdateErr){
       console.error('Booking update failed:',bookingUpdateErr.message);
@@ -1875,7 +1864,7 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
     // 7 — Notifier agent
     try{
-      const{data:visite}=await sb.from('visits').select('agent_id').eq('listing_id',listingId).in('statut',['completed','agent_assigned','confirmed','booking_en attente']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+      const{data:visite}=await sb.from('visits').select('agent_id').eq('listing_id',listingId).in('status',['completed','agent_assigned','confirmed','booking_en attente']).order('created_at',{ascending:false}).limit(1).maybeSingle();
       if(visite?.agent_id){
         try{await sb.from('messages').insert({listing_id:listingId,sender_id:'system',receiver_id:visite.agent_id,content:'📋 Application accepté!\n\n🏠 '+(annonce?.title||'Bien')+'\n👤 Locataire: '+(locataireProfile?.full_name||'—')+'\n\nBail being signed.',type:'booking_accepté'});}catch(e){}
         try{await sb.from('visits').update({status:'completed'}).eq('agent_id',visite.agent_id).eq('listing_id',listingId);}catch(e){}
@@ -4902,7 +4891,6 @@ async function acceptDirectBooking(listingId, locataireId){
     // (qui a souvent lieu bien avant et n'a aucun rapport)
     await sb.from('bookings').update({
       status:'accepted',statut:'accepté',
-      accepté_at:new Date().toISOString(),
       landlord_id:U.id,
       total_locataires:totalLocataires,
       edl_date:booking.move_in_date||visitInfo?.visit_date||null
@@ -4915,7 +4903,7 @@ async function acceptDirectBooking(listingId, locataireId){
     // Exclure explicitement les visites déjà annulées/refusées — leur
     // statut est définitif, elles ne doivent plus jamais bouger, même
     // si le même locataire a depuis redemandé une nouvelle visite.
-    try{await sb.from('visits').update({status:'bail_en attente'}).eq('listing_id',listingId).eq('tenant_id',locataireId).not('status','in','("cancelled","declined")');}catch(e){}
+    try{await sb.from('visits').update({status:'bail_en attente'}).eq('listing_id',listingId).eq('tenant_id',locataireId).not('status','in','(cancelled,declined)');}catch(e){}
 
     // Notifier le locataire principal
     try{
