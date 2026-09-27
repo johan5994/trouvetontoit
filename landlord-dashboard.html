@@ -1706,119 +1706,30 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
       if(!d.success&&!d.erreur?.includes('already'))console.warn('Holding:',d.erreur);
     }catch(e){console.warn('Holding:',e.message);}
 
-    // 2 — Générer le bail
-    let propriétaireEmbed=null,locataireEmbed=null,submissionId=null,coLocatairesEmbed=[];
-    // Règle franceise : le loyer se paie chaque mois à la date d'entrée dans
-    // le logement, pas à un jour fixe choisi au moment de créer l'annonce.
-    // Déclaré ici (hors du try qui suit) pour rester accessible plus loin,
-    // lors de la mise à jour du booking et du message au locataire.
+    // 2 — Pré-créer le bail dans la table leases (bail-meuble.html récupère ce record)
     const dueDay=startDate?new Date(startDate).getDate():1;
-    const dueSuffix=dueDay===1?'st':dueDay===2?'nd':dueDay===3?'rd':'th';
+    const rent=booking?.monthly_rent||annonce?.price||0;
+    const deposit=annonce?.deposit||annonce?.depot||(rent*2);
+    const charges=annonce?.bills_included?0:50;
     try{
-      const bailType=annonce?.type==='short'?'short':'long';
-      const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-      const startFmt=startDate?new Date(startDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):today;
-      const endFmt=endDate?new Date(endDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
-      const price=booking?.monthly_rent||annonce?.price||0; // prix réellement convenu (négocié ou non), pas juste le prix affiché sur l'annonce
-      const depot=annonce?.depot||price;
-
-      // Fix 2 — les extras/négociation demandés par le locataire deviennent une clause visible dans le bail
-      let negotiationClause='';
-      if(booking?.negotiation_note)negotiationClause+=booking.negotiation_note.replace(/\n/g,'<br>');
-      if(booking?.requested_extras){
-        try{
-          const extras=JSON.parse(booking.requested_extras);
-          if(extras.length)negotiationClause+=(negotiationClause?'<br>':'')+'<i data-lucide=gift class=ic></i> Additional items/services agreed: '+extras.join(', ');
-        }catch(e){}
+      // Vérifier si un bail existe déjà pour cette réservation
+      const{data:existingLease}=await sb.from('leases').select('id').eq('booking_id',bookingId).maybeSingle();
+      if(!existingLease){
+        const leaseEndDate=(()=>{const d=new Date(startDate);if(annonce?.type==='short')d.setMonth(d.getMonth()+6);else d.setFullYear(d.getFullYear()+1);return d.toISOString().split('T')[0];})();
+        await sb.from('leases').insert({
+          booking_id:bookingId,
+          listing_id:listingId,
+          listing_title:annonce?.title||'',
+          tenant_id:locataireId,
+          landlord_id:U.id,
+          start_date:startDate,
+          end_date:leaseEndDate,
+          rent,deposit,charges,
+          status:'pending',
+          negotiation_status:'draft'
+        });
       }
-
-      const bailHtml=`<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>body{font-family:"Times New Roman",serif;font-size:11pt;line-height:1.7;margin:2cm;color:#000}h1{text-align:center;font-size:13pt;text-transform:uppercase;font-weight:bold;margin-bottom:20px}h2{font-size:11pt;font-weight:bold;margin-top:18px;margin-bottom:6px}p{margin:8px 0}ol{margin:8px 0;padding-left:20px}li{margin-bottom:6px}.sig-block{display:flex;justify-content:space-between;margin-top:40px}.sig-box{width:45%}.sig-line{border-top:1px solid #000;margin-top:60px}</style>
-<style>
-.iti{width:100%}
-.iti__flag-container{z-index:10}
-.iti input{width:100%;padding-left:52px!important}
-</style>
-</head><body>
-<h1>${bailType==='long'?'LONG':'SHORT'} PRIVATE RESIDENTIAL LEASE</h1>
-<p>This, day of <u>${today}</u></p>
-${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isArray(coList))coList=[coList];const coArr=(coList||[]).filter(c=>c&&c.name);if(coArr.length){const parts=['— <u>'+(propriétaireProfile?.full_name||'_______________')+'</u>, titulaire de la pièce d\'identité n° <u>'+(propriétaireProfile?.passport_number||'_______________')+'</u>, demeurant au <u>'+(propriétaireProfile?.home_address||'_______________')+'</u>, e-mail <u>'+(propriétaireProfile?.email||'_______________')+'</u>',...coArr.map(co=>'— <u>'+co.name+'</u>, titulaire de la pièce d\'identité n° <u>'+(co.passport||'_______________')+'</u>, de nationalité <u>'+(co.nationality||'_______________')+'</u>, e-mail <u>'+(co.email||'_______________')+'</u>')];return'<p>Par le présent acte sous seing privé comparaissent d\'une part :<br>'+parts.join(' ;<br>')+' ;<br>ci-après dénommés conjointement les <strong>propriétaires</strong>.</p>';}return'<p>Par le présent acte sous seing privé comparaissent d\'une part <u>'+(propriétaireProfile?.full_name||'_______________')+'</u>, titulaire de la pièce d\'identité n° <u>'+(propriétaireProfile?.passport_number||'_______________')+'</u>, demeurant au <u>'+(propriétaireProfile?.home_address||'_______________')+'</u>, e-mail <u>'+(propriétaireProfile?.email||'_______________')+'</u>, ci-après dénommé le <strong>propriétaire</strong>.</p>';})()} 
-<p>Et d'autre part <u>${locataireProfile?.full_name||'_______________'}</u>, titulaire de la pièce d'identité n° <u>${locataireProfile?.passport_number||'_______________'}</u>, de nationalité <u>${locataireProfile?.nationality||'_______________'}</u>, e-mail <u>${locataireProfile?.email||'_______________'}</u>, ci-après dénommé le <strong>locataire</strong>.</p>
-<p>Le propriétaire donne en location au locataire les locaux situés au <u>${annonce?.full_address||annonce?.zone||'_______________'}</u>, aux conditions suivantes :</p>
-<h2>Paiement &amp; Duration</h2>
-<ol>
-<li>The bail shall run pour a period of <strong>${bailType==='long'?'one (1) year':'six (6) months'}</strong> avec effect  depuis  <strong>${startFmt}</strong> to <strong>${endFmt}</strong>.</li>
-${bailType==='long'?'<li>Après la première période obligatoire de six (6) mois, le locataire peut résilier avec un (1) mois de préavis écrit.</li><li>Si le propriétaire ne notifie pas le locataire du non-renouvellement dans les 3 mois avant l\'échéance, le bail se renouvelle automatiquement pour un (1) an dans les mêmes conditions.</li>':'<li>Le locataire peut être remboursé après le premier mois obligatoire avec un (1) semaine de préavis. Ce contrat ne peut pas être renouvelé.</li>'}
-<li>The monthly loyer is <strong>€${price}/mois</strong>, payable on or before the <strong>${dueDay}${dueSuffix}</strong> of each month.</li>
-${bailType==='long'?'<li>Après la 1ère année, le loyer peut augmenter proportionnellement à l\'ajustement IPC annuel publié par l\'INSEE, sans dépasser 5 % par an.</li>':''}
-</ol>
-<h2>Dépôt de garantie</h2>
-<ol>
-<li>Le locataire verse un dépôt de garantie de <strong>€${depot}</strong>, conservé pendant la durée du bail et restitué après inspection satisfaisante des locaux.</li>
-<li>Annex A shall include an état des lieux of all movables. The depot may be used to offset unpaid amounts.</li>
-</ol>
-<h2>Obligations du Locataire</h2>
-<ol>
-<li>Le locataire utilisera les locaux à des fins résidentielles uniquement et ne les sous-louera pas sans autorisation écrite.</li>
-<li>Le locataire est responsable des factures d'eau et d'électricité à compter de la date d'entrée.</li>
-<li>Le locataire maintiendra les locaux en bon état et les restituera dans le même état, à l'usure normale près.</li>
-<li>Le locataire ne fera aucun aménagement ou modification sans le consentement écrit du propriétaire.</li>
-</ol>
-<h2>Utility Bills &amp; Services</h2>
-<ol>
-<li>Le propriétaire s'assure que toutes les charges sont réglées jusqu'à la date d'entrée.</li>
-<li>The locataire is responsible pour submitting ARMS Form H (change of occupants declaration) within 30 days of entrée dans les lieux, pour correct utility billing.</li>
-<li>Both parties declare that water et electricity meter readings shall be recorded in <strong>Annex A on entrée dans les lieux day</strong> et form an integral part of this agreement.</li>
-</ol>
-${bailType==='long'?`<h2>Termination &amp; Renewal</h2><ol><li>The locataire may terminate after the compulsory period avec one (1) month written notice by registered letter.</li><li>The propriétaire must notify non-renewal at least 3 months before expiry, otherwise the bail renews automatically.</li></ol>`:''}
-${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isArray(coList))coList=[coList];const coArr=(coList||[]).filter(c=>c&&c.name);const sigBoxes='<div class="sig-box"><p><strong>Bailleur</strong></p><p>'+(propriétaireProfile?.full_name||'_______________')+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>'+coArr.map((co,i)=>'<div class="sig-box"><p><strong>Co-bailleur '+(i+1)+'</strong></p><p>'+co.name+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div>').join('');return'<div class="sig-block">'+sigBoxes+'<div class="sig-box"><p><strong>Locataire</strong></p><p>'+(locataireProfile?.full_name||'_______________')+'</p><div class="sig-line"></div><p style="font-size:9pt;color:#666">Signature &amp; Date</p></div></div>';})()} 
-<p style="font-size:8pt;color:#888;text-align:center;margin-top:20px">Ce contrat est établi conformément à la loi n° 89-462 du 6 juillet 1989 régissant les locations résidentielles en France.<br>Doit être enregistré sur rentregistration.fr dans les 30 jours.</p>
-</body></html>`;
-
-      // Co-locataires ajoutés par le locataire lors de sa candidature
-      let coLocataires=[];
-      try{const raw=booking?.co_locataires_data;if(raw){coLocataires=typeof raw==='string'?JSON.parse(raw):(Array.isArray(raw)?raw:[]);}}catch(e){}
-
-      // Envoyer via Netlify function (pas d'appel direct DocuSeal — CORS bloqué depuis le browser)
-      const docuRes=await fetch('/.netlify/functions/generate-bail',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          type:bailType,
-          propriétaire:{name:propriétaireProfile?.full_name||'',email:propriétaireProfile?.email||'',passport:propriétaireProfile?.passport_number||'',address:propriétaireProfile?.home_address||''},
-          locataire:{name:locataireProfile?.full_name||'',email:locataireProfile?.email||'',passport:locataireProfile?.passport_number||'',nationality:locataireProfile?.nationality||'',address:locataireProfile?.home_address||''},
-          coLocataires:coLocataires.map(ct=>({name:ct.name||'',email:ct.email||'',passport:ct.passport||'',nationality:ct.nationality||'',address:ct.address||''})),
-          annonce:{address:annonce?.full_address||annonce?.zone||'',price:price,depot:depot,paiement_due_day:dueDay},
-          start_date:startDate,end_date:endDate,
-          inventory_notes:negotiationClause||undefined
-        })
-      });
-      if(docuRes.ok){
-        const docuData=await docuRes.json();
-        if(docuData.success){
-          propriétaireEmbed=docuData.propriétaire_embed_src||null;
-          locataireEmbed=docuData.locataire_embed_src||null;
-          submissionId=docuData.submission_id||null;
-          // Enrichir chaque lien co-locataire avec son tenant_id (si compte trouvé) pour
-          // pouvoir lui afficher sa carte de signature dans SON propre tableau de bord.
-          // Correspondance par INDEX (extrait du rôle "Locataire 2","Locataire 3"...) —
-          // bien plus fiable qu'un appariement par email, qui peut échouer si
-          // DocuSeal renvoie l'email avec une casse ou un espace difféloyer.
-          coLocatairesEmbed=(docuData.co_locataires_embed_src||[]).map(cl=>{
-            const roleIndex=parseInt((cl.role||'').replace('Locataire ',''),10)-2; // "Locataire 2" → index 0
-            const match=(roleIndex>=0&&coLocataires[roleIndex])?coLocataires[roleIndex]:coLocataires.find(ct=>ct.email&&cl.email&&ct.email.toLowerCase()===cl.email.toLowerCase());
-            return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',tenant_id:match?.tenant_id||null,signed:false};
-          });
-        } else {
-          console.warn('generate-bail failed:',docuData.erreur||docuData.message);
-          toast('<i data-lucide=alert-triangle class=ic></i>️ Bail generation issue: '+(docuData.erreur||'Unknown erreur'));
-        }
-      } else {
-        const t=await docuRes.text();
-        console.error('generate-bail HTTP erreur:',docuRes.statut,t.slice(0,300));
-        toast('<i data-lucide=alert-triangle class=ic></i>️ Bail generation failed (HTTP '+docuRes.statut+')');
-      }
-    }catch(e){console.warn('Bail generation:',e.message);}
+    }catch(e){console.warn('Lease pre-creation:',e.message);}
 
     // 3 — Mettre à jour booking
     const{error:bookingUpdateErr}=await sb.from('bookings').update({
@@ -1844,14 +1755,14 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
     try{await sb.from('messages').insert({
       listing_id:listingId,sender_id:'system',receiver_id:locataireId,
-      content:'🎉 Your application has been accepté!\n\n'
-        +'📄 Your bail is prêt à signer — check votre visites page.\n\n'
-        +'━━━━━━━━━━━━━━\n💶 AMOUNT DUE TO LANDLORD\n━━━━━━━━━━━━━━\n'
-        +'🔒 Security depot: €'+depot+'\n'
-        +'🏠 First month (prorata): calculated in votre visites page\n'
-        +(holdingPaid?'✅ Holding remboursé : €'+holdingPaid+'\n':'')
+      content:'🎉 Votre candidature a été acceptée !\n\n'
+        +'📄 Le bailleur prépare votre bail de location — vous recevrez un lien pour le relire et le signer dès qu\'il sera prêt.\n\n'
+        +'━━━━━━━━━━━━━━\n💶 MONTANT À PRÉVOIR\n━━━━━━━━━━━━━━\n'
+        +'🔒 Dépôt de garantie : €'+deposit+'\n'
+        +'🏠 Premier mois : €'+rent+'\n'
+        +(holdingPaid?'✅ Holding déduit : €'+holdingPaid+'\n':'')
         +ibanInfo+revInfo
-        +'\n📋 Entry état des lieux done on entrée dans les lieux day once bail is signed.',
+        +'\n📋 L\'état des lieux se fera le jour de l\'entrée dans les lieux, une fois le bail signé.',
       type:'booking_accepté'
     });}catch(e){}
 
@@ -1874,7 +1785,9 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
 
 
-    toast(propriétaireEmbed?'<i data-lucide=party-popper class=ic></i> Accepté! Sign the bail in votre visites page.':'<i data-lucide=party-popper class=ic></i> Accepté! Locataire notified.');
+    toast('<i data-lucide=party-popper class=ic></i> Accepté ! Ouverture du bail meublé…');
+    // Rediriger vers bail-meuble.html pour compléter et signer le bail
+    setTimeout(()=>{ window.open('/bail-meuble.html?booking_id='+bookingId,'_blank'); },800);
     loadVisitsPage();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);console.error(e);}
 }
@@ -4935,7 +4848,7 @@ async function acceptDirectBooking(listingId, locataireId){
     }
 
     // Notifier les invités (emails sans compte)
-    const invitedEmails = booking.co_tenant_emails_invited ? JSON.parse(booking.co_tenant_emails_invited) : [];
+    let invitedEmails=[];try{const raw=booking.co_tenant_emails_invited;if(raw){invitedEmails=typeof raw==='string'?JSON.parse(raw):(Array.isArray(raw)?raw:[]);}}catch(e){}
     if(invitedEmails.length){
       const{data:listingForInvite}=await sb.from('listings').select('title,full_address,zone').eq('id',listingId).maybeSingle();
        for (const email of invitedEmails){
