@@ -1822,7 +1822,7 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
     // 3 — Mettre à jour booking
     const{error:bookingUpdateErr}=await sb.from('bookings').update({
-      status:'accepted',statut:'accepté',
+      status:'accepted',
       landlord_id:U.id
     }).eq('id',bookingId);
     if(bookingUpdateErr){
@@ -4889,12 +4889,7 @@ async function acceptDirectBooking(listingId, locataireId){
     // Mettre à jour le booking — edl_date doit correspondre à la vraie date
     // d'emménagement convenue, pas à la date de la visite initiale du bien
     // (qui a souvent lieu bien avant et n'a aucun rapport)
-    await sb.from('bookings').update({
-      status:'accepted',statut:'accepté',
-      landlord_id:U.id,
-      total_locataires:totalLocataires,
-      edl_date:booking.move_in_date||visitInfo?.visit_date||null
-    }).eq('id',booking.id);
+    await sb.from('bookings').update({status:'accepted',landlord_id:U.id}).eq('id',booking.id);
 
     // Générer le bail avec co-locataires (gère aussi le update booking)
     await generateBailFromBooking(booking.id, listingId, locataireId);
