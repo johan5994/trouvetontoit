@@ -2764,7 +2764,7 @@ async function fetchLocataireVisitData(){
 }
 
 // Statuts de visite pure — avant toute candidature de location
-const TENANT_VISIT_ONLY_STATUSES=['pending','confirmed','declined','cancelled','completed'];
+const TENANT_VISIT_ONLY_STATUSES=['pending','confirmed','declined','cancelled','completed','booking_pending'];
 // Statuts de candidature — dès que le locataire a dit "je veux louer"
 const TENANT_APPLICATION_STATUSES=['booking_pending','accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','declined'];
 
@@ -6264,7 +6264,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       try{
         const selectedGarants=_getSelectedGarants();
         const{error:bookingErreur}=await sb.from('bookings').insert({
-          listing_id:listingId,locataire_id:U.id,landlord_id:landlordId,
+          listing_id:listingId,locataire_id:U.id,tenant_id:U.id,landlord_id:landlordId,
           locataire_name:P?.full_name||'',locataire_email:P?.email||'',
           commission_amount:0,total_amount:0,
           monthly_rent:price,status:'pending',has_agent:false,
@@ -6355,7 +6355,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
 
       const selectedGarants=_getSelectedGarants();
       const{error:bookingErreur}=await sb.from('bookings').insert({
-        listing_id:listingId,locataire_id:U.id,landlord_id:landlordId,
+        listing_id:listingId,locataire_id:U.id,tenant_id:U.id,landlord_id:landlordId,
         locataire_name:P?.full_name||'',locataire_email:P?.email||'',
         commission_paiement_intent_id:paiementIntent.id,
         stripe_customer_id:data.customer_id,
