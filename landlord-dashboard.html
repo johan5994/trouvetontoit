@@ -1777,7 +1777,7 @@ ${(()=>{let coList=propriétaireProfile?.co_bailleur_data;if(coList&&!Array.isAr
 
       // Co-locataires ajoutés par le locataire lors de sa candidature
       let coLocataires=[];
-      try{coLocataires=booking?.co_locataires_data?JSON.parse(booking.co_locataires_data):[];}catch(e){}
+      try{const raw=booking?.co_locataires_data;if(raw){coLocataires=typeof raw==='string'?JSON.parse(raw):(Array.isArray(raw)?raw:[]);}}catch(e){}
 
       // Envoyer via Netlify function (pas d'appel direct DocuSeal — CORS bloqué depuis le browser)
       const docuRes=await fetch('/.netlify/functions/generate-bail',{
@@ -4183,10 +4183,10 @@ function renderVisitGroup(g, isPast){
       <div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> ${g.tenant_name||'Locataire'} wants to loyer!</div>
       <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.5rem">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Full name</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Vérifié</div><div id="t-ver-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Full name</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'⏳':'—'}</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Vérifié</div><div id="t-ver-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'⏳':'—'}</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'⏳':'—'}</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'⏳':'—'}</div></div>
           ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
           ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée dans les lieux date</div><div style="font-size:.73rem;font-weight:600">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div>`:''}
         </div>
@@ -4880,7 +4880,7 @@ async function acceptDirectBooking(listingId, locataireId){
     if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
 
     // Nombre total de locataires (principal + co-locataires)
-    const coLocataireIds = booking.co_tenant_ids ? JSON.parse(booking.co_tenant_ids) : [];
+    let coLocataireIds=[];try{const raw=booking.co_tenant_ids;if(raw){coLocataireIds=typeof raw==='string'?JSON.parse(raw):(Array.isArray(raw)?raw:[]);}}catch(e){console.warn('co_tenant_ids parse:',e.message);}
     const totalLocataires = 1 + coLocataireIds.length;
     const monthlyRent = booking.monthly_rent || 0;
     const commissionPerLocataire = Math.round((monthlyRent * 0.10) / totalLocataires);
