@@ -49,6 +49,18 @@
     .cp-garant-fields{display:contents}
     .cp-actions{grid-column:1/-1;display:flex;gap:.5rem;justify-content:flex-end;padding-top:.5rem;border-top:1px solid var(--border);margin-top:.35rem}
 
+    /* UPLOAD DOCS */
+    .cp-upload-wrap{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+    .cp-upload-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .65rem;background:#EFF6FF;border:1px dashed var(--bleu);border-radius:7px;font-size:.75rem;font-weight:600;color:var(--bleu);cursor:pointer;transition:all .15s;flex-shrink:0}
+    .cp-upload-btn:hover{background:#DBEAFE}
+    .cp-upload-btn input[type=file]{display:none}
+    .cp-doc-status{font-size:.72rem;display:flex;align-items:center;gap:.3rem;flex-shrink:0}
+    .cp-doc-ok{color:var(--green);font-weight:600}
+    .cp-doc-uploading{color:var(--bleu);font-style:italic}
+    .cp-doc-link{color:var(--bleu);text-decoration:underline;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+    .annexe-link{color:var(--bleu);text-decoration:none;font-size:.78rem;font-weight:600;margin-left:auto;padding:.15rem .5rem;background:#EFF6FF;border-radius:5px;white-space:nowrap}
+    .annexe-link:hover{background:#DBEAFE}
+
     /* PAGE */
     .page-wrap{max-width:840px;margin:2rem auto;padding:0 1rem 5rem}
 
@@ -349,6 +361,59 @@
           <option value="non">Zone non concernée</option>
           <option value="oui">Zone de bruit (IAB annexé)</option>
         </select>
+      </div>
+
+      <div class="cp-section-title">📎 Documents à annexer (PDF obligatoires)</div>
+      <div style="grid-column:1/-1;font-size:.72rem;color:var(--td);margin-bottom:.2rem">Déposez les PDF de chaque diagnostic. Ils seront accessibles au locataire depuis le bail.</div>
+
+      <div class="cp-field" style="grid-column:1/3">
+        <label>DPE — Diagnostic de performance énergétique</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-dpe" accept=".pdf" onchange="uploadDoc('dpe',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-dpe">—</span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>ERP — État des risques et pollutions</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-erp" accept=".pdf" onchange="uploadDoc('erp',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-erp">—</span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>Amiante — Dossier technique (DTA)</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-amiante" accept=".pdf" onchange="uploadDoc('amiante',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-amiante"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1997</span></span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>Plomb — CREP (Constat de risque d'exposition)</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-plomb" accept=".pdf" onchange="uploadDoc('plomb',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-plomb"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1949</span></span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>Électricité — Diagnostic installation</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-elec" accept=".pdf" onchange="uploadDoc('elec',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-elec"><span style="font-size:.68rem;color:var(--td)">Requis si installation > 15 ans</span></span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>Gaz — Diagnostic installation</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-gaz" accept=".pdf" onchange="uploadDoc('gaz',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-gaz"><span style="font-size:.68rem;color:var(--td)">Requis si installation gaz > 15 ans</span></span>
+        </div>
+      </div>
+      <div class="cp-field" style="grid-column:1/3">
+        <label>Bruit — IAB (Information sur les nuisances)</label>
+        <div class="cp-upload-wrap">
+          <label class="cp-upload-btn"><input type="file" id="file-bruit" accept=".pdf" onchange="uploadDoc('bruit',this)">📄 Choisir PDF</label>
+          <span class="cp-doc-status" id="status-bruit"><span style="font-size:.68rem;color:var(--td)">Requis si zone de bruit</span></span>
+        </div>
       </div>
 
       <div class="cp-section-title">Garant / Caution solidaire</div>
@@ -923,6 +988,9 @@ const FIELD_LABELS={
 const QP=new URLSearchParams(location.search);
 const BOOKING_ID=QP.get('booking_id');
 const LEASE_ID=QP.get('lease_id');
+// role=landlord peut être passé explicitement depuis le dashboard pour forcer le rôle
+// même si landlord_id n'est pas encore rempli sur le lease (cas des vieilles réservations)
+const ROLE_PARAM=QP.get('role'); // 'landlord'|'tenant'|null
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function fmt(n){return n!=null&&n!==''?new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n):'—';}
@@ -1058,6 +1126,17 @@ async function loadBail(){
     if(U){
       if(U.id===LEASE.landlord_id) myRole='landlord';
       else if(U.id===LEASE.tenant_id) myRole='tenant';
+      // Fallback : le dashboard passe ?role=landlord dans l'URL
+      // et on corrige le landlord_id manquant sur le lease
+      else if(ROLE_PARAM==='landlord'){
+        myRole='landlord';
+        if(!LEASE.landlord_id){
+          await sb.from('leases').update({landlord_id:U.id}).eq('id',LEASE.id);
+          LEASE.landlord_id=U.id;
+        }
+      } else if(ROLE_PARAM==='tenant'){
+        myRole='tenant';
+      }
     }
 
     // Auto-charger garant depuis dossier si pas encore dans le bail
@@ -1261,11 +1340,35 @@ function renderBail(){
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)'},
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives'},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
-    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)'}]:[]),
-    ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)'}]:[]),
+    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url}]:[]),
+    ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url}]:[]),
     ...(L.garant_name?[{n:10,txt:'Acte de caution solidaire (ci-après)'}]:[])
   ];
-  show('annexes-list',annexes.map(a=>`<li><span class="annexe-num">${a.n}</span>${a.txt}</li>`).join(''));
+  // Ajouter documents uploadés même si pas dans conditions ci-dessus
+  const docEntries=[
+    {key:'doc_dpe_url',txt:'Diagnostic de Performance Énergétique (DPE)'},
+    {key:'doc_erp_url',txt:'État des risques et pollutions (ERP / ERRIAL)'},
+    {key:'doc_elec_url',txt:'Diagnostic électricité'},
+    {key:'doc_gaz_url',txt:'Diagnostic gaz'},
+    {key:'doc_bruit_url',txt:'Information sur les nuisances sonores (IAB)'},
+  ];
+  let nextN=annexes.length+1;
+  for(const d of docEntries){
+    if(L[d.key]&&!annexes.some(a=>a.url===L[d.key])){
+      annexes.push({n:nextN++,txt:d.txt,url:L[d.key]});
+    }
+  }
+  // Forcer DPE et ERP dans la liste si uploadés (remplace l'entrée générique)
+  const dpeIdx=annexes.findIndex(a=>a.n===3);
+  if(dpeIdx>=0&&L.doc_dpe_url) annexes[dpeIdx].url=L.doc_dpe_url;
+  const erpIdx=annexes.findIndex(a=>a.n===4);
+  if(erpIdx>=0&&L.doc_erp_url) annexes[erpIdx].url=L.doc_erp_url;
+
+  show('annexes-list',annexes.map(a=>`<li>
+    <span class="annexe-num">${a.n}</span>
+    <span style="flex:1">${a.txt}</span>
+    ${a.url?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`:'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'}
+  </li>`).join(''));
 
   // Acte de caution
   if(L.garant_name){
@@ -1293,12 +1396,21 @@ function renderBail(){
       à le prévenir immédiatement et à lui indiquer les nom et adresse du nouveau garant proposé. »`);
   }
 
-  // Completer panel
-  if(myRole==='landlord'&&!(LEASE.landlord_signed_at)){
+  // Completer panel — visible si bailleur (par rôle détecté, par param URL,
+  // ou par défaut si page ouverte avec booking_id et pas encore signée)
+  const isLandlord = myRole==='landlord' || ROLE_PARAM==='landlord' || (!!BOOKING_ID && !LEASE.landlord_signed_at);
+  if(isLandlord && !LEASE.landlord_signed_at){
     q('completer-panel').classList.add('visible');
     q('completer-btn').style.display='inline-flex';
     populateCompleterForm();
     updateMissingCount();
+    // Mettre en surbrillance les valeurs "—" dans le bail pour guider le propriétaire
+    document.querySelectorAll('.info-item .value').forEach(el=>{
+      if(el.textContent.trim()==='—'||el.textContent.trim()==='Non renseignée'||el.textContent.trim()==='Non renseigné'){
+        el.style.cssText='color:#dc2626;font-style:italic;cursor:pointer';
+        el.title='Cliquez sur "Compléter le bail" pour renseigner ce champ';
+      }
+    });
   }
 
   renderStatusAndSigs();
@@ -1311,6 +1423,8 @@ function renderNegocBar(){
   const ns=L.negotiation_status||'draft';
   const bar=q('negoc-bar'),step=q('negoc-step'),acts=q('negoc-actions');
   if(!bar)return;
+  // Résoudre le rôle effectif (ROLE_PARAM + BOOKING_ID comme fallback)
+  const effectiveRole = myRole || (ROLE_PARAM==='landlord'?'landlord':ROLE_PARAM==='tenant'?'tenant':BOOKING_ID?'landlord':null);
   // Masquer si déjà signé des deux côtés
   const allSigned=!!L.landlord_signed_at&&!!L.tenant_signed_at&&(!L.garant_name||!!L.garant_signed_at);
   if(allSigned){bar.style.display='none';return;}
@@ -1330,13 +1444,13 @@ function renderNegocBar(){
   acts.innerHTML='';
   const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=label;b.onclick=fn;acts.appendChild(b);};
 
-  if(myRole==='landlord'){
+  if(effectiveRole==='landlord'){
     if(ns==='draft')                  btn('📨 Envoyer au locataire →','btn-blue',sendToTenant);
     if(ns==='pending_landlord')       btn('✅ Valider le modèle final →','btn-green',landlordValidateModel);
     if(ns==='pending_landlord')       btn('📨 Renvoyer au locataire →','btn-outline',sendToTenant);
     if(ns==='agreed'||ns==='draft')   btn('✏️ Compléter le bail','btn-outline',openCompleter);
   }
-  if(myRole==='tenant'){
+  if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
       btn('✅ J\'accepte le modèle','btn-green',tenantAcceptsModel);
       btn('📝 Demander une modification','btn-orange',openModifModal);
@@ -1404,6 +1518,8 @@ function renderStatusAndSigs(){
   const gSigned=!!L.garant_signed_at;
   const hasGarant=!!L.garant_name;
   const allSigned=llSigned&&tSigned&&(!hasGarant||gSigned);
+  // Rôle effectif (même logique que renderNegocBar)
+  const effectiveRole = myRole || (ROLE_PARAM==='landlord'?'landlord':ROLE_PARAM==='tenant'?'tenant':BOOKING_ID?'landlord':null);
 
   // Status bar
   const sb2=q('status-bar');
@@ -1419,20 +1535,20 @@ function renderStatusAndSigs(){
   // Sig bailleur
   if(llSigned&&L.landlord_signature){
     show('sig-ll-pad-area',`<div class="sig-done"><img src="${L.landlord_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature bailleur"><div class="ts">✅ Signé le ${fmtDate(L.landlord_signed_at)}</div></div>`);
-  }else if(myRole==='landlord'&&!llSigned&&canSign){
+  }else if(effectiveRole==='landlord'&&!llSigned&&canSign){
     show('sig-ll-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-ll" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('ll')">Effacer</button><button class="sign" onclick="prepareSign('ll')">Valider →</button></div>`);
     setTimeout(()=>initCanvas('ll'),50);
-  }else if(myRole==='landlord'&&!llSigned&&!canSign){
+  }else if(effectiveRole==='landlord'&&!llSigned&&!canSign){
     show('sig-ll-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-ll-pad-area','<div class="sig-awaiting">—</div>');}
 
   // Sig locataire
   if(tSigned&&L.tenant_signature){
     show('sig-t-pad-area',`<div class="sig-done"><img src="${L.tenant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature locataire"><div class="ts">✅ Signé le ${fmtDate(L.tenant_signed_at)}</div></div>`);
-  }else if(myRole==='tenant'&&!tSigned&&canSign){
+  }else if(effectiveRole==='tenant'&&!tSigned&&canSign){
     if(!llSigned){show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente de la signature du bailleur d\'abord</div>');}
     else{show('sig-t-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-t" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('t')">Effacer</button><button class="sign" onclick="prepareSign('t')">Valider →</button></div>`);setTimeout(()=>initCanvas('t'),50);}
-  }else if(myRole==='tenant'&&!tSigned&&!canSign){
+  }else if(effectiveRole==='tenant'&&!tSigned&&!canSign){
     show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-t-pad-area','<div class="sig-awaiting">—</div>');}
 
@@ -1450,9 +1566,9 @@ function renderStatusAndSigs(){
   const hint=q('submit-hint'),btn=q('submit-btn');
   if(allSigned){hint.textContent='✅ Bail entièrement signé. Téléchargez-le en PDF.';btn.style.display='none';}
   else if(!canSign){hint.textContent='⏳ Bail en cours de négociation — signatures disponibles une fois le modèle accepté.';btn.style.display='none';}
-  else if(myRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que bailleur';}
-  else if(myRole==='landlord'&&llSigned){hint.innerHTML='✅ Vous avez signé. Envoyez ce lien au locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'</code>';btn.style.display='none';}
-  else if(myRole==='tenant'&&!tSigned&&llSigned){hint.textContent='Le bailleur a signé. Dessinez votre signature pour finaliser.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que locataire';}
+  else if(effectiveRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que bailleur';}
+  else if(effectiveRole==='landlord'&&llSigned){hint.innerHTML='✅ Vous avez signé. Lien locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant</code>';btn.style.display='none';}
+  else if(effectiveRole==='tenant'&&!tSigned&&llSigned){hint.textContent='Le bailleur a signé. Dessinez votre signature pour finaliser.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que locataire';}
   else{hint.textContent='Bail en préparation.';btn.style.display='none';}
 }
 
@@ -1555,6 +1671,20 @@ function populateCompleterForm(){
   set('cp-garant-name',L.garant_name);set('cp-garant-addr',L.garant_address);
   set('cp-garant-email',L.garant_email);set('cp-garant-phone',L.garant_phone);
   set('cp-garant-montant',L.garant_montant);set('cp-garant-pro',L.garant_pro);
+
+  // Afficher le statut des documents déjà uploadés
+  const docMap={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
+  for(const [key,col] of Object.entries(docMap)){
+    const url=L[col];
+    const statusEl=q('status-'+key);
+    if(!statusEl)continue;
+    if(url){
+      const fname=url.split('/').pop().replace(/\?.*$/,'');
+      statusEl.innerHTML=`<span class="cp-doc-ok">✅ Déposé</span> <a href="${url}" target="_blank" class="cp-doc-link" title="${fname}">Voir PDF</a>`;
+    } else {
+      statusEl.innerHTML='<span style="font-size:.7rem;color:var(--td)">Aucun fichier</span>';
+    }
+  }
 }
 
 function toggleCompleter(){
@@ -1654,6 +1784,48 @@ async function saveCompleter(){
   toast('✅ Bail mis à jour'+(changedChamps.length?` — ${changedChamps.length} modification(s) enregistrée(s)`:''));
   renderBail();
   toggleCompleter();
+}
+
+// ── UPLOAD DOCUMENT ───────────────────────────────────────────────────────────
+const DOC_BUCKET='lease-docs';
+const DOC_COL={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
+
+async function uploadDoc(key,inputEl){
+  if(!inputEl.files||!inputEl.files[0])return;
+  const file=inputEl.files[0];
+  if(file.type!=='application/pdf'&&!file.name.endsWith('.pdf')){
+    toast('⚠️ Seuls les fichiers PDF sont acceptés',4000);inputEl.value='';return;
+  }
+  if(file.size>15*1024*1024){toast('⚠️ Fichier trop volumineux (max 15 Mo)',4000);inputEl.value='';return;}
+  if(!LEASE?.id){toast('⚠️ Bail non chargé — impossible d\'uploader',4000);return;}
+
+  const statusEl=q('status-'+key);
+  if(statusEl)statusEl.innerHTML='<span class="cp-doc-uploading">⏳ Upload en cours…</span>';
+
+  const path=`${LEASE.id}/${key}_${Date.now()}.pdf`;
+  const{data,error}=await sb.storage.from(DOC_BUCKET).upload(path,file,{upsert:true,contentType:'application/pdf'});
+  if(error){
+    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem">❌ '+error.message+'</span>';
+    toast('❌ Upload échoué : '+error.message,5000);
+    return;
+  }
+
+  // Récupérer l'URL publique
+  const{data:{publicUrl}}=sb.storage.from(DOC_BUCKET).getPublicUrl(path);
+  const col=DOC_COL[key];
+
+  // Sauvegarder l'URL dans la table leases
+  const{error:upErr}=await sb.from('leases').update({[col]:publicUrl}).eq('id',LEASE.id);
+  if(upErr){
+    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem">❌ Sauvegarde échouée</span>';
+    toast('❌ Sauvegarde URL échouée : '+upErr.message,5000);
+    return;
+  }
+  LEASE[col]=publicUrl;
+
+  if(statusEl)statusEl.innerHTML=`<span class="cp-doc-ok">✅ Déposé</span> <a href="${publicUrl}" target="_blank" class="cp-doc-link">Voir PDF</a>`;
+  toast(`✅ ${key.toUpperCase()} déposé avec succès`);
+  renderBail(); // Mettre à jour la liste des annexes
 }
 
 function showError(msg){q('loader').innerHTML=`<div style="color:var(--red);font-size:.9rem;padding:2rem">${msg}</div>`;}
