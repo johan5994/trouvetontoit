@@ -239,6 +239,23 @@
     .modif-legend{display:flex;gap:.75rem;align-items:center;margin-top:.65rem;padding-top:.55rem;border-top:1px solid #dbeafe;font-size:.72rem;color:#6b7280}
     .modif-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;display:inline-block;margin-right:3px;vertical-align:middle}
 
+    /* LANDLORD GUIDE */
+    .ll-guide{background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 100%);border:1.5px solid #BFDBFE;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1.4rem}
+    .ll-guide-title{font-size:.82rem;font-weight:800;color:var(--bleu);margin-bottom:.8rem;display:flex;align-items:center;gap:.45rem;letter-spacing:.2px}
+    .ll-guide-steps{display:flex;flex-direction:column;gap:.55rem}
+    .ll-guide-step{display:flex;align-items:flex-start;gap:.7rem}
+    .ll-step-num{width:22px;height:22px;border-radius:50%;background:var(--bleu);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+    .ll-step-text{font-size:.81rem;color:var(--tm);line-height:1.5}
+    .ll-step-text strong{color:var(--bleu)}
+    .ll-guide-divider{border:none;border-top:1px solid #BFDBFE;margin:.7rem 0}
+    .ll-guide-note{font-size:.75rem;color:#6b7280;line-height:1.5}
+
+    /* SIG LOCKED */
+    .sig-locked-placeholder{background:#F8F9FF;border:2px dashed #C7D2FE;border-radius:12px;padding:1.5rem;text-align:center;margin-top:1.75rem}
+    .sig-locked-placeholder .slp-icon{font-size:1.6rem;margin-bottom:.4rem}
+    .sig-locked-placeholder .slp-title{font-weight:700;color:var(--bleu);font-size:.88rem;margin-bottom:.25rem}
+    .sig-locked-placeholder .slp-sub{font-size:.78rem;color:var(--td);line-height:1.5}
+
     /* LOADER */
     #loader{text-align:center;padding:4rem 1rem;color:var(--td);font-size:.9rem}
     .spin{display:inline-block;width:28px;height:28px;border:3px solid #E5E7EB;border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.75rem}
@@ -906,7 +923,7 @@
         </div>
 
         <!-- SIGNATURES PRINCIPALES -->
-        <div class="sig-section">
+        <div class="sig-section" id="sig-section-main" style="display:none">
           <div class="sig-title">🖊️ Signatures électroniques des parties</div>
           <div class="sig-grid">
             <div class="sig-block" id="sig-ll-block">
@@ -935,6 +952,8 @@
             La signature électronique a la même valeur juridique qu'une signature manuscrite (art. 1367 du Code civil et règlement eIDAS n° 910/2014).
           </p>
         </div>
+        <!-- Placeholder quand les signatures sont verrouillées -->
+        <div id="sig-locked-wrap" style="display:none"></div>
 
       </div><!-- /bail-body -->
     </div><!-- /bail-card -->
@@ -1163,6 +1182,77 @@ async function saveField(key,value){
   LEASE[key]=value;
   toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
   renderBail();
+}
+
+// ── GUIDE BAILLEUR ────────────────────────────────────────────────────────────
+function renderLandlordGuide(){
+  const L=LEASE;
+  const ns=L.negotiation_status||'draft';
+  const isLandlord=_editMode||(myRole==='landlord')||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!L.landlord_signed_at);
+  const allSigned=!!L.landlord_signed_at&&!!L.tenant_signed_at;
+
+  // Chercher ou créer le panneau guide
+  let guide=document.getElementById('ll-guide-panel');
+  if(!isLandlord||allSigned){if(guide)guide.style.display='none';return;}
+
+  // Trouver le bon conteneur (avant le modifs-panel ou bail-body)
+  if(!guide){
+    guide=document.createElement('div');
+    guide.id='ll-guide-panel';
+    guide.className='ll-guide no-print';
+    const mp=q('modifs-panel');
+    const target=mp||document.querySelector('.bail-body');
+    if(target) target.insertAdjacentElement('beforebegin',guide);
+  }
+
+  // Construire le contenu selon l'étape
+  const step1Done=ns!=='draft';
+  const step2Done=ns==='agreed'||ns==='signed';
+  const step3Done=!!L.landlord_signed_at;
+
+  const check=(done)=>done
+    ?`<span style="background:#16a34a;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.05rem">✓</span>`
+    :`<span class="ll-step-num">${done===false?'…':''}</span>`;
+
+  const stepNum=(n,done)=>done
+    ?`<span style="background:#16a34a;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.05rem">✓</span>`
+    :`<span class="ll-step-num">${n}</span>`;
+
+  let stepsHtml=`
+    <div class="ll-guide-step">
+      ${stepNum(1,step1Done)}
+      <div class="ll-step-text">
+        <strong>Complétez le bail</strong> — Les champs <span style="display:inline-flex;align-items:center;gap:.2rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:#C2410C;vertical-align:middle">⚠ surlignés</span> sont manquants. Cliquez dessus directement dans le document pour les renseigner.
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(2,step1Done)}
+      <div class="ll-step-text">
+        <strong>Envoyez au locataire pour relecture</strong> — Cliquez sur <strong>📨 Envoyer au locataire →</strong> dans la barre bleue ci-dessous. Il recevra un lien pour lire le bail et l'accepter (ou demander des modifications).
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(3,step2Done)}
+      <div class="ll-step-text">
+        <strong>Accord mutuel</strong> — Une fois que le locataire a accepté le modèle, les signatures sont débloquées pour les deux parties.
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(4,step3Done)}
+      <div class="ll-step-text">
+        <strong>Signez le bail</strong> — Après accord, vous pouvez apposer votre signature électronique. Le locataire signe ensuite de son côté.
+      </div>
+    </div>`;
+
+  // Message contextuel selon l'étape actuelle
+  let contextMsg='';
+  if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">👉 <strong>Étape actuelle :</strong> Complétez les champs manquants puis cliquez sur <strong>📨 Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
+  else if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">⏳ <strong>En attente :</strong> Le locataire doit relire et accepter le bail. Vous recevrez un message dès qu'il aura répondu.</p>`;
+  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">🔄 <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong>✅ Valider le modèle final →</strong>.</p>`;
+  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">✅ <strong>Modèle accepté !</strong> Les signatures sont maintenant débloquées. Faites défiler vers le bas pour apposer votre signature.</p>`;
+
+  guide.innerHTML=`<div class="ll-guide-title">📋 Guide — Comment signer votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
+  guide.style.display='block';
 }
 
 // ── CLAUSES PARTICULIÈRES ─────────────────────────────────────────────────────
@@ -1447,6 +1537,7 @@ function renderBail(){
 
   buildRecentChanges();   // construire les highlights
   renderModifsPanel();    // afficher le panneau historique
+  renderLandlordGuide();  // guide bailleur
 
   q('loader').style.display='none';
   q('bail-wrap').style.display='block';
@@ -1763,7 +1854,7 @@ async function sendToTenant(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('✅ Bail envoyé au locataire pour relecture !');
-  renderNegocBar();
+  renderNegocBar();renderLandlordGuide();renderStatusAndSigs();
 }
 
 async function tenantAcceptsModel(){
@@ -1775,7 +1866,7 @@ async function tenantAcceptsModel(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`✅ Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
   toast('✅ Modèle accepté ! Le bail est maintenant prêt pour signature.');
-  renderNegocBar();renderStatusAndSigs();
+  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();
 }
 
 function openModifModal(){q('modif-modal').style.display='flex';}
@@ -1805,7 +1896,7 @@ async function landlordValidateModel(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`✅ Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
   toast('✅ Modèle validé ! Signatures ouvertes.');
-  renderNegocBar();renderStatusAndSigs();
+  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();
 }
 
 function renderStatusAndSigs(){
@@ -1827,6 +1918,25 @@ function renderStatusAndSigs(){
   // Bloquer signatures si modèle pas encore accepté
   const ns=L.negotiation_status||'agreed'; // rétrocompat: pas de statut = signable direct
   const canSign=ns==='agreed'||ns==='signed'||!ns;
+
+  // Afficher/masquer la section signatures selon accord ou non
+  const sigMain=document.getElementById('sig-section-main');
+  const sigLocked=document.getElementById('sig-locked-wrap');
+  if(sigMain) sigMain.style.display=canSign?'':'none';
+  if(sigLocked){
+    if(!canSign){
+      const nsLabels={
+        draft:'Le bail est en brouillon — envoyez-le au locataire pour relecture.',
+        pending_tenant:'Le bail a été envoyé au locataire. En attente de son accord.',
+        pending_landlord:'Le locataire a demandé des modifications. Relisez ses commentaires et validez.',
+      };
+      const msg=nsLabels[ns]||'Accord en cours.';
+      sigLocked.innerHTML=`<div class="sig-locked-placeholder no-print"><div class="slp-icon">🔒</div><div class="slp-title">Signatures disponibles après accord mutuel</div><div class="slp-sub">${msg}</div></div>`;
+      sigLocked.style.display='block';
+    }else{
+      sigLocked.style.display='none';
+    }
+  }
 
   // Sig bailleur
   if(llSigned&&L.landlord_signature){
