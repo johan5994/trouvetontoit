@@ -566,8 +566,11 @@
             <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
               <div class="article-title" style="color:var(--gold);margin-bottom:.9rem">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
 
+              <!-- Identification du garant (remplie par JS) -->
+              <div id="c-garant-header" style="margin-bottom:.85rem"></div>
+
               <div class="article-content">
-                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, né(e) le <span id="c-garant-birth-inline">—</span>, demeurant <span id="c-garant-addr-inline">—</span>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, ci-dessus identifié(e), déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
                 <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
               </div>
 
@@ -1789,16 +1792,6 @@ function renderBail(){
         ${editIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
       </div>
     </div>`;
-  if(L.garant_name){
-    const profExtra=L.garant_pro?`profession : <strong>${hl('garant_pro',L.garant_pro)}</strong>`:null;
-    partiesHtml+=`
-    <div class="partie-card garant-card">
-      <span class="partie-pill" style="background:var(--gold)">Le Garant</span>
-      <div class="partie-body">
-        ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:profExtra||''},'le garant')}
-        ${editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro]])}
-      </div>
-    </div>`;}
   show('parties-grid',partiesHtml);
   show('sig-ll-name',LL_PROFILE?.full_name||'Bailleur');
   show('sig-t-name',T_PROFILE?.full_name||'Locataire');
@@ -2108,15 +2101,21 @@ function renderBail(){
     const llName=L.landlord_name||LL_PROFILE?.full_name||'—';
     show('c-landlord-name2',llName);
 
-    // Garant
+    // Garant — identification dans l'en-tête de la clause
     show('c-garant-name2',L.garant_name);
     show('sig-g-name',L.garant_name);
-    // Naissance inline dans la clause
-    const birthStr=[]
-    if(L.garant_birth_date)birthStr.push(fmtDate(L.garant_birth_date));
-    if(L.garant_birth_place)birthStr.push('à '+L.garant_birth_place);
-    show('c-garant-birth-inline',birthStr.length?birthStr.join(' '):'—');
-    show('c-garant-addr-inline',L.garant_address||'—');
+    const gBirthParts=[];
+    if(L.garant_birth_date)gBirthParts.push('né(e) le <strong>'+fmtDate(L.garant_birth_date)+'</strong>');
+    if(L.garant_birth_place)gBirthParts.push('à <strong>'+L.garant_birth_place+'</strong>');
+    const profExtra=L.garant_pro?`profession : <strong>${hl('garant_pro',L.garant_pro)}</strong>`:null;
+    const extraParts=[gBirthParts.join(' '),profExtra].filter(Boolean).join(' — ');
+    show('c-garant-header',`<div class="partie-card garant-card" style="margin:0">
+      <span class="partie-pill" style="background:var(--gold)">Le Garant (Caution solidaire)</span>
+      <div class="partie-body">
+        ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:extraParts||''},'le garant')}
+        ${editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro],['garant_birth_date',L.garant_birth_date],['garant_birth_place',L.garant_birth_place]])}
+      </div>
+    </div>`);
 
     show('c-tenant-name',T_PROFILE?.full_name||L.tenant_id);
     show('c-adresse',Li?.full_address||'—');
