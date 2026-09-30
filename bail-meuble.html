@@ -119,6 +119,10 @@
     .missing-badge{display:inline-flex;align-items:center;gap:.3rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.16rem .65rem;font-size:.78rem;font-weight:700;color:#C2410C;cursor:pointer;transition:all .15s;white-space:nowrap}
     .missing-badge:hover{background:#FFEDD5;border-color:#EA580C;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
 
+    /* EDIT BTN — pencil for pre-filled fields */
+    .edit-btn{display:inline-flex;align-items:center;padding:.1rem .28rem;border-radius:5px;font-size:.68rem;background:#EFF6FF;color:var(--bleu);border:1px solid #BFDBFE;cursor:pointer;margin-left:.3rem;line-height:1;transition:background .12s;vertical-align:middle;user-select:none}
+    .edit-btn:hover{background:#DBEAFE;border-color:var(--bleu)}
+
     /* EDIT MODE BANNER */
     .edit-banner{background:#FFF7ED;border:1.5px solid #F97316;border-radius:8px;padding:.65rem 1rem;margin-bottom:1.3rem;font-size:.82rem;color:#92400E;display:flex;align-items:center;gap:.6rem;line-height:1.5}
     .edit-banner-sample{display:inline-flex;align-items:center;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.1rem .45rem;font-size:.73rem;font-weight:700;color:#C2410C;margin:0 .2rem;vertical-align:middle}
@@ -590,11 +594,23 @@
             <p><strong>4.1 Montant du loyer</strong></p>
             <p>Le loyer mensuel est fixé à <strong id="loyer-txt">—</strong> euros hors charges, payable le <strong id="paydate-txt">1<sup>er</sup></strong> de chaque mois.</p>
           </div>
-          <div class="info-grid">
-            <div class="info-item"><div class="label">Loyer mensuel HC</div><div class="value big" id="loyer-val">—</div></div>
-            <div class="info-item"><div class="label">Provisions sur charges</div><div class="value big" id="charges-val">—</div></div>
-            <div class="info-item"><div class="label">Total mensuel TTC</div><div class="value big" id="total-val" style="color:var(--green)">—</div></div>
-            <div class="info-item"><div class="label">Échéance</div><div class="value" id="echeance-val">—</div></div>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="ir-label">Loyer mensuel HC</span>
+              <span class="ir-value" id="loyer-val" style="color:var(--bleu);font-size:.92rem">—</span>
+            </div>
+            <div class="info-row">
+              <span class="ir-label">Provisions sur charges</span>
+              <span class="ir-value" id="charges-val">—</span>
+            </div>
+            <div class="info-row" style="background:var(--bg)">
+              <span class="ir-label" style="font-weight:700;color:var(--tm)">Total mensuel TTC</span>
+              <span class="ir-value" id="total-val" style="color:var(--green);font-size:.92rem;font-weight:700">—</span>
+            </div>
+            <div class="info-row">
+              <span class="ir-label">Échéance de paiement</span>
+              <span class="ir-value" id="echeance-val">—</span>
+            </div>
           </div>
           <div class="article-content">
             <p id="dernier-loyer-block"></p>
@@ -1077,6 +1093,13 @@ const FIELD_LABELS={
   garant_phone:'Garant — Téléphone',
   garant_montant:'Garant — Montant caution',
   garant_pro:'Garant — Profession',
+  travaux_desc:'Travaux réalisés',
+  rent:'Loyer mensuel HC',
+  charges:'Provisions sur charges',
+  deposit:'Dépôt de garantie',
+  payment_due_day:'Échéance de paiement',
+  start_date:'Date d\'entrée',
+  end_date:'Date de fin',
 };
 
 // ── INLINE EDITING ────────────────────────────────────────────────────────────
@@ -1104,7 +1127,14 @@ const FIELD_CONFIGS={
   garant_phone:{type:'tel',placeholder:'+33 6 …'},
   garant_montant:{type:'number',placeholder:'ex. 12000',step:1,min:0},
   garant_pro:{type:'text',placeholder:'ex. Cadre chez SNCF'},
-  numero_lot:{type:'text',placeholder:'ex. Lot 42'}
+  numero_lot:{type:'text',placeholder:'ex. Lot 42'},
+  travaux_desc:{type:'travaux',placeholder:'Décrivez les travaux réalisés (nature, pièces concernées, date approximative)…'},
+  rent:{type:'number',placeholder:'ex. 850',step:1,min:0},
+  charges:{type:'number',placeholder:'ex. 50 (laisser 0 si incluses)',step:1,min:0},
+  deposit:{type:'number',placeholder:'ex. 1700',step:1,min:0},
+  payment_due_day:{type:'select',options:[{v:'1',l:'1ᵉʳ du mois'},{v:'5',l:'5 du mois'},{v:'10',l:'10 du mois'},{v:'15',l:'15 du mois'},{v:'20',l:'20 du mois'},{v:'25',l:'25 du mois'},{v:'28',l:'28 du mois'}]},
+  start_date:{type:'date'},
+  end_date:{type:'date'},
 };
 
 // Returns an orange "⚠ field name" badge for missing fields when in edit mode
@@ -1112,6 +1142,12 @@ function mf(key){
   if(!_editMode)return'—';
   const lbl=FIELD_LABELS[key]||key;
   return`<span class="missing-badge" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+}
+
+// Returns value + small edit pencil button when in edit mode (for pre-filled fields)
+function ev(key, displayVal){
+  if(!_editMode) return displayVal;
+  return `${displayVal} <span class="edit-btn" onclick="editField(event,'${key}')">✏️</span>`;
 }
 
 function editField(evt,key){
@@ -1128,6 +1164,14 @@ function editField(evt,key){
       return`<option value="${v}"${currentVal===v?' selected':''}>${l}</option>`;
     });
     inputHtml=`<select id="ep-input">${opts.join('')}</select>`;
+  }else if(cfg.type==='travaux'){
+    const isAucun=currentVal==='aucun';
+    const textVal=isAucun?'':currentVal;
+    inputHtml=`<label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:600;cursor:pointer;margin-bottom:.45rem">
+      <input type="checkbox" id="ep-aucun" ${isAucun?'checked':''} onchange="document.getElementById('ep-input').style.opacity=this.checked?.35:1;document.getElementById('ep-input').disabled=this.checked" style="accent-color:var(--bleu);width:15px;height:15px">
+      Aucun travaux à déclarer
+    </label>
+    <textarea id="ep-input" rows="4" placeholder="${cfg.placeholder}" style="width:100%;border:1px solid var(--border2);border-radius:7px;padding:.45rem .65rem;font-size:.82rem;font-family:'DM Sans',sans-serif;color:var(--tm);resize:vertical;box-sizing:border-box;${isAucun?'opacity:.35':''}" ${isAucun?'disabled':''}>${textVal}</textarea>`;
   }else{
     const extra=[
       cfg.min!=null?`min="${cfg.min}"`:'',
@@ -1141,15 +1185,16 @@ function editField(evt,key){
   const popup=document.createElement('div');
   popup.className='edit-popup';
   popup.id='edit-popup';
+  popup.style.maxWidth='360px';
   popup.innerHTML=`<div class="edit-popup-title">${lbl}</div>${inputHtml}<div class="ep-actions"><button class="ep-cancel" onclick="closeEditPopup()">Annuler</button><button class="ep-save" onclick="saveFieldFromPopup('${key}')">Enregistrer ✓</button></div>`;
   document.body.appendChild(popup);
   _editPopup=popup;
   const r=evt.target.getBoundingClientRect();
-  const x=Math.max(8,Math.min(r.left,window.innerWidth-340));
-  const y=Math.max(8,Math.min(r.bottom+6,window.innerHeight-160));
+  const x=Math.max(8,Math.min(r.left,window.innerWidth-380));
+  const y=Math.max(8,Math.min(r.bottom+6,window.innerHeight-220));
   popup.style.left=x+'px';
   popup.style.top=y+'px';
-  setTimeout(()=>{const i=document.getElementById('ep-input');if(i){i.focus();if(i.select)i.select();}},30);
+  setTimeout(()=>{const cb=document.getElementById('ep-aucun');if(cb)return;const i=document.getElementById('ep-input');if(i){i.focus();if(i.select)i.select();}},30);
 }
 
 function closeEditPopup(){if(_editPopup){_editPopup.remove();_editPopup=null;}}
@@ -1161,7 +1206,11 @@ async function saveFieldFromPopup(key){
   if(!input)return;
   let val=input.value.trim();
   const cfg=FIELD_CONFIGS[key]||{};
-  if(cfg.type==='number')val=val?parseFloat(val):null;
+  if(cfg.type==='travaux'){
+    const cb=document.getElementById('ep-aucun');
+    if(cb&&cb.checked) val='aucun';
+    else if(!val){toast('⚠️ Décrivez les travaux ou cochez "Aucun travaux".',3500);return;}
+  }else if(cfg.type==='number')val=val?parseFloat(val):null;
   else if(!val)val=null;
   closeEditPopup();
   await saveField(key,val);
@@ -1623,12 +1672,13 @@ function renderBail(){
   }
 
   // Loyer
-  show('loyer-txt',rent.toString());
-  show('loyer-val',fmt(rent));
-  show('charges-val',charges>0?fmt(charges):'Incluses');
+  const payDay=L.payment_due_day||Li?.payment_due_day||'1';
+  show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')">✏️</span>`:''));
+  show('loyer-val',ev('rent',fmt(rent)));
+  show('charges-val',ev('charges',charges>0?fmt(charges):'Incluses'));
   show('total-val',fmt(rent+(charges||0)));
-  show('paydate-txt',Li?.payment_due_day||'1er');
-  show('echeance-val',(Li?.payment_due_day||'1')+'ᵉʳ du mois');
+  show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')">✏️</span>`:'<sup>er</sup>'));
+  show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois'));
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
 
   // Dernier loyer
@@ -1647,9 +1697,9 @@ function renderBail(){
 
   // Dépôt
   const depotMois=rent>0?Math.round(deposit/rent):2;
-  show('depot-txt',fmt(deposit));
+  show('depot-txt',ev('deposit',fmt(deposit)));
   show('depot-mois-txt',nb(depotMois)+' ('+depotMois+') mois');
-  show('depot-highlight',fmt(deposit)+' — à verser avant l\'entrée dans les lieux');
+  show('depot-highlight',ev('deposit',fmt(deposit))+' — à verser avant l\'entrée dans les lieux');
 
   // Charges / bills
   if(Li?.bills_included){
@@ -1698,8 +1748,14 @@ function renderBail(){
   }
 
   // Travaux
-  if(L.travaux_desc){show('travaux-block',`<div class="info-blue">🔨 ${L.travaux_desc}</div>`);}
-  else{show('travaux-block','<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.</div>');}
+  if(L.travaux_desc==='aucun'||(!L.travaux_desc&&!_editMode)){
+    show('travaux-block',`<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="missing-badge" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_desc')">✏️ Modifier</span>`:''}</div>`);
+  }else if(L.travaux_desc&&L.travaux_desc!=='aucun'){
+    show('travaux-block',`<div class="info-blue">🔨 ${L.travaux_desc}${_editMode?` <span class="missing-badge" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_desc')">✏️ Modifier</span>`:''}</div>`);
+  }else{
+    // edit mode + pas encore déclaré → badge orange
+    show('travaux-block',`<div class="info-blue" style="border-color:#F97316;background:#FFF7ED">${mf('travaux_desc')}</div>`);
+  }
 
   // Inventaire mobilier
   const mobilier=['Literie avec couette ou couverture','Volets ou rideaux dans les chambres','Plaques de cuisson','Four ou four à micro-ondes','Réfrigérateur','Congélateur (ou compartiment ≤ −6 °C)','Vaisselle en nombre suffisant pour les repas','Ustensiles de cuisine','Table et sièges','Étagères de rangement','Luminaires dans chaque pièce','Matériel d’entretien ménager'];
@@ -1709,8 +1765,8 @@ function renderBail(){
   const ville=Li?.zone||(Li?.full_address?.split(',').pop()?.trim())||'France';
   show('fait-a',ville);
   show('fait-le',fmtDate(new Date().toISOString().slice(0,10)));
-  show('start-date-txt',fmtDate(L.start_date));
-  show('end-date-txt',fmtDate(L.end_date));
+  show('start-date-txt',ev('start_date',fmtDate(L.start_date)));
+  show('end-date-txt',ev('end_date',fmtDate(L.end_date)));
 
   // Annexes
   const annexes=[
