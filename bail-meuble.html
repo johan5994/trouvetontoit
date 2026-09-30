@@ -2128,18 +2128,13 @@ function renderBail(){
     const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
     items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
   }
-  // Dépendances — parking
+  // Dépendances — n'apparaissent dans le bail QUE si le bailleur a explicitement renseigné les détails
   if(L.parking_type||L.parking_details){
     const parkLabel=[L.parking_type,L.parking_details].filter(Boolean).join(' — ');
     items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',parkLabel))});
-  } else if(L.parking||Li?.parking){
-    items2.push({label:'Stationnement',value:'Inclus'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="openCompleter()">⚠ Préciser type et lot</span>`:'')});
   }
-  // Cave
   if(L.cave_details){
     items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
-  } else if(L.cave||Li?.cave){
-    items2.push({label:'Cave',value:'Incluse'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'cave_details')">⚠ Préciser lot/localisation</span>`:'')});
   }
   // Box
   if(L.box_details){
@@ -2801,9 +2796,11 @@ function toggleCompleter(){
   btn.textContent=hidden?'▲ Réduire':'▼ Compléter';
 }
 function openCompleter(){
+  const panel=q('completer-panel');
   const body=q('cp-body-wrap'),btn=q('cp-toggle-btn');
+  if(panel)panel.classList.add('visible');
   if(body){body.style.display='';if(btn)btn.textContent='▲ Réduire';}
-  q('completer-panel').scrollIntoView({behavior:'smooth'});
+  if(panel)panel.scrollIntoView({behavior:'smooth'});
 }
 function toggleCoProFields(){
   const show=q('cp-copro').checked;
