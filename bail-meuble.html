@@ -66,8 +66,37 @@
     /* PAGE */
     .page-wrap{max-width:840px;margin:2rem auto;padding:0 1rem 5rem}
 
+    /* ESPACE DE TRAVAIL (guide + historique) — clairement séparé du document */
+    #bail-tools-wrap{
+      background:#F3F6FF;
+      border:1.5px dashed #C7D2FE;
+      border-radius:14px;
+      padding:1rem 1.1rem 1.1rem;
+      display:flex;flex-direction:column;gap:.75rem;
+      margin-bottom:0;
+    }
+    .tools-header{
+      font-size:.65rem;font-weight:800;color:#6B7280;
+      text-transform:uppercase;letter-spacing:1px;
+      display:flex;align-items:center;gap:.4rem;
+      margin-bottom:.15rem;
+    }
+    /* Cacher si vide (seulement le tools-header reste) */
+    #bail-tools-wrap.tools-empty{display:none}
+
+    /* Séparateur entre espace de travail et document */
+    .doc-separator{
+      display:flex;align-items:center;gap:.75rem;
+      margin:1rem 0 .85rem;
+      color:var(--td);font-size:.68rem;font-weight:700;
+      text-transform:uppercase;letter-spacing:.8px;
+    }
+    .doc-separator::before,.doc-separator::after{
+      content:'';flex:1;border-top:1.5px solid var(--border);
+    }
+
     /* BAIL CARD */
-    .bail-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+    .bail-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
 
     /* HEADER */
     .bail-header{background:linear-gradient(135deg,var(--marine) 0%,var(--bleu) 100%);color:#fff;padding:2rem 2.5rem;text-align:center}
@@ -538,6 +567,18 @@
 <div class="page-wrap">
   <div id="loader"><div class="spin"></div><br>Chargement du bail…</div>
   <div id="bail-wrap" style="display:none">
+
+    <!-- ═══ ESPACE DE TRAVAIL (guide + historique — jamais imprimé) ═══ -->
+    <div id="bail-tools-wrap" class="no-print">
+      <div class="tools-header">🛠 Espace de travail</div>
+    </div>
+
+    <!-- Séparateur "Document officiel" -->
+    <div class="doc-separator no-print" id="doc-separator" style="display:none">
+      <span>📄 Document officiel</span>
+    </div>
+
+    <!-- ═══ DOCUMENT OFFICIEL ═══ -->
     <div class="bail-card">
 
       <!-- HEADER -->
@@ -550,9 +591,6 @@
 
       <!-- BODY -->
       <div class="bail-body">
-
-        <!-- PANNEAU MODIFICATIONS (visible si négociation en cours) -->
-        <div id="modifs-panel" style="display:none" class="modifs-panel no-print"></div>
 
         <!-- PARTIES -->
         <div class="section">
@@ -570,7 +608,7 @@
               <div id="c-garant-header" style="margin-bottom:.85rem"></div>
 
               <div class="article-content">
-                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, ci-dessus identifié(e), déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
                 <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
               </div>
 
@@ -1189,7 +1227,12 @@ function editField(evt,key){
   closeEditPopup();
   const cfg=FIELD_CONFIGS[key]||{type:'text',placeholder:''};
   const lbl=FIELD_LABELS[key]||key;
-  const currentVal=LEASE[key]!=null?String(LEASE[key]):'';
+  // Lire la valeur courante depuis le bon objet (profiles vs lease)
+  let currentVal='';
+  if(LL_PROFILE_MAP&&LL_PROFILE_MAP[key]){currentVal=LL_PROFILE?.[LL_PROFILE_MAP[key]]??'';}
+  else if(T_PROFILE_MAP&&T_PROFILE_MAP[key]){currentVal=T_PROFILE?.[T_PROFILE_MAP[key]]??'';}
+  else{currentVal=LEASE[key]!=null?String(LEASE[key]):'';}
+  currentVal=String(currentVal);
   let inputHtml='';
   if(cfg.type==='select'){
     const opts=cfg.options.map(o=>{
@@ -1250,7 +1293,48 @@ async function saveFieldFromPopup(key){
   await saveField(key,val);
 }
 
+// Champs qui vivent dans profiles, pas dans leases
+const LL_PROFILE_MAP={landlord_name:'full_name',landlord_address:'address',landlord_email:'email',landlord_phone:'phone'};
+const T_PROFILE_MAP={tenant_name:'full_name',tenant_email:'email',tenant_phone:'phone',tenant_nationality:'nationality'};
+
 async function saveField(key,value){
+  // Routing vers profiles pour les champs bailleur/locataire
+  if(LL_PROFILE_MAP[key]){
+    const col=LL_PROFILE_MAP[key];
+    const old=LL_PROFILE?.[col];
+    if(String(value??'')===String(old??''))return;
+    const{error}=await sb.from('profiles').update({[col]:value}).eq('clerk_id',LEASE.landlord_id);
+    if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+    if(LL_PROFILE)LL_PROFILE[col]=value;
+    // Log dans lease
+    if(FIELD_LABELS[key]){
+      const entry={par:'landlord',date:new Date().toISOString(),champs:[{cle:key,label:FIELD_LABELS[key],ancien:old??null,nouveau:value??null}],note:null};
+      const newLog=[...(LEASE.modifs_log||[]),entry];
+      const{error:le}=await sb.from('leases').update({modifs_log:newLog}).eq('id',LEASE.id);
+      if(!le)LEASE.modifs_log=newLog;
+    }
+    toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+    renderBail();
+    return;
+  }
+  if(T_PROFILE_MAP[key]){
+    const col=T_PROFILE_MAP[key];
+    const old=T_PROFILE?.[col];
+    if(String(value??'')===String(old??''))return;
+    const{error}=await sb.from('profiles').update({[col]:value}).eq('clerk_id',LEASE.tenant_id);
+    if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+    if(T_PROFILE)T_PROFILE[col]=value;
+    if(FIELD_LABELS[key]){
+      const entry={par:'landlord',date:new Date().toISOString(),champs:[{cle:key,label:FIELD_LABELS[key],ancien:old??null,nouveau:value??null}],note:null};
+      const newLog=[...(LEASE.modifs_log||[]),entry];
+      const{error:le}=await sb.from('leases').update({modifs_log:newLog}).eq('id',LEASE.id);
+      if(!le)LEASE.modifs_log=newLog;
+    }
+    toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+    renderBail();
+    return;
+  }
+  // Champ standard dans leases
   if(String(value??'')===String(LEASE[key]??''))return;
   const old=LEASE[key];
   const upd={[key]:value};
@@ -1278,14 +1362,13 @@ function renderLandlordGuide(){
   let guide=document.getElementById('ll-guide-panel');
   if(!isLandlord||allSigned){if(guide)guide.style.display='none';return;}
 
-  // Trouver le bon conteneur (avant le modifs-panel ou bail-body)
+  // Injecter dans bail-tools-wrap (espace de travail, hors document)
   if(!guide){
     guide=document.createElement('div');
     guide.id='ll-guide-panel';
-    guide.className='ll-guide no-print';
-    const mp=q('modifs-panel');
-    const target=mp||document.querySelector('.bail-body');
-    if(target) target.insertAdjacentElement('beforebegin',guide);
+    guide.className='ll-guide';
+    const toolsWrap=document.getElementById('bail-tools-wrap');
+    if(toolsWrap)toolsWrap.appendChild(guide);
   }
 
   // Construire le contenu selon l'étape
@@ -1336,6 +1419,20 @@ function renderLandlordGuide(){
 
   guide.innerHTML=`<div class="ll-guide-title">📋 Guide — Comment signer votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
   guide.style.display='block';
+  updateToolsVisibility();
+}
+
+function updateToolsVisibility(){
+  const wrap=document.getElementById('bail-tools-wrap');
+  const sep=document.getElementById('doc-separator');
+  if(!wrap)return;
+  // Vérifier si des outils réels sont visibles (modifs-panel, guide, edit-banner)
+  const hasContent=['modifs-panel','ll-guide-panel','edit-mode-banner'].some(id=>{
+    const el=document.getElementById(id);
+    return el&&el.style.display!=='none'&&el.offsetParent!==null;
+  });
+  wrap.classList.toggle('tools-empty',!hasContent);
+  if(sep)sep.style.display=hasContent?'flex':'none';
 }
 
 // ── CLAUSES PARTICULIÈRES ─────────────────────────────────────────────────────
@@ -1510,8 +1607,15 @@ function hl(fieldKey,value){
 }
 
 function renderModifsPanel(){
-  const panel=q('modifs-panel');
-  if(!panel)return;
+  let panel=q('modifs-panel');
+  if(!panel){
+    panel=document.createElement('div');
+    panel.id='modifs-panel';
+    panel.className='modifs-panel';
+    panel.style.display='none';
+    const toolsWrap=document.getElementById('bail-tools-wrap');
+    if(toolsWrap)toolsWrap.prepend(panel);
+  }
   const log=LEASE?.modifs_log;
   if(!log||!log.length){panel.style.display='none';return;}
 
@@ -1733,6 +1837,7 @@ function renderBail(){
   buildRecentChanges();   // construire les highlights
   renderModifsPanel();    // afficher le panneau historique
   renderLandlordGuide();  // guide bailleur
+  updateToolsVisibility(); // afficher/masquer la zone de travail
 
   q('loader').style.display='none';
   q('bail-wrap').style.display='block';
@@ -2104,6 +2209,12 @@ function renderBail(){
     // Garant — identification dans l'en-tête de la clause
     show('c-garant-name2',L.garant_name);
     show('sig-g-name',L.garant_name);
+    // Infos inline dans le texte de la clause
+    const birthInlineParts=[];
+    if(L.garant_birth_date)birthInlineParts.push('né(e) le '+fmtDate(L.garant_birth_date));
+    if(L.garant_birth_place)birthInlineParts.push('à '+L.garant_birth_place);
+    show('c-garant-birth-inline',birthInlineParts.length?', '+birthInlineParts.join(' '):'');
+    show('c-garant-addr-inline',L.garant_address?', demeurant '+L.garant_address:'');
     const gBirthParts=[];
     if(L.garant_birth_date)gBirthParts.push('né(e) le <strong>'+fmtDate(L.garant_birth_date)+'</strong>');
     if(L.garant_birth_place)gBirthParts.push('à <strong>'+L.garant_birth_place+'</strong>');
@@ -2162,20 +2273,22 @@ function renderBail(){
     q('completer-btn').style.display='inline-flex';
     populateCompleterForm();
     updateMissingCount();
-    // Show or create edit-mode banner in the bail body
+    // Show or create edit-mode banner in the tools wrap (hors document)
     let editBanner=q('edit-mode-banner');
     if(!editBanner){
       editBanner=document.createElement('div');
       editBanner.id='edit-mode-banner';
-      editBanner.className='edit-banner no-print';
+      editBanner.className='edit-banner';
       editBanner.innerHTML='✏️ <span><strong>Mode édition actif</strong> — Les champs <span class="edit-banner-sample">⚠ À renseigner</span> sont manquants. Cliquez dessus pour les compléter directement dans le bail.</span>';
-      const mp=q('modifs-panel');
-      if(mp)mp.insertAdjacentElement('afterend',editBanner);
+      const toolsWrap=document.getElementById('bail-tools-wrap');
+      if(toolsWrap)toolsWrap.appendChild(editBanner);
     }
     editBanner.style.display='flex';
+    updateToolsVisibility();
   }else{
     const editBanner=q('edit-mode-banner');
     if(editBanner)editBanner.style.display='none';
+    updateToolsVisibility();
   }
 
   renderClauses();
