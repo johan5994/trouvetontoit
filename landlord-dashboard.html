@@ -1416,98 +1416,131 @@ async function loadApplicationsPageLL(){
   }
 }
 
+// ─── Helper : normalise dossier_data (objet ou array) → array ────────────────
+function normalizeDossier(raw){
+  if(!raw)return null;
+  if(Array.isArray(raw))return raw;
+  if(typeof raw==='object'){
+    const maxIdx=Math.max(...Object.keys(raw).map(Number).filter(n=>!isNaN(n)),-1);
+    if(maxIdx<0)return null;
+    const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(raw[i]||null);return arr;
+  }
+  return null;
+}
+
+// ─── Helper : génère le HTML complet d'un dossier locataire ─────────────────
+function renderDossierHTML(dd){
+  const TYPE_LABELS={
+    cni:'Carte nationale d\'identité',passeport:'Passeport',sejour:'Carte / titre de séjour',
+    permis:'Permis de conduire',france_identite:'France Identité',autre_id:'Autre document',
+    locataire:'Locataire (bail + quittances)',heberge:'Hébergé (avec participation)',
+    heberge_gratuit:'Hébergé à titre gratuit',proprietaire:'Propriétaire (titre de propriété)',
+    autre_heberg:'Autres situations',
+    cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',
+    independant:'Indépendant / Micro-entreprise',retraite:'Retraite',
+    chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',
+    service_civique:'Service civique',intermittent:'Intermittent / Artiste auteur',
+    allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
+    bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',
+    bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',
+    bourse:'Bourse d\'études',are_allocation:'ARE — chômage',
+    caf_rsa:'Allocations CAF / RSA',aide_logement:'Aide au logement',
+    revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
+    avec_impot:'Avis d\'imposition',
+    skipped_impot:'Non imposable / Pas d\'avis d\'impôt',
+    skipped_rattache:'Rattaché au foyer fiscal des parents',
+    garant_personne:'Garant — personne physique',garant_organisme:'Garant — organisme (Visale…)',
+    garant_moral:'Garant — personne morale',skipped_garant:'Pas de garant'
+  };
+  const STEP_META=[
+    {label:'Pièce d\'identité',icon:'🪪'},
+    {label:'Situation d\'hébergement',icon:'🏠'},
+    {label:'Situation professionnelle',icon:'💼'},
+    {label:'Ressources',icon:'💰'},
+    {label:'Avis d\'imposition',icon:'📋'},
+  ];
+  const GARANT_LIEN={parent:'Parent',conjoint:'Conjoint(e)',ami:'Ami(e)',employeur:'Employeur',autre:'Autre lien'};
+  let html='';
+
+  // Étapes 0–4 : locataire
+  for(let i=0;i<5;i++){
+    const step=dd[i];
+    if(!step)continue;
+    const skipped=step.skipped||step.type?.startsWith('skipped');
+    const typeLabel=TYPE_LABELS[step.type]||step.type||'—';
+    const files=(step.files||[]).filter(f=>f?.url);
+    if(!step.type&&!files.length)continue;
+
+    html+=`<div style="background:var(--grdim);border-radius:9px;padding:.5rem .7rem;margin-bottom:.4rem">
+      <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem">
+        <span style="font-size:.95rem">${STEP_META[i].icon}</span>
+        <span style="font-size:.65rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.4px">${STEP_META[i].label}</span>
+        ${skipped?'<span style="margin-left:auto;font-size:.62rem;color:var(--td);font-style:italic">Non applicable</span>':''}
+      </div>
+      ${step.type&&!skipped?`<div style="font-size:.73rem;font-weight:600;color:var(--txt);margin-bottom:.3rem">📄 ${typeLabel}</div>`:''}
+      ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
+        <span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${f.name||'Fichier'}</span>
+        <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  // Étape 5 : garant
+  const garantStep=dd[5];
+  if(garantStep&&garantStep.type){
+    const gTypeLabel=TYPE_LABELS[garantStep.type]||garantStep.type;
+    const skippedGarant=garantStep.type==='skipped_garant';
+    html+=`<div style="border-top:1px solid var(--b);padding-top:.5rem;margin-top:.25rem">
+      <div style="font-size:.65rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem">🤝 Garant</div>`;
+    if(skippedGarant){
+      html+='<div style="font-size:.73rem;color:var(--td);font-style:italic">Pas de garant</div>';
+    }else{
+      html+=`<div style="font-size:.72rem;font-weight:600;color:var(--txt);margin-bottom:.35rem">📄 ${gTypeLabel}</div>`;
+      const garants=garantStep.garants||[];
+      garants.forEach((g,gi)=>{
+        const gn=g.garant_name||{};
+        const gs=g.garant_subs||{};
+        const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ')||'—';
+        const email=gn.email||'—';
+        const lien=GARANT_LIEN[gs.lien]||gs.lien||'';
+        const profession=gs.profession||'';
+        const revenus=gs.revenus||gs.monthly_income||'';
+        const gFiles=(g.files||[]).filter(f=>f?.url);
+        html+=`<div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.18);border-radius:9px;padding:.5rem .65rem;margin-bottom:.35rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.2rem .6rem;font-size:.72rem;margin-bottom:.35rem">
+            <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:700">${nom}</div></div>
+            <div><div style="color:var(--td);font-size:.58rem">Email</div><div style="font-weight:600;word-break:break-all">${email}</div></div>
+            ${lien?`<div><div style="color:var(--td);font-size:.58rem">Lien avec locataire</div><div style="font-weight:600">${lien}</div></div>`:''}
+            ${profession?`<div><div style="color:var(--td);font-size:.58rem">Profession</div><div style="font-weight:600">${profession}</div></div>`:''}
+            ${revenus?`<div style="grid-column:1/-1"><div style="color:var(--td);font-size:.58rem">Revenus nets</div><div style="font-weight:700;color:var(--green)">${revenus} €/mois</div></div>`:''}
+          </div>
+          ${gFiles.length?gFiles.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.22rem .45rem;margin-bottom:.15rem">
+            <span style="font-size:.68rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${f.name||'Doc garant'}</span>
+            <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.12rem .4rem;font-size:.63rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
+          </div>`).join(''):'<div style="font-size:.67rem;color:var(--td)">Aucun document garant</div>'}
+        </div>`;
+      });
+    }
+    html+='</div>';
+  }
+  return html||'<div style="font-size:.72rem;color:var(--td)">Dossier en cours de constitution</div>';
+}
+
 async function loadLocataireDocuments(locataireId, bookingId){
   const el=document.getElementById('locataire-docs-'+bookingId);
   if(!el)return;
   try{
     const{data:profil}=await sb.from('profiles').select('dossier_data,documents').eq('clerk_id',locataireId).single();
-
-    // Utiliser dossier_data (nouveau format dossier facile) en priorité
-    // Stocké comme objet {"0":{...},"1":{...}} OU array — on normalise
-    let dossierData=profil?.dossier_data;
-    if(dossierData&&!Array.isArray(dossierData)&&typeof dossierData==='object'){
-      // Convertir {"0":{...},"1":{...}} en array
-      const maxIdx=Math.max(...Object.keys(dossierData).map(Number).filter(n=>!isNaN(n)),-1);
-      if(maxIdx>=0){const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(dossierData[i]||null);dossierData=arr;}
-    }
-    if(dossierData&&Array.isArray(dossierData)){
-      const stepLabels=['🪪 Identité','🏠 Hébergement actuel','💼 Situation professionnelle','💰 Ressources','📋 Avis d\'imposition'];
-      let html='';
-      let totalFiles=0;
-
-      // Étapes 0–4 : documents du locataire
-      for(let i=0;i<5;i++){
-        const step=dossierData[i];
-        if(!step)continue;
-        const files=(step.files||[]).filter(f=>f&&f.url);
-        if(!files.length)continue;
-        totalFiles+=files.length;
-        html+=`<div style="margin-bottom:.5rem">
-          <div style="font-size:.62rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.2rem">${stepLabels[i]||'Étape '+(i+1)}</div>
-          ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.3rem .55rem;margin-bottom:.2rem">
-            <span style="font-size:.73rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${(f.name||'').replace(/"/g,'&quot;')}">${f.name||'Document'}</span>
-            <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:6px;padding:.2rem .5rem;font-size:.67rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0">Voir →</a>
-          </div>`).join('')}
-        </div>`;
-      }
-
-      // Étape 5 : garant
-      const garantStep=dossierData[5];
-      if(garantStep&&garantStep.type&&garantStep.type!=='skipped_garant'){
-        const garantTypeLabel={garant_personne:'👤 Garant (personne physique)',garant_organisme:'🏦 Garant (organisme)',garant_moral:'🏢 Garant (personne morale)'}[garantStep.type]||'Garant';
-        let garantHtml=`<div style="border-top:1px solid var(--b);padding-top:.5rem;margin-top:.4rem">
-          <div style="font-size:.62rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem">${garantTypeLabel}</div>`;
-        const garants=garantStep.garants||[];
-        garants.forEach((g,gi)=>{
-          const gn=g.garant_name||{};
-          const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ')||'—';
-          const email=gn.email||'—';
-          garantHtml+=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.45rem .6rem;margin-bottom:.35rem">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;font-size:.73rem;margin-bottom:.35rem">
-              <div><div style="color:var(--td);font-size:.6rem">Nom</div><div style="font-weight:700">${nom}</div></div>
-              <div><div style="color:var(--td);font-size:.6rem">Email</div><div style="font-weight:600;font-size:.68rem;word-break:break-all">${email}</div></div>
-            </div>`;
-          const gFiles=(g.files||[]).filter(f=>f&&f.url);
-          if(gFiles.length){
-            gFiles.forEach(f=>{
-              garantHtml+=`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
-                <span style="font-size:.7rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px">${f.name||'Document garant'}</span>
-                <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
-              </div>`;
-            });
-          }else{
-            garantHtml+='<div style="font-size:.68rem;color:var(--td)">Aucun document garant uploadé</div>';
-          }
-          garantHtml+='</div>';
-        });
-        garantHtml+='</div>';
-        html+=garantHtml;
-      }else if(garantStep&&garantStep.type==='skipped_garant'){
-        html+=`<div style="border-top:1px solid var(--b);padding-top:.5rem;margin-top:.4rem;font-size:.7rem;color:var(--td)">Sans garant</div>`;
-      }
-
-      if(!totalFiles&&!garantStep){
-        el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Dossier en cours de constitution</div>';
-      }else{
-        el.innerHTML=html;
-        lucide.createIcons();
-      }
-      return;
-    }
-
-    // Fallback : ancien format profiles.documents
+    const dd=normalizeDossier(profil?.dossier_data);
+    if(dd){el.innerHTML=renderDossierHTML(dd);if(typeof lucide!=='undefined')lucide.createIcons();return;}
+    // Fallback ancien format
     const raw=profil?.documents;
     if(!raw){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
     const docs=typeof raw==='string'?JSON.parse(raw):raw;
-    const docLabels={id:'ID/Passport',bank_statement:'Relevé bancaire',emprent_letter:'Lettre employeur',reference_letter:'Lettre de référence',rent1:'Quittance loyer 1',rent2:'Quittance loyer 2',rent3:'Quittance loyer 3'};
+    const docLabels={id:'ID/Passport',bank_statement:'Relevé bancaire',emprent_letter:'Lettre employeur',reference_letter:'Lettre de référence',rent1:'Quittance 1',rent2:'Quittance 2',rent3:'Quittance 3'};
     const entries=Object.entries(docs).filter(([,d])=>d?.path);
     if(!entries.length){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
-    el.innerHTML=entries.map(([key,doc])=>{
-      return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border:1px solid var(--grdim);border-radius:7px;padding:.35rem .6rem;margin-bottom:.25rem">'
-        +'<div style="font-size:.75rem;font-weight:600">'+(docLabels[key]||key)+'</div>'
-        +'<button onclick="viewLocataireDoc(this.dataset.path)" data-path="'+doc.path+'" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir</button>'
-        +'</div>';
-    }).join('');
+    el.innerHTML=entries.map(([key,doc])=>'<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.35rem .6rem;margin-bottom:.25rem"><div style="font-size:.75rem;font-weight:600">'+(docLabels[key]||key)+'</div><button onclick="viewLocataireDoc(this.dataset.path)" data-path="'+doc.path+'" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir</button></div>').join('');
   }catch(e){console.error('loadLocataireDocuments:',e);if(el)el.innerHTML='<div style="font-size:.72rem;color:var(--red)">Erreur chargement documents</div>';}
 }
 
@@ -4224,62 +4257,17 @@ async function loadLocataireDossierForLL(locataireId){
     if(ver)ver.innerHTML=p.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p.id_submitted?'<span style="color:var(--gold)">⏳ En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
     if(phone)phone.textContent=p.phone||'—';
     if(docs){
-      // Nouveau format dossier_data en priorité (objet {"0":{...}} ou array)
-      let dd=p?.dossier_data;
-      if(dd&&!Array.isArray(dd)&&typeof dd==='object'){
-        const maxIdx=Math.max(...Object.keys(dd).map(Number).filter(n=>!isNaN(n)),-1);
-        if(maxIdx>=0){const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(dd[i]||null);dd=arr;}
-      }
-      if(dd&&Array.isArray(dd)){
-        const stepLabels=['🪪 Identité','🏠 Hébergement','💼 Profession','💰 Ressources','📋 Impôt'];
-        const allFiles=[];
-        for(let si=0;si<5;si++){const step=dd[si];(step?.files||[]).filter(f=>f?.url).forEach(f=>allFiles.push({label:stepLabels[si],file:f}));}
-        // Garant (étape 5)
-        const garantStep=dd[5];
-        let garantHtml='';
-        if(garantStep&&garantStep.type&&garantStep.type!=='skipped_garant'){
-          const gtLabel={garant_personne:'👤 Garant personne',garant_organisme:'🏦 Garant organisme',garant_moral:'🏢 Garant moral'}[garantStep.type]||'Garant';
-          const garants=garantStep.garants||[];
-          garants.forEach(g=>{
-            const gn=g.garant_name||{};
-            const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ')||'—';
-            garantHtml+=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.2);border-radius:7px;padding:.4rem .6rem;margin-top:.3rem">
-              <div style="font-size:.62rem;font-weight:700;color:var(--bleu);margin-bottom:.2rem">${gtLabel} — ${nom}</div>
-              <div style="font-size:.67rem;color:var(--td);margin-bottom:.25rem">${gn.email||''}</div>`;
-            (g.files||[]).filter(f=>f?.url).forEach(f=>{
-              garantHtml+=`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
-                <span style="font-size:.68rem;font-weight:600">${f.name||'Doc garant'}</span>
-                <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .4rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a>
-              </div>`;
-            });
-            garantHtml+='</div>';
-          });
-        }
-        if(!allFiles.length&&!garantHtml){
-          docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Dossier en cours de constitution</div>';
-        }else{
-          docs.innerHTML=allFiles.map(({label,file})=>`
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.3rem .55rem">
-              <span style="font-size:.73rem;font-weight:600">[${label}] ${file.name||'Doc'}</span>
-              <a href="${file.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:6px;padding:.2rem .5rem;font-size:.67rem;font-weight:600;text-decoration:none">Voir →</a>
-            </div>`).join('')+garantHtml;
-          if(typeof lucide!=='undefined')lucide.createIcons();
-        }
-        return;
-      }
-      // Fallback ancien format documents
+      const dd=normalizeDossier(p?.dossier_data);
+      if(dd){docs.innerHTML=renderDossierHTML(dd);if(typeof lucide!=='undefined')lucide.createIcons();return;}
+      // Fallback ancien format
       if(!p.documents){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
       const docMap=typeof p.documents==='string'?JSON.parse(p.documents):p.documents;
       const entries=Object.entries(docMap).filter(([,d])=>d?.path);
       if(!entries.length){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
       const docLabels={id:'ID/Passport',bank_statement:'Relevé bancaire',emprent_letter:'Lettre employeur',reference_letter:'Lettre de référence',rent1:'Quittance 1',rent2:'Quittance 2',rent3:'Quittance 3'};
-      docs.innerHTML=entries.map(([key,doc])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.35rem .6rem">
-          <div style="font-size:.75rem;font-weight:600">${docLabels[key]||key}</div>
-          <button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir →</button>
-        </div>`).join('');
+      docs.innerHTML=entries.map(([key,doc])=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.35rem .6rem"><div style="font-size:.75rem;font-weight:600">${docLabels[key]||key}</div><button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir →</button></div>`).join('');
     }
-  }catch(e){}
+  }catch(e){console.error('loadLocataireDossierForLL:',e);}
 }
 
 async function viewLocataireDocLL(path){
