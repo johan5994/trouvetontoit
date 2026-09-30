@@ -123,6 +123,9 @@
     /* EDIT BTN — pencil for pre-filled fields */
     .edit-btn{display:inline-flex;align-items:center;padding:.1rem .28rem;border-radius:5px;font-size:.68rem;background:#EFF6FF;color:var(--bleu);border:1px solid #BFDBFE;cursor:pointer;margin-left:.3rem;line-height:1;transition:background .12s;vertical-align:middle;user-select:none}
     .edit-btn:hover{background:#DBEAFE;border-color:var(--bleu)}
+    /* PARTIE EDIT ROW — small edit buttons below each party */
+    .partie-edit-row{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.55rem;padding-top:.5rem;border-top:1px dashed #C7D2FE}
+    .partie-edit-row .edit-btn{margin-left:0;font-size:.67rem;padding:.18rem .5rem}
 
     /* EDIT MODE BANNER */
     .edit-banner{background:#FFF7ED;border:1.5px solid #F97316;border-radius:8px;padding:.65rem 1rem;margin-bottom:1.3rem;font-size:.82rem;color:#92400E;display:flex;align-items:center;gap:.6rem;line-height:1.5}
@@ -619,8 +622,8 @@
             <p>Le loyer sera révisé chaque année à la date anniversaire du contrat, en fonction de la variation de l'<strong>Indice de Référence des Loyers (IRL)</strong> publié par l'INSEE (art. 17-1 de la loi du 6 juillet 1989). La révision ne peut excéder la variation de cet indice. Le bailleur dispose d'un an à compter de la date de révision pour demander la réévaluation. Passé ce délai, il est réputé avoir renoncé à la révision pour la période écoulée.</p>
             <p><strong>4.3 Modalités de paiement</strong></p>
             <p>Le paiement s'effectue par virement bancaire, prélèvement automatique ou tout autre moyen convenu entre les parties. Une <strong>quittance de loyer</strong> sera remise au locataire sur simple demande dans les 5 jours ouvrables. La quittance est gratuite (art. 21 de la loi du 6 juillet 1989).</p>
-            <p><strong>4.4 Pénalités de retard</strong></p>
-            <p>En cas de retard de paiement supérieur à 5 jours calendaires après l'échéance, des pénalités de retard peuvent être appliquées dans la limite du taux d'intérêt légal en vigueur. Le bailleur peut également souscrire une assurance loyers impayés (GLI), dont le coût n'est pas répercutable sur le locataire.</p>
+            <p><strong>4.4 Assurance loyers impayés (GLI)</strong></p>
+            <p>Le bailleur peut souscrire une assurance loyers impayés (GLI), dont le coût est à sa seule charge et ne peut être répercuté sur le locataire. <em>Toute clause prévoyant des pénalités ou amendes en cas de retard de paiement est réputée non écrite en application de l'article 4 de la loi n° 89-462 du 6 juillet 1989.</em></p>
           </div>
           <div id="encadrement-block"></div>
         </div>
@@ -829,7 +832,7 @@
             <p>Le bailleur ne peut mettre fin au bail qu'à son <strong>expiration</strong>, sous réserve d'un préavis de <strong>trois (3) mois</strong> notifié par LRAR ou acte d'huissier, en justifiant impérativement de l'un des trois motifs limitatifs suivants (art. 15 de la loi du 6 juillet 1989) :</p>
             <ul>
               <li><strong>Reprise pour habitation :</strong> le bailleur souhaite habiter le logement lui-même, ou le faire habiter par son conjoint, partenaire de PACS, ascendant ou descendant (ou ceux de son conjoint/partenaire). La reprise doit être effective et durable — toute reprise fictive engage la responsabilité pénale du bailleur.</li>
-              <li><strong>Congé pour vente :</strong> le congé vaut offre de vente au locataire aux prix et conditions mentionnés. Le locataire dispose d'un <strong>droit de préemption</strong> de 2 mois à compter de la réception du congé pour accepter l'offre (art. 15-II).</li>
+              <li><strong>Congé pour vente :</strong> le bailleur peut donner congé afin de vendre le logement libre de toute occupation. Pour une location meublée à usage de résidence principale, le locataire <strong>ne bénéficie pas du droit de préemption</strong> prévu à l'article 15-II de la loi du 6 juillet 1989 (ce droit est réservé aux locations nues). Le congé doit mentionner le prix et les conditions de la vente envisagée.</li>
               <li><strong>Motif légitime et sérieux :</strong> notamment l'inexécution par le locataire de l'une de ses obligations contractuelles (non-paiement, nuisances…) ou la nécessité de réaliser des travaux nécessitant l'évacuation des lieux.</li>
             </ul>
             <p>Tout congé du bailleur doit mentionner <strong>le motif allégué</strong> ainsi que, pour la reprise, les coordonnées du bénéficiaire. Un congé délivré moins de 6 mois avant l'échéance ou ne respectant pas ces formes est nul.</p>
@@ -860,7 +863,7 @@
         <div class="section">
           <div class="article-title">Article 18 — Indemnité d'occupation</div>
           <div class="article-content">
-            <p>En cas de maintien dans les lieux après l'expiration du contrat et la restitution des clés, et sans préjudice des voies de droit dont dispose le bailleur, le locataire sera redevable d'une <strong>indemnité d'occupation</strong> égale au montant du loyer et des charges qu'il aurait payés si le bail avait continué.</p>
+            <p>En cas de maintien dans les lieux après l'expiration du contrat sans titre ni droit, et sans préjudice des voies de droit dont dispose le bailleur (notamment la procédure d'expulsion), le locataire sera redevable d'une <strong>indemnité d'occupation</strong> égale au montant du loyer et des charges qu'il aurait payés si le bail avait continué.</p>
             <p>Cette indemnité est due jusqu'à la remise effective des clés et la libération complète des lieux. Elle ne constitue pas un nouveau loyer et n'emporte pas reconduction du bail.</p>
           </div>
         </div>
@@ -1101,6 +1104,18 @@ const FIELD_LABELS={
   payment_due_day:'Échéance de paiement',
   start_date:'Date d\'entrée',
   end_date:'Date de fin',
+  prop_address:'Adresse du logement',
+  prop_type:'Type de logement',
+  prop_pieces:'Nombre de pièces',
+  prop_etage:'Étage',
+  landlord_name:'Nom du bailleur',
+  landlord_address:'Adresse du bailleur',
+  landlord_email:'Email du bailleur',
+  landlord_phone:'Téléphone du bailleur',
+  tenant_name:'Nom du locataire',
+  tenant_email:'Email du locataire',
+  tenant_phone:'Téléphone du locataire',
+  tenant_nationality:'Nationalité du locataire',
 };
 
 // ── INLINE EDITING ────────────────────────────────────────────────────────────
@@ -1136,6 +1151,18 @@ const FIELD_CONFIGS={
   payment_due_day:{type:'select',options:[{v:'1',l:'1ᵉʳ du mois'},{v:'5',l:'5 du mois'},{v:'10',l:'10 du mois'},{v:'15',l:'15 du mois'},{v:'20',l:'20 du mois'},{v:'25',l:'25 du mois'},{v:'28',l:'28 du mois'}]},
   start_date:{type:'date'},
   end_date:{type:'date'},
+  prop_address:{type:'text',placeholder:'ex. 10 Rue de la Paix, 75001 Paris'},
+  prop_type:{type:'select',options:['Appartement','Maison','Studio','Loft','Chambre','Duplex','Villa']},
+  prop_pieces:{type:'number',placeholder:'ex. 3',step:1,min:1,max:20},
+  prop_etage:{type:'text',placeholder:'ex. 2ème étage sur 5'},
+  landlord_name:{type:'text',placeholder:'Prénom NOM'},
+  landlord_address:{type:'text',placeholder:'Rue, CP Ville'},
+  landlord_email:{type:'email',placeholder:'bailleur@email.fr'},
+  landlord_phone:{type:'tel',placeholder:'+33 6 …'},
+  tenant_name:{type:'text',placeholder:'Prénom NOM'},
+  tenant_email:{type:'email',placeholder:'locataire@email.fr'},
+  tenant_phone:{type:'tel',placeholder:'+33 6 …'},
+  tenant_nationality:{type:'text',placeholder:'ex. Française'},
 };
 
 // Returns an orange "⚠ field name" badge for missing fields when in edit mode
@@ -1597,39 +1624,58 @@ function renderBail(){
   show('bail-ref','Réf. TTT-'+(L.id||'').toUpperCase().slice(0,8));
 
   // Parties — format identification juridique bail français
-  function partieIdent(profile,role,extra=[]){
-    const nom=profile?.full_name||'—';
-    const adresse=profile?.address||'';
-    const email=profile?.email||'';
-    const tel=profile?.phone||'';
+  // Resolve avec overrides lease en priorité sur le profil
+  const llName=L.landlord_name||LL_PROFILE?.full_name||'—';
+  const llAddr=L.landlord_address||LL_PROFILE?.address||'';
+  const llEmail=L.landlord_email||LL_PROFILE?.email||'';
+  const llPhone=L.landlord_phone||LL_PROFILE?.phone||'';
+  const tName=L.tenant_name||T_PROFILE?.full_name||'—';
+  const tAddr=T_PROFILE?.address||'';
+  const tEmail=L.tenant_email||T_PROFILE?.email||'';
+  const tPhone=L.tenant_phone||T_PROFILE?.phone||'';
+  const tNat=L.tenant_nationality||T_PROFILE?.nationality||'';
+
+  function buildIdent(fields,denom){
     const parts=[];
-    if(adresse) parts.push(`demeurant au <strong>${adresse}</strong>`);
-    if(email) parts.push(`courriel : <strong>${email}</strong>`);
-    if(tel) parts.push(`tél. : <strong>${tel}</strong>`);
-    extra.forEach(e=>{if(e)parts.push(e);});
-    const denom=role==='ll'?'le bailleur':role==='t'?'le locataire':'le garant';
-    const identText=`<strong>${nom}</strong>${parts.length?', '+parts.join(', '):''}`;
-    return`<div class="partie-ident">${identText}<span class="partie-denom">ci-après dénommé « ${denom} »</span></div>`;
+    if(fields.adresse) parts.push(`demeurant au <strong>${fields.adresse}</strong>`);
+    if(fields.nat) parts.push(`de nationalité <strong>${fields.nat}</strong>`);
+    if(fields.email) parts.push(`courriel : <strong>${fields.email}</strong>`);
+    if(fields.tel) parts.push(`tél. : <strong>${fields.tel}</strong>`);
+    if(fields.extra) parts.push(fields.extra);
+    return`<div class="partie-ident"><strong>${fields.nom}</strong>${parts.length?', '+parts.join(', '):''}
+      <span class="partie-denom">ci-après dénommé « ${denom} »</span></div>`;
   }
+  function editIcons(pairs){
+    if(!_editMode) return '';
+    return'<div class="partie-edit-row">'+pairs.map(([key])=>`<span class="edit-btn" onclick="editField(event,'${key}')" title="${FIELD_LABELS[key]||key}">✏️ ${FIELD_LABELS[key]||key}</span>`).join('')+'</div>';
+  }
+
   const llLabel=myRole==='landlord'||ROLE_PARAM==='landlord'?'Le Bailleur (vous)':'Le Bailleur';
   const tLabel=myRole==='tenant'||ROLE_PARAM==='tenant'?'Le Locataire (vous)':'Le Locataire';
-  const natExtra=T_PROFILE?.nationality?`de nationalité <strong>${T_PROFILE.nationality}</strong>`:null;
   let partiesHtml=`
     <div class="partie-card">
       <span class="partie-pill">${llLabel}</span>
-      ${partieIdent(LL_PROFILE,'ll')}
+      <div class="partie-body">
+        ${buildIdent({nom:llName,adresse:llAddr,email:llEmail,tel:llPhone},'le bailleur')}
+        ${editIcons([['landlord_name'],['landlord_address'],['landlord_email'],['landlord_phone']])}
+      </div>
     </div>
     <div class="partie-card">
       <span class="partie-pill">${tLabel}</span>
-      ${partieIdent(T_PROFILE,'t',[natExtra])}
+      <div class="partie-body">
+        ${buildIdent({nom:tName,adresse:tAddr,nat:tNat,email:tEmail,tel:tPhone},'le locataire')}
+        ${editIcons([['tenant_name'],['tenant_email'],['tenant_phone'],['tenant_nationality']])}
+      </div>
     </div>`;
   if(L.garant_name){
-    const gProfile={full_name:L.garant_name,address:L.garant_address,email:L.garant_email,phone:L.garant_phone};
     const profExtra=L.garant_pro?`profession : <strong>${hl('garant_pro',L.garant_pro)}</strong>`:null;
     partiesHtml+=`
     <div class="partie-card garant-card">
       <span class="partie-pill" style="background:var(--gold)">Le Garant</span>
-      ${partieIdent(gProfile,'g',[profExtra])}
+      <div class="partie-body">
+        ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:profExtra||''},'le garant')}
+        ${editIcons([['garant_name'],['garant_address'],['garant_email'],['garant_phone'],['garant_pro']])}
+      </div>
     </div>`;}
   show('parties-grid',partiesHtml);
   show('sig-ll-name',LL_PROFILE?.full_name||'Bailleur');
@@ -1647,12 +1693,17 @@ function renderBail(){
     ?(Li.ecs_type==='collectif'?'Collectif':'Individuel (chauffe-eau)')+(Li.ecs_energie?' — '+(_eeMap[Li.ecs_energie]||Li.ecs_energie):'')
     :(L.mode_ecs||'Non renseigné');
   const numFiscal=L.numero_fiscal||'—';
+  // Article 1 — overrides lease > listing
+  const propAddr=L.prop_address||Li?.full_address||'';
+  const propType=L.prop_type||(Li?.type?Li.type.charAt(0).toUpperCase()+Li.type.slice(1):null)||'Appartement';
+  const propPieces=L.prop_pieces||(Li?.spots?Number(Li.spots):null);
+  const propEtageRaw=L.prop_etage||(Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?' sur '+Li.total_floors:''):null);
   const items1=[
-    {label:'Adresse complète',value:Li?.full_address||'—'},
-    {label:'Type de logement',value:Li?.type||'Appartement'},
-    {label:'Surface habitable (loi Boutin)',value:hl('surface_boutin',surfBoutin?surfBoutin+' m²':'—')},
-    {label:'Nombre de pièces',value:Li?.spots?nb(Li.spots)+' pièce'+(Li.spots>1?'s':''):'—'},
-    {label:'Étage',value:Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?'/'+Li.total_floors:''):'Rez-de-chaussée ou non renseigné'},
+    {label:'Adresse complète',value:propAddr?ev('prop_address',propAddr):mf('prop_address')},
+    {label:'Type de logement',value:ev('prop_type',propType)},
+    {label:'Surface habitable (loi Boutin)',value:surfBoutin?(hl('surface_boutin',surfBoutin+' m²')+(_editMode?` <span class="edit-btn" onclick="editField(event,'surface_boutin')">✏️</span>`:'')):mf('surface_boutin')},
+    {label:'Nombre de pièces',value:propPieces?ev('prop_pieces',nb(propPieces)+' pièce'+(propPieces>1?'s':'')):mf('prop_pieces')},
+    {label:'Étage',value:propEtageRaw?ev('prop_etage',propEtageRaw):(_editMode?ev('prop_etage','Rez-de-chaussée'):'Rez-de-chaussée ou non renseigné')},
     {label:'Statut',value:'Résidence principale'}
   ];
   const g1=document.getElementById('logement-grid');if(g1)g1.style.cssText='display:block;margin:0';
@@ -1677,14 +1728,20 @@ function renderBail(){
   const feats=Li?.features||[];
   if(feats.length)show('equipements-block','<p>Équipements inclus : '+feats.join(', ')+'.</p>');
 
-  // Zone tendue
-  // Loyers de référence — listing en priorité
+  // Zone tendue — auto-détection Lyon (arrondissements 69001-69009) + Paris + villes en encadrement
   const loyerRef=Li?.loyer_reference||L.loyer_ref;
   const loyerRefMaj=Li?.loyer_reference_majore||L.loyer_ref_majore;
-  if(L.zone_tendue||Li?.zone_tendue==='oui'){
+  const addrCheck=(propAddr||Li?.full_address||'').toLowerCase();
+  const isLyonZone=/\b690(0[1-9]|7\b)/.test(addrCheck)||/\blyon\b/.test(addrCheck);
+  const isZoneTendue=!!(L.zone_tendue||Li?.zone_tendue==='oui'||isLyonZone);
+  if(isZoneTendue){
     const refMaj=loyerRefMaj||'—';const ref=loyerRef||'—';
-    show('zone-tendue-block',`<div class="alert-red">🏙️ <strong>Zone tendue — Encadrement des loyers applicable</strong><br>
-      Loyer de référence : <strong>${ref} €/m²</strong> · Loyer de référence majoré : <strong>${refMaj} €/m²</strong><br>
+    const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
+    show('zone-tendue-block',`<div class="alert-red">🏙️ <strong>Zone tendue — Encadrement des loyers obligatoire</strong>
+      ${isLyonZone&&!L.zone_tendue?'<span style="font-size:.75rem;opacity:.85">(Lyon — encadrement en vigueur depuis novembre 2021)</span>':''}<br>
+      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')">⚠ à renseigner</span>`:''}
+      &nbsp;·&nbsp;
+      Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')">⚠ à renseigner</span>`:''}<br>
       Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
       <em style="font-size:.78rem">Conformément à l'art. 17 de la loi du 6 juillet 1989 modifié par la loi ELAN, le loyer ne peut excéder le loyer de référence majoré. Tout dépassement peut être contesté.</em></div>`);
   }
@@ -1704,13 +1761,22 @@ function renderBail(){
     show('dernier-loyer-block',`<strong>Loyer du dernier locataire :</strong> ${fmt(L.dernier_loyer)} (départ : ${fmtDate(L.dernier_locataire_depart)}). Révision conforme à l'IRL.`);
   }
 
-  // Encadrement
-  if(L.zone_tendue||Li?.zone_tendue==='oui'){
-    const s=surfBoutin,lpraM2=s?(rent/s).toFixed(2):null;
-    show('encadrement-block',`<div class="alert-red" style="margin-top:.5rem">📋 <strong>Encadrement des loyers (zone tendue)</strong><br>
-      Loyer de référence majoré : <strong>${loyerRefMaj?fmt(loyerRefMaj)+'/m²':'—'}</strong> · Surface : <strong>${s||'?'} m²</strong><br>
-      Loyer maximum autorisé : <strong>${s&&loyerRefMaj?fmt(s*loyerRefMaj):' —'}</strong> · Loyer pratiqué : <strong>${fmt(rent)}</strong><br>
-      <em>Tout complément de loyer éventuel doit être justifié par des caractéristiques exceptionnelles.</em></div>`);
+  // Encadrement — résumé dans Art. 4
+  if(isZoneTendue){
+    const s=surfBoutin;
+    const loyerMax=s&&loyerRefMaj?(s*loyerRefMaj).toFixed(0):null;
+    const depasse=loyerMax&&rent>Number(loyerMax);
+    show('encadrement-block',`<div class="${depasse?'alert-red':'highlight'}" style="margin-top:.5rem">
+      📋 <strong>Encadrement des loyers — Récapitulatif</strong><br>
+      <table style="width:100%;border-collapse:collapse;margin-top:.4rem;font-size:.82rem">
+        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRef?loyerRef+' €/m²':mf('loyer_ref')}</td></tr>
+        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence majoré</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRefMaj?loyerRefMaj+' €/m²':mf('loyer_ref_majore')}</td></tr>
+        <tr><td style="padding:.2rem .4rem;color:var(--td)">Surface Boutin</td><td style="padding:.2rem .4rem;font-weight:600">${s?s+' m²':mf('surface_boutin')}</td></tr>
+        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer maximum autorisé</td><td style="padding:.2rem .4rem;font-weight:700;color:var(--green)">${loyerMax?fmt(Number(loyerMax)):'—'}</td></tr>
+        <tr style="${depasse?'background:#FEE2E2':''}}"><td style="padding:.2rem .4rem;color:var(--td)">Loyer de base pratiqué</td><td style="padding:.2rem .4rem;font-weight:700;color:${depasse?'var(--red)':'var(--bleu)'}">${fmt(rent)}${depasse?' ⚠ DÉPASSE le plafond':''}</td></tr>
+      </table>
+      <p style="font-size:.75rem;color:var(--td);margin-top:.4rem">Tout complément de loyer éventuel doit être justifié par des caractéristiques de localisation ou de confort exceptionnelles par rapport aux logements comparables (art. 17 loi 89 modifié ELAN).</p>
+    </div>`);
   }
 
   // Dépôt
