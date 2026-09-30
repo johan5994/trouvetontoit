@@ -1104,6 +1104,10 @@ const FIELD_LABELS={
   payment_due_day:'Échéance de paiement',
   start_date:'Date d\'entrée',
   end_date:'Date de fin',
+  premiere_mise_en_location:'Première mise en location',
+  dernier_loyer:'Dernier loyer (précédent locataire)',
+  dernier_locataire_depart:'Date de départ (précédent locataire)',
+  dernier_loyer_revision:'Date dernière révision IRL',
   prop_address:'Adresse du logement',
   prop_type:'Type de logement',
   prop_pieces:'Nombre de pièces',
@@ -1151,6 +1155,10 @@ const FIELD_CONFIGS={
   payment_due_day:{type:'select',options:[{v:'1',l:'1ᵉʳ du mois'},{v:'5',l:'5 du mois'},{v:'10',l:'10 du mois'},{v:'15',l:'15 du mois'},{v:'20',l:'20 du mois'},{v:'25',l:'25 du mois'},{v:'28',l:'28 du mois'}]},
   start_date:{type:'date'},
   end_date:{type:'date'},
+  premiere_mise_en_location:{type:'select',options:[{v:'oui',l:'Oui — première mise en location'},{v:'non',l:'Non — logement déjà loué précédemment'}]},
+  dernier_loyer:{type:'number',placeholder:'ex. 820',step:1,min:0},
+  dernier_locataire_depart:{type:'date'},
+  dernier_loyer_revision:{type:'date'},
   prop_address:{type:'text',placeholder:'ex. 10 Rue de la Paix, 75001 Paris'},
   prop_type:{type:'select',options:['Appartement','Maison','Studio','Loft','Chambre','Duplex','Villa']},
   prop_pieces:{type:'number',placeholder:'ex. 3',step:1,min:1,max:20},
@@ -1645,9 +1653,16 @@ function renderBail(){
     return`<div class="partie-ident"><strong>${fields.nom}</strong>${parts.length?', '+parts.join(', '):''}
       <span class="partie-denom">ci-après dénommé « ${denom} »</span></div>`;
   }
+  // pairs: [[key, effectiveValue], ...] — badge ⚠ si vide, ✏️ si valeur présente
   function editIcons(pairs){
     if(!_editMode) return '';
-    return'<div class="partie-edit-row">'+pairs.map(([key])=>`<span class="edit-btn" onclick="editField(event,'${key}')" title="${FIELD_LABELS[key]||key}">✏️ ${FIELD_LABELS[key]||key}</span>`).join('')+'</div>';
+    const btns=pairs.map(([key,val])=>{
+      const lbl=FIELD_LABELS[key]||key;
+      const hasVal=val!=null&&val!==''&&val!=='—';
+      if(hasVal) return`<span class="edit-btn" onclick="editField(event,'${key}')" title="Corriger ${lbl}">✏️ ${lbl}</span>`;
+      return`<span class="missing-badge" style="font-size:.71rem" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+    });
+    return'<div class="partie-edit-row">'+btns.join('')+'</div>';
   }
 
   const llLabel=myRole==='landlord'||ROLE_PARAM==='landlord'?'Le Bailleur (vous)':'Le Bailleur';
@@ -1657,14 +1672,14 @@ function renderBail(){
       <span class="partie-pill">${llLabel}</span>
       <div class="partie-body">
         ${buildIdent({nom:llName,adresse:llAddr,email:llEmail,tel:llPhone},'le bailleur')}
-        ${editIcons([['landlord_name'],['landlord_address'],['landlord_email'],['landlord_phone']])}
+        ${editIcons([['landlord_name',llName],['landlord_address',llAddr],['landlord_email',llEmail],['landlord_phone',llPhone]])}
       </div>
     </div>
     <div class="partie-card">
       <span class="partie-pill">${tLabel}</span>
       <div class="partie-body">
         ${buildIdent({nom:tName,adresse:tAddr,nat:tNat,email:tEmail,tel:tPhone},'le locataire')}
-        ${editIcons([['tenant_name'],['tenant_email'],['tenant_phone'],['tenant_nationality']])}
+        ${editIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
       </div>
     </div>`;
   if(L.garant_name){
@@ -1674,7 +1689,7 @@ function renderBail(){
       <span class="partie-pill" style="background:var(--gold)">Le Garant</span>
       <div class="partie-body">
         ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:profExtra||''},'le garant')}
-        ${editIcons([['garant_name'],['garant_address'],['garant_email'],['garant_phone'],['garant_pro']])}
+        ${editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro]])}
       </div>
     </div>`;}
   show('parties-grid',partiesHtml);
@@ -1695,7 +1710,10 @@ function renderBail(){
   const numFiscal=L.numero_fiscal||'—';
   // Article 1 — overrides lease > listing
   const propAddr=L.prop_address||Li?.full_address||'';
-  const propType=L.prop_type||(Li?.type?Li.type.charAt(0).toUpperCase()+Li.type.slice(1):null)||'Appartement';
+  // Filtrer les valeurs "type de durée" (long/short/medium) qui ne sont pas un type de logement
+  const _DUREE_VALS=['long','short','medium','long_term','short_term','saisonnier','seasonal'];
+  const _liType=Li?.type&&!_DUREE_VALS.includes((Li.type||'').toLowerCase())?Li.type:null;
+  const propType=L.prop_type||(_liType?_liType.charAt(0).toUpperCase()+_liType.slice(1):null)||'Appartement';
   const propPieces=L.prop_pieces||(Li?.spots?Number(Li.spots):null);
   const propEtageRaw=L.prop_etage||(Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?' sur '+Li.total_floors:''):null);
   const items1=[
@@ -1756,9 +1774,35 @@ function renderBail(){
   show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois'));
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
 
-  // Dernier loyer
-  if(L.dernier_loyer&&L.dernier_locataire_depart){
-    show('dernier-loyer-block',`<strong>Loyer du dernier locataire :</strong> ${fmt(L.dernier_loyer)} (départ : ${fmtDate(L.dernier_locataire_depart)}). Révision conforme à l'IRL.`);
+  // Dernier loyer — mention obligatoire si précédent locataire parti < 18 mois
+  const isPremiere=L.premiere_mise_en_location==='oui';
+  const hasDepart=!!L.dernier_locataire_depart;
+  const departDate=L.dernier_locataire_depart?new Date(L.dernier_locataire_depart):null;
+  const moisEcoules=departDate?Math.floor((Date.now()-departDate.getTime())/(1000*60*60*24*30.5)):null;
+  const obligatoireMention=!isPremiere&&hasDepart&&moisEcoules!==null&&moisEcoules<18;
+
+  if(isPremiere){
+    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem">🏠 <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.</div>`);
+  }else if(L.dernier_loyer&&L.dernier_locataire_depart){
+    const alertClass=obligatoireMention?'alert-red':'info-blue';
+    show('dernier-loyer-block',`<div class="${alertClass}" style="font-size:.82rem">
+      📋 <strong>Précédent locataire</strong> — Dernier loyer : <strong>${fmt(L.dernier_loyer)}</strong>
+      · Départ : <strong>${fmtDate(L.dernier_locataire_depart)}</strong>
+      ${L.dernier_loyer_revision?'· Dernière révision IRL : <strong>'+fmtDate(L.dernier_loyer_revision)+'</strong>':''}
+      ${obligatoireMention?'<br><em style="font-size:.75rem">⚖️ Mention obligatoire : départ il y a '+moisEcoules+' mois (moins de 18 mois).</em>':''}
+      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')">✏️</span>`:''}
+    </div>`);
+  }else if(_editMode){
+    // Pas encore renseigné — inviter le bailleur à préciser
+    show('dernier-loyer-block',`<div class="alert-red" style="font-size:.82rem;padding:.75rem 1rem">
+      ⚠️ <strong>Situation locative antérieure non renseignée</strong><br>
+      <span style="font-size:.78rem">Obligatoire si un précédent locataire a occupé le logement dans les 18 derniers mois.</span><br>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+        <span class="missing-badge" onclick="editField(event,'premiere_mise_en_location')">⚠ Première mise en location ?</span>
+        <span class="missing-badge" onclick="editField(event,'dernier_loyer')">⚠ Dernier loyer</span>
+        <span class="missing-badge" onclick="editField(event,'dernier_locataire_depart')">⚠ Date de départ</span>
+      </div>
+    </div>`);
   }
 
   // Encadrement — résumé dans Art. 4
