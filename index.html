@@ -673,7 +673,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           </select>
         </div>
         <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
-        <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
+        <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
       </div><!-- close characteristics frow -->
 
       <!-- ═══ 5. CHARGES & CONSOMMATIONS ═══ -->
@@ -761,10 +761,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div class="cblock">
             <div class="cblock-hd">⚡ Électricité</div>
             <div class="cbwrap cbcol" style="margin-top:.1rem">
-              <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)" checked> À la charge du locataire</label>
+              <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)"> À la charge du locataire</label>
               <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
             </div>
-            <input type="hidden" id="p-electricite-situation" value="locataire">
+            <input type="hidden" id="p-electricite-situation" value="">
           </div>
         </div>
 
@@ -775,7 +775,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="cbwrap cbcol" style="margin-top:.1rem">
               <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Parties communes</label>
               <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
-              <label class="cl"><input type="checkbox" class="charges-cb" value="ordures_menageres" onchange="updateChargesInclus()"> Ordures ménagères</label>
               <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
               <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
             </div>
@@ -786,7 +785,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="cbwrap cbcol" style="margin-top:.1rem">
               <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
               <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
-              <label class="cl"><input type="checkbox" id="reg-inconnu" onchange="setChargesRegularisation('inconnu',this)"> Je ne sais pas</label>
             </div>
             <input type="hidden" id="p-charges-regularisation" value="">
           </div>
@@ -848,58 +846,13 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
       </div>
 
-      <!-- ═══ 6b. DIAGNOSTICS OBLIGATOIRES ═══ -->
-      <div class="fsect-hd"><i data-lucide=clipboard-list class=ic></i> Diagnostics obligatoires</div>
-      <div class="frow">
-        <div class="fg2"><label>Amiante <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">permis de construire avant juil. 1997</span></label>
-          <select class="fi" id="p-diag-amiante" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="absence">Absence constatée ✅</option>
-            <option value="presence">Présence détectée — surveillance</option>
-            <option value="travaux">Amiante — travaux requis ⚠️</option>
-            <option value="na">Non applicable (bien après 1997)</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Plomb / CREP <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">immeuble avant 1949</span></label>
-          <select class="fi" id="p-diag-plomb" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="absence">Absence constatée ✅</option>
-            <option value="presence">Présence &lt; seuil réglementaire</option>
-            <option value="risque">Risque d'exposition ⚠️</option>
-            <option value="na">Non applicable (bien après 1949)</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Électricité <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">installation &gt; 15 ans</span></label>
-          <select class="fi" id="p-diag-elec" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="conforme">Conforme ✅</option>
-            <option value="anomalie">Anomalie(s) détectée(s) ⚠️</option>
-            <option value="na">Non applicable / &lt; 15 ans</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Gaz <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">installation &gt; 15 ans</span></label>
-          <select class="fi" id="p-diag-gaz" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="conforme">Conforme ✅</option>
-            <option value="anomalie">Anomalie(s) détectée(s) ⚠️</option>
-            <option value="na">Pas d'installation gaz</option>
-          </select>
-        </div>
-        <div class="fg2"><label>État des risques (ERP) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">zones inondation, sismicité…</span></label>
-          <select class="fi" id="p-diag-erp" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="ok">Fourni au locataire ✅</option>
-            <option value="na">Hors zone à risque</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Nuisances sonores (IAB) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">arrêté préfectoral</span></label>
-          <select class="fi" id="p-diag-bruit" style="cursor:pointer">
-            <option value="">Non renseigné</option>
-            <option value="non">Zone non concernée</option>
-            <option value="oui">Zone de bruit — IAB annexé</option>
-          </select>
-        </div>
-      </div>
+      <!-- diagnostics : remplis dans le bail uniquement -->
+      <input type="hidden" id="p-diag-amiante" value="">
+      <input type="hidden" id="p-diag-plomb" value="">
+      <input type="hidden" id="p-diag-elec" value="">
+      <input type="hidden" id="p-diag-gaz" value="">
+      <input type="hidden" id="p-diag-erp" value="">
+      <input type="hidden" id="p-diag-bruit" value="">
 
       <!-- ═══ 7. ÉQUIPEMENTS & CARACTÉRISTIQUES ═══ -->
       <div class="fsect-hd"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
@@ -919,7 +872,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         </div>
         <input type="hidden" id="p-annexes" value="">
       </div>
-      <div class="fg2" style="margin-top:1.2rem"><label>Équipements</label>
+      <div class="fg2" style="margin-top:1.2rem;grid-column:1/-1"><label>Caractéristiques</label>
         <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
           <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
@@ -929,19 +882,15 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
           <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
           <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
-          <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
-          <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
-          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
-        </div>
-      </div>
-      <div class="fg2" style="margin-top:1.2rem"><label>Caractéristiques</label>
-        <div class="cbwrap" style="margin-top:.3rem">
           <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
           <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
           <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
           <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
           <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
           <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
+          <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+          <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
+          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
         </div>
       </div>
 
@@ -1872,7 +1821,7 @@ async function openDet(id){
   // ─── Maps de traduction ────────────────────────────────────────
   const _chMap={individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois / Poêle',autre:'Autre'};
   const _cmMap={eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'};
-  const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+  const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',internet:'Internet',autre:'Autre'};
   const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'};
   const _typMap={studio:'Studio',t1:'T1 — 1 pièce',t2:'T2 — 2 pièces',t3:'T3 — 3 pièces',t4:'T4 — 4 pièces',t5:'T5 — 5 pièces',t6plus:'T6 et plus'};
   const _cusMap={equipee:'Équipée',amenagee:'Aménagée',equipee_amenagee:'Équipée / Aménagée',americaine:'Américaine',ouverte:'Ouverte',separee:'Séparée'};
@@ -2034,7 +1983,7 @@ async function openDet(id){
   // ─── Section "Ce qui est inclus dans le loyer" ──────────────────
   {
     const _eeMap={electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',solaire:'Solaire',autre:'Autre'};
-    const _cMapL={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+    const _cMapL={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',internet:'Internet',autre:'Autre'};
     const inclus=l.charges_inclus?l.charges_inclus.split(',').filter(Boolean):[];
 
     // ── Résolution statut de chaque fluide ──
@@ -2631,11 +2580,11 @@ function setEauFroide(v,cb){
 }
 function setElectricite(v,cb){
   ['locataire','charges'].forEach(m=>{const el=document.getElementById('elec-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
-  document.getElementById('p-electricite-situation').value=cb.checked?v:'locataire';
+  document.getElementById('p-electricite-situation').value=cb.checked?v:'';
   updateChargesInclus();
 }
 function setChargesRegularisation(v,cb){
-  ['annuelle','forfaitaire','inconnu'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  ['annuelle','forfaitaire'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
   document.getElementById('p-charges-regularisation').value=cb.checked?v:'';
 }
 
@@ -2689,7 +2638,7 @@ function updateChargesInclus(){
   const inp=document.getElementById('p-charges-inclus');
   if(inp)inp.value=all.join(',');
   // Auto-summary
-  const _labels={chauffage:'Chauffage',eau_chaude:'Eau chaude',eau_froide:'Eau froide',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',ordures_menageres:'Ordures ménagères',internet:'Internet',autre:'Autre'};
+  const _labels={chauffage:'Chauffage',eau_chaude:'Eau chaude',eau_froide:'Eau froide',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',internet:'Internet',autre:'Autre'};
   const sum=document.getElementById('charges-summary');
   if(!sum)return;
   const chMode=document.getElementById('p-chauffage-type')?.value;
@@ -2971,6 +2920,13 @@ async function doPost(){
   const ti=document.getElementById('pti').value.trim(),pr=document.getElementById('ppr').value;
   if(!ti){sA(err,'Title is required');return;}
   if(!pr||parseFloat(pr)<=0){sA(err,'Pbail enter a valid price greater than €0');return;}
+  const anneeVal=parseInt(document.getElementById('p-annee-construction')?.value||'');
+  if(!anneeVal||anneeVal<1800||anneeVal>2030){
+    const el=document.getElementById('p-annee-construction');
+    if(el){el.style.borderColor='var(--terra)';el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();}
+    sA(err,'<i data-lucide=alert-triangle class=ic></i>️ L\'année de construction est obligatoire.');
+    return;
+  }
 
   // Photo required check
   if(uploadedPhotos.length===0){
