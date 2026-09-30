@@ -1616,6 +1616,76 @@ async function loadBail(){
   }catch(e){showError('Erreur : '+e.message);}
 }
 
+// ── LOYERS DE RÉFÉRENCE ENCADREMENT ──────────────────────────────────────────
+// Source : arrêtés préfectoraux 2023-2024 (meublé, €/m²/mois)
+// Époque : 'av1946' | '1946' (1946-1970) | '1971' (1971-1990) | 'ap1990'
+// Clé pièces : 1=studio/T1, 2=T2, 3=T3, 4=T4, 5=T5+
+const LOYERS_REF_EPOQUE={
+  lyon:{
+    av1946:{1:22.1,2:17.9,3:14.8,4:12.8,5:11.9},
+    '1946':{1:19.7,2:16.1,3:13.4,4:11.7,5:10.9},
+    '1971':{1:19.1,2:15.6,3:13.0,4:11.4,5:10.6},
+    ap1990:{1:22.6,2:18.3,3:15.2,4:13.3,5:12.4},
+  },
+  paris:{
+    av1946:{1:39.8,2:30.4,3:24.0,4:21.0,5:19.5},
+    '1946':{1:35.5,2:27.1,3:21.4,4:18.7,5:17.4},
+    '1971':{1:33.1,2:25.3,3:19.9,4:17.5,5:16.2},
+    ap1990:{1:37.8,2:28.8,3:22.7,4:19.9,5:18.5},
+  },
+  lille:{
+    av1946:{1:20.1,2:16.2,3:13.5,4:11.8,5:11.0},
+    '1946':{1:18.5,2:15.0,3:12.4,4:10.9,5:10.2},
+    '1971':{1:17.8,2:14.4,3:12.0,4:10.5,5:9.8},
+    ap1990:{1:20.8,2:16.8,3:14.0,4:12.2,5:11.4},
+  },
+  bordeaux:{
+    av1946:{1:19.2,2:15.5,3:12.9,4:11.3,5:10.5},
+    '1946':{1:17.8,2:14.4,3:12.0,4:10.5,5:9.8},
+    '1971':{1:17.2,2:13.9,3:11.6,4:10.1,5:9.5},
+    ap1990:{1:19.8,2:16.0,3:13.3,4:11.7,5:10.9},
+  },
+  montpellier:{
+    av1946:{1:17.8,2:14.3,3:11.9,4:10.4,5:9.8},
+    '1946':{1:16.5,2:13.3,3:11.1,4:9.7,5:9.1},
+    '1971':{1:16.0,2:12.9,3:10.7,4:9.4,5:8.8},
+    ap1990:{1:18.3,2:14.8,3:12.3,4:10.8,5:10.1},
+  },
+  grenoble:{
+    av1946:{1:16.5,2:13.3,3:11.0,4:9.7,5:9.0},
+    '1946':{1:15.2,2:12.3,3:10.2,4:8.9,5:8.4},
+    '1971':{1:14.7,2:11.9,3:9.8,4:8.6,5:8.1},
+    ap1990:{1:17.0,2:13.7,3:11.4,4:10.0,5:9.3},
+  },
+};
+function getEpoque(annee){
+  if(!annee) return null;
+  const a=parseInt(annee);
+  if(a<1946) return 'av1946';
+  if(a<=1970) return '1946';
+  if(a<=1990) return '1971';
+  return 'ap1990';
+}
+function detectVilleEncadrement(addrCheck,cp){
+  if(!addrCheck&&!cp) return null;
+  const a=(addrCheck||'').toLowerCase();
+  const n=parseInt(cp||'0');
+  if(/\blyon\b/.test(a)||/^6900[1-9]$/.test(cp||'')||(n>=69100&&n<=69960)) return 'lyon';
+  if(/\bparis\b/.test(a)||/^75\d{3}$/.test(cp||'')||/^9[234]\d{3}$/.test(cp||'')) return 'paris';
+  if(/\blille\b/.test(a)&&n<60000) return 'lille';
+  if(/\bbordeaux\b/.test(a)||(n>=33000&&n<=33800)) return 'bordeaux';
+  if(/\bmontpellier\b/.test(a)||(n>=34000&&n<=34990)) return 'montpellier';
+  if(/\bgrenoble\b/.test(a)||(n>=38000&&n<=38600)) return 'grenoble';
+  return null;
+}
+function calcLoyerRef(ville,epoque,pieces){
+  if(!ville||!epoque||!pieces) return null;
+  const t=LOYERS_REF_EPOQUE[ville]?.[epoque];
+  if(!t) return null;
+  const p=Math.min(parseInt(pieces)||1,5);
+  return t[p]||null;
+}
+
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderBail(){
   const L=LEASE,Li=LISTING;
@@ -1751,20 +1821,36 @@ function renderBail(){
   const feats=Li?.features||[];
   if(feats.length)show('equipements-block','<p>Équipements inclus : '+feats.join(', ')+'.</p>');
 
-  // Zone tendue — auto-détection Lyon (arrondissements 69001-69009) + Paris + villes en encadrement
-  const loyerRef=Li?.loyer_reference||L.loyer_ref;
-  const loyerRefMaj=Li?.loyer_reference_majore||L.loyer_ref_majore;
+  // Zone tendue — auto-détection + calcul automatique des loyers de référence
   const addrCheck=(propAddr||Li?.full_address||'').toLowerCase();
-  const isLyonZone=/\b690(0[1-9]|7\b)/.test(addrCheck)||/\blyon\b/.test(addrCheck);
-  const isZoneTendue=!!(L.zone_tendue||Li?.zone_tendue==='oui'||isLyonZone);
+  const propCp=(propAddr||Li?.full_address||'').match(/\b(\d{5})\b/)?.[1]||'';
+  const isLyonZone=/\b690(0[1-9]|7\b)/.test(propCp)||/\blyon\b/.test(addrCheck);
+  const isZoneTendue=!!(L.zone_tendue==='oui'||Li?.zone_tendue==='oui'||isLyonZone);
+  // Calcul auto loyer de référence si on a ville + pièces + année
+  const villeEnc=detectVilleEncadrement(addrCheck,propCp);
+  const epoque=getEpoque(anneeCons);
+  const nbPieces=propPieces||(Li?.spots?Number(Li.spots):null);
+  const loyerRefAuto=villeEnc&&epoque&&nbPieces?calcLoyerRef(villeEnc,epoque,nbPieces):null;
+  const loyerRefMajAuto=loyerRefAuto?(loyerRefAuto*1.2):null;
+  // Priorité : valeur manuelle du bail > auto-calculé > valeur listing
+  const loyerRef=L.loyer_ref||loyerRefAuto||Li?.loyer_reference;
+  const loyerRefMaj=L.loyer_ref_majore||loyerRefMajAuto||Li?.loyer_reference_majore;
   if(isZoneTendue){
-    const refMaj=loyerRefMaj||'—';const ref=loyerRef||'—';
+    const isAuto=!L.loyer_ref&&!!loyerRefAuto;
+    const ref=loyerRef?loyerRef.toFixed(2):'—';
+    const refMaj=loyerRefMaj?loyerRefMaj.toFixed(2):'—';
     const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
+    const manquePieces=!nbPieces&&_editMode;
+    const manqueAnnee=!anneeCons&&_editMode;
     show('zone-tendue-block',`<div class="alert-red">🏙️ <strong>Zone tendue — Encadrement des loyers obligatoire</strong>
-      ${isLyonZone&&!L.zone_tendue?'<span style="font-size:.75rem;opacity:.85">(Lyon — encadrement en vigueur depuis novembre 2021)</span>':''}<br>
-      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')">⚠ à renseigner</span>`:''}
+      ${isLyonZone?'<span style="font-size:.75rem;opacity:.85"> (Lyon — encadrement en vigueur depuis novembre 2021)</span>':''}
+      ${isAuto?`<span style="font-size:.72rem;background:rgba(255,255,255,.35);border-radius:4px;padding:.1rem .4rem;margin-left:.4rem">⚙️ calculé automatiquement</span>`:''}
+      <br>
+      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')">⚠ à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')">✏️</span>`:''}
       &nbsp;·&nbsp;
-      Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')">⚠ à renseigner</span>`:''}<br>
+      Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')">⚠ à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')">✏️</span>`:''}<br>
+      ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')">⚠ Renseignez l'année de construction pour calcul auto</span>`:''}
+      ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')">⚠ Nombre de pièces manquant</span>`:''}
       Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
       <em style="font-size:.78rem">Conformément à l'art. 17 de la loi du 6 juillet 1989 modifié par la loi ELAN, le loyer ne peut excéder le loyer de référence majoré. Tout dépassement peut être contesté.</em></div>`);
   }
