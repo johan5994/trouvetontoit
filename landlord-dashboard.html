@@ -1423,7 +1423,13 @@ async function loadLocataireDocuments(locataireId, bookingId){
     const{data:profil}=await sb.from('profiles').select('dossier_data,documents').eq('clerk_id',locataireId).single();
 
     // Utiliser dossier_data (nouveau format dossier facile) en priorité
-    const dossierData=profil?.dossier_data;
+    // Stocké comme objet {"0":{...},"1":{...}} OU array — on normalise
+    let dossierData=profil?.dossier_data;
+    if(dossierData&&!Array.isArray(dossierData)&&typeof dossierData==='object'){
+      // Convertir {"0":{...},"1":{...}} en array
+      const maxIdx=Math.max(...Object.keys(dossierData).map(Number).filter(n=>!isNaN(n)),-1);
+      if(maxIdx>=0){const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(dossierData[i]||null);dossierData=arr;}
+    }
     if(dossierData&&Array.isArray(dossierData)){
       const stepLabels=['🪪 Identité','🏠 Hébergement actuel','💼 Situation professionnelle','💰 Ressources','📋 Avis d\'imposition'];
       let html='';
@@ -1565,7 +1571,11 @@ async function loadCoLocatairesLiveInfo(booking){
       const docsEl=document.getElementById(`ct-docs-${booking.id}-${i}`);
       if(docsEl){
         // Nouveau format dossier_data en priorité
-        const dossierData=p?.dossier_data;
+        let dossierData=p?.dossier_data;
+        if(dossierData&&!Array.isArray(dossierData)&&typeof dossierData==='object'){
+          const maxIdx=Math.max(...Object.keys(dossierData).map(Number).filter(n=>!isNaN(n)),-1);
+          if(maxIdx>=0){const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(dossierData[i]||null);dossierData=arr;}
+        }
         if(dossierData&&Array.isArray(dossierData)){
           const allFiles=[];
           const stepLabels=['Identité','Hébergement','Profession','Ressources','Impôt'];
