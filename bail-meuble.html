@@ -560,7 +560,35 @@
           <div class="parties-grid" id="parties-grid">
             <!-- rempli dynamiquement -->
           </div>
-          <div class="article-content"><p>Il a été convenu et arrêté ce qui suit :</p></div>
+
+          <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE — insérée ici quand un garant est désigné -->
+          <div id="caution-section" style="display:none;margin-top:.9rem">
+            <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
+              <div class="article-title" style="color:var(--gold);margin-bottom:.9rem">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
+
+              <div class="article-content">
+                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, né(e) le <span id="c-garant-birth-inline">—</span>, demeurant <span id="c-garant-addr-inline">—</span>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+                <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
+              </div>
+
+              <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
+
+              <div class="info-grid" style="margin:.75rem 0">
+                <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
+                <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value" id="c-duree-caution">—</div></div>
+                <div class="info-item"><div class="label">Nature</div><div class="value">Solidaire (sans bénéfice de discussion)</div></div>
+              </div>
+
+              <div class="article-content">
+                <p>La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2298 C.civ.) et au bénéfice de division.</p>
+                <p>Le garant peut mettre fin à son engagement à l'issue de chaque période annuelle du bail, par lettre recommandée avec avis de réception adressée au bailleur au moins deux (2) mois avant la date d'échéance annuelle (art. 22-1-II de la loi du 6 juillet 1989). La résiliation ne prend effet qu'à compter de la prochaine échéance annuelle suivant le délai de préavis.</p>
+                <div class="warning">⚠️ Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
+                <p style="font-size:.74rem;color:var(--td);margin-top:.5rem"><em>Depuis l'ordonnance n° 2021-1192 du 15 sept. 2021 (en vigueur le 1<sup>er</sup> janv. 2022), la mention manuscrite mot-pour-mot n'est plus obligatoire (art. 2297 al. 2 C.civ.). La formulation ci-dessus reprend les éléments requis par l'art. 22-1 de la loi du 6 juillet 1989.</em></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="article-content" style="margin-top:.75rem"><p>Il a été convenu et arrêté ce qui suit :</p></div>
         </div>
 
         <hr class="divider">
@@ -955,40 +983,6 @@
         <div class="section">
           <div class="article-content">
             <p>Fait à <strong id="fait-a">—</strong>, le <strong id="fait-le">—</strong>, en deux exemplaires originaux, chaque partie reconnaissant avoir reçu l'exemplaire qui lui est destiné.</p>
-          </div>
-        </div>
-
-        <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE (conditionnelle) -->
-        <div class="section" id="caution-section" style="display:none">
-          <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem;margin-top:.25rem">
-            <div class="article-title" style="color:var(--gold);margin-bottom:.9rem">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
-
-            <div class="partie-card garant-card" style="margin-bottom:.85rem">
-              <div class="role">Le Garant (Caution solidaire)</div>
-              <div class="name" id="c-garant-name">—</div>
-              <div class="detail" id="c-garant-birth" style="font-size:.8rem;color:var(--tm);margin:.1rem 0"></div>
-              <div class="detail" id="c-garant-detail">—</div>
-            </div>
-
-            <div class="article-content">
-              <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
-              <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
-            </div>
-
-            <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
-
-            <div class="info-grid" style="margin:.75rem 0">
-              <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
-              <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value" id="c-duree-caution">—</div></div>
-              <div class="info-item"><div class="label">Nature</div><div class="value">Solidaire (sans bénéfice de discussion)</div></div>
-            </div>
-
-            <div class="article-content">
-              <p>La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2298 C.civ.) et au bénéfice de division.</p>
-              <p>Le garant peut mettre fin à son engagement à l'issue de chaque période annuelle du bail, par lettre recommandée avec avis de réception adressée au bailleur au moins deux (2) mois avant la date d'échéance annuelle (art. 22-1-II de la loi du 6 juillet 1989). La résiliation ne prend effet qu'à compter de la prochaine échéance annuelle suivant le délai de préavis.</p>
-              <div class="warning">⚠️ Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
-              <p style="font-size:.74rem;color:var(--td);margin-top:.5rem"><em>Depuis l'ordonnance n° 2021-1192 du 15 sept. 2021 (en vigueur le 1<sup>er</sup> janv. 2022), la mention manuscrite mot-pour-mot n'est plus obligatoire (art. 2297 al. 2 C.civ.). La formulation ci-dessus reprend les éléments requis par l'art. 22-1 de la loi du 6 juillet 1989.</em></p>
-            </div>
           </div>
         </div>
 
@@ -2065,7 +2059,7 @@ function renderBail(){
     ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec'}]:[]),
     ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz'}]:[]),
     ...(dBruit&&dBruit!=='non'&&dBruit!==''?[{n:12,txt:'Information sur les nuisances sonores (IAB)',url:L.doc_bruit_url,uploadKey:'bruit'}]:[]),
-    ...(L.garant_name?[{n:13,txt:'Acte de caution solidaire (ci-après)'}]:[])
+    ...(L.garant_name?[{n:13,txt:'Clause de cautionnement solidaire (intégrée au bail, page 1)'}]:[])
   ];
   // Ajouter documents uploadés même si pas dans les conditions ci-dessus (cas upload manuel)
   const docEntries=[
@@ -2115,14 +2109,14 @@ function renderBail(){
     show('c-landlord-name2',llName);
 
     // Garant
-    show('c-garant-name',L.garant_name);
     show('c-garant-name2',L.garant_name);
     show('sig-g-name',L.garant_name);
-    const birthParts=[];
-    if(L.garant_birth_date)birthParts.push('Né(e) le '+fmtDate(L.garant_birth_date));
-    if(L.garant_birth_place)birthParts.push('à '+L.garant_birth_place);
-    show('c-garant-birth',birthParts.join(' '));
-    show('c-garant-detail',[L.garant_address,L.garant_email,L.garant_phone,L.garant_pro].filter(Boolean).join('<br>'));
+    // Naissance inline dans la clause
+    const birthStr=[]
+    if(L.garant_birth_date)birthStr.push(fmtDate(L.garant_birth_date));
+    if(L.garant_birth_place)birthStr.push('à '+L.garant_birth_place);
+    show('c-garant-birth-inline',birthStr.length?birthStr.join(' '):'—');
+    show('c-garant-addr-inline',L.garant_address||'—');
 
     show('c-tenant-name',T_PROFILE?.full_name||L.tenant_id);
     show('c-adresse',Li?.full_address||'—');
