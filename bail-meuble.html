@@ -31,33 +31,7 @@
     .sb-landlord-signed{background:#DBEAFE;color:#1E40AF;display:block!important}
     .sb-complete{background:#D1FAE5;color:#065F46;display:block!important}
 
-    /* COMPLETER PANEL */
-    .completer-panel{background:#fff;border-bottom:2px solid var(--bleu);padding:1rem 1.5rem;display:none}
-    .completer-panel.visible{display:block}
-    .cp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;cursor:pointer}
-    .cp-title{font-size:.85rem;font-weight:700;color:var(--bleu);display:flex;align-items:center;gap:.5rem}
-    .cp-badge{background:var(--bleu);color:#fff;border-radius:20px;padding:.1rem .55rem;font-size:.68rem;font-weight:700}
-    .cp-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.65rem}
-    .cp-field{display:flex;flex-direction:column;gap:.25rem}
-    .cp-field label{font-size:.7rem;font-weight:600;color:var(--td);text-transform:uppercase;letter-spacing:.5px}
-    .cp-field input,.cp-field select{background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:.45rem .6rem;font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--tm);width:100%}
-    .cp-field input:focus,.cp-field select:focus{outline:none;border-color:var(--bleu)}
-    .cp-section-title{grid-column:1/-1;font-size:.72rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.6px;padding:.3rem 0 .1rem;border-bottom:1px solid #E0E7FF;margin-top:.3rem}
-    .cp-toggle{display:flex;align-items:center;gap:.5rem;grid-column:1/-1}
-    .cp-toggle input[type=checkbox]{accent-color:var(--bleu);width:16px;height:16px}
-    .cp-toggle label{font-size:.84rem;font-weight:600;color:var(--tm);cursor:pointer}
-    .cp-garant-fields{display:contents}
-    .cp-actions{grid-column:1/-1;display:flex;gap:.5rem;justify-content:flex-end;padding-top:.5rem;border-top:1px solid var(--border);margin-top:.35rem}
-
-    /* UPLOAD DOCS */
-    .cp-upload-wrap{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-    .cp-upload-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .65rem;background:#EFF6FF;border:1px dashed var(--bleu);border-radius:7px;font-size:.75rem;font-weight:600;color:var(--bleu);cursor:pointer;transition:all .15s;flex-shrink:0}
-    .cp-upload-btn:hover{background:#DBEAFE}
-    .cp-upload-btn input[type=file]{display:none}
-    .cp-doc-status{font-size:.72rem;display:flex;align-items:center;gap:.3rem;flex-shrink:0}
-    .cp-doc-ok{color:var(--green);font-weight:600}
-    .cp-doc-uploading{color:var(--bleu);font-style:italic}
-    .cp-doc-link{color:var(--bleu);text-decoration:underline;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+    /* ANNEXES */
     .annexe-link{color:var(--bleu);text-decoration:none;font-size:.78rem;font-weight:600;margin-left:auto;padding:.15rem .5rem;background:#EFF6FF;border-radius:5px;white-space:nowrap}
     .annexe-link:hover{background:#DBEAFE}
     .annexe-upload-btn{position:relative;cursor:pointer;color:var(--bleu);font-size:.78rem;font-weight:600;margin-left:auto;padding:.15rem .5rem;background:#F0FDF4;border:1.5px dashed #86EFAC;border-radius:5px;white-space:nowrap;display:inline-flex;align-items:center;gap:.3rem}
@@ -320,7 +294,7 @@
 
     /* PRINT */
     @media print{
-      .nav,.submit-bar,#status-bar,.sig-cta,.completer-panel,#toast-container,button{display:none!important}
+      .nav,.submit-bar,#status-bar,.sig-cta,#toast-container,button{display:none!important}
       .bail-card{border:none;box-shadow:none;border-radius:0}
       .page-wrap{margin:0;padding:0;max-width:100%}
       body{background:#fff;font-size:10.5pt}
@@ -405,236 +379,7 @@
   </div>
 </div>
 
-<!-- COMPLETER PANEL -->
-<div class="completer-panel" id="completer-panel">
-  <div class="cp-header" onclick="toggleCompleter()">
-    <div class="cp-title">
-      <span>✏️ Compléter le bail avant signature</span>
-      <span class="cp-badge" id="cp-missing-count">…</span>
-    </div>
-    <button class="btn btn-sm btn-outline" style="pointer-events:none" id="cp-toggle-btn">▲ Réduire</button>
-  </div>
-  <div id="cp-body-wrap">
-    <div class="cp-body">
-      <div class="cp-section-title">Logement — informations obligatoires</div>
-      <div class="cp-field"><label>Année de construction</label><input type="number" id="cp-annee" placeholder="ex. 1985" min="1800" max="2030"></div>
-      <div class="cp-field"><label>Surface loi Boutin (m²)</label><input type="number" id="cp-surface-boutin" placeholder="ex. 34.50" step="0.01"></div>
-      <div class="cp-field"><label>Numéro fiscal du logement</label><input type="text" id="cp-num-fiscal" placeholder="13 chiffres" maxlength="20"></div>
-      <div class="cp-field"><label>Mode de chauffage</label>
-        <select id="cp-chauffage">
-          <option value="">— Choisir —</option>
-          <option>Individuel électrique</option>
-          <option>Individuel gaz</option>
-          <option>Collectif gaz</option>
-          <option>Collectif électrique</option>
-          <option>Collectif fuel</option>
-          <option>Pompe à chaleur</option>
-          <option>Poêle à bois / granulés</option>
-          <option>Géothermie</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Production d'eau chaude (ECS)</label>
-        <select id="cp-ecs">
-          <option value="">— Choisir —</option>
-          <option>Chauffe-eau électrique individuel</option>
-          <option>Chauffe-eau gaz individuel</option>
-          <option>Collectif (immeuble)</option>
-          <option>Chauffe-eau thermodynamique</option>
-          <option>Solaire</option>
-          <option>Incluse dans le chauffage</option>
-        </select>
-      </div>
-      <div class="cp-toggle" style="margin-top:.2rem">
-        <input type="checkbox" id="cp-copro">
-        <label for="cp-copro">Immeuble en copropriété</label>
-      </div>
-      <div class="cp-field" id="cp-copro-fields" style="display:none">
-        <label>N° de lot de l'appartement <span style="font-weight:400;color:var(--td)">(figure sur votre acte de propriété)</span></label>
-        <input type="text" id="cp-num-lot" placeholder="ex. 42">
-      </div>
-      <div class="cp-toggle">
-        <input type="checkbox" id="cp-zone-tendue">
-        <label for="cp-zone-tendue">Zone tendue (encadrement des loyers)</label>
-      </div>
-      <div id="cp-zone-tendue-fields" style="display:contents;display:none">
-        <div class="cp-field"><label>Loyer de référence (€/m²)</label><input type="number" id="cp-loyer-ref" placeholder="ex. 24.30" step="0.01"></div>
-        <div class="cp-field"><label>Loyer de référence majoré (€/m²)</label><input type="number" id="cp-loyer-ref-maj" placeholder="ex. 27.50" step="0.01"></div>
-      </div>
-
-      <div class="cp-section-title">Dépendances (cave, parking, box)</div>
-      <div class="cp-toggle">
-        <input type="checkbox" id="cp-has-parking" onchange="toggleDepFields('parking')">
-        <label for="cp-has-parking">Emplacement de stationnement inclus</label>
-      </div>
-      <div id="cp-parking-fields" style="display:none">
-        <div class="cp-field">
-          <label>Type de stationnement</label>
-          <select id="cp-parking-type">
-            <option value="">— Choisir —</option>
-            <option value="Emplacement extérieur">Emplacement extérieur</option>
-            <option value="Emplacement couvert">Emplacement couvert</option>
-            <option value="Emplacement souterrain">Emplacement souterrain</option>
-            <option value="Box fermé">Box fermé</option>
-            <option value="Garage individuel">Garage individuel</option>
-            <option value="Garage collectif">Garage collectif</option>
-          </select>
-        </div>
-        <div class="cp-field">
-          <label>N° de lot + localisation <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
-          <input type="text" id="cp-parking-details" placeholder="ex. Lot n°45, sous-sol niveau 1">
-        </div>
-      </div>
-      <div class="cp-toggle">
-        <input type="checkbox" id="cp-has-cave" onchange="toggleDepFields('cave')">
-        <label for="cp-has-cave">Cave incluse</label>
-      </div>
-      <div class="cp-field" id="cp-cave-fields" style="display:none">
-        <label>N° de lot + localisation <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
-        <input type="text" id="cp-cave-details" placeholder="ex. Lot n°8, rez-de-chaussée, porte A">
-      </div>
-      <div class="cp-toggle">
-        <input type="checkbox" id="cp-has-box" onchange="toggleDepFields('box')">
-        <label for="cp-has-box">Box / local de stockage inclus</label>
-      </div>
-      <div class="cp-field" id="cp-box-fields" style="display:none">
-        <label>N° de lot + description <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
-        <input type="text" id="cp-box-details" placeholder="ex. Lot n°3, sous-sol, 5 m²">
-      </div>
-
-      <div class="cp-section-title">Diagnostics techniques obligatoires</div>
-      <div class="cp-field"><label>Classe DPE — Énergie (A-G)</label>
-        <select id="cp-dpe-energy">
-          <option value="">— Non renseigné —</option>
-          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Classe GES (A-G)</label>
-        <select id="cp-dpe-ges">
-          <option value="">— Non renseigné —</option>
-          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Diagnostic amiante</label>
-        <select id="cp-amiante">
-          <option value="">— Immeuble après 1997 (non requis) —</option>
-          <option value="absence">Absence d'amiante constatée</option>
-          <option value="presence">Présence d'amiante (surveillance)</option>
-          <option value="travaux">Amiante — travaux à réaliser</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Diagnostic plomb (CREP)</label>
-        <select id="cp-plomb">
-          <option value="">— Immeuble après 1949 (non requis) —</option>
-          <option value="absence">Absence de plomb constatée</option>
-          <option value="presence">Présence de plomb (< seuil)</option>
-          <option value="risque">Exposition au plomb (risque)</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Diagnostic électricité</label>
-        <select id="cp-elec">
-          <option value="">— Installation < 15 ans (non requis) —</option>
-          <option value="conforme">Installation conforme</option>
-          <option value="anomalie">Anomalie(s) détectée(s)</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Diagnostic gaz</label>
-        <select id="cp-gaz">
-          <option value="">— Installation < 15 ans / pas de gaz —</option>
-          <option value="conforme">Installation conforme</option>
-          <option value="anomalie">Anomalie(s) détectée(s)</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>État des risques (ERP)</label>
-        <select id="cp-erp">
-          <option value="">— Non renseigné —</option>
-          <option value="ok">Fourni au locataire</option>
-          <option value="na">Zone hors risque — non requis</option>
-        </select>
-      </div>
-      <div class="cp-field"><label>Bruit / nuisances sonores</label>
-        <select id="cp-bruit">
-          <option value="">— Non renseigné —</option>
-          <option value="non">Zone non concernée</option>
-          <option value="oui">Zone de bruit (IAB annexé)</option>
-        </select>
-      </div>
-
-      <div class="cp-section-title">📎 Documents à annexer (PDF obligatoires)</div>
-      <div style="grid-column:1/-1;font-size:.72rem;color:var(--td);margin-bottom:.2rem">Déposez les PDF de chaque diagnostic. Ils seront accessibles au locataire depuis le bail.</div>
-
-      <div class="cp-field" style="grid-column:1/3">
-        <label>DPE — Diagnostic de performance énergétique</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-dpe" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('dpe',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-dpe">—</span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>ERP — État des risques et pollutions</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-erp" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('erp',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-erp">—</span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>Amiante — Dossier technique (DTA)</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-amiante" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('amiante',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-amiante"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1997</span></span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>Plomb — CREP (Constat de risque d'exposition)</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-plomb" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('plomb',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-plomb"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1949</span></span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>Électricité — Diagnostic installation</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-elec" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('elec',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-elec"><span style="font-size:.68rem;color:var(--td)">Requis si installation > 15 ans</span></span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>Gaz — Diagnostic installation</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-gaz" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('gaz',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-gaz"><span style="font-size:.68rem;color:var(--td)">Requis si installation gaz > 15 ans</span></span>
-        </div>
-      </div>
-      <div class="cp-field" style="grid-column:1/3">
-        <label>Bruit — IAB (Information sur les nuisances)</label>
-        <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-bruit" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('bruit',this)">📎 PDF ou photo</label>
-          <span class="cp-doc-status" id="status-bruit"><span style="font-size:.68rem;color:var(--td)">Requis si zone de bruit</span></span>
-        </div>
-      </div>
-
-      <div class="cp-section-title">Garant / Caution solidaire</div>
-      <div class="cp-toggle">
-        <input type="checkbox" id="cp-has-garant" onchange="toggleGarantFields()">
-        <label for="cp-has-garant">Ajout d'un garant (caution solidaire)</label>
-      </div>
-      <div id="cp-garant-wrap" style="display:contents;display:none">
-        <div class="cp-field"><label>Nom complet du garant</label><input type="text" id="cp-garant-name" placeholder="Prénom NOM"></div>
-        <div class="cp-field"><label>Adresse du garant</label><input type="text" id="cp-garant-addr" placeholder="Rue, CP Ville"></div>
-        <div class="cp-field"><label>Email du garant</label><input type="email" id="cp-garant-email" placeholder="garant@email.fr"></div>
-        <div class="cp-field"><label>Téléphone du garant</label><input type="tel" id="cp-garant-phone" placeholder="+33 6 …"></div>
-        <div class="cp-field"><label>Montant max. cautionné (€)</label><input type="number" id="cp-garant-montant" placeholder="ex. 12000"></div>
-        <div class="cp-field"><label>Profession / employeur du garant</label><input type="text" id="cp-garant-pro" placeholder="ex. Cadre chez SNCF"></div>
-        <div class="cp-field"><label>Date de naissance du garant</label><input type="date" id="cp-garant-birth-date"></div>
-        <div class="cp-field"><label>Lieu de naissance du garant</label><input type="text" id="cp-garant-birth-place" placeholder="ex. Paris (75)"></div>
-      </div>
-
-      <div class="cp-actions">
-        <button class="btn btn-outline btn-sm" onclick="toggleCompleter()">Fermer</button>
-        <button class="btn btn-primary btn-sm" onclick="saveCompleter()">💾 Enregistrer le bail</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- COMPLETER PANEL REMOVED — all fields editable inline on the bail -->
 
 <!-- CONTENT -->
 <div class="page-wrap">
@@ -1155,7 +900,6 @@
 <div class="submit-bar" id="submit-bar" style="display:none">
   <div class="submit-bar-inner">
     <div id="submit-hint">—</div>
-    <button class="btn btn-orange" id="completer-btn" style="display:none" onclick="openCompleter()">✏️ Compléter le bail</button>
     <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()">✍️ Signer le bail</button>
     <button class="btn btn-outline" onclick="window.print()">🖨️ PDF</button>
   </div>
@@ -1288,6 +1032,8 @@ const FIELD_CONFIGS={
   tenant_email:{type:'email',placeholder:'locataire@email.fr'},
   tenant_phone:{type:'tel',placeholder:'+33 6 …'},
   tenant_nationality:{type:'text',placeholder:'ex. Française'},
+  regime_copro:{type:'select',options:[{v:'true',l:'Oui — immeuble en copropriété'},{v:'false',l:'Non — monopropriété'}]},
+  zone_tendue:{type:'select',options:[{v:'true',l:'Oui — encadrement des loyers applicable'},{v:'false',l:'Non — pas d\'encadrement'}]},
 };
 
 // ── MIGRATIONS SUPABASE ───────────────────────────────────────────────────────
@@ -1453,6 +1199,8 @@ async function saveFieldFromPopup(key){
     if(cb&&cb.checked) val='aucun';
     else if(!val){toast('⚠️ Décrivez les travaux ou cochez "Aucun travaux".',3500);return;}
   }else if(cfg.type==='number')val=val?parseFloat(val):null;
+  // Boolean fields stored as BOOLEAN in Supabase — convert 'true'/'false' string
+  else if(key==='regime_copro'||key==='zone_tendue')val=val==='true'?true:val==='false'?false:null;
   else if(!val)val=null;
   closeEditPopup();
   await saveField(key,val);
@@ -2127,18 +1875,25 @@ function renderBail(){
   if(L.regime_copro||Li?.regime_copro){
     const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
     items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
+  } else if(_editMode){
+    items2.push({label:'Copropriété',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'regime_copro')">⚠ Déclarer si copropriété</span>`});
   }
   // Dépendances — n'apparaissent dans le bail QUE si le bailleur a explicitement renseigné les détails
   if(L.parking_type||L.parking_details){
     const parkLabel=[L.parking_type,L.parking_details].filter(Boolean).join(' — ');
     items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',parkLabel))});
+  } else if(_editMode){
+    items2.push({label:'Stationnement',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'parking_details')">⚠ Ajouter si inclus</span>`});
   }
   if(L.cave_details){
     items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
+  } else if(_editMode){
+    items2.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'cave_details')">⚠ Ajouter si incluse</span>`});
   }
-  // Box
   if(L.box_details){
     items2.push({label:'Box / local',value:ev('box_details',hl('box_details',L.box_details))});
+  } else if(_editMode){
+    items2.push({label:'Box / local',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'box_details')">⚠ Ajouter si inclus</span>`});
   }
   const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
@@ -2151,7 +1906,7 @@ function renderBail(){
   const addrCheck=(propAddr||Li?.full_address||'').toLowerCase();
   const propCp=(propAddr||Li?.full_address||'').match(/\b(\d{5})\b/)?.[1]||'';
   const isLyonZone=/\b690(0[1-9]|7\b)/.test(propCp)||/\blyon\b/.test(addrCheck);
-  const isZoneTendue=!!(L.zone_tendue==='oui'||Li?.zone_tendue==='oui'||isLyonZone);
+  const isZoneTendue=!!(L.zone_tendue||Li?.zone_tendue||isLyonZone);
   // Calcul auto loyer de référence si on a ville + pièces + année
   const villeEnc=detectVilleEncadrement(addrCheck,propCp);
   const epoque=getEpoque(anneeCons);
@@ -2179,6 +1934,8 @@ function renderBail(){
       ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')">⚠ Nombre de pièces manquant</span>`:''}
       Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
       <em style="font-size:.78rem">Conformément à l'art. 17 de la loi du 6 juillet 1989 modifié par la loi ELAN, le loyer ne peut excéder le loyer de référence majoré. Tout dépassement peut être contesté.</em></div>`);
+  } else if(_editMode){
+    show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')">⚠ Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
   }
 
   // Loyer
@@ -2461,14 +2218,17 @@ function renderBail(){
       Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
       Si je cesse de présenter les garanties prévues, je m'oblige, à première demande du bailleur,
       à le prévenir immédiatement et à lui indiquer les nom et adresse du nouveau garant proposé. »`);
+  } else if(_editMode){
+    q('caution-section').style.display='block';
+    show('c-garant-header',`<div class="partie-card" style="border:1.5px dashed var(--gold);background:rgba(180,83,9,.05);margin:0;padding:.8rem">
+      <span class="missing-badge" style="font-size:.8rem" onclick="editField(event,'garant_name')">⚠ Ajouter un garant (caution solidaire) — optionnel</span>
+    </div>`);
+    q('sig-g-block').style.display='none';
   }
 
   // Inline edit mode — active for landlord before signing
   // The completer panel stays hidden; orange badges in the document allow direct editing
   if(_editMode){
-    q('completer-btn').style.display='inline-flex';
-    populateCompleterForm();
-    updateMissingCount();
     // Show or create edit-mode banner in the tools wrap (hors document)
     let editBanner=q('edit-mode-banner');
     if(!editBanner){
@@ -2523,7 +2283,6 @@ function renderNegocBar(){
     if(ns==='draft')                  btn('📨 Envoyer au locataire →','btn-blue',sendToTenant);
     if(ns==='pending_landlord')       btn('✅ Valider le modèle final →','btn-green',landlordValidateModel);
     if(ns==='pending_landlord')       btn('📨 Renvoyer au locataire →','btn-outline',sendToTenant);
-    if(ns==='agreed'||ns==='draft')   btn('✏️ Compléter le bail','btn-outline',openCompleter);
   }
   if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
@@ -2740,171 +2499,7 @@ async function submitSignature(){
   renderStatusAndSigs();
 }
 
-// ── COMPLETER FORM ────────────────────────────────────────────────────────────
-function populateCompleterForm(){
-  const L=LEASE,Li=LISTING;
-  const set=(id,v)=>{const el=q(id);if(el&&v!=null&&v!=='')el.value=v;};
-  set('cp-annee',L.annee_construction||Li?.annee_construction);
-  set('cp-surface-boutin',L.surface_boutin||Li?.sqm);
-  set('cp-num-fiscal',L.numero_fiscal);
-  set('cp-chauffage',L.mode_chauffage);
-  set('cp-ecs',L.mode_ecs);
-  set('cp-dpe-energy',L.dpe_energy_rating||Li?.dpe||Li?.epc_rating||'');
-  set('cp-dpe-ges',L.dpe_ges_rating);
-  set('cp-amiante',L.diag_amiante||'');
-  set('cp-plomb',L.diag_plomb||'');
-  set('cp-elec',L.diag_elec||'');
-  set('cp-gaz',L.diag_gaz||'');
-  set('cp-erp',L.diag_erp||'');
-  set('cp-bruit',L.diag_bruit||'');
-  if(L.regime_copro){q('cp-copro').checked=true;toggleCoProFields();}
-  set('cp-num-lot',L.numero_lot);
-  if(L.parking_details||L.parking_type){q('cp-has-parking').checked=true;toggleDepFields('parking');set('cp-parking-type',L.parking_type);set('cp-parking-details',L.parking_details);}
-  else if(L.parking||LISTING?.parking){q('cp-has-parking').checked=true;toggleDepFields('parking');}
-  if(L.cave_details){q('cp-has-cave').checked=true;toggleDepFields('cave');set('cp-cave-details',L.cave_details);}
-  else if(L.cave||LISTING?.cave){q('cp-has-cave').checked=true;toggleDepFields('cave');}
-  if(L.box_details){q('cp-has-box').checked=true;toggleDepFields('box');set('cp-box-details',L.box_details);}
-  if(L.zone_tendue){q('cp-zone-tendue').checked=true;toggleZoneTendueFields();}
-  set('cp-loyer-ref',L.loyer_ref);
-  set('cp-loyer-ref-maj',L.loyer_ref_majore);
-  if(L.garant_name){q('cp-has-garant').checked=true;toggleGarantFields();}
-  set('cp-garant-name',L.garant_name);set('cp-garant-addr',L.garant_address);
-  set('cp-garant-email',L.garant_email);set('cp-garant-phone',L.garant_phone);
-  set('cp-garant-montant',L.garant_montant);set('cp-garant-pro',L.garant_pro);
-  set('cp-garant-birth-date',L.garant_birth_date);set('cp-garant-birth-place',L.garant_birth_place);
-
-  // Afficher le statut des documents déjà uploadés
-  const docMap={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
-  for(const [key,col] of Object.entries(docMap)){
-    const url=L[col];
-    const statusEl=q('status-'+key);
-    if(!statusEl)continue;
-    if(url){
-      const fname=url.split('/').pop().replace(/\?.*$/,'');
-      statusEl.innerHTML=`<span class="cp-doc-ok">✅ Déposé</span> <a href="${url}" target="_blank" class="cp-doc-link" title="${fname}">Voir PDF</a>`;
-    } else {
-      statusEl.innerHTML='<span style="font-size:.7rem;color:var(--td)">Aucun fichier</span>';
-    }
-  }
-}
-
-function toggleCompleter(){
-  const body=q('cp-body-wrap'),btn=q('cp-toggle-btn');
-  if(!body||!btn)return;
-  const hidden=body.style.display==='none';
-  body.style.display=hidden?'':'none';
-  btn.textContent=hidden?'▲ Réduire':'▼ Compléter';
-}
-function openCompleter(){
-  const panel=q('completer-panel');
-  const body=q('cp-body-wrap'),btn=q('cp-toggle-btn');
-  if(panel)panel.classList.add('visible');
-  if(body){body.style.display='';if(btn)btn.textContent='▲ Réduire';}
-  if(panel)panel.scrollIntoView({behavior:'smooth'});
-}
-function toggleCoProFields(){
-  const show=q('cp-copro').checked;
-  q('cp-copro-fields').style.display=show?'flex':'none';
-}
-function toggleZoneTendueFields(){
-  const f=q('cp-zone-tendue-fields');
-  if(!f)return;
-  const fields=f.querySelectorAll('.cp-field');
-  const show=q('cp-zone-tendue').checked;
-  fields.forEach(el=>el.style.display=show?'flex':'none');
-}
-function toggleGarantFields(){
-  const wrap=q('cp-garant-wrap');if(!wrap)return;
-  const fields=wrap.querySelectorAll('.cp-field');
-  const show=q('cp-has-garant').checked;
-  fields.forEach(el=>el.style.display=show?'flex':'none');
-  wrap.style.display='contents';
-}
-q('cp-copro').addEventListener('change',toggleCoProFields);
-q('cp-zone-tendue').addEventListener('change',toggleZoneTendueFields);
-function toggleDepFields(type){
-  const show=q('cp-has-'+type).checked;
-  const wrap=q('cp-'+type+'-fields');
-  if(wrap)wrap.style.display=show?(type==='parking'?'contents':'flex'):'none';
-  if(!show){
-    const det=q('cp-'+type+'-details');if(det)det.value='';
-    const typ=q('cp-'+type+'-type');if(typ)typ.value='';
-  }
-}
-
-function updateMissingCount(){
-  const fields=[q('cp-annee'),q('cp-surface-boutin'),q('cp-num-fiscal'),q('cp-chauffage'),q('cp-ecs'),q('cp-dpe-ges'),q('cp-erp')];
-  const missing=fields.filter(f=>f&&!f.value).length;
-  const badge=q('cp-missing-count');
-  if(badge)badge.textContent=missing>0?`${missing} champs manquants`:'Complet ✓';
-}
-document.querySelectorAll('.cp-field input,.cp-field select').forEach(el=>el.addEventListener('change',updateMissingCount));
-
-async function saveCompleter(){
-  const gv=id=>q(id)?.value||null;
-  const gn=id=>parseFloat(q(id)?.value)||null;
-  const gi=id=>parseInt(q(id)?.value)||null;
-  const gb=id=>q(id)?.checked||false;
-
-  const upd={
-    annee_construction:gi('cp-annee'),
-    surface_boutin:gn('cp-surface-boutin'),
-    numero_fiscal:gv('cp-num-fiscal'),
-    mode_chauffage:gv('cp-chauffage'),
-    mode_ecs:gv('cp-ecs'),
-    dpe_energy_rating:gv('cp-dpe-energy'),
-    dpe_ges_rating:gv('cp-dpe-ges'),
-    diag_amiante:gv('cp-amiante'),
-    diag_plomb:gv('cp-plomb'),
-    diag_elec:gv('cp-elec'),
-    diag_gaz:gv('cp-gaz'),
-    diag_erp:gv('cp-erp'),
-    diag_bruit:gv('cp-bruit'),
-    regime_copro:gb('cp-copro'),
-    numero_lot:gv('cp-num-lot'),
-    parking_type:gb('cp-has-parking')?gv('cp-parking-type'):null,
-    parking_details:gb('cp-has-parking')?gv('cp-parking-details'):null,
-    cave_details:gb('cp-has-cave')?gv('cp-cave-details'):null,
-    box_details:gb('cp-has-box')?gv('cp-box-details'):null,
-    zone_tendue:gb('cp-zone-tendue'),
-    loyer_ref:gn('cp-loyer-ref'),
-    loyer_ref_majore:gn('cp-loyer-ref-maj'),
-    garant_name:gb('cp-has-garant')?gv('cp-garant-name'):null,
-    garant_address:gb('cp-has-garant')?gv('cp-garant-addr'):null,
-    garant_email:gb('cp-has-garant')?gv('cp-garant-email'):null,
-    garant_phone:gb('cp-has-garant')?gv('cp-garant-phone'):null,
-    garant_montant:gb('cp-has-garant')?gn('cp-garant-montant'):null,
-    garant_pro:gb('cp-has-garant')?gv('cp-garant-pro'):null,
-    garant_birth_date:gb('cp-has-garant')?gv('cp-garant-birth-date')||null:null,
-    garant_birth_place:gb('cp-has-garant')?gv('cp-garant-birth-place')||null:null
-  };
-
-  // ── Détecter les champs modifiés et construire l'entrée du log ──
-  const changedChamps=[];
-  for(const [k,v] of Object.entries(upd)){
-    if(!FIELD_LABELS[k]) continue;
-    const old=LEASE[k];
-    if(String(v??'')!==String(old??'')){
-      changedChamps.push({cle:k,label:FIELD_LABELS[k],ancien:old??null,nouveau:v??null});
-    }
-  }
-  if(changedChamps.length){
-    const entry={par:'landlord',date:new Date().toISOString(),champs:changedChamps,note:null};
-    const newLog=[...(LEASE.modifs_log||[]),entry];
-    upd.modifs_log=newLog;
-  }
-
-  // remove null keys to avoid overwriting existing data accidentally
-  Object.keys(upd).forEach(k=>{if(upd[k]===null&&k!=='modifs_log')delete upd[k];});
-
-  const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
-  if(error){toast('⚠️ Erreur d\'enregistrement : '+error.message,5000);return;}
-  Object.assign(LEASE,upd);
-  toast('✅ Bail mis à jour'+(changedChamps.length?` — ${changedChamps.length} modification(s) enregistrée(s)`:''));
-  renderBail();
-  toggleCompleter();
-}
-
+// ── UPLOAD DOCUMENT
 // ── UPLOAD DOCUMENT ───────────────────────────────────────────────────────────
 const DOC_BUCKET='lease-docs';
 const DOC_COL={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
@@ -2912,8 +2507,10 @@ const DOC_COL={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plo
 async function uploadDoc(key,inputEl){
   if(!inputEl.files||!inputEl.files[0])return;
   const file=inputEl.files[0];
-  if(file.type!=='application/pdf'&&!file.name.endsWith('.pdf')){
-    toast('⚠️ Seuls les fichiers PDF sont acceptés',4000);inputEl.value='';return;
+  const allowedTypes=['application/pdf','image/jpeg','image/png','image/heic','image/heif'];
+  const allowedExts=['.pdf','.jpg','.jpeg','.png','.heic','.heif'];
+  if(!allowedTypes.includes(file.type)&&!allowedExts.some(e=>file.name.toLowerCase().endsWith(e))){
+    toast('⚠️ Format non accepté. PDF ou photo (JPG, PNG, HEIC) uniquement.',4000);inputEl.value='';return;
   }
   if(file.size>15*1024*1024){toast('⚠️ Fichier trop volumineux (max 15 Mo)',4000);inputEl.value='';return;}
   if(!LEASE?.id){toast('⚠️ Bail non chargé — impossible d\'uploader',4000);return;}
