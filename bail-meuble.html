@@ -1724,7 +1724,7 @@ function renderBail(){
   const items1=[
     {label:'Adresse complète',value:propAddr?ev('prop_address',propAddr):mf('prop_address')},
     {label:'Type de logement',value:ev('prop_type',propType)},
-    {label:'Surface habitable (loi Boutin)',value:surfBoutin?(hl('surface_boutin',surfBoutin+' m²')+(_editMode?` <span class="edit-btn" onclick="editField(event,'surface_boutin')">✏️</span>`:'')):mf('surface_boutin')},
+    {label:'Surface habitable',value:surfBoutin?(hl('surface_boutin',surfBoutin+' m²')+(_editMode?` <span class="edit-btn" onclick="editField(event,'surface_boutin')">✏️</span>`:'')):mf('surface_boutin')},
     {label:'Nombre de pièces',value:propPieces?ev('prop_pieces',nb(propPieces)+' pièce'+(propPieces>1?'s':'')):mf('prop_pieces')},
     {label:'Étage',value:propEtageRaw?ev('prop_etage',propEtageRaw):(_editMode?ev('prop_etage','Rez-de-chaussée'):'Rez-de-chaussée ou non renseigné')},
     {label:'Statut',value:'Résidence principale'}
