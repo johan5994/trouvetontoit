@@ -1420,21 +1420,89 @@ async function loadLocataireDocuments(locataireId, bookingId){
   const el=document.getElementById('locataire-docs-'+bookingId);
   if(!el)return;
   try{
-    const{data:profil}=await sb.from('profiles').select('documents').eq('clerk_id',locataireId).single();
+    const{data:profil}=await sb.from('profiles').select('dossier_data,documents').eq('clerk_id',locataireId).single();
+
+    // Utiliser dossier_data (nouveau format dossier facile) en priorité
+    const dossierData=profil?.dossier_data;
+    if(dossierData&&Array.isArray(dossierData)){
+      const stepLabels=['🪪 Identité','🏠 Hébergement actuel','💼 Situation professionnelle','💰 Ressources','📋 Avis d\'imposition'];
+      let html='';
+      let totalFiles=0;
+
+      // Étapes 0–4 : documents du locataire
+      for(let i=0;i<5;i++){
+        const step=dossierData[i];
+        if(!step)continue;
+        const files=(step.files||[]).filter(f=>f&&f.url);
+        if(!files.length)continue;
+        totalFiles+=files.length;
+        html+=`<div style="margin-bottom:.5rem">
+          <div style="font-size:.62rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.2rem">${stepLabels[i]||'Étape '+(i+1)}</div>
+          ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.3rem .55rem;margin-bottom:.2rem">
+            <span style="font-size:.73rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${(f.name||'').replace(/"/g,'&quot;')}">${f.name||'Document'}</span>
+            <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:6px;padding:.2rem .5rem;font-size:.67rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0">Voir →</a>
+          </div>`).join('')}
+        </div>`;
+      }
+
+      // Étape 5 : garant
+      const garantStep=dossierData[5];
+      if(garantStep&&garantStep.type&&garantStep.type!=='skipped_garant'){
+        const garantTypeLabel={garant_personne:'👤 Garant (personne physique)',garant_organisme:'🏦 Garant (organisme)',garant_moral:'🏢 Garant (personne morale)'}[garantStep.type]||'Garant';
+        let garantHtml=`<div style="border-top:1px solid var(--b);padding-top:.5rem;margin-top:.4rem">
+          <div style="font-size:.62rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem">${garantTypeLabel}</div>`;
+        const garants=garantStep.garants||[];
+        garants.forEach((g,gi)=>{
+          const gn=g.garant_name||{};
+          const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ')||'—';
+          const email=gn.email||'—';
+          garantHtml+=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.45rem .6rem;margin-bottom:.35rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;font-size:.73rem;margin-bottom:.35rem">
+              <div><div style="color:var(--td);font-size:.6rem">Nom</div><div style="font-weight:700">${nom}</div></div>
+              <div><div style="color:var(--td);font-size:.6rem">Email</div><div style="font-weight:600;font-size:.68rem;word-break:break-all">${email}</div></div>
+            </div>`;
+          const gFiles=(g.files||[]).filter(f=>f&&f.url);
+          if(gFiles.length){
+            gFiles.forEach(f=>{
+              garantHtml+=`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
+                <span style="font-size:.7rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px">${f.name||'Document garant'}</span>
+                <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
+              </div>`;
+            });
+          }else{
+            garantHtml+='<div style="font-size:.68rem;color:var(--td)">Aucun document garant uploadé</div>';
+          }
+          garantHtml+='</div>';
+        });
+        garantHtml+='</div>';
+        html+=garantHtml;
+      }else if(garantStep&&garantStep.type==='skipped_garant'){
+        html+=`<div style="border-top:1px solid var(--b);padding-top:.5rem;margin-top:.4rem;font-size:.7rem;color:var(--td)">Sans garant</div>`;
+      }
+
+      if(!totalFiles&&!garantStep){
+        el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Dossier en cours de constitution</div>';
+      }else{
+        el.innerHTML=html;
+        lucide.createIcons();
+      }
+      return;
+    }
+
+    // Fallback : ancien format profiles.documents
     const raw=profil?.documents;
-    if(!raw){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">No documents uploaded yet</div>';return;}
+    if(!raw){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
     const docs=typeof raw==='string'?JSON.parse(raw):raw;
-    const docLabels={id:'<i data-lucide=id-card class=ic></i> ID/Passport',bank_statement:'<i data-lucide=landmark class=ic></i> Bank statement',emprent_letter:'<i data-lucide=briefcase class=ic></i> Employment letter',reference_letter:'<i data-lucide=star class=ic></i> Reference letter',rent1:'<i data-lucide=file-text class=ic></i> Loyer quittance 1',rent2:'<i data-lucide=file-text class=ic></i> Loyer quittance 2',rent3:'<i data-lucide=file-text class=ic></i> Loyer quittance 3'};
+    const docLabels={id:'ID/Passport',bank_statement:'Relevé bancaire',emprent_letter:'Lettre employeur',reference_letter:'Lettre de référence',rent1:'Quittance loyer 1',rent2:'Quittance loyer 2',rent3:'Quittance loyer 3'};
     const entries=Object.entries(docs).filter(([,d])=>d?.path);
-    if(!entries.length){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">No documents uploaded yet</div>';return;}
+    if(!entries.length){el.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
     el.innerHTML=entries.map(([key,doc])=>{
-      const p=doc.path.replace(/'/g,"\\'");
       return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border:1px solid var(--grdim);border-radius:7px;padding:.35rem .6rem;margin-bottom:.25rem">'
         +'<div style="font-size:.75rem;font-weight:600">'+(docLabels[key]||key)+'</div>'
-        +'<button onclick="viewLocataireDoc(this.dataset.path)" data-path="'+doc.path+'" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">View</button>'
+        +'<button onclick="viewLocataireDoc(this.dataset.path)" data-path="'+doc.path+'" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir</button>'
         +'</div>';
     }).join('');
-  }catch(e){if(el)el.innerHTML='<div style="font-size:.72rem;color:var(--red)">Erreur chargement documents</div>';}
+  }catch(e){console.error('loadLocataireDocuments:',e);if(el)el.innerHTML='<div style="font-size:.72rem;color:var(--red)">Erreur chargement documents</div>';}
 }
 
 async function viewLocataireDoc(path){
@@ -1485,9 +1553,8 @@ async function loadCoLocatairesLiveInfo(booking){
   const accountLocataireIds=coLocataires.map((ct,i)=>({ct,i})).filter(x=>x.ct.hasAccount&&x.ct.tenant_id);
   if(!accountLocataireIds.length)return;
   try{
-    const{data:profiles}=await sb.from('profiles').select('clerk_id,phone,vérifié,id_submitted,documents').in('clerk_id',accountLocataireIds.map(x=>x.ct.tenant_id));
+    const{data:profiles}=await sb.from('profiles').select('clerk_id,phone,vérifié,id_submitted,dossier_data,documents').in('clerk_id',accountLocataireIds.map(x=>x.ct.tenant_id));
     const pMap={};(profiles||[]).forEach(p=>{pMap[p.clerk_id]=p;});
-    const docLabels={id:'<i data-lucide=id-card class=ic></i> ID/Passport',bank_statement:'<i data-lucide=landmark class=ic></i> Bank statement',emprent_letter:'<i data-lucide=briefcase class=ic></i> Employment letter',reference_letter:'<i data-lucide=star class=ic></i> Reference letter',rent1:'<i data-lucide=file-text class=ic></i> Loyer quittance 1',rent2:'<i data-lucide=file-text class=ic></i> Loyer quittance 2',rent3:'<i data-lucide=file-text class=ic></i> Loyer quittance 3'};
     accountLocataireIds.forEach(({ct,i})=>{
       const p=pMap[ct.tenant_id];
       const phoneEl=document.getElementById(`ct-phone-${booking.id}-${i}`);
@@ -1497,12 +1564,28 @@ async function loadCoLocatairesLiveInfo(booking){
 
       const docsEl=document.getElementById(`ct-docs-${booking.id}-${i}`);
       if(docsEl){
-        let docMap={};
-        try{docMap=p?.documents?(typeof p.documents==='string'?JSON.parse(p.documents):p.documents):{};}catch(e){}
-        const entries=Object.entries(docMap).filter(([,d])=>d?.path);
-        docsEl.innerHTML=entries.length
-          ?entries.map(([key,doc])=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border:1px solid var(--grdim);border-radius:6px;padding:.25rem .5rem"><span style="font-weight:600">${docLabels[key]||key}</span><button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:5px;padding:.15rem .4rem;font-size:.62rem;font-weight:600;cursor:pointer">View →</button></div>`).join('')
-          :'<div>No documents uploaded yet</div>';
+        // Nouveau format dossier_data en priorité
+        const dossierData=p?.dossier_data;
+        if(dossierData&&Array.isArray(dossierData)){
+          const allFiles=[];
+          const stepLabels=['Identité','Hébergement','Profession','Ressources','Impôt'];
+          for(let si=0;si<5;si++){
+            const step=dossierData[si];
+            (step?.files||[]).filter(f=>f?.url).forEach(f=>allFiles.push({label:stepLabels[si],file:f}));
+          }
+          docsEl.innerHTML=allFiles.length
+            ?allFiles.map(({label,file})=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.25rem .5rem"><span style="font-weight:600;font-size:.7rem">[${label}] ${file.name||'Doc'}</span><a href="${file.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:5px;padding:.15rem .4rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join('')
+            :'<div>Dossier en cours</div>';
+        }else{
+          // Fallback ancien format
+          let docMap={};
+          try{docMap=p?.documents?(typeof p.documents==='string'?JSON.parse(p.documents):p.documents):{};}catch(e){}
+          const entries=Object.entries(docMap).filter(([,d])=>d?.path);
+          const docLabels={id:'ID',bank_statement:'Relevé',emprent_letter:'Employeur',reference_letter:'Référence',rent1:'Quittance 1',rent2:'Quittance 2',rent3:'Quittance 3'};
+          docsEl.innerHTML=entries.length
+            ?entries.map(([key,doc])=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.25rem .5rem"><span style="font-weight:600">${docLabels[key]||key}</span><button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:5px;padding:.15rem .4rem;font-size:.62rem;font-weight:600;cursor:pointer">Voir →</button></div>`).join('')
+            :'<div>Aucun document</div>';
+        }
       }
     });
   }catch(e){}
@@ -1787,7 +1870,7 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
 
     toast('<i data-lucide=party-popper class=ic></i> Accepté ! Ouverture du bail meublé…');
     // Rediriger vers bail-meuble.html pour compléter et signer le bail
-    setTimeout(()=>{ window.open('/bail-meuble.html?booking_id='+bookingId,'_blank'); },800);
+    setTimeout(()=>{ window.open('/bail-meuble.html?booking_id='+bookingId+'&role=landlord','_blank'); },800);
     loadVisitsPage();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);console.error(e);}
 }
@@ -3895,7 +3978,7 @@ function renderBailSection(g){
     <div style="padding:.75rem .85rem">
 
       <!-- Bouton bail meublé loi ALUR -->
-      <a href="/bail-meuble.html?booking_id=${bk?.id||''}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:rgba(27,79,216,.1);border:1px solid rgba(27,79,216,.25);border-radius:9px;padding:.55rem .75rem;margin-bottom:.75rem;text-decoration:none;cursor:pointer">
+      <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:rgba(27,79,216,.1);border:1px solid rgba(27,79,216,.25);border-radius:9px;padding:.55rem .75rem;margin-bottom:.75rem;text-decoration:none;cursor:pointer">
         <div>
           <div style="font-size:.78rem;font-weight:700;color:var(--bleu)"><i data-lucide=file-text style="vertical-align:middle"></i> Bail meublé loi ALUR</div>
           <div style="font-size:.67rem;color:var(--td);margin-top:.1rem">Décret n° 2015-587 · 17 articles · e-signature intégrée</div>
