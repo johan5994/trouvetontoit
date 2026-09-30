@@ -1325,7 +1325,27 @@ async function fetchVisitAndApplicationGroups(){
     };
   });
 
-  return[...enriched,...orphans];
+  // 6. Enrichir avec la lease (negotiation_status) pour les bookings pertinents
+  const relevantBookingIds=allBookings.filter(b=>{
+    const st=b.status||b.statut||'';
+    return ['accepted','accepté','bail_en attente','edl_scheduled','signing_day','move_in_ready'].includes(st);
+  }).map(b=>b.id).filter(Boolean);
+
+  let leaseByBooking={};
+  if(relevantBookingIds.length){
+    const{data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at').in('booking_id',relevantBookingIds);
+    (leases||[]).forEach(l=>{if(l.booking_id)leaseByBooking[l.booking_id]=l;});
+  }
+
+  // Attacher la lease à chaque booking dans les groupes
+  const attachLease=arr=>arr.map(g=>{
+    if(g.booking?.id && leaseByBooking[g.booking.id]){
+      return{...g,booking:{...g.booking,_lease:leaseByBooking[g.booking.id]}};
+    }
+    return g;
+  });
+
+  return attachLease([...enriched,...orphans]);
 }
 
 // Statuts de visite pure — avant toute candidature de location
@@ -4079,25 +4099,67 @@ function renderBailSection(g){
         </div>
       </div>
 
-      <!-- Signatures -->
-      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
-      <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
-          ${llSigned
-            ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
-            :bk?.bail_propriétaire_embed
-              ?`<button onclick="openSigningDocLL('${bk?.bail_propriétaire_embed||''}','Contrat de bail','${bk?.id||''}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i>️ Sign now</button>`
-              :`<button onclick="regenBail('${bk?.id||''}','${g.listing_id||''}','${g.tenant_id||''}')" style="background:var(--gold);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=refresh-cw class=ic></i> Générer le bail</button>`}
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
-          ${tSigned
-            ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
-            :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
-        </div>
-        ${renderCoLocataireSignatureRows(bk)}
-      </div>
+      <!-- Signatures / État du workflow bail -->
+      ${(()=>{
+        const lease=bk?._lease||null;
+        const ns=lease?.negotiation_status||(!bk?.bail_propriétaire_embed?'no_bail':'unknown');
+        const agreed=ns==='agreed'||ns==='signed';
+        const bothSigned=llSigned&&tSigned;
+
+        // Cas 1 — les deux ont signé → afficher les signatures normalement
+        if(bothSigned){
+          return`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
+              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
+              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}
+            </div>
+            ${renderCoLocataireSignatureRows(bk)}
+          </div>`;
+        }
+
+        // Cas 2 — accord obtenu → afficher le statut de chaque signature
+        if(agreed){
+          return`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
+              ${llSigned
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
+                :`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" target="_blank" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i>️ Signer le bail</a>`}
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
+              ${tSigned
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
+                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien envoyé)</span>`}
+            </div>
+            ${renderCoLocataireSignatureRows(bk)}
+          </div>`;
+        }
+
+        // Cas 3 — modèle pas encore accepté → afficher l'état du workflow avec un CTA clair
+        const workflowMsgs={
+          no_bail:{icon:'📝',title:'Bail à compléter',msg:'Ouvrez le bail pour renseigner les champs manquants et l\'envoyer au locataire pour relecture.'},
+          draft:{icon:'📝',title:'Bail à envoyer',msg:'Le bail est en brouillon. Ouvrez-le pour le compléter et l\'envoyer au locataire.'},
+          pending_tenant:{icon:'⏳',title:'En attente du locataire',msg:'Le locataire doit relire et accepter le modèle avant de pouvoir signer.'},
+          pending_landlord:{icon:'🔄',title:'Modifications demandées',msg:'Le locataire a demandé des ajustements. Ouvrez le bail pour voir ses commentaires et valider le modèle final.'},
+          unknown:{icon:'📋',title:'Bail en cours',msg:'Ouvrez le bail pour voir l\'état actuel de la procédure.'},
+        };
+        const wm=workflowMsgs[ns]||workflowMsgs.unknown;
+        return`<div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.18);border-radius:9px;padding:.65rem .8rem;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.6rem">
+          <span style="font-size:1rem;flex-shrink:0;margin-top:.05rem">${wm.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.77rem;font-weight:700;color:var(--bleu);margin-bottom:.2rem">${wm.title}</div>
+            <div style="font-size:.73rem;color:var(--td);line-height:1.45;margin-bottom:.45rem">${wm.msg}</div>
+            <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" target="_blank" style="display:inline-flex;align-items:center;gap:.3rem;background:var(--bleu);color:white;border-radius:7px;padding:.3rem .7rem;font-size:.74rem;font-weight:700;text-decoration:none">Ouvrir le bail →</a>
+          </div>
+        </div>`;
+      })()}
 
       <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
       <div id="payrow-${bk?.id||''}" style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;display:flex;align-items:center;justify-content:space-between">
