@@ -60,6 +60,8 @@
     .cp-doc-link{color:var(--bleu);text-decoration:underline;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
     .annexe-link{color:var(--bleu);text-decoration:none;font-size:.78rem;font-weight:600;margin-left:auto;padding:.15rem .5rem;background:#EFF6FF;border-radius:5px;white-space:nowrap}
     .annexe-link:hover{background:#DBEAFE}
+    .annexe-upload-btn{position:relative;cursor:pointer;color:var(--bleu);font-size:.78rem;font-weight:600;margin-left:auto;padding:.15rem .5rem;background:#F0FDF4;border:1.5px dashed #86EFAC;border-radius:5px;white-space:nowrap;display:inline-flex;align-items:center;gap:.3rem}
+    .annexe-upload-btn:hover{background:#DCFCE7;border-color:#4ADE80}
 
     /* PAGE */
     .page-wrap{max-width:840px;margin:2rem auto;padding:0 1rem 5rem}
@@ -398,6 +400,12 @@
       </div>
 
       <div class="cp-section-title">Diagnostics techniques obligatoires</div>
+      <div class="cp-field"><label>Classe DPE — Énergie (A-G)</label>
+        <select id="cp-dpe-energy">
+          <option value="">— Non renseigné —</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option>
+        </select>
+      </div>
       <div class="cp-field"><label>Classe GES (A-G)</label>
         <select id="cp-dpe-ges">
           <option value="">— Non renseigné —</option>
@@ -1600,15 +1608,30 @@ async function loadBail(){
       }
     }
 
-    // Auto-charger garant depuis dossier si pas encore dans le bail
+    // Auto-charger garant depuis dossier (profiles.dossier_data) si pas encore dans le bail
     if(!LEASE.garant_name&&LEASE.tenant_id){
-      const{data:dos}=await sb.from('dossiers').select('*').eq('candidat_id',LEASE.tenant_id).eq('has_garant',true).eq('garant_type','physique').order('created_at',{ascending:false}).limit(1).maybeSingle();
-      if(dos?.garant_nom){
-        const gName=[dos.garant_nom,dos.garant_prenom].filter(Boolean).join(' ');
-        const upd={garant_name:gName,garant_address:dos.garant_adresse||null,garant_email:dos.garant_email||null,garant_phone:dos.garant_telephone||null};
-        await sb.from('leases').update(upd).eq('id',LEASE.id);
-        Object.assign(LEASE,upd);
-      }
+      try{
+        const{data:tProf}=await sb.from('profiles').select('dossier_data').eq('clerk_id',LEASE.tenant_id).maybeSingle();
+        const dd=tProf?.dossier_data;
+        // Normaliser dd en array (peut être objet ou array)
+        let ddArr=null;
+        if(Array.isArray(dd))ddArr=dd;
+        else if(dd&&typeof dd==='object'){
+          const maxIdx=Math.max(...Object.keys(dd).map(Number).filter(n=>!isNaN(n)),-1);
+          if(maxIdx>=0){ddArr=[];for(let i=0;i<=maxIdx;i++)ddArr.push(dd[i]||null);}
+        }
+        const garantStep=ddArr?.[5];
+        if(garantStep&&garantStep.type==='garant_personne'&&garantStep.garants?.length){
+          const g=garantStep.garants[0];
+          const gn=g.garant_name||{};
+          const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ');
+          if(nom){
+            const upd={garant_name:nom,garant_email:gn.email||null};
+            await sb.from('leases').update(upd).eq('id',LEASE.id);
+            Object.assign(LEASE,upd);
+          }
+        }
+      }catch(e){console.warn('Auto-load garant:',e);}
     }
 
     renderBail();
@@ -1926,7 +1949,7 @@ function renderBail(){
   }
 
   // DPE — lecture depuis listing (colonnes réelles : dpe, ges)
-  const epc=Li?.dpe||Li?.epc_rating;
+  const epc=L.dpe_energy_rating||Li?.dpe||Li?.epc_rating;
   const ges=Li?.ges||L.dpe_ges_rating;
   let dpeHtml='';
   if(epc){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:${dpeColor(epc)}">${epc}</div><div class="dpe-sub">kWhEP/m²/an</div></div>`;}
@@ -1989,29 +2012,32 @@ function renderBail(){
 
   // Annexes
   const annexes=[
-    {n:1,txt:'Inventaire détaillé du mobilier et des équipements (état, marque, quantité)'},
-    {n:2,txt:'État des lieux d\'entrée contradictoire'},
-    {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES'},
-    {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)'},
+    {n:1,txt:'Inventaire détaillé du mobilier et des équipements (état, marque, quantité)',edl:true},
+    {n:2,txt:'État des lieux d\'entrée contradictoire',edl:true},
+    {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
+    {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)'},
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives'},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
-    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url}]:[]),
-    ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url}]:[]),
+    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
+    ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
     ...(L.garant_name?[{n:10,txt:'Acte de caution solidaire (ci-après)'}]:[])
   ];
   // Ajouter documents uploadés même si pas dans conditions ci-dessus
   const docEntries=[
-    {key:'doc_dpe_url',txt:'Diagnostic de Performance Énergétique (DPE)'},
-    {key:'doc_erp_url',txt:'État des risques et pollutions (ERP / ERRIAL)'},
-    {key:'doc_elec_url',txt:'Diagnostic électricité'},
-    {key:'doc_gaz_url',txt:'Diagnostic gaz'},
-    {key:'doc_bruit_url',txt:'Information sur les nuisances sonores (IAB)'},
+    {key:'doc_dpe_url',txt:'Diagnostic de Performance Énergétique (DPE)',uploadKey:'dpe'},
+    {key:'doc_erp_url',txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
+    {key:'doc_elec_url',txt:'Diagnostic électricité',uploadKey:'elec'},
+    {key:'doc_gaz_url',txt:'Diagnostic gaz',uploadKey:'gaz'},
+    {key:'doc_bruit_url',txt:'Information sur les nuisances sonores (IAB)',uploadKey:'bruit'},
   ];
   let nextN=annexes.length+1;
   for(const d of docEntries){
     if(L[d.key]&&!annexes.some(a=>a.url===L[d.key])){
-      annexes.push({n:nextN++,txt:d.txt,url:L[d.key]});
+      annexes.push({n:nextN++,txt:d.txt,url:L[d.key],uploadKey:d.uploadKey});
+    } else if(!L[d.key]&&isLandlord&&!annexes.some(a=>a.uploadKey===d.uploadKey)){
+      // Si pas encore uploadé et bailleur : ajouter ligne uploadable (élec, gaz, bruit)
+      annexes.push({n:nextN++,txt:d.txt,uploadKey:d.uploadKey});
     }
   }
   // Forcer DPE et ERP dans la liste si uploadés (remplace l'entrée générique)
@@ -2023,7 +2049,14 @@ function renderBail(){
   show('annexes-list',annexes.map(a=>`<li>
     <span class="annexe-num">${a.n}</span>
     <span style="flex:1">${a.txt}</span>
-    ${a.url?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`:'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'}
+    ${a.url
+      ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`
+      :a.edl
+        ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
+        :isLandlord&&a.uploadKey
+          ?`<label class="annexe-upload-btn" title="Déposer le PDF"><input type="file" accept=".pdf" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0">📤 Déposer PDF</label>`
+          :'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'
+    }
   </li>`).join(''));
 
   // Acte de caution
@@ -2336,6 +2369,7 @@ function populateCompleterForm(){
   set('cp-num-fiscal',L.numero_fiscal);
   set('cp-chauffage',L.mode_chauffage);
   set('cp-ecs',L.mode_ecs);
+  set('cp-dpe-energy',L.dpe_energy_rating||Li?.dpe||Li?.epc_rating||'');
   set('cp-dpe-ges',L.dpe_ges_rating);
   set('cp-amiante',L.diag_amiante||'');
   set('cp-plomb',L.diag_plomb||'');
@@ -2421,6 +2455,7 @@ async function saveCompleter(){
     numero_fiscal:gv('cp-num-fiscal'),
     mode_chauffage:gv('cp-chauffage'),
     mode_ecs:gv('cp-ecs'),
+    dpe_energy_rating:gv('cp-dpe-energy'),
     dpe_ges_rating:gv('cp-dpe-ges'),
     diag_amiante:gv('cp-amiante'),
     diag_plomb:gv('cp-plomb'),
