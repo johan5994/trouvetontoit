@@ -449,8 +449,8 @@
         <label for="cp-copro">Immeuble en copropriété</label>
       </div>
       <div class="cp-field" id="cp-copro-fields" style="display:none">
-        <label>Numéro de lot (copropriété)</label>
-        <input type="text" id="cp-num-lot" placeholder="ex. Lot 42">
+        <label>N° de lot de l'appartement <span style="font-weight:400;color:var(--td)">(figure sur votre acte de propriété)</span></label>
+        <input type="text" id="cp-num-lot" placeholder="ex. 42">
       </div>
       <div class="cp-toggle">
         <input type="checkbox" id="cp-zone-tendue">
@@ -466,16 +466,30 @@
         <input type="checkbox" id="cp-has-parking" onchange="toggleDepFields('parking')">
         <label for="cp-has-parking">Emplacement de stationnement inclus</label>
       </div>
-      <div class="cp-field" id="cp-parking-fields" style="display:none">
-        <label>Détails du stationnement <span style="font-weight:400;color:var(--td)">(lot, niveau, numéro)</span></label>
-        <input type="text" id="cp-parking-details" placeholder="ex. Emplacement n°12, sous-sol niveau 1">
+      <div id="cp-parking-fields" style="display:none">
+        <div class="cp-field">
+          <label>Type de stationnement</label>
+          <select id="cp-parking-type">
+            <option value="">— Choisir —</option>
+            <option value="Emplacement extérieur">Emplacement extérieur</option>
+            <option value="Emplacement couvert">Emplacement couvert</option>
+            <option value="Emplacement souterrain">Emplacement souterrain</option>
+            <option value="Box fermé">Box fermé</option>
+            <option value="Garage individuel">Garage individuel</option>
+            <option value="Garage collectif">Garage collectif</option>
+          </select>
+        </div>
+        <div class="cp-field">
+          <label>N° de lot + localisation <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
+          <input type="text" id="cp-parking-details" placeholder="ex. Lot n°45, sous-sol niveau 1">
+        </div>
       </div>
       <div class="cp-toggle">
         <input type="checkbox" id="cp-has-cave" onchange="toggleDepFields('cave')">
         <label for="cp-has-cave">Cave incluse</label>
       </div>
       <div class="cp-field" id="cp-cave-fields" style="display:none">
-        <label>Détails de la cave <span style="font-weight:400;color:var(--td)">(lot, localisation)</span></label>
+        <label>N° de lot + localisation <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
         <input type="text" id="cp-cave-details" placeholder="ex. Lot n°8, rez-de-chaussée, porte A">
       </div>
       <div class="cp-toggle">
@@ -483,8 +497,8 @@
         <label for="cp-has-box">Box / local de stockage inclus</label>
       </div>
       <div class="cp-field" id="cp-box-fields" style="display:none">
-        <label>Détails du box <span style="font-weight:400;color:var(--td)">(numéro, superficie, niveau)</span></label>
-        <input type="text" id="cp-box-details" placeholder="ex. Box n°3, sous-sol, 5 m²">
+        <label>N° de lot + description <span style="font-weight:400;color:var(--td)">(sur votre acte de propriété)</span></label>
+        <input type="text" id="cp-box-details" placeholder="ex. Lot n°3, sous-sol, 5 m²">
       </div>
 
       <div class="cp-section-title">Diagnostics techniques obligatoires</div>
@@ -1178,7 +1192,8 @@ const FIELD_LABELS={
   diag_bruit:'Nuisances sonores',
   regime_copro:'Copropriété',
   numero_lot:'Numéro de lot',
-  parking_details:'Stationnement (détails)',
+  parking_type:'Type de stationnement',
+  parking_details:'Stationnement (numéro/localisation)',
   cave_details:'Cave (détails)',
   box_details:'Box / local (détails)',
   zone_tendue:'Zone tendue',
@@ -1246,7 +1261,8 @@ const FIELD_CONFIGS={
   garant_birth_date:{type:'date'},
   garant_birth_place:{type:'text',placeholder:'ex. Paris (75)'},
   numero_lot:{type:'text',placeholder:'ex. Lot 42'},
-  parking_details:{type:'text',placeholder:'ex. Emplacement n°12, sous-sol niveau 1'},
+  parking_type:{type:'select',options:['Emplacement extérieur','Emplacement couvert','Emplacement souterrain','Box fermé','Garage individuel','Garage collectif']},
+  parking_details:{type:'text',placeholder:'ex. Lot n°42, sous-sol niveau 1'},
   cave_details:{type:'text',placeholder:'ex. Lot n°8, rez-de-chaussée, porte A'},
   box_details:{type:'text',placeholder:'ex. Box n°3, sous-sol, 5 m²'},
   travaux_desc:{type:'travaux',placeholder:'Décrivez les travaux réalisés (nature, pièces concernées, date approximative)…'},
@@ -1298,6 +1314,7 @@ ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref_majore NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS zone_tendue BOOLEAN DEFAULT false;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS regime_copro BOOLEAN DEFAULT false;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS numero_lot TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS parking_type TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS parking_details TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS cave_details TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS box_details TEXT;
@@ -2112,10 +2129,11 @@ function renderBail(){
     items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
   }
   // Dépendances — parking
-  if(L.parking_details){
-    items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',L.parking_details))});
+  if(L.parking_type||L.parking_details){
+    const parkLabel=[L.parking_type,L.parking_details].filter(Boolean).join(' — ');
+    items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',parkLabel))});
   } else if(L.parking||Li?.parking){
-    items2.push({label:'Stationnement',value:'Inclus'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'parking_details')">⚠ Préciser lot/emplacement</span>`:'')});
+    items2.push({label:'Stationnement',value:'Inclus'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="openCompleter()">⚠ Préciser type et lot</span>`:'')});
   }
   // Cave
   if(L.cave_details){
@@ -2746,7 +2764,7 @@ function populateCompleterForm(){
   set('cp-bruit',L.diag_bruit||'');
   if(L.regime_copro){q('cp-copro').checked=true;toggleCoProFields();}
   set('cp-num-lot',L.numero_lot);
-  if(L.parking_details){q('cp-has-parking').checked=true;toggleDepFields('parking');set('cp-parking-details',L.parking_details);}
+  if(L.parking_details||L.parking_type){q('cp-has-parking').checked=true;toggleDepFields('parking');set('cp-parking-type',L.parking_type);set('cp-parking-details',L.parking_details);}
   else if(L.parking||LISTING?.parking){q('cp-has-parking').checked=true;toggleDepFields('parking');}
   if(L.cave_details){q('cp-has-cave').checked=true;toggleDepFields('cave');set('cp-cave-details',L.cave_details);}
   else if(L.cave||LISTING?.cave){q('cp-has-cave').checked=true;toggleDepFields('cave');}
@@ -2809,8 +2827,12 @@ q('cp-copro').addEventListener('change',toggleCoProFields);
 q('cp-zone-tendue').addEventListener('change',toggleZoneTendueFields);
 function toggleDepFields(type){
   const show=q('cp-has-'+type).checked;
-  q('cp-'+type+'-fields').style.display=show?'flex':'none';
-  if(!show)q('cp-'+type+'-details').value='';
+  const wrap=q('cp-'+type+'-fields');
+  if(wrap)wrap.style.display=show?(type==='parking'?'contents':'flex'):'none';
+  if(!show){
+    const det=q('cp-'+type+'-details');if(det)det.value='';
+    const typ=q('cp-'+type+'-type');if(typ)typ.value='';
+  }
 }
 
 function updateMissingCount(){
@@ -2843,6 +2865,7 @@ async function saveCompleter(){
     diag_bruit:gv('cp-bruit'),
     regime_copro:gb('cp-copro'),
     numero_lot:gv('cp-num-lot'),
+    parking_type:gb('cp-has-parking')?gv('cp-parking-type'):null,
     parking_details:gb('cp-has-parking')?gv('cp-parking-details'):null,
     cave_details:gb('cp-has-cave')?gv('cp-cave-details'):null,
     box_details:gb('cp-has-box')?gv('cp-box-details'):null,
