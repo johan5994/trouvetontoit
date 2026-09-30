@@ -522,6 +522,8 @@
         <div class="cp-field"><label>Téléphone du garant</label><input type="tel" id="cp-garant-phone" placeholder="+33 6 …"></div>
         <div class="cp-field"><label>Montant max. cautionné (€)</label><input type="number" id="cp-garant-montant" placeholder="ex. 12000"></div>
         <div class="cp-field"><label>Profession / employeur du garant</label><input type="text" id="cp-garant-pro" placeholder="ex. Cadre chez SNCF"></div>
+        <div class="cp-field"><label>Date de naissance du garant</label><input type="date" id="cp-garant-birth-date"></div>
+        <div class="cp-field"><label>Lieu de naissance du garant</label><input type="text" id="cp-garant-birth-place" placeholder="ex. Paris (75)"></div>
       </div>
 
       <div class="cp-actions">
@@ -956,6 +958,40 @@
           </div>
         </div>
 
+        <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE (conditionnelle) -->
+        <div class="section" id="caution-section" style="display:none">
+          <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem;margin-top:.25rem">
+            <div class="article-title" style="color:var(--gold);margin-bottom:.9rem">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
+
+            <div class="partie-card garant-card" style="margin-bottom:.85rem">
+              <div class="role">Le Garant (Caution solidaire)</div>
+              <div class="name" id="c-garant-name">—</div>
+              <div class="detail" id="c-garant-birth" style="font-size:.8rem;color:var(--tm);margin:.1rem 0"></div>
+              <div class="detail" id="c-garant-detail">—</div>
+            </div>
+
+            <div class="article-content">
+              <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+              <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
+            </div>
+
+            <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
+
+            <div class="info-grid" style="margin:.75rem 0">
+              <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
+              <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value" id="c-duree-caution">—</div></div>
+              <div class="info-item"><div class="label">Nature</div><div class="value">Solidaire (sans bénéfice de discussion)</div></div>
+            </div>
+
+            <div class="article-content">
+              <p>La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2298 C.civ.) et au bénéfice de division.</p>
+              <p>Le garant peut mettre fin à son engagement à l'issue de chaque période annuelle du bail, par lettre recommandée avec avis de réception adressée au bailleur au moins deux (2) mois avant la date d'échéance annuelle (art. 22-1-II de la loi du 6 juillet 1989). La résiliation ne prend effet qu'à compter de la prochaine échéance annuelle suivant le délai de préavis.</p>
+              <div class="warning">⚠️ Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
+              <p style="font-size:.74rem;color:var(--td);margin-top:.5rem"><em>Depuis l'ordonnance n° 2021-1192 du 15 sept. 2021 (en vigueur le 1<sup>er</sup> janv. 2022), la mention manuscrite mot-pour-mot n'est plus obligatoire (art. 2297 al. 2 C.civ.). La formulation ci-dessus reprend les éléments requis par l'art. 22-1 de la loi du 6 juillet 1989.</em></p>
+            </div>
+          </div>
+        </div>
+
         <!-- SIGNATURES PRINCIPALES -->
         <div class="sig-section" id="sig-section-main" style="display:none">
           <div class="sig-title">🖊️ Signatures électroniques des parties</div>
@@ -980,9 +1016,20 @@
               </div>
               <div id="sig-t-pad-area"><div style="height:100px;display:flex;align-items:center;justify-content:center;color:var(--td);font-size:.78rem">Chargement…</div></div>
             </div>
+            <!-- Garant — affiché seulement si caution -->
+            <div class="sig-block caution-sig" id="sig-g-block" style="display:none;grid-column:1/-1">
+              <div class="sig-block-header">
+                <div>
+                  <div class="role" style="color:var(--gold)">Le Garant (Caution solidaire)</div>
+                  <div class="name" id="sig-g-name">—</div>
+                </div>
+                <div id="sig-g-status" style="font-size:.68rem"></div>
+              </div>
+              <div id="sig-g-pad-area"><div style="height:100px;display:flex;align-items:center;justify-content:center;color:var(--td);font-size:.78rem">Chargement…</div></div>
+            </div>
           </div>
           <p style="font-size:.71rem;color:var(--td);text-align:center;margin-top:.8rem;line-height:1.5">
-            En signant, chaque partie reconnaît avoir lu, compris et approuvé l'intégralité du présent bail et ses annexes.<br>
+            En signant, chaque partie reconnaît avoir lu, compris et approuvé l'intégralité du présent bail, ses annexes et la clause de cautionnement le cas échéant.<br>
             La signature électronique a la même valeur juridique qu'une signature manuscrite (art. 1367 du Code civil et règlement eIDAS n° 910/2014).
           </p>
         </div>
@@ -991,73 +1038,7 @@
 
       </div><!-- /bail-body -->
     </div><!-- /bail-card -->
-
-    <!-- ACTE DE CAUTION SOLIDAIRE -->
-    <div class="caution-card" id="caution-card" style="display:none">
-      <h2>Acte de Caution Solidaire</h2>
-      <div class="caution-sub">Document annexe au contrat de location du <span id="c-bail-date">—</span> — Conforme à l'article 22-1 de la loi du 6 juillet 1989</div>
-
-      <div class="section">
-        <div class="article-title">Identification du garant</div>
-        <div class="parties-grid" style="grid-template-columns:1fr">
-          <div class="partie-card garant-card">
-            <div class="role">Le Garant (Caution solidaire)</div>
-            <div class="name" id="c-garant-name">—</div>
-            <div class="detail" id="c-garant-detail">—</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="article-title">Objet de l'engagement</div>
-        <div class="article-content">
-          <p>Je soussigné(e), <strong id="c-garant-name2">—</strong>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail susvisé conclu avec le bailleur <strong id="c-landlord-name">—</strong>.</p>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="article-title">Mention manuscrite obligatoire (art. 22-1 loi 89)</div>
-        <div class="mention-manuscrite" id="c-mention">
-          <!-- remplie dynamiquement -->
-        </div>
-        <div class="article-content">
-          <p style="font-size:.78rem;color:var(--td)"><em>Cette mention est reproduite conformément à l'article 22-1 de la loi du 6 juillet 1989. Le garant en reconnaît la portée et les effets.</em></p>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="article-title">Étendue et durée de l'engagement</div>
-        <div class="info-grid">
-          <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
-          <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value">Durée du bail + renouvellements</div></div>
-          <div class="info-item"><div class="label">Nature de la caution</div><div class="value">Solidaire (sans bénéfice de discussion)</div></div>
-        </div>
-        <div class="article-content" style="margin-top:.6rem">
-          <p>La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2298 du Code civil) et au bénéfice de division.</p>
-          <p>Le garant peut mettre fin à son engagement à chaque échéance annuelle du bail, par lettre recommandée avec avis de réception adressée au bailleur au moins 2 mois avant la date d'échéance du bail (art. 22-1-II de la loi du 6 juillet 1989).</p>
-          <div class="warning">⚠️ Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant cet acte, le garant reconnaît avoir reçu une copie du contrat de location auquel il est annexé.</div>
-        </div>
-      </div>
-
-      <div class="sig-section" style="margin-top:1.25rem">
-        <div class="sig-title" style="color:var(--gold)">✍️ Signature du garant</div>
-        <div class="sig-grid" style="grid-template-columns:1fr">
-          <div class="sig-block caution-sig" id="sig-g-block">
-            <div class="sig-block-header">
-              <div>
-                <div class="role" style="color:var(--gold)">Le Garant (Caution solidaire)</div>
-                <div class="name" id="sig-g-name">—</div>
-              </div>
-              <div id="sig-g-status" style="font-size:.68rem"></div>
-            </div>
-            <div id="sig-g-pad-area"><div style="height:100px;display:flex;align-items:center;justify-content:center;color:var(--td);font-size:.78rem">Chargement…</div></div>
-          </div>
-        </div>
-        <p style="font-size:.71rem;color:var(--td);text-align:center;margin-top:.8rem">
-          En signant, le garant reconnaît avoir pris connaissance intégrale du bail et des obligations découlant de cet acte de caution.
-        </p>
-      </div>
-    </div><!-- /caution-card -->
+  </div><!-- /page-wrap -->
 
   </div><!-- /bail-wrap -->
 </div><!-- /page-wrap -->
@@ -1112,6 +1093,8 @@ const FIELD_LABELS={
   garant_phone:'Garant — Téléphone',
   garant_montant:'Garant — Montant caution',
   garant_pro:'Garant — Profession',
+  garant_birth_date:'Garant — Date de naissance',
+  garant_birth_place:'Garant — Lieu de naissance',
   travaux_desc:'Travaux réalisés',
   rent:'Loyer mensuel HC',
   charges:'Provisions sur charges',
@@ -1163,6 +1146,8 @@ const FIELD_CONFIGS={
   garant_phone:{type:'tel',placeholder:'+33 6 …'},
   garant_montant:{type:'number',placeholder:'ex. 12000',step:1,min:0},
   garant_pro:{type:'text',placeholder:'ex. Cadre chez SNCF'},
+  garant_birth_date:{type:'date'},
+  garant_birth_place:{type:'text',placeholder:'ex. Paris (75)'},
   numero_lot:{type:'text',placeholder:'ex. Lot 42'},
   travaux_desc:{type:'travaux',placeholder:'Décrivez les travaux réalisés (nature, pièces concernées, date approximative)…'},
   rent:{type:'number',placeholder:'ex. 850',step:1,min:0},
@@ -1467,6 +1452,33 @@ const ROLE_PARAM=QP.get('role'); // 'landlord'|'tenant'|null
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function fmt(n){return n!=null&&n!==''?new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n):'—';}
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function numEnLettres(n){
+  if(!n||isNaN(n))return'—';
+  n=Math.round(Number(n));
+  const U=['','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'];
+  const T=['','','vingt','trente','quarante','cinquante','soixante'];
+  function diz(x){
+    if(x<20)return U[x];
+    const d=Math.floor(x/10),r=x%10;
+    if(d===7)return r===1?'soixante et onze':r?'soixante-'+U[10+r]:'soixante-dix';
+    if(d===8)return r?'quatre-vingt-'+U[r]:'quatre-vingts';
+    if(d===9)return r?'quatre-vingt-'+U[10+r]:'quatre-vingt-dix';
+    return T[d]+(r===1?' et un':r?'-'+U[r]:'');
+  }
+  function grp(x){
+    if(x===0)return'';
+    if(x<100)return diz(x);
+    const c=Math.floor(x/100),r=x%100;
+    const pfx=c>1?U[c]+' ':'';
+    return pfx+'cent'+(r?' '+diz(r):(c>1?'s':''));
+  }
+  if(n===0)return'zéro';
+  const m=Math.floor(n/1000),r=n%1000;
+  let s='';
+  if(m)s=(m===1?'mille':grp(m)+' mille');
+  if(r)s+=(s?' ':'')+grp(r);
+  return s||'zéro';
+}
 function nb(n){const a=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix'];return(n>=0&&n<=10)?a[n]:String(n);}
 function q(id){return document.getElementById(id);}
 function show(id,html){const el=q(id);if(el)el.innerHTML=html;}
@@ -2045,8 +2057,8 @@ function renderBail(){
     {n:2,txt:'État des lieux d\'entrée contradictoire',edl:true},
     {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
-    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.legifrance.gouv.fr/download/pdf?id=JORFTEXT000030603042',official:true},
-    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.anil.org/app/uploads/2017/07/grille_vetuste_modele.pdf',official:true},
+    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.service-public.fr/particuliers/vosdroits/R41824',official:true},
+    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.service-public.fr/particuliers/vosdroits/F31269',official:true},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
     ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
     ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
@@ -2091,28 +2103,62 @@ function renderBail(){
     }
   </li>`).join(''));
 
-  // Acte de caution
+  // Clause de cautionnement intégrée
   if(L.garant_name){
-    q('caution-card').style.display='block';
-    show('c-bail-date',fmtDate(L.start_date));
-    show('c-garant-name',L.garant_name);show('c-garant-name2',L.garant_name);
+    q('caution-section').style.display='block';
+    q('sig-g-block').style.display='block';
+    const bailDate=fmtDate(L.start_date);
+    show('c-bail-date2',bailDate);
+
+    // Bailleur (dans la clause)
+    const llName=L.landlord_name||LL_PROFILE?.full_name||'—';
+    show('c-landlord-name2',llName);
+
+    // Garant
+    show('c-garant-name',L.garant_name);
+    show('c-garant-name2',L.garant_name);
     show('sig-g-name',L.garant_name);
+    const birthParts=[];
+    if(L.garant_birth_date)birthParts.push('Né(e) le '+fmtDate(L.garant_birth_date));
+    if(L.garant_birth_place)birthParts.push('à '+L.garant_birth_place);
+    show('c-garant-birth',birthParts.join(' '));
     show('c-garant-detail',[L.garant_address,L.garant_email,L.garant_phone,L.garant_pro].filter(Boolean).join('<br>'));
+
     show('c-tenant-name',T_PROFILE?.full_name||L.tenant_id);
     show('c-adresse',Li?.full_address||'—');
-    show('c-landlord-name',LL_PROFILE?.full_name||L.landlord_id);
+
+    // Loyer
+    const loyerHC=L.rent||0;
+    const chargesM=L.charges||0;
+    show('c-loyer-chiffres',fmt(loyerHC));
+    show('c-loyer-lettres',numEnLettres(loyerHC));
+    if(chargesM>0){
+      show('c-charges-mention',`, auxquels s'ajoutent ${fmt(chargesM)} de provisions sur charges`);
+    }
+
+    // Montant cautionné
     const montantCaution=L.garant_montant||deposit*3;
     show('c-montant',fmt(montantCaution));
-    // Mention manuscrite légale
+
+    // Durée
+    if(L.start_date&&L.end_date){
+      show('c-duree-caution',`Bail initial du ${fmtDate(L.start_date)} au ${fmtDate(L.end_date)}, renouvelable par tacite reconduction d'un an`);
+    } else if(L.start_date){
+      show('c-duree-caution',`À compter du ${fmtDate(L.start_date)}, pour la durée du bail et ses renouvellements annuels`);
+    }
+
+    // Engagement du garant
     const tenantName=T_PROFILE?.full_name||'le locataire';
     const adresse=Li?.full_address||'le logement';
-    const montantLetters=montantCaution?fmt(montantCaution)+'(':String(montantCaution);
-    show('c-mention',`<strong>Mention manuscrite (art. 22-1 de la loi n° 89-462 du 6 juillet 1989) :</strong><br><br>
-      « En me portant caution solidaire de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>,
-      couvrant le paiement du loyer, des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
-      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${fmtDate(L.start_date)}</em>, et pendant toute la durée du bail
+    const loyerLetters=numEnLettres(loyerHC);
+    show('c-mention',`<strong>Engagement du garant (art. 22-1 de la loi n° 89-462 du 6 juillet 1989) :</strong><br><br>
+      « En me portant caution solidaire de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
+      (<em>${numEnLettres(montantCaution)} euros</em>), couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em>,
+      des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
+      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em>, et pendant toute la durée du bail
       et de ses renouvellements ou reconductions, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
       en cas de défaillance du locataire, sans pouvoir bénéficier de discussion ni de division.
+      Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
       Si je cesse de présenter les garanties prévues, je m'oblige, à première demande du bailleur,
       à le prévenir immédiatement et à lui indiquer les nom et adresse du nouveau garant proposé. »`);
   }
@@ -2418,6 +2464,7 @@ function populateCompleterForm(){
   set('cp-garant-name',L.garant_name);set('cp-garant-addr',L.garant_address);
   set('cp-garant-email',L.garant_email);set('cp-garant-phone',L.garant_phone);
   set('cp-garant-montant',L.garant_montant);set('cp-garant-pro',L.garant_pro);
+  set('cp-garant-birth-date',L.garant_birth_date);set('cp-garant-birth-place',L.garant_birth_place);
 
   // Afficher le statut des documents déjà uploadés
   const docMap={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
@@ -2505,7 +2552,9 @@ async function saveCompleter(){
     garant_email:gb('cp-has-garant')?gv('cp-garant-email'):null,
     garant_phone:gb('cp-has-garant')?gv('cp-garant-phone'):null,
     garant_montant:gb('cp-has-garant')?gn('cp-garant-montant'):null,
-    garant_pro:gb('cp-has-garant')?gv('cp-garant-pro'):null
+    garant_pro:gb('cp-has-garant')?gv('cp-garant-pro'):null,
+    garant_birth_date:gb('cp-has-garant')?gv('cp-garant-birth-date')||null:null,
+    garant_birth_place:gb('cp-has-garant')?gv('cp-garant-birth-place')||null:null
   };
 
   // ── Détecter les champs modifiés et construire l'entrée du log ──
