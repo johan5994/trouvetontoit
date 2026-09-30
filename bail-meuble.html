@@ -305,6 +305,19 @@
     .toast{background:#1A1D27;color:#fff;padding:.55rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:600;white-space:nowrap;animation:toastIn .25s ease;pointer-events:none}
     @keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
+    /* MIGRATION MODAL */
+    #migration-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:1rem}
+    #migration-modal.open{display:flex}
+    .migr-box{background:#fff;border-radius:16px;padding:1.5rem;max-width:640px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto}
+    .migr-title{font-weight:800;font-size:1rem;margin-bottom:.35rem;color:var(--tm)}
+    .migr-sub{font-size:.8rem;color:var(--td);margin-bottom:1rem}
+    .migr-sql{background:#0F2D7A;color:#E0F2FE;font-family:monospace;font-size:.74rem;border-radius:10px;padding:1rem 1.1rem;line-height:1.7;overflow-x:auto;white-space:pre;user-select:all;cursor:text}
+    .migr-actions{display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end}
+    .btn-copy{background:#E0F2FE;color:#0F2D7A;border:none;border-radius:8px;padding:.45rem .85rem;font-size:.8rem;font-weight:700;cursor:pointer}
+    .btn-copy:hover{background:#BAE6FD}
+    .migr-step{font-size:.76rem;color:var(--td);margin-top:.65rem;line-height:1.6}
+    .migr-step a{color:var(--bleu)}
+
     /* PRINT */
     @media print{
       .nav,.submit-bar,#status-bar,.sig-cta,.completer-panel,#toast-container,button{display:none!important}
@@ -323,6 +336,7 @@
   <a href="/" class="nav-brand">★ Trouve Ton Toit</a>
   <div class="nav-actions">
     <span id="nav-user" style="font-size:.78rem;color:var(--td)"></span>
+    <button class="btn btn-outline btn-sm" id="migr-btn" style="display:none" onclick="showMigrations()" title="Migrations Supabase">🛠 SQL</button>
     <button class="btn btn-outline" onclick="window.print()">🖨️ PDF</button>
   </div>
 </nav>
@@ -368,6 +382,25 @@
     <div style="display:flex;gap:.5rem;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeClauseModal()">Annuler</button>
       <button class="btn btn-primary" onclick="saveClause()">Enregistrer la clause ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MIGRATIONS SUPABASE -->
+<div id="migration-modal" onclick="if(event.target.id==='migration-modal')closeMigrations()">
+  <div class="migr-box">
+    <div class="migr-title">🛠 Migrations Supabase requises</div>
+    <div class="migr-sub">Copiez ce SQL et exécutez-le dans l'éditeur SQL de votre projet Supabase (<a href="https://supabase.com/dashboard" target="_blank">supabase.com/dashboard</a> → SQL Editor).</div>
+    <div class="migr-sql" id="migr-sql-block">-- Chargement…</div>
+    <div class="migr-step">
+      1. Allez sur <strong>supabase.com/dashboard</strong> → votre projet → <strong>SQL Editor</strong><br>
+      2. Copiez tout le SQL ci-dessus (ou cliquez <strong>Copier</strong>)<br>
+      3. Collez et exécutez (<strong>Run</strong>)<br>
+      4. Revenez ici et rafraîchissez la page — toutes les colonnes seront disponibles.
+    </div>
+    <div class="migr-actions">
+      <button class="btn-copy" onclick="copyMigrationSQL()">📋 Copier le SQL</button>
+      <button class="btn btn-outline" onclick="closeMigrations()">Fermer</button>
     </div>
   </div>
 </div>
@@ -426,6 +459,32 @@
       <div id="cp-zone-tendue-fields" style="display:contents;display:none">
         <div class="cp-field"><label>Loyer de référence (€/m²)</label><input type="number" id="cp-loyer-ref" placeholder="ex. 24.30" step="0.01"></div>
         <div class="cp-field"><label>Loyer de référence majoré (€/m²)</label><input type="number" id="cp-loyer-ref-maj" placeholder="ex. 27.50" step="0.01"></div>
+      </div>
+
+      <div class="cp-section-title">Dépendances (cave, parking, box)</div>
+      <div class="cp-toggle">
+        <input type="checkbox" id="cp-has-parking" onchange="toggleDepFields('parking')">
+        <label for="cp-has-parking">Emplacement de stationnement inclus</label>
+      </div>
+      <div class="cp-field" id="cp-parking-fields" style="display:none">
+        <label>Détails du stationnement <span style="font-weight:400;color:var(--td)">(lot, niveau, numéro)</span></label>
+        <input type="text" id="cp-parking-details" placeholder="ex. Emplacement n°12, sous-sol niveau 1">
+      </div>
+      <div class="cp-toggle">
+        <input type="checkbox" id="cp-has-cave" onchange="toggleDepFields('cave')">
+        <label for="cp-has-cave">Cave incluse</label>
+      </div>
+      <div class="cp-field" id="cp-cave-fields" style="display:none">
+        <label>Détails de la cave <span style="font-weight:400;color:var(--td)">(lot, localisation)</span></label>
+        <input type="text" id="cp-cave-details" placeholder="ex. Lot n°8, rez-de-chaussée, porte A">
+      </div>
+      <div class="cp-toggle">
+        <input type="checkbox" id="cp-has-box" onchange="toggleDepFields('box')">
+        <label for="cp-has-box">Box / local de stockage inclus</label>
+      </div>
+      <div class="cp-field" id="cp-box-fields" style="display:none">
+        <label>Détails du box <span style="font-weight:400;color:var(--td)">(numéro, superficie, niveau)</span></label>
+        <input type="text" id="cp-box-details" placeholder="ex. Box n°3, sous-sol, 5 m²">
       </div>
 
       <div class="cp-section-title">Diagnostics techniques obligatoires</div>
@@ -492,49 +551,49 @@
       <div class="cp-field" style="grid-column:1/3">
         <label>DPE — Diagnostic de performance énergétique</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-dpe" accept=".pdf" onchange="uploadDoc('dpe',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-dpe" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('dpe',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-dpe">—</span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>ERP — État des risques et pollutions</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-erp" accept=".pdf" onchange="uploadDoc('erp',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-erp" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('erp',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-erp">—</span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>Amiante — Dossier technique (DTA)</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-amiante" accept=".pdf" onchange="uploadDoc('amiante',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-amiante" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('amiante',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-amiante"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1997</span></span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>Plomb — CREP (Constat de risque d'exposition)</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-plomb" accept=".pdf" onchange="uploadDoc('plomb',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-plomb" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('plomb',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-plomb"><span style="font-size:.68rem;color:var(--td)">Requis si immeuble avant 1949</span></span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>Électricité — Diagnostic installation</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-elec" accept=".pdf" onchange="uploadDoc('elec',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-elec" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('elec',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-elec"><span style="font-size:.68rem;color:var(--td)">Requis si installation > 15 ans</span></span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>Gaz — Diagnostic installation</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-gaz" accept=".pdf" onchange="uploadDoc('gaz',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-gaz" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('gaz',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-gaz"><span style="font-size:.68rem;color:var(--td)">Requis si installation gaz > 15 ans</span></span>
         </div>
       </div>
       <div class="cp-field" style="grid-column:1/3">
         <label>Bruit — IAB (Information sur les nuisances)</label>
         <div class="cp-upload-wrap">
-          <label class="cp-upload-btn"><input type="file" id="file-bruit" accept=".pdf" onchange="uploadDoc('bruit',this)">📄 Choisir PDF</label>
+          <label class="cp-upload-btn"><input type="file" id="file-bruit" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('bruit',this)">📎 PDF ou photo</label>
           <span class="cp-doc-status" id="status-bruit"><span style="font-size:.68rem;color:var(--td)">Requis si zone de bruit</span></span>
         </div>
       </div>
@@ -1119,6 +1178,9 @@ const FIELD_LABELS={
   diag_bruit:'Nuisances sonores',
   regime_copro:'Copropriété',
   numero_lot:'Numéro de lot',
+  parking_details:'Stationnement (détails)',
+  cave_details:'Cave (détails)',
+  box_details:'Box / local (détails)',
   zone_tendue:'Zone tendue',
   loyer_ref:'Loyer de référence',
   loyer_ref_majore:'Loyer de référence majoré',
@@ -1184,6 +1246,9 @@ const FIELD_CONFIGS={
   garant_birth_date:{type:'date'},
   garant_birth_place:{type:'text',placeholder:'ex. Paris (75)'},
   numero_lot:{type:'text',placeholder:'ex. Lot 42'},
+  parking_details:{type:'text',placeholder:'ex. Emplacement n°12, sous-sol niveau 1'},
+  cave_details:{type:'text',placeholder:'ex. Lot n°8, rez-de-chaussée, porte A'},
+  box_details:{type:'text',placeholder:'ex. Box n°3, sous-sol, 5 m²'},
   travaux_desc:{type:'travaux',placeholder:'Décrivez les travaux réalisés (nature, pièces concernées, date approximative)…'},
   rent:{type:'number',placeholder:'ex. 850',step:1,min:0},
   charges:{type:'number',placeholder:'ex. 50 (laisser 0 si incluses)',step:1,min:0},
@@ -1208,6 +1273,89 @@ const FIELD_CONFIGS={
   tenant_phone:{type:'tel',placeholder:'+33 6 …'},
   tenant_nationality:{type:'text',placeholder:'ex. Française'},
 };
+
+// ── MIGRATIONS SUPABASE ───────────────────────────────────────────────────────
+const MIGRATION_SQL=`-- ╔══════════════════════════════════════════════════════════╗
+-- ║  Trouve Ton Toit — Migration SQL du bail meublé          ║
+-- ║  Exécutez ce script dans Supabase → SQL Editor           ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+-- TABLE leases — colonnes supplémentaires
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS premiere_mise_en_location TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dernier_loyer NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dernier_locataire_depart DATE;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dernier_loyer_revision DATE;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS prop_address TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS prop_type TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS prop_pieces INTEGER;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS prop_etage TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS landlord_address TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS tenant_address TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS modifs_log JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS clauses_particulieres JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref_majore NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS zone_tendue BOOLEAN DEFAULT false;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS regime_copro BOOLEAN DEFAULT false;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS numero_lot TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS parking_details TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS cave_details TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS box_details TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS annee_construction INTEGER;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS surface_boutin NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS numero_fiscal TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS mode_chauffage TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS mode_ecs TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dpe_energy_rating TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dpe_ges_rating TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_amiante TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_plomb TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_elec TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_gaz TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_erp TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS diag_bruit TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_desc TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_name TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_address TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_email TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_phone TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_montant NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_pro TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_birth_date DATE;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_birth_place TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS payment_due_day TEXT DEFAULT '1';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS landlord_signed_at TIMESTAMPTZ;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS tenant_signed_at TIMESTAMPTZ;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS negotiation_status TEXT DEFAULT 'draft';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS docs_urls JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS listing_title TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS booking_id UUID REFERENCES bookings(id);
+
+-- TABLE profiles — colonnes supplémentaires
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS nationality TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS phone TEXT;`;
+
+function showMigrations(){
+  const el=document.getElementById('migr-sql-block');
+  if(el)el.textContent=MIGRATION_SQL;
+  document.getElementById('migration-modal').classList.add('open');
+}
+function closeMigrations(){
+  document.getElementById('migration-modal').classList.remove('open');
+}
+async function copyMigrationSQL(){
+  try{
+    await navigator.clipboard.writeText(MIGRATION_SQL);
+    toast('✅ SQL copié dans le presse-papiers !');
+  }catch(e){
+    // fallback: select the text
+    const el=document.getElementById('migr-sql-block');
+    const range=document.createRange();range.selectNode(el);
+    window.getSelection().removeAllRanges();window.getSelection().addRange(range);
+    toast('📋 Sélectionnez et copiez le SQL (Ctrl+C)');
+  }
+}
 
 // Returns an orange "⚠ field name" badge for missing fields when in edit mode
 function mf(key){
@@ -1294,8 +1442,14 @@ async function saveFieldFromPopup(key){
 }
 
 // Champs qui vivent dans profiles, pas dans leases
-const LL_PROFILE_MAP={landlord_name:'full_name',landlord_address:'address',landlord_email:'email',landlord_phone:'phone'};
+// landlord_address / tenant_address absents : la colonne 'address' n'existe pas encore dans profiles
+// → SQL à exécuter dans Supabase : ALTER TABLE profiles ADD COLUMN address TEXT;
+const LL_PROFILE_MAP={landlord_name:'full_name',landlord_email:'email',landlord_phone:'phone'};
 const T_PROFILE_MAP={tenant_name:'full_name',tenant_email:'email',tenant_phone:'phone',tenant_nationality:'nationality'};
+// Champs adresse : stockés dans leases comme overrides (nécessitent la colonne dans leases)
+// ALTER TABLE leases ADD COLUMN IF NOT EXISTS landlord_address TEXT;
+// ALTER TABLE leases ADD COLUMN IF NOT EXISTS tenant_address TEXT;
+const LEASE_ADDR_FIELDS=new Set(['landlord_address','tenant_address']);
 
 async function saveField(key,value){
   // Routing vers profiles pour les champs bailleur/locataire
@@ -1345,7 +1499,18 @@ async function saveField(key,value){
     LEASE.modifs_log=newLog;
   }
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
-  if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+  if(error){
+    // Colonne absente → ouvrir le panneau migrations
+    if(error.message&&(error.message.includes('column')||error.message.includes('schema cache'))){
+      toast(`⚠️ Colonne "${key}" absente. Cliquez 🛠 SQL dans la barre de navigation.`,6000);
+      // Montrer le bouton SQL dans la nav si pas encore visible
+      const migrBtn=document.getElementById('migr-btn');
+      if(migrBtn){migrBtn.style.display='';migrBtn.style.background='#FEF3C7';migrBtn.style.borderColor='#F59E0B';migrBtn.style.color='#92400E';}
+    } else {
+      toast('⚠️ Erreur : '+error.message,5000);
+    }
+    return;
+  }
   LEASE[key]=value;
   toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
   renderBail();
@@ -1426,10 +1591,10 @@ function updateToolsVisibility(){
   const wrap=document.getElementById('bail-tools-wrap');
   const sep=document.getElementById('doc-separator');
   if(!wrap)return;
-  // Vérifier si des outils réels sont visibles (modifs-panel, guide, edit-banner)
+  // Vérifier si des outils réels existent (style.display suffit — bail-wrap peut encore être hidden)
   const hasContent=['modifs-panel','ll-guide-panel','edit-mode-banner'].some(id=>{
     const el=document.getElementById(id);
-    return el&&el.style.display!=='none'&&el.offsetParent!==null;
+    return el&&el.style.display!=='none';
   });
   wrap.classList.toggle('tools-empty',!hasContent);
   if(sep)sep.style.display=hasContent?'flex':'none';
@@ -1833,14 +1998,18 @@ function renderBail(){
   // Determine edit mode (landlord before signing)
   const isLandlord=myRole==='landlord'||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!LEASE.landlord_signed_at);
   _editMode=isLandlord&&!LEASE.landlord_signed_at;
+  // Afficher le bouton SQL migrations pour le bailleur (en mode édition)
+  const migrNavBtn=document.getElementById('migr-btn');
+  if(migrNavBtn)migrNavBtn.style.display=_editMode?'':'none';
 
   buildRecentChanges();   // construire les highlights
   renderModifsPanel();    // afficher le panneau historique
   renderLandlordGuide();  // guide bailleur
-  updateToolsVisibility(); // afficher/masquer la zone de travail
 
   q('loader').style.display='none';
   q('bail-wrap').style.display='block';
+  // updateToolsVisibility APRÈS que bail-wrap est visible (offsetParent sinon null)
+  requestAnimationFrame(()=>updateToolsVisibility());
   q('submit-bar').style.display='flex';
 
   // Ref
@@ -1933,17 +2102,31 @@ function renderBail(){
   show('logement-grid',`<div class="info-rows">${items1.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
   const items2=[
-    {label:'Année de construction',value:anneeCons?hl('annee_construction',anneeCons+''):mf('annee_construction')},
-    {label:'Mode de chauffage',value:(modeChauffage&&modeChauffage!=='Non renseigné')?hl('mode_chauffage',modeChauffage):mf('mode_chauffage')},
-    {label:'Production ECS',value:(modeEcs&&modeEcs!=='Non renseigné')?hl('mode_ecs',modeEcs):mf('mode_ecs')},
-    {label:'Numéro fiscal',value:(numFiscal&&numFiscal!=='—')?hl('numero_fiscal',numFiscal):mf('numero_fiscal')},
+    {label:'Année de construction',value:anneeCons?ev('annee_construction',hl('annee_construction',anneeCons+'')):mf('annee_construction')},
+    {label:'Mode de chauffage',value:(modeChauffage&&modeChauffage!=='Non renseigné')?ev('mode_chauffage',hl('mode_chauffage',modeChauffage)):mf('mode_chauffage')},
+    {label:'Production ECS',value:(modeEcs&&modeEcs!=='Non renseigné')?ev('mode_ecs',hl('mode_ecs',modeEcs)):mf('mode_ecs')},
+    {label:'Numéro fiscal',value:(numFiscal&&numFiscal!=='—')?ev('numero_fiscal',hl('numero_fiscal',numFiscal)):mf('numero_fiscal')},
   ];
   if(L.regime_copro||Li?.regime_copro){
     const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
     items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
   }
-  if(L.cave||Li?.cave){items2.push({label:'Cave',value:'Incluse'});}
-  if(L.parking||Li?.parking){items2.push({label:'Stationnement',value:'Inclus'});}
+  // Dépendances — parking
+  if(L.parking_details){
+    items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',L.parking_details))});
+  } else if(L.parking||Li?.parking){
+    items2.push({label:'Stationnement',value:'Inclus'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'parking_details')">⚠ Préciser lot/emplacement</span>`:'')});
+  }
+  // Cave
+  if(L.cave_details){
+    items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
+  } else if(L.cave||Li?.cave){
+    items2.push({label:'Cave',value:'Incluse'+(_editMode?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'cave_details')">⚠ Préciser lot/localisation</span>`:'')});
+  }
+  // Box
+  if(L.box_details){
+    items2.push({label:'Box / local',value:ev('box_details',hl('box_details',L.box_details))});
+  }
   const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
@@ -2149,8 +2332,8 @@ function renderBail(){
     {n:2,txt:'État des lieux d\'entrée contradictoire',edl:true},
     {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
-    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.service-public.fr/particuliers/vosdroits/R41824',official:true},
-    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.service-public.fr/particuliers/vosdroits/F31269',official:true},
+    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true},
+    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf',official:true},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
     ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
     ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
@@ -2185,12 +2368,12 @@ function renderBail(){
     <span style="flex:1">${a.txt}</span>
     ${a.url
       ?(a.official
-        ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC">📋 Doc officiel</a>`
+        ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC">📄 PDF officiel</a>`
         :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
         :isLandlord&&a.uploadKey
-          ?`<label class="annexe-upload-btn" title="Déposer le PDF"><input type="file" accept=".pdf" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0">📤 Déposer PDF</label>`
+          ?`<label class="annexe-upload-btn" title="Déposer PDF ou photo"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0">📤 PDF ou photo</label>`
           :'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'
     }
   </li>`).join(''));
@@ -2563,6 +2746,11 @@ function populateCompleterForm(){
   set('cp-bruit',L.diag_bruit||'');
   if(L.regime_copro){q('cp-copro').checked=true;toggleCoProFields();}
   set('cp-num-lot',L.numero_lot);
+  if(L.parking_details){q('cp-has-parking').checked=true;toggleDepFields('parking');set('cp-parking-details',L.parking_details);}
+  else if(L.parking||LISTING?.parking){q('cp-has-parking').checked=true;toggleDepFields('parking');}
+  if(L.cave_details){q('cp-has-cave').checked=true;toggleDepFields('cave');set('cp-cave-details',L.cave_details);}
+  else if(L.cave||LISTING?.cave){q('cp-has-cave').checked=true;toggleDepFields('cave');}
+  if(L.box_details){q('cp-has-box').checked=true;toggleDepFields('box');set('cp-box-details',L.box_details);}
   if(L.zone_tendue){q('cp-zone-tendue').checked=true;toggleZoneTendueFields();}
   set('cp-loyer-ref',L.loyer_ref);
   set('cp-loyer-ref-maj',L.loyer_ref_majore);
@@ -2619,6 +2807,11 @@ function toggleGarantFields(){
 }
 q('cp-copro').addEventListener('change',toggleCoProFields);
 q('cp-zone-tendue').addEventListener('change',toggleZoneTendueFields);
+function toggleDepFields(type){
+  const show=q('cp-has-'+type).checked;
+  q('cp-'+type+'-fields').style.display=show?'flex':'none';
+  if(!show)q('cp-'+type+'-details').value='';
+}
 
 function updateMissingCount(){
   const fields=[q('cp-annee'),q('cp-surface-boutin'),q('cp-num-fiscal'),q('cp-chauffage'),q('cp-ecs'),q('cp-dpe-ges'),q('cp-erp')];
@@ -2650,6 +2843,9 @@ async function saveCompleter(){
     diag_bruit:gv('cp-bruit'),
     regime_copro:gb('cp-copro'),
     numero_lot:gv('cp-num-lot'),
+    parking_details:gb('cp-has-parking')?gv('cp-parking-details'):null,
+    cave_details:gb('cp-has-cave')?gv('cp-cave-details'):null,
+    box_details:gb('cp-has-box')?gv('cp-box-details'):null,
     zone_tendue:gb('cp-zone-tendue'),
     loyer_ref:gn('cp-loyer-ref'),
     loyer_ref_majore:gn('cp-loyer-ref-maj'),
