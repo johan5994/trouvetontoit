@@ -106,6 +106,33 @@
     .info-item .value{font-size:.88rem;font-weight:700;color:var(--tm);line-height:1.3}
     .info-item .value.big{font-size:1.1rem;color:var(--bleu)}
 
+    /* INFO ROWS — clean single-line key:value list */
+    .info-rows{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:.7rem 0}
+    .info-row{display:flex;align-items:center;gap:.75rem;padding:.5rem .9rem;border-bottom:1px solid var(--border);min-height:42px}
+    .info-row:last-child{border-bottom:none}
+    .info-row:hover{background:#F8F9FF}
+    .ir-label{color:var(--td);font-size:.76rem;font-weight:600;min-width:210px;flex-shrink:0;line-height:1.4}
+    .ir-value{font-weight:600;color:var(--tm);flex:1;font-size:.85rem;line-height:1.4}
+    @media(max-width:480px){.ir-label{min-width:120px;font-size:.7rem}}
+
+    /* MISSING BADGE — inline edit trigger */
+    .missing-badge{display:inline-flex;align-items:center;gap:.3rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.16rem .65rem;font-size:.78rem;font-weight:700;color:#C2410C;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .missing-badge:hover{background:#FFEDD5;border-color:#EA580C;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+
+    /* EDIT MODE BANNER */
+    .edit-banner{background:#FFF7ED;border:1.5px solid #F97316;border-radius:8px;padding:.65rem 1rem;margin-bottom:1.3rem;font-size:.82rem;color:#92400E;display:flex;align-items:center;gap:.6rem;line-height:1.5}
+    .edit-banner-sample{display:inline-flex;align-items:center;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.1rem .45rem;font-size:.73rem;font-weight:700;color:#C2410C;margin:0 .2rem;vertical-align:middle}
+
+    /* EDIT POPUP — floating field editor */
+    .edit-popup{position:fixed;z-index:9998;background:#fff;border:2px solid var(--bleu);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 8px 32px rgba(0,0,0,.18);min-width:260px;max-width:320px}
+    .edit-popup-title{font-size:.73rem;font-weight:700;color:var(--bleu);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.5px}
+    .edit-popup input,.edit-popup select{width:100%;border:1px solid var(--border2);border-radius:7px;padding:.45rem .65rem;font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--tm);background:#fff;outline:none;box-sizing:border-box}
+    .edit-popup input:focus,.edit-popup select:focus{border-color:var(--bleu);box-shadow:0 0 0 3px rgba(27,79,216,.1)}
+    .ep-actions{display:flex;gap:.4rem;margin-top:.55rem}
+    .ep-actions button{flex:1;padding:.42rem;border-radius:7px;border:none;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .ep-save{background:var(--bleu);color:#fff}.ep-save:hover{background:var(--marine)}
+    .ep-cancel{background:#f3f4f6;color:var(--tm)}.ep-cancel:hover{background:#e5e7eb}
+
     /* HIGHLIGHTS */
     .highlight{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:.7rem 1rem;margin:.55rem 0;font-size:.83rem;color:#1E40AF;line-height:1.5}
     .warning{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:.7rem 1rem;margin:.55rem 0;font-size:.83rem;color:#92400E;line-height:1.5}
@@ -142,6 +169,19 @@
     .annexe-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:.35rem}
     .annexe-list li{display:flex;align-items:center;gap:.55rem;font-size:.83rem;padding:.42rem .7rem;background:var(--bg);border-radius:7px}
     .annexe-num{background:var(--bleu);color:#fff;border-radius:4px;font-size:.64rem;font-weight:700;padding:.14rem .38rem;flex-shrink:0;min-width:20px;text-align:center}
+
+    /* CLAUSES PARTICULIÈRES */
+    .clauses-wrap{margin:.6rem 0}
+    .clause-item{background:#F8F9FF;border:1px solid #C7D2FE;border-radius:9px;padding:.75rem 1rem;margin-bottom:.55rem;position:relative}
+    .clause-item-title{font-weight:700;font-size:.82rem;color:var(--bleu);margin-bottom:.3rem}
+    .clause-item-body{font-size:.83rem;color:var(--tm);line-height:1.6;white-space:pre-wrap}
+    .clause-edit-actions{display:flex;gap:.4rem;margin-top:.55rem}
+    .clause-edit-actions button{display:inline-flex;align-items:center;gap:.3rem;padding:.26rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .clause-btn-edit{background:#EFF6FF;color:var(--bleu)}.clause-btn-edit:hover{background:#DBEAFE}
+    .clause-btn-del{background:#FEF2F2;color:var(--red)}.clause-btn-del:hover{background:#FEE2E2}
+    .clause-add-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;background:#EFF6FF;border:1.5px dashed var(--bleu);border-radius:8px;font-size:.8rem;font-weight:600;color:var(--bleu);cursor:pointer;transition:all .15s;margin-top:.3rem}
+    .clause-add-btn:hover{background:#DBEAFE;border-style:solid}
+    .clauses-empty{font-size:.8rem;color:var(--td);font-style:italic;padding:.4rem 0}
 
     /* ACTE CAUTION */
     .caution-card{background:#FFFBEB;border:2px solid #FCD34D;border-radius:14px;padding:1.5rem 2rem;margin-top:2rem}
@@ -251,6 +291,27 @@
     <div style="display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModifModal()">Annuler</button>
       <button class="btn btn-orange" onclick="submitModifRequest()">Envoyer la demande →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLAUSE PARTICULIÈRE -->
+<div id="clause-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='clause-modal')closeClauseModal()">
+  <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem" id="clause-modal-title">📋 Ajouter une clause particulière</div>
+    <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Cette clause sera ajoutée à l'Article 23 du bail.</div>
+    <div style="margin-bottom:.65rem">
+      <label style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.3rem">Titre de la clause</label>
+      <input id="clause-title-input" type="text" placeholder="ex. Interdiction de sous-location, Animaux autorisés…" style="width:100%;border:1px solid var(--border2);border-radius:8px;padding:.5rem .75rem;font-size:.85rem;font-family:'DM Sans',sans-serif;color:var(--tm);outline:none;box-sizing:border-box" onfocus="this.style.borderColor='var(--bleu)'" onblur="this.style.borderColor='var(--border2)'">
+    </div>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.3rem">Contenu de la clause</label>
+      <textarea id="clause-body-input" rows="5" placeholder="Rédigez ici le contenu de votre clause particulière…" style="width:100%;border:1px solid var(--border2);border-radius:8px;padding:.5rem .75rem;font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--tm);resize:vertical;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='var(--bleu)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+    </div>
+    <input type="hidden" id="clause-edit-idx" value="-1">
+    <div style="display:flex;gap:.5rem;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeClauseModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveClause()">Enregistrer la clause ✓</button>
     </div>
   </div>
 </div>
@@ -824,6 +885,19 @@
 
         <hr class="divider">
 
+        <!-- ART 23 — CLAUSES PARTICULIÈRES -->
+        <div class="section" id="clauses-section">
+          <div class="article-title">Article 23 — Clauses particulières</div>
+          <div class="article-content">
+            <p style="font-size:.82rem;color:var(--td);margin-bottom:.7rem">Les parties conviennent des clauses particulières suivantes, licites et non contraires à l'ordre public :</p>
+            <div class="clauses-wrap" id="clauses-particulieres-wrap">
+              <!-- rempli dynamiquement -->
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
         <!-- FAIT À -->
         <div class="section">
           <div class="article-content">
@@ -985,6 +1059,213 @@ const FIELD_LABELS={
   garant_montant:'Garant — Montant caution',
   garant_pro:'Garant — Profession',
 };
+
+// ── INLINE EDITING ────────────────────────────────────────────────────────────
+let _editMode=false;
+let _editPopup=null;
+
+const FIELD_CONFIGS={
+  annee_construction:{type:'number',placeholder:'ex. 1985',min:1800,max:2030,step:1},
+  surface_boutin:{type:'number',placeholder:'ex. 34.50',step:'0.01',min:1},
+  numero_fiscal:{type:'text',placeholder:'13 chiffres',maxlength:'20'},
+  mode_chauffage:{type:'select',options:['Individuel électrique','Individuel gaz','Collectif gaz','Collectif électrique','Collectif fuel','Pompe à chaleur','Poêle à bois / granulés','Géothermie']},
+  mode_ecs:{type:'select',options:['Chauffe-eau électrique individuel','Chauffe-eau gaz individuel','Collectif (immeuble)','Chauffe-eau thermodynamique','Solaire','Incluse dans le chauffage']},
+  dpe_ges_rating:{type:'select',options:['A','B','C','D','E','F','G']},
+  diag_amiante:{type:'select',options:[{v:'na',l:'Non requis (après 1997)'},{v:'absence',l:'Absence constatée'},{v:'presence',l:'Présence (surveillance)'},{v:'travaux',l:'Travaux requis'}]},
+  diag_plomb:{type:'select',options:[{v:'na',l:'Non requis (après 1949)'},{v:'absence',l:'Absence constatée'},{v:'presence',l:'Présence < seuil'},{v:'risque',l:'Risque exposition'}]},
+  diag_elec:{type:'select',options:[{v:'na',l:'Non applicable'},{v:'conforme',l:'Conforme'},{v:'anomalie',l:"Anomalie(s) détectée(s)"}]},
+  diag_gaz:{type:'select',options:[{v:'na',l:"Pas d'installation gaz"},{v:'conforme',l:'Conforme'},{v:'anomalie',l:"Anomalie(s) détectée(s)"}]},
+  diag_erp:{type:'select',options:[{v:'ok',l:'Fourni au locataire'},{v:'na',l:'Zone hors risque'}]},
+  diag_bruit:{type:'select',options:[{v:'non',l:'Zone non concernée'},{v:'oui',l:'Zone de bruit (IAB annexé)'}]},
+  loyer_ref:{type:'number',placeholder:'ex. 24.30',step:'0.01',min:0},
+  loyer_ref_majore:{type:'number',placeholder:'ex. 27.50',step:'0.01',min:0},
+  garant_name:{type:'text',placeholder:'Prénom NOM'},
+  garant_address:{type:'text',placeholder:'Rue, CP Ville'},
+  garant_email:{type:'email',placeholder:'garant@email.fr'},
+  garant_phone:{type:'tel',placeholder:'+33 6 …'},
+  garant_montant:{type:'number',placeholder:'ex. 12000',step:1,min:0},
+  garant_pro:{type:'text',placeholder:'ex. Cadre chez SNCF'},
+  numero_lot:{type:'text',placeholder:'ex. Lot 42'}
+};
+
+// Returns an orange "⚠ field name" badge for missing fields when in edit mode
+function mf(key){
+  if(!_editMode)return'—';
+  const lbl=FIELD_LABELS[key]||key;
+  return`<span class="missing-badge" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+}
+
+function editField(evt,key){
+  evt.stopPropagation();
+  closeEditPopup();
+  const cfg=FIELD_CONFIGS[key]||{type:'text',placeholder:''};
+  const lbl=FIELD_LABELS[key]||key;
+  const currentVal=LEASE[key]!=null?String(LEASE[key]):'';
+  let inputHtml='';
+  if(cfg.type==='select'){
+    const opts=cfg.options.map(o=>{
+      const v=typeof o==='object'?o.v:o;
+      const l=typeof o==='object'?o.l:o;
+      return`<option value="${v}"${currentVal===v?' selected':''}>${l}</option>`;
+    });
+    inputHtml=`<select id="ep-input">${opts.join('')}</select>`;
+  }else{
+    const extra=[
+      cfg.min!=null?`min="${cfg.min}"`:'',
+      cfg.max!=null?`max="${cfg.max}"`:'',
+      cfg.step!=null?`step="${cfg.step}"`:'',
+      cfg.maxlength?`maxlength="${cfg.maxlength}"`:'',
+      cfg.placeholder?`placeholder="${cfg.placeholder.replace(/"/g,'&quot;')}"`:''
+    ].filter(Boolean).join(' ');
+    inputHtml=`<input type="${cfg.type}" id="ep-input" value="${currentVal.replace(/"/g,'&quot;')}" ${extra} onkeydown="if(event.key==='Enter'){saveFieldFromPopup('${key}');event.preventDefault();}">`;
+  }
+  const popup=document.createElement('div');
+  popup.className='edit-popup';
+  popup.id='edit-popup';
+  popup.innerHTML=`<div class="edit-popup-title">${lbl}</div>${inputHtml}<div class="ep-actions"><button class="ep-cancel" onclick="closeEditPopup()">Annuler</button><button class="ep-save" onclick="saveFieldFromPopup('${key}')">Enregistrer ✓</button></div>`;
+  document.body.appendChild(popup);
+  _editPopup=popup;
+  const r=evt.target.getBoundingClientRect();
+  const x=Math.max(8,Math.min(r.left,window.innerWidth-340));
+  const y=Math.max(8,Math.min(r.bottom+6,window.innerHeight-160));
+  popup.style.left=x+'px';
+  popup.style.top=y+'px';
+  setTimeout(()=>{const i=document.getElementById('ep-input');if(i){i.focus();if(i.select)i.select();}},30);
+}
+
+function closeEditPopup(){if(_editPopup){_editPopup.remove();_editPopup=null;}}
+document.addEventListener('click',function(e){if(_editPopup&&!_editPopup.contains(e.target)&&!e.target.classList.contains('missing-badge'))closeEditPopup();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeEditPopup();});
+
+async function saveFieldFromPopup(key){
+  const input=document.getElementById('ep-input');
+  if(!input)return;
+  let val=input.value.trim();
+  const cfg=FIELD_CONFIGS[key]||{};
+  if(cfg.type==='number')val=val?parseFloat(val):null;
+  else if(!val)val=null;
+  closeEditPopup();
+  await saveField(key,val);
+}
+
+async function saveField(key,value){
+  if(String(value??'')===String(LEASE[key]??''))return;
+  const old=LEASE[key];
+  const upd={[key]:value};
+  if(FIELD_LABELS[key]){
+    const entry={par:'landlord',date:new Date().toISOString(),champs:[{cle:key,label:FIELD_LABELS[key],ancien:old??null,nouveau:value??null}],note:null};
+    const newLog=[...(LEASE.modifs_log||[]),entry];
+    upd.modifs_log=newLog;
+    LEASE.modifs_log=newLog;
+  }
+  const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
+  if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+  LEASE[key]=value;
+  toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+  renderBail();
+}
+
+// ── CLAUSES PARTICULIÈRES ─────────────────────────────────────────────────────
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderClauses(){
+  const wrap=document.getElementById('clauses-particulieres-wrap');
+  if(!wrap)return;
+  const clauses=LEASE.custom_clauses||[];
+  const canEdit=_editMode;
+  let html='';
+  if(clauses.length===0){
+    html=`<p class="clauses-empty">Aucune clause particulière ajoutée.</p>`;
+  }else{
+    clauses.forEach((c,i)=>{
+      html+=`<div class="clause-item">
+        ${c.title?`<div class="clause-item-title">${escHtml(c.title)}</div>`:''}
+        <div class="clause-item-body">${escHtml(c.content||'')}</div>
+        ${canEdit?`<div class="clause-edit-actions">
+          <button class="clause-btn-edit" onclick="openClauseModal(${i})">✏️ Modifier</button>
+          <button class="clause-btn-del" onclick="deleteClause(${i})">✕ Supprimer</button>
+        </div>`:''}
+      </div>`;
+    });
+  }
+  if(canEdit){
+    html+=`<button class="clause-add-btn" onclick="openClauseModal(-1)">＋ Ajouter une clause particulière</button>`;
+  }
+  wrap.innerHTML=html;
+  // Show/hide the article section depending on content + edit mode
+  const sec=document.getElementById('clauses-section');
+  if(sec) sec.style.display=(clauses.length>0||canEdit)?'':'none';
+}
+
+function openClauseModal(idx){
+  const modal=document.getElementById('clause-modal');
+  const titleInput=document.getElementById('clause-title-input');
+  const bodyInput=document.getElementById('clause-body-input');
+  const editIdx=document.getElementById('clause-edit-idx');
+  const modalTitle=document.getElementById('clause-modal-title');
+  if(!modal)return;
+  if(idx>=0){
+    const c=(LEASE.custom_clauses||[])[idx]||{};
+    titleInput.value=c.title||'';
+    bodyInput.value=c.content||'';
+    editIdx.value=String(idx);
+    modalTitle.textContent='✏️ Modifier la clause';
+  }else{
+    titleInput.value='';
+    bodyInput.value='';
+    editIdx.value='-1';
+    modalTitle.textContent='📋 Ajouter une clause particulière';
+  }
+  modal.style.display='flex';
+  setTimeout(()=>titleInput.focus(),80);
+}
+
+function closeClauseModal(){
+  const modal=document.getElementById('clause-modal');
+  if(modal) modal.style.display='none';
+}
+
+async function saveClause(){
+  const titleInput=document.getElementById('clause-title-input');
+  const bodyInput=document.getElementById('clause-body-input');
+  const editIdx=parseInt(document.getElementById('clause-edit-idx').value);
+  const title=(titleInput.value||'').trim();
+  const content=(bodyInput.value||'').trim();
+  if(!content){toast('⚠️ Le contenu de la clause est requis.',3500);bodyInput.focus();return;}
+  const clauses=[...(LEASE.custom_clauses||[])];
+  if(editIdx>=0 && editIdx<clauses.length){
+    clauses[editIdx]={title,content};
+  }else{
+    clauses.push({title,content});
+  }
+  const{error}=await sb.from('leases').update({custom_clauses:clauses}).eq('id',LEASE.id);
+  if(error){
+    if(error.message&&error.message.includes('column')){
+      toast('⚠️ Colonne manquante — exécutez le SQL de migration dans Supabase.',6000);
+    }else{
+      toast('⚠️ Erreur : '+error.message,5000);
+    }
+    return;
+  }
+  LEASE.custom_clauses=clauses;
+  closeClauseModal();
+  toast('✅ Clause '+(editIdx>=0?'modifiée':'ajoutée'));
+  renderClauses();
+}
+
+async function deleteClause(idx){
+  if(!confirm('Supprimer cette clause particulière ?'))return;
+  const clauses=[...(LEASE.custom_clauses||[])];
+  clauses.splice(idx,1);
+  const{error}=await sb.from('leases').update({custom_clauses:clauses}).eq('id',LEASE.id);
+  if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+  LEASE.custom_clauses=clauses;
+  toast('🗑️ Clause supprimée');
+  renderClauses();
+}
+
 const QP=new URLSearchParams(location.search);
 const BOOKING_ID=QP.get('booking_id');
 const LEASE_ID=QP.get('lease_id');
@@ -1160,6 +1441,10 @@ function renderBail(){
   const L=LEASE,Li=LISTING;
   const rent=L.rent||0, deposit=L.deposit||(rent*2), charges=L.charges||0;
 
+  // Determine edit mode (landlord before signing)
+  const isLandlord=myRole==='landlord'||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!LEASE.landlord_signed_at);
+  _editMode=isLandlord&&!LEASE.landlord_signed_at;
+
   buildRecentChanges();   // construire les highlights
   renderModifsPanel();    // afficher le panneau historique
 
@@ -1212,18 +1497,23 @@ function renderBail(){
     {label:'Étage',value:Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?'/'+Li.total_floors:''):'Rez-de-chaussée ou non renseigné'},
     {label:'Statut',value:'Résidence principale'}
   ];
-  show('logement-grid',items1.map(i=>`<div class="info-item"><div class="label">${i.label}</div><div class="value">${i.value}</div></div>`).join(''));
+  const g1=document.getElementById('logement-grid');if(g1)g1.style.cssText='display:block;margin:0';
+  show('logement-grid',`<div class="info-rows">${items1.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
   const items2=[
-    {label:'Année de construction',value:hl('annee_construction',anneeCons||'Non renseignée')},
-    {label:'Mode de chauffage',value:hl('mode_chauffage',modeChauffage)},
-    {label:'Production ECS',value:hl('mode_ecs',modeEcs)},
-    {label:'Numéro fiscal',value:hl('numero_fiscal',numFiscal)},
+    {label:'Année de construction',value:anneeCons?hl('annee_construction',anneeCons+''):mf('annee_construction')},
+    {label:'Mode de chauffage',value:(modeChauffage&&modeChauffage!=='Non renseigné')?hl('mode_chauffage',modeChauffage):mf('mode_chauffage')},
+    {label:'Production ECS',value:(modeEcs&&modeEcs!=='Non renseigné')?hl('mode_ecs',modeEcs):mf('mode_ecs')},
+    {label:'Numéro fiscal',value:(numFiscal&&numFiscal!=='—')?hl('numero_fiscal',numFiscal):mf('numero_fiscal')},
   ];
-  if(L.regime_copro||Li?.regime_copro){items2.push({label:'Copropriété',value:'Oui'+(L.numero_lot?` — lot ${L.numero_lot}`:'')});}
+  if(L.regime_copro||Li?.regime_copro){
+    const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
+    items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
+  }
   if(L.cave||Li?.cave){items2.push({label:'Cave',value:'Incluse'});}
   if(L.parking||Li?.parking){items2.push({label:'Stationnement',value:'Inclus'});}
-  show('logement-grid2',items2.map(i=>`<div class="info-item"><div class="label">${i.label}</div><div class="value">${i.value}</div></div>`).join(''));
+  const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
+  show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
   // Équipements
   const feats=Li?.features||[];
@@ -1396,23 +1686,29 @@ function renderBail(){
       à le prévenir immédiatement et à lui indiquer les nom et adresse du nouveau garant proposé. »`);
   }
 
-  // Completer panel — visible si bailleur (par rôle détecté, par param URL,
-  // ou par défaut si page ouverte avec booking_id et pas encore signée)
-  const isLandlord = myRole==='landlord' || ROLE_PARAM==='landlord' || (!!BOOKING_ID && !LEASE.landlord_signed_at);
-  if(isLandlord && !LEASE.landlord_signed_at){
-    q('completer-panel').classList.add('visible');
+  // Inline edit mode — active for landlord before signing
+  // The completer panel stays hidden; orange badges in the document allow direct editing
+  if(_editMode){
     q('completer-btn').style.display='inline-flex';
     populateCompleterForm();
     updateMissingCount();
-    // Mettre en surbrillance les valeurs "—" dans le bail pour guider le propriétaire
-    document.querySelectorAll('.info-item .value').forEach(el=>{
-      if(el.textContent.trim()==='—'||el.textContent.trim()==='Non renseignée'||el.textContent.trim()==='Non renseigné'){
-        el.style.cssText='color:#dc2626;font-style:italic;cursor:pointer';
-        el.title='Cliquez sur "Compléter le bail" pour renseigner ce champ';
-      }
-    });
+    // Show or create edit-mode banner in the bail body
+    let editBanner=q('edit-mode-banner');
+    if(!editBanner){
+      editBanner=document.createElement('div');
+      editBanner.id='edit-mode-banner';
+      editBanner.className='edit-banner no-print';
+      editBanner.innerHTML='✏️ <span><strong>Mode édition actif</strong> — Les champs <span class="edit-banner-sample">⚠ À renseigner</span> sont manquants. Cliquez dessus pour les compléter directement dans le bail.</span>';
+      const mp=q('modifs-panel');
+      if(mp)mp.insertAdjacentElement('afterend',editBanner);
+    }
+    editBanner.style.display='flex';
+  }else{
+    const editBanner=q('edit-mode-banner');
+    if(editBanner)editBanner.style.display='none';
   }
 
+  renderClauses();
   renderStatusAndSigs();
 }
 
