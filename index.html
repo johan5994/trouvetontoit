@@ -2180,6 +2180,18 @@ async function openDet(id){
       <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le loyer sont versés directement au propriétaire à la signature du bail.</div>`;
   }
 
+  // Masquer le bloc contact si c'est le propriétaire de l'annonce
+  const contactWrap=document.getElementById('contact-direct-wrap');
+  if(U&&l.landlord_id&&U.id===l.landlord_id){
+    if(contactWrap){
+      contactWrap.innerHTML=`<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.85rem 1rem;text-align:center;font-size:.82rem;color:#1E40AF">
+        <strong>C'est votre annonce</strong><br>
+        <a href="/landlord-dashboard.html" style="color:#1B4FD8;font-weight:600;text-decoration:underline">Gérer depuis votre tableau de bord →</a>
+      </div>`;
+    }
+    return;
+  }
+
   // Si un message existe déjà avec ce propriétaire pour cette annonce, pas besoin
   // de forcer un nouveau message — la discussion a déjà commencé
   const vBtn=document.getElementById('visite-req-btn'),vHint=document.getElementById('visite-req-hint');
@@ -2266,6 +2278,11 @@ async function inviteCoLocataires(listingId, coLocataireEmails){
 async function requestVisitFromDetail(){
   if(!U){toast('Pbail sign in first');go('auth');return;}
   if(!AL){toast('<i data-lucide=x-circle class=ic></i> Annonce not loaded');return;}
+  // Empêcher le bailleur propriétaire de demander une visite de sa propre annonce
+  if(AL.landlord_id&&U.id===AL.landlord_id){
+    toast('<i data-lucide=alert-triangle class=ic></i> Vous êtes le propriétaire de cette annonce.');
+    return;
+  }
 
   const missing=[];
   if(!P?.full_name)missing.push('Full name');
@@ -2332,6 +2349,11 @@ async function requestVisitFromDetail(){
 async function sendMsg(){
   if(!U){toast('Pbail sign in first');go('auth');return;}
   if(!AL)return;
+  // Empêcher un bailleur de s'envoyer un message à lui-même
+  if(AL.landlord_id&&U.id===AL.landlord_id){
+    toast('<i data-lucide=alert-triangle class=ic></i> Vous êtes le propriétaire de cette annonce.');
+    return;
+  }
   const c=document.getElementById('dmsg').value.trim();
   if(!c){toast('Pbail write a message');return;}
 
