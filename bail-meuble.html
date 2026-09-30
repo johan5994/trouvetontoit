@@ -1092,6 +1092,7 @@ const FIELD_LABELS={
   numero_fiscal:'Numéro fiscal',
   mode_chauffage:'Mode de chauffage',
   mode_ecs:'Production ECS',
+  dpe_energy_rating:'DPE Énergie',
   dpe_ges_rating:'DPE GES',
   diag_amiante:'Diagnostic amiante',
   diag_plomb:'Diagnostic plomb',
@@ -1145,6 +1146,7 @@ const FIELD_CONFIGS={
   numero_fiscal:{type:'text',placeholder:'13 chiffres',maxlength:'20'},
   mode_chauffage:{type:'select',options:['Individuel électrique','Individuel gaz','Collectif gaz','Collectif électrique','Collectif fuel','Pompe à chaleur','Poêle à bois / granulés','Géothermie']},
   mode_ecs:{type:'select',options:['Chauffe-eau électrique individuel','Chauffe-eau gaz individuel','Collectif (immeuble)','Chauffe-eau thermodynamique','Solaire','Incluse dans le chauffage']},
+  dpe_energy_rating:{type:'select',options:['A','B','C','D','E','F','G']},
   dpe_ges_rating:{type:'select',options:['A','B','C','D','E','F','G']},
   diag_amiante:{type:'select',options:[{v:'na',l:'Non requis (après 1997)'},{v:'absence',l:'Absence constatée'},{v:'presence',l:'Présence (surveillance)'},{v:'travaux',l:'Travaux requis'}]},
   diag_plomb:{type:'select',options:[{v:'na',l:'Non requis (après 1949)'},{v:'absence',l:'Absence constatée'},{v:'presence',l:'Présence < seuil'},{v:'risque',l:'Risque exposition'}]},
@@ -1965,15 +1967,15 @@ function renderBail(){
 
   // Diagnostics
   const getLabel=(v,map)=>map[v]||v||'—';
-  // Diagnostics — listing en priorité, fallback lease
-  const dAmiante=Li?.diag_amiante||L.diag_amiante;
-  const dPlomb=Li?.diag_plomb||L.diag_plomb;
-  const dElec=Li?.diag_elec||L.diag_elec;
-  const dGaz=Li?.diag_gaz||L.diag_gaz;
-  const dErp=Li?.diag_erp||L.diag_erp;
-  const dBruit=Li?.diag_bruit||L.diag_bruit;
+  // Diagnostics — bail en priorité (le bailleur peut corriger), fallback listing
+  const dAmiante=L.diag_amiante||Li?.diag_amiante;
+  const dPlomb=L.diag_plomb||Li?.diag_plomb;
+  const dElec=L.diag_elec||Li?.diag_elec;
+  const dGaz=L.diag_gaz||Li?.diag_gaz;
+  const dErp=L.diag_erp||Li?.diag_erp;
+  const dBruit=L.diag_bruit||Li?.diag_bruit;
   const diagRows=[
-    {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné',fk:'dpe_ges_rating'},
+    {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné',fk:'dpe_energy_rating'},
     {name:'GES (Gaz à effet de serre)',oblig:'Toujours obligatoire',res:ges?`Classe ${ges}`:'Non renseigné',fk:'dpe_ges_rating'},
     {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️',na:'Non applicable'}),fk:'diag_amiante'},
     {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️',na:'Non applicable'}),fk:'diag_plomb'},
@@ -1982,7 +1984,15 @@ function renderBail(){
     {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'}),fk:'diag_erp'},
     {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'}),fk:'diag_bruit'}
   ];
-  show('diag-tbody',diagRows.map(r=>`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na'}">${hl(r.fk,r.res)}</td></tr>`).join(''));
+  show('diag-tbody',diagRows.map(r=>{
+    const cls=r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na';
+    const editBtn=(_editMode&&r.fk)
+      ?(r.res==='Non renseigné'||r.res==='—'
+        ?`<span class="missing-badge" style="font-size:.68rem;margin-left:.4rem" onclick="editField(event,'${r.fk}')">⚠ Renseigner</span>`
+        :`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'${r.fk}')">✏️</span>`)
+      :'';
+    return`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${cls}">${hl(r.fk,r.res)}${editBtn}</td></tr>`;
+  }).join(''));
 
   // ERP
   if(dErp==='ok'){
@@ -2020,10 +2030,13 @@ function renderBail(){
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives'},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
     ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
-    ...(L.diag_plomb&&L.diag_plomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
-    ...(L.garant_name?[{n:10,txt:'Acte de caution solidaire (ci-après)'}]:[])
+    ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
+    ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec'}]:[]),
+    ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz'}]:[]),
+    ...(dBruit&&dBruit!=='non'&&dBruit!==''?[{n:12,txt:'Information sur les nuisances sonores (IAB)',url:L.doc_bruit_url,uploadKey:'bruit'}]:[]),
+    ...(L.garant_name?[{n:13,txt:'Acte de caution solidaire (ci-après)'}]:[])
   ];
-  // Ajouter documents uploadés même si pas dans conditions ci-dessus
+  // Ajouter documents uploadés même si pas dans les conditions ci-dessus (cas upload manuel)
   const docEntries=[
     {key:'doc_dpe_url',txt:'Diagnostic de Performance Énergétique (DPE)',uploadKey:'dpe'},
     {key:'doc_erp_url',txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
@@ -2033,11 +2046,9 @@ function renderBail(){
   ];
   let nextN=annexes.length+1;
   for(const d of docEntries){
+    // Ajouter seulement si doc déjà uploadé et pas encore dans la liste
     if(L[d.key]&&!annexes.some(a=>a.url===L[d.key])){
       annexes.push({n:nextN++,txt:d.txt,url:L[d.key],uploadKey:d.uploadKey});
-    } else if(!L[d.key]&&isLandlord&&!annexes.some(a=>a.uploadKey===d.uploadKey)){
-      // Si pas encore uploadé et bailleur : ajouter ligne uploadable (élec, gaz, bruit)
-      annexes.push({n:nextN++,txt:d.txt,uploadKey:d.uploadKey});
     }
   }
   // Forcer DPE et ERP dans la liste si uploadés (remplace l'entrée générique)
