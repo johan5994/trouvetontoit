@@ -4224,15 +4224,59 @@ async function loadLocataireDossierForLL(locataireId){
     if(ver)ver.innerHTML=p.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p.id_submitted?'<span style="color:var(--gold)">⏳ En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
     if(phone)phone.textContent=p.phone||'—';
     if(docs){
-      if(!p.documents){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">No documents uploaded yet</div>';return;}
+      // Nouveau format dossier_data en priorité (objet {"0":{...}} ou array)
+      let dd=p?.dossier_data;
+      if(dd&&!Array.isArray(dd)&&typeof dd==='object'){
+        const maxIdx=Math.max(...Object.keys(dd).map(Number).filter(n=>!isNaN(n)),-1);
+        if(maxIdx>=0){const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(dd[i]||null);dd=arr;}
+      }
+      if(dd&&Array.isArray(dd)){
+        const stepLabels=['🪪 Identité','🏠 Hébergement','💼 Profession','💰 Ressources','📋 Impôt'];
+        const allFiles=[];
+        for(let si=0;si<5;si++){const step=dd[si];(step?.files||[]).filter(f=>f?.url).forEach(f=>allFiles.push({label:stepLabels[si],file:f}));}
+        // Garant (étape 5)
+        const garantStep=dd[5];
+        let garantHtml='';
+        if(garantStep&&garantStep.type&&garantStep.type!=='skipped_garant'){
+          const gtLabel={garant_personne:'👤 Garant personne',garant_organisme:'🏦 Garant organisme',garant_moral:'🏢 Garant moral'}[garantStep.type]||'Garant';
+          const garants=garantStep.garants||[];
+          garants.forEach(g=>{
+            const gn=g.garant_name||{};
+            const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ')||'—';
+            garantHtml+=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.2);border-radius:7px;padding:.4rem .6rem;margin-top:.3rem">
+              <div style="font-size:.62rem;font-weight:700;color:var(--bleu);margin-bottom:.2rem">${gtLabel} — ${nom}</div>
+              <div style="font-size:.67rem;color:var(--td);margin-bottom:.25rem">${gn.email||''}</div>`;
+            (g.files||[]).filter(f=>f?.url).forEach(f=>{
+              garantHtml+=`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
+                <span style="font-size:.68rem;font-weight:600">${f.name||'Doc garant'}</span>
+                <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .4rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a>
+              </div>`;
+            });
+            garantHtml+='</div>';
+          });
+        }
+        if(!allFiles.length&&!garantHtml){
+          docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Dossier en cours de constitution</div>';
+        }else{
+          docs.innerHTML=allFiles.map(({label,file})=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.3rem .55rem">
+              <span style="font-size:.73rem;font-weight:600">[${label}] ${file.name||'Doc'}</span>
+              <a href="${file.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:6px;padding:.2rem .5rem;font-size:.67rem;font-weight:600;text-decoration:none">Voir →</a>
+            </div>`).join('')+garantHtml;
+          if(typeof lucide!=='undefined')lucide.createIcons();
+        }
+        return;
+      }
+      // Fallback ancien format documents
+      if(!p.documents){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
       const docMap=typeof p.documents==='string'?JSON.parse(p.documents):p.documents;
-      const docLabels={id:'<i data-lucide=id-card class=ic></i> ID/Passport',bank_statement:'<i data-lucide=landmark class=ic></i> Bank statement',emprent_letter:'<i data-lucide=briefcase class=ic></i> Employment letter',reference_letter:'<i data-lucide=star class=ic></i> Reference letter',rent1:'<i data-lucide=file-text class=ic></i> Loyer quittance 1',rent2:'<i data-lucide=file-text class=ic></i> Loyer quittance 2',rent3:'<i data-lucide=file-text class=ic></i> Loyer quittance 3'};
       const entries=Object.entries(docMap).filter(([,d])=>d?.path);
-      if(!entries.length){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">No documents uploaded yet</div>';return;}
+      if(!entries.length){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">Aucun document uploadé</div>';return;}
+      const docLabels={id:'ID/Passport',bank_statement:'Relevé bancaire',emprent_letter:'Lettre employeur',reference_letter:'Lettre de référence',rent1:'Quittance 1',rent2:'Quittance 2',rent3:'Quittance 3'};
       docs.innerHTML=entries.map(([key,doc])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border:1px solid var(--grdim);border-radius:7px;padding:.35rem .6rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--grdim);border-radius:7px;padding:.35rem .6rem">
           <div style="font-size:.75rem;font-weight:600">${docLabels[key]||key}</div>
-          <button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">View →</button>
+          <button data-path="${doc.path}" onclick="viewLocataireDocLL(this.dataset.path)" style="background:var(--marine);color:white;border:none;border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer">Voir →</button>
         </div>`).join('');
     }
   }catch(e){}
