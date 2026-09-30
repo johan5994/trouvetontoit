@@ -80,14 +80,15 @@
     @media(max-width:600px){.bail-body{padding:1.25rem}}
 
     /* PARTIES */
-    .parties-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-    @media(max-width:550px){.parties-grid{grid-template-columns:1fr}}
-    .partie-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:1rem 1.1rem}
+    .parties-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
+    .partie-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:.9rem 1.15rem;display:flex;gap:1rem;align-items:flex-start}
     .partie-card.garant-card{background:#FFFBEB;border-color:#FDE68A}
-    .partie-card .role{font-size:.67rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.35rem}
-    .garant-card .role{color:var(--gold)}
-    .partie-card .name{font-size:.95rem;font-weight:700;color:var(--tm)}
-    .partie-card .detail{font-size:.77rem;color:var(--td);margin-top:.15rem;line-height:1.5}
+    .partie-pill{font-size:.65rem;font-weight:800;color:#fff;background:var(--bleu);text-transform:uppercase;letter-spacing:.6px;padding:.25rem .65rem;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:.15rem}
+    .garant-card .partie-pill{background:var(--gold)}
+    .partie-body{flex:1;min-width:0}
+    .partie-ident{font-size:.84rem;color:var(--tm);line-height:1.7}
+    .partie-ident strong{color:var(--marine)}
+    .partie-ident .partie-denom{font-size:.78rem;font-style:italic;color:var(--td);margin-top:.1rem;display:block}
 
     /* SECTIONS / ARTICLES */
     .section{margin-bottom:1.4rem}
@@ -1595,23 +1596,40 @@ function renderBail(){
   // Ref
   show('bail-ref','Réf. TTT-'+(L.id||'').toUpperCase().slice(0,8));
 
-  // Parties
+  // Parties — format identification juridique bail français
+  function partieIdent(profile,role,extra=[]){
+    const nom=profile?.full_name||'—';
+    const adresse=profile?.address||'';
+    const email=profile?.email||'';
+    const tel=profile?.phone||'';
+    const parts=[];
+    if(adresse) parts.push(`demeurant au <strong>${adresse}</strong>`);
+    if(email) parts.push(`courriel : <strong>${email}</strong>`);
+    if(tel) parts.push(`tél. : <strong>${tel}</strong>`);
+    extra.forEach(e=>{if(e)parts.push(e);});
+    const denom=role==='ll'?'le bailleur':role==='t'?'le locataire':'le garant';
+    const identText=`<strong>${nom}</strong>${parts.length?', '+parts.join(', '):''}`;
+    return`<div class="partie-ident">${identText}<span class="partie-denom">ci-après dénommé « ${denom} »</span></div>`;
+  }
+  const llLabel=myRole==='landlord'||ROLE_PARAM==='landlord'?'Le Bailleur (vous)':'Le Bailleur';
+  const tLabel=myRole==='tenant'||ROLE_PARAM==='tenant'?'Le Locataire (vous)':'Le Locataire';
+  const natExtra=T_PROFILE?.nationality?`de nationalité <strong>${T_PROFILE.nationality}</strong>`:null;
   let partiesHtml=`
     <div class="partie-card">
-      <div class="role">Le Bailleur</div>
-      <div class="name">${LL_PROFILE?.full_name||L.landlord_id||'—'}</div>
-      <div class="detail">${LL_PROFILE?.email||''}<br>${LL_PROFILE?.address||Li?.full_address?.split(',').slice(-2).join(',')||''}<br>${LL_PROFILE?.phone||''}</div>
+      <span class="partie-pill">${llLabel}</span>
+      ${partieIdent(LL_PROFILE,'ll')}
     </div>
     <div class="partie-card">
-      <div class="role">Le Locataire</div>
-      <div class="name">${T_PROFILE?.full_name||L.tenant_id||'—'}</div>
-      <div class="detail">${T_PROFILE?.email||''}<br>${T_PROFILE?.nationality?'Nationalité : '+T_PROFILE.nationality:''}<br>${T_PROFILE?.phone||''}</div>
+      <span class="partie-pill">${tLabel}</span>
+      ${partieIdent(T_PROFILE,'t',[natExtra])}
     </div>`;
-  if(L.garant_name){partiesHtml+=`
-    <div class="partie-card garant-card" style="grid-column:1/-1">
-      <div class="role">Le Garant (Caution solidaire)</div>
-      <div class="name">${hl('garant_name',L.garant_name)}</div>
-      <div class="detail">${hl('garant_address',L.garant_address||'')}<br>${hl('garant_email',L.garant_email||'')}<br>${hl('garant_phone',L.garant_phone||'')}</div>
+  if(L.garant_name){
+    const gProfile={full_name:L.garant_name,address:L.garant_address,email:L.garant_email,phone:L.garant_phone};
+    const profExtra=L.garant_pro?`profession : <strong>${hl('garant_pro',L.garant_pro)}</strong>`:null;
+    partiesHtml+=`
+    <div class="partie-card garant-card">
+      <span class="partie-pill" style="background:var(--gold)">Le Garant</span>
+      ${partieIdent(gProfile,'g',[profExtra])}
     </div>`;}
   show('parties-grid',partiesHtml);
   show('sig-ll-name',LL_PROFILE?.full_name||'Bailleur');
