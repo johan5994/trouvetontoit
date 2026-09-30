@@ -701,6 +701,7 @@
             </table>
           </div>
           <div id="diag-erp-block" class="article-content" style="margin-top:.6rem"></div>
+          <div id="diag-attest-block" class="article-content" style="margin-top:.6rem;padding:.6rem .9rem;background:#FFF7ED;border-left:3px solid #F97316;border-radius:0 6px 6px 0;display:none"></div>
         </div>
 
         <hr class="divider">
@@ -1999,6 +2000,24 @@ function renderBail(){
     show('diag-erp-block','<p>L\'état des risques et pollutions (ERP) a été communiqué au locataire, qui reconnaît en avoir pris connaissance. Ce document est établi conformément à l\'arrêté préfectoral en vigueur.</p>');
   }
 
+  // Attestations installations < 15 ans
+  const attestBlocks=[];
+  if(!dElec||dElec==='na'||dElec===''){
+    attestBlocks.push('l\'installation électrique intérieure');
+  }
+  if(!dGaz||dGaz==='na'||dGaz===''){
+    attestBlocks.push('l\'installation de gaz intérieure');
+  }
+  const attestEl=document.getElementById('diag-attest-block');
+  if(attestEl){
+    if(attestBlocks.length){
+      attestEl.style.display='block';
+      attestEl.innerHTML=`<p style="font-size:.82rem;color:var(--tm)">Le bailleur déclare sur l'honneur que ${attestBlocks.join(' et ')} ${attestBlocks.length>1?'ont':'a'} moins de 15 ans et ${attestBlocks.length>1?'ne nécessitent':'ne nécessite'} pas de diagnostic réglementaire au titre de l'article 3-3 de la loi n° 89-462 du 6 juillet 1989.</p>`;
+    }else{
+      attestEl.style.display='none';
+    }
+  }
+
   // Travaux
   if(L.travaux_desc==='aucun'||(!L.travaux_desc&&!_editMode)){
     show('travaux-block',`<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="missing-badge" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_desc')">✏️ Modifier</span>`:''}</div>`);
@@ -2026,8 +2045,8 @@ function renderBail(){
     {n:2,txt:'État des lieux d\'entrée contradictoire',edl:true},
     {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
-    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)'},
-    {n:6,txt:'Grille de vétusté applicable aux réparations locatives'},
+    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.legifrance.gouv.fr/download/pdf?id=JORFTEXT000030603042',official:true},
+    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.anil.org/app/uploads/2017/07/grille_vetuste_modele.pdf',official:true},
     ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
     ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
     ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
@@ -2061,7 +2080,9 @@ function renderBail(){
     <span class="annexe-num">${a.n}</span>
     <span style="flex:1">${a.txt}</span>
     ${a.url
-      ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`
+      ?(a.official
+        ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC">📋 Doc officiel</a>`
+        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
         :isLandlord&&a.uploadKey
