@@ -2558,7 +2558,7 @@ function renderTenantGuide(){
   const allSigned=!!L.landlord_signed_at&&!!L.tenant_signed_at;
 
   let guide=document.getElementById('tenant-guide-panel');
-  if(!isTenant||allSigned){if(guide)guide.style.display='none';return;}
+  if(!isTenant||allSigned||ns==='agreed'||ns==='signed'){if(guide)guide.style.display='none';return;}
 
   if(!guide){
     guide=document.createElement('div');
@@ -2697,6 +2697,10 @@ async function tenantAcceptsModel(){
   // Message au bailleur
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`✅ Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
+  // Email au garant si présent
+  if(LEASE.garant_email&&LEASE.garant_name){
+    fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:LEASE.tenant_name||'Le locataire',listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||'',bailUrl:lien}})}).catch(()=>{});
+  }
   toast('✅ Modèle accepté ! Le bail est maintenant prêt pour signature.');
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
@@ -2733,6 +2737,10 @@ async function landlordValidateModel(){
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`✅ Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
+  // Email au garant si présent
+  if(LEASE.garant_email&&LEASE.garant_name){
+    fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:LEASE.tenant_name||'Le locataire',listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||'',bailUrl:lien}})}).catch(()=>{});
+  }
   toast('✅ Modèle validé ! Signatures ouvertes.');
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
@@ -2886,16 +2894,24 @@ async function submitSignature(){
       toast('📤 Envoyez ce lien au garant pour sa signature',5000);
     }
   }else if(who==='g'){
-    // Notifier le bailleur et le locataire que le garant a signé
+    // Notifier le bailleur et le locataire que le garant a signé (in-app + email)
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
     const garantNom=LEASE.garant_name||'Le garant';
+    const locataireNom=LEASE.tenant_name||'Le locataire';
+    const listingTitle=LEASE.listing_title||'le logement';
     if(LEASE.landlord_id){
       await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.landlord_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
     if(LEASE.tenant_id){
       await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
-    toast('✅ Acte de caution solidaire signé — bailleur et locataire notifiés');
+    // Emails — garant (confirmation) + bailleur + locataire
+    const emailData={garantNom,locataireNom,listingTitle,bailUrl:lien};
+    const sendMail=(to,role)=>fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_signed',to,data:{...emailData,recipientRole:role}})}).catch(()=>{});
+    if(LEASE.garant_email) sendMail(LEASE.garant_email,'garant');
+    if(LEASE.landlord_email) sendMail(LEASE.landlord_email,'landlord');
+    if(LEASE.tenant_email) sendMail(LEASE.tenant_email,'tenant');
+    toast('✅ Acte de caution solidaire signé — confirmation envoyée par email');
   }
 
   renderStatusAndSigs();
