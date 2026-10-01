@@ -218,8 +218,8 @@
     .sig-block-header .name{font-size:.8rem;font-weight:700;color:var(--tm)}
     .sig-pad-wrap{position:relative;height:100px;background:#FAFAFA;cursor:crosshair}
     .sig-pad{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-    .sig-done{background:#F0FDF4;padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid #BBF7D0}
-    .sig-done .ts{font-size:.68rem;color:var(--green);font-weight:600}
+    .sig-done{background:#F0FDF4;padding:.55rem .85rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;border-top:1px solid #BBF7D0}
+    .sig-done .ts{font-size:.68rem;color:var(--green);font-weight:600;text-align:center}
     .sig-cta{padding:.55rem .85rem;display:flex;gap:.35rem}
     .sig-cta button{flex:1;font-size:.77rem;font-weight:600;padding:.45rem;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
     .sig-cta .clear{background:none;border:1px solid var(--border2);color:var(--td)}
@@ -1632,6 +1632,10 @@ function renderModifsPanel(){
     const toolsWrap=document.getElementById('bail-tools-wrap');
     if(toolsWrap)toolsWrap.prepend(panel);
   }
+  // Masquer l'historique une fois le bail accepté ou signé
+  const _nsM=LEASE.negotiation_status||'';
+  if(_nsM==='agreed'||_nsM==='signed'){panel.style.display='none';return;}
+
   const log=LEASE?.modifs_log;
   if(!log||!log.length){panel.style.display='none';return;}
 
@@ -2421,7 +2425,7 @@ function renderBail(){
         :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
-        :isLandlord&&a.uploadKey
+        :_editMode&&a.uploadKey
           ?`<label class="annexe-upload-btn" title="Déposer PDF ou photo"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0">📤 PDF ou photo</label>`
           :'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'
     }
@@ -2809,9 +2813,11 @@ function renderStatusAndSigs(){
   if(L.garant_name){
     if(gSigned&&L.garant_signature){
       show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts">✅ Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
-    }else if(!gSigned&&canSign){
+    }else if(!gSigned&&canSign&&effectiveRole==='garant'){
       show('sig-g-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-g" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('g')">Effacer</button><button class="sign" onclick="prepareSign('g')">Valider →</button></div>`);
       setTimeout(()=>initCanvas('g'),50);
+    }else if(!gSigned&&canSign){
+      show('sig-g-pad-area','<div class="sig-awaiting">⏳ En attente de la signature du garant</div>');
     }else{show('sig-g-pad-area','<div class="sig-awaiting">⏳ Signatures disponibles une fois le bail accepté</div>');}
   }
 
@@ -2864,7 +2870,10 @@ async function submitSignature(){
   if(who==='ll'){upd.landlord_signature=sigData;upd.landlord_signed_at=now;}
   else if(who==='t'){upd.tenant_signature=sigData;upd.tenant_signed_at=now;}
   else if(who==='g'){upd.garant_signature=sigData;upd.garant_signed_at=now;}
-  if(LEASE.landlord_signed_at&&LEASE.tenant_signed_at&&(who==='t'||who==='g'))upd.status='active';
+  // Bail entièrement signé quand bailleur + locataire ont tous les deux signé
+  const llNowSigned=who==='ll'||!!LEASE.landlord_signed_at;
+  const tNowSigned=who==='t'||!!LEASE.tenant_signed_at;
+  if(llNowSigned&&tNowSigned){upd.negotiation_status='signed';upd.status='active';}
 
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
   if(error){alert('⚠️ Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL (migration-leases.sql).\n\nDétail : '+error.message);return;}
