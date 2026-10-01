@@ -457,7 +457,7 @@
 
         <!-- ART 1 — LOGEMENT -->
         <div class="section">
-          <div class="article-title">Article 1 — Désignation du logement</div>
+          <div class="article-title" id="art1-title">Article 1 — Désignation du logement</div>
           <div class="article-content"><p>Le bailleur loue au locataire le logement ci-après désigné :</p></div>
           <div class="info-grid" id="logement-grid"></div>
           <div class="info-grid" id="logement-grid2"></div>
@@ -484,7 +484,7 @@
 
         <!-- ART 3 — DURÉE -->
         <div class="section">
-          <div class="article-title">Article 3 — Durée du bail</div>
+          <div class="article-title" id="art3-title">Article 3 — Durée du bail</div>
           <div class="article-content">
             <p>Le présent contrat est conclu pour une durée de <strong>1 (un) an</strong> à compter du <strong id="start-date-txt">—</strong>, pour se terminer le <strong id="end-date-txt">—</strong>.</p>
             <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes d'un an, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 15 et 16 du présent contrat.</p>
@@ -496,7 +496,7 @@
 
         <!-- ART 4 — LOYER -->
         <div class="section">
-          <div class="article-title">Article 4 — Loyer</div>
+          <div class="article-title" id="art4-title">Article 4 — Loyer</div>
           <div class="article-content">
             <p><strong>4.1 Montant du loyer</strong></p>
             <p>Le loyer mensuel est fixé à <strong id="loyer-txt">—</strong> euros hors charges, payable le <strong id="paydate-txt">1<sup>er</sup></strong> de chaque mois.</p>
@@ -535,7 +535,7 @@
 
         <!-- ART 5 — CHARGES -->
         <div class="section">
-          <div class="article-title">Article 5 — Charges récupérables</div>
+          <div class="article-title" id="art5-title">Article 5 — Charges récupérables</div>
           <div class="article-content">
             <p>En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle sur présentation de justificatifs (art. 23 et 24 de la loi du 6 juillet 1989).</p>
             <p>Les charges récupérables (définies par le décret n° 87-713 du 26 août 1987) comprennent notamment :</p>
@@ -554,7 +554,7 @@
 
         <!-- ART 6 — DÉPÔT DE GARANTIE -->
         <div class="section">
-          <div class="article-title">Article 6 — Dépôt de garantie</div>
+          <div class="article-title" id="art6-title">Article 6 — Dépôt de garantie</div>
           <div class="article-content">
             <p>Un dépôt de garantie d'un montant de <strong id="depot-txt">—</strong> est versé ce jour par le locataire au bailleur, représentant <strong id="depot-mois-txt">deux (2) mois</strong> de loyer hors charges, conformément à l'article 22 de la loi du 6 juillet 1989.</p>
             <p><strong>Restitution :</strong> Le dépôt est restitué dans un délai maximal de :</p>
@@ -571,7 +571,7 @@
 
         <!-- ART 7 — DIAGNOSTICS TECHNIQUES -->
         <div class="section">
-          <div class="article-title">Article 7 — Diagnostics techniques et informations obligatoires</div>
+          <div class="article-title" id="art7-title">Article 7 — Diagnostics techniques et informations obligatoires</div>
           <div class="article-content">
             <p>Conformément à l'article 3-3 de la loi du 6 juillet 1989 et au décret n° 2016-1671 du 5 décembre 2016, les diagnostics techniques suivants sont annexés au présent contrat :</p>
           </div>
@@ -604,7 +604,7 @@
 
         <!-- ART 8 — TRAVAUX -->
         <div class="section">
-          <div class="article-title">Article 8 — Travaux réalisés entre deux locations</div>
+          <div class="article-title" id="art8-title">Article 8 — Travaux réalisés entre deux locations</div>
           <div class="article-content">
             <p>Conformément à l'article 3 de la loi du 6 juillet 1989, le bailleur déclare que les travaux suivants ont été réalisés depuis le départ du dernier locataire ou, à défaut, au cours des trois dernières années :</p>
             <div id="travaux-block"></div>
@@ -704,7 +704,7 @@
 
         <!-- ART 16 — CONGÉ BAILLEUR -->
         <div class="section">
-          <div class="article-title">Article 16 — Congé donné par le bailleur</div>
+          <div class="article-title" id="art16-title">Article 16 — Congé donné par le bailleur</div>
           <div class="article-content">
             <p>Le bailleur ne peut mettre fin au bail qu'à son <strong>expiration</strong>, sous réserve d'un préavis de <strong>trois (3) mois</strong> notifié par LRAR ou acte d'huissier, en justifiant impérativement de l'un des trois motifs limitatifs suivants (art. 15 de la loi du 6 juillet 1989) :</p>
             <ul>
@@ -805,7 +805,7 @@
 
         <!-- ART 23 — CLAUSES PARTICULIÈRES -->
         <div class="section" id="clauses-section">
-          <div class="article-title">Article 23 — Clauses particulières</div>
+          <div class="article-title" id="art23-title">Article 23 — Clauses particulières</div>
           <div class="article-content">
             <p style="font-size:.82rem;color:var(--td);margin-bottom:.7rem">Les parties conviennent des clauses particulières suivantes, licites et non contraires à l'ordre public :</p>
             <div class="clauses-wrap" id="clauses-particulieres-wrap">
@@ -1858,6 +1858,8 @@ function renderBail(){
   buildRecentChanges();   // construire les highlights
   renderModifsPanel();    // afficher le panneau historique
   renderLandlordGuide();  // guide bailleur
+  renderTenantGuide();    // guide locataire
+  addSectionTenantFlags(); // boutons Contester sur les articles
 
   q('loader').style.display='none';
   q('bail-wrap').style.display='block';
@@ -2164,11 +2166,11 @@ function renderBail(){
   // Loyer
   const payDay=L.payment_due_day||Li?.payment_due_day||'1';
   show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')">✏️</span>`:'')+tenantFlag('Montant du loyer'));
-  show('loyer-val',ev('rent',fmt(rent)));
+  show('loyer-val',ev('rent',fmt(rent))+tenantFlag('Montant du loyer'));
   show('charges-val',ev('charges',charges>0?fmt(charges):'Incluses')+tenantFlag('Charges'));
   show('total-val',fmt(rent+(charges||0)));
   show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')">✏️</span>`:'<sup>er</sup>'));
-  show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois'));
+  show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois')+tenantFlag('Échéance du loyer'));
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
 
   // Dernier loyer — mention obligatoire si précédent locataire parti < 18 mois
@@ -2233,7 +2235,7 @@ function renderBail(){
   const depotMoisLabel=depotMois===0?'aucun dépôt':depotMois===1?'un (1) mois':depotMois===2?'deux (2) mois':(depotMois.toFixed(1)+' mois');
   const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem">⚠ Dépasse le plafond légal (2 mois — meublé)</span>`:'';
   const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')">✏️ Mode</span>`:'';
-  show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn);
+  show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn+tenantFlag('Dépôt de garantie'));
   show('depot-mois-txt',depotMoisLabel);
   show('depot-highlight',ev('deposit',fmt(depotEffectif))+' — à verser avant l\'entrée dans les lieux'+depotWarnHtml);
 
@@ -2549,6 +2551,92 @@ function renderBail(){
 
 // ── STATUS & SIGNATURES ───────────────────────────────────────────────────────
 // ── NÉGOCIATION DU BAIL ───────────────────────────────────────────────────────
+function renderTenantGuide(){
+  const L=LEASE;
+  const ns=L.negotiation_status||'draft';
+  const isTenant=myRole==='tenant'||ROLE_PARAM==='tenant';
+  const allSigned=!!L.landlord_signed_at&&!!L.tenant_signed_at;
+
+  let guide=document.getElementById('tenant-guide-panel');
+  if(!isTenant||allSigned){if(guide)guide.style.display='none';return;}
+
+  if(!guide){
+    guide=document.createElement('div');
+    guide.id='tenant-guide-panel';
+    guide.className='ll-guide';
+    guide.style.cssText='background:linear-gradient(135deg,#FFFBEB 0%,#FFF7ED 100%);border-color:#FDE68A';
+    const toolsWrap=document.getElementById('bail-tools-wrap');
+    if(toolsWrap)toolsWrap.appendChild(guide);
+  }
+
+  const stepNum=(n,done)=>done
+    ?`<span style="background:#16a34a;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.05rem">✓</span>`
+    :`<span class="ll-step-num" style="background:var(--gold);color:#fff">${n}</span>`;
+
+  const step1Done=ns==='pending_landlord'||ns==='agreed'||ns==='signed';
+  const step2Done=ns==='agreed'||ns==='signed';
+  const step3Done=!!L.tenant_signed_at;
+
+  const stepsHtml=`
+    <div class="ll-guide-step">
+      ${stepNum(1,false)}
+      <div class="ll-step-text">
+        <strong>Lisez attentivement le bail</strong> — Chaque section peut être contestée avec le bouton <span style="display:inline-flex;align-items:center;gap:.2rem;background:rgba(212,168,71,.1);border:1.5px solid rgba(212,168,71,.4);border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:var(--gold);vertical-align:middle">⚠️ Contester</span>. Vous pouvez aussi modifier vos informations personnelles avec les boutons ✏️ bleus.
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(2,step1Done)}
+      <div class="ll-step-text">
+        <strong>Acceptez ou demandez des modifications</strong> — Si tout vous convient, cliquez <strong>✅ J'accepte le bail</strong>. Sinon, <strong>📝 Demander des modifications →</strong> pour envoyer vos remarques au bailleur.
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(3,step2Done)}
+      <div class="ll-step-text">
+        <strong>Accord mutuel</strong> — Une fois le bailleur d'accord avec vos remarques, les signatures seront débloquées pour les deux parties.
+      </div>
+    </div>
+    <div class="ll-guide-step">
+      ${stepNum(4,step3Done)}
+      <div class="ll-step-text">
+        <strong>Signez le bail</strong> — Après accord, vous signez électroniquement. Le bail est alors définitif et envoyé aux deux parties.
+      </div>
+    </div>`;
+
+  let contextMsg='';
+  if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#92400e">👉 <strong>Étape actuelle :</strong> Lisez le bail, utilisez les boutons <strong>⚠️ Contester</strong> sur les sections qui vous posent problème, puis acceptez ou demandez des modifications via la barre ci-dessous.</p>`;
+  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">⏳ <strong>Vos remarques ont été transmises.</strong> Le bailleur les étudie et reviendra vers vous prochainement.</p>`;
+  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#16a34a">✅ <strong>Modèle accepté !</strong> Faites défiler vers le bas pour apposer votre signature.</p>`;
+
+  guide.innerHTML=`<div class="ll-guide-title" style="color:var(--gold)">📋 Guide — Comment lire et valider votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
+  guide.style.display='block';
+  updateToolsVisibility();
+}
+
+function addSectionTenantFlags(){
+  if(!_tenantEditMode) return;
+  const contestable=[
+    {id:'art1-title',  label:'Article 1 — Désignation du logement'},
+    {id:'art3-title',  label:'Article 3 — Durée du bail'},
+    {id:'art4-title',  label:'Article 4 — Loyer'},
+    {id:'art5-title',  label:'Article 5 — Charges récupérables'},
+    {id:'art6-title',  label:'Article 6 — Dépôt de garantie'},
+    {id:'art7-title',  label:'Article 7 — Diagnostics techniques'},
+    {id:'art8-title',  label:'Article 8 — Travaux réalisés'},
+    {id:'art16-title', label:'Article 16 — Congé donné par le bailleur'},
+    {id:'art23-title', label:'Article 23 — Clauses particulières'},
+  ];
+  contestable.forEach(({id,label})=>{
+    const el=document.getElementById(id);
+    if(el&&!el.querySelector('.tf-flag')){
+      const span=document.createElement('span');
+      span.className='tf-flag';
+      span.innerHTML=` <span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;vertical-align:middle;font-style:normal" onclick="openModifModalWithContext('${label}')">⚠️ Contester</span>`;
+      el.appendChild(span);
+    }
+  });
+}
+
 function renderNegocBar(){
   const L=LEASE;
   const ns=L.negotiation_status||'draft';
@@ -2598,7 +2686,7 @@ async function sendToTenant(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant';
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('✅ Bail envoyé au locataire pour relecture !');
-  renderNegocBar();renderLandlordGuide();renderStatusAndSigs();
+  renderNegocBar();renderLandlordGuide();renderTenantGuide();renderStatusAndSigs();
 }
 
 async function tenantAcceptsModel(){
@@ -2610,7 +2698,7 @@ async function tenantAcceptsModel(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`✅ Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
   toast('✅ Modèle accepté ! Le bail est maintenant prêt pour signature.');
-  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();
+  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
 
 function openModifModal(){const ta=q('modif-notes');if(ta)ta.value='';q('modif-modal').style.display='flex';}
@@ -2646,7 +2734,7 @@ async function landlordValidateModel(){
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`✅ Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
   toast('✅ Modèle validé ! Signatures ouvertes.');
-  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();
+  renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
 
 function renderStatusAndSigs(){
