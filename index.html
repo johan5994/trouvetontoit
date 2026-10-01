@@ -234,6 +234,7 @@ footer ul a:hover{color:var(--terra)}
 .tloc-icon{font-size:1.6rem;line-height:1}
 .tloc-title{font-size:.88rem;font-weight:700;color:var(--deep,#1A1410)}
 .tloc-sub{font-size:.72rem;color:var(--stone-l,#887A68)}
+.tloc-card-full{grid-column:1/-1}
 /* ─── WIZARD ─── */
 #wizard-header{margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid rgba(0,0,0,.07)}
 #wizard-step-info{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.55rem}
@@ -269,6 +270,17 @@ footer ul a:hover{color:var(--terra)}
 .cblock-hd{font-size:.82rem;font-weight:700;color:var(--stone,#4a3f35);margin-bottom:.55rem}
 .cblabel{font-size:.7rem;font-weight:700;color:var(--stone-l,#8a7a6e);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem}
 .cblock-cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+/* ─── ÉQUIPEMENTS CHIPS ─── */
+.equip-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+.equip-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .75rem;border-radius:100px;border:1.5px solid rgba(0,0,0,.13);background:#fff;font-size:.8rem;font-weight:500;color:var(--stone);cursor:pointer;transition:all .18s;user-select:none;white-space:nowrap}
+.equip-chip:hover{border-color:var(--terra);color:var(--terra)}
+.equip-chip input[type=checkbox]{display:none}
+.equip-chip.checked{border-color:var(--terra);background:rgba(27,79,216,.07);color:var(--terra);font-weight:600}
+/* Toggle Oui/Non ascenseur */
+.toggle-pills{display:inline-flex;border:1.5px solid rgba(0,0,0,.13);border-radius:100px;overflow:hidden}
+.toggle-pill{padding:.35rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .18s;background:#fff;color:var(--stone-l)}
+.toggle-pill:first-child{border-right:1px solid rgba(0,0,0,.1)}
+.toggle-pill.sel{background:var(--terra);color:#fff;border-color:var(--terra)}
 .cbcol{flex-direction:column;gap:.45rem}
 @media(max-width:600px){.cblock-cols3{grid-template-columns:1fr!important}}
 
@@ -642,6 +654,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
           <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — le propriétaire et le locataire gèrent le contrat directement.</div>
         </div>
+        <!-- 5e carte : Parking / Garage -->
+        <button type="button" class="tloc-card tloc-card-full" id="tloc-parking" onclick="selectTypeLocation('parking_box')" style="flex-direction:row;justify-content:flex-start;gap:1rem;padding:.85rem 1.2rem">
+          <div class="tloc-icon">🅿️</div>
+          <div style="text-align:left">
+            <div class="tloc-title">Parking / Garage</div>
+            <div class="tloc-sub">Place de parking ou garage/box individuel</div>
+          </div>
+        </button>
         <div id="wstep1-next" style="display:none" class="wizard-nav">
           <div></div>
           <button class="btn btn-p" id="wstep1-next-btn" onclick="wizardGoTo(2)">Suivant <i data-lucide=arrow-right class=ic></i></button>
@@ -656,7 +676,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div class="tbien-grid">
             <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
             <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
-            <button type="button" class="tbien-btn" onclick="setTB(this,'parking')"><i data-lucide=car class=ic></i><span>Parking</span></button>
           </div>
           <input type="hidden" id="p-type-bien" value="appartement">
         </div>
@@ -895,43 +914,64 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <!-- ═══ STEP 7 — ÉQUIPEMENTS ═══ -->
       <div class="wizard-step" id="wstep-7" style="display:none">
         <p class="wstep-title">Équipements &amp; caractéristiques</p>
-        <div class="fg2" style="margin-top:.5rem"><label>Ascenseur</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="asc-cb-oui" onchange="setAscenseurFromCb('oui',this)"> Oui</label>
-            <label class="cl"><input type="checkbox" id="asc-cb-non" onchange="setAscenseurFromCb('non',this)"> Non</label>
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.25rem">
+
+          <!-- Ascenseur -->
+          <div class="cblock">
+            <div class="cblock-hd">🛗 Ascenseur</div>
+            <div class="toggle-pills">
+              <span class="toggle-pill" id="asc-pill-oui" onclick="setAscenseur('oui')">Oui</span>
+              <span class="toggle-pill" id="asc-pill-non" onclick="setAscenseur('non')">Non</span>
+            </div>
+            <input type="hidden" id="p-ascenseur" value="">
           </div>
-          <input type="hidden" id="p-ascenseur" value="">
-        </div>
-        <div class="fg2" style="margin-top:1rem"><label>Pièces annexes</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"> Cave</label>
-            <label class="cl"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"> Sous-sol</label>
-            <label class="cl"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"> Grenier</label>
-            <label class="cl"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"> Avec dépendance</label>
+
+          <!-- Pièces annexes -->
+          <div class="cblock">
+            <div class="cblock-hd">🗄️ Pièces annexes</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()">🏚️ Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()">⬇️ Sous-sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()">🏠 Grenier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()">🏡 Dépendance</label>
+            </div>
+            <input type="hidden" id="p-annexes" value="">
           </div>
-          <input type="hidden" id="p-annexes" value="">
-        </div>
-        <div class="fg2" style="margin-top:1rem"><label>Caractéristiques</label>
-          <div class="cbwrap" style="margin-top:.3rem">
-            <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
-            <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
-            <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
-            <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
-            <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
-            <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
-            <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
-            <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
-            <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
-            <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
-            <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
-            <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
-            <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
-            <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
-            <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
-            <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
-            <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
+
+          <!-- Confort -->
+          <div class="cblock">
+            <div class="cblock-hd">✨ Confort</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pfu" checked>🛋️ Meublé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwi">📶 WiFi</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pac">❄️ Clim / A/C</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppk">🚗 Parking</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppool">🏊 Piscine</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pbalc">🌿 Balcon / Terrasse</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwash">🫧 Lave-linge</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pdish">🍽️ Lave-vaisselle</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-chauffage-sol">🔆 Chauffage au sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-baignoire">🛁 Baignoire</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-plusieurs-wc">🚽 Plusieurs WC</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pmr">♿ Accès PMR</label>
+            </div>
           </div>
+
+          <!-- Bâtiment -->
+          <div class="cblock">
+            <div class="cblock-hd">🏢 Bâtiment</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-ancienne">🏛️ Construction ancienne</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-recente">🏗️ Construction récente</label>
+              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this);document.getElementById('p-nb-lots-wrap').style.display=document.getElementById('p-copropriete').checked?'flex':'none'"><input type="checkbox" id="p-copropriete">🏬 Copropriété</label>
+            </div>
+            <div id="p-nb-lots-wrap" style="display:none;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.83rem;color:var(--stone)">
+              <input type="number" id="p-nb-lots-copro" class="fi" placeholder="520" min="1" max="10000" style="width:6rem"> lots en copropriété
+            </div>
+          </div>
+
         </div>
+        <input type="hidden" id="ppets" value="">
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoTo(6)"><i data-lucide=arrow-left class=ic></i> Retour</button>
           <button class="btn btn-p" onclick="wizardGoTo(8)">Suivant <i data-lucide=arrow-right class=ic></i></button>
@@ -993,6 +1033,1526 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoTo(7)"><i data-lucide=arrow-left class=ic></i> Retour</button>
           <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publier mon annonce</button>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════
+           PARKING / GARAGE — TUNNEL DÉDIÉ (PK1 → PK5)
+           ════════════════════════════════════════════════════════════ -->
+
+      <!-- ═══ PK1 — SOUS-TYPE ═══ -->
+      <div class="wizard-step" id="wstep-pk1" style="display:none">
+        <p class="wstep-title">Que louez-vous ?</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
+          <button type="button" class="tloc-card" id="tloc-pk-parking" onclick="selectPkSubtype('parking')">
+            <div class="tloc-icon">🚗</div>
+            <div class="tloc-title">Place de parking</div>
+            <div class="tloc-sub">Extérieur · couvert · sous-sol</div>
+          </button>
+          <button type="button" class="tloc-card" id="tloc-pk-garage" onclick="selectPkSubtype('garage')">
+            <div class="tloc-icon">🔒</div>
+            <div class="tloc-title">Garage / Box</div>
+            <div class="tloc-sub">Box fermé ou garage individuel</div>
+          </button>
+        </div>
+        <input type="hidden" id="p-pk-subtype" value="">
+        <div id="pk1-next" style="display:none" class="wizard-nav">
+          <button class="btn btn-s" onclick="exitParkingMode()"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoPk(2)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ PK2 — LOCALISATION ═══ -->
+      <div class="wizard-step" id="wstep-pk2" style="display:none">
+        <p class="wstep-title">Localisation</p>
+        <div class="frow">
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Adresse *</label>
+            <div style="position:relative">
+              <input class="fi" type="text" id="p-pk-adresse" placeholder="12 rue de la Paix, Paris" autocomplete="off"
+                oninput="pkAdresseInput(this.value)"
+                onblur="setTimeout(()=>{const s=document.getElementById('pk-adresse-sugg');if(s)s.style.display='none'},200)">
+              <div id="pk-adresse-sugg" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.1);max-height:200px;overflow-y:auto"></div>
+            </div>
+          </div>
+          <div class="fg2"><label>Code postal *</label><input class="fi" type="text" id="p-pk-cp" placeholder="75001" maxlength="5"></div>
+          <div class="fg2"><label>Ville *</label><input class="fi" type="text" id="p-pk-ville" placeholder="Paris"></div>
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Numéro de box / parking <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label>
+            <input class="fi" type="text" id="p-pk-numero" placeholder="Box n°24">
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoPk(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoPk(3)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ PK3 — CARACTÉRISTIQUES ═══ -->
+      <div class="wizard-step" id="wstep-pk3" style="display:none">
+        <p class="wstep-title">Caractéristiques</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+
+          <!-- Emplacement -->
+          <div class="cblock">
+            <div class="cblock-hd">📍 Type d'emplacement</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="exterieur" onchange="updatePkLoc()">☀️ Extérieur</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="couvert" onchange="updatePkLoc()">🏗️ Couvert</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="sous_sol" onchange="updatePkLoc()">⬇️ Sous-sol</label>
+            </div>
+            <input type="hidden" id="p-pk-location-type" value="">
+          </div>
+
+          <!-- Dimensions -->
+          <div class="cblock">
+            <div class="cblock-hd">📐 Dimensions <span style="font-size:.72rem;font-weight:400;color:var(--stone-l)">(optionnel)</span></div>
+            <div class="frow" style="margin-top:.4rem">
+              <div class="fg2"><label>Longueur (m)</label><input class="fi" type="number" id="p-pk-long" placeholder="5" min="1" step="0.1"></div>
+              <div class="fg2"><label>Largeur (m)</label><input class="fi" type="number" id="p-pk-larg" placeholder="2.5" min="1" step="0.1"></div>
+              <div class="fg2" id="pk-haut-wrap" style="display:none"><label>Hauteur (m)</label><input class="fi" type="number" id="p-pk-haut" placeholder="2.2" min="1" step="0.1"></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:.6rem">
+              <div style="display:flex;align-items:center;gap:.5rem">
+                <label style="font-size:.82rem;color:var(--stone)">Nb de véhicules</label>
+                <select class="fi" id="p-pk-nb-vehicles" style="width:5rem">
+                  <option value="1">1</option><option value="2">2</option><option value="3+">3+</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;gap:.5rem">
+                <label style="font-size:.82rem;color:var(--stone)">Niveau</label>
+                <input class="fi" type="text" id="p-pk-niveau" placeholder="-1" style="width:5rem">
+              </div>
+            </div>
+          </div>
+
+          <!-- Accès & sécurité -->
+          <div class="cblock">
+            <div class="cblock-hd">🔐 Accès &amp; Sécurité</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-secured">🔒 Accès sécurisé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-portail-auto">⚙️ Portail automatique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-badge">📱 Badge / télécommande</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-porte-elec">🚪 Porte électrique</label>
+            </div>
+          </div>
+
+          <!-- Équipements -->
+          <div class="cblock">
+            <div class="cblock-hd">⚡ Équipements</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eclairage">💡 Éclairage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-borne">🔌 Borne de recharge</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-elec">⚡ Électricité</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-prises">🔌 Prises électriques</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eau">💧 Point d'eau</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-stockage">📦 Stockage autorisé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-pmr">♿ Accès PMR</label>
+            </div>
+          </div>
+
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoPk(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoPk(4)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ PK4 — LOYER & CONDITIONS ═══ -->
+      <div class="wizard-step" id="wstep-pk4" style="display:none">
+        <p class="wstep-title">Loyer &amp; conditions</p>
+        <div class="frow">
+          <div class="fg2">
+            <label>Loyer mensuel (€) *</label>
+            <input class="fi" type="number" id="p-pk-loyer" placeholder="80" min="0">
+          </div>
+          <div class="fg2">
+            <label>Charges</label>
+            <select class="fi" id="p-pk-charges-type" onchange="document.getElementById('p-pk-charges-montant-wrap').style.display=this.value==='forfait'?'block':'none'">
+              <option value="aucune">Aucune</option>
+              <option value="incluses">Incluses dans le loyer</option>
+              <option value="forfait">Forfait mensuel</option>
+            </select>
+          </div>
+          <div class="fg2" id="p-pk-charges-montant-wrap" style="display:none">
+            <label>Montant charges (€/mois)</label>
+            <input class="fi" type="number" id="p-pk-charges-montant" placeholder="15" min="0">
+          </div>
+          <div class="fg2">
+            <label>Dépôt de garantie (€)</label>
+            <input class="fi" type="number" id="p-pk-depot" placeholder="80" min="0">
+          </div>
+          <div class="fg2">
+            <label>Disponible depuis *</label>
+            <input class="fi" type="date" id="p-pk-dispo">
+          </div>
+          <div class="fg2">
+            <label>Durée minimale</label>
+            <select class="fi" id="p-pk-duree">
+              <option value="">Sans durée minimale</option>
+              <option value="1">1 mois</option>
+              <option value="3">3 mois</option>
+              <option value="6">6 mois</option>
+              <option value="12">12 mois</option>
+            </select>
+          </div>
+          <div class="fg2">
+            <label>Sous-location autorisée</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill" id="pk-sousloc-oui" onclick="setPkToggle('sousloc','oui')">Oui</span>
+              <span class="toggle-pill" id="pk-sousloc-non" onclick="setPkToggle('sousloc','non')">Non</span>
+            </div>
+            <input type="hidden" id="p-pk-sousloc" value="">
+          </div>
+          <div class="fg2 pk-garage-only" style="display:none">
+            <label>Utilisation pour stockage</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill" id="pk-stockagecond-oui" onclick="setPkToggle('stockagecond','oui')">Autorisé</span>
+              <span class="toggle-pill" id="pk-stockagecond-non" onclick="setPkToggle('stockagecond','non')">Non autorisé</span>
+            </div>
+            <input type="hidden" id="p-pk-stockage-cond" value="">
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoPk(3)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoPk(5)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ PK5 — DESCRIPTION & PHOTOS ═══ -->
+      <div class="wizard-step" id="wstep-pk5" style="display:none">
+        <p class="wstep-title">Description &amp; photos</p>
+        <div class="fg2">
+          <label>Description</label>
+          <textarea class="fta" id="p-pk-description" rows="4" maxlength="1000"
+            placeholder="Box fermé situé au sous-sol d'une résidence sécurisée. Accès par portail automatique avec télécommande. Convient à un véhicule de type citadine ou berline."
+            oninput="document.getElementById('pk-desc-counter').textContent=this.value.length"></textarea>
+          <div style="font-size:.7rem;color:var(--stone-l);text-align:right;margin-top:.2rem"><span id="pk-desc-counter">0</span>/1000</div>
+        </div>
+        <div class="fg2">
+          <label>📸 Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise</span></label>
+          <div id="pk-photo-upload-area"
+            style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(27,79,216,.03)"
+            onclick="document.getElementById('pk-photo-input').click()"
+            ondragover="event.preventDefault();this.style.background='rgba(27,79,216,.08)'"
+            ondragleave="this.style.background='rgba(27,79,216,.03)'"
+            ondrop="handlePkDrop(event)">
+            <div style="font-size:2rem;margin-bottom:.5rem">📸</div>
+            <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
+            <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo · Max 10 photos</div>
+            <input type="file" id="pk-photo-input" multiple accept="image/*" style="display:none" onchange="handlePkPhotos(this.files)">
+          </div>
+          <div id="pk-photo-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+          <div id="pk-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none">⚠️ Ajoutez au moins 1 photo avant de publier.</div>
+        </div>
+        <div class="aerr" id="pk-err"></div><div class="aok" id="pk-ok"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoPk(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostParking()">🚀 Publier mon annonce</button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- TUNNEL VENTE — VS0 (choix Appart / Maison)             -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+
+      <!-- VS0 — TYPE DE BIEN -->
+      <div class="wizard-step" id="wstep-vs0" style="display:none">
+        <p class="wstep-title">Quel type de bien vendez-vous ?</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem">
+          <button type="button" class="tloc-card" id="vs0-appartement" onclick="selectVsBienType('appartement')" style="flex-direction:column;align-items:center;padding:1.2rem .8rem">
+            <div class="tloc-icon" style="font-size:2rem">🏢</div>
+            <div class="tloc-title" style="margin-top:.4rem">Appartement</div>
+            <div class="tloc-sub">Studio, duplex, penthouse…</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs0-maison" onclick="selectVsBienType('maison')" style="flex-direction:column;align-items:center;padding:1.2rem .8rem">
+            <div class="tloc-icon" style="font-size:2rem">🏡</div>
+            <div class="tloc-title" style="margin-top:.4rem">Maison</div>
+            <div class="tloc-sub">Villa, ferme, maison de ville…</div>
+          </button>
+          <button type="button" class="tloc-card tloc-card-full" id="vs0-parking-vente" onclick="selectVsBienType('parking-vente')" style="flex-direction:row;align-items:center;justify-content:flex-start;gap:1rem;padding:.9rem 1.2rem">
+            <div class="tloc-icon" style="font-size:1.8rem">🅿️</div>
+            <div style="text-align:left">
+              <div class="tloc-title">Parking / Garage</div>
+              <div class="tloc-sub">Place de parking, box, garage individuel</div>
+            </div>
+          </button>
+        </div>
+        <div id="vs0-next" style="display:none">
+          <div class="wizard-nav" style="justify-content:flex-end">
+            <button class="btn btn-p" id="vs0-next-btn">Continuer <i data-lucide=arrow-right class=ic></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- TUNNEL VENTE APPARTEMENT — VS1 à VS14                  -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+
+      <!-- VS1 — TYPE D'APPARTEMENT -->
+      <div class="wizard-step" id="wstep-vs1" style="display:none">
+        <p class="wstep-title">Type d'appartement</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
+          <button type="button" class="tloc-card" id="vs-type-appartement" onclick="selectVsSubtype('appartement')">
+            <div class="tloc-icon">🏢</div><div class="tloc-title">Appartement</div><div class="tloc-sub">Logement standard en immeuble</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs-type-studio" onclick="selectVsSubtype('studio')">
+            <div class="tloc-icon">🛏️</div><div class="tloc-title">Studio</div><div class="tloc-sub">Pièce principale unique (T1)</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs-type-duplex" onclick="selectVsSubtype('duplex')">
+            <div class="tloc-icon">🏠</div><div class="tloc-title">Duplex</div><div class="tloc-sub">Appartement sur 2 niveaux</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs-type-triplex" onclick="selectVsSubtype('triplex')">
+            <div class="tloc-icon">🏘️</div><div class="tloc-title">Triplex</div><div class="tloc-sub">Appartement sur 3 niveaux</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs-type-loft" onclick="selectVsSubtype('loft')">
+            <div class="tloc-icon">🏭</div><div class="tloc-title">Loft</div><div class="tloc-sub">Grand espace ouvert atypique</div>
+          </button>
+          <button type="button" class="tloc-card" id="vs-type-penthouse" onclick="selectVsSubtype('penthouse')">
+            <div class="tloc-icon">🌟</div><div class="tloc-title">Penthouse</div><div class="tloc-sub">Dernier étage avec terrasse</div>
+          </button>
+        </div>
+        <input type="hidden" id="vs-appart-type" value="">
+        <div id="vs1-next" style="display:none" class="wizard-nav">
+          <button class="btn btn-s" onclick="exitVenteMode()"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(2)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS2 — LOCALISATION -->
+      <div class="wizard-step" id="wstep-vs2" style="display:none">
+        <p class="wstep-title">Localisation</p>
+        <div class="frow">
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Adresse *</label>
+            <div style="position:relative">
+              <input class="fi" type="text" id="vs-adresse" placeholder="12 rue de la Paix" autocomplete="off"
+                oninput="vsAdresseInput(this.value)"
+                onblur="setTimeout(()=>{const s=document.getElementById('vs-adresse-sugg');if(s)s.style.display='none'},200)">
+              <div id="vs-adresse-sugg" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.1);max-height:200px;overflow-y:auto"></div>
+            </div>
+          </div>
+          <div class="fg2"><label>Code postal *</label><input class="fi" type="text" id="vs-cp" placeholder="75001" maxlength="5"></div>
+          <div class="fg2"><label>Ville *</label><input class="fi" type="text" id="vs-ville" placeholder="Paris"></div>
+          <div class="fg2"><label>Quartier <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="text" id="vs-quartier" placeholder="Marais, Opéra…"></div>
+          <div class="fg2"><label>N° d'appartement <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">non affiché</span></label><input class="fi" type="text" id="vs-num-appart" placeholder="Apt 3B"></div>
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Afficher l'adresse exacte ?</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill sel" id="vs-adresse-pub-oui" onclick="setVsToggle('adresse-pub','oui')">Oui</span>
+              <span class="toggle-pill" id="vs-adresse-pub-non" onclick="setVsToggle('adresse-pub','non')">Non — localisation approx.</span>
+            </div>
+            <input type="hidden" id="vs-adresse-publique" value="oui">
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(3)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS3 — PRIX -->
+      <div class="wizard-step" id="wstep-vs3" style="display:none">
+        <p class="wstep-title">Prix de vente</p>
+        <div class="frow">
+          <div class="fg2">
+            <label>Prix de vente (€) *</label>
+            <input class="fi" type="number" id="vs-prix" placeholder="250000" min="0" oninput="updateVsPrixM2()">
+          </div>
+          <div class="fg2">
+            <label>Prix au m² <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">calculé auto</span></label>
+            <input class="fi" type="text" id="vs-prix-m2" placeholder="—" readonly style="background:var(--warm);cursor:default">
+          </div>
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Honoraires d'agence ?</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill sel" id="vs-honoraires-vis-non" onclick="setVsToggle('honoraires-vis','non')">Particulier</span>
+              <span class="toggle-pill" id="vs-honoraires-vis-oui" onclick="setVsToggle('honoraires-vis','oui')">Agence / Pro</span>
+            </div>
+            <input type="hidden" id="vs-honoraires" value="non">
+          </div>
+          <div class="fg2" id="vs-honoraires-wrap" style="display:none">
+            <label>Montant des honoraires (€)</label>
+            <input class="fi" type="number" id="vs-honoraires-montant" placeholder="5000" min="0">
+          </div>
+          <div class="fg2" id="vs-honoraires-charge-wrap" style="display:none">
+            <label>Honoraires à la charge de</label>
+            <select class="fi" id="vs-honoraires-charge">
+              <option value="vendeur">Vendeur</option>
+              <option value="acquereur">Acquéreur</option>
+              <option value="partage">Partagé</option>
+            </select>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(4)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS4 — CARACTÉRISTIQUES -->
+      <div class="wizard-step" id="wstep-vs4" style="display:none">
+        <p class="wstep-title">Caractéristiques</p>
+        <div class="frow">
+          <div class="fg2"><label>Surface habitable (m²) *</label><input class="fi" type="number" id="vs-surface" placeholder="65" min="1" oninput="updateVsPrixM2()"></div>
+          <div class="fg2">
+            <label>Nombre de pièces</label>
+            <select class="fi" id="vs-pieces">
+              <option value="1">1 pièce</option><option value="2">2 pièces</option><option value="3">3 pièces</option>
+              <option value="4">4 pièces</option><option value="5">5 pièces</option><option value="6+">6 et +</option>
+            </select>
+          </div>
+          <div class="fg2">
+            <label>Chambres</label>
+            <select class="fi" id="vs-chambres">
+              <option value="0">Studio</option><option value="1">1 chambre</option><option value="2">2 chambres</option>
+              <option value="3">3 chambres</option><option value="4">4 chambres</option><option value="5+">5 et +</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Étage de l'appartement</label><input class="fi" type="number" id="vs-etage" placeholder="3" min="0"></div>
+          <div class="fg2"><label>Nb d'étages (immeuble)</label><input class="fi" type="number" id="vs-nb-etages" placeholder="6" min="1"></div>
+          <div class="fg2">
+            <label>Ascenseur</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill" id="vs-asc-oui" onclick="setVsToggle('asc','oui')">Oui</span>
+              <span class="toggle-pill" id="vs-asc-non" onclick="setVsToggle('asc','non')">Non</span>
+            </div>
+            <input type="hidden" id="vs-ascenseur" value="">
+          </div>
+          <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="vs-annee-construction" placeholder="1985" min="1800" max="2030"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(3)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(5)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS5 — PIÈCES DÉTAIL -->
+      <div class="wizard-step" id="wstep-vs5" style="display:none">
+        <p class="wstep-title">Détail des pièces</p>
+        <div class="frow">
+          <div class="fg2">
+            <label>Salles de bain</label>
+            <select class="fi" id="vs-sdb"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3+">3 et +</option></select>
+          </div>
+          <div class="fg2">
+            <label>Salles d'eau</label>
+            <select class="fi" id="vs-sde"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3+">3 et +</option></select>
+          </div>
+          <div class="fg2">
+            <label>WC séparés</label>
+            <div class="toggle-pills" style="margin-top:.3rem">
+              <span class="toggle-pill" id="vs-wc-oui" onclick="setVsToggle('wc','oui')">Oui</span>
+              <span class="toggle-pill" id="vs-wc-non" onclick="setVsToggle('wc','non')">Non</span>
+            </div>
+            <input type="hidden" id="vs-wc-separes" value="">
+          </div>
+          <div class="fg2">
+            <label>Cuisine</label>
+            <select class="fi" id="vs-cuisine-type">
+              <option value="">Non précisé</option><option value="ouverte">Ouverte / américaine</option>
+              <option value="separee">Séparée</option><option value="semi-ouverte">Semi-ouverte</option>
+            </select>
+          </div>
+          <div class="fg2" style="grid-column:1/-1">
+            <label>Autres pièces</label>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-bureau">💼 Bureau</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-dressing">👗 Dressing</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie-piece">🫧 Buanderie privative</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cellier-piece">📦 Cellier</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(6)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS6 — EXTÉRIEUR & STATIONNEMENT -->
+      <div class="wizard-step" id="wstep-vs6" style="display:none">
+        <p class="wstep-title">Extérieur &amp; stationnement</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">🌳 Extérieur</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="balcon" onchange="updateVsExterieur()">🪟 Balcon</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="terrasse" onchange="updateVsExterieur()">☀️ Terrasse</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="loggia" onchange="updateVsExterieur()">🏛️ Loggia</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="jardin" onchange="updateVsExterieur()">🌿 Jardin privatif</label>
+            </div>
+            <input type="hidden" id="vs-exterieur" value="">
+            <div id="vs-surface-ext-wrap" style="display:none;margin-top:.5rem">
+              <label>Surface extérieure totale (m²)</label>
+              <input class="fi" type="number" id="vs-surface-ext" placeholder="12" min="1" style="margin-top:.3rem">
+            </div>
+          </div>
+          <div class="cblock">
+            <div class="cblock-hd">🚗 Stationnement</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="aucun">🚫 Aucun</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="parking">🅿️ Place de parking</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="box">📦 Box</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="garage">🔒 Garage</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="multiple">🚗🚗 Plusieurs places</label>
+            </div>
+            <input type="hidden" id="vs-stationnement" value="">
+            <div id="vs-parking-inclus-wrap" style="display:none;margin-top:.5rem">
+              <label>Inclus dans le prix de vente ?</label>
+              <div class="toggle-pills" style="margin-top:.3rem">
+                <span class="toggle-pill sel" id="vs-pk-inc-oui" onclick="setVsToggle('pk-inc','oui')">Oui, inclus</span>
+                <span class="toggle-pill" id="vs-pk-inc-non" onclick="setVsToggle('pk-inc','non')">Non, vendu séparément</span>
+              </div>
+              <input type="hidden" id="vs-parking-inclus" value="oui">
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(5)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(7)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS7 — ÉTAT DU LOGEMENT -->
+      <div class="wizard-step" id="wstep-vs7" style="display:none">
+        <p class="wstep-title">État du logement</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">🏡 État général</div>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="neuf">✨ Neuf</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="excellent">🌟 Excellent état</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="bon">👍 Bon état</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="rafraichir">🖌️ À rafraîchir</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover">🔨 À rénover</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover-entierement">🏗️ À rénover entièrement</label>
+            </div>
+            <input type="hidden" id="vs-etat-val" value="">
+          </div>
+          <div class="cblock">
+            <div class="cblock-hd">🛠️ Travaux récents ?</div>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vs-travaux-vis-oui" onclick="setVsToggle('travaux-vis','oui')">Oui</span>
+              <span class="toggle-pill" id="vs-travaux-vis-non" onclick="setVsToggle('travaux-vis','non')">Non</span>
+            </div>
+            <input type="hidden" id="vs-travaux-recents" value="">
+            <div id="vs-travaux-detail-wrap" style="display:none;margin-top:.75rem">
+              <div class="frow">
+                <div class="fg2" style="grid-column:1/-1"><label>Description des travaux</label><input class="fi" type="text" id="vs-travaux-desc" placeholder="Cuisine refaite, salle de bain rénovée…" style="margin-top:.3rem"></div>
+                <div class="fg2"><label>Année des travaux</label><input class="fi" type="number" id="vs-travaux-annee" placeholder="2022" min="1990" max="2030"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(6)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(8)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS8 — ÉQUIPEMENTS -->
+      <div class="wizard-step" id="wstep-vs8" style="display:none">
+        <p class="wstep-title">Équipements</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">🍳 Cuisine &amp; mobilier</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-equipee">🍽️ Cuisine équipée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-amenagee">🪵 Cuisine aménagée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-meuble">🛋️ Meublé</label>
+            </div>
+          </div>
+          <div class="cblock">
+            <div class="cblock-hd">🌡️ Confort &amp; énergie</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-clim">❄️ Climatisation</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-individuel">🔥 Chauffage individuel</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-collectif">♨️ Chauffage collectif</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-double-vitrage">🪟 Double vitrage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-volets-elec">⚡ Volets électriques</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cheminee">🔥 Cheminée</label>
+            </div>
+          </div>
+          <div class="cblock">
+            <div class="cblock-hd">🏢 Immeuble &amp; accès</div>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-fibre">📡 Fibre</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-interphone">📞 Interphone</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-digicode">🔢 Digicode</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-gardien">👮 Gardien</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cave">🏚️ Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie">🫧 Buanderie commune</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(7)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(9)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS9 — COPROPRIÉTÉ -->
+      <div class="wizard-step" id="wstep-vs9" style="display:none">
+        <p class="wstep-title">Copropriété</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">🏢 En copropriété ?</div>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vs-copro-vis-oui" onclick="setVsToggle('copro-vis','oui')">Oui</span>
+              <span class="toggle-pill" id="vs-copro-vis-non" onclick="setVsToggle('copro-vis','non')">Non / Monopropriété</span>
+            </div>
+            <input type="hidden" id="vs-copropriete" value="">
+          </div>
+          <div id="vs-copro-detail" style="display:none;flex-direction:column;gap:.75rem">
+            <div class="frow">
+              <div class="fg2"><label>Nombre de lots <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="vs-lots-copro" placeholder="24" min="2"></div>
+              <div class="fg2"><label>Charges mensuelles (€)</label><input class="fi" type="number" id="vs-charges-copro" placeholder="150" min="0"></div>
+            </div>
+            <div class="cblock">
+              <div class="cblock-hd">⚠️ Procédures &amp; travaux</div>
+              <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+                  <span style="font-size:.85rem;color:var(--stone);flex:1">Procédure en cours</span>
+                  <div class="toggle-pills"><span class="toggle-pill" id="vs-procedure-oui" onclick="setVsToggle('procedure','oui')">Oui</span><span class="toggle-pill" id="vs-procedure-non" onclick="setVsToggle('procedure','non')">Non</span></div>
+                  <input type="hidden" id="vs-procedure" value="">
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+                  <span style="font-size:.85rem;color:var(--stone);flex:1">Travaux votés</span>
+                  <div class="toggle-pills"><span class="toggle-pill" id="vs-trav-votes-oui" onclick="setVsToggle('trav-votes','oui')">Oui</span><span class="toggle-pill" id="vs-trav-votes-non" onclick="setVsToggle('trav-votes','non')">Non</span></div>
+                  <input type="hidden" id="vs-travaux-votes" value="">
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+                  <span style="font-size:.85rem;color:var(--stone);flex:1">Travaux prévus</span>
+                  <div class="toggle-pills"><span class="toggle-pill" id="vs-trav-prevus-oui" onclick="setVsToggle('trav-prevus','oui')">Oui</span><span class="toggle-pill" id="vs-trav-prevus-non" onclick="setVsToggle('trav-prevus','non')">Non</span></div>
+                  <input type="hidden" id="vs-travaux-prevus" value="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(8)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(10)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS10 — DPE -->
+      <div class="wizard-step" id="wstep-vs10" style="display:none">
+        <p class="wstep-title">Diagnostic de performance énergétique</p>
+        <div style="font-size:.8rem;color:var(--stone-l);margin-bottom:.75rem;background:var(--warm);padding:.6rem .8rem;border-radius:8px">ℹ️ Tous les champs sont optionnels — renseignez ceux indiqués sur votre DPE.</div>
+        <div class="frow">
+          <div class="fg2">
+            <label>Classe énergie</label>
+            <select class="fi" id="vs-dpe">
+              <option value="">Non renseigné</option>
+              <option value="A">A 🟢</option><option value="B">B 🟢</option><option value="C">C 🟡</option>
+              <option value="D">D 🟡</option><option value="E">E 🟠</option><option value="F">F 🔴</option>
+              <option value="G">G 🔴</option><option value="vierge">Vierge (avant 1948)</option>
+            </select>
+          </div>
+          <div class="fg2">
+            <label>Classe GES</label>
+            <select class="fi" id="vs-ges">
+              <option value="">Non renseigné</option>
+              <option value="A">A 🟢</option><option value="B">B 🟢</option><option value="C">C 🟡</option>
+              <option value="D">D 🟡</option><option value="E">E 🟠</option><option value="F">F 🔴</option>
+              <option value="G">G 🔴</option><option value="vierge">Vierge</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Consommation <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">kWh/m²/an</span></label><input class="fi" type="number" id="vs-dpe-conso" placeholder="120" min="0"></div>
+          <div class="fg2"><label>Émissions GES <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">kgCO₂/m²/an</span></label><input class="fi" type="number" id="vs-dpe-emissions" placeholder="28" min="0"></div>
+          <div class="fg2"><label>Date du DPE</label><input class="fi" type="date" id="vs-dpe-date"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(9)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(11)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS11 — SITUATION -->
+      <div class="wizard-step" id="wstep-vs11" style="display:none">
+        <p class="wstep-title">Situation du bien</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="cblock">
+            <div class="cblock-hd">🔑 Le logement est actuellement</div>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="libre">🟢 Libre</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="occupe">🏠 Occupé (propriétaire)</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="loue">🔑 Loué</label>
+            </div>
+            <input type="hidden" id="vs-situation" value="">
+          </div>
+          <div id="vs-loue-detail" style="display:none;flex-direction:column;gap:.5rem">
+            <div class="frow">
+              <div class="fg2"><label>Loyer actuel (€/mois)</label><input class="fi" type="number" id="vs-loyer-actuel" placeholder="900" min="0"></div>
+              <div class="fg2"><label>Date de fin du bail</label><input class="fi" type="date" id="vs-bail-fin"></div>
+              <div class="fg2"><label>Disponibilité éventuelle</label><input class="fi" type="date" id="vs-dispo-vente"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(10)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(12)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS12 — DESCRIPTION -->
+      <div class="wizard-step" id="wstep-vs12" style="display:none">
+        <p class="wstep-title">Description</p>
+        <div class="fg2">
+          <label>Décrivez votre bien</label>
+          <button type="button" class="btn btn-s" style="margin-bottom:.5rem;font-size:.8rem;padding:.4rem .9rem" onclick="genVsDescription()">✨ Générer une description automatique</button>
+          <textarea class="fta" id="vs-description" rows="7" maxlength="2000"
+            placeholder="Appartement 3 pièces de 65 m² situé au 4e étage avec ascenseur. Séjour lumineux exposé sud, deux chambres, cuisine équipée, salle de bain rénovée…"
+            oninput="document.getElementById('vs-desc-counter').textContent=this.value.length"></textarea>
+          <div style="font-size:.7rem;color:var(--stone-l);text-align:right;margin-top:.2rem"><span id="vs-desc-counter">0</span>/2000</div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(11)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(13)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS13 — PHOTOS -->
+      <div class="wizard-step" id="wstep-vs13" style="display:none">
+        <p class="wstep-title">Photos</p>
+        <div class="fg2">
+          <label>📸 Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 · Maximum 30</span></label>
+          <div id="vs-photo-upload-area"
+            style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(27,79,216,.03)"
+            onclick="document.getElementById('vs-photo-input').click()"
+            ondragover="event.preventDefault();this.style.background='rgba(27,79,216,.08)'"
+            ondragleave="this.style.background='rgba(27,79,216,.03)'"
+            ondrop="handleVsDrop(event)">
+            <div style="font-size:2rem;margin-bottom:.5rem">📸</div>
+            <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
+            <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo par photo · Max 30 photos</div>
+            <input type="file" id="vs-photo-input" multiple accept="image/*" style="display:none" onchange="handleVsPhotos(this.files)">
+          </div>
+          <div id="vs-photo-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+          <div id="vs-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none">⚠️ Ajoutez au moins 1 photo avant de publier.</div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(12)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVs(14)">Suivant — Récapitulatif <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VS14 — RÉCAPITULATIF & PUBLICATION -->
+      <div class="wizard-step" id="wstep-vs14" style="display:none">
+        <p class="wstep-title">Récapitulatif</p>
+        <div id="vs-recap" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;font-size:.87rem;color:var(--stone);background:var(--warm);border-radius:12px;padding:1rem 1.1rem"></div>
+        <div class="aerr" id="vs-err"></div>
+        <div class="aok" id="vs-ok"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVs(13)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVente()">🚀 Publier mon annonce</button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- TUNNEL VENTE MAISON — VM1 à VM15                       -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+
+      <!-- VM1 — SOUS-TYPE MAISON -->
+      <div class="wizard-step" id="wstep-vm1" style="display:none">
+        <p class="wstep-title">Type de maison</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem">
+          <button type="button" class="tloc-card" id="vm-type-maison" onclick="selectVmSubtype('maison')">
+            <div class="tloc-icon">🏡</div><div class="tloc-title">Maison</div><div class="tloc-sub">Maison classique</div>
+          </button>
+          <button type="button" class="tloc-card" id="vm-type-villa" onclick="selectVmSubtype('villa')">
+            <div class="tloc-icon">🌴</div><div class="tloc-title">Villa</div><div class="tloc-sub">Propriété de standing</div>
+          </button>
+          <button type="button" class="tloc-card" id="vm-type-ville" onclick="selectVmSubtype('maison_de_ville')">
+            <div class="tloc-icon">🏘️</div><div class="tloc-title">Maison de ville</div><div class="tloc-sub">En cœur de ville</div>
+          </button>
+          <button type="button" class="tloc-card" id="vm-type-mitoyenne" onclick="selectVmSubtype('maison_mitoyenne')">
+            <div class="tloc-icon">🏠</div><div class="tloc-title">Maison mitoyenne</div><div class="tloc-sub">Partagée d'un mur</div>
+          </button>
+          <button type="button" class="tloc-card" id="vm-type-individuelle" onclick="selectVmSubtype('maison_individuelle')">
+            <div class="tloc-icon">🏚️</div><div class="tloc-title">Maison individuelle</div><div class="tloc-sub">Terrain propre</div>
+          </button>
+          <button type="button" class="tloc-card" id="vm-type-ferme" onclick="selectVmSubtype('ferme')">
+            <div class="tloc-icon">🌾</div><div class="tloc-title">Ferme / Corps de ferme</div><div class="tloc-sub">Propriété rurale</div>
+          </button>
+        </div>
+        <input type="hidden" id="vm-maison-type">
+        <div id="vm1-next" style="display:none">
+          <div class="wizard-nav">
+            <button class="btn btn-s" onclick="wizardGoVs(0)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+            <button class="btn btn-p" onclick="wizardGoVm(2)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VM2 — LOCALISATION -->
+      <div class="wizard-step" id="wstep-vm2" style="display:none">
+        <p class="wstep-title">Localisation</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2"><label>Adresse *</label>
+            <input class="fi" id="vm-adresse" placeholder="12 rue des Lilas" oninput="vmAdresseInput(this.value)" autocomplete="off">
+            <div id="vm-adresse-sugg" class="ban-sugg" style="display:none"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:.7rem">
+            <div class="fg2"><label>Code postal *</label><input class="fi" id="vm-cp" placeholder="75001" maxlength="5"></div>
+            <div class="fg2"><label>Ville *</label><input class="fi" id="vm-ville" placeholder="Paris"></div>
+          </div>
+          <div class="fg2"><label>Quartier / secteur</label><input class="fi" id="vm-quartier" placeholder="Montmartre, Centre-ville…"></div>
+          <div class="fg2">
+            <label>Affichage de l'adresse exacte</label>
+            <div style="margin-top:.4rem;display:flex;flex-direction:column;gap:.3rem">
+              <div class="toggle-pills">
+                <span class="toggle-pill sel" id="vm-adresse-pub-oui" onclick="setVmToggle('adresse-pub','oui')">Adresse visible</span>
+                <span class="toggle-pill" id="vm-adresse-pub-non" onclick="setVmToggle('adresse-pub','non')">Quartier uniquement</span>
+              </div>
+            </div>
+            <input type="hidden" id="vm-adresse-publique" value="oui">
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(3)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM3 — PRIX -->
+      <div class="wizard-step" id="wstep-vm3" style="display:none">
+        <p class="wstep-title">Prix de vente</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Prix de vente *</label>
+            <div style="position:relative">
+              <input class="fi" id="vm-prix" type="number" min="0" placeholder="325000" style="padding-right:2.5rem" oninput="updateVmPrixM2()">
+              <span style="position:absolute;right:.85rem;top:50%;transform:translateY(-50%);color:var(--stone);font-size:.85rem">€</span>
+            </div>
+            <div id="vm-prix-m2" style="font-size:.8rem;color:var(--stone-l);margin-top:.25rem"></div>
+          </div>
+          <div class="fg2">
+            <label>Honoraires d'agence</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vm-honoraires-vis-oui" onclick="setVmToggle('honoraires-vis','oui')">Inclus</span>
+              <span class="toggle-pill sel" id="vm-honoraires-vis-non" onclick="setVmToggle('honoraires-vis','non')">Non inclus</span>
+            </div>
+            <input type="hidden" id="vm-honoraires" value="non">
+          </div>
+          <div id="vm-honoraires-wrap" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2"><label>Montant des honoraires (€)</label><input class="fi" id="vm-honoraires-montant" type="number" placeholder="15000"></div>
+            <div class="fg2">
+              <label>À la charge de</label>
+              <select class="fi" id="vm-honoraires-charge">
+                <option value="acquereur">Acquéreur</option>
+                <option value="vendeur">Vendeur</option>
+                <option value="partage">Partagé</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(4)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM4 — SURFACE ET DIMENSIONS -->
+      <div class="wizard-step" id="wstep-vm4" style="display:none">
+        <p class="wstep-title">Surface et dimensions</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Surface habitable (m²) *</label><input class="fi" id="vm-surface" type="number" placeholder="120" oninput="updateVmPrixM2()"></div>
+            <div class="fg2"><label>Surface du terrain (m²)</label><input class="fi" id="vm-surface-terrain" type="number" placeholder="650"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Nombre de pièces *</label><input class="fi" id="vm-pieces" type="number" min="1" placeholder="5"></div>
+            <div class="fg2"><label>Nombre de chambres</label><input class="fi" id="vm-chambres" type="number" min="0" placeholder="3"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Nombre de niveaux</label><input class="fi" id="vm-niveaux" type="number" min="1" placeholder="2"></div>
+            <div class="fg2"><label>Année de construction</label><input class="fi" id="vm-annee-construction" type="number" min="1800" max="2026" placeholder="1985"></div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(3)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(5)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM5 — PIÈCES -->
+      <div class="wizard-step" id="wstep-vm5" style="display:none">
+        <p class="wstep-title">Détail des pièces</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Salles de bain</label><input class="fi" id="vm-sdb" type="number" min="0" placeholder="1"></div>
+            <div class="fg2"><label>Salles d'eau</label><input class="fi" id="vm-sde" type="number" min="0" placeholder="0"></div>
+          </div>
+          <div class="fg2">
+            <label>WC séparés</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vm-wc-oui" onclick="setVmToggle('wc','oui')">Oui</span>
+              <span class="toggle-pill sel" id="vm-wc-non" onclick="setVmToggle('wc','non')">Non</span>
+            </div>
+            <input type="hidden" id="vm-wc-separes" value="non">
+          </div>
+          <div class="fg2">
+            <label>Type de cuisine</label>
+            <select class="fi" id="vm-cuisine-type">
+              <option value="">Non précisé</option>
+              <option value="separee">Cuisine séparée</option>
+              <option value="ouverte">Cuisine ouverte</option>
+              <option value="semi-ouverte">Semi-ouverte</option>
+              <option value="americaine">Américaine</option>
+            </select>
+          </div>
+          <div class="fg2">
+            <label>Autres pièces</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-bureau">Bureau</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dressing">Dressing</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-buanderie-piece">Buanderie</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-cellier-piece">Cellier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-salon">Salon / séjour</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(6)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM6 — TERRAIN & EXTÉRIEUR -->
+      <div class="wizard-step" id="wstep-vm6" style="display:none">
+        <p class="wstep-title">Terrain & extérieur</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Espaces extérieurs</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="toggleChip(this);updateVmExterieur()"><input type="checkbox" class="vm-ext-cb" value="jardin">Jardin</label>
+              <label class="equip-chip" onclick="toggleChip(this);updateVmExterieur()"><input type="checkbox" class="vm-ext-cb" value="terrasse">Terrasse</label>
+              <label class="equip-chip" onclick="toggleChip(this);updateVmExterieur()"><input type="checkbox" class="vm-ext-cb" value="balcon">Balcon</label>
+              <label class="equip-chip" onclick="toggleChip(this);updateVmExterieur()"><input type="checkbox" class="vm-ext-cb" value="cour">Cour</label>
+              <label class="equip-chip" onclick="toggleChip(this);updateVmExterieur()"><input type="checkbox" class="vm-ext-cb" value="veranda">Véranda</label>
+            </div>
+            <input type="hidden" id="vm-exterieur">
+          </div>
+          <div id="vm-surface-ext-wrap" style="display:none">
+            <div class="fg2"><label>Surface extérieure totale (m²)</label><input class="fi" id="vm-surface-ext" type="number" placeholder="150"></div>
+          </div>
+          <div class="fg2">
+            <label>Terrain clôturé</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vm-cloture-oui" onclick="setVmToggle('cloture','oui')">Oui</span>
+              <span class="toggle-pill sel" id="vm-cloture-non" onclick="setVmToggle('cloture','non')">Non</span>
+            </div>
+            <input type="hidden" id="vm-cloture" value="non">
+          </div>
+          <div class="fg2">
+            <label>Piscine</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vm-piscine-vis-oui" onclick="setVmToggle('piscine-vis','oui')">Oui</span>
+              <span class="toggle-pill sel" id="vm-piscine-vis-non" onclick="setVmToggle('piscine-vis','non')">Non</span>
+            </div>
+            <input type="hidden" id="vm-piscine" value="non">
+          </div>
+          <div id="vm-piscine-detail" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2">
+              <label>Type de piscine</label>
+              <div class="equip-chips" style="margin-top:.4rem">
+                <label class="equip-chip"><input type="radio" name="vm-piscine-type" value="enterree" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-piscine-type')"> Enterrée</label>
+                <label class="equip-chip"><input type="radio" name="vm-piscine-type" value="hors-sol" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-piscine-type')"> Hors-sol</label>
+              </div>
+              <input type="hidden" id="vm-piscine-type-val">
+            </div>
+            <div class="fg2"><label>Dimensions (ex: 8×4 m)</label><input class="fi" id="vm-piscine-dim" placeholder="8×4 m"></div>
+          </div>
+          <div class="fg2">
+            <label>Équipements extérieurs supplémentaires</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-jacuzzi">Jacuzzi</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-portail">Portail</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-arrosage">Arrosage automatique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-pool-house">Pool house</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(5)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(7)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM7 — GARAGE / STATIONNEMENT -->
+      <div class="wizard-step" id="wstep-vm7" style="display:none">
+        <p class="wstep-title">Garage & stationnement</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Type de stationnement</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="aucun" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Aucun</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="garage" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Garage</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="double-garage" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Double garage</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="box" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Box</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="place-ext" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Place extérieure</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="parking-couvert" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Parking couvert</label>
+              <label class="equip-chip"><input type="radio" name="vm-stat" value="plusieurs" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-stat')"> Plusieurs places</label>
+            </div>
+            <input type="hidden" id="vm-stationnement">
+          </div>
+          <div id="vm-garage-detail" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2"><label>Nombre de véhicules</label><input class="fi" id="vm-nb-vehicules" type="number" min="1" placeholder="2"></div>
+            <div class="fg2">
+              <label>Garage électrique (porte motorisée)</label>
+              <div class="toggle-pills" style="margin-top:.4rem">
+                <span class="toggle-pill" id="vm-garage-elec-oui" onclick="setVmToggle('garage-elec','oui')">Oui</span>
+                <span class="toggle-pill sel" id="vm-garage-elec-non" onclick="setVmToggle('garage-elec','non')">Non</span>
+              </div>
+              <input type="hidden" id="vm-garage-elec" value="non">
+            </div>
+            <div class="fg2">
+              <label>Borne de recharge électrique</label>
+              <div class="toggle-pills" style="margin-top:.4rem">
+                <span class="toggle-pill" id="vm-borne-recharge-oui" onclick="setVmToggle('borne-recharge','oui')">Oui</span>
+                <span class="toggle-pill sel" id="vm-borne-recharge-non" onclick="setVmToggle('borne-recharge','non')">Non</span>
+              </div>
+              <input type="hidden" id="vm-borne-recharge" value="non">
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(6)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(8)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM8 — DÉPENDANCES -->
+      <div class="wizard-step" id="wstep-vm8" style="display:none">
+        <p class="wstep-title">Dépendances & annexes</p>
+        <div class="fcard">
+          <div class="fg2">
+            <label>Dépendances disponibles</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-cave">Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-grenier">Grenier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-sous-sol">Sous-sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-atelier">Atelier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-abri-jardin">Abri de jardin</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-dependance">Dépendance</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-grange">Grange</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-local-tech">Local technique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-dep-buanderie">Buanderie</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(7)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(9)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM9 — ÉTAT DE LA MAISON -->
+      <div class="wizard-step" id="wstep-vm9" style="display:none">
+        <p class="wstep-title">État de la maison</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>État général</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="neuf" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> Neuf</label>
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="excellent" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> Excellent état</label>
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="bon" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> Bon état</label>
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="rafraichir" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> À rafraîchir</label>
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="renover" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> À rénover</label>
+              <label class="equip-chip"><input type="radio" name="vm-etat" value="gros-travaux" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-etat')"> Gros travaux</label>
+            </div>
+            <input type="hidden" id="vm-etat-val">
+          </div>
+          <div class="fg2">
+            <label>Travaux récents effectués ?</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vm-travaux-vis-oui" onclick="setVmToggle('travaux-vis','oui')">Oui</span>
+              <span class="toggle-pill sel" id="vm-travaux-vis-non" onclick="setVmToggle('travaux-vis','non')">Non</span>
+            </div>
+            <input type="hidden" id="vm-travaux-recents" value="non">
+          </div>
+          <div id="vm-travaux-detail-wrap" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2"><label>Description des travaux</label><textarea class="fi" id="vm-travaux-desc" rows="2" placeholder="Rénovation toiture, mise aux normes électriques…"></textarea></div>
+            <div class="fg2"><label>Année des travaux</label><input class="fi" id="vm-travaux-annee" type="number" placeholder="2022"></div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(8)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(10)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM10 — ÉQUIPEMENTS -->
+      <div class="wizard-step" id="wstep-vm10" style="display:none">
+        <p class="wstep-title">Équipements</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:1.1rem">
+          <div>
+            <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Chauffage & énergie</p>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-cheminee">🔥 Cheminée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-poele">🪵 Poêle</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-clim">❄️ Climatisation</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-pac">♨️ Pompe à chaleur</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-gaz">🔵 Chauffage gaz</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-elec">⚡ Chauffage électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-bois">🌲 Chauffage bois</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-solaire">☀️ Panneaux solaires</label>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Confort & isolation</p>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-double-vitrage">Double vitrage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-volets-elec">Volets électriques</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-isolation">Isolation récente</label>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Technologie & sécurité</p>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-fibre">Fibre optique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-alarme">Alarme</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-interphone">Interphone</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-domotique">Domotique</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(9)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(11)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM11 — DPE -->
+      <div class="wizard-step" id="wstep-vm11" style="display:none">
+        <p class="wstep-title">Diagnostic de performance énergétique</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2">
+              <label>Classe énergie (DPE)</label>
+              <select class="fi" id="vm-dpe">
+                <option value="">Non communiqué</option>
+                <option value="A">A — Très performant</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="G">G — Passoire thermique</option>
+                <option value="vierge">Vierge (neuf)</option>
+              </select>
+            </div>
+            <div class="fg2">
+              <label>Classe GES</label>
+              <select class="fi" id="vm-ges">
+                <option value="">Non communiqué</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="G">G</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Consommation (kWh/m²/an)</label><input class="fi" id="vm-dpe-conso" type="number" placeholder="120"></div>
+            <div class="fg2"><label>Émissions (kg CO₂/m²/an)</label><input class="fi" id="vm-dpe-emissions" type="number" placeholder="25"></div>
+          </div>
+          <div class="fg2"><label>Date du DPE</label><input class="fi" id="vm-dpe-date" type="date"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(10)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(12)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM12 — SITUATION DU BIEN -->
+      <div class="wizard-step" id="wstep-vm12" style="display:none">
+        <p class="wstep-title">Situation du bien</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Statut à la vente</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip"><input type="radio" name="vm-situation-r" value="libre" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-situation-r')"> Libre à la vente</label>
+              <label class="equip-chip"><input type="radio" name="vm-situation-r" value="occupe" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-situation-r')"> Occupé propriétaire</label>
+              <label class="equip-chip"><input type="radio" name="vm-situation-r" value="loue" onclick="selectVmRadioChip(this.closest('.equip-chip'),'vm-situation-r')"> Actuellement loué</label>
+            </div>
+            <input type="hidden" id="vm-situation">
+          </div>
+          <div id="vm-loue-detail" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2"><label>Loyer actuel (€/mois)</label><input class="fi" id="vm-loyer-actuel" type="number" placeholder="1200"></div>
+            <div class="fg2"><label>Fin du bail</label><input class="fi" id="vm-bail-fin" type="date"></div>
+            <div class="fg2"><label>Disponibilité estimée</label><input class="fi" id="vm-dispo-vente" placeholder="Mars 2026…"></div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(11)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(13)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM13 — DESCRIPTION -->
+      <div class="wizard-step" id="wstep-vm13" style="display:none">
+        <p class="wstep-title">Description</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Décrivez votre maison</label>
+            <textarea class="fi" id="vm-description" rows="6" maxlength="2000" placeholder="Magnifique maison individuelle de 120 m² sur un terrain de 650 m²…" oninput="document.getElementById('vm-desc-counter').textContent=this.value.length+'/2000'"></textarea>
+            <div id="vm-desc-counter" style="text-align:right;font-size:.75rem;color:var(--stone-l);margin-top:.2rem">0/2000</div>
+          </div>
+          <button type="button" class="btn btn-s" style="justify-content:center;gap:.4rem" onclick="genVmDescription()">✨ Générer une description automatique</button>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(12)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(14)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM14 — PHOTOS -->
+      <div class="wizard-step" id="wstep-vm14" style="display:none">
+        <p class="wstep-title">Photos</p>
+        <div class="fcard">
+          <div id="vm-photo-upload-area" class="pk-drop-zone" ondragover="event.preventDefault()" ondrop="handleVmDrop(event)" onclick="document.getElementById('vm-photo-input').click()" style="cursor:pointer">
+            <div style="text-align:center;padding:1.5rem;color:var(--stone)">
+              <div style="font-size:2.2rem;margin-bottom:.4rem">📸</div>
+              <div style="font-weight:600;margin-bottom:.2rem">Cliquez ou déposez vos photos ici</div>
+              <div style="font-size:.8rem">JPG, PNG — max 30 photos</div>
+              <div class="pk-photo-count" style="font-size:.8rem;margin-top:.4rem;color:var(--terra)">0/30 photos</div>
+            </div>
+            <input type="file" id="vm-photo-input" multiple accept="image/*" style="display:none" onchange="handleVmPhotos(this.files)">
+          </div>
+          <div id="vm-photo-preview" class="pk-photo-grid" style="margin-top:.8rem"></div>
+          <div id="vm-photo-required-msg" style="display:none;font-size:.8rem;color:#d9534f;margin-top:.4rem">⚠️ Ajoutez au moins une photo</div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(13)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVm(15)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VM15 — RÉCAPITULATIF -->
+      <div class="wizard-step" id="wstep-vm15" style="display:none">
+        <p class="wstep-title">Récapitulatif</p>
+        <div id="vm-recap" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;font-size:.87rem;color:var(--stone);background:var(--warm);border-radius:12px;padding:1rem 1.1rem"></div>
+        <div class="aerr" id="vm-err"></div>
+        <div class="aok" id="vm-ok"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVm(14)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteMaison()">🚀 Publier mon annonce</button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- TUNNEL VENTE GARAGE/PARKING — VG1 à VG11              -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+
+      <!-- VG1 — TYPE + SOUS-TYPE -->
+      <div class="wizard-step" id="wstep-vg1" style="display:none">
+        <p class="wstep-title">Que vendez-vous ?</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1rem">
+          <button type="button" class="tloc-card" id="vg-type-place" onclick="selectVgType('place')" style="flex-direction:column;align-items:center;padding:1.1rem .8rem">
+            <div class="tloc-icon" style="font-size:1.8rem">🅿️</div>
+            <div class="tloc-title" style="margin-top:.3rem">Place de parking</div>
+            <div class="tloc-sub">Extérieure, couverte ou sous-sol</div>
+          </button>
+          <button type="button" class="tloc-card" id="vg-type-garage" onclick="selectVgType('garage')" style="flex-direction:column;align-items:center;padding:1.1rem .8rem">
+            <div class="tloc-icon" style="font-size:1.8rem">🚗</div>
+            <div class="tloc-title" style="margin-top:.3rem">Garage / Box</div>
+            <div class="tloc-sub">Box fermé, garage, double garage</div>
+          </button>
+        </div>
+        <!-- Sous-type place -->
+        <div id="vg-soustype-place" style="display:none;margin-bottom:1rem">
+          <p style="font-size:.83rem;font-weight:600;color:var(--stone);margin-bottom:.5rem">Type de place</p>
+          <div class="equip-chips">
+            <label class="equip-chip"><input type="radio" name="vg-place-st" value="exterieure" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-place-st')"> Extérieure</label>
+            <label class="equip-chip"><input type="radio" name="vg-place-st" value="couverte" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-place-st')"> Couverte</label>
+            <label class="equip-chip"><input type="radio" name="vg-place-st" value="sous-sol" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-place-st')"> Sous-sol</label>
+          </div>
+        </div>
+        <!-- Sous-type garage -->
+        <div id="vg-soustype-garage" style="display:none;margin-bottom:1rem">
+          <p style="font-size:.83rem;font-weight:600;color:var(--stone);margin-bottom:.5rem">Type de garage</p>
+          <div class="equip-chips">
+            <label class="equip-chip"><input type="radio" name="vg-garage-st" value="box" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-garage-st')"> Box fermé</label>
+            <label class="equip-chip"><input type="radio" name="vg-garage-st" value="garage" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-garage-st')"> Garage</label>
+            <label class="equip-chip"><input type="radio" name="vg-garage-st" value="double-garage" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-garage-st')"> Garage double</label>
+          </div>
+        </div>
+        <input type="hidden" id="vg-type-val">
+        <input type="hidden" id="vg-subtype-val">
+        <div id="vg1-next" style="display:none">
+          <div class="wizard-nav">
+            <button class="btn btn-s" onclick="wizardGoVs(0)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+            <button class="btn btn-p" onclick="wizardGoVg(2)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VG2 — LOCALISATION -->
+      <div class="wizard-step" id="wstep-vg2" style="display:none">
+        <p class="wstep-title">Localisation</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2"><label>Adresse *</label>
+            <input class="fi" id="vg-adresse" placeholder="12 rue des Acacias" oninput="vgAdresseInput(this.value)" autocomplete="off">
+            <div id="vg-adresse-sugg" class="ban-sugg" style="display:none"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:.7rem">
+            <div class="fg2"><label>Code postal *</label><input class="fi" id="vg-cp" placeholder="75001" maxlength="5"></div>
+            <div class="fg2"><label>Ville *</label><input class="fi" id="vg-ville" placeholder="Paris"></div>
+          </div>
+          <div class="fg2"><label>Quartier / Résidence</label><input class="fi" id="vg-quartier" placeholder="Résidence Les Pins…"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Niveau</label>
+              <select class="fi" id="vg-niveau">
+                <option value="">Non précisé</option>
+                <option value="rdc">RDC</option>
+                <option value="-1">Niveau -1</option>
+                <option value="-2">Niveau -2</option>
+                <option value="-3">Niveau -3</option>
+                <option value="ext">Extérieur</option>
+              </select>
+            </div>
+            <div class="fg2"><label>Numéro de place / box</label><input class="fi" id="vg-numero" placeholder="Box 42"></div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(3)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG3 — PRIX -->
+      <div class="wizard-step" id="wstep-vg3" style="display:none">
+        <p class="wstep-title">Prix de vente</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Prix de vente *</label>
+            <div style="position:relative">
+              <input class="fi" id="vg-prix" type="number" min="0" placeholder="25000" style="padding-right:2.5rem" oninput="updateVgPrixM2()">
+              <span style="position:absolute;right:.85rem;top:50%;transform:translateY(-50%);color:var(--stone);font-size:.85rem">€</span>
+            </div>
+            <div id="vg-prix-m2" style="font-size:.8rem;color:var(--stone-l);margin-top:.25rem"></div>
+          </div>
+          <div class="fg2">
+            <label>Honoraires d'agence</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vg-honoraires-vis-oui" onclick="setVgToggle('honoraires-vis','oui')">Inclus</span>
+              <span class="toggle-pill sel" id="vg-honoraires-vis-non" onclick="setVgToggle('honoraires-vis','non')">Non inclus</span>
+            </div>
+            <input type="hidden" id="vg-honoraires" value="non">
+          </div>
+          <div id="vg-honoraires-wrap" style="display:none;flex-direction:column;gap:.7rem">
+            <div class="fg2"><label>Montant des honoraires (€)</label><input class="fi" id="vg-honoraires-montant" type="number" placeholder="2000"></div>
+            <div class="fg2">
+              <label>À la charge de</label>
+              <select class="fi" id="vg-honoraires-charge">
+                <option value="acquereur">Acquéreur</option>
+                <option value="vendeur">Vendeur</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(4)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG4 — DIMENSIONS -->
+      <div class="wizard-step" id="wstep-vg4" style="display:none">
+        <p class="wstep-title">Dimensions</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            <div class="fg2"><label>Longueur (m)</label><input class="fi" id="vg-longueur" type="number" step="0.1" placeholder="5" oninput="updateVgSurface()"></div>
+            <div class="fg2"><label>Largeur (m)</label><input class="fi" id="vg-largeur" type="number" step="0.1" placeholder="2.5" oninput="updateVgSurface()"></div>
+          </div>
+          <div id="vg-hauteur-wrap" style="display:none">
+            <div class="fg2"><label>Hauteur sous plafond (m)</label><input class="fi" id="vg-hauteur" type="number" step="0.1" placeholder="2.2"></div>
+          </div>
+          <div class="fg2">
+            <label>Surface (m²)</label>
+            <input class="fi" id="vg-surface" type="number" step="0.1" placeholder="Calculée automatiquement" oninput="updateVgPrixM2()">
+            <div style="font-size:.75rem;color:var(--stone-l);margin-top:.2rem">Calculée automatiquement d'après longueur × largeur</div>
+          </div>
+          <div class="fg2"><label>Nombre de véhicules</label>
+            <select class="fi" id="vg-nb-vehicules">
+              <option value="1">1 véhicule</option>
+              <option value="2">2 véhicules</option>
+              <option value="3">3 véhicules ou plus</option>
+            </select>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(3)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(5)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG5 — COPROPRIÉTÉ -->
+      <div class="wizard-step" id="wstep-vg5" style="display:none">
+        <p class="wstep-title">Copropriété</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>En copropriété ?</label>
+            <div class="toggle-pills" style="margin-top:.4rem">
+              <span class="toggle-pill" id="vg-copro-vis-oui" onclick="setVgToggle('copro-vis','oui')">Oui</span>
+              <span class="toggle-pill sel" id="vg-copro-vis-non" onclick="setVgToggle('copro-vis','non')">Non</span>
+            </div>
+            <input type="hidden" id="vg-copropriete" value="non">
+          </div>
+          <div id="vg-copro-detail" style="display:none;flex-direction:column;gap:.7rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+              <div class="fg2"><label>Charges annuelles (€/an)</label><input class="fi" id="vg-charges-copro" type="number" placeholder="180"></div>
+              <div class="fg2"><label>Nombre de lots</label><input class="fi" id="vg-lots-copro" type="number" placeholder="120"></div>
+            </div>
+            <div class="fg2">
+              <label>Travaux votés en assemblée ?</label>
+              <div class="toggle-pills" style="margin-top:.4rem">
+                <span class="toggle-pill" id="vg-trav-votes-oui" onclick="setVgToggle('trav-votes','oui')">Oui</span>
+                <span class="toggle-pill sel" id="vg-trav-votes-non" onclick="setVgToggle('trav-votes','non')">Non</span>
+              </div>
+              <input type="hidden" id="vg-travaux-votes" value="non">
+            </div>
+            <div class="fg2">
+              <label>Procédure en cours ?</label>
+              <div class="toggle-pills" style="margin-top:.4rem">
+                <span class="toggle-pill" id="vg-procedure-oui" onclick="setVgToggle('procedure','oui')">Oui</span>
+                <span class="toggle-pill sel" id="vg-procedure-non" onclick="setVgToggle('procedure','non')">Non</span>
+              </div>
+              <input type="hidden" id="vg-procedure" value="non">
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(6)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG6 — ACCÈS & SÉCURITÉ -->
+      <div class="wizard-step" id="wstep-vg6" style="display:none">
+        <p class="wstep-title">Accès & sécurité</p>
+        <div class="fcard">
+          <div class="equip-chips">
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-securise">🔒 Parking sécurisé</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-portail-auto">🚧 Portail automatique</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-badge">💳 Badge d'accès</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-telecommande">📡 Télécommande</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-gardien">👤 Gardien</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-cameras">📷 Caméras</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eclairage">💡 Éclairage</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-acces-24h">🕐 Accès 24h/24</label>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(5)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(7)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG7 — ÉQUIPEMENTS -->
+      <div class="wizard-step" id="wstep-vg7" style="display:none">
+        <p class="wstep-title">Équipements</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:1rem">
+          <div>
+            <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Installations</p>
+            <div class="equip-chips">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-electricite">⚡ Électricité</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-prise">🔌 Prise électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-borne-recharge">🔋 Borne de recharge VE</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eau">💧 Eau</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-porte-elec">🚪 Porte électrique</label>
+            </div>
+          </div>
+          <div id="vg-stockage-wrap">
+            <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Stockage autorisé</p>
+            <div class="equip-chips">
+              <label class="equip-chip"><input type="radio" name="vg-stockage" value="oui" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-stockage')"> Oui</label>
+              <label class="equip-chip"><input type="radio" name="vg-stockage" value="non" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-stockage')"> Non</label>
+              <label class="equip-chip"><input type="radio" name="vg-stockage" value="inconnu" onclick="selectVgSubtype(this.closest('.equip-chip'),'vg-stockage')"> Je ne sais pas</label>
+            </div>
+            <input type="hidden" id="vg-stockage-val">
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(6)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(8)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG8 — ANNEXES -->
+      <div class="wizard-step" id="wstep-vg8" style="display:none">
+        <p class="wstep-title">Annexes incluses dans la vente</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Annexes</label>
+            <div class="equip-chips" style="margin-top:.4rem">
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-cave">Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-rangement">Rangement</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-mezzanine">Mezzanine</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-cellier">Cellier</label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(7)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(9)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG9 — DESCRIPTION -->
+      <div class="wizard-step" id="wstep-vg9" style="display:none">
+        <p class="wstep-title">Description</p>
+        <div class="fcard" style="display:flex;flex-direction:column;gap:.9rem">
+          <div class="fg2">
+            <label>Décrivez votre bien</label>
+            <textarea class="fi" id="vg-description" rows="5" maxlength="1000" placeholder="Box fermé de 15 m² situé au niveau -1 d'une résidence sécurisée. Accès par portail automatique. Porte basculante. Électricité disponible." oninput="document.getElementById('vg-desc-counter').textContent=this.value.length+'/1000'"></textarea>
+            <div id="vg-desc-counter" style="text-align:right;font-size:.75rem;color:var(--stone-l);margin-top:.2rem">0/1000</div>
+          </div>
+          <button type="button" class="btn btn-s" style="justify-content:center" onclick="genVgDescription()">✨ Générer une description</button>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(8)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(10)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG10 — PHOTOS -->
+      <div class="wizard-step" id="wstep-vg10" style="display:none">
+        <p class="wstep-title">Photos <span style="font-size:.78rem;color:var(--stone-l);font-weight:400">(10 max)</span></p>
+        <div class="fcard">
+          <div id="vg-photo-upload-area" class="pk-drop-zone" ondragover="event.preventDefault()" ondrop="handleVgDrop(event)" onclick="document.getElementById('vg-photo-input').click()" style="cursor:pointer">
+            <div style="text-align:center;padding:1.5rem;color:var(--stone)">
+              <div style="font-size:2rem;margin-bottom:.4rem">📸</div>
+              <div style="font-weight:600;margin-bottom:.2rem">Cliquez ou déposez vos photos</div>
+              <div style="font-size:.8rem">JPG, PNG — 10 photos max</div>
+              <div class="pk-photo-count" style="font-size:.8rem;margin-top:.4rem;color:var(--terra)">0/10 photos</div>
+            </div>
+            <input type="file" id="vg-photo-input" multiple accept="image/*" style="display:none" onchange="handleVgPhotos(this.files)">
+          </div>
+          <div id="vg-photo-preview" class="pk-photo-grid" style="margin-top:.8rem"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(9)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoVg(11)">Continuer <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- VG11 — RÉCAPITULATIF -->
+      <div class="wizard-step" id="wstep-vg11" style="display:none">
+        <p class="wstep-title">Récapitulatif</p>
+        <div id="vg-recap" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;font-size:.87rem;color:var(--stone);background:var(--warm);border-radius:12px;padding:1rem 1.1rem"></div>
+        <div class="aerr" id="vg-err"></div>
+        <div class="aok" id="vg-ok"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoVg(10)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteGarage()">🚀 Publier mon annonce</button>
         </div>
       </div>
 
@@ -1112,6 +2672,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 // page) — donc on attend qu'il soit vraiment prêt plutôt que de ne vérifier
 // qu'une seule fois immédiatement, ce qui le raterait systématiquement.
 function initLucideIcons(){
+  initChips();
   if(window.lucide){
     lucide.createIcons();
     // Vérification périodique légère plutôt qu'un MutationObserver — celui-ci
@@ -2603,6 +4164,28 @@ function autoDetectZoneTendue(cp){
   }
   if(wrap) wrap.style.display='block';
 }
+function toggleChip(label){
+  // Called via onclick on the label — checkbox toggles naturally, we sync the visual class
+  // Use setTimeout so the checkbox state is updated before we read it
+  setTimeout(()=>{
+    const cb=label.querySelector('input[type=checkbox]');
+    if(cb)label.classList.toggle('checked',cb.checked);
+  },0);
+}
+function initChips(){
+  document.querySelectorAll('.equip-chip').forEach(label=>{
+    const cb=label.querySelector('input[type=checkbox]');
+    if(cb&&cb.checked)label.classList.add('checked');
+  });
+}
+function setAscenseur(v){
+  ['oui','non'].forEach(k=>{
+    const pill=document.getElementById('asc-pill-'+k);
+    if(pill)pill.classList.toggle('sel',k===v);
+  });
+  const inp=document.getElementById('p-ascenseur');
+  if(inp)inp.value=v;
+}
 function setAscenseurFromCb(v,cb){
   ['oui','non'].forEach(m=>{
     const el=document.getElementById('asc-cb-'+m);
@@ -3561,6 +5144,1749 @@ async function requestReference(){
     });
   }catch(e){}
   toast('<i data-lucide=check-circle-2 class=ic></i> Reference request sent to '+email+'! They\'ll receive an email to confirm.');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VENTE TUNNEL
+// ═══════════════════════════════════════════════════════════════
+
+let _venteMode=false;
+let _vsStep=0;
+let _vsSubtype='';
+let _vsPhotos=[];
+
+function selectTypeLocation(t){
+  ['meuble','vide','coloc','vente','parking'].forEach(k=>{
+    const c=document.getElementById('tloc-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const map={bail_meuble:'meuble',bail_vide:'vide',room_rental:'coloc',for_sale:'vente',parking_box:'parking'};
+  const activeCard=document.getElementById('tloc-'+(map[t]||t));
+  if(activeCard)activeCard.classList.add('actif');
+  const nb=document.getElementById('wstep1-next');
+  if(nb)nb.style.display='flex';
+  const btn=document.getElementById('wstep1-next-btn');
+  if(t==='parking_box'){
+    if(btn)btn.setAttribute('onclick','wizardStartParking()');
+  } else if(t==='for_sale'){
+    if(btn)btn.setAttribute('onclick','wizardStartVente()');
+  } else {
+    if(btn)btn.setAttribute('onclick','wizardGoTo(2)');
+    setT({classList:{contains:()=>false,add:()=>{}}},t);
+  }
+}
+
+function wizardStartVente(){
+  _venteMode=true;
+  _vsStep=0;
+  _vsPhotos=[];
+  // hide wstep-1
+  const s1=document.getElementById('wstep-1');
+  if(s1)s1.style.display='none';
+  // show vs0 (Appartement vs Maison chooser)
+  const vs0=document.getElementById('wstep-vs0');
+  if(vs0)vs0.style.display='block';
+  // relabel wizard dots
+  const dotLabels=['Type','Bien','Lieu','Prix','Caract.','Extérieur','Équip.','Photos'];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    const lbl=d.querySelector('.wdot-label');
+    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
+  });
+  // dot 0 done (Type selected), dot 1 active (Bien)
+  if(dots[0])dots[0].classList.add('done');
+  if(dots[1])dots[1].classList.add('active');
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape 2 sur 8';
+}
+
+function selectVsBienType(type){
+  // highlight card
+  ['appartement','maison','parking-vente'].forEach(k=>{
+    const c=document.getElementById('vs0-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const card=document.getElementById('vs0-'+type);
+  if(card)card.classList.add('actif');
+  // show next button wired to correct action
+  const nb=document.getElementById('vs0-next');
+  if(nb)nb.style.display='block';
+  const btn=document.getElementById('vs0-next-btn');
+  if(type==='appartement'){
+    if(btn)btn.setAttribute('onclick','_launchVsAppart()');
+  } else if(type==='maison'){
+    if(btn)btn.setAttribute('onclick','_launchVsMaison()');
+  } else {
+    if(btn)btn.setAttribute('onclick','_launchVsGarage()');
+  }
+}
+
+function _launchVsGarage(){
+  const vs0=document.getElementById('wstep-vs0');
+  if(vs0)vs0.style.display='none';
+  wizardStartVenteGarage();
+}
+
+function _launchVsAppart(){
+  const vs0=document.getElementById('wstep-vs0');
+  if(vs0)vs0.style.display='none';
+  _vsStep=1;
+  const vs1=document.getElementById('wstep-vs1');
+  if(vs1)vs1.style.display='block';
+  _updateVsDots(1);
+}
+
+function _launchVsMaison(){
+  const vs0=document.getElementById('wstep-vs0');
+  if(vs0)vs0.style.display='none';
+  wizardStartVenteMaison();
+}
+
+function _updateVsDots(vsN){
+  // vsN: 1-14 — map to dot index 0-7
+  // dot 0 = Type (always done)
+  // dot 1 = Sous-type (vs1)
+  // dot 2 = Lieu (vs2)
+  // dot 3 = Prix (vs3)
+  // dot 4 = Caractéristiques (vs4-vs5)
+  // dot 5 = Extérieur (vs6-vs7)
+  // dot 6 = Équipements/DPE (vs8-vs11)
+  // dot 7 = Photos/Récap (vs12-vs14)
+  const dotMap=[0,1,2,3,4,4,5,5,6,6,6,6,7,7,7];// index=vsN-1, value=dotIndex
+  const activeDot=dotMap[vsN-1];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i<activeDot) d.classList.add('done');
+    else if(i===activeDot) d.classList.add('active');
+  });
+  const phase=activeDot+1;
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape '+phase+' sur 8';
+}
+
+function exitVenteMode(){
+  _venteMode=false;
+  _vsStep=0;
+  _vsPhotos=[];
+  // hide vs0 and all vs/vg steps
+  const vs0=document.getElementById('wstep-vs0');
+  if(vs0)vs0.style.display='none';
+  for(let i=1;i<=14;i++){
+    const el=document.getElementById('wstep-vs'+i);
+    if(el)el.style.display='none';
+  }
+  for(let i=1;i<=11;i++){
+    const el=document.getElementById('wstep-vg'+i);
+    if(el)el.style.display='none';
+  }
+  // restore 8-dot labels
+  const dotLabels=['Type','Localisation','Budget','Logement','Situation','Documents','Récap.','Publier'];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    const lbl=d.querySelector('.wdot-label');
+    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
+  });
+  if(dots[0])dots[0].classList.add('active');
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape 1 sur 8';
+  // show step 1
+  const s1=document.getElementById('wstep-1');
+  if(s1)s1.style.display='block';
+}
+
+function wizardGoVs(n){
+  // hide current (could be vs0 or vs1-14)
+  if(_vsStep===0){
+    const vs0=document.getElementById('wstep-vs0');
+    if(vs0)vs0.style.display='none';
+  } else {
+    const cur=document.getElementById('wstep-vs'+_vsStep);
+    if(cur)cur.style.display='none';
+  }
+  if(n===0){
+    _vsStep=0;
+    const vs0=document.getElementById('wstep-vs0');
+    if(vs0)vs0.style.display='block';
+    // reset dots to "Bien" active
+    const dots=document.querySelectorAll('.wdot');
+    dots.forEach((d,i)=>{d.classList.remove('active','done');if(i===0)d.classList.add('done');else if(i===1)d.classList.add('active');});
+    const ctr=document.getElementById('w-step-counter');
+    if(ctr)ctr.textContent='Étape 2 sur 8';
+    return;
+  }
+  // special: step 14 = recap
+  if(n===14)buildVsRecap();
+  _vsStep=n;
+  const next=document.getElementById('wstep-vs'+n);
+  if(next)next.style.display='block';
+  _updateVsDots(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectVsSubtype(st){
+  _vsSubtype=st;
+  // highlight selected card
+  document.querySelectorAll('#wstep-vs1 .tloc-card').forEach(c=>c.classList.remove('actif'));
+  const idMap={appartement:'tloc-pk-appartement',studio:'tloc-pk-studio',duplex:'tloc-pk-duplex',triplex:'tloc-pk-triplex',loft:'tloc-pk-loft',penthouse:'tloc-pk-penthouse'};
+  const card=document.getElementById(idMap[st]);
+  if(card)card.classList.add('actif');
+  // set hidden input
+  const hi=document.getElementById('vs-appart-type');
+  if(hi)hi.value=st;
+  // show next button
+  const nb=document.getElementById('vs1-next');
+  if(nb)nb.style.display='flex';
+}
+
+function setVsToggle(key,v){
+  // pill UI
+  const oui=document.getElementById('vs-'+key+'-oui');
+  const non=document.getElementById('vs-'+key+'-non');
+  if(oui)oui.classList.toggle('sel',v==='oui');
+  if(non)non.classList.toggle('sel',v==='non');
+  // hidden input
+  const hiddenMap={
+    'adresse-pub':'vs-adresse-publique',
+    'honoraires-vis':'vs-honoraires',
+    'asc':'vs-ascenseur',
+    'wc':'vs-wc-separes',
+    'travaux-vis':'vs-travaux-recents',
+    'copro-vis':'vs-copropriete',
+    'procedure':'vs-procedure',
+    'trav-votes':'vs-travaux-votes',
+    'trav-prevus':'vs-travaux-prevus',
+    'pk-inc':'vs-parking-inclus'
+  };
+  const hid=hiddenMap[key]||('vs-'+key);
+  const hi=document.getElementById(hid);
+  if(hi)hi.value=v;
+  // show/hide dependent sections
+  if(key==='honoraires-vis'){
+    const w=document.getElementById('vs-honoraires-wrap');
+    if(w)w.style.display=v==='oui'?'flex':'none';
+  }
+  if(key==='copro-vis'){
+    const d=document.getElementById('vs-copro-detail');
+    if(d)d.style.display=v==='oui'?'flex':'none';
+  }
+  if(key==='travaux-vis'){
+    const d=document.getElementById('vs-travaux-detail-wrap');
+    if(d)d.style.display=v==='oui'?'flex':'none';
+  }
+}
+
+function selectVsRadioChip(label,name){
+  // un-check all chips in this group
+  document.querySelectorAll('.equip-chip input[name="'+name+'"]').forEach(inp=>{
+    inp.closest('.equip-chip').classList.remove('checked');
+    inp.checked=false;
+  });
+  // check this one
+  label.classList.add('checked');
+  const inp=label.querySelector('input[type=radio]');
+  if(inp)inp.checked=true;
+  const v=inp?inp.value:'';
+  // side effects per radio group
+  if(name==='vs-stat'){
+    const hi=document.getElementById('vs-stationnement');
+    if(hi)hi.value=v;
+    const w=document.getElementById('vs-parking-inclus-wrap');
+    if(w)w.style.display=(v!=='aucun')?'flex':'none';
+  }
+  if(name==='vs-etat'){
+    const hi=document.getElementById('vs-etat-val');
+    if(hi)hi.value=v;
+  }
+  if(name==='vs-situation-r'){
+    const hi=document.getElementById('vs-situation');
+    if(hi)hi.value=v;
+    const d=document.getElementById('vs-loue-detail');
+    if(d)d.style.display=v==='loue'?'flex':'none';
+  }
+}
+
+function updateVsExterieur(){
+  const checked=Array.from(document.querySelectorAll('.vs-ext-cb:checked')).map(c=>c.value);
+  const hi=document.getElementById('vs-exterieur');
+  if(hi)hi.value=checked.join(',');
+  // show surface ext if any exterior selected
+  const hasSurf=checked.some(c=>['terrasse','jardin','loggia'].includes(c));
+  const w=document.getElementById('vs-surface-ext-wrap');
+  if(w)w.style.display=hasSurf?'flex':'none';
+}
+
+function updateVsPrixM2(){
+  const prix=parseFloat((document.getElementById('vs-prix')||{}).value)||0;
+  const surf=parseFloat((document.getElementById('vs-surface')||{}).value)||0;
+  const el=document.getElementById('vs-prix-m2');
+  if(el){
+    if(prix>0&&surf>0){
+      el.textContent=Math.round(prix/surf).toLocaleString('fr-FR')+' €/m²';
+    } else {
+      el.textContent='';
+    }
+  }
+}
+
+let _vsAdresseTimer=null;
+function vsAdresseInput(value){
+  clearTimeout(_vsAdresseTimer);
+  const sugg=document.getElementById('vs-adresse-sugg');
+  if(!value||value.length<3){if(sugg)sugg.style.display='none';return;}
+  _vsAdresseTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(value)+'&limit=5&type=housenumber');
+      const d=await r.json();
+      if(!sugg)return;
+      sugg.innerHTML='';
+      (d.features||[]).forEach(f=>{
+        const p=f.properties;
+        const item=document.createElement('div');
+        item.className='ban-item';
+        item.textContent=p.label;
+        item.onclick=()=>{
+          const adr=document.getElementById('vs-adresse');
+          if(adr)adr.value=p.label;
+          const cp=document.getElementById('vs-cp');
+          if(cp)cp.value=p.postcode||'';
+          const ville=document.getElementById('vs-ville');
+          if(ville)ville.value=p.city||'';
+          sugg.style.display='none';
+        };
+        sugg.appendChild(item);
+      });
+      sugg.style.display=sugg.children.length?'block':'none';
+    }catch(e){if(sugg)sugg.style.display='none';}
+  },350);
+}
+
+function handleVsDrop(e){
+  e.preventDefault();
+  const dt=e.dataTransfer;
+  if(dt&&dt.files)handleVsPhotos(dt.files);
+}
+
+function handleVsPhotos(files){
+  const MAX=30;
+  for(let i=0;i<files.length;i++){
+    if(_vsPhotos.length>=MAX){toast('Maximum '+MAX+' photos atteint.');break;}
+    const f=files[i];
+    if(!f.type.startsWith('image/'))continue;
+    _vsPhotos.push(f);
+  }
+  _updateVsPhotoArea();
+}
+
+function removeVsPhoto(btn,idx){
+  _vsPhotos.splice(idx,1);
+  _updateVsPhotoArea();
+}
+
+function _updateVsPhotoArea(){
+  const preview=document.getElementById('vs-photo-preview');
+  if(!preview)return;
+  preview.innerHTML='';
+  _vsPhotos.forEach((f,idx)=>{
+    const url=URL.createObjectURL(f);
+    const wrap=document.createElement('div');
+    wrap.className='pk-photo-thumb';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+( idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVsPhoto(this,'+idx+')">✕</button>';
+    preview.appendChild(wrap);
+  });
+  const msg=document.getElementById('vs-photo-required-msg');
+  if(msg)msg.style.display=_vsPhotos.length<1?'block':'none';
+  const area=document.getElementById('vs-photo-upload-area');
+  if(area){
+    const ct=area.querySelector('.pk-photo-count');
+    if(ct)ct.textContent=_vsPhotos.length+'/30 photo'+ (_vsPhotos.length!==1?'s':'');
+  }
+}
+
+function genVsDescription(){
+  const g=id=>{ const el=document.getElementById(id); return el?el.value||'':''};
+  const subtype=_vsSubtype||g('vs-appart-type');
+  const subtypeLabel={appartement:'Appartement',studio:'Studio',duplex:'Duplex',triplex:'Triplex',loft:'Loft',penthouse:'Penthouse'}[subtype]||'Bien';
+  const prix=g('vs-prix');
+  const surf=g('vs-surface');
+  const pieces=g('vs-pieces');
+  const chambres=g('vs-chambres');
+  const etage=g('vs-etage');
+  const annee=g('vs-annee-construction');
+  const ville=g('vs-ville');
+  const quartier=g('vs-quartier');
+  const etat=g('vs-etat-val');
+  const etatLabel={neuf:'neuf',excellent:'en excellent état',bon:'en bon état','rafraichir':'à rafraîchir',renover:'à rénover','renover-entierement':'à rénover entièrement'}[etat]||'';
+  const dpe=g('vs-dpe');
+  const exterieur=g('vs-exterieur');
+  const stationnement=g('vs-stationnement');
+  const copro=g('vs-copropriete');
+  const charges=g('vs-charges-copro');
+  const situation=g('vs-situation');
+  const situationLabel={libre:'Libre à la vente',occupe:'Occupé par le propriétaire',loue:'Actuellement loué'}[situation]||'';
+  // Build description
+  let desc=subtypeLabel;
+  if(surf)desc+=' de '+surf+' m²';
+  if(pieces)desc+=' – '+pieces+' pièce'+(parseInt(pieces)>1?'s':'');
+  if(chambres)desc+=' dont '+chambres+' chambre'+(parseInt(chambres)>1?'s':'');
+  desc+='\n\n';
+  if(ville){desc+='Situé'+(subtype==='studio'?'':'e')+' à '+ville;if(quartier)desc+=' ('+quartier+')';desc+='.';}
+  if(etage){desc+=' Au '+etage+'ème étage.';}
+  if(annee){desc+=' Immeuble de '+annee+'.';}
+  desc+='\n\n';
+  if(etatLabel)desc+='Logement '+etatLabel+'. ';
+  // exterior
+  const extItems=exterieur?exterieur.split(',').filter(Boolean):[];
+  if(extItems.length){
+    const labels={balcon:'balcon',terrasse:'terrasse',loggia:'loggia',jardin:'jardin'};
+    desc+='Profitez d\'un '+extItems.map(e=>labels[e]||e).join(', ')+'. ';
+  }
+  if(stationnement&&stationnement!=='aucun'){
+    const pkLabel={parking:'une place de parking',box:'un box fermé',garage:'un garage individuel',multiple:'plusieurs emplacements'}[stationnement]||stationnement;
+    desc+='Inclus : '+pkLabel+'. ';
+  }
+  desc+='\n\n';
+  if(dpe)desc+='Classe énergie : '+dpe+'. ';
+  if(copro==='oui'&&charges)desc+='Charges de copropriété : '+charges+' €/mois. ';
+  if(situationLabel)desc+=situationLabel+'.';
+  desc=desc.replace(/\n{3,}/g,'\n\n').trim();
+  const ta=document.getElementById('vs-description');
+  if(ta)ta.value=desc;
+  const ctr=document.getElementById('vs-desc-counter');
+  if(ctr)ctr.textContent=desc.length+'/2000';
+}
+
+function buildVsRecap(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const subtype={appartement:'Appartement',studio:'Studio',duplex:'Duplex',triplex:'Triplex',loft:'Loft',penthouse:'Penthouse'}[_vsSubtype||g('vs-appart-type')]||'Bien';
+  const surf=g('vs-surface');
+  const prix=g('vs-prix');
+  const ville=g('vs-ville');
+  const pieces=g('vs-pieces');
+  const chambres=g('vs-chambres');
+  const etage=g('vs-etage');
+  const dpe=g('vs-dpe');
+  const photos=_vsPhotos.length;
+  const items=[
+    ['Type',subtype],
+    ['Ville',ville],
+    ['Prix',prix?parseInt(prix).toLocaleString('fr-FR')+' €':'—'],
+    ['Surface',surf?surf+' m²':'—'],
+    ['Pièces',pieces||'—'],
+    ['Chambres',chambres||'—'],
+    ['Étage',etage||'—'],
+    ['DPE',dpe||'—'],
+    ['Photos',photos+' photo'+(photos!==1?'s':'')]
+  ];
+  const recap=document.getElementById('vs-recap');
+  if(!recap)return;
+  recap.innerHTML='<div class="recap-grid">'+items.map(([k,v])=>
+    '<div class="recap-row"><span class="recap-label">'+k+'</span><span class="recap-val">'+v+'</span></div>'
+  ).join('')+'</div>';
+}
+
+async function doPostVente(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const errEl=document.getElementById('vs-err');
+  const okEl=document.getElementById('vs-ok');
+  if(errEl)errEl.style.display='none';
+  if(okEl)okEl.style.display='none';
+  // validation
+  if(!g('vs-adresse')&&!g('vs-ville')){
+    if(errEl){errEl.textContent='Veuillez renseigner la localisation.';errEl.style.display='block';}
+    return;
+  }
+  if(!g('vs-prix')){
+    if(errEl){errEl.textContent='Veuillez indiquer le prix de vente.';errEl.style.display='block';}
+    return;
+  }
+  if(!g('vs-surface')){
+    if(errEl){errEl.textContent='Veuillez indiquer la surface.';errEl.style.display='block';}
+    return;
+  }
+  const U=window._clerkUser||{};
+  if(!U.id){
+    if(errEl){errEl.textContent='Vous devez être connecté pour publier une annonce.';errEl.style.display='block';}
+    return;
+  }
+  // Disable publish button
+  const pubBtn=document.querySelector('#wstep-vs14 .btn-p');
+  if(pubBtn){pubBtn.disabled=true;pubBtn.textContent='Publication en cours...';}
+  try{
+    // insert listing
+    const listing={
+      user_id:U.id,
+      type:'for_sale',
+      subtype:g('vs-appart-type')||_vsSubtype,
+      adresse:g('vs-adresse'),
+      code_postal:g('vs-cp'),
+      ville:g('vs-ville'),
+      quartier:g('vs-quartier'),
+      numero_appartement:g('vs-num-appart'),
+      adresse_publique:g('vs-adresse-publique')==='oui',
+      prix:parseFloat(g('vs-prix'))||null,
+      surface:parseFloat(g('vs-surface'))||null,
+      nb_pieces:parseInt(g('vs-pieces'))||null,
+      nb_chambres:parseInt(g('vs-chambres'))||null,
+      etage:parseInt(g('vs-etage'))||null,
+      nb_etages:parseInt(g('vs-nb-etages'))||null,
+      ascenseur:g('vs-ascenseur')==='oui',
+      annee_construction:parseInt(g('vs-annee-construction'))||null,
+      nb_sdb:parseInt(g('vs-sdb'))||null,
+      nb_sde:parseInt(g('vs-sde'))||null,
+      wc_separes:g('vs-wc-separes')==='oui',
+      type_cuisine:g('vs-cuisine-type'),
+      exterieur:g('vs-exterieur'),
+      surface_exterieur:parseFloat(g('vs-surface-ext'))||null,
+      stationnement:g('vs-stationnement'),
+      parking_inclus:g('vs-parking-inclus')==='oui',
+      etat_logement:g('vs-etat-val'),
+      travaux_recents:g('vs-travaux-recents')==='oui',
+      travaux_description:g('vs-travaux-desc'),
+      travaux_annee:parseInt(g('vs-travaux-annee'))||null,
+      // équipements (bool chips)
+      cuisine_equipee:document.getElementById('vs-cuisine-equipee')?.classList.contains('checked')||false,
+      cuisine_amenagee:document.getElementById('vs-cuisine-amenagee')?.classList.contains('checked')||false,
+      meuble:document.getElementById('vs-meuble')?.classList.contains('checked')||false,
+      climatisation:document.getElementById('vs-clim')?.classList.contains('checked')||false,
+      chauffage_individuel:document.getElementById('vs-ch-individuel')?.classList.contains('checked')||false,
+      chauffage_collectif:document.getElementById('vs-ch-collectif')?.classList.contains('checked')||false,
+      double_vitrage:document.getElementById('vs-double-vitrage')?.classList.contains('checked')||false,
+      volets_electriques:document.getElementById('vs-volets-elec')?.classList.contains('checked')||false,
+      cheminee:document.getElementById('vs-cheminee')?.classList.contains('checked')||false,
+      fibre_optique:document.getElementById('vs-fibre')?.classList.contains('checked')||false,
+      interphone:document.getElementById('vs-interphone')?.classList.contains('checked')||false,
+      digicode:document.getElementById('vs-digicode')?.classList.contains('checked')||false,
+      gardien:document.getElementById('vs-gardien')?.classList.contains('checked')||false,
+      cave:document.getElementById('vs-cave')?.classList.contains('checked')||false,
+      buanderie_commune:document.getElementById('vs-buanderie')?.classList.contains('checked')||false,
+      // copropriété
+      copropriete:g('vs-copropriete')==='oui',
+      lots_copropriete:parseInt(g('vs-lots-copro'))||null,
+      charges_copropriete:parseFloat(g('vs-charges-copro'))||null,
+      procedure_syndic:g('vs-procedure')==='oui',
+      travaux_votes:g('vs-travaux-votes')==='oui',
+      travaux_prevus:g('vs-travaux-prevus')==='oui',
+      // DPE
+      classe_dpe:g('vs-dpe'),
+      classe_ges:g('vs-ges'),
+      dpe_consommation:parseFloat(g('vs-dpe-conso'))||null,
+      dpe_emissions:parseFloat(g('vs-dpe-emissions'))||null,
+      dpe_date:g('vs-dpe-date')||null,
+      // situation
+      situation_bien:g('vs-situation'),
+      loyer_actuel:parseFloat(g('vs-loyer-actuel'))||null,
+      bail_fin:g('vs-bail-fin')||null,
+      disponibilite_vente:g('vs-dispo-vente')||null,
+      // description
+      description:g('vs-description'),
+      // honoraires
+      honoraires_inclus:g('vs-honoraires')==='oui',
+      honoraires_montant:parseFloat(g('vs-honoraires-montant'))||null,
+      honoraires_charge:g('vs-honoraires-charge'),
+      // status
+      actif:false,
+      sale_subscription_status:'en attente',
+      created_at:new Date().toISOString()
+    };
+    const {data,error}=await sb.from('listings').insert(listing).select('id').single();
+    if(error)throw error;
+    const listingId=data.id;
+    // upload photos
+    for(let i=0;i<_vsPhotos.length;i++){
+      const f=_vsPhotos[i];
+      const ext=f.name.split('.').pop();
+      const path=listingId+'/'+Date.now()+'_'+i+'.'+ext;
+      const {error:upErr}=await sb.storage.from('annonces').upload(path,f,{contentType:f.type});
+      if(upErr)console.warn('Photo upload error:',upErr);
+    }
+    // success
+    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    toast('Annonce déposée avec succès !');
+    // reset after 3s
+    setTimeout(()=>{
+      exitVenteMode();
+    },3000);
+  } catch(e){
+    console.error('doPostVente error:',e);
+    if(errEl){errEl.textContent='Erreur lors de la publication : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VENTE GARAGE / PARKING TUNNEL
+// ═══════════════════════════════════════════════════════════════
+
+let _venteGarageMode=false;
+let _vgStep=0;
+let _vgType=''; // 'place' | 'garage'
+let _vgPhotos=[];
+
+function wizardStartVenteGarage(){
+  _venteGarageMode=true;
+  _vgStep=1;
+  _vgPhotos=[];
+  const dotLabels=['Type','Bien','Localisation','Prix','Accès','Équip.','Description','Photos'];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    const lbl=d.querySelector('.wdot-label');
+    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
+  });
+  if(dots[0])dots[0].classList.add('done');
+  if(dots[1])dots[1].classList.add('done');
+  if(dots[2])dots[2].classList.add('active');
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape 3 sur 8';
+  const vg1=document.getElementById('wstep-vg1');
+  if(vg1)vg1.style.display='block';
+}
+
+function _updateVgDots(vgN){
+  // dot 0 Type(done) dot 1 Bien(done)
+  // dot 2=VG1-VG2, dot 3=VG3-VG4, dot 4=VG5, dot 5=VG6-VG7, dot 6=VG8-VG9, dot 7=VG10-VG11
+  const dotMap=[2,2,3,3,4,5,5,6,6,7,7];
+  const activeDot=dotMap[vgN-1];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i<activeDot) d.classList.add('done');
+    else if(i===activeDot) d.classList.add('active');
+  });
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
+}
+
+function exitVenteGarageMode(){
+  _venteGarageMode=false;
+  _vgStep=0;
+  _vgPhotos=[];
+  for(let i=1;i<=11;i++){
+    const el=document.getElementById('wstep-vg'+i);
+    if(el)el.style.display='none';
+  }
+  exitVenteMode();
+}
+
+function wizardGoVg(n){
+  if(_vgStep>0){
+    const cur=document.getElementById('wstep-vg'+_vgStep);
+    if(cur)cur.style.display='none';
+  }
+  if(n===0){
+    _venteGarageMode=false;
+    _vgStep=0;
+    wizardGoVs(0);
+    return;
+  }
+  if(n===11)buildVgRecap();
+  _vgStep=n;
+  const next=document.getElementById('wstep-vg'+n);
+  if(next)next.style.display='block';
+  _updateVgDots(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectVgType(type){
+  _vgType=type;
+  ['place','garage'].forEach(k=>{
+    const c=document.getElementById('vg-type-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const card=document.getElementById('vg-type-'+type);
+  if(card)card.classList.add('actif');
+  const hi=document.getElementById('vg-type-val');
+  if(hi)hi.value=type;
+  // show correct sous-type section
+  document.getElementById('vg-soustype-place').style.display=type==='place'?'block':'none';
+  document.getElementById('vg-soustype-garage').style.display=type==='garage'?'block':'none';
+  // show hauteur only for garage
+  const hw=document.getElementById('vg-hauteur-wrap');
+  if(hw)hw.style.display=type==='garage'?'block':'none';
+  // reset vg1-next (requires sous-type selection now)
+  const nb=document.getElementById('vg1-next');
+  if(nb)nb.style.display='none';
+  // reset vg-stockage-wrap visibility (only for garage)
+  const sw=document.getElementById('vg-stockage-wrap');
+  if(sw)sw.style.display=type==='garage'?'block':'none';
+}
+
+function selectVgSubtype(label,name){
+  document.querySelectorAll('.equip-chip input[name="'+name+'"]').forEach(inp=>{
+    inp.closest('.equip-chip').classList.remove('checked');
+    inp.checked=false;
+  });
+  label.classList.add('checked');
+  const inp=label.querySelector('input[type=radio]');
+  if(inp)inp.checked=true;
+  const v=inp?inp.value:'';
+  if(name==='vg-place-st'||name==='vg-garage-st'){
+    const hi=document.getElementById('vg-subtype-val');
+    if(hi)hi.value=v;
+    // unlock next
+    const nb=document.getElementById('vg1-next');
+    if(nb)nb.style.display='block';
+  }
+  if(name==='vg-stockage'){
+    const hi=document.getElementById('vg-stockage-val');
+    if(hi)hi.value=v;
+  }
+}
+
+function setVgToggle(key,v){
+  const oui=document.getElementById('vg-'+key+'-oui');
+  const non=document.getElementById('vg-'+key+'-non');
+  if(oui)oui.classList.toggle('sel',v==='oui');
+  if(non)non.classList.toggle('sel',v==='non');
+  const hiddenMap={'honoraires-vis':'vg-honoraires','copro-vis':'vg-copropriete','trav-votes':'vg-travaux-votes','procedure':'vg-procedure'};
+  const hid=hiddenMap[key]||('vg-'+key);
+  const hi=document.getElementById(hid);
+  if(hi)hi.value=v;
+  if(key==='honoraires-vis'){
+    const w=document.getElementById('vg-honoraires-wrap');
+    if(w)w.style.display=v==='oui'?'flex':'none';
+  }
+  if(key==='copro-vis'){
+    const d=document.getElementById('vg-copro-detail');
+    if(d)d.style.display=v==='oui'?'flex':'none';
+  }
+}
+
+function updateVgSurface(){
+  const l=parseFloat((document.getElementById('vg-longueur')||{}).value)||0;
+  const w=parseFloat((document.getElementById('vg-largeur')||{}).value)||0;
+  const surf=document.getElementById('vg-surface');
+  if(surf&&l>0&&w>0){
+    surf.value=(l*w).toFixed(1);
+    updateVgPrixM2();
+  }
+}
+
+function updateVgPrixM2(){
+  const prix=parseFloat((document.getElementById('vg-prix')||{}).value)||0;
+  const surf=parseFloat((document.getElementById('vg-surface')||{}).value)||0;
+  const el=document.getElementById('vg-prix-m2');
+  if(el){
+    if(prix>0&&surf>0) el.textContent=Math.round(prix/surf).toLocaleString('fr-FR')+' €/m²';
+    else el.textContent='';
+  }
+}
+
+let _vgAdresseTimer=null;
+function vgAdresseInput(value){
+  clearTimeout(_vgAdresseTimer);
+  const sugg=document.getElementById('vg-adresse-sugg');
+  if(!value||value.length<3){if(sugg)sugg.style.display='none';return;}
+  _vgAdresseTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(value)+'&limit=5');
+      const d=await r.json();
+      if(!sugg)return;
+      sugg.innerHTML='';
+      (d.features||[]).forEach(f=>{
+        const p=f.properties;
+        const item=document.createElement('div');
+        item.className='ban-item';
+        item.textContent=p.label;
+        item.onclick=()=>{
+          const adr=document.getElementById('vg-adresse');
+          if(adr)adr.value=p.label;
+          const cp=document.getElementById('vg-cp');
+          if(cp)cp.value=p.postcode||'';
+          const ville=document.getElementById('vg-ville');
+          if(ville)ville.value=p.city||'';
+          sugg.style.display='none';
+        };
+        sugg.appendChild(item);
+      });
+      sugg.style.display=sugg.children.length?'block':'none';
+    }catch(e){if(sugg)sugg.style.display='none';}
+  },350);
+}
+
+function handleVgDrop(e){
+  e.preventDefault();
+  if(e.dataTransfer&&e.dataTransfer.files)handleVgPhotos(e.dataTransfer.files);
+}
+
+function handleVgPhotos(files){
+  const MAX=10;
+  for(let i=0;i<files.length;i++){
+    if(_vgPhotos.length>=MAX){toast('Maximum 10 photos atteint.');break;}
+    const f=files[i];
+    if(!f.type.startsWith('image/'))continue;
+    _vgPhotos.push(f);
+  }
+  _updateVgPhotoArea();
+}
+
+function removeVgPhoto(btn,idx){
+  _vgPhotos.splice(idx,1);
+  _updateVgPhotoArea();
+}
+
+function _updateVgPhotoArea(){
+  const preview=document.getElementById('vg-photo-preview');
+  if(!preview)return;
+  preview.innerHTML='';
+  _vgPhotos.forEach((f,idx)=>{
+    const url=URL.createObjectURL(f);
+    const wrap=document.createElement('div');
+    wrap.className='pk-photo-thumb';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVgPhoto(this,'+idx+')">✕</button>';
+    preview.appendChild(wrap);
+  });
+  const area=document.getElementById('vg-photo-upload-area');
+  if(area){
+    const ct=area.querySelector('.pk-photo-count');
+    if(ct)ct.textContent=_vgPhotos.length+'/10 photo'+(_vgPhotos.length!==1?'s':'');
+  }
+}
+
+function genVgDescription(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const type=_vgType||g('vg-type-val');
+  const subtype=g('vg-subtype-val');
+  const surf=g('vg-surface');
+  const ville=g('vg-ville');
+  const quartier=g('vg-quartier');
+  const niveau=g('vg-niveau');
+  const niveauLabel={rdc:'rez-de-chaussée','-1':'niveau -1','-2':'niveau -2','-3':'niveau -3',ext:'extérieur'}[niveau]||niveau;
+  const typeLabel={place:'Place de parking',garage:'Garage',box:'Box fermé',['double-garage']:'Garage double'}[subtype]||{place:'Place de parking',garage:'Garage'}[type]||'Parking';
+  let desc=typeLabel;
+  if(surf)desc+=' de '+surf+' m²';
+  if(niveauLabel)desc+=' situé au '+niveauLabel;
+  if(ville){desc+=' à '+ville;if(quartier)desc+=' ('+quartier+')';}
+  desc+='. ';
+  // accès & sécurité
+  const chips=[];
+  if(document.getElementById('vg-securise')?.classList.contains('checked'))chips.push('résidence sécurisée');
+  if(document.getElementById('vg-portail-auto')?.classList.contains('checked'))chips.push('portail automatique');
+  if(document.getElementById('vg-badge')?.classList.contains('checked'))chips.push('badge d\'accès');
+  if(document.getElementById('vg-telecommande')?.classList.contains('checked'))chips.push('télécommande');
+  if(chips.length)desc+='Accès par '+chips.join(', ')+'. ';
+  // équipements
+  const equips=[];
+  if(document.getElementById('vg-electricite')?.classList.contains('checked'))equips.push('électricité');
+  if(document.getElementById('vg-prise')?.classList.contains('checked'))equips.push('prise électrique');
+  if(document.getElementById('vg-borne-recharge')?.classList.contains('checked'))equips.push('borne de recharge');
+  if(document.getElementById('vg-porte-elec')?.classList.contains('checked'))equips.push('porte électrique');
+  if(equips.length)desc+='Équipements : '+equips.join(', ')+'. ';
+  desc=desc.trim();
+  const ta=document.getElementById('vg-description');
+  if(ta)ta.value=desc;
+  const ctr=document.getElementById('vg-desc-counter');
+  if(ctr)ctr.textContent=desc.length+'/1000';
+}
+
+function buildVgRecap(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const type=_vgType||g('vg-type-val');
+  const subtype=g('vg-subtype-val');
+  const typeLabel={place:'Place de parking',garage:'Garage',box:'Box fermé',['double-garage']:'Garage double'}[subtype]||{place:'Place de parking',garage:'Garage'}[type]||'Parking';
+  const surf=g('vg-surface');
+  const prix=g('vg-prix');
+  const ville=g('vg-ville');
+  const niveau=g('vg-niveau');
+  const photos=_vgPhotos.length;
+  const items=[
+    ['Type',typeLabel],
+    ['Ville',ville||'—'],
+    ['Niveau',niveau||'—'],
+    ['Prix',prix?parseInt(prix).toLocaleString('fr-FR')+' €':'—'],
+    ['Surface',surf?surf+' m²':'—'],
+    ['Photos',photos+' photo'+(photos!==1?'s':'')]
+  ];
+  const recap=document.getElementById('vg-recap');
+  if(!recap)return;
+  recap.innerHTML='<div class="recap-grid">'+items.map(([k,v])=>
+    '<div class="recap-row"><span class="recap-label">'+k+'</span><span class="recap-val">'+v+'</span></div>'
+  ).join('')+'</div>';
+}
+
+async function doPostVenteGarage(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const errEl=document.getElementById('vg-err');
+  const okEl=document.getElementById('vg-ok');
+  if(errEl)errEl.style.display='none';
+  if(okEl)okEl.style.display='none';
+  if(!g('vg-prix')){
+    if(errEl){errEl.textContent='Veuillez indiquer le prix de vente.';errEl.style.display='block';}
+    return;
+  }
+  if(!g('vg-ville')&&!g('vg-adresse')){
+    if(errEl){errEl.textContent='Veuillez renseigner la localisation.';errEl.style.display='block';}
+    return;
+  }
+  const U=window._clerkUser||{};
+  if(!U.id){
+    if(errEl){errEl.textContent='Vous devez être connecté pour publier une annonce.';errEl.style.display='block';}
+    return;
+  }
+  const pubBtn=document.querySelector('#wstep-vg11 .btn-p');
+  if(pubBtn){pubBtn.disabled=true;pubBtn.textContent='Publication en cours...';}
+  try{
+    const listing={
+      user_id:U.id,
+      type:'for_sale',
+      subtype:g('vg-subtype-val')||g('vg-type-val'),
+      bien_category:'parking',
+      adresse:g('vg-adresse'),
+      code_postal:g('vg-cp'),
+      ville:g('vg-ville'),
+      quartier:g('vg-quartier'),
+      niveau_parking:g('vg-niveau'),
+      numero_place:g('vg-numero'),
+      prix:parseFloat(g('vg-prix'))||null,
+      surface:parseFloat(g('vg-surface'))||null,
+      longueur:parseFloat(g('vg-longueur'))||null,
+      largeur:parseFloat(g('vg-largeur'))||null,
+      hauteur:parseFloat(g('vg-hauteur'))||null,
+      nb_vehicules:parseInt(g('vg-nb-vehicules'))||1,
+      copropriete:g('vg-copropriete')==='oui',
+      charges_copropriete:parseFloat(g('vg-charges-copro'))||null,
+      lots_copropriete:parseInt(g('vg-lots-copro'))||null,
+      procedure_syndic:g('vg-procedure')==='oui',
+      travaux_votes:g('vg-travaux-votes')==='oui',
+      parking_securise:document.getElementById('vg-securise')?.classList.contains('checked')||false,
+      portail_automatique:document.getElementById('vg-portail-auto')?.classList.contains('checked')||false,
+      badge_acces:document.getElementById('vg-badge')?.classList.contains('checked')||false,
+      telecommande:document.getElementById('vg-telecommande')?.classList.contains('checked')||false,
+      gardien:document.getElementById('vg-gardien')?.classList.contains('checked')||false,
+      cameras:document.getElementById('vg-cameras')?.classList.contains('checked')||false,
+      eclairage:document.getElementById('vg-eclairage')?.classList.contains('checked')||false,
+      acces_24h:document.getElementById('vg-acces-24h')?.classList.contains('checked')||false,
+      electricite:document.getElementById('vg-electricite')?.classList.contains('checked')||false,
+      prise_electrique:document.getElementById('vg-prise')?.classList.contains('checked')||false,
+      borne_recharge:document.getElementById('vg-borne-recharge')?.classList.contains('checked')||false,
+      eau:document.getElementById('vg-eau')?.classList.contains('checked')||false,
+      porte_electrique:document.getElementById('vg-porte-elec')?.classList.contains('checked')||false,
+      stockage_autorise:g('vg-stockage-val')||null,
+      annexe_cave:document.getElementById('vg-cave')?.classList.contains('checked')||false,
+      annexe_rangement:document.getElementById('vg-rangement')?.classList.contains('checked')||false,
+      annexe_mezzanine:document.getElementById('vg-mezzanine')?.classList.contains('checked')||false,
+      annexe_cellier:document.getElementById('vg-cellier')?.classList.contains('checked')||false,
+      honoraires_inclus:g('vg-honoraires')==='oui',
+      honoraires_montant:parseFloat(g('vg-honoraires-montant'))||null,
+      honoraires_charge:g('vg-honoraires-charge'),
+      description:g('vg-description'),
+      actif:false,
+      sale_subscription_status:'en attente',
+      created_at:new Date().toISOString()
+    };
+    const {data,error}=await sb.from('listings').insert(listing).select('id').single();
+    if(error)throw error;
+    const listingId=data.id;
+    for(let i=0;i<_vgPhotos.length;i++){
+      const f=_vgPhotos[i];
+      const ext=f.name.split('.').pop();
+      const path=listingId+'/'+Date.now()+'_'+i+'.'+ext;
+      const {error:upErr}=await sb.storage.from('annonces').upload(path,f,{contentType:f.type});
+      if(upErr)console.warn('Photo upload error:',upErr);
+    }
+    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    toast('Annonce déposée avec succès !');
+    setTimeout(()=>{exitVenteGarageMode();},3000);
+  }catch(e){
+    console.error('doPostVenteGarage error:',e);
+    if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VENTE MAISON TUNNEL
+// ═══════════════════════════════════════════════════════════════
+
+let _venteMaisonMode=false;
+let _vmStep=0;
+let _vmSubtype='';
+let _vmPhotos=[];
+
+function wizardStartVenteMaison(){
+  _venteMaisonMode=true;
+  _vmStep=1;
+  _vmPhotos=[];
+  // relabel dots for maison tunnel
+  const dotLabels=['Type','Bien','Localisation','Prix','Caract.','Terrain','Équip.','Photos'];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    const lbl=d.querySelector('.wdot-label');
+    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
+  });
+  if(dots[0])dots[0].classList.add('done');
+  if(dots[1])dots[1].classList.add('done');
+  if(dots[2])dots[2].classList.add('active');
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape 3 sur 8';
+  // show vm1
+  const vm1=document.getElementById('wstep-vm1');
+  if(vm1)vm1.style.display='block';
+}
+
+function _updateVmDots(vmN){
+  // dot 0 = Type (done), dot 1 = Bien (done)
+  // dot 2 = Localisation (vm1-vm2), dot 3 = Prix/Surface (vm3-vm4)
+  // dot 4 = Pièces/Terrain (vm5-vm6), dot 5 = Garage/Dépend (vm7-vm8)
+  // dot 6 = État/Équip/DPE/Situation (vm9-vm12), dot 7 = Description/Photos/Récap (vm13-vm15)
+  const dotMap=[2,2,3,3,4,4,5,5,6,6,6,6,7,7,7]; // index=vmN-1
+  const activeDot=dotMap[vmN-1];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i<activeDot) d.classList.add('done');
+    else if(i===activeDot) d.classList.add('active');
+  });
+  const ctr=document.getElementById('w-step-counter');
+  if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
+}
+
+function exitVenteMaisonMode(){
+  _venteMaisonMode=false;
+  _vmStep=0;
+  _vmPhotos=[];
+  for(let i=1;i<=15;i++){
+    const el=document.getElementById('wstep-vm'+i);
+    if(el)el.style.display='none';
+  }
+  // also exit vente mode
+  exitVenteMode();
+}
+
+function wizardGoVm(n){
+  // hide current vm step
+  if(_vmStep>0){
+    const cur=document.getElementById('wstep-vm'+_vmStep);
+    if(cur)cur.style.display='none';
+  }
+  // going back to vs0
+  if(n===0){
+    _venteMaisonMode=false;
+    _vmStep=0;
+    wizardGoVs(0);
+    return;
+  }
+  if(n===15)buildVmRecap();
+  _vmStep=n;
+  const next=document.getElementById('wstep-vm'+n);
+  if(next)next.style.display='block';
+  _updateVmDots(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectVmSubtype(st){
+  _vmSubtype=st;
+  document.querySelectorAll('#wstep-vm1 .tloc-card').forEach(c=>c.classList.remove('actif'));
+  const idMap={maison:'vm-type-maison',villa:'vm-type-villa',maison_de_ville:'vm-type-ville',maison_mitoyenne:'vm-type-mitoyenne',maison_individuelle:'vm-type-individuelle',ferme:'vm-type-ferme'};
+  const card=document.getElementById(idMap[st]);
+  if(card)card.classList.add('actif');
+  const hi=document.getElementById('vm-maison-type');
+  if(hi)hi.value=st;
+  const nb=document.getElementById('vm1-next');
+  if(nb)nb.style.display='block';
+}
+
+function setVmToggle(key,v){
+  const oui=document.getElementById('vm-'+key+'-oui');
+  const non=document.getElementById('vm-'+key+'-non');
+  if(oui)oui.classList.toggle('sel',v==='oui');
+  if(non)non.classList.toggle('sel',v==='non');
+  const hiddenMap={
+    'adresse-pub':'vm-adresse-publique',
+    'honoraires-vis':'vm-honoraires',
+    'wc':'vm-wc-separes',
+    'travaux-vis':'vm-travaux-recents',
+    'cloture':'vm-cloture',
+    'piscine-vis':'vm-piscine',
+    'garage-elec':'vm-garage-elec',
+    'borne-recharge':'vm-borne-recharge'
+  };
+  const hid=hiddenMap[key]||('vm-'+key);
+  const hi=document.getElementById(hid);
+  if(hi)hi.value=v;
+  // side effects
+  if(key==='honoraires-vis'){
+    const w=document.getElementById('vm-honoraires-wrap');
+    if(w)w.style.display=v==='oui'?'flex':'none';
+  }
+  if(key==='travaux-vis'){
+    const d=document.getElementById('vm-travaux-detail-wrap');
+    if(d)d.style.display=v==='oui'?'flex':'none';
+  }
+  if(key==='piscine-vis'){
+    const d=document.getElementById('vm-piscine-detail');
+    if(d)d.style.display=v==='oui'?'flex':'none';
+  }
+}
+
+function selectVmRadioChip(label,name){
+  document.querySelectorAll('.equip-chip input[name="'+name+'"]').forEach(inp=>{
+    inp.closest('.equip-chip').classList.remove('checked');
+    inp.checked=false;
+  });
+  label.classList.add('checked');
+  const inp=label.querySelector('input[type=radio]');
+  if(inp)inp.checked=true;
+  const v=inp?inp.value:'';
+  if(name==='vm-stat'){
+    const hi=document.getElementById('vm-stationnement');
+    if(hi)hi.value=v;
+    const d=document.getElementById('vm-garage-detail');
+    if(d)d.style.display=(v!=='aucun'&&v!=='')?'flex':'none';
+  }
+  if(name==='vm-etat'){
+    const hi=document.getElementById('vm-etat-val');
+    if(hi)hi.value=v;
+  }
+  if(name==='vm-situation-r'){
+    const hi=document.getElementById('vm-situation');
+    if(hi)hi.value=v;
+    const d=document.getElementById('vm-loue-detail');
+    if(d)d.style.display=v==='loue'?'flex':'none';
+  }
+  if(name==='vm-piscine-type'){
+    const hi=document.getElementById('vm-piscine-type-val');
+    if(hi)hi.value=v;
+  }
+}
+
+function updateVmExterieur(){
+  const checked=Array.from(document.querySelectorAll('.vm-ext-cb:checked')).map(c=>c.value);
+  const hi=document.getElementById('vm-exterieur');
+  if(hi)hi.value=checked.join(',');
+  const w=document.getElementById('vm-surface-ext-wrap');
+  if(w)w.style.display=checked.length?'block':'none';
+}
+
+function updateVmPrixM2(){
+  const prix=parseFloat((document.getElementById('vm-prix')||{}).value)||0;
+  const surf=parseFloat((document.getElementById('vm-surface')||{}).value)||0;
+  const el=document.getElementById('vm-prix-m2');
+  if(el){
+    if(prix>0&&surf>0) el.textContent=Math.round(prix/surf).toLocaleString('fr-FR')+' €/m²';
+    else el.textContent='';
+  }
+}
+
+let _vmAdresseTimer=null;
+function vmAdresseInput(value){
+  clearTimeout(_vmAdresseTimer);
+  const sugg=document.getElementById('vm-adresse-sugg');
+  if(!value||value.length<3){if(sugg)sugg.style.display='none';return;}
+  _vmAdresseTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(value)+'&limit=5');
+      const d=await r.json();
+      if(!sugg)return;
+      sugg.innerHTML='';
+      (d.features||[]).forEach(f=>{
+        const p=f.properties;
+        const item=document.createElement('div');
+        item.className='ban-item';
+        item.textContent=p.label;
+        item.onclick=()=>{
+          const adr=document.getElementById('vm-adresse');
+          if(adr)adr.value=p.label;
+          const cp=document.getElementById('vm-cp');
+          if(cp)cp.value=p.postcode||'';
+          const ville=document.getElementById('vm-ville');
+          if(ville)ville.value=p.city||'';
+          sugg.style.display='none';
+        };
+        sugg.appendChild(item);
+      });
+      sugg.style.display=sugg.children.length?'block':'none';
+    }catch(e){if(sugg)sugg.style.display='none';}
+  },350);
+}
+
+function handleVmDrop(e){
+  e.preventDefault();
+  if(e.dataTransfer&&e.dataTransfer.files)handleVmPhotos(e.dataTransfer.files);
+}
+
+function handleVmPhotos(files){
+  const MAX=30;
+  for(let i=0;i<files.length;i++){
+    if(_vmPhotos.length>=MAX){toast('Maximum 30 photos atteint.');break;}
+    const f=files[i];
+    if(!f.type.startsWith('image/'))continue;
+    _vmPhotos.push(f);
+  }
+  _updateVmPhotoArea();
+}
+
+function removeVmPhoto(btn,idx){
+  _vmPhotos.splice(idx,1);
+  _updateVmPhotoArea();
+}
+
+function _updateVmPhotoArea(){
+  const preview=document.getElementById('vm-photo-preview');
+  if(!preview)return;
+  preview.innerHTML='';
+  _vmPhotos.forEach((f,idx)=>{
+    const url=URL.createObjectURL(f);
+    const wrap=document.createElement('div');
+    wrap.className='pk-photo-thumb';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVmPhoto(this,'+idx+')">✕</button>';
+    preview.appendChild(wrap);
+  });
+  const msg=document.getElementById('vm-photo-required-msg');
+  if(msg)msg.style.display=_vmPhotos.length<1?'block':'none';
+  const area=document.getElementById('vm-photo-upload-area');
+  if(area){
+    const ct=area.querySelector('.pk-photo-count');
+    if(ct)ct.textContent=_vmPhotos.length+'/30 photo'+(_vmPhotos.length!==1?'s':'');
+  }
+}
+
+function genVmDescription(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const subtype=_vmSubtype||g('vm-maison-type');
+  const subtypeLabel={maison:'Maison',villa:'Villa',maison_de_ville:'Maison de ville',maison_mitoyenne:'Maison mitoyenne',maison_individuelle:'Maison individuelle',ferme:'Ferme'}[subtype]||'Maison';
+  const surf=g('vm-surface');
+  const surfTerrain=g('vm-surface-terrain');
+  const pieces=g('vm-pieces');
+  const chambres=g('vm-chambres');
+  const niveaux=g('vm-niveaux');
+  const annee=g('vm-annee-construction');
+  const ville=g('vm-ville');
+  const quartier=g('vm-quartier');
+  const etat=g('vm-etat-val');
+  const etatLabel={neuf:'neuve',excellent:'en excellent état',bon:'en bon état',rafraichir:'à rafraîchir',renover:'à rénover','gros-travaux':'nécessitant de gros travaux'}[etat]||'';
+  const dpe=g('vm-dpe');
+  const exterieur=g('vm-exterieur');
+  const stationnement=g('vm-stationnement');
+  const piscine=g('vm-piscine');
+  const situation=g('vm-situation');
+  const situationLabel={libre:'Libre à la vente',occupe:'Occupée par le propriétaire',loue:'Actuellement louée'}[situation]||'';
+  let desc=subtypeLabel;
+  if(surf)desc+=' de '+surf+' m²';
+  if(surfTerrain)desc+=' sur un terrain de '+surfTerrain+' m²';
+  if(pieces)desc+=' – '+pieces+' pièce'+(parseInt(pieces)>1?'s':'');
+  if(chambres)desc+=' dont '+chambres+' chambre'+(parseInt(chambres)>1?'s':'');
+  if(niveaux&&parseInt(niveaux)>1)desc+=', '+niveaux+' niveaux';
+  desc+='\n\n';
+  if(ville){desc+='Située à '+ville;if(quartier)desc+=' ('+quartier+')';desc+='.';}
+  if(annee)desc+=' Construite en '+annee+'.';
+  desc+='\n\n';
+  if(etatLabel)desc+='Maison '+etatLabel+'. ';
+  const extItems=exterieur?exterieur.split(',').filter(Boolean):[];
+  if(extItems.length){
+    const labels={jardin:'jardin',terrasse:'terrasse',balcon:'balcon',cour:'cour',veranda:'véranda'};
+    desc+='Elle dispose d\'un '+extItems.map(e=>labels[e]||e).join(', ')+'. ';
+  }
+  if(piscine==='oui')desc+='Piscine incluse. ';
+  if(stationnement&&stationnement!=='aucun'){
+    const pkLabel={garage:'garage individuel',['double-garage']:'double garage',box:'box fermé',['place-ext']:'place de parking extérieure',['parking-couvert']:'parking couvert',plusieurs:'plusieurs emplacements'}[stationnement]||stationnement;
+    desc+=pkLabel.charAt(0).toUpperCase()+pkLabel.slice(1)+' inclus. ';
+  }
+  desc+='\n\n';
+  if(dpe)desc+='Classe énergie : '+dpe+'. ';
+  if(situationLabel)desc+=situationLabel+'.';
+  desc=desc.replace(/\n{3,}/g,'\n\n').trim();
+  const ta=document.getElementById('vm-description');
+  if(ta)ta.value=desc;
+  const ctr=document.getElementById('vm-desc-counter');
+  if(ctr)ctr.textContent=desc.length+'/2000';
+}
+
+function buildVmRecap(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const subtype={maison:'Maison',villa:'Villa',maison_de_ville:'Maison de ville',maison_mitoyenne:'Maison mitoyenne',maison_individuelle:'Maison individuelle',ferme:'Ferme'}[_vmSubtype||g('vm-maison-type')]||'Maison';
+  const surf=g('vm-surface');
+  const surfTerrain=g('vm-surface-terrain');
+  const prix=g('vm-prix');
+  const ville=g('vm-ville');
+  const pieces=g('vm-pieces');
+  const chambres=g('vm-chambres');
+  const dpe=g('vm-dpe');
+  const piscine=g('vm-piscine')==='oui'?'Oui':'Non';
+  const photos=_vmPhotos.length;
+  const items=[
+    ['Type',subtype],
+    ['Ville',ville||'—'],
+    ['Prix',prix?parseInt(prix).toLocaleString('fr-FR')+' €':'—'],
+    ['Surface habitable',surf?surf+' m²':'—'],
+    ['Surface terrain',surfTerrain?surfTerrain+' m²':'—'],
+    ['Pièces',pieces||'—'],
+    ['Chambres',chambres||'—'],
+    ['DPE',dpe||'—'],
+    ['Piscine',piscine],
+    ['Photos',photos+' photo'+(photos!==1?'s':'')]
+  ];
+  const recap=document.getElementById('vm-recap');
+  if(!recap)return;
+  recap.innerHTML='<div class="recap-grid">'+items.map(([k,v])=>
+    '<div class="recap-row"><span class="recap-label">'+k+'</span><span class="recap-val">'+v+'</span></div>'
+  ).join('')+'</div>';
+}
+
+async function doPostVenteMaison(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value||'':''};
+  const errEl=document.getElementById('vm-err');
+  const okEl=document.getElementById('vm-ok');
+  if(errEl)errEl.style.display='none';
+  if(okEl)okEl.style.display='none';
+  if(!g('vm-adresse')&&!g('vm-ville')){
+    if(errEl){errEl.textContent='Veuillez renseigner la localisation.';errEl.style.display='block';}
+    return;
+  }
+  if(!g('vm-prix')){
+    if(errEl){errEl.textContent='Veuillez indiquer le prix de vente.';errEl.style.display='block';}
+    return;
+  }
+  if(!g('vm-surface')){
+    if(errEl){errEl.textContent='Veuillez indiquer la surface habitable.';errEl.style.display='block';}
+    return;
+  }
+  const U=window._clerkUser||{};
+  if(!U.id){
+    if(errEl){errEl.textContent='Vous devez être connecté pour publier une annonce.';errEl.style.display='block';}
+    return;
+  }
+  const pubBtn=document.querySelector('#wstep-vm15 .btn-p');
+  if(pubBtn){pubBtn.disabled=true;pubBtn.textContent='Publication en cours...';}
+  try{
+    const listing={
+      user_id:U.id,
+      type:'for_sale',
+      subtype:_vmSubtype||g('vm-maison-type'),
+      adresse:g('vm-adresse'),
+      code_postal:g('vm-cp'),
+      ville:g('vm-ville'),
+      quartier:g('vm-quartier'),
+      adresse_publique:g('vm-adresse-publique')==='oui',
+      prix:parseFloat(g('vm-prix'))||null,
+      surface:parseFloat(g('vm-surface'))||null,
+      surface_terrain:parseFloat(g('vm-surface-terrain'))||null,
+      nb_pieces:parseInt(g('vm-pieces'))||null,
+      nb_chambres:parseInt(g('vm-chambres'))||null,
+      nb_niveaux:parseInt(g('vm-niveaux'))||null,
+      annee_construction:parseInt(g('vm-annee-construction'))||null,
+      nb_sdb:parseInt(g('vm-sdb'))||null,
+      nb_sde:parseInt(g('vm-sde'))||null,
+      wc_separes:g('vm-wc-separes')==='oui',
+      type_cuisine:g('vm-cuisine-type'),
+      exterieur:g('vm-exterieur'),
+      surface_exterieur:parseFloat(g('vm-surface-ext'))||null,
+      terrain_cloture:g('vm-cloture')==='oui',
+      piscine:g('vm-piscine')==='oui',
+      piscine_type:g('vm-piscine-type-val'),
+      piscine_dimensions:g('vm-piscine-dim'),
+      jacuzzi:document.getElementById('vm-jacuzzi')?.classList.contains('checked')||false,
+      portail:document.getElementById('vm-portail')?.classList.contains('checked')||false,
+      arrosage_auto:document.getElementById('vm-arrosage')?.classList.contains('checked')||false,
+      pool_house:document.getElementById('vm-pool-house')?.classList.contains('checked')||false,
+      stationnement:g('vm-stationnement'),
+      nb_vehicules:parseInt(g('vm-nb-vehicules'))||null,
+      garage_electrique:g('vm-garage-elec')==='oui',
+      borne_recharge:g('vm-borne-recharge')==='oui',
+      dep_cave:document.getElementById('vm-dep-cave')?.classList.contains('checked')||false,
+      dep_grenier:document.getElementById('vm-dep-grenier')?.classList.contains('checked')||false,
+      dep_sous_sol:document.getElementById('vm-dep-sous-sol')?.classList.contains('checked')||false,
+      dep_atelier:document.getElementById('vm-dep-atelier')?.classList.contains('checked')||false,
+      dep_abri_jardin:document.getElementById('vm-dep-abri-jardin')?.classList.contains('checked')||false,
+      dep_dependance:document.getElementById('vm-dep-dependance')?.classList.contains('checked')||false,
+      dep_grange:document.getElementById('vm-dep-grange')?.classList.contains('checked')||false,
+      dep_local_tech:document.getElementById('vm-dep-local-tech')?.classList.contains('checked')||false,
+      dep_buanderie:document.getElementById('vm-dep-buanderie')?.classList.contains('checked')||false,
+      etat_logement:g('vm-etat-val'),
+      travaux_recents:g('vm-travaux-recents')==='oui',
+      travaux_description:g('vm-travaux-desc'),
+      travaux_annee:parseInt(g('vm-travaux-annee'))||null,
+      cheminee:document.getElementById('vm-cheminee')?.classList.contains('checked')||false,
+      poele:document.getElementById('vm-poele')?.classList.contains('checked')||false,
+      climatisation:document.getElementById('vm-clim')?.classList.contains('checked')||false,
+      pompe_chaleur:document.getElementById('vm-pac')?.classList.contains('checked')||false,
+      chauffage_gaz:document.getElementById('vm-ch-gaz')?.classList.contains('checked')||false,
+      chauffage_electrique:document.getElementById('vm-ch-elec')?.classList.contains('checked')||false,
+      chauffage_bois:document.getElementById('vm-ch-bois')?.classList.contains('checked')||false,
+      panneaux_solaires:document.getElementById('vm-solaire')?.classList.contains('checked')||false,
+      double_vitrage:document.getElementById('vm-double-vitrage')?.classList.contains('checked')||false,
+      volets_electriques:document.getElementById('vm-volets-elec')?.classList.contains('checked')||false,
+      isolation_recente:document.getElementById('vm-isolation')?.classList.contains('checked')||false,
+      fibre_optique:document.getElementById('vm-fibre')?.classList.contains('checked')||false,
+      alarme:document.getElementById('vm-alarme')?.classList.contains('checked')||false,
+      interphone:document.getElementById('vm-interphone')?.classList.contains('checked')||false,
+      domotique:document.getElementById('vm-domotique')?.classList.contains('checked')||false,
+      classe_dpe:g('vm-dpe'),
+      classe_ges:g('vm-ges'),
+      dpe_consommation:parseFloat(g('vm-dpe-conso'))||null,
+      dpe_emissions:parseFloat(g('vm-dpe-emissions'))||null,
+      dpe_date:g('vm-dpe-date')||null,
+      situation_bien:g('vm-situation'),
+      loyer_actuel:parseFloat(g('vm-loyer-actuel'))||null,
+      bail_fin:g('vm-bail-fin')||null,
+      disponibilite_vente:g('vm-dispo-vente')||null,
+      description:g('vm-description'),
+      honoraires_inclus:g('vm-honoraires')==='oui',
+      honoraires_montant:parseFloat(g('vm-honoraires-montant'))||null,
+      honoraires_charge:g('vm-honoraires-charge'),
+      actif:false,
+      sale_subscription_status:'en attente',
+      created_at:new Date().toISOString()
+    };
+    const {data,error}=await sb.from('listings').insert(listing).select('id').single();
+    if(error)throw error;
+    const listingId=data.id;
+    for(let i=0;i<_vmPhotos.length;i++){
+      const f=_vmPhotos[i];
+      const ext=f.name.split('.').pop();
+      const path=listingId+'/'+Date.now()+'_'+i+'.'+ext;
+      const {error:upErr}=await sb.storage.from('annonces').upload(path,f,{contentType:f.type});
+      if(upErr)console.warn('Photo upload error:',upErr);
+    }
+    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    toast('Annonce déposée avec succès !');
+    setTimeout(()=>{exitVenteMaisonMode();},3000);
+  }catch(e){
+    console.error('doPostVenteMaison error:',e);
+    if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PARKING TUNNEL
+// ═══════════════════════════════════════════════════════════════
+
+let _parkingMode=false;
+let _pkStep=0;
+let _pkSubtype='';
+let _pkPhotos=[];
+
+function wizardStartParking(){
+  _parkingMode=true;
+  _pkStep=1;
+  _pkPhotos=[];
+  const ptEl=document.getElementById('pt');
+  if(ptEl)ptEl.value='parking';
+  const s1=document.getElementById('wstep-1');
+  if(s1)s1.style.display='none';
+  const pk1=document.getElementById('wstep-pk1');
+  if(pk1)pk1.style.display='block';
+  _updatePkDots(1);
+  const ctr=document.getElementById('wizard-step-counter');
+  if(ctr)ctr.textContent='Étape 1 sur 5';
+  const lbl=document.getElementById('wizard-step-label');
+  if(lbl)lbl.textContent='Place / Garage';
+  const fc=document.getElementById('post-self-form');
+  if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function _updatePkDots(pkN){
+  const dots=document.querySelectorAll('.wdot');
+  const pkLabels=['P/Garage','Adresse','Caract.','Loyer','Photos'];
+  dots.forEach((d,i)=>{
+    d.classList.remove('actif','done');
+    if(i===0){
+      d.style.display='';
+      d.classList.add('done');
+      const l=d.querySelector('.wdot-lbl');
+      if(l)l.textContent='Type';
+    } else if(i>=1&&i<=5){
+      d.style.display='';
+      const pks=i; // pk step 1..5
+      const l=d.querySelector('.wdot-lbl');
+      if(l)l.textContent=pkLabels[i-1];
+      if(pks<pkN)d.classList.add('done');
+      else if(pks===pkN)d.classList.add('actif');
+    } else {
+      d.style.display='none';
+    }
+  });
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round(pkN/5*100)+'%';
+}
+
+function exitParkingMode(){
+  _parkingMode=false;
+  _pkStep=0;
+  _pkSubtype='';
+  for(let i=1;i<=5;i++){
+    const s=document.getElementById('wstep-pk'+i);
+    if(s)s.style.display='none';
+  }
+  const pkCard=document.getElementById('tloc-parking');
+  if(pkCard)pkCard.classList.remove('actif');
+  const nb=document.getElementById('wstep1-next');
+  if(nb)nb.style.display='none';
+  const btn=document.getElementById('wstep1-next-btn');
+  if(btn)btn.setAttribute('onclick','wizardGoTo(2)');
+  const normalLabels=['Type','Bien','Adresse','Surface','Charges','Prix','Équip.','Photos'];
+  const dots=document.querySelectorAll('.wdot');
+  dots.forEach((d,i)=>{
+    d.style.display='';
+    d.classList.remove('actif','done');
+    const l=d.querySelector('.wdot-lbl');
+    if(l)l.textContent=normalLabels[i]||'';
+  });
+  if(dots[0])dots[0].classList.add('actif');
+  const s1=document.getElementById('wstep-1');
+  if(s1)s1.style.display='block';
+  const ctr=document.getElementById('wizard-step-counter');
+  if(ctr)ctr.textContent='Étape 1 sur 8';
+  const lbl=document.getElementById('wizard-step-label');
+  if(lbl)lbl.textContent='Type de location';
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width='12.5%';
+  const fc=document.getElementById('post-self-form');
+  if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function wizardGoPk(n){
+  const cur=document.getElementById('wstep-pk'+_pkStep);
+  if(cur)cur.style.display='none';
+  _pkStep=n;
+  const next=document.getElementById('wstep-pk'+n);
+  if(next)next.style.display='block';
+  _updatePkDots(n);
+  const ctr=document.getElementById('wizard-step-counter');
+  if(ctr)ctr.textContent='Étape '+n+' sur 5';
+  const pkStepNames=['Place / Garage','Localisation','Caractéristiques','Loyer & conditions','Description & photos'];
+  const lbl=document.getElementById('wizard-step-label');
+  if(lbl)lbl.textContent=pkStepNames[n-1]||'';
+  const fc=document.getElementById('post-self-form');
+  if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selectPkSubtype(st){
+  _pkSubtype=st;
+  ['parking','garage'].forEach(k=>{
+    const c=document.getElementById('tloc-pk-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const activeCard=document.getElementById('tloc-pk-'+st);
+  if(activeCard)activeCard.classList.add('actif');
+  const inp=document.getElementById('p-pk-subtype');
+  if(inp)inp.value=st;
+  const isGarage=st==='garage';
+  document.querySelectorAll('.pk-garage-only').forEach(el=>{
+    el.style.display=isGarage?'':'none';
+  });
+  const hautWrap=document.getElementById('pk-haut-wrap');
+  if(hautWrap)hautWrap.style.display=isGarage?'':'none';
+  const pk1Next=document.getElementById('pk1-next');
+  if(pk1Next)pk1Next.style.display='flex';
+}
+
+function updatePkLoc(){
+  const checked=[...document.querySelectorAll('.pk-loc-cb:checked')].map(cb=>cb.value);
+  const inp=document.getElementById('p-pk-location-type');
+  if(inp)inp.value=checked.join(',');
+}
+
+function setPkToggle(key,v){
+  ['oui','non'].forEach(k=>{
+    const el=document.getElementById('pk-'+key+'-'+k);
+    if(el)el.classList.toggle('sel',k===v);
+  });
+  const idMap={sousloc:'p-pk-sousloc',stockagecond:'p-pk-stockage-cond'};
+  const hiddenEl=document.getElementById(idMap[key]);
+  if(hiddenEl)hiddenEl.value=v;
+}
+
+async function pkAdresseInput(value){
+  const sugg=document.getElementById('pk-adresse-sugg');
+  if(!sugg)return;
+  if(!value||value.length<3){sugg.style.display='none';return;}
+  try{
+    const res=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(value)+'&limit=5');
+    const data=await res.json();
+    sugg.innerHTML='';
+    (data.features||[]).forEach(f=>{
+      const item=document.createElement('div');
+      item.style.cssText='padding:.55rem .8rem;cursor:pointer;font-size:.83rem;border-bottom:1px solid rgba(0,0,0,.06)';
+      item.textContent=f.properties.label;
+      item.onmouseenter=()=>item.style.background='rgba(27,79,216,.06)';
+      item.onmouseleave=()=>item.style.background='';
+      item.onmousedown=()=>{
+        const addrEl=document.getElementById('p-pk-adresse');
+        const cpEl=document.getElementById('p-pk-cp');
+        const villeEl=document.getElementById('p-pk-ville');
+        if(addrEl)addrEl.value=f.properties.name||f.properties.label;
+        if(cpEl)cpEl.value=f.properties.postcode||'';
+        if(villeEl)villeEl.value=f.properties.city||'';
+        sugg.style.display='none';
+      };
+      sugg.appendChild(item);
+    });
+    sugg.style.display=(data.features&&data.features.length)?'block':'none';
+  }catch(e){sugg.style.display='none';}
+}
+
+function handlePkDrop(e){
+  e.preventDefault();
+  const area=document.getElementById('pk-photo-upload-area');
+  if(area)area.style.background='rgba(27,79,216,.03)';
+  handlePkPhotos(e.dataTransfer.files);
+}
+
+function handlePkPhotos(files){
+  const preview=document.getElementById('pk-photo-preview');
+  if(!preview)return;
+  Array.from(files).slice(0,10-_pkPhotos.length).forEach(file=>{
+    if(!file.type.startsWith('image/'))return;
+    if(file.size>5*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Image trop grande — max 5 Mo');return;}
+    _pkPhotos.push(file);
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const idx=_pkPhotos.length-1;
+      const div=document.createElement('div');
+      div.style.cssText='position:relative;width:80px;height:80px';
+      div.innerHTML=`<img src="${ev.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"><button onclick="removePkPhoto(this,${idx})" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`;
+      preview.appendChild(div);
+      _updatePkPhotoArea();
+    };
+    reader.readAsDataURL(file);
+  });
+  _updatePkPhotoArea();
+}
+
+function removePkPhoto(btn,idx){
+  _pkPhotos.splice(idx,1);
+  btn.parentElement.remove();
+  _updatePkPhotoArea();
+}
+
+function _updatePkPhotoArea(){
+  const area=document.getElementById('pk-photo-upload-area');
+  const msg=document.getElementById('pk-photo-required-msg');
+  if(!area)return;
+  if(_pkPhotos.length>0){
+    area.style.borderColor='var(--green)';
+    area.style.background='rgba(76,175,125,.04)';
+    if(msg)msg.style.display='none';
+  } else {
+    area.style.borderColor='var(--terra)';
+    area.style.background='rgba(27,79,216,.03)';
+  }
+  area.style.opacity=_pkPhotos.length>=10?'0.5':'1';
+}
+
+async function doPostParking(){
+  const err=document.getElementById('pk-err');
+  const ok=document.getElementById('pk-ok');
+  if(err)err.style.display='none';
+  if(ok)ok.style.display='none';
+
+  const loyer=document.getElementById('p-pk-loyer')?.value;
+  if(!loyer||parseFloat(loyer)<=0){
+    if(err){err.innerHTML='⚠️ Le loyer mensuel est obligatoire.';err.style.display='block';}
+    wizardGoPk(4);return;
+  }
+  const adresse=document.getElementById('p-pk-adresse')?.value.trim();
+  if(!adresse){
+    if(err){err.innerHTML='⚠️ L\'adresse est obligatoire.';err.style.display='block';}
+    wizardGoPk(2);return;
+  }
+  const cp=document.getElementById('p-pk-cp')?.value.trim();
+  const ville=document.getElementById('p-pk-ville')?.value.trim();
+  if(!cp||!ville){
+    if(err){err.innerHTML='⚠️ Le code postal et la ville sont obligatoires.';err.style.display='block';}
+    wizardGoPk(2);return;
+  }
+  if(_pkPhotos.length===0){
+    const msg=document.getElementById('pk-photo-required-msg');
+    if(msg)msg.style.display='block';
+    const area=document.getElementById('pk-photo-upload-area');
+    if(area){area.style.borderColor='var(--terra)';area.style.boxShadow='0 0 0 3px rgba(201,85,58,.2)';area.scrollIntoView({behavior:'smooth',block:'center'});}
+    if(err){err.innerHTML='⚠️ Au moins 1 photo est requise.';err.style.display='block';}
+    return;
+  }
+  if(!U){toast('Connectez-vous pour publier une annonce');return;}
+
+  if(ok){ok.innerHTML='⏳ Publication en cours…';ok.style.display='block';ok.style.background='rgba(46,107,138,.08)';ok.style.color='var(--sea)';}
+
+  const subtype=document.getElementById('p-pk-subtype')?.value||'parking';
+  const numero=document.getElementById('p-pk-numero')?.value.trim();
+  const fullAddress=[adresse,numero?'('+numero+')':'',cp,ville].filter(Boolean).join(', ');
+  const titleStr=(subtype==='garage'?'Garage / Box':'Place de parking')+' — '+ville+(cp?' ('+cp+')':'');
+
+  const fields={
+    title:titleStr,
+    type:'parking',
+    zone:cp+' '+ville,
+    price:parseInt(loyer),
+    depot:parseInt(document.getElementById('p-pk-depot')?.value)||null,
+    available_from:document.getElementById('p-pk-dispo')?.value||null,
+    description:document.getElementById('p-pk-description')?.value||null,
+    full_address:fullAddress,
+    landlord_id:U.id,
+    actif:true,
+  };
+
+  const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
+  if(error){
+    if(err){err.innerHTML='❌ '+error.message;err.style.display='block';}
+    if(ok)ok.style.display='none';
+    return;
+  }
+
+  const extraData={
+    type_bien:subtype,
+    pk_subtype:subtype,
+    pk_location_type:document.getElementById('p-pk-location-type')?.value||null,
+    pk_longueur:parseFloat(document.getElementById('p-pk-long')?.value)||null,
+    pk_largeur:parseFloat(document.getElementById('p-pk-larg')?.value)||null,
+    pk_hauteur:parseFloat(document.getElementById('p-pk-haut')?.value)||null,
+    pk_nb_vehicles:document.getElementById('p-pk-nb-vehicles')?.value||'1',
+    pk_niveau:document.getElementById('p-pk-niveau')?.value.trim()||null,
+    pk_secured:document.getElementById('p-pk-secured')?.checked||false,
+    pk_portail_auto:document.getElementById('p-pk-portail-auto')?.checked||false,
+    pk_badge:document.getElementById('p-pk-badge')?.checked||false,
+    pk_porte_elec:document.getElementById('p-pk-porte-elec')?.checked||false,
+    pk_eclairage:document.getElementById('p-pk-eclairage')?.checked||false,
+    pk_borne:document.getElementById('p-pk-borne')?.checked||false,
+    pk_elec:document.getElementById('p-pk-elec')?.checked||false,
+    pk_prises:document.getElementById('p-pk-prises')?.checked||false,
+    pk_eau:document.getElementById('p-pk-eau')?.checked||false,
+    pk_stockage:document.getElementById('p-pk-stockage')?.checked||false,
+    pmr:document.getElementById('p-pk-pmr')?.checked||false,
+    pk_charges_type:document.getElementById('p-pk-charges-type')?.value||'aucune',
+    pk_charges_montant:parseInt(document.getElementById('p-pk-charges-montant')?.value)||null,
+    bail_duration:document.getElementById('p-pk-duree')?.value||null,
+    pk_sousloc:document.getElementById('p-pk-sousloc')?.value||null,
+    pk_stockage_cond:document.getElementById('p-pk-stockage-cond')?.value||null,
+    commune:ville,
+  };
+
+  if(annonce){
+    const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
+    if(extraErr)console.error('parking extra update:',extraErr);
+  }
+
+  if(_pkPhotos.length>0&&annonce){
+    try{
+      const urls=[];
+      for(const file of _pkPhotos){
+        const ext=file.name.split('.').pop();
+        const path=annonce.id+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,6)+'.'+ext;
+        const{error:uploadErr}=await sb.storage.from('annonces').upload(path,file,{cacheControl:'3600',upsert:true});
+        if(uploadErr)throw new Error('Échec upload photo : '+uploadErr.message);
+        const{data:urlData}=sb.storage.from('annonces').getPublicUrl(path);
+        urls.push(urlData.publicUrl);
+      }
+      if(urls.length>0)await sb.from('listings').update({photos:urls}).eq('id',annonce.id);
+    }catch(photoErr){
+      if(err){err.innerHTML='⚠️ '+photoErr.message+' — Vérifiez que le bucket "annonces" est Public.';err.style.display='block';}
+      if(ok)ok.style.display='none';
+      return;
+    }
+  }
+
+  if(ok){ok.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Annonce publiée ! Elle est maintenant visible sur Trouve Ton Toit.';ok.style.background='rgba(76,175,125,.1)';ok.style.color='var(--green)';}
+  setTimeout(()=>{
+    _parkingMode=false;_pkStep=0;_pkSubtype='';_pkPhotos=[];
+    toast('<i data-lucide=check-circle-2 class=ic></i> Annonce parking publiée avec succès !');
+    setTimeout(()=>window.location.reload(),1200);
+  },2000);
 }
 
 // PWA Service Worker
