@@ -1391,26 +1391,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <label>Prix au m² <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">calculé auto</span></label>
             <input class="fi" type="text" id="vs-prix-m2" placeholder="—" readonly style="background:var(--warm);cursor:default">
           </div>
-          <div class="fg2" style="grid-column:1/-1">
-            <label>Honoraires d'agence ?</label>
-            <div class="toggle-pills" style="margin-top:.3rem">
-              <span class="toggle-pill sel" id="vs-honoraires-vis-non" onclick="setVsToggle('honoraires-vis','non')">Particulier</span>
-              <span class="toggle-pill" id="vs-honoraires-vis-oui" onclick="setVsToggle('honoraires-vis','oui')">Agence / Pro</span>
-            </div>
-            <input type="hidden" id="vs-honoraires" value="non">
-          </div>
-          <div class="fg2" id="vs-honoraires-wrap" style="display:none">
-            <label>Montant des honoraires (€)</label>
-            <input class="fi" type="number" id="vs-honoraires-montant" placeholder="5000" min="0">
-          </div>
-          <div class="fg2" id="vs-honoraires-charge-wrap" style="display:none">
-            <label>Honoraires à la charge de</label>
-            <select class="fi" id="vs-honoraires-charge">
-              <option value="vendeur">Vendeur</option>
-              <option value="acquereur">Acquéreur</option>
-              <option value="partage">Partagé</option>
-            </select>
-          </div>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVs(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -1856,25 +1836,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <span style="position:absolute;right:.85rem;top:50%;transform:translateY(-50%);color:var(--stone);font-size:.85rem">€</span>
             </div>
             <div id="vm-prix-m2" style="font-size:.8rem;color:var(--stone-l);margin-top:.25rem"></div>
-          </div>
-          <div class="fg2">
-            <label>Honoraires d'agence</label>
-            <div class="toggle-pills" style="margin-top:.4rem">
-              <span class="toggle-pill" id="vm-honoraires-vis-oui" onclick="setVmToggle('honoraires-vis','oui')">Inclus</span>
-              <span class="toggle-pill sel" id="vm-honoraires-vis-non" onclick="setVmToggle('honoraires-vis','non')">Non inclus</span>
-            </div>
-            <input type="hidden" id="vm-honoraires" value="non">
-          </div>
-          <div id="vm-honoraires-wrap" style="display:none;flex-direction:column;gap:.7rem">
-            <div class="fg2"><label>Montant des honoraires (€)</label><input class="fi" id="vm-honoraires-montant" type="number" placeholder="15000"></div>
-            <div class="fg2">
-              <label>À la charge de</label>
-              <select class="fi" id="vm-honoraires-charge">
-                <option value="acquereur">Acquéreur</option>
-                <option value="vendeur">Vendeur</option>
-                <option value="partage">Partagé</option>
-              </select>
-            </div>
           </div>
         </div>
         <div class="wizard-nav">
@@ -2367,24 +2328,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             </div>
             <div id="vg-prix-m2" style="font-size:.8rem;color:var(--stone-l);margin-top:.25rem"></div>
           </div>
-          <div class="fg2">
-            <label>Honoraires d'agence</label>
-            <div class="toggle-pills" style="margin-top:.4rem">
-              <span class="toggle-pill" id="vg-honoraires-vis-oui" onclick="setVgToggle('honoraires-vis','oui')">Inclus</span>
-              <span class="toggle-pill sel" id="vg-honoraires-vis-non" onclick="setVgToggle('honoraires-vis','non')">Non inclus</span>
-            </div>
-            <input type="hidden" id="vg-honoraires" value="non">
-          </div>
-          <div id="vg-honoraires-wrap" style="display:none;flex-direction:column;gap:.7rem">
-            <div class="fg2"><label>Montant des honoraires (€)</label><input class="fi" id="vg-honoraires-montant" type="number" placeholder="2000"></div>
-            <div class="fg2">
-              <label>À la charge de</label>
-              <select class="fi" id="vg-honoraires-charge">
-                <option value="acquereur">Acquéreur</option>
-                <option value="vendeur">Vendeur</option>
-              </select>
-            </div>
-          </div>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVg(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -2700,7 +2643,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 // page) — donc on attend qu'il soit vraiment prêt plutôt que de ne vérifier
 // qu'une seule fois immédiatement, ce qui le raterait systématiquement.
 function initLucideIcons(){
-  initChips();
+  if(typeof initChips==='function')initChips();
   if(window.lucide){
     lucide.createIcons();
     // Vérification périodique légère plutôt qu'un MutationObserver — celui-ci
@@ -5236,15 +5179,13 @@ function wizardStartVente(){
   const dotLabels=['Type','Bien','Lieu','Prix','Caract.','Extérieur','Équip.','Photos'];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
-    const lbl=d.querySelector('.wdot-label');
+    d.classList.remove('active','actif','done');
+    const lbl=d.querySelector('.wdot-lbl');
     if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
   });
   // dot 0 done (Type selected), dot 1 active (Bien)
   if(dots[0])dots[0].classList.add('done');
-  if(dots[1])dots[1].classList.add('active');
-  const ctr=document.getElementById('w-step-counter');
-  if(ctr)ctr.textContent='Étape 2 sur 8';
+  if(dots[1])dots[1].classList.add('actif');
 }
 
 function selectVsBienType(type){
@@ -5290,11 +5231,18 @@ function _launchVsMaison(){
 }
 
 function _updateVsDots(vsN){
-  // Afficher le header progression
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
-  // vsN: 1-14 — map to dot index 0-7
-  const dotMap=[0,1,2,3,4,4,5,5,6,6,6,6,7,7,7];// index=vsN-1, value=dotIndex
+  // Labels vente appart : Type,Bien,Lieu,Prix,Caract.,Extérieur,Équip.,Photos
+  const vsLabels=['Type','Bien','Lieu','Prix','Caract.','Extérieur','Équip.','Photos'];
+  document.querySelectorAll('.wdot').forEach((d,i)=>{
+    const lbl=d.querySelector('.wdot-lbl');
+    if(lbl&&vsLabels[i])lbl.textContent=vsLabels[i];
+  });
+  // vsN 1-14 → dot index 0-7 (dot0=Type done, dot1=Bien done/active)
+  // VS1(sous-type)→dot1, VS2(lieu)→dot2, VS3(prix)→dot3, VS4-5→dot4,
+  // VS6-7→dot5, VS8-11→dot6, VS12-14→dot7
+  const dotMap=[1,2,3,4,4,5,5,6,6,6,6,7,7,7];// index=vsN-1, value=dotIndex
   const activeDot=dotMap[vsN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
@@ -5385,7 +5333,6 @@ function setVsToggle(key,v){
   // hidden input
   const hiddenMap={
     'adresse-pub':'vs-adresse-publique',
-    'honoraires-vis':'vs-honoraires',
     'asc':'vs-ascenseur',
     'wc':'vs-wc-separes',
     'travaux-vis':'vs-travaux-recents',
@@ -5399,10 +5346,6 @@ function setVsToggle(key,v){
   const hi=document.getElementById(hid);
   if(hi)hi.value=v;
   // show/hide dependent sections
-  if(key==='honoraires-vis'){
-    const w=document.getElementById('vs-honoraires-wrap');
-    if(w)w.style.display=v==='oui'?'flex':'none';
-  }
   if(key==='copro-vis'){
     const d=document.getElementById('vs-copro-detail');
     if(d)d.style.display=v==='oui'?'flex':'none';
@@ -5718,9 +5661,9 @@ async function doPostVente(){
       // description
       description:g('vs-description'),
       // honoraires
-      honoraires_inclus:g('vs-honoraires')==='oui',
-      honoraires_montant:parseFloat(g('vs-honoraires-montant'))||null,
-      honoraires_charge:g('vs-honoraires-charge'),
+      honoraires_inclus:false,
+      honoraires_montant:null,
+      honoraires_charge:null,
       // status
       actif:false,
       sale_subscription_status:'en attente',
@@ -5764,30 +5707,22 @@ function wizardStartVenteGarage(){
   _venteGarageMode=true;
   _vgStep=1;
   _vgPhotos=[];
-  const dotLabels=['Type','Bien','Localisation','Prix','Accès','Équip.','Description','Photos'];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
-    const lbl=d.querySelector('.wdot-label');
-    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
-  });
-  if(dots[0])dots[0].classList.add('done');
-  if(dots[1])dots[1].classList.add('done');
-  if(dots[2])dots[2].classList.add('active');
-  const ctr=document.getElementById('w-step-counter');
-  if(ctr)ctr.textContent='Étape 3 sur 8';
   const vg1=document.getElementById('wstep-vg1');
   if(vg1)vg1.style.display='block';
+  _updateVgDots(1);
 }
 
 function _updateVgDots(vgN){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
+  const vgLabels=['Type','Bien','Localisation','Prix','Accès','Équip.','Description','Photos'];
   const dotMap=[2,2,3,3,4,5,5,6,6,7,7];
   const activeDot=dotMap[vgN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
     d.classList.remove('active','done','actif');
+    const lbl=d.querySelector('.wdot-lbl');
+    if(lbl&&vgLabels[i])lbl.textContent=vgLabels[i];
     if(i<activeDot) d.classList.add('done');
     else if(i===activeDot) d.classList.add('actif');
   });
@@ -5878,14 +5813,10 @@ function setVgToggle(key,v){
   const non=document.getElementById('vg-'+key+'-non');
   if(oui)oui.classList.toggle('sel',v==='oui');
   if(non)non.classList.toggle('sel',v==='non');
-  const hiddenMap={'honoraires-vis':'vg-honoraires','copro-vis':'vg-copropriete','trav-votes':'vg-travaux-votes','procedure':'vg-procedure'};
+  const hiddenMap={'copro-vis':'vg-copropriete','trav-votes':'vg-travaux-votes','procedure':'vg-procedure'};
   const hid=hiddenMap[key]||('vg-'+key);
   const hi=document.getElementById(hid);
   if(hi)hi.value=v;
-  if(key==='honoraires-vis'){
-    const w=document.getElementById('vg-honoraires-wrap');
-    if(w)w.style.display=v==='oui'?'flex':'none';
-  }
   if(key==='copro-vis'){
     const d=document.getElementById('vg-copro-detail');
     if(d)d.style.display=v==='oui'?'flex':'none';
@@ -6106,9 +6037,9 @@ async function doPostVenteGarage(){
       annexe_rangement:document.getElementById('vg-rangement')?.classList.contains('checked')||false,
       annexe_mezzanine:document.getElementById('vg-mezzanine')?.classList.contains('checked')||false,
       annexe_cellier:document.getElementById('vg-cellier')?.classList.contains('checked')||false,
-      honoraires_inclus:g('vg-honoraires')==='oui',
-      honoraires_montant:parseFloat(g('vg-honoraires-montant'))||null,
-      honoraires_charge:g('vg-honoraires-charge'),
+      honoraires_inclus:false,
+      honoraires_montant:null,
+      honoraires_charge:null,
       description:g('vg-description'),
       actif:false,
       sale_subscription_status:'en attente',
@@ -6147,32 +6078,22 @@ function wizardStartVenteMaison(){
   _venteMaisonMode=true;
   _vmStep=1;
   _vmPhotos=[];
-  // relabel dots for maison tunnel
-  const dotLabels=['Type','Bien','Localisation','Prix','Caract.','Terrain','Équip.','Photos'];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
-    const lbl=d.querySelector('.wdot-label');
-    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
-  });
-  if(dots[0])dots[0].classList.add('done');
-  if(dots[1])dots[1].classList.add('done');
-  if(dots[2])dots[2].classList.add('active');
-  const ctr=document.getElementById('w-step-counter');
-  if(ctr)ctr.textContent='Étape 3 sur 8';
-  // show vm1
   const vm1=document.getElementById('wstep-vm1');
   if(vm1)vm1.style.display='block';
+  _updateVmDots(1);
 }
 
 function _updateVmDots(vmN){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
+  const vmLabels=['Type','Bien','Localisation','Prix','Caract.','Terrain','Équip.','Photos'];
   const dotMap=[2,2,3,3,4,4,5,5,6,6,6,6,7,7,7]; // index=vmN-1
   const activeDot=dotMap[vmN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
     d.classList.remove('active','done','actif');
+    const lbl=d.querySelector('.wdot-lbl');
+    if(lbl&&vmLabels[i])lbl.textContent=vmLabels[i];
     if(i<activeDot) d.classList.add('done');
     else if(i===activeDot) d.classList.add('actif');
   });
@@ -6234,7 +6155,6 @@ function setVmToggle(key,v){
   if(non)non.classList.toggle('sel',v==='non');
   const hiddenMap={
     'adresse-pub':'vm-adresse-publique',
-    'honoraires-vis':'vm-honoraires',
     'wc':'vm-wc-separes',
     'travaux-vis':'vm-travaux-recents',
     'cloture':'vm-cloture',
@@ -6246,10 +6166,6 @@ function setVmToggle(key,v){
   const hi=document.getElementById(hid);
   if(hi)hi.value=v;
   // side effects
-  if(key==='honoraires-vis'){
-    const w=document.getElementById('vm-honoraires-wrap');
-    if(w)w.style.display=v==='oui'?'flex':'none';
-  }
   if(key==='travaux-vis'){
     const d=document.getElementById('vm-travaux-detail-wrap');
     if(d)d.style.display=v==='oui'?'flex':'none';
@@ -6562,9 +6478,9 @@ async function doPostVenteMaison(){
       bail_fin:g('vm-bail-fin')||null,
       disponibilite_vente:g('vm-dispo-vente')||null,
       description:g('vm-description'),
-      honoraires_inclus:g('vm-honoraires')==='oui',
-      honoraires_montant:parseFloat(g('vm-honoraires-montant'))||null,
-      honoraires_charge:g('vm-honoraires-charge'),
+      honoraires_inclus:false,
+      honoraires_montant:null,
+      honoraires_charge:null,
       actif:false,
       sale_subscription_status:'en attente',
       created_at:new Date().toISOString()
