@@ -74,10 +74,11 @@
 
     /* HEADER */
     .bail-header{background:linear-gradient(135deg,var(--marine) 0%,var(--bleu) 100%);color:#fff;padding:2rem 2.5rem;text-align:center}
-    .bail-header .brand{font-family:'DM Serif Display',serif;font-size:1.05rem;opacity:.8;margin-bottom:.4rem}
-    .bail-header h1{font-family:'DM Serif Display',serif;font-size:1.55rem;font-weight:400;margin-bottom:.3rem}
-    .bail-header .subtitle{font-size:.78rem;opacity:.65;font-style:italic;line-height:1.5}
-    .bail-header .ref{margin-top:1rem;display:inline-block;background:rgba(255,255,255,.15);border-radius:20px;padding:.25rem .85rem;font-size:.75rem;font-weight:600;letter-spacing:.3px}
+    .bail-header .brand{font-family:'DM Serif Display',serif;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.6;margin-bottom:.6rem}
+    .bail-header h1{font-family:'DM Serif Display',serif;font-size:1.45rem;font-weight:400;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.35rem}
+    .bail-header .subtitle{font-size:.75rem;opacity:.6;line-height:1.6}
+    .bail-header .ref{margin-top:1rem;display:inline-block;background:rgba(255,255,255,.15);border-radius:4px;padding:.25rem .85rem;font-size:.72rem;font-weight:700;letter-spacing:.12em;font-family:'DM Mono',monospace,'Courier New',monospace}
+    .bail-header .gen-date{margin-top:.45rem;font-size:.7rem;opacity:.5;letter-spacing:.03em}
     @media(max-width:600px){.bail-header{padding:1.25rem}}
 
     /* BAIL BODY */
@@ -401,10 +402,11 @@
 
       <!-- HEADER -->
       <div class="bail-header">
-        <div class="brand">★ Trouve Ton Toit</div>
-        <h1>Contrat de Location Meublée</h1>
-        <div class="subtitle">Conforme à la loi n° 89-462 du 6 juillet 1989 modifiée par la loi ALUR n° 2014-366 du 24 mars 2014<br>et au décret n° 2015-587 du 29 mai 2015 relatif aux contrats types</div>
-        <div class="ref" id="bail-ref">Réf. —</div>
+        <div class="brand">Trouve Ton Toit</div>
+        <h1>Contrat de Location d'un Logement Meublé</h1>
+        <div class="subtitle">Résidence principale — Loi n° 89-462 du 6 juillet 1989 modifiée par la loi ALUR n° 2014-366 du 24 mars 2014<br>et au décret n° 2015-587 du 29 mai 2015 relatif aux contrats types</div>
+        <div class="ref" id="bail-ref">TTT---------</div>
+        <div class="gen-date" id="bail-gen-date"></div>
       </div>
 
       <!-- BODY -->
@@ -420,7 +422,7 @@
           <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE — insérée ici quand un garant est désigné -->
           <div id="caution-section" style="display:none;margin-top:.9rem">
             <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
-              <div class="article-title" style="color:var(--gold);margin-bottom:.9rem">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
+              <div class="article-title" style="color:var(--gold);margin-bottom:.9rem" id="c-caution-title">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
 
               <!-- Identification du garant (remplie par JS) -->
               <div id="c-garant-header" style="margin-bottom:.85rem"></div>
@@ -435,7 +437,8 @@
               <div class="info-grid" style="margin:.75rem 0">
                 <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
                 <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value" id="c-duree-caution">—</div></div>
-                <div class="info-item"><div class="label">Nature</div><div class="value">Solidaire (sans bénéfice de discussion)</div></div>
+                <div class="info-item"><div class="label">Nature</div><div class="value" id="c-nature-caution">Solidaire (sans bénéfice de discussion)</div></div>
+                <div class="info-item"><div class="label">Résiliation garant</div><div class="value" id="c-resil-caution">—</div></div>
               </div>
 
               <div class="article-content">
@@ -458,6 +461,9 @@
           <div class="article-content"><p>Le bailleur loue au locataire le logement ci-après désigné :</p></div>
           <div class="info-grid" id="logement-grid"></div>
           <div class="info-grid" id="logement-grid2"></div>
+          <div class="info-grid" id="logement-grid3"></div>
+          <div class="info-grid" id="logement-grid4"></div>
+          <div class="info-grid" id="logement-grid5"></div>
           <div class="article-content" id="equipements-block" style="margin-top:.55rem"></div>
           <div id="zone-tendue-block"></div>
         </div>
@@ -505,7 +511,7 @@
               <span class="ir-value" id="charges-val">—</span>
             </div>
             <div class="info-row" style="background:var(--bg)">
-              <span class="ir-label" style="font-weight:700;color:var(--tm)">Total mensuel TTC</span>
+              <span class="ir-label" style="font-weight:700;color:var(--tm)">Total mensuel à payer</span>
               <span class="ir-value" id="total-val" style="color:var(--green);font-size:.92rem;font-weight:700">—</span>
             </div>
             <div class="info-row">
@@ -575,6 +581,7 @@
             <!-- rempli dynamiquement -->
           </div>
           <div id="dpe-warning-block"></div>
+          <div id="dpe-depenses-block"></div>
 
           <p style="font-size:.72rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin:.8rem 0 .35rem">Tableau récapitulatif des diagnostics</p>
           <div style="overflow-x:auto">
@@ -611,17 +618,8 @@
         <div class="section">
           <div class="article-title">Article 9 — Obligations du bailleur</div>
           <div class="article-content">
-            <p>Le bailleur est tenu de (art. 6 de la loi du 6 juillet 1989) :</p>
-            <ul>
-              <li>Délivrer au locataire le logement en <strong>bon état d'usage et de réparation</strong> ainsi que les équipements mentionnés au contrat en bon état de fonctionnement</li>
-              <li>Assurer au locataire la <strong>jouissance paisible</strong> du logement et le garantir contre tout vice ou défaut de nature à y faire obstacle, hormis ceux consignés dans l'état des lieux</li>
-              <li>Entretenir les locaux en état de servir à l'usage prévu et effectuer toutes les réparations autres que locatives nécessaires au maintien en état</li>
-              <li>Ne pas s'opposer aux aménagements réalisés par le locataire, dès lors qu'ils ne constituent pas une transformation de la chose louée</li>
-              <li>Remettre au locataire, lors de la remise des clés, un <strong>dossier de diagnostics techniques</strong> complet (DPE, état des lieux, ERP…)</li>
-              <li>Garantir le logement contre les vices cachés (art. 1721 du Code civil)</li>
-              <li>Informer le locataire de toute vente ou donation du bien loué</li>
-              <li>Respecter la <strong>trêve hivernale</strong> (1er novembre au 31 mars) en cas de litige</li>
-            </ul>
+            <p>Le bailleur est tenu de respecter les obligations prévues par l'article 6 de la loi du 6 juillet 1989, notamment : délivrer le logement en bon état d'usage et de réparation, assurer la jouissance paisible des lieux, entretenir le bien et effectuer les réparations autres que locatives, remettre le dossier de diagnostics techniques complet lors de la remise des clés, et garantir le logement contre les vices cachés (art. 1721 C.civ.).</p>
+            <p style="font-size:.77rem;color:var(--td)"><em>Le détail des obligations légales du bailleur figure dans la notice d'information annexée au présent contrat, conformément au décret n° 2016-1023 du 26 juillet 2016.</em></p>
           </div>
         </div>
 
@@ -631,20 +629,8 @@
         <div class="section">
           <div class="article-title">Article 10 — Obligations du locataire</div>
           <div class="article-content">
-            <p>Le locataire est tenu de (art. 7 de la loi du 6 juillet 1989) :</p>
-            <ul>
-              <li><strong>Payer le loyer et les charges</strong> récupérables aux termes et conditions convenus</li>
-              <li>User paisiblement des locaux loués suivant la destination prévue au contrat</li>
-              <li>Répondre des dégradations et pertes survenant pendant la durée du contrat, à moins qu'il ne prouve la force majeure, la faute du bailleur, ou le fait d'un tiers qu'il n'a pas introduit</li>
-              <li>Prendre à sa charge l'<strong>entretien courant</strong> du logement, des équipements et les menues réparations locatives (décret n° 87-712)</li>
-              <li>Ne pas transformer les lieux sans accord écrit du bailleur — les transformations non autorisées devront être remises en état à la sortie</li>
-              <li>Laisser exécuter dans les lieux les travaux d'amélioration ou de mise en conformité dûment notifiés</li>
-              <li>S'assurer contre les risques locatifs et en justifier <strong>chaque année</strong></li>
-              <li>Ne pas céder le bail ni sous-louer sans accord écrit du bailleur</li>
-              <li>Informer le bailleur de tout sinistre, dégradation ou trouble dans les meilleurs délais</li>
-              <li>Ne pas faire obstacle aux visites en cas de mise en vente ou relocation (maximum 2 heures par jour ouvrables, sauf accord contraire)</li>
-              <li>Remettre les clés en main propre lors de l'état des lieux de sortie</li>
-            </ul>
+            <p>Le locataire est tenu de respecter les obligations prévues par l'article 7 de la loi du 6 juillet 1989, notamment : payer le loyer et les charges récupérables aux échéances convenues, assurer l'entretien courant du logement et les menues réparations locatives (décret n° 87-712 du 26 août 1987), s'assurer contre les risques locatifs et en justifier chaque année, user paisiblement des lieux et répondre des dégradations imputables, et ne pas sous-louer ni céder le bail sans accord écrit du bailleur.</p>
+            <p style="font-size:.77rem;color:var(--td)"><em>Le détail des obligations légales du locataire figure dans la notice d'information annexée au présent contrat, conformément au décret n° 2016-1023 du 26 juillet 2016.</em></p>
           </div>
         </div>
 
@@ -667,17 +653,9 @@
           <div class="article-title">Article 12 — Entretien et réparations</div>
           <div class="article-content">
             <p>Le locataire prend les lieux dans leur état actuel, tel qu'il ressort de l'état des lieux contradictoire établi lors de la remise des clés.</p>
-            <p><strong>Réparations locatives</strong> (à la charge du locataire — décret n° 87-712 du 26 août 1987) :</p>
-            <ul>
-              <li>Maintien en état de propreté des locaux, équipements et installations</li>
-              <li>Menues réparations : remplacement de joints, poignées, serrures, interrupteurs, prises</li>
-              <li>Entretien des installations : robinetterie (détartrage), ventilation (nettoyage des grilles), VMC</li>
-              <li>Entretien des jardins, terrasses, balcons privatifs ; dégorgement des canalisations si bouchon</li>
-              <li>Remplacement des vitres cassées par le locataire, des ampoules et tubes fluorescents</li>
-              <li>Entretien annuel de la chaudière individuelle (à la charge du locataire si installation individuelle)</li>
-            </ul>
-            <p><strong>Grosses réparations</strong> (à la charge du bailleur — art. 606 du Code civil) : réfection de la toiture, consolidation des murs, remplacement de la chaudière collective ou des canalisations principales, ravalement de façade, mise en conformité des installations électriques vétustes.</p>
-            <p>Toute dégradation constatée à l'état des lieux de sortie et imputable au locataire sera retenue sur le dépôt de garantie sur présentation de devis ou factures.</p>
+            <p>Les <strong>réparations locatives</strong> sont celles définies par la réglementation en vigueur, notamment le décret n° 87-712 du 26 août 1987. Elles comprennent l'entretien courant des équipements et installations, les menues réparations et le maintien en état de propreté des parties privatives.</p>
+            <p>Les <strong>grosses réparations</strong> sont à la charge du bailleur conformément à l'article 606 du Code civil.</p>
+            <p>Toute dégradation imputable au locataire constatée à l'état des lieux de sortie sera retenue sur le dépôt de garantie, sur présentation de devis ou factures.</p>
           </div>
         </div>
 
@@ -920,6 +898,17 @@ let myRole=null; // 'landlord'|'tenant'|'garant'|null
 let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
 
 // Labels lisibles des champs traqués
+// ── VERSION JURIDIQUE ────────────────────────────────────────────────────────
+// Retourne la version du contrat-type applicable selon la date de signature/renouvellement.
+// Utiliser getLegalVersion(L.start_date) partout plutôt que des comparaisons de dates inline.
+function getLegalVersion(dateStr){
+  if(!dateStr) return 'v2025';
+  const d=new Date(dateStr);
+  // Décret n° 2026-596 : nouveau contrat-type applicable aux baux conclus/renouvelés ≥ 01/10/2026
+  if(d>=new Date('2026-10-01')) return 'v2026';
+  return 'v2025';
+}
+
 const FIELD_LABELS={
   annee_construction:'Année de construction',
   surface_boutin:'Surface habitable (Boutin)',
@@ -974,10 +963,43 @@ const FIELD_LABELS={
   tenant_email:'Email du locataire',
   tenant_phone:'Téléphone du locataire',
   tenant_nationality:'Nationalité du locataire',
+  dep_cave:'Cave',
+  dep_cave_numero:'Numéro de cave',
+  dep_parking:'Parking inclus',
+  dep_garage:'Garage inclus',
+  dep_balcon:'Balcon',
+  dep_terrasse:'Terrasse',
+  dep_jardin:'Jardin',
+  dep_autres:'Autres dépendances',
+  commun_ascenseur:'Ascenseur',
+  commun_velo:'Local vélo',
+  commun_poubelles:'Local poubelles',
+  commun_espaces_verts:'Espaces verts',
+  commun_gardien:'Gardien / gardienne',
+  commun_laverie:'Laverie',
+  commun_autres:'Autres parties communes',
+  telecom_fibre:'Fibre optique',
+  telecom_prise_tv:'Prise TV',
+  telecom_internet_fourni:'Internet fourni par le bailleur',
+  telecom_autres:'Autres télécoms',
+  dpe_depenses_min:'Dépenses énergie estimées — min (€/an)',
+  dpe_depenses_max:'Dépenses énergie estimées — max (€/an)',
+  dpe_annee_ref:'Année de référence des prix énergie',
+  deposit_mode:'Mode de dépôt de garantie',
+  garant_type:'Type de caution',
+  garant_duree_type:'Durée d\'engagement de la caution',
+  travaux_realises:'Travaux réalisés ?',
+  travaux_nature:'Nature des travaux',
+  travaux_montant:'Montant des travaux (€)',
+  travaux_date:'Date des travaux',
+  travaux_amelioration:'Travaux d\'amélioration',
+  travaux_conformite:'Travaux de mise en conformité',
+  travaux_impact_loyer:'Impact sur le loyer',
 };
 
 // ── INLINE EDITING ────────────────────────────────────────────────────────────
 let _editMode=false;
+let _tenantEditMode=false; // true quand locataire peut modifier ses champs
 let _editPopup=null;
 
 const FIELD_CONFIGS={
@@ -1034,6 +1056,38 @@ const FIELD_CONFIGS={
   tenant_nationality:{type:'text',placeholder:'ex. Française'},
   regime_copro:{type:'select',options:[{v:'true',l:'Oui — immeuble en copropriété'},{v:'false',l:'Non — monopropriété'}]},
   zone_tendue:{type:'select',options:[{v:'true',l:'Oui — encadrement des loyers applicable'},{v:'false',l:'Non — pas d\'encadrement'}]},
+  dep_cave:{type:'select',options:[{v:'oui',l:'Oui — cave incluse'},{v:'non',l:'Non'}]},
+  dep_cave_numero:{type:'text',placeholder:'ex. Cave n°12, sous-sol'},
+  dep_parking:{type:'select',options:[{v:'oui',l:'Oui — parking inclus'},{v:'non',l:'Non'}]},
+  dep_garage:{type:'select',options:[{v:'oui',l:'Oui — garage inclus'},{v:'non',l:'Non'}]},
+  dep_balcon:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  dep_terrasse:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  dep_jardin:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  dep_autres:{type:'text',placeholder:'ex. Grenier au 5ème, débarras commun…'},
+  commun_ascenseur:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_velo:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_poubelles:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_espaces_verts:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_gardien:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_laverie:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  commun_autres:{type:'text',placeholder:'ex. Salle de sport, piscine…'},
+  telecom_fibre:{type:'select',options:[{v:'oui',l:'Oui — fibre disponible'},{v:'non',l:'Non'}]},
+  telecom_prise_tv:{type:'select',options:[{v:'oui',l:'Oui'},{v:'non',l:'Non'}]},
+  telecom_internet_fourni:{type:'select',options:[{v:'oui',l:'Oui — inclus dans les charges'},{v:'non',l:'Non'}]},
+  telecom_autres:{type:'text',placeholder:'ex. Câble, fibre pro, satellite…'},
+  dpe_depenses_min:{type:'number',placeholder:'ex. 680',step:1,min:0},
+  dpe_depenses_max:{type:'number',placeholder:'ex. 980',step:1,min:0},
+  dpe_annee_ref:{type:'number',placeholder:'ex. 2021',step:1,min:2000,max:2030},
+  deposit_mode:{type:'select',options:[{v:'0',l:'Aucun dépôt de garantie'},{v:'1',l:'1 mois de loyer HC'},{v:'2',l:'2 mois de loyer HC (max. meublé)'},{v:'custom',l:'Montant personnalisé'}]},
+  garant_type:{type:'select',options:[{v:'solidaire',l:'Caution solidaire'},{v:'simple',l:'Caution simple'},{v:'visale',l:'Garantie Visale (Action Logement)'},{v:'aucune',l:'Pas de caution / garant'}]},
+  garant_duree_type:{type:'select',options:[{v:'determinee',l:'Durée déterminée (bail + renouvellements explicites)'},{v:'indeterminee',l:'Durée indéterminée (résiliable annuellement)'}]},
+  travaux_realises:{type:'select',options:[{v:'non',l:'Non — aucun travaux depuis le dernier locataire'},{v:'oui',l:'Oui — travaux réalisés'}]},
+  travaux_nature:{type:'text',placeholder:'ex. Peinture chambre, remplacement robinetterie cuisine'},
+  travaux_montant:{type:'number',placeholder:'ex. 3500',step:1,min:0},
+  travaux_date:{type:'date'},
+  travaux_amelioration:{type:'select',options:[{v:'non',l:'Non'},{v:'oui',l:'Oui — travaux d\'amélioration'}]},
+  travaux_conformite:{type:'select',options:[{v:'non',l:'Non'},{v:'oui',l:'Oui — mise en conformité décence/sécurité'}]},
+  travaux_impact_loyer:{type:'select',options:[{v:'aucun',l:'Aucun impact sur le loyer'},{v:'majoration',l:'Majoration du loyer prévue'},{v:'diminution',l:'Diminution temporaire du loyer accordée'}]},
 };
 
 // ── MIGRATIONS SUPABASE ───────────────────────────────────────────────────────
@@ -1093,6 +1147,38 @@ ALTER TABLE leases ADD COLUMN IF NOT EXISTS negotiation_status TEXT DEFAULT 'dra
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS docs_urls JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS listing_title TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS booking_id UUID REFERENCES bookings(id);
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_cave TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_cave_numero TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_parking TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_garage TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_balcon TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_terrasse TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_jardin TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dep_autres TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_ascenseur TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_velo TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_poubelles TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_espaces_verts TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_gardien TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_laverie TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS commun_autres TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS telecom_fibre TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS telecom_prise_tv TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS telecom_internet_fourni TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS deposit_mode TEXT DEFAULT '2';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_type TEXT DEFAULT 'solidaire';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS garant_duree_type TEXT DEFAULT 'indeterminee';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS telecom_autres TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dpe_depenses_min INTEGER;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dpe_depenses_max INTEGER;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS dpe_annee_ref INTEGER;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_realises TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_nature TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_montant NUMERIC;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_date DATE;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_amelioration TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_conformite TEXT;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS travaux_impact_loyer TEXT;
 
 -- TABLE profiles — colonnes supplémentaires
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS address TEXT;
@@ -1763,6 +1849,8 @@ function renderBail(){
   // Determine edit mode (landlord before signing)
   const isLandlord=myRole==='landlord'||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!LEASE.landlord_signed_at);
   _editMode=isLandlord&&!LEASE.landlord_signed_at;
+  const isTenant=myRole==='tenant'||ROLE_PARAM==='tenant';
+  _tenantEditMode=isTenant&&(LEASE.negotiation_status==='pending_tenant');
   // Afficher le bouton SQL migrations pour le bailleur (en mode édition)
   const migrNavBtn=document.getElementById('migr-btn');
   if(migrNavBtn)migrNavBtn.style.display=_editMode?'':'none';
@@ -1778,7 +1866,20 @@ function renderBail(){
   q('submit-bar').style.display='flex';
 
   // Ref
-  show('bail-ref','Réf. TTT-'+(L.id||'').toUpperCase().slice(0,8));
+  // Référence du contrat
+  const refCode=(L.id||'').toUpperCase().replace(/-/g,'').slice(0,8)||'--------';
+  show('bail-ref','TTT-'+refCode);
+  // Date de génération + version juridique applicable
+  {
+    const today=new Date();
+    const dd=String(today.getDate()).padStart(2,'0');
+    const mm=String(today.getMonth()+1).padStart(2,'0');
+    const yyyy=today.getFullYear();
+    const legalVer=getLegalVersion(L.start_date);
+    const verLabel=legalVer==='v2026'?'Décret 2026-596 (contrat-type 2026)':'Décret 2015-587 (contrat-type 2015)';
+    const startDateFmt=L.start_date?fmtDate(L.start_date):'—';
+    show('bail-gen-date',`Généré le ${dd}/${mm}/${yyyy} — Version juridique applicable : ${verLabel}`);
+  }
 
   // Parties — format identification juridique bail français
   // Resolve avec overrides lease en priorité sur le profil
@@ -1813,6 +1914,20 @@ function renderBail(){
     });
     return'<div class="partie-edit-row">'+btns.join('')+'</div>';
   }
+  function tenantEditIcons(pairs){
+    if(!_tenantEditMode) return '';
+    const btns=pairs.map(([key,val])=>{
+      const lbl=FIELD_LABELS[key]||key;
+      const hasVal=val!=null&&val!==''&&val!=='—';
+      if(hasVal) return`<span class="edit-btn" style="background:rgba(27,79,216,.08);color:var(--bleu)" onclick="editField(event,'${key}')" title="Modifier ${lbl}">✏️ ${lbl}</span>`;
+      return`<span class="missing-badge" style="font-size:.71rem;background:rgba(27,79,216,.07);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+    });
+    return'<div class="partie-edit-row" style="background:rgba(27,79,216,.04);border:1px dashed rgba(27,79,216,.25);border-radius:6px;padding:.25rem .4rem;margin-top:.25rem"><span style="font-size:.6rem;color:var(--bleu);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:.3rem">Vos infos :</span>'+btns.join('')+'</div>';
+  }
+  function tenantFlag(label){
+    if(!_tenantEditMode) return '';
+    return`<span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;margin-left:.4rem;vertical-align:middle" onclick="openModifModalWithContext('${label}')">⚠️ Contester</span>`;
+  }
 
   const llLabel=myRole==='landlord'||ROLE_PARAM==='landlord'?'Le Bailleur (vous)':'Le Bailleur';
   const tLabel=myRole==='tenant'||ROLE_PARAM==='tenant'?'Le Locataire (vous)':'Le Locataire';
@@ -1829,6 +1944,7 @@ function renderBail(){
       <div class="partie-body">
         ${buildIdent({nom:tName,adresse:tAddr,nat:tNat,email:tEmail,tel:tPhone},'le locataire')}
         ${editIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
+        ${tenantEditIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
       </div>
     </div>`;
   show('parties-grid',partiesHtml);
@@ -1898,6 +2014,113 @@ function renderBail(){
   const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
+  // ── Dépendances ──────────────────────────────────────────────────────────
+  const items3=[];
+  // Cave
+  if(L.dep_cave==='oui'){
+    const caveNum=L.dep_cave_numero?` — ${L.dep_cave_numero}`:'';
+    items3.push({label:'Cave',value:'Oui'+caveNum+(_editMode?` ${ev('dep_cave_numero',L.dep_cave_numero||'Ajouter numéro')}`:'')});
+  } else if(_editMode){
+    items3.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_cave')">⚠ Cave incluse ?</span>`});
+  }
+  // Parking
+  if(L.dep_parking==='oui'){
+    items3.push({label:'Parking',value:ev('dep_parking','Oui')});
+  } else if(_editMode){
+    items3.push({label:'Parking',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_parking')">⚠ Parking inclus ?</span>`});
+  }
+  // Garage
+  if(L.dep_garage==='oui'){
+    items3.push({label:'Garage',value:ev('dep_garage','Oui')});
+  } else if(_editMode){
+    items3.push({label:'Garage',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_garage')">⚠ Garage inclus ?</span>`});
+  }
+  // Balcon
+  if(L.dep_balcon==='oui'){
+    items3.push({label:'Balcon',value:ev('dep_balcon','Oui')});
+  } else if(_editMode){
+    items3.push({label:'Balcon',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_balcon')">⚠ Balcon ?</span>`});
+  }
+  // Terrasse
+  if(L.dep_terrasse==='oui'){
+    items3.push({label:'Terrasse',value:ev('dep_terrasse','Oui')});
+  } else if(_editMode){
+    items3.push({label:'Terrasse',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_terrasse')">⚠ Terrasse ?</span>`});
+  }
+  // Jardin
+  if(L.dep_jardin==='oui'){
+    items3.push({label:'Jardin',value:ev('dep_jardin','Oui')});
+  } else if(_editMode){
+    items3.push({label:'Jardin',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_jardin')">⚠ Jardin ?</span>`});
+  }
+  // Autres dépendances
+  if(L.dep_autres){
+    items3.push({label:'Autres',value:ev('dep_autres',L.dep_autres)});
+  } else if(_editMode){
+    items3.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_autres')">⚠ Autres dépendances ?</span>`});
+  }
+  if(items3.length){
+    const g3=document.getElementById('logement-grid3');
+    if(g3){g3.style.cssText='display:block;margin:0';}
+    show('logement-grid3',`<div class="section-sub-title" style="font-size:.78rem;font-weight:600;color:var(--marine);opacity:.7;text-transform:uppercase;letter-spacing:.06em;padding:.5rem 0 .2rem">Dépendances</div><div class="info-rows">${items3.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
+  }
+
+  // ── Parties / équipements communs ───────────────────────────────────────
+  const commKeys=[
+    {key:'commun_ascenseur',label:'Ascenseur'},
+    {key:'commun_velo',label:'Local vélo'},
+    {key:'commun_poubelles',label:'Local poubelles'},
+    {key:'commun_espaces_verts',label:'Espaces verts'},
+    {key:'commun_gardien',label:'Gardien'},
+    {key:'commun_laverie',label:'Laverie'},
+  ];
+  const items4=[];
+  commKeys.forEach(({key,label})=>{
+    if(L[key]==='oui'){
+      items4.push({label,value:ev(key,'Oui')});
+    } else if(_editMode){
+      items4.push({label,value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${key}')">${label} ?</span>`});
+    }
+  });
+  if(L.commun_autres){
+    items4.push({label:'Autres',value:ev('commun_autres',L.commun_autres)});
+  } else if(_editMode){
+    items4.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'commun_autres')">⚠ Autres équipements communs ?</span>`});
+  }
+  if(items4.length){
+    const g4=document.getElementById('logement-grid4');
+    if(g4){g4.style.cssText='display:block;margin:0';}
+    show('logement-grid4',`<div class="section-sub-title" style="font-size:.78rem;font-weight:600;color:var(--marine);opacity:.7;text-transform:uppercase;letter-spacing:.06em;padding:.5rem 0 .2rem">Parties &amp; équipements communs</div><div class="info-rows">${items4.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
+  }
+
+  // ── Télécommunications ───────────────────────────────────────────────────
+  const items5=[];
+  if(L.telecom_fibre==='oui'){
+    items5.push({label:'Fibre',value:ev('telecom_fibre','Oui — disponible')});
+  } else if(_editMode){
+    items5.push({label:'Fibre',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_fibre')">⚠ Fibre disponible ?</span>`});
+  }
+  if(L.telecom_prise_tv==='oui'){
+    items5.push({label:'Prise TV',value:ev('telecom_prise_tv','Oui')});
+  } else if(_editMode){
+    items5.push({label:'Prise TV',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_prise_tv')">⚠ Prise TV ?</span>`});
+  }
+  if(L.telecom_internet_fourni==='oui'){
+    items5.push({label:'Internet fourni',value:ev('telecom_internet_fourni','Oui — inclus bailleur')});
+  } else if(_editMode){
+    items5.push({label:'Internet fourni',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_internet_fourni')">⚠ Internet inclus ?</span>`});
+  }
+  if(L.telecom_autres){
+    items5.push({label:'Autres',value:ev('telecom_autres',L.telecom_autres)});
+  } else if(_editMode){
+    items5.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_autres')">⚠ Autres télécoms ?</span>`});
+  }
+  if(items5.length){
+    const g5=document.getElementById('logement-grid5');
+    if(g5){g5.style.cssText='display:block;margin:0';}
+    show('logement-grid5',`<div class="section-sub-title" style="font-size:.78rem;font-weight:600;color:var(--marine);opacity:.7;text-transform:uppercase;letter-spacing:.06em;padding:.5rem 0 .2rem">Télécommunications</div><div class="info-rows">${items5.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
+  }
+
   // Équipements
   const feats=Li?.features||[];
   if(feats.length)show('equipements-block','<p>Équipements inclus : '+feats.join(', ')+'.</p>');
@@ -1940,9 +2163,9 @@ function renderBail(){
 
   // Loyer
   const payDay=L.payment_due_day||Li?.payment_due_day||'1';
-  show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')">✏️</span>`:''));
+  show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')">✏️</span>`:'')+tenantFlag('Montant du loyer'));
   show('loyer-val',ev('rent',fmt(rent)));
-  show('charges-val',ev('charges',charges>0?fmt(charges):'Incluses'));
+  show('charges-val',ev('charges',charges>0?fmt(charges):'Incluses')+tenantFlag('Charges'));
   show('total-val',fmt(rent+(charges||0)));
   show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')">✏️</span>`:'<sup>er</sup>'));
   show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois'));
@@ -1998,10 +2221,21 @@ function renderBail(){
   }
 
   // Dépôt
-  const depotMois=rent>0?Math.round(deposit/rent):2;
-  show('depot-txt',ev('deposit',fmt(deposit)));
-  show('depot-mois-txt',nb(depotMois)+' ('+depotMois+') mois');
-  show('depot-highlight',ev('deposit',fmt(deposit))+' — à verser avant l\'entrée dans les lieux');
+  const depotMode=L.deposit_mode||'custom';
+  let depotEffectif=deposit;
+  if(depotMode==='0') depotEffectif=0;
+  else if(depotMode==='1') depotEffectif=rent;
+  else if(depotMode==='2') depotEffectif=rent*2;
+  // Validation ≤ 2 mois loyer HC (art. 22 loi 89 — meublé)
+  const depotMax=rent*2;
+  const depotDepasse=depotEffectif>depotMax&&depotMax>0;
+  const depotMois=rent>0&&depotEffectif>0?Math.round((depotEffectif/rent)*10)/10:0;
+  const depotMoisLabel=depotMois===0?'aucun dépôt':depotMois===1?'un (1) mois':depotMois===2?'deux (2) mois':(depotMois.toFixed(1)+' mois');
+  const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem">⚠ Dépasse le plafond légal (2 mois — meublé)</span>`:'';
+  const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')">✏️ Mode</span>`:'';
+  show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn);
+  show('depot-mois-txt',depotMoisLabel);
+  show('depot-highlight',ev('deposit',fmt(depotEffectif))+' — à verser avant l\'entrée dans les lieux'+depotWarnHtml);
 
   // Charges / bills
   if(Li?.bills_included){
@@ -2022,6 +2256,24 @@ function renderBail(){
   if(epc==='F'){dpeWarn='<div class="warning">⚠️ Logement classé F — interdiction de louer à partir du 1ᵉʳ janvier 2034 (loi Climat et Résilience).</div>';}
   else if(epc==='G'){dpeWarn='<div class="alert-red">🚫 Logement classé G — interdiction de louer à partir du 1ᵉʳ janvier 2028 (loi Climat et Résilience).</div>';}
   show('dpe-warning-block',dpeWarn);
+
+  // DPE — dépenses énergétiques estimées
+  {
+    const dMin=L.dpe_depenses_min;
+    const dMax=L.dpe_depenses_max;
+    const dAnnee=L.dpe_annee_ref;
+    let depHtml='';
+    if(dMin&&dMax){
+      depHtml=`<div class="info-blue" style="font-size:.82rem;padding:.55rem .9rem;margin-top:.4rem">
+        🔋 <strong>Dépenses annuelles d'énergie estimées :</strong> entre <strong>${dMin} €</strong> et <strong>${dMax} €</strong> par an
+        ${dAnnee?`<span style="opacity:.75"> — prix de référence : année ${dAnnee}</span>`:''}
+        ${_editMode?` <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_min')">✏️ min</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_max')">✏️ max</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_annee_ref')">✏️ année</span>`:''}
+      </div>`;
+    } else if(_editMode){
+      depHtml=`<div style="margin-top:.35rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_min')">⚠ Dépenses min (€/an)</span> <span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_max')">⚠ Dépenses max (€/an)</span> <span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'dpe_annee_ref')">⚠ Année référence prix</span></div>`;
+    }
+    show('dpe-depenses-block',depHtml);
+  }
 
   // Diagnostics
   const getLabel=(v,map)=>map[v]||v||'—';
@@ -2076,13 +2328,37 @@ function renderBail(){
   }
 
   // Travaux
-  if(L.travaux_desc==='aucun'||(!L.travaux_desc&&!_editMode)){
-    show('travaux-block',`<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="missing-badge" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_desc')">✏️ Modifier</span>`:''}</div>`);
-  }else if(L.travaux_desc&&L.travaux_desc!=='aucun'){
-    show('travaux-block',`<div class="info-blue">🔨 ${L.travaux_desc}${_editMode?` <span class="missing-badge" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_desc')">✏️ Modifier</span>`:''}</div>`);
-  }else{
-    // edit mode + pas encore déclaré → badge orange
-    show('travaux-block',`<div class="info-blue" style="border-color:#F97316;background:#FFF7ED">${mf('travaux_desc')}</div>`);
+  {
+    const tReal=L.travaux_realises;
+    // Backward compat: travaux_desc='aucun' → pas de travaux; travaux_desc text → affiché
+    const tLegacy=L.travaux_desc;
+    const noTravaux=tReal==='non'||tLegacy==='aucun'||(!tReal&&!tLegacy&&!_editMode);
+    const ouiTravaux=tReal==='oui'||(!tReal&&tLegacy&&tLegacy!=='aucun');
+    if(noTravaux){
+      show('travaux-block',`<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_realises')">✏️ Modifier</span>`:''}</div>`);
+    }else if(ouiTravaux){
+      const rows=[];
+      const tNat=L.travaux_nature||tLegacy||'';
+      const tMt=L.travaux_montant;
+      const tDt=L.travaux_date;
+      const tAm=L.travaux_amelioration;
+      const tCo=L.travaux_conformite;
+      const tIl=L.travaux_impact_loyer;
+      if(tNat) rows.push({l:'Nature',v:tNat+(_editMode?` ${ev('travaux_nature','')}`:'')}); else if(_editMode) rows.push({l:'Nature',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_nature')">⚠ Nature des travaux</span>`});
+      if(tMt)  rows.push({l:'Montant',v:nb(tMt)+' €'+(_editMode?` ${ev('travaux_montant','')}`:'')}); else if(_editMode) rows.push({l:'Montant',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_montant')">⚠ Montant</span>`});
+      if(tDt)  rows.push({l:'Date',v:fmtDate(tDt)+(_editMode?` ${ev('travaux_date','')}`:'')}); else if(_editMode) rows.push({l:'Date',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_date')">⚠ Date</span>`});
+      if(tAm==='oui') rows.push({l:'Amélioration',v:'Oui'+(_editMode?` ${ev('travaux_amelioration','')}`:'')}); else if(_editMode) rows.push({l:'Amélioration',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_amelioration')">⚠ Travaux d'amélioration ?</span>`});
+      if(tCo==='oui') rows.push({l:'Mise en conformité',v:'Oui'+(_editMode?` ${ev('travaux_conformite','')}`:'')}); else if(_editMode) rows.push({l:'Mise en conformité',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_conformite')">⚠ Conformité décence ?</span>`});
+      if(tIl&&tIl!=='aucun') rows.push({l:'Impact loyer',v:(tIl==='majoration'?'Majoration prévue':'Diminution temporaire accordée')+(_editMode?` ${ev('travaux_impact_loyer','')}`:'')}); else if(_editMode) rows.push({l:'Impact loyer',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_impact_loyer')">⚠ Impact sur le loyer ?</span>`});
+      const rowsHtml=rows.map(r=>`<div class="info-row"><span class="ir-label">${r.l}</span><span class="ir-value">${r.v}</span></div>`).join('');
+      show('travaux-block',`<div style="background:rgba(27,79,216,.04);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.55rem .8rem;margin:.35rem 0">
+        🔨 <strong style="font-size:.82rem">Travaux réalisés</strong>${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.35rem" onclick="editField(event,'travaux_realises')">✏️ Statut</span>`:''}
+        <div class="info-rows" style="margin-top:.45rem">${rowsHtml}</div>
+      </div>`);
+    }else{
+      // edit mode + pas encore déclaré → badge orange
+      show('travaux-block',`<div class="info-blue" style="border-color:#F97316;background:#FFF7ED">${mf('travaux_realises')}</div>`);
+    }
   }
 
   // Inventaire mobilier
@@ -2093,8 +2369,8 @@ function renderBail(){
   const ville=Li?.zone||(Li?.full_address?.split(',').pop()?.trim())||'France';
   show('fait-a',ville);
   show('fait-le',fmtDate(new Date().toISOString().slice(0,10)));
-  show('start-date-txt',ev('start_date',fmtDate(L.start_date)));
-  show('end-date-txt',ev('end_date',fmtDate(L.end_date)));
+  show('start-date-txt',ev('start_date',fmtDate(L.start_date))+tenantFlag('Date de début du bail'));
+  show('end-date-txt',ev('end_date',fmtDate(L.end_date))+tenantFlag('Date de fin du bail'));
 
   // Annexes
   const annexes=[
@@ -2178,6 +2454,7 @@ function renderBail(){
       <div class="partie-body">
         ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:extraParts||''},'le garant')}
         ${editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro],['garant_birth_date',L.garant_birth_date],['garant_birth_place',L.garant_birth_place]])}
+        ${tenantEditIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone]])}
       </div>
     </div>`);
 
@@ -2216,12 +2493,31 @@ function renderBail(){
       et de ses renouvellements ou reconductions, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
       en cas de défaillance du locataire, sans pouvoir bénéficier de discussion ni de division.
       Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
-      Si je cesse de présenter les garanties prévues, je m'oblige, à première demande du bailleur,
-      à le prévenir immédiatement et à lui indiquer les nom et adresse du nouveau garant proposé. »`);
+      »`);
+    // Caution type + duree
+    const gType=L.garant_type||'solidaire';
+    const gDuree=L.garant_duree_type||'indeterminee';
+    const typeLabels={solidaire:'Solidaire (sans bénéfice de discussion)',simple:'Simple (avec bénéfice de discussion)',visale:'Garantie Visale (Action Logement)',aucune:'Aucune caution'};
+    const titleLabels={solidaire:'Clause de cautionnement solidaire',simple:'Clause de cautionnement simple',visale:'Garantie Visale — Action Logement',aucune:'Caution'};
+    const elTitle=q('c-caution-title');
+    if(elTitle) elTitle.textContent=(titleLabels[gType]||titleLabels.solidaire)+' — art. 22-1 loi n° 89-462 du 6 juillet 1989';
+    show('c-nature-caution',(typeLabels[gType]||typeLabels.solidaire)+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_type')">✏️</span>`:''));
+    if(gDuree==='determinee'){
+      show('c-resil-caution','Engagement limité à la durée du bail et de ses renouvellements explicites'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')">✏️</span>`:''));
+    } else {
+      show('c-resil-caution','Résiliable à chaque échéance annuelle (2 mois de préavis LRAR — art. 22-1-II loi 89)'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')">✏️</span>`:''));
+    }
   } else if(_editMode){
     q('caution-section').style.display='block';
     show('c-garant-header',`<div class="partie-card" style="border:1.5px dashed var(--gold);background:rgba(180,83,9,.05);margin:0;padding:.8rem">
       <span class="missing-badge" style="font-size:.8rem" onclick="editField(event,'garant_name')">⚠ Ajouter un garant (caution solidaire) — optionnel</span>
+      <span class="missing-badge" style="font-size:.75rem;margin-left:.5rem" onclick="editField(event,'garant_type')">⚠ Type de caution</span>
+    </div>`);
+    q('sig-g-block').style.display='none';
+  } else if(_tenantEditMode){
+    q('caution-section').style.display='block';
+    show('c-garant-header',`<div class="partie-card" style="border:1.5px dashed rgba(27,79,216,.3);background:rgba(27,79,216,.04);margin:0;padding:.8rem">
+      <span class="missing-badge" style="font-size:.8rem;background:rgba(27,79,216,.08);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'garant_name')">⚠ Ajouter votre garant (caution solidaire) — si requis</span>
     </div>`);
     q('sig-g-block').style.display='none';
   }
@@ -2286,8 +2582,9 @@ function renderNegocBar(){
   }
   if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
-      btn('✅ J\'accepte le modèle','btn-green',tenantAcceptsModel);
-      btn('📝 Demander une modification','btn-orange',openModifModal);
+      step.innerHTML+=`<div style="font-size:.73rem;color:#1d4ed8;background:rgba(27,79,216,.06);border-radius:6px;padding:.35rem .55rem;margin-top:.35rem">💡 Lisez le bail ci-dessous. Modifiez vos infos personnelles si nécessaire, utilisez les boutons <strong>⚠️ Contester</strong> pour signaler un désaccord, puis acceptez ou demandez des modifications.</div>`;
+      btn('✅ J\'accepte le bail','btn-green',tenantAcceptsModel);
+      btn('📝 Demander des modifications →','btn-orange',openModifModal);
     }
     if(ns==='pending_landlord') step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Votre demande a été transmise au bailleur. En attente de sa réponse.</div>`;
   }
@@ -2316,7 +2613,13 @@ async function tenantAcceptsModel(){
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();
 }
 
-function openModifModal(){q('modif-modal').style.display='flex';}
+function openModifModal(){const ta=q('modif-notes');if(ta)ta.value='';q('modif-modal').style.display='flex';}
+function openModifModalWithContext(section){
+  const ta=q('modif-notes');
+  if(ta){ta.value='📌 Section contestée : '+section+'\n\nDemande / remarque : ';}
+  q('modif-modal').style.display='flex';
+  if(ta){ta.focus();const l=ta.value.length;ta.setSelectionRange(l,l);}
+}
 function closeModifModal(){q('modif-modal').style.display='none';}
 
 async function submitModifRequest(){
