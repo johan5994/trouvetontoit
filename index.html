@@ -234,6 +234,25 @@ footer ul a:hover{color:var(--terra)}
 .tloc-icon{font-size:1.6rem;line-height:1}
 .tloc-title{font-size:.88rem;font-weight:700;color:var(--deep,#1A1410)}
 .tloc-sub{font-size:.72rem;color:var(--stone-l,#887A68)}
+/* ─── WIZARD ─── */
+#wizard-header{margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid rgba(0,0,0,.07)}
+#wizard-step-info{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.55rem}
+#wizard-step-label{font-size:.82rem;font-weight:700;color:var(--terra,#1B4FD8);text-transform:uppercase;letter-spacing:.4px}
+#wizard-step-counter{font-size:.75rem;color:var(--stone-l)}
+#wizard-track{height:5px;background:rgba(0,0,0,.09);border-radius:3px;overflow:hidden;margin-bottom:.8rem}
+#wizard-fill{height:100%;background:var(--terra,#1B4FD8);border-radius:3px;transition:width .35s ease}
+#wizard-dots{display:flex;gap:0;justify-content:space-between;align-items:center}
+.wdot{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;background:none;border:none;padding:.2rem .1rem;cursor:pointer;transition:all .18s}
+.wdot-num{width:1.7rem;height:1.7rem;border-radius:50%;border:2px solid rgba(0,0,0,.13);background:#fff;font-size:.68rem;font-weight:700;color:var(--stone-l);display:flex;align-items:center;justify-content:center;transition:all .18s}
+.wdot-lbl{font-size:.6rem;color:var(--stone-l);font-weight:500;transition:color .18s}
+.wdot.actif .wdot-num{background:var(--terra,#1B4FD8);border-color:var(--terra,#1B4FD8);color:#fff;box-shadow:0 0 0 3px rgba(27,79,216,.18)}
+.wdot.actif .wdot-lbl{color:var(--terra,#1B4FD8);font-weight:700}
+.wdot.done .wdot-num{background:var(--green,#4CAF7D);border-color:var(--green,#4CAF7D);color:#fff}
+.wdot.done .wdot-lbl{color:var(--green,#4CAF7D)}
+.wstep-title{font-size:1rem;font-weight:700;color:var(--deep);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid rgba(0,0,0,.06)}
+.wizard-nav{display:flex;gap:.6rem;justify-content:space-between;margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(0,0,0,.07)}
+.wizard-nav>:only-child{margin-left:auto}
+
 .tbien-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.4rem}
 .tbien-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border:2px solid var(--b2);border-radius:12px;background:var(--s);color:var(--stone);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;font-weight:500}
 .tbien-btn svg{width:22px;height:22px;stroke:currentColor}
@@ -565,445 +584,421 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     </div>
 
     <div class="fcard" id="post-self-form" style="display:none">
-      <h3><i data-lucide=clipboard-list class=ic></i> Déposer une annonce</h3>
 
-      <!-- ═══ ÉTAPE 1 — TYPE DE LOCATION ═══ -->
-      <p style="font-size:.82rem;color:var(--stone-l);margin:.15rem 0 .9rem">Quel type de bien proposez-vous ?</p>
-      <div id="type-location-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.5rem">
-
-        <button type="button" class="tloc-card" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
-          <div class="tloc-icon">🛋️</div>
-          <div class="tloc-title">Location meublée</div>
-          <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
-        </button>
-
-        <button type="button" class="tloc-card" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
-          <div class="tloc-icon">🏠</div>
-          <div class="tloc-title">Location vide</div>
-          <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
-        </button>
-
-        <button type="button" class="tloc-card" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
-          <div class="tloc-icon">🤝</div>
-          <div class="tloc-title">Chambre / Coloc</div>
-          <div class="tloc-sub">Mise en relation</div>
-        </button>
-
-        <button type="button" class="tloc-card" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
-          <div class="tloc-icon">🏷️</div>
-          <div class="tloc-title">Vente</div>
-          <div class="tloc-sub">Mise en vente du bien</div>
-        </button>
-
-      </div>
-      <input type="hidden" id="pt" value=""><input type="hidden" id="pt-bail-subtype" value="">
-
-      <!-- Infos légales selon type sélectionné -->
-      <div id="bail-vide-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Bail vide (non meublé)</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges.</div>
-      </div>
-      <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=sofa class=ic></i> Bail meublé</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges. Le logement doit comporter la liste légale de mobilier obligatoire.</div>
-      </div>
-      <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — le propriétaire et le locataire gèrent le contrat directement.</div>
-      </div>
-
-      <!-- Le reste du formulaire — masqué tant qu'aucun type n'est choisi -->
-      <div id="post-form-body" style="display:none">
-
-      <!-- ═══ 2. TYPE DE BIEN ═══ -->
-      <div class="fsect-hd"><i data-lucide=home class=ic></i> Type de bien</div>
-      <div class="fg2">
-        <label>Type de bien *</label>
-        <div class="tbien-grid">
-          <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
-          <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
-          <button type="button" class="tbien-btn" onclick="setTB(this,'parking')"><i data-lucide=car class=ic></i><span>Parking</span></button>
+      <!-- ═══ BARRE DE PROGRESSION ═══ -->
+      <div id="wizard-header">
+        <div id="wizard-step-info">
+          <span id="wizard-step-label">Type de location</span>
+          <span id="wizard-step-counter">Étape 1 sur 8</span>
         </div>
-        <input type="hidden" id="p-type-bien" value="appartement">
+        <div id="wizard-track"><div id="wizard-fill" style="width:12.5%"></div></div>
+        <div id="wizard-dots">
+          <button class="wdot actif" onclick="wizardGoTo(1)"><span class="wdot-num">1</span><span class="wdot-lbl">Type</span></button>
+          <button class="wdot" onclick="wizardGoTo(2)"><span class="wdot-num">2</span><span class="wdot-lbl">Bien</span></button>
+          <button class="wdot" onclick="wizardGoTo(3)"><span class="wdot-num">3</span><span class="wdot-lbl">Adresse</span></button>
+          <button class="wdot" onclick="wizardGoTo(4)"><span class="wdot-num">4</span><span class="wdot-lbl">Surface</span></button>
+          <button class="wdot" onclick="wizardGoTo(5)"><span class="wdot-num">5</span><span class="wdot-lbl">Charges</span></button>
+          <button class="wdot" onclick="wizardGoTo(6)"><span class="wdot-num">6</span><span class="wdot-lbl">Prix</span></button>
+          <button class="wdot" onclick="wizardGoTo(7)"><span class="wdot-num">7</span><span class="wdot-lbl">Équip.</span></button>
+          <button class="wdot" onclick="wizardGoTo(8)"><span class="wdot-num">8</span><span class="wdot-lbl">Photos</span></button>
+        </div>
       </div>
 
-      <!-- ═══ 3. LOCALISATION ═══ -->
-      <div class="fsect-hd"><i data-lucide=map-pin class=ic></i> Localisation</div>
-      <div class="frow">
-        <div class="fg2" style="grid-column:1/-1;position:relative;z-index:50">
-          <label>Adresse complète *</label>
-          <div style="position:relative">
-            <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" autocomplete="off" oninput="onAdresseInput(this.value)" onblur="setTimeout(hideAdresseSugg,200)">
-            <div id="adresse-sugg" style="display:none;position:fixed;background:#ffffff;border:1.5px solid var(--bleu,#1B4FD8);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:9999;overflow:hidden;max-height:280px;overflow-y:auto"></div>
+      <!-- ═══ STEP 1 — TYPE DE LOCATION ═══ -->
+      <div class="wizard-step" id="wstep-1">
+        <p class="wstep-title">Quel type de location proposez-vous ?</p>
+        <div id="type-location-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
+          <button type="button" class="tloc-card" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
+            <div class="tloc-icon">🛋️</div>
+            <div class="tloc-title">Location meublée</div>
+            <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
+          </button>
+          <button type="button" class="tloc-card" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
+            <div class="tloc-icon">🏠</div>
+            <div class="tloc-title">Location vide</div>
+            <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
+          </button>
+          <button type="button" class="tloc-card" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
+            <div class="tloc-icon">🤝</div>
+            <div class="tloc-title">Chambre / Coloc</div>
+            <div class="tloc-sub">Mise en relation</div>
+          </button>
+          <button type="button" class="tloc-card" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
+            <div class="tloc-icon">🏷️</div>
+            <div class="tloc-title">Vente</div>
+            <div class="tloc-sub">Mise en vente du bien</div>
+          </button>
+        </div>
+        <input type="hidden" id="pt" value=""><input type="hidden" id="pt-bail-subtype" value="">
+        <div id="bail-vide-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
+          <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Bail vide (non meublé)</div>
+          <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges.</div>
+        </div>
+        <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
+          <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=sofa class=ic></i> Bail meublé</div>
+          <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges.</div>
+        </div>
+        <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
+          <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
+          <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — le propriétaire et le locataire gèrent le contrat directement.</div>
+        </div>
+        <div id="wstep1-next" style="display:none" class="wizard-nav">
+          <div></div>
+          <button class="btn btn-p" id="wstep1-next-btn" onclick="wizardGoTo(2)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 2 — TYPE DE BIEN ═══ -->
+      <div class="wizard-step" id="wstep-2" style="display:none">
+        <p class="wstep-title">Quel type de bien proposez-vous ?</p>
+        <div class="fg2">
+          <label>Type de bien *</label>
+          <div class="tbien-grid">
+            <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
+            <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
+            <button type="button" class="tbien-btn" onclick="setTB(this,'parking')"><i data-lucide=car class=ic></i><span>Parking</span></button>
           </div>
-          <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
-          <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
+          <input type="hidden" id="p-type-bien" value="appartement">
         </div>
-        <!-- zone tendue : auto-détectée depuis le code postal à la sélection d'adresse -->
-        <input type="hidden" id="p-zone-tendue" value="">
-        <input type="hidden" id="p-loyer-ref" value="">
-        <input type="hidden" id="p-loyer-ref-maj" value="">
-        <div id="zt-auto-wrap" style="display:none;grid-column:1/-1">
-          <div id="zt-auto-badge"></div>
-        </div>
-        <!-- hidden: auto-remplis par géocodage -->
-        <input type="hidden" id="p-commune">
-        <input type="hidden" id="pz">
-      </div>
-
-      <!-- ═══ 4. LE BIEN ═══ -->
-      <div class="fsect-hd"><i data-lucide=layout class=ic></i> Le bien</div>
-      <div class="frow">
-        <div class="fg2" style="grid-column:1/-1"><label>Titre de l'annonce *</label><input class="fi" type="text" id="pti" placeholder="ex. Bel appartement T3 lumineux — Paris 11e, proche Bastille"></div>
-        <div class="fg2"><label>Typologie *</label>
-          <select class="fi" id="p-typology" style="cursor:pointer" onchange="onTypologyChange(this.value)">
-            <option value="studio">Studio</option>
-            <option value="t1">T1</option>
-            <option value="t2" selected>T2</option>
-            <option value="t3">T3</option>
-            <option value="t4">T4</option>
-            <option value="t5">T5</option>
-            <option value="t6plus">T6+</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Surface totale (m²) *</label><input class="fi" type="number" id="p-sqm" placeholder="65" min="10" max="1000"></div>
-        <div class="fg2" id="section-etage" style="display:grid;grid-column:1/-1;grid-template-columns:1fr 1fr;gap:.75rem">
-          <div><label>Étage</label><input class="fi" type="number" id="p-etage" placeholder="0" min="0" max="50"><div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">0 = rez-de-chaussée</div></div>
-          <div><label>Nb d'étages dans l'immeuble</label><input class="fi" type="number" id="p-nb-etages" placeholder="5" min="1" max="100"></div>
-        </div>
-        <div class="fg2" id="section-beds"><label>Chambres</label>
-          <select class="fi" id="psp" style="cursor:pointer">
-            <option value="0">Studio / aucune chambre</option>
-            <option value="1" selected>1 chambre</option>
-            <option value="2">2 chambres</option>
-            <option value="3">3 chambres</option>
-            <option value="4">4 chambres</option>
-            <option value="5">5+ chambres</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Salles de bain</label>
-          <select class="fi" id="p-baths" style="cursor:pointer">
-            <option value="1" selected>1 salle de bain</option>
-            <option value="2">2 salles de bain</option>
-            <option value="3">3+ salles de bain</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Surface séjour (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-surface-sejour" placeholder="20" min="0"></div>
-        <div class="fg2"><label>Type de cuisine</label>
-          <select class="fi" id="p-type-cuisine" style="cursor:pointer">
-            <option value="">Non précisé</option>
-            <option value="americaine">Américaine / ouverte</option>
-            <option value="separee">Séparée</option>
-            <option value="equipee">Équipée</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
-        <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
-      </div><!-- close characteristics frow -->
-
-      <!-- ═══ 5. CHARGES & CONSOMMATIONS ═══ -->
-      <div class="fsect-hd"><i data-lucide=zap class=ic></i> Charges &amp; consommations</div>
-      <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.25rem">
-
-        <!-- Chauffage card -->
-        <div class="cblock">
-          <div class="cblock-hd">🔥 Chauffage</div>
-          <div class="cblock-cols3">
-            <div>
-              <div class="cblabel">Type</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="chauf-cb-individuel" onchange="setChauffageTypeFromCb('individuel',this)"> Individuel</label>
-                <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
-              </div>
-            </div>
-            <div>
-              <div class="cblabel">Énergie</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="chauf-cb-electrique" onchange="setChauffageModeFromCb('electrique',this)"> Électrique</label>
-                <label class="cl"><input type="checkbox" id="chauf-cb-gaz" onchange="setChauffageModeFromCb('gaz',this)"> Gaz</label>
-                <label class="cl"><input type="checkbox" id="chauf-cb-fioul" onchange="setChauffageModeFromCb('fioul',this)"> Fioul</label>
-                <label class="cl"><input type="checkbox" id="chauf-cb-solaire" onchange="setChauffageModeFromCb('solaire',this)"> Solaire</label>
-                <label class="cl"><input type="checkbox" id="chauf-cb-autre" onchange="setChauffageModeFromCb('autre',this)"> Autre</label>
-              </div>
-            </div>
-            <div>
-              <div class="cblabel">Compris dans les charges</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="chauf-inclus-oui" onchange="setChauffageInclus('oui',this)"> Oui</label>
-                <label class="cl"><input type="checkbox" id="chauf-inclus-non" onchange="setChauffageInclus('non',this)"> Non</label>
-              </div>
-              <div id="chauffage-hint" style="display:none;margin-top:.4rem;font-size:.75rem;color:var(--bleu);line-height:1.4;background:rgba(27,79,216,.07);padding:.35rem .6rem;border-radius:7px"><i data-lucide=info class=ic></i> Collectif → généralement inclus</div>
-            </div>
-          </div>
-          <input type="hidden" id="p-chauffage-type" value="">
-          <input type="hidden" id="p-chauffage-mode" value="">
-          <input type="hidden" id="p-chauffage-inclus" value="">
-        </div>
-
-        <!-- ECS card -->
-        <div class="cblock">
-          <div class="cblock-hd">🚿 Eau chaude sanitaire (ECS)</div>
-          <div class="cblock-cols3">
-            <div>
-              <div class="cblabel">Production</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
-                <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
-              </div>
-            </div>
-            <div>
-              <div class="cblabel">Énergie</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="ecs-en-electrique" onchange="setEcsEnergie('electrique',this)"> Électrique</label>
-                <label class="cl"><input type="checkbox" id="ecs-en-gaz" onchange="setEcsEnergie('gaz',this)"> Gaz</label>
-                <label class="cl"><input type="checkbox" id="ecs-en-autre" onchange="setEcsEnergie('autre',this)"> Autre</label>
-              </div>
-            </div>
-            <div>
-              <div class="cblabel">Comprise dans les charges</div>
-              <div class="cbwrap cbcol">
-                <label class="cl"><input type="checkbox" id="ecs-inclus-oui" onchange="setEcsInclus('oui',this)"> Oui</label>
-                <label class="cl"><input type="checkbox" id="ecs-inclus-non" onchange="setEcsInclus('non',this)"> Non</label>
-              </div>
-            </div>
-          </div>
-          <input type="hidden" id="p-ecs-type" value="">
-          <input type="hidden" id="p-ecs-energie" value="">
-          <input type="hidden" id="p-ecs-inclus" value="">
-        </div>
-
-        <!-- Eau froide + Électricité sur la même ligne -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-          <div class="cblock">
-            <div class="cblock-hd">💧 Eau froide</div>
-            <div class="cbwrap cbcol" style="margin-top:.1rem">
-              <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
-              <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
-              <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
-            </div>
-            <input type="hidden" id="p-eau-froide" value="">
-          </div>
-          <div class="cblock">
-            <div class="cblock-hd">⚡ Électricité</div>
-            <div class="cbwrap cbcol" style="margin-top:.1rem">
-              <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)"> À la charge du locataire</label>
-              <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
-            </div>
-            <input type="hidden" id="p-electricite-situation" value="">
-          </div>
-        </div>
-
-        <!-- Autres postes + Régularisation -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-          <div class="cblock">
-            <div class="cblock-hd" style="font-size:.78rem">📋 Autres postes inclus</div>
-            <div class="cbwrap cbcol" style="margin-top:.1rem">
-              <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Parties communes</label>
-              <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
-              <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
-              <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
-            </div>
-            <input type="hidden" id="p-charges-inclus" value="">
-          </div>
-          <div class="cblock">
-            <div class="cblock-hd" style="font-size:.78rem">🔄 Type de charges</div>
-            <div class="cbwrap cbcol" style="margin-top:.1rem">
-              <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
-              <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
-            </div>
-            <input type="hidden" id="p-charges-regularisation" value="">
-          </div>
-        </div>
-
-        <!-- Résumé automatique -->
-        <div id="charges-summary" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.18);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--stone);line-height:1.7"></div>
-
-        <input type="hidden" id="p-bills" value="included">
-      </div>
-
-      <!-- ═══ 6. PRIX & DISPONIBILITÉ ═══ -->
-      <div class="fsect-hd"><i data-lucide=euro class=ic></i> Prix &amp; disponibilité</div>
-      <div class="frow">
-        <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
-        <div class="fg2" id="pt-price-wrap">
-          <label id="pt-price-label">Loyer mensuel charges comprises (€) *</label>
-          <input class="fi" type="number" id="ppr" placeholder="950" oninput="updateLoyerHC()">
-          <div id="loyer-hc-display" style="margin-top:.45rem;padding:.5rem .75rem;background:rgba(27,79,216,.06);border-radius:8px;font-size:.82rem;color:var(--stone);display:flex;align-items:center;gap:.35rem">
-            <i data-lucide=arrow-right class=ic style="opacity:.5;flex-shrink:0"></i>
-            Loyer hors charges : <strong id="loyer-hc-val" style="color:var(--bleu,#1B4FD8);margin-left:.2rem">—</strong>
-          </div>
-        </div>
-        <div class="fg2" id="pt-charges-wrap">
-          <label>Montant des charges (€/mois) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">incluses dans le loyer CC</span></label>
-          <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
-        </div>
-        <div class="fg2" id="pt-depot-wrap">
-          <label id="pt-depot-label">Dépôt de garantie (€)</label>
-          <input class="fi" type="number" id="pdep" placeholder="850">
-          <div id="depot-hint" style="font-size:.7rem;color:var(--stone-l);margin-top:.25rem;line-height:1.4"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(3)">Suivant <i data-lucide=arrow-right class=ic></i></button>
         </div>
       </div>
 
-      <!-- ═══ 6. DIAGNOSTIC ÉNERGÉTIQUE (DPE) ═══ -->
-      <div class="fsect-hd"><i data-lucide=zap class=ic></i> Diagnostic énergétique (DPE)</div>
-      <div class="frow">
-        <div class="fg2"><label>Classe énergie <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
-          <select class="fi" id="p-dpe" style="cursor:pointer" onchange="onDpeChange()">
-            <option value="">Non communiqué</option>
-            <option value="A">A — Très performant</option>
-            <option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
-            <option value="F">F</option>
-            <option value="G">G — Très énergivore</option>
-            <option value="NS">Non soumis au DPE</option>
-          </select>
-        </div>
-        <div class="fg2"><label>Classe GES <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
-          <select class="fi" id="p-ges" style="cursor:pointer" onchange="onDpeChange()">
-            <option value="">Non communiqué</option>
-            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
-            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
-            <option value="G">G</option>
-            <option value="NS">Non soumis au DPE</option>
-          </select>
-        </div>
-        <div id="dpe-warning" style="display:none;grid-column:1/-1;background:rgba(201,85,58,.07);border:1px solid rgba(201,85,58,.3);border-radius:8px;padding:.7rem 1rem;font-size:.78rem;color:var(--terra);line-height:1.5">
-          <i data-lucide=alert-triangle class=ic></i>️ <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022). Interdiction progressive de mise en location : G dès 2025, F dès 2028.
-        </div>
-      </div>
-
-      <!-- diagnostics : remplis dans le bail uniquement -->
-      <input type="hidden" id="p-diag-amiante" value="">
-      <input type="hidden" id="p-diag-plomb" value="">
-      <input type="hidden" id="p-diag-elec" value="">
-      <input type="hidden" id="p-diag-gaz" value="">
-      <input type="hidden" id="p-diag-erp" value="">
-      <input type="hidden" id="p-diag-bruit" value="">
-
-      <!-- ═══ 7. ÉQUIPEMENTS & CARACTÉRISTIQUES ═══ -->
-      <div class="fsect-hd"><i data-lucide=sparkles class=ic></i> Équipements & caractéristiques</div>
-      <div class="fg2" style="margin-top:.9rem"><label>Ascenseur</label>
-        <div class="cbwrap" style="margin-top:.3rem">
-          <label class="cl"><input type="checkbox" id="asc-cb-oui" onchange="setAscenseurFromCb('oui',this)"> Oui</label>
-          <label class="cl"><input type="checkbox" id="asc-cb-non" onchange="setAscenseurFromCb('non',this)"> Non</label>
-        </div>
-        <input type="hidden" id="p-ascenseur" value="">
-      </div>
-      <div class="fg2" style="margin-top:1.2rem"><label>Pièces annexes</label>
-        <div class="cbwrap" style="margin-top:.3rem">
-          <label class="cl"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"> Cave</label>
-          <label class="cl"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"> Sous-sol</label>
-          <label class="cl"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"> Grenier</label>
-          <label class="cl"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"> Avec dépendance</label>
-        </div>
-        <input type="hidden" id="p-annexes" value="">
-      </div>
-      <div class="fg2" style="margin-top:1.2rem;grid-column:1/-1"><label>Caractéristiques</label>
-        <div class="cbwrap" style="margin-top:.3rem">
-          <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
-          <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
-          <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
-          <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
-          <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
-          <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
-          <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
-          <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
-          <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
-          <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
-          <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
-          <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
-          <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
-          <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
-          <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
-          <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
-          <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
-        </div>
-      </div>
-
-      <!-- ═══ 8. DESCRIPTION & MÉDIAS ═══ -->
-      <div class="fsect-hd"><i data-lucide=image class=ic></i> Description & médias</div>
-      <div class="fg2"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Décrivez votre logement — meublé, WiFi, proche transport, charges comprises, règles de la maison…"></textarea></div>
-      <div class="fg2">
-        <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise pour publier</span></label>
-        <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
-          <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
-          <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
-          <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
-          <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
-        </div>
-        <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
-        <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Ajoutez au moins 1 photo avant de publier.</div>
-      </div>
-      <div class="fg2" style="grid-column:1/-1">
-        <label><i data-lucide=video class=ic></i> Visite virtuelle vidéo <span style="font-weight:400;color:var(--stone-l)">(optionnel)</span></label>
-        <div style="border:2px dashed rgba(107,95,82,.2);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--warm)" onclick="document.getElementById('video-input').click()">
-          <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=video class=ic></i></div>
-          <div style="font-size:.82rem;color:var(--stone)">Téléversez une visite vidéo de votre logement (max 50 Mo)</div>
-          <div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">MP4, MOV — les locataires peuvent visionner avant de demander une visite</div>
-          <input type="file" id="video-input" accepter="video/*" style="display:none" onchange="handleVideo(this)">
-        </div>
-        <div id="video-pavis" style="margin-top:.5rem"></div>
-      </div>
-
-      <!-- Champs spécifiques à une vente — n'apparaissent qu'en mode "À vendre" -->
-      <div id="pt-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Détails de la vente</div>
+      <!-- ═══ STEP 3 — ADRESSE ═══ -->
+      <div class="wizard-step" id="wstep-3" style="display:none">
+        <p class="wstep-title">Où se situe le bien ?</p>
         <div class="frow">
-          <div class="fg2"><label>Tenure *</label><select class="fi" id="p-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
-          <div class="fg2"><label>Finish statut *</label><select class="fi" id="p-finish"><option value="finished">Fully finished</option><option value="meublé">Finished & meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
+          <div class="fg2" style="grid-column:1/-1;position:relative;z-index:50">
+            <label>Adresse complète *</label>
+            <div style="position:relative">
+              <input class="fi" id="p-full-address" placeholder="12 rue de la Paix, 75001 Paris" autocomplete="off" oninput="onAdresseInput(this.value)" onblur="setTimeout(hideAdresseSugg,200)">
+              <div id="adresse-sugg" style="display:none;position:fixed;background:#ffffff;border:1.5px solid var(--bleu,#1B4FD8);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:9999;overflow:hidden;max-height:280px;overflow-y:auto"></div>
+            </div>
+            <div id="address-map-statut" style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem"></div>
+            <div id="address-map" style="height:180px;border-radius:10px;overflow:hidden;margin-top:.5rem;display:none;border:1px solid rgba(0,0,0,.1)"></div>
+          </div>
+          <input type="hidden" id="p-zone-tendue" value="">
+          <input type="hidden" id="p-loyer-ref" value="">
+          <input type="hidden" id="p-loyer-ref-maj" value="">
+          <div id="zt-auto-wrap" style="display:none;grid-column:1/-1"><div id="zt-auto-badge"></div></div>
+          <input type="hidden" id="p-commune">
+          <input type="hidden" id="pz">
         </div>
-        <div class="frow">
-          <div class="fg2"><label>EPC rating <span style="font-size:.68rem;color:var(--stone-l)">(legally required to sell)</span></label><select class="fi" id="p-epc"><option value="">Not disponible yet</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
-          <div class="fg2"><label>Annual service charge (€) <span style="font-size:.68rem;color:var(--stone-l)">(if applicable)</span></label><input class="fi" type="number" id="p-service-charge" placeholder="0"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(2)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(4)">Suivant <i data-lucide=arrow-right class=ic></i></button>
         </div>
-        <div class="frow">
-          <div class="fg2"><label>Planning permit no. <span style="font-size:.68rem;color:var(--stone-l)">(optional)</span></label><input class="fi" id="p-permit" placeholder="e.g. PA 1234/23"></div>
-          <div class="fg2" style="display:flex;align-items:center;padding-top:1.4rem"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem"><input type="checkbox" id="p-sda"> Special Designated Area (SDA)</label></div>
-        </div>
-        <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">SDAs let foreign buyers purchase without an AIP permit — worth flagging if it applies.</div>
       </div>
 
-      <!-- Colocation legal notice -->
-      <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Détails de la colocation</div>
+      <!-- ═══ STEP 4 — LE BIEN ═══ -->
+      <div class="wizard-step" id="wstep-4" style="display:none">
+        <p class="wstep-title">Caractéristiques du bien</p>
         <div class="frow">
-          <div class="fg2"><label>Type de chambre</label>
-            <select class="fi" id="p-room-type" style="cursor:pointer">
-              <option value="private">Chambre privée</option>
-              <option value="shared">Chambre partagée</option>
+          <div class="fg2" style="grid-column:1/-1"><label>Titre de l'annonce *</label><input class="fi" type="text" id="pti" placeholder="ex. Bel appartement T3 lumineux — Paris 11e, proche Bastille"></div>
+          <div class="fg2"><label>Typologie *</label>
+            <select class="fi" id="p-typology" style="cursor:pointer" onchange="onTypologyChange(this.value)">
+              <option value="studio">Studio</option><option value="t1">T1</option><option value="t2" selected>T2</option>
+              <option value="t3">T3</option><option value="t4">T4</option><option value="t5">T5</option><option value="t6plus">T6+</option>
             </select>
           </div>
-          <div class="fg2"><label>Salle de bain</label>
-            <select class="fi" id="p-room-salle de bain" style="cursor:pointer">
-              <option value="shared">Partagée</option>
-              <option value="private">Privée</option>
+          <div class="fg2"><label>Surface totale (m²) *</label><input class="fi" type="number" id="p-sqm" placeholder="65" min="10" max="1000"></div>
+          <div class="fg2" id="section-etage" style="display:grid;grid-column:1/-1;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div><label>Étage</label><input class="fi" type="number" id="p-etage" placeholder="0" min="0" max="50"><div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">0 = rez-de-chaussée</div></div>
+            <div><label>Nb d'étages dans l'immeuble</label><input class="fi" type="number" id="p-nb-etages" placeholder="5" min="1" max="100"></div>
+          </div>
+          <div class="fg2" id="section-beds"><label>Chambres</label>
+            <select class="fi" id="psp" style="cursor:pointer">
+              <option value="0">Studio / aucune chambre</option><option value="1" selected>1 chambre</option>
+              <option value="2">2 chambres</option><option value="3">3 chambres</option><option value="4">4 chambres</option><option value="5">5+ chambres</option>
             </select>
           </div>
-          <div class="fg2"><label>Personnes déjà dans le logement</label>
-            <select class="fi" id="p-roommates" style="cursor:pointer">
-              <option value="1">1 personne (vous)</option>
-              <option value="2">2 personnes</option>
-              <option value="3">3 personnes</option>
-              <option value="4">4+ personnes</option>
+          <div class="fg2"><label>Salles de bain</label>
+            <select class="fi" id="p-baths" style="cursor:pointer">
+              <option value="1" selected>1 salle de bain</option><option value="2">2 salles de bain</option><option value="3">3+ salles de bain</option>
             </select>
           </div>
-          <div class="fg2"><label>Disponible depuis</label>
-            <input class="fi" type="date" id="p-room-disponible">
+          <div class="fg2"><label>Surface séjour (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-surface-sejour" placeholder="20" min="0"></div>
+          <div class="fg2"><label>Type de cuisine</label>
+            <select class="fi" id="p-type-cuisine" style="cursor:pointer">
+              <option value="">Non précisé</option><option value="americaine">Américaine / ouverte</option>
+              <option value="separee">Séparée</option><option value="equipee">Équipée</option>
+            </select>
           </div>
+          <div class="fg2"><label>Terrasse / Balcon (m²) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">optionnel</span></label><input class="fi" type="number" id="p-terrasse-sqm" placeholder="8" min="0" oninput="if(this.value>0){document.getElementById('pbalc').checked=true}"></div>
+          <div class="fg2"><label>Année de construction <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label><input class="fi" type="number" id="p-annee-construction" placeholder="1975" min="1800" max="2030"></div>
         </div>
-        <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem">
-          <i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(3)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(5)">Suivant <i data-lucide=arrow-right class=ic></i></button>
         </div>
-        <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer">
-          <input type="checkbox" id="room_rental-confirm" required> Je confirme avoir lu et accepté ces conditions
-        </label>
       </div>
 
-      <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
-      <button class="btn btn-p" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:1rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publier mon annonce →</button>
-      </div><!-- /post-form-body -->
+      <!-- ═══ STEP 5 — CHARGES ═══ -->
+      <div class="wizard-step" id="wstep-5" style="display:none">
+        <p class="wstep-title">Charges &amp; consommations</p>
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.25rem">
+          <div class="cblock">
+            <div class="cblock-hd">🔥 Chauffage</div>
+            <div class="cblock-cols3">
+              <div><div class="cblabel">Type</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="chauf-cb-individuel" onchange="setChauffageTypeFromCb('individuel',this)"> Individuel</label>
+                  <label class="cl"><input type="checkbox" id="chauf-cb-collectif" onchange="setChauffageTypeFromCb('collectif',this)"> Collectif</label>
+                </div>
+              </div>
+              <div><div class="cblabel">Énergie</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="chauf-cb-electrique" onchange="setChauffageModeFromCb('electrique',this)"> Électrique</label>
+                  <label class="cl"><input type="checkbox" id="chauf-cb-gaz" onchange="setChauffageModeFromCb('gaz',this)"> Gaz</label>
+                  <label class="cl"><input type="checkbox" id="chauf-cb-fioul" onchange="setChauffageModeFromCb('fioul',this)"> Fioul</label>
+                  <label class="cl"><input type="checkbox" id="chauf-cb-solaire" onchange="setChauffageModeFromCb('solaire',this)"> Solaire</label>
+                  <label class="cl"><input type="checkbox" id="chauf-cb-autre" onchange="setChauffageModeFromCb('autre',this)"> Autre</label>
+                </div>
+              </div>
+              <div><div class="cblabel">Compris dans les charges</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="chauf-inclus-oui" onchange="setChauffageInclus('oui',this)"> Oui</label>
+                  <label class="cl"><input type="checkbox" id="chauf-inclus-non" onchange="setChauffageInclus('non',this)"> Non</label>
+                </div>
+                <div id="chauffage-hint" style="display:none;margin-top:.4rem;font-size:.75rem;color:var(--bleu);line-height:1.4;background:rgba(27,79,216,.07);padding:.35rem .6rem;border-radius:7px"><i data-lucide=info class=ic></i> Collectif → généralement inclus</div>
+              </div>
+            </div>
+            <input type="hidden" id="p-chauffage-type" value=""><input type="hidden" id="p-chauffage-mode" value=""><input type="hidden" id="p-chauffage-inclus" value="">
+          </div>
+          <div class="cblock">
+            <div class="cblock-hd">🚿 Eau chaude sanitaire (ECS)</div>
+            <div class="cblock-cols3">
+              <div><div class="cblabel">Production</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="ecs-cb-individuel" onchange="setEcsType('individuel',this)"> Individuelle (chauffe-eau)</label>
+                  <label class="cl"><input type="checkbox" id="ecs-cb-collectif" onchange="setEcsType('collectif',this)"> Collective (immeuble)</label>
+                </div>
+              </div>
+              <div><div class="cblabel">Énergie</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="ecs-en-electrique" onchange="setEcsEnergie('electrique',this)"> Électrique</label>
+                  <label class="cl"><input type="checkbox" id="ecs-en-gaz" onchange="setEcsEnergie('gaz',this)"> Gaz</label>
+                  <label class="cl"><input type="checkbox" id="ecs-en-autre" onchange="setEcsEnergie('autre',this)"> Autre</label>
+                </div>
+              </div>
+              <div><div class="cblabel">Comprise dans les charges</div>
+                <div class="cbwrap cbcol">
+                  <label class="cl"><input type="checkbox" id="ecs-inclus-oui" onchange="setEcsInclus('oui',this)"> Oui</label>
+                  <label class="cl"><input type="checkbox" id="ecs-inclus-non" onchange="setEcsInclus('non',this)"> Non</label>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="p-ecs-type" value=""><input type="hidden" id="p-ecs-energie" value=""><input type="hidden" id="p-ecs-inclus" value="">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="cblock">
+              <div class="cblock-hd">💧 Eau froide</div>
+              <div class="cbwrap cbcol" style="margin-top:.1rem">
+                <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
+                <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
+                <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
+              </div>
+              <input type="hidden" id="p-eau-froide" value="">
+            </div>
+            <div class="cblock">
+              <div class="cblock-hd">⚡ Électricité</div>
+              <div class="cbwrap cbcol" style="margin-top:.1rem">
+                <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)"> À la charge du locataire</label>
+                <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
+              </div>
+              <input type="hidden" id="p-electricite-situation" value="">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="cblock">
+              <div class="cblock-hd" style="font-size:.78rem">📋 Autres postes inclus</div>
+              <div class="cbwrap cbcol" style="margin-top:.1rem">
+                <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Parties communes</label>
+                <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
+                <label class="cl"><input type="checkbox" class="charges-cb" value="internet" onchange="updateChargesInclus()"> Internet</label>
+                <label class="cl"><input type="checkbox" class="charges-cb" value="autre" onchange="updateChargesInclus()"> Autre</label>
+              </div>
+              <input type="hidden" id="p-charges-inclus" value="">
+            </div>
+            <div class="cblock">
+              <div class="cblock-hd" style="font-size:.78rem">🔄 Type de charges</div>
+              <div class="cbwrap cbcol" style="margin-top:.1rem">
+                <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
+                <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
+              </div>
+              <input type="hidden" id="p-charges-regularisation" value="">
+            </div>
+          </div>
+          <div id="charges-summary" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.18);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--stone);line-height:1.7"></div>
+          <input type="hidden" id="p-bills" value="included">
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(6)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 6 — PRIX & DPE ═══ -->
+      <div class="wizard-step" id="wstep-6" style="display:none">
+        <p class="wstep-title">Prix &amp; diagnostic énergétique</p>
+        <div class="frow">
+          <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+          <div class="fg2" id="pt-price-wrap">
+            <label id="pt-price-label">Loyer mensuel charges comprises (€) *</label>
+            <input class="fi" type="number" id="ppr" placeholder="950" oninput="updateLoyerHC()">
+            <div id="loyer-hc-display" style="margin-top:.45rem;padding:.5rem .75rem;background:rgba(27,79,216,.06);border-radius:8px;font-size:.82rem;color:var(--stone);display:flex;align-items:center;gap:.35rem">
+              <i data-lucide=arrow-right class=ic style="opacity:.5;flex-shrink:0"></i>
+              Loyer hors charges : <strong id="loyer-hc-val" style="color:var(--bleu,#1B4FD8);margin-left:.2rem">—</strong>
+            </div>
+          </div>
+          <div class="fg2" id="pt-charges-wrap">
+            <label>Montant des charges (€/mois) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">incluses dans le loyer CC</span></label>
+            <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
+          </div>
+          <div class="fg2" id="pt-depot-wrap">
+            <label id="pt-depot-label">Dépôt de garantie (€)</label>
+            <input class="fi" type="number" id="pdep" placeholder="850">
+            <div id="depot-hint" style="font-size:.7rem;color:var(--stone-l);margin-top:.25rem;line-height:1.4"></div>
+          </div>
+        </div>
+        <div class="fsect-hd" style="margin-top:1.2rem"><i data-lucide=zap class=ic></i> Diagnostic énergétique (DPE)</div>
+        <div class="frow">
+          <div class="fg2"><label>Classe énergie <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+            <select class="fi" id="p-dpe" style="cursor:pointer" onchange="onDpeChange()">
+              <option value="">Non communiqué</option><option value="A">A — Très performant</option>
+              <option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
+              <option value="F">F</option><option value="G">G — Très énergivore</option><option value="NS">Non soumis au DPE</option>
+            </select>
+          </div>
+          <div class="fg2"><label>Classe GES <span style="font-size:.7rem;color:var(--terra);font-weight:400">obligatoire</span></label>
+            <select class="fi" id="p-ges" style="cursor:pointer" onchange="onDpeChange()">
+              <option value="">Non communiqué</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
+              <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="NS">Non soumis au DPE</option>
+            </select>
+          </div>
+          <div id="dpe-warning" style="display:none;grid-column:1/-1;background:rgba(201,85,58,.07);border:1px solid rgba(201,85,58,.3);border-radius:8px;padding:.7rem 1rem;font-size:.78rem;color:var(--terra);line-height:1.5">
+            <i data-lucide=alert-triangle class=ic></i>️ <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022).
+          </div>
+        </div>
+        <input type="hidden" id="p-diag-amiante" value=""><input type="hidden" id="p-diag-plomb" value="">
+        <input type="hidden" id="p-diag-elec" value=""><input type="hidden" id="p-diag-gaz" value="">
+        <input type="hidden" id="p-diag-erp" value=""><input type="hidden" id="p-diag-bruit" value="">
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(5)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(7)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 7 — ÉQUIPEMENTS ═══ -->
+      <div class="wizard-step" id="wstep-7" style="display:none">
+        <p class="wstep-title">Équipements &amp; caractéristiques</p>
+        <div class="fg2" style="margin-top:.5rem"><label>Ascenseur</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="asc-cb-oui" onchange="setAscenseurFromCb('oui',this)"> Oui</label>
+            <label class="cl"><input type="checkbox" id="asc-cb-non" onchange="setAscenseurFromCb('non',this)"> Non</label>
+          </div>
+          <input type="hidden" id="p-ascenseur" value="">
+        </div>
+        <div class="fg2" style="margin-top:1rem"><label>Pièces annexes</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"> Cave</label>
+            <label class="cl"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"> Sous-sol</label>
+            <label class="cl"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"> Grenier</label>
+            <label class="cl"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"> Avec dépendance</label>
+          </div>
+          <input type="hidden" id="p-annexes" value="">
+        </div>
+        <div class="fg2" style="margin-top:1rem"><label>Caractéristiques</label>
+          <div class="cbwrap" style="margin-top:.3rem">
+            <label class="cl"><input type="checkbox" id="pfu" checked> <i data-lucide=sofa class=ic></i> Meublé</label>
+            <label class="cl"><input type="checkbox" id="pwi"> <i data-lucide=wifi class=ic></i> WiFi</label>
+            <label class="cl"><input type="checkbox" id="pac"> <i data-lucide=snowflake class=ic></i> Clim / A/C</label>
+            <label class="cl"><input type="checkbox" id="ppk"> <i data-lucide=car class=ic></i> Parking</label>
+            <label class="cl"><input type="checkbox" id="ppool"> <i data-lucide=waves class=ic></i> Piscine</label>
+            <label class="cl"><input type="checkbox" id="pbalc"> <i data-lucide=leaf class=ic></i> Balcon/Terrasse</label>
+            <label class="cl"><input type="checkbox" id="pwash"> <i data-lucide=washing-machine class=ic></i> Lave-linge</label>
+            <label class="cl"><input type="checkbox" id="pdish"> <i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
+            <label class="cl"><input type="checkbox" id="p-pmr"> Accès PMR</label>
+            <label class="cl"><input type="checkbox" id="p-chauffage-sol"> Chauffage au sol</label>
+            <label class="cl"><input type="checkbox" id="p-baignoire"> Baignoire</label>
+            <label class="cl"><input type="checkbox" id="p-plusieurs-wc"> Plusieurs WC</label>
+            <label class="cl"><input type="checkbox" id="p-construction-ancienne"> Construction ancienne</label>
+            <label class="cl"><input type="checkbox" id="p-construction-recente"> Construction récente</label>
+            <label class="cl"><input type="checkbox" id="p-copropriete" onchange="document.getElementById('p-nb-lots-wrap').style.display=this.checked?'flex':'none'"> <i data-lucide=building-2 class=ic></i> Copropriété</label>
+            <label class="cl" id="p-nb-lots-wrap" style="display:none"><input type="number" id="p-nb-lots-copro" placeholder="520" min="1" max="10000" style="width:5rem;margin-right:.35rem"> lots en copropriété</label>
+            <label class="cl"><input type="checkbox" id="ppets" style="display:none"> </label>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(6)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" onclick="wizardGoTo(8)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 8 — PHOTOS & DESCRIPTION ═══ -->
+      <div class="wizard-step" id="wstep-8" style="display:none">
+        <p class="wstep-title">Photos &amp; description</p>
+        <div class="fg2"><label>Description</label><textarea class="fta" id="pde" rows="4" placeholder="Décrivez votre logement — meublé, WiFi, proche transport, charges comprises, règles de la maison…"></textarea></div>
+        <div class="fg2">
+          <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise pour publier</span></label>
+          <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
+            <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
+            <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
+            <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
+            <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
+          </div>
+          <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+          <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Ajoutez au moins 1 photo avant de publier.</div>
+        </div>
+        <div class="fg2" style="grid-column:1/-1">
+          <label><i data-lucide=video class=ic></i> Visite virtuelle vidéo <span style="font-weight:400;color:var(--stone-l)">(optionnel)</span></label>
+          <div style="border:2px dashed rgba(107,95,82,.2);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--warm)" onclick="document.getElementById('video-input').click()">
+            <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=video class=ic></i></div>
+            <div style="font-size:.82rem;color:var(--stone)">Téléversez une visite vidéo de votre logement (max 50 Mo)</div>
+            <div style="font-size:.7rem;color:var(--stone-l);margin-top:.2rem">MP4, MOV — les locataires peuvent visionner avant de demander une visite</div>
+            <input type="file" id="video-input" accepter="video/*" style="display:none" onchange="handleVideo(this)">
+          </div>
+          <div id="video-pavis" style="margin-top:.5rem"></div>
+        </div>
+        <div id="pt-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+          <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Détails de la vente</div>
+          <div class="frow">
+            <div class="fg2"><label>Tenure *</label><select class="fi" id="p-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
+            <div class="fg2"><label>Finish statut *</label><select class="fi" id="p-finish"><option value="finished">Fully finished</option><option value="meublé">Finished &amp; meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
+          </div>
+          <div class="frow">
+            <div class="fg2"><label>EPC rating <span style="font-size:.68rem;color:var(--stone-l)">(legally required to sell)</span></label><select class="fi" id="p-epc"><option value="">Not disponible yet</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+            <div class="fg2"><label>Annual service charge (€)</label><input class="fi" type="number" id="p-service-charge" placeholder="0"></div>
+          </div>
+          <div class="frow">
+            <div class="fg2"><label>Planning permit no.</label><input class="fi" id="p-permit" placeholder="e.g. PA 1234/23"></div>
+            <div class="fg2" style="display:flex;align-items:center;padding-top:1.4rem"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem"><input type="checkbox" id="p-sda"> Special Designated Area (SDA)</label></div>
+          </div>
+        </div>
+        <div id="room_rental-notice" style="display:none;background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+          <div style="font-size:.78rem;font-weight:700;color:var(--ochre);margin-bottom:.5rem"><i data-lucide=bed-double class=ic></i> Détails de la colocation</div>
+          <div class="frow">
+            <div class="fg2"><label>Type de chambre</label><select class="fi" id="p-room-type" style="cursor:pointer"><option value="private">Chambre privée</option><option value="shared">Chambre partagée</option></select></div>
+            <div class="fg2"><label>Salle de bain</label><select class="fi" id="p-room-salle de bain" style="cursor:pointer"><option value="shared">Partagée</option><option value="private">Privée</option></select></div>
+            <div class="fg2"><label>Personnes déjà dans le logement</label><select class="fi" id="p-roommates" style="cursor:pointer"><option value="1">1 personne (vous)</option><option value="2">2 personnes</option><option value="3">3 personnes</option><option value="4">4+ personnes</option></select></div>
+            <div class="fg2"><label>Disponible depuis</label><input class="fi" type="date" id="p-room-disponible"></div>
+          </div>
+          <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem"><i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.</div>
+          <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer"><input type="checkbox" id="room_rental-confirm" required> Je confirme avoir lu et accepté ces conditions</label>
+        </div>
+        <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
+        <div class="wizard-nav">
+          <button class="btn btn-s" onclick="wizardGoTo(7)"><i data-lucide=arrow-left class=ic></i> Retour</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publier mon annonce</button>
+        </div>
+      </div>
+
+
     </div>
-  </div>
-</div>
+
 
 <!-- BROWSE AGENCIES -->
 <div class="page" id="page-agences">
@@ -2383,8 +2378,37 @@ async function requestBail(){
   toast('<i data-lucide=file-text class=ic></i> Bail signing is initiated by the propriétaire. They will send you a DocuSeal email to sign.');
 }
 
+let _wizardStep=1;
+const _WIZARD_LABELS=['','Type','Bien','Adresse','Surface','Charges','Prix','Équipements','Photos'];
+
+function wizardGoTo(n){
+  // Masquer l'étape courante
+  const cur=document.getElementById('wstep-'+_wizardStep);
+  if(cur)cur.style.display='none';
+  _wizardStep=n;
+  // Afficher la nouvelle étape
+  const next=document.getElementById('wstep-'+n);
+  if(next)next.style.display='block';
+  // Barre de progression
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round(n/8*100)+'%';
+  // Compteur
+  const ctr=document.getElementById('wizard-step-counter');
+  if(ctr)ctr.textContent='Étape '+n+' sur 8';
+  const lbl=document.getElementById('wizard-step-label');
+  if(lbl)lbl.textContent=_WIZARD_LABELS[n]||'';
+  // Points de progression
+  document.querySelectorAll('.wdot').forEach((d,i)=>{
+    d.classList.remove('actif','done');
+    if(i+1<n)d.classList.add('done');
+    else if(i+1===n)d.classList.add('actif');
+  });
+  // Remonter en haut du formulaire
+  const fc=document.getElementById('post-self-form');
+  if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function selectTypeLocation(t){
-  // Mettre à jour les cartes visuelles
   ['meuble','vide','coloc','vente'].forEach(k=>{
     const c=document.getElementById('tloc-'+k);
     if(c)c.classList.remove('actif');
@@ -2392,12 +2416,8 @@ function selectTypeLocation(t){
   const map={bail_meuble:'meuble',bail_vide:'vide',room_rental:'coloc',for_sale:'vente'};
   const activeCard=document.getElementById('tloc-'+map[t]);
   if(activeCard)activeCard.classList.add('actif');
-
-  // Afficher le reste du formulaire
-  const body=document.getElementById('post-form-body');
-  if(body)body.style.display='block';
-
-  // Mettre à jour type hidden + infos légales via setT existant
+  const nb=document.getElementById('wstep1-next');
+  if(nb)nb.style.display='flex';
   setT({classList:{contains:()=>false,add:()=>{}}},t);
 }
 
