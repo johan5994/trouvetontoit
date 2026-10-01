@@ -3038,7 +3038,19 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
     }else if(ns==='pending_landlord'){
       bailBlock=`<div style="background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--gold)"><i data-lucide=send class=ic></i> Vos remarques ont été envoyées — en attente du propriétaire</div>${leaseBtn('Voir le bail →',false)}`;
     }else if(ns==='agreed'||ns==='signed'){
-      bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Les deux parties sont d'accord — bail validé</div>${leaseBtn('Voir le bail →',false)}`;
+      const llSigned=!!lease.landlord_signed_at;
+      const tSigned=!!lease.tenant_signed_at;
+      if(tSigned&&llSigned){
+        // Tout signé
+        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> ✅ Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
+      }else if(tSigned&&!llSigned){
+        // Locataire a signé, attend bailleur
+        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check class=ic></i> Vous avez signé — en attente de la signature du bailleur</div>${leaseBtn('Voir le bail →',false)}`;
+      }else{
+        // Accord trouvé, signatures ouvertes — CTA principal
+        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Bail accepté${llSigned?' — le bailleur a déjà signé':' — signatures ouvertes'}</div>
+        <a href="${leaseUrl}" style="display:block;width:100%;background:var(--green,#16a34a);color:white;border:none;border-radius:8px;padding:.5rem;font-size:.82rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.4rem;letter-spacing:.01em">✍️ Signer le bail maintenant →</a>`;
+      }
     }else{
       bailBlock='<div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;color:var(--td)"><i data-lucide=clock class=ic></i> Le propriétaire prépare le bail</div>';
     }
