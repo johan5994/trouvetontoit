@@ -3031,7 +3031,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
   // Bail negotiation status block
   let bailBlock='';
   if(lease){
-    const leaseUrl='/bail-meuble.html?lease_id='+lease.id;
+    const leaseUrl='/bail-meuble.html?lease_id='+lease.id+'&role=tenant';
     const leaseBtn=(label,primary)=>`<a href="${leaseUrl}" style="display:block;width:100%;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'white':'var(--txt)'};border:${primary?'none':'1px solid var(--b)'};border-radius:8px;padding:.45rem;font-size:.78rem;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.35rem"><i data-lucide=file-text class=ic></i> ${label}</a>`;
     if(ns==='pending_tenant'){
       bailBlock=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.22);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--bleu)"><i data-lucide=mail class=ic></i> Le propriétaire vous a envoyé le bail — consultez-le et répondez</div>${leaseBtn('Voir et répondre au bail →',true)}`;
