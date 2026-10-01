@@ -1333,7 +1333,7 @@ async function fetchVisitAndApplicationGroups(){
 
   let leaseByBooking={};
   if(relevantBookingIds.length){
-    const{data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at').in('booking_id',relevantBookingIds);
+    const{data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email').in('booking_id',relevantBookingIds);
     (leases||[]).forEach(l=>{if(l.booking_id)leaseByBooking[l.booking_id]=l;});
   }
 
@@ -4106,6 +4106,9 @@ function renderBailSection(g){
         const agreed=ns==='agreed'||ns==='signed';
         const bothSigned=llSigned&&tSigned;
 
+        const gSigned=!!lease?.garant_signed_at;
+        const hasGarant=!!(lease?.garant_name);
+
         // Cas 1 — les deux ont signé → afficher les signatures normalement
         if(bothSigned){
           return`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
@@ -4118,6 +4121,12 @@ function renderBailSection(g){
               <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
               <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}
             </div>
+            ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
+              ${gSigned
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>`
+                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente de signature</span>`}
+            </div>`:''}
             ${renderCoLocataireSignatureRows(bk)}
           </div>`;
         }
@@ -4138,6 +4147,12 @@ function renderBailSection(g){
                 ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
                 :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien envoyé)</span>`}
             </div>
+            ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
+              <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
+              ${gSigned
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>`
+                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien bail envoyé)</span>`}
+            </div>`:''}
             ${renderCoLocataireSignatureRows(bk)}
           </div>`;
         }
