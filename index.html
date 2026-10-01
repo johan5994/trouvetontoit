@@ -231,6 +231,11 @@ footer ul a:hover{color:var(--terra)}
 .tloc-card{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:1rem .75rem;border:2px solid var(--b2);border-radius:14px;background:#fff;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;text-align:center}
 .tloc-card:hover{border-color:var(--terra,#1B4FD8);background:#f0f4ff}
 .tloc-card.actif{border-color:var(--terra,#1B4FD8);background:#eef2ff;box-shadow:0 0 0 3px rgba(27,79,216,.12)}
+.tloc-card-row{flex-direction:row;align-items:center;gap:.9rem;padding:.8rem 1rem;text-align:left}
+.tloc-row-icon{font-size:1.5rem;flex-shrink:0;width:2.2rem;text-align:center}
+.tloc-row-body{flex:1;min-width:0}
+.tloc-arrow{color:var(--stone-l,#aaa);flex-shrink:0;transition:transform .15s}
+.tloc-card-row:hover .tloc-arrow,.tloc-card-row.actif .tloc-arrow{transform:translateX(3px);color:var(--bleu,#1B4FD8)}
 .tloc-icon{font-size:1.6rem;line-height:1}
 .tloc-title{font-size:.88rem;font-weight:700;color:var(--deep,#1A1410)}
 .tloc-sub{font-size:.72rem;color:var(--stone-l,#887A68)}
@@ -598,7 +603,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     <div class="fcard" id="post-self-form" style="display:none">
 
       <!-- ═══ BARRE DE PROGRESSION ═══ -->
-      <div id="wizard-header">
+      <div id="wizard-header" style="display:none">
         <div id="wizard-step-info">
           <span id="wizard-step-label">Type de location</span>
           <span id="wizard-step-counter">Étape 1 sur 8</span>
@@ -618,27 +623,47 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <!-- ═══ STEP 1 — TYPE DE LOCATION ═══ -->
       <div class="wizard-step" id="wstep-1">
-        <p class="wstep-title">Quel type de location proposez-vous ?</p>
-        <div id="type-location-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
-          <button type="button" class="tloc-card" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
-            <div class="tloc-icon">🛋️</div>
-            <div class="tloc-title">Location meublée</div>
-            <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
+        <p class="wstep-title">Quel type de bien proposez-vous ?</p>
+        <div id="type-location-cards" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:.8rem">
+          <button type="button" class="tloc-card tloc-card-row" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
+            <div class="tloc-row-icon">🛋️</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Location meublée</div>
+              <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
-          <button type="button" class="tloc-card" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
-            <div class="tloc-icon">🏠</div>
-            <div class="tloc-title">Location vide</div>
-            <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
+          <button type="button" class="tloc-card tloc-card-row" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
+            <div class="tloc-row-icon">🏠</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Location vide</div>
+              <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
-          <button type="button" class="tloc-card" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
-            <div class="tloc-icon">🤝</div>
-            <div class="tloc-title">Chambre / Coloc</div>
-            <div class="tloc-sub">Mise en relation</div>
+          <button type="button" class="tloc-card tloc-card-row" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
+            <div class="tloc-row-icon">🤝</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Location Chambre / Coloc</div>
+              <div class="tloc-sub">Mise en relation</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
-          <button type="button" class="tloc-card" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
-            <div class="tloc-icon">🏷️</div>
-            <div class="tloc-title">Vente</div>
-            <div class="tloc-sub">Mise en vente du bien</div>
+          <button type="button" class="tloc-card tloc-card-row" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
+            <div class="tloc-row-icon">🏷️</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Vente</div>
+              <div class="tloc-sub">Mise en vente du bien</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
+          </button>
+          <button type="button" class="tloc-card tloc-card-row" id="tloc-parking" onclick="selectTypeLocation('parking_box')">
+            <div class="tloc-row-icon">🅿️</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Location Parking / Garage</div>
+              <div class="tloc-sub">Place de parking ou garage/box individuel</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
         </div>
         <input type="hidden" id="pt" value=""><input type="hidden" id="pt-bail-subtype" value="">
@@ -651,17 +676,9 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges.</div>
         </div>
         <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
-          <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Location Chambre / Colocation</div>
           <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — le propriétaire et le locataire gèrent le contrat directement.</div>
         </div>
-        <!-- 5e carte : Parking / Garage -->
-        <button type="button" class="tloc-card tloc-card-full" id="tloc-parking" onclick="selectTypeLocation('parking_box')" style="flex-direction:row;justify-content:flex-start;gap:1rem;padding:.85rem 1.2rem">
-          <div class="tloc-icon">🅿️</div>
-          <div style="text-align:left">
-            <div class="tloc-title">Parking / Garage</div>
-            <div class="tloc-sub">Place de parking ou garage/box individuel</div>
-          </div>
-        </button>
         <div id="wstep1-next" style="display:none" class="wizard-nav">
           <div></div>
           <button class="btn btn-p" id="wstep1-next-btn" onclick="wizardGoTo(2)">Suivant <i data-lucide=arrow-right class=ic></i></button>
@@ -671,17 +688,28 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <!-- ═══ STEP 2 — TYPE DE BIEN ═══ -->
       <div class="wizard-step" id="wstep-2" style="display:none">
         <p class="wstep-title">Quel type de bien proposez-vous ?</p>
-        <div class="fg2">
-          <label>Type de bien *</label>
-          <div class="tbien-grid">
-            <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
-            <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
-          </div>
-          <input type="hidden" id="p-type-bien" value="appartement">
+        <div style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1rem">
+          <button type="button" class="tloc-card tloc-card-row" id="tbien-appart" onclick="setTBCard('appartement')">
+            <div class="tloc-row-icon">🏢</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Appartement</div>
+              <div class="tloc-sub">Studio, T2, T3… en immeuble</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
+          </button>
+          <button type="button" class="tloc-card tloc-card-row" id="tbien-maison" onclick="setTBCard('maison')">
+            <div class="tloc-row-icon">🏡</div>
+            <div class="tloc-row-body">
+              <div class="tloc-title">Maison</div>
+              <div class="tloc-sub">Maison individuelle, villa, pavillon</div>
+            </div>
+            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
+          </button>
         </div>
+        <input type="hidden" id="p-type-bien" value="appartement">
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoTo(1)"><i data-lucide=arrow-left class=ic></i> Retour</button>
-          <button class="btn btn-p" onclick="wizardGoTo(3)">Suivant <i data-lucide=arrow-right class=ic></i></button>
+          <button class="btn btn-p" id="wstep2-next" onclick="wizardGoTo(3)">Suivant <i data-lucide=arrow-right class=ic></i></button>
         </div>
       </div>
 
@@ -3950,20 +3978,25 @@ function wizardGoTo(n){
   // Afficher la nouvelle étape
   const next=document.getElementById('wstep-'+n);
   if(next)next.style.display='block';
-  // Barre de progression
-  const fill=document.getElementById('wizard-fill');
-  if(fill)fill.style.width=Math.round(n/8*100)+'%';
-  // Compteur
-  const ctr=document.getElementById('wizard-step-counter');
-  if(ctr)ctr.textContent='Étape '+n+' sur 8';
-  const lbl=document.getElementById('wizard-step-label');
-  if(lbl)lbl.textContent=_WIZARD_LABELS[n]||'';
-  // Points de progression
-  document.querySelectorAll('.wdot').forEach((d,i)=>{
-    d.classList.remove('actif','done');
-    if(i+1<n)d.classList.add('done');
-    else if(i+1===n)d.classList.add('actif');
-  });
+  // Header progression : visible seulement à partir de l'étape 3
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display=n>=3?'block':'none';
+  if(n>=3){
+    // Barre de progression (étapes 3-8 → positions 3..8 sur 8)
+    const fill=document.getElementById('wizard-fill');
+    if(fill)fill.style.width=Math.round(n/8*100)+'%';
+    // Compteur
+    const ctr=document.getElementById('wizard-step-counter');
+    if(ctr)ctr.textContent='Étape '+n+' sur 8';
+    const lbl=document.getElementById('wizard-step-label');
+    if(lbl)lbl.textContent=_WIZARD_LABELS[n]||'';
+    // Points de progression
+    document.querySelectorAll('.wdot').forEach((d,i)=>{
+      d.classList.remove('actif','done');
+      if(i+1<n)d.classList.add('done');
+      else if(i+1===n)d.classList.add('actif');
+    });
+  }
   // Remonter en haut du formulaire
   const fc=document.getElementById('post-self-form');
   if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
@@ -4071,6 +4104,19 @@ function setT(el,t){
 function setTB(el,v){
   document.querySelectorAll('.tbien-btn').forEach(b=>b.classList.remove('actif'));
   el.classList.add('actif');
+  document.getElementById('p-type-bien').value=v;
+  const sec=document.getElementById('section-etage');
+  if(sec)sec.style.display=(v==='appartement')?'grid':'none';
+}
+function setTBCard(v){
+  // Nouveau step 2 avec tloc-card-row
+  ['appart','maison'].forEach(k=>{
+    const c=document.getElementById('tbien-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const cardId=v==='appartement'?'tbien-appart':'tbien-maison';
+  const card=document.getElementById(cardId);
+  if(card)card.classList.add('actif');
   document.getElementById('p-type-bien').value=v;
   const sec=document.getElementById('section-etage');
   if(sec)sec.style.display=(v==='appartement')?'grid':'none';
@@ -5244,26 +5290,23 @@ function _launchVsMaison(){
 }
 
 function _updateVsDots(vsN){
+  // Afficher le header progression
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='block';
   // vsN: 1-14 — map to dot index 0-7
-  // dot 0 = Type (always done)
-  // dot 1 = Sous-type (vs1)
-  // dot 2 = Lieu (vs2)
-  // dot 3 = Prix (vs3)
-  // dot 4 = Caractéristiques (vs4-vs5)
-  // dot 5 = Extérieur (vs6-vs7)
-  // dot 6 = Équipements/DPE (vs8-vs11)
-  // dot 7 = Photos/Récap (vs12-vs14)
   const dotMap=[0,1,2,3,4,4,5,5,6,6,6,6,7,7,7];// index=vsN-1, value=dotIndex
   const activeDot=dotMap[vsN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
+    d.classList.remove('active','done','actif');
     if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('active');
+    else if(i===activeDot) d.classList.add('actif');
   });
   const phase=activeDot+1;
-  const ctr=document.getElementById('w-step-counter');
+  const ctr=document.getElementById('wizard-step-counter');
   if(ctr)ctr.textContent='Étape '+phase+' sur 8';
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round(phase/8*100)+'%';
 }
 
 function exitVenteMode(){
@@ -5281,17 +5324,9 @@ function exitVenteMode(){
     const el=document.getElementById('wstep-vg'+i);
     if(el)el.style.display='none';
   }
-  // restore 8-dot labels
-  const dotLabels=['Type','Localisation','Budget','Logement','Situation','Documents','Récap.','Publier'];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
-    const lbl=d.querySelector('.wdot-label');
-    if(lbl&&dotLabels[i])lbl.textContent=dotLabels[i];
-  });
-  if(dots[0])dots[0].classList.add('active');
-  const ctr=document.getElementById('w-step-counter');
-  if(ctr)ctr.textContent='Étape 1 sur 8';
+  // cacher le header (on revient à step 1)
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='none';
   // show step 1
   const s1=document.getElementById('wstep-1');
   if(s1)s1.style.display='block';
@@ -5746,18 +5781,20 @@ function wizardStartVenteGarage(){
 }
 
 function _updateVgDots(vgN){
-  // dot 0 Type(done) dot 1 Bien(done)
-  // dot 2=VG1-VG2, dot 3=VG3-VG4, dot 4=VG5, dot 5=VG6-VG7, dot 6=VG8-VG9, dot 7=VG10-VG11
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='block';
   const dotMap=[2,2,3,3,4,5,5,6,6,7,7];
   const activeDot=dotMap[vgN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
+    d.classList.remove('active','done','actif');
     if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('active');
+    else if(i===activeDot) d.classList.add('actif');
   });
-  const ctr=document.getElementById('w-step-counter');
+  const ctr=document.getElementById('wizard-step-counter');
   if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round((activeDot+1)/8*100)+'%';
 }
 
 function exitVenteGarageMode(){
@@ -6129,20 +6166,20 @@ function wizardStartVenteMaison(){
 }
 
 function _updateVmDots(vmN){
-  // dot 0 = Type (done), dot 1 = Bien (done)
-  // dot 2 = Localisation (vm1-vm2), dot 3 = Prix/Surface (vm3-vm4)
-  // dot 4 = Pièces/Terrain (vm5-vm6), dot 5 = Garage/Dépend (vm7-vm8)
-  // dot 6 = État/Équip/DPE/Situation (vm9-vm12), dot 7 = Description/Photos/Récap (vm13-vm15)
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='block';
   const dotMap=[2,2,3,3,4,4,5,5,6,6,6,6,7,7,7]; // index=vmN-1
   const activeDot=dotMap[vmN-1];
   const dots=document.querySelectorAll('.wdot');
   dots.forEach((d,i)=>{
-    d.classList.remove('active','done');
+    d.classList.remove('active','done','actif');
     if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('active');
+    else if(i===activeDot) d.classList.add('actif');
   });
-  const ctr=document.getElementById('w-step-counter');
+  const ctr=document.getElementById('wizard-step-counter');
   if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round((activeDot+1)/8*100)+'%';
 }
 
 function exitVenteMaisonMode(){
@@ -6569,6 +6606,9 @@ function wizardStartParking(){
   if(ptEl)ptEl.value='parking';
   const s1=document.getElementById('wstep-1');
   if(s1)s1.style.display='none';
+  // Afficher le header de progression
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='block';
   const pk1=document.getElementById('wstep-pk1');
   if(pk1)pk1.style.display='block';
   _updatePkDots(1);
