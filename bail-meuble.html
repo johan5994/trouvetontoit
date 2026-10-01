@@ -2885,7 +2885,18 @@ async function submitSignature(){
       const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
       toast('📤 Envoyez ce lien au garant pour sa signature',5000);
     }
-  }else{toast('✅ Acte de caution solidaire signé');}
+  }else if(who==='g'){
+    // Notifier le bailleur et le locataire que le garant a signé
+    const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+    const garantNom=LEASE.garant_name||'Le garant';
+    if(LEASE.landlord_id){
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.landlord_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
+    }
+    if(LEASE.tenant_id){
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
+    }
+    toast('✅ Acte de caution solidaire signé — bailleur et locataire notifiés');
+  }
 
   renderStatusAndSigs();
 }
