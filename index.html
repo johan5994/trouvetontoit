@@ -465,7 +465,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
   <div class="hero">
     <div class="hero-bg"></div>
     <div class="hero-l">
-      <div class="hero-tag">🇲🇹 La première plateforme locative intelligente de France</div>
+      <div class="hero-tag"> La première plateforme locative intelligente de France</div>
       <h1><em>Trouve Ton Toit</em> — La façon sécurisée de louer en France.</h1>
       <p class="hero-desc">Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Zéro cash à des inconnus, zéro "agents" fantômes  depuis  a WhatsApp group.</p>
       <div class="hero-acts">
@@ -508,7 +508,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <option value="room_rental">Chambre / Coloc</option>
         <option value="for_sale">À vendre</option>
       </select></div>
-      <div class="sf" id="fp-wrap"><label>💶 Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
+      <div class="sf" id="fp-wrap"><label><i data-lucide=euro class=ic></i> Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
       <div class="sf"><label><i data-lucide=clipboard-list class=ic></i> Attestation</label><select id="fa" onchange="loadL()"><option value="">All</option><option value="yes"><i data-lucide=check-circle-2 class=ic></i> Attestation OK</option></select></div>
       <div class="sf"><label><i data-lucide=home class=ic></i> Listed by</label><select id="fsrc" onchange="loadL()"><option value="">Owner or agence</option><option value="owner"><i data-lucide=user class=ic></i> Directement du propriétaire</option><option value="agence"><i data-lucide=building-2 class=ic></i> Via an agence</option></select></div>
       <button class="btn btn-p" onclick="loadL()">Rechercher →</button>
@@ -556,7 +556,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <div><h4>Pour les propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Parcourir les agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
       <div><h4>Legal</h4><ul><li><a href="/terms.html">Terms of service</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/cookies.html">Cookie policy</a></li><li><a href="/contact.html">Contact us</a></li></ul></div>
     </div>
-    <div class="fbot"><p>© 2026 Trouve Ton Toit. Made avec <i data-lucide=sun class=ic></i>️ in France.</p><p>Pas affilié au gouvernement français. Trouve Ton Toit n'est pas une agence immobilière.</p></div>
+    <div class="fbot"><p>© 2026 Trouve Ton Toit. Made avec <i data-lucide=sun class=ic></i> in France.</p><p>Pas affilié au gouvernement français. Trouve Ton Toit n'est pas une agence immobilière.</p></div>
   </footer>
 </div>
 
@@ -576,7 +576,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       </button>
     </div>
     <div style="margin-top:1.5rem;font-size:.75rem;color:var(--stone-l);text-align:center;line-height:1.6">
-      <i data-lucide=check-circle-2 class=ic></i> Annonces vérifiées · <i data-lucide=lock class=ic></i> Secure · 🇲🇹 France only
+      <i data-lucide=check-circle-2 class=ic></i> Annonces vérifiées · <i data-lucide=lock class=ic></i> Secure ·  France only
     </div>
   </div></div>
 </div>
@@ -590,7 +590,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <h3>How would you like to list votre bien?</h3>
       <div class="post-choice-grid" style="display:flex;flex-direction:column;gap:.85rem;margin-top:1rem">
         <div onclick="document.getElementById('post-choice-screen').style.display='none';document.getElementById('post-self-form').style.display='block'" style="cursor:pointer;background:var(--stone-xl);border:2px solid var(--b2);border-radius:12px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s" onmouseover="this.style.borderColor='var(--terra)'" onmouseout="this.style.borderColor='var(--b2)'">
-          <div style="font-size:1.8rem;flex-shrink:0"><i data-lucide=pen-line class=ic></i>️</div>
+          <div style="font-size:1.8rem;flex-shrink:0"><i data-lucide=pen-line class=ic></i></div>
           <div><div style="font-weight:700;margin-bottom:.2rem">Je remplirai les détails moi-même</div><div style="font-size:.78rem;color:var(--stone-l)">Title, photos, price — vous're in control. You also handle visites & état des lieux. 10% platform fee  depuis  locataire.</div></div>
         </div>
         <div onclick="go('agences')" style="cursor:pointer;background:rgba(99,102,241,.06);border:2px solid rgba(99,102,241,.2);border-radius:12px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='rgba(99,102,241,.2)'">
@@ -626,7 +626,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Quel type de bien proposez-vous ?</p>
         <div id="type-location-cards" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:.8rem">
           <button type="button" class="tloc-card tloc-card-row" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
-            <div class="tloc-row-icon">🛋️</div>
+            <div class="tloc-row-icon"><i data-lucide=sofa class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Location meublée</div>
               <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
@@ -634,7 +634,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
           <button type="button" class="tloc-card tloc-card-row" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
-            <div class="tloc-row-icon">🏠</div>
+            <div class="tloc-row-icon"><i data-lucide=home class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Location vide</div>
               <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
@@ -642,7 +642,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
           <button type="button" class="tloc-card tloc-card-row" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
-            <div class="tloc-row-icon">🤝</div>
+            <div class="tloc-row-icon"><i data-lucide=users class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Location Chambre / Coloc</div>
               <div class="tloc-sub">Mise en relation</div>
@@ -650,7 +650,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
           <button type="button" class="tloc-card tloc-card-row" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
-            <div class="tloc-row-icon">🏷️</div>
+            <div class="tloc-row-icon"><i data-lucide=tag class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Vente</div>
               <div class="tloc-sub">Mise en vente du bien</div>
@@ -658,7 +658,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
           <button type="button" class="tloc-card tloc-card-row" id="tloc-parking" onclick="selectTypeLocation('parking_box')">
-            <div class="tloc-row-icon">🅿️</div>
+            <div class="tloc-row-icon"><i data-lucide=circle-parking class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Location Parking / Garage</div>
               <div class="tloc-sub">Place de parking ou garage/box individuel</div>
@@ -690,7 +690,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Quel type de bien proposez-vous ?</p>
         <div style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1rem">
           <button type="button" class="tloc-card tloc-card-row" id="tbien-appart" onclick="setTBCard('appartement')">
-            <div class="tloc-row-icon">🏢</div>
+            <div class="tloc-row-icon"><i data-lucide=building-2 class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Appartement</div>
               <div class="tloc-sub">Studio, T2, T3… en immeuble</div>
@@ -698,7 +698,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
           <button type="button" class="tloc-card tloc-card-row" id="tbien-maison" onclick="setTBCard('maison')">
-            <div class="tloc-row-icon">🏡</div>
+            <div class="tloc-row-icon"><i data-lucide=house class=ic></i></div>
             <div class="tloc-row-body">
               <div class="tloc-title">Maison</div>
               <div class="tloc-sub">Maison individuelle, villa, pavillon</div>
@@ -787,7 +787,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Charges &amp; consommations</p>
         <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:.25rem">
           <div class="cblock">
-            <div class="cblock-hd">🔥 Chauffage</div>
+            <div class="cblock-hd"><i data-lucide=flame class=ic></i> Chauffage</div>
             <div class="cblock-cols3">
               <div><div class="cblabel">Type</div>
                 <div class="cbwrap cbcol">
@@ -815,7 +815,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <input type="hidden" id="p-chauffage-type" value=""><input type="hidden" id="p-chauffage-mode" value=""><input type="hidden" id="p-chauffage-inclus" value="">
           </div>
           <div class="cblock">
-            <div class="cblock-hd">🚿 Eau chaude sanitaire (ECS)</div>
+            <div class="cblock-hd"><i data-lucide=droplets class=ic></i> Eau chaude sanitaire (ECS)</div>
             <div class="cblock-cols3">
               <div><div class="cblabel">Production</div>
                 <div class="cbwrap cbcol">
@@ -841,7 +841,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div class="cblock">
-              <div class="cblock-hd">💧 Eau froide</div>
+              <div class="cblock-hd"><i data-lucide=droplet class=ic></i> Eau froide</div>
               <div class="cbwrap cbcol" style="margin-top:.1rem">
                 <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
                 <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
@@ -850,7 +850,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <input type="hidden" id="p-eau-froide" value="">
             </div>
             <div class="cblock">
-              <div class="cblock-hd">⚡ Électricité</div>
+              <div class="cblock-hd"><i data-lucide=zap class=ic></i> Électricité</div>
               <div class="cbwrap cbcol" style="margin-top:.1rem">
                 <label class="cl"><input type="checkbox" id="elec-locataire" onchange="setElectricite('locataire',this)"> À la charge du locataire</label>
                 <label class="cl"><input type="checkbox" id="elec-charges" onchange="setElectricite('charges',this)"> Comprise dans les charges</label>
@@ -860,7 +860,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div class="cblock">
-              <div class="cblock-hd" style="font-size:.78rem">📋 Autres postes inclus</div>
+              <div class="cblock-hd" style="font-size:.78rem"><i data-lucide=list class=ic></i> Autres postes inclus</div>
               <div class="cbwrap cbcol" style="margin-top:.1rem">
                 <label class="cl"><input type="checkbox" class="charges-cb" value="parties_communes" onchange="updateChargesInclus()"> Parties communes</label>
                 <label class="cl"><input type="checkbox" class="charges-cb" value="ascenseur" onchange="updateChargesInclus()"> Ascenseur</label>
@@ -870,7 +870,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <input type="hidden" id="p-charges-inclus" value="">
             </div>
             <div class="cblock">
-              <div class="cblock-hd" style="font-size:.78rem">🔄 Type de charges</div>
+              <div class="cblock-hd" style="font-size:.78rem"><i data-lucide=refresh-cw class=ic></i> Type de charges</div>
               <div class="cbwrap cbcol" style="margin-top:.1rem">
                 <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
                 <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
@@ -927,7 +927,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             </select>
           </div>
           <div id="dpe-warning" style="display:none;grid-column:1/-1;background:rgba(201,85,58,.07);border:1px solid rgba(201,85,58,.3);border-radius:8px;padding:.7rem 1rem;font-size:.78rem;color:var(--terra);line-height:1.5">
-            <i data-lucide=alert-triangle class=ic></i>️ <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022).
+            <i data-lucide=alert-triangle class=ic></i> <strong>Logement à consommation énergétique excessive</strong> — mention légale obligatoire pour les biens classés F ou G (décret du 13 janvier 2022).
           </div>
         </div>
         <input type="hidden" id="p-diag-amiante" value=""><input type="hidden" id="p-diag-plomb" value="">
@@ -946,7 +946,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
           <!-- Ascenseur -->
           <div class="cblock">
-            <div class="cblock-hd">🛗 Ascenseur</div>
+            <div class="cblock-hd"><i data-lucide=chevrons-up class=ic></i> Ascenseur</div>
             <div class="toggle-pills">
               <span class="toggle-pill" id="asc-pill-oui" onclick="setAscenseur('oui')">Oui</span>
               <span class="toggle-pill" id="asc-pill-non" onclick="setAscenseur('non')">Non</span>
@@ -956,42 +956,42 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
           <!-- Pièces annexes -->
           <div class="cblock">
-            <div class="cblock-hd">🗄️ Pièces annexes</div>
+            <div class="cblock-hd"><i data-lucide=layout-grid class=ic></i> Pièces annexes</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()">🏚️ Cave</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()">⬇️ Sous-sol</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()">🏠 Grenier</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()">🏡 Dépendance</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"><i data-lucide=archive class=ic></i> Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"><i data-lucide=arrow-down class=ic></i> Sous-sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"><i data-lucide=home class=ic></i> Grenier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"><i data-lucide=house class=ic></i> Dépendance</label>
             </div>
             <input type="hidden" id="p-annexes" value="">
           </div>
 
           <!-- Confort -->
           <div class="cblock">
-            <div class="cblock-hd">✨ Confort</div>
+            <div class="cblock-hd"><i data-lucide=sparkles class=ic></i> Confort</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pfu" checked>🛋️ Meublé</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwi">📶 WiFi</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pac">❄️ Clim / A/C</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppk">🚗 Parking</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppool">🏊 Piscine</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pbalc">🌿 Balcon / Terrasse</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwash">🫧 Lave-linge</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pdish">🍽️ Lave-vaisselle</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-chauffage-sol">🔆 Chauffage au sol</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-baignoire">🛁 Baignoire</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-plusieurs-wc">🚽 Plusieurs WC</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pmr">♿ Accès PMR</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pfu" checked><i data-lucide=sofa class=ic></i> Meublé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwi"><i data-lucide=wifi class=ic></i> WiFi</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pac"><i data-lucide=snowflake class=ic></i> Clim / A/C</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppk"><i data-lucide=car class=ic></i> Parking</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppool"><i data-lucide=waves class=ic></i> Piscine</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pbalc"><i data-lucide=leaf class=ic></i> Balcon / Terrasse</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwash"><i data-lucide=droplets class=ic></i> Lave-linge</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pdish"><i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-chauffage-sol"><i data-lucide=sun class=ic></i> Chauffage au sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-baignoire"><i data-lucide=droplets class=ic></i> Baignoire</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-plusieurs-wc"><i data-lucide=layers class=ic></i> Plusieurs WC</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pmr"><i data-lucide=accessibility class=ic></i> Accès PMR</label>
             </div>
           </div>
 
           <!-- Bâtiment -->
           <div class="cblock">
-            <div class="cblock-hd">🏢 Bâtiment</div>
+            <div class="cblock-hd"><i data-lucide=building-2 class=ic></i> Bâtiment</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-ancienne">🏛️ Construction ancienne</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-recente">🏗️ Construction récente</label>
-              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this);document.getElementById('p-nb-lots-wrap').style.display=document.getElementById('p-copropriete').checked?'flex':'none'"><input type="checkbox" id="p-copropriete">🏬 Copropriété</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-ancienne"><i data-lucide=landmark class=ic></i> Construction ancienne</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-recente"><i data-lucide=hard-hat class=ic></i> Construction récente</label>
+              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this);document.getElementById('p-nb-lots-wrap').style.display=document.getElementById('p-copropriete').checked?'flex':'none'"><input type="checkbox" id="p-copropriete"><i data-lucide=building-2 class=ic></i> Copropriété</label>
             </div>
             <div id="p-nb-lots-wrap" style="display:none;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.83rem;color:var(--stone)">
               <input type="number" id="p-nb-lots-copro" class="fi" placeholder="520" min="1" max="10000" style="width:6rem"> lots en copropriété
@@ -1019,7 +1019,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
           </div>
           <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
-          <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i>️ Ajoutez au moins 1 photo avant de publier.</div>
+          <div id="photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i> Ajoutez au moins 1 photo avant de publier.</div>
         </div>
         <div class="fg2" style="grid-column:1/-1">
           <label><i data-lucide=video class=ic></i> Visite virtuelle vidéo <span style="font-weight:400;color:var(--stone-l)">(optionnel)</span></label>
@@ -1032,7 +1032,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div id="video-pavis" style="margin-top:.5rem"></div>
         </div>
         <div id="pt-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
-          <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Détails de la vente</div>
+          <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i> Détails de la vente</div>
           <div class="frow">
             <div class="fg2"><label>Tenure *</label><select class="fi" id="p-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
             <div class="fg2"><label>Finish statut *</label><select class="fi" id="p-finish"><option value="finished">Fully finished</option><option value="meublé">Finished &amp; meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
@@ -1054,7 +1054,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="fg2"><label>Personnes déjà dans le logement</label><select class="fi" id="p-roommates" style="cursor:pointer"><option value="1">1 personne (vous)</option><option value="2">2 personnes</option><option value="3">3 personnes</option><option value="4">4+ personnes</option></select></div>
             <div class="fg2"><label>Disponible depuis</label><input class="fi" type="date" id="p-room-disponible"></div>
           </div>
-          <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem"><i data-lucide=alert-triangle class=ic></i>️ En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.</div>
+          <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem"><i data-lucide=alert-triangle class=ic></i> En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.</div>
           <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer"><input type="checkbox" id="room_rental-confirm" required> Je confirme avoir lu et accepté ces conditions</label>
         </div>
         <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
@@ -1073,12 +1073,12 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Que louez-vous ?</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
           <button type="button" class="tloc-card" id="tloc-pk-parking" onclick="selectPkSubtype('parking')">
-            <div class="tloc-icon">🚗</div>
+            <div class="tloc-icon"><i data-lucide=car class=ic></i></div>
             <div class="tloc-title">Place de parking</div>
             <div class="tloc-sub">Extérieur · couvert · sous-sol</div>
           </button>
           <button type="button" class="tloc-card" id="tloc-pk-garage" onclick="selectPkSubtype('garage')">
-            <div class="tloc-icon">🔒</div>
+            <div class="tloc-icon"><i data-lucide=lock class=ic></i></div>
             <div class="tloc-title">Garage / Box</div>
             <div class="tloc-sub">Box fermé ou garage individuel</div>
           </button>
@@ -1123,18 +1123,18 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
           <!-- Emplacement -->
           <div class="cblock">
-            <div class="cblock-hd">📍 Type d'emplacement</div>
+            <div class="cblock-hd"><i data-lucide=map-pin class=ic></i> Type d'emplacement</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="exterieur" onchange="updatePkLoc()">☀️ Extérieur</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="couvert" onchange="updatePkLoc()">🏗️ Couvert</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="sous_sol" onchange="updatePkLoc()">⬇️ Sous-sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="exterieur" onchange="updatePkLoc()"><i data-lucide=sun class=ic></i> Extérieur</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="couvert" onchange="updatePkLoc()"><i data-lucide=hard-hat class=ic></i> Couvert</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="pk-loc-cb" value="sous_sol" onchange="updatePkLoc()"><i data-lucide=arrow-down class=ic></i> Sous-sol</label>
             </div>
             <input type="hidden" id="p-pk-location-type" value="">
           </div>
 
           <!-- Dimensions -->
           <div class="cblock">
-            <div class="cblock-hd">📐 Dimensions <span style="font-size:.72rem;font-weight:400;color:var(--stone-l)">(optionnel)</span></div>
+            <div class="cblock-hd"><i data-lucide=ruler class=ic></i> Dimensions <span style="font-size:.72rem;font-weight:400;color:var(--stone-l)">(optionnel)</span></div>
             <div class="frow" style="margin-top:.4rem">
               <div class="fg2"><label>Longueur (m)</label><input class="fi" type="number" id="p-pk-long" placeholder="5" min="1" step="0.1"></div>
               <div class="fg2"><label>Largeur (m)</label><input class="fi" type="number" id="p-pk-larg" placeholder="2.5" min="1" step="0.1"></div>
@@ -1156,26 +1156,26 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
           <!-- Accès & sécurité -->
           <div class="cblock">
-            <div class="cblock-hd">🔐 Accès &amp; Sécurité</div>
+            <div class="cblock-hd"><i data-lucide=shield class=ic></i> Accès &amp; Sécurité</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-secured">🔒 Accès sécurisé</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-portail-auto">⚙️ Portail automatique</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-badge">📱 Badge / télécommande</label>
-              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-porte-elec">🚪 Porte électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-secured"><i data-lucide=lock class=ic></i> Accès sécurisé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-portail-auto"><i data-lucide=settings class=ic></i> Portail automatique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-badge"><i data-lucide=smartphone class=ic></i> Badge / télécommande</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-porte-elec"><i data-lucide=door-open class=ic></i> Porte électrique</label>
             </div>
           </div>
 
           <!-- Équipements -->
           <div class="cblock">
-            <div class="cblock-hd">⚡ Équipements</div>
+            <div class="cblock-hd"><i data-lucide=zap class=ic></i> Équipements</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eclairage">💡 Éclairage</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-borne">🔌 Borne de recharge</label>
-              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-elec">⚡ Électricité</label>
-              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-prises">🔌 Prises électriques</label>
-              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eau">💧 Point d'eau</label>
-              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-stockage">📦 Stockage autorisé</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-pmr">♿ Accès PMR</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eclairage"><i data-lucide=lightbulb class=ic></i> Éclairage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-borne"><i data-lucide=plug class=ic></i> Borne de recharge</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-elec"><i data-lucide=zap class=ic></i> Électricité</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-prises"><i data-lucide=plug class=ic></i> Prises électriques</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-eau"><i data-lucide=droplet class=ic></i> Point d'eau</label>
+              <label class="equip-chip pk-garage-only" style="display:none" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-stockage"><i data-lucide=package class=ic></i> Stockage autorisé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pk-pmr"><i data-lucide=accessibility class=ic></i> Accès PMR</label>
             </div>
           </div>
 
@@ -1258,25 +1258,25 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div style="font-size:.7rem;color:var(--stone-l);text-align:right;margin-top:.2rem"><span id="pk-desc-counter">0</span>/1000</div>
         </div>
         <div class="fg2">
-          <label>📸 Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise</span></label>
+          <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 photo requise</span></label>
           <div id="pk-photo-upload-area"
             style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(27,79,216,.03)"
             onclick="document.getElementById('pk-photo-input').click()"
             ondragover="event.preventDefault();this.style.background='rgba(27,79,216,.08)'"
             ondragleave="this.style.background='rgba(27,79,216,.03)'"
             ondrop="handlePkDrop(event)">
-            <div style="font-size:2rem;margin-bottom:.5rem">📸</div>
+            <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
             <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
             <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo · Max 10 photos</div>
             <input type="file" id="pk-photo-input" multiple accept="image/*" style="display:none" onchange="handlePkPhotos(this.files)">
           </div>
           <div id="pk-photo-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
-          <div id="pk-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none">⚠️ Ajoutez au moins 1 photo avant de publier.</div>
+          <div id="pk-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i> Ajoutez au moins 1 photo avant de publier.</div>
         </div>
         <div class="aerr" id="pk-err"></div><div class="aok" id="pk-ok"></div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoPk(4)"><i data-lucide=arrow-left class=ic></i> Retour</button>
-          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostParking()">🚀 Publier mon annonce</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostParking()"><i data-lucide=send class=ic></i> Publier mon annonce</button>
         </div>
       </div>
 
@@ -1289,17 +1289,17 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Quel type de bien vendez-vous ?</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem">
           <button type="button" class="tloc-card" id="vs0-appartement" onclick="selectVsBienType('appartement')" style="flex-direction:column;align-items:center;padding:1.2rem .8rem">
-            <div class="tloc-icon" style="font-size:2rem">🏢</div>
+            <div class="tloc-icon" style="font-size:2rem"><i data-lucide=building-2 class=ic></i></div>
             <div class="tloc-title" style="margin-top:.4rem">Appartement</div>
             <div class="tloc-sub">Studio, duplex, penthouse…</div>
           </button>
           <button type="button" class="tloc-card" id="vs0-maison" onclick="selectVsBienType('maison')" style="flex-direction:column;align-items:center;padding:1.2rem .8rem">
-            <div class="tloc-icon" style="font-size:2rem">🏡</div>
+            <div class="tloc-icon" style="font-size:2rem"><i data-lucide=house class=ic></i></div>
             <div class="tloc-title" style="margin-top:.4rem">Maison</div>
             <div class="tloc-sub">Villa, ferme, maison de ville…</div>
           </button>
           <button type="button" class="tloc-card tloc-card-full" id="vs0-parking-vente" onclick="selectVsBienType('parking-vente')" style="flex-direction:row;align-items:center;justify-content:flex-start;gap:1rem;padding:.9rem 1.2rem">
-            <div class="tloc-icon" style="font-size:1.8rem">🅿️</div>
+            <div class="tloc-icon" style="font-size:1.8rem"><i data-lucide=circle-parking class=ic></i></div>
             <div style="text-align:left">
               <div class="tloc-title">Parking / Garage</div>
               <div class="tloc-sub">Place de parking, box, garage individuel</div>
@@ -1322,22 +1322,22 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Type d'appartement</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
           <button type="button" class="tloc-card" id="vs-type-appartement" onclick="selectVsSubtype('appartement')">
-            <div class="tloc-icon">🏢</div><div class="tloc-title">Appartement</div><div class="tloc-sub">Logement standard en immeuble</div>
+            <div class="tloc-icon"><i data-lucide=building-2 class=ic></i></div><div class="tloc-title">Appartement</div><div class="tloc-sub">Logement standard en immeuble</div>
           </button>
           <button type="button" class="tloc-card" id="vs-type-studio" onclick="selectVsSubtype('studio')">
-            <div class="tloc-icon">🛏️</div><div class="tloc-title">Studio</div><div class="tloc-sub">Pièce principale unique (T1)</div>
+            <div class="tloc-icon"><i data-lucide=bed class=ic></i></div><div class="tloc-title">Studio</div><div class="tloc-sub">Pièce principale unique (T1)</div>
           </button>
           <button type="button" class="tloc-card" id="vs-type-duplex" onclick="selectVsSubtype('duplex')">
-            <div class="tloc-icon">🏠</div><div class="tloc-title">Duplex</div><div class="tloc-sub">Appartement sur 2 niveaux</div>
+            <div class="tloc-icon"><i data-lucide=home class=ic></i></div><div class="tloc-title">Duplex</div><div class="tloc-sub">Appartement sur 2 niveaux</div>
           </button>
           <button type="button" class="tloc-card" id="vs-type-triplex" onclick="selectVsSubtype('triplex')">
-            <div class="tloc-icon">🏘️</div><div class="tloc-title">Triplex</div><div class="tloc-sub">Appartement sur 3 niveaux</div>
+            <div class="tloc-icon"><i data-lucide=building class=ic></i></div><div class="tloc-title">Triplex</div><div class="tloc-sub">Appartement sur 3 niveaux</div>
           </button>
           <button type="button" class="tloc-card" id="vs-type-loft" onclick="selectVsSubtype('loft')">
-            <div class="tloc-icon">🏭</div><div class="tloc-title">Loft</div><div class="tloc-sub">Grand espace ouvert atypique</div>
+            <div class="tloc-icon"><i data-lucide=warehouse class=ic></i></div><div class="tloc-title">Loft</div><div class="tloc-sub">Grand espace ouvert atypique</div>
           </button>
           <button type="button" class="tloc-card" id="vs-type-penthouse" onclick="selectVsSubtype('penthouse')">
-            <div class="tloc-icon">🌟</div><div class="tloc-title">Penthouse</div><div class="tloc-sub">Dernier étage avec terrasse</div>
+            <div class="tloc-icon"><i data-lucide=star class=ic></i></div><div class="tloc-title">Penthouse</div><div class="tloc-sub">Dernier étage avec terrasse</div>
           </button>
         </div>
         <input type="hidden" id="vs-appart-type" value="">
@@ -1465,10 +1465,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div class="fg2" style="grid-column:1/-1">
             <label>Autres pièces</label>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-bureau">💼 Bureau</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-dressing">👗 Dressing</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie-piece">🫧 Buanderie privative</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cellier-piece">📦 Cellier</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-bureau"><i data-lucide=briefcase class=ic></i> Bureau</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-dressing"><i data-lucide=shirt class=ic></i> Dressing</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie-piece"><i data-lucide=droplets class=ic></i> Buanderie privative</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cellier-piece"><i data-lucide=package class=ic></i> Cellier</label>
             </div>
           </div>
         </div>
@@ -1483,12 +1483,12 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Extérieur &amp; stationnement</p>
         <div style="display:flex;flex-direction:column;gap:.75rem">
           <div class="cblock">
-            <div class="cblock-hd">🌳 Extérieur</div>
+            <div class="cblock-hd"><i data-lucide=trees class=ic></i> Extérieur</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="balcon" onchange="updateVsExterieur()">🪟 Balcon</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="terrasse" onchange="updateVsExterieur()">☀️ Terrasse</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="loggia" onchange="updateVsExterieur()">🏛️ Loggia</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="jardin" onchange="updateVsExterieur()">🌿 Jardin privatif</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="balcon" onchange="updateVsExterieur()"><i data-lucide=square class=ic></i> Balcon</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="terrasse" onchange="updateVsExterieur()"><i data-lucide=sun class=ic></i> Terrasse</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="loggia" onchange="updateVsExterieur()"><i data-lucide=landmark class=ic></i> Loggia</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="vs-ext-cb" value="jardin" onchange="updateVsExterieur()"><i data-lucide=leaf class=ic></i> Jardin privatif</label>
             </div>
             <input type="hidden" id="vs-exterieur" value="">
             <div id="vs-surface-ext-wrap" style="display:none;margin-top:.5rem">
@@ -1497,13 +1497,13 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             </div>
           </div>
           <div class="cblock">
-            <div class="cblock-hd">🚗 Stationnement</div>
+            <div class="cblock-hd"><i data-lucide=car class=ic></i> Stationnement</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="aucun">🚫 Aucun</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="parking">🅿️ Place de parking</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="box">📦 Box</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="garage">🔒 Garage</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="multiple">🚗🚗 Plusieurs places</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="aucun"><i data-lucide=ban class=ic></i> Aucun</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="parking"><i data-lucide=circle-parking class=ic></i> Place de parking</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="box"><i data-lucide=package class=ic></i> Box</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="garage"><i data-lucide=lock class=ic></i> Garage</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-stat')"><input type="radio" name="vs-stat" value="multiple"><i data-lucide=car class=ic></i><i data-lucide=car class=ic></i> Plusieurs places</label>
             </div>
             <input type="hidden" id="vs-stationnement" value="">
             <div id="vs-parking-inclus-wrap" style="display:none;margin-top:.5rem">
@@ -1527,19 +1527,19 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">État du logement</p>
         <div style="display:flex;flex-direction:column;gap:.75rem">
           <div class="cblock">
-            <div class="cblock-hd">🏡 État général</div>
+            <div class="cblock-hd"><i data-lucide=house class=ic></i> État général</div>
             <div class="equip-chips" style="margin-top:.4rem">
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="neuf">✨ Neuf</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="excellent">🌟 Excellent état</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="bon">👍 Bon état</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="rafraichir">🖌️ À rafraîchir</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover">🔨 À rénover</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover-entierement">🏗️ À rénover entièrement</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="neuf"><i data-lucide=sparkles class=ic></i> Neuf</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="excellent"><i data-lucide=star class=ic></i> Excellent état</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="bon"><i data-lucide=thumbs-up class=ic></i> Bon état</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="rafraichir"><i data-lucide=paintbrush class=ic></i> À rafraîchir</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover"><i data-lucide=hammer class=ic></i> À rénover</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-etat')"><input type="radio" name="vs-etat" value="renover-entierement"><i data-lucide=hard-hat class=ic></i> À rénover entièrement</label>
             </div>
             <input type="hidden" id="vs-etat-val" value="">
           </div>
           <div class="cblock">
-            <div class="cblock-hd">🛠️ Travaux récents ?</div>
+            <div class="cblock-hd"><i data-lucide=wrench class=ic></i> Travaux récents ?</div>
             <div class="toggle-pills" style="margin-top:.4rem">
               <span class="toggle-pill" id="vs-travaux-vis-oui" onclick="setVsToggle('travaux-vis','oui')">Oui</span>
               <span class="toggle-pill" id="vs-travaux-vis-non" onclick="setVsToggle('travaux-vis','non')">Non</span>
@@ -1564,33 +1564,33 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Équipements</p>
         <div style="display:flex;flex-direction:column;gap:.75rem">
           <div class="cblock">
-            <div class="cblock-hd">🍳 Cuisine &amp; mobilier</div>
+            <div class="cblock-hd"><i data-lucide=utensils class=ic></i> Cuisine &amp; mobilier</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-equipee">🍽️ Cuisine équipée</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-amenagee">🪵 Cuisine aménagée</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-meuble">🛋️ Meublé</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-equipee"><i data-lucide=utensils class=ic></i> Cuisine équipée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cuisine-amenagee"><i data-lucide=utensils class=ic></i> Cuisine aménagée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-meuble"><i data-lucide=sofa class=ic></i> Meublé</label>
             </div>
           </div>
           <div class="cblock">
-            <div class="cblock-hd">🌡️ Confort &amp; énergie</div>
+            <div class="cblock-hd"><i data-lucide=thermometer class=ic></i> Confort &amp; énergie</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-clim">❄️ Climatisation</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-individuel">🔥 Chauffage individuel</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-collectif">♨️ Chauffage collectif</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-double-vitrage">🪟 Double vitrage</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-volets-elec">⚡ Volets électriques</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cheminee">🔥 Cheminée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-clim"><i data-lucide=snowflake class=ic></i> Climatisation</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-individuel"><i data-lucide=flame class=ic></i> Chauffage individuel</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-ch-collectif"><i data-lucide=flame class=ic></i> Chauffage collectif</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-double-vitrage"><i data-lucide=square class=ic></i> Double vitrage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-volets-elec"><i data-lucide=zap class=ic></i> Volets électriques</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cheminee"><i data-lucide=flame class=ic></i> Cheminée</label>
             </div>
           </div>
           <div class="cblock">
-            <div class="cblock-hd">🏢 Immeuble &amp; accès</div>
+            <div class="cblock-hd"><i data-lucide=building-2 class=ic></i> Immeuble &amp; accès</div>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-fibre">📡 Fibre</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-interphone">📞 Interphone</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-digicode">🔢 Digicode</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-gardien">👮 Gardien</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cave">🏚️ Cave</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie">🫧 Buanderie commune</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-fibre"><i data-lucide=antenna class=ic></i> Fibre</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-interphone"><i data-lucide=phone class=ic></i> Interphone</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-digicode"><i data-lucide=hash class=ic></i> Digicode</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-gardien"><i data-lucide=shield class=ic></i> Gardien</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-cave"><i data-lucide=archive class=ic></i> Cave</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vs-buanderie"><i data-lucide=droplets class=ic></i> Buanderie commune</label>
             </div>
           </div>
         </div>
@@ -1605,7 +1605,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Copropriété</p>
         <div style="display:flex;flex-direction:column;gap:.75rem">
           <div class="cblock">
-            <div class="cblock-hd">🏢 En copropriété ?</div>
+            <div class="cblock-hd"><i data-lucide=building-2 class=ic></i> En copropriété ?</div>
             <div class="toggle-pills" style="margin-top:.4rem">
               <span class="toggle-pill" id="vs-copro-vis-oui" onclick="setVsToggle('copro-vis','oui')">Oui</span>
               <span class="toggle-pill" id="vs-copro-vis-non" onclick="setVsToggle('copro-vis','non')">Non / Monopropriété</span>
@@ -1618,7 +1618,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <div class="fg2"><label>Charges mensuelles (€)</label><input class="fi" type="number" id="vs-charges-copro" placeholder="150" min="0"></div>
             </div>
             <div class="cblock">
-              <div class="cblock-hd">⚠️ Procédures &amp; travaux</div>
+              <div class="cblock-hd"><i data-lucide=alert-triangle class=ic></i> Procédures &amp; travaux</div>
               <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
                   <span style="font-size:.85rem;color:var(--stone);flex:1">Procédure en cours</span>
@@ -1648,24 +1648,24 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <!-- VS10 — DPE -->
       <div class="wizard-step" id="wstep-vs10" style="display:none">
         <p class="wstep-title">Diagnostic de performance énergétique</p>
-        <div style="font-size:.8rem;color:var(--stone-l);margin-bottom:.75rem;background:var(--warm);padding:.6rem .8rem;border-radius:8px">ℹ️ Tous les champs sont optionnels — renseignez ceux indiqués sur votre DPE.</div>
+        <div style="font-size:.8rem;color:var(--stone-l);margin-bottom:.75rem;background:var(--warm);padding:.6rem .8rem;border-radius:8px"><i data-lucide=info class=ic></i> Tous les champs sont optionnels — renseignez ceux indiqués sur votre DPE.</div>
         <div class="frow">
           <div class="fg2">
             <label>Classe énergie</label>
             <select class="fi" id="vs-dpe">
               <option value="">Non renseigné</option>
-              <option value="A">A 🟢</option><option value="B">B 🟢</option><option value="C">C 🟡</option>
-              <option value="D">D 🟡</option><option value="E">E 🟠</option><option value="F">F 🔴</option>
-              <option value="G">G 🔴</option><option value="vierge">Vierge (avant 1948)</option>
+              <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+              <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="vierge">Vierge (avant 1948)</option>
             </select>
           </div>
           <div class="fg2">
             <label>Classe GES</label>
             <select class="fi" id="vs-ges">
               <option value="">Non renseigné</option>
-              <option value="A">A 🟢</option><option value="B">B 🟢</option><option value="C">C 🟡</option>
-              <option value="D">D 🟡</option><option value="E">E 🟠</option><option value="F">F 🔴</option>
-              <option value="G">G 🔴</option><option value="vierge">Vierge</option>
+              <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+              <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="vierge">Vierge</option>
             </select>
           </div>
           <div class="fg2"><label>Consommation <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">kWh/m²/an</span></label><input class="fi" type="number" id="vs-dpe-conso" placeholder="120" min="0"></div>
@@ -1683,11 +1683,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Situation du bien</p>
         <div style="display:flex;flex-direction:column;gap:.75rem">
           <div class="cblock">
-            <div class="cblock-hd">🔑 Le logement est actuellement</div>
+            <div class="cblock-hd"><i data-lucide=key class=ic></i> Le logement est actuellement</div>
             <div class="equip-chips" style="margin-top:.4rem">
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="libre">🟢 Libre</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="occupe">🏠 Occupé (propriétaire)</label>
-              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="loue">🔑 Loué</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="libre"> Libre</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="occupe"><i data-lucide=home class=ic></i> Occupé (propriétaire)</label>
+              <label class="equip-chip" onclick="selectVsRadioChip(this,'vs-situation-r')"><input type="radio" name="vs-situation-r" value="loue"><i data-lucide=key class=ic></i> Loué</label>
             </div>
             <input type="hidden" id="vs-situation" value="">
           </div>
@@ -1710,7 +1710,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Description</p>
         <div class="fg2">
           <label>Décrivez votre bien</label>
-          <button type="button" class="btn btn-s" style="margin-bottom:.5rem;font-size:.8rem;padding:.4rem .9rem" onclick="genVsDescription()">✨ Générer une description automatique</button>
+          <button type="button" class="btn btn-s" style="margin-bottom:.5rem;font-size:.8rem;padding:.4rem .9rem" onclick="genVsDescription()"><i data-lucide=sparkles class=ic></i> Générer une description automatique</button>
           <textarea class="fta" id="vs-description" rows="7" maxlength="2000"
             placeholder="Appartement 3 pièces de 65 m² situé au 4e étage avec ascenseur. Séjour lumineux exposé sud, deux chambres, cuisine équipée, salle de bain rénovée…"
             oninput="document.getElementById('vs-desc-counter').textContent=this.value.length"></textarea>
@@ -1726,20 +1726,20 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <div class="wizard-step" id="wstep-vs13" style="display:none">
         <p class="wstep-title">Photos</p>
         <div class="fg2">
-          <label>📸 Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 · Maximum 30</span></label>
+          <label><i data-lucide=camera class=ic></i> Photos * <span style="font-size:.72rem;color:var(--terra);font-weight:700">Minimum 1 · Maximum 30</span></label>
           <div id="vs-photo-upload-area"
             style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(27,79,216,.03)"
             onclick="document.getElementById('vs-photo-input').click()"
             ondragover="event.preventDefault();this.style.background='rgba(27,79,216,.08)'"
             ondragleave="this.style.background='rgba(27,79,216,.03)'"
             ondrop="handleVsDrop(event)">
-            <div style="font-size:2rem;margin-bottom:.5rem">📸</div>
+            <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
             <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
             <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo par photo · Max 30 photos</div>
             <input type="file" id="vs-photo-input" multiple accept="image/*" style="display:none" onchange="handleVsPhotos(this.files)">
           </div>
           <div id="vs-photo-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
-          <div id="vs-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none">⚠️ Ajoutez au moins 1 photo avant de publier.</div>
+          <div id="vs-photo-required-msg" style="font-size:.75rem;color:var(--terra);margin-top:.3rem;display:none"><i data-lucide=alert-triangle class=ic></i> Ajoutez au moins 1 photo avant de publier.</div>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVs(12)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -1755,7 +1755,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="aok" id="vs-ok"></div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVs(13)"><i data-lucide=arrow-left class=ic></i> Retour</button>
-          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVente()">🚀 Publier mon annonce</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVente()"><i data-lucide=send class=ic></i> Publier mon annonce</button>
         </div>
       </div>
 
@@ -1768,22 +1768,22 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Type de maison</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem">
           <button type="button" class="tloc-card" id="vm-type-maison" onclick="selectVmSubtype('maison')">
-            <div class="tloc-icon">🏡</div><div class="tloc-title">Maison</div><div class="tloc-sub">Maison classique</div>
+            <div class="tloc-icon"><i data-lucide=house class=ic></i></div><div class="tloc-title">Maison</div><div class="tloc-sub">Maison classique</div>
           </button>
           <button type="button" class="tloc-card" id="vm-type-villa" onclick="selectVmSubtype('villa')">
-            <div class="tloc-icon">🌴</div><div class="tloc-title">Villa</div><div class="tloc-sub">Propriété de standing</div>
+            <div class="tloc-icon"><i data-lucide=palm-tree class=ic></i></div><div class="tloc-title">Villa</div><div class="tloc-sub">Propriété de standing</div>
           </button>
           <button type="button" class="tloc-card" id="vm-type-ville" onclick="selectVmSubtype('maison_de_ville')">
-            <div class="tloc-icon">🏘️</div><div class="tloc-title">Maison de ville</div><div class="tloc-sub">En cœur de ville</div>
+            <div class="tloc-icon"><i data-lucide=building class=ic></i></div><div class="tloc-title">Maison de ville</div><div class="tloc-sub">En cœur de ville</div>
           </button>
           <button type="button" class="tloc-card" id="vm-type-mitoyenne" onclick="selectVmSubtype('maison_mitoyenne')">
-            <div class="tloc-icon">🏠</div><div class="tloc-title">Maison mitoyenne</div><div class="tloc-sub">Partagée d'un mur</div>
+            <div class="tloc-icon"><i data-lucide=home class=ic></i></div><div class="tloc-title">Maison mitoyenne</div><div class="tloc-sub">Partagée d'un mur</div>
           </button>
           <button type="button" class="tloc-card" id="vm-type-individuelle" onclick="selectVmSubtype('maison_individuelle')">
-            <div class="tloc-icon">🏚️</div><div class="tloc-title">Maison individuelle</div><div class="tloc-sub">Terrain propre</div>
+            <div class="tloc-icon"><i data-lucide=archive class=ic></i></div><div class="tloc-title">Maison individuelle</div><div class="tloc-sub">Terrain propre</div>
           </button>
           <button type="button" class="tloc-card" id="vm-type-ferme" onclick="selectVmSubtype('ferme')">
-            <div class="tloc-icon">🌾</div><div class="tloc-title">Ferme / Corps de ferme</div><div class="tloc-sub">Propriété rurale</div>
+            <div class="tloc-icon"><i data-lucide=wheat class=ic></i></div><div class="tloc-title">Ferme / Corps de ferme</div><div class="tloc-sub">Propriété rurale</div>
           </button>
         </div>
         <input type="hidden" id="vm-maison-type">
@@ -2081,14 +2081,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div>
             <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Chauffage & énergie</p>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-cheminee">🔥 Cheminée</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-poele">🪵 Poêle</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-clim">❄️ Climatisation</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-pac">♨️ Pompe à chaleur</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-gaz">🔵 Chauffage gaz</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-elec">⚡ Chauffage électrique</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-bois">🌲 Chauffage bois</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-solaire">☀️ Panneaux solaires</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-cheminee"><i data-lucide=flame class=ic></i> Cheminée</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-poele"><i data-lucide=flame class=ic></i> Poêle</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-clim"><i data-lucide=snowflake class=ic></i> Climatisation</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-pac"><i data-lucide=flame class=ic></i> Pompe à chaleur</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-gaz"><i data-lucide=circle class=ic></i> Chauffage gaz</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-elec"><i data-lucide=zap class=ic></i> Chauffage électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-ch-bois"><i data-lucide=tree-pine class=ic></i> Chauffage bois</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vm-solaire"><i data-lucide=sun class=ic></i> Panneaux solaires</label>
             </div>
           </div>
           <div>
@@ -2194,7 +2194,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <textarea class="fi" id="vm-description" rows="6" maxlength="2000" placeholder="Magnifique maison individuelle de 120 m² sur un terrain de 650 m²…" oninput="document.getElementById('vm-desc-counter').textContent=this.value.length+'/2000'"></textarea>
             <div id="vm-desc-counter" style="text-align:right;font-size:.75rem;color:var(--stone-l);margin-top:.2rem">0/2000</div>
           </div>
-          <button type="button" class="btn btn-s" style="justify-content:center;gap:.4rem" onclick="genVmDescription()">✨ Générer une description automatique</button>
+          <button type="button" class="btn btn-s" style="justify-content:center;gap:.4rem" onclick="genVmDescription()"><i data-lucide=sparkles class=ic></i> Générer une description automatique</button>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVm(12)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -2208,7 +2208,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="fcard">
           <div id="vm-photo-upload-area" class="pk-drop-zone" ondragover="event.preventDefault()" ondrop="handleVmDrop(event)" onclick="document.getElementById('vm-photo-input').click()" style="cursor:pointer">
             <div style="text-align:center;padding:1.5rem;color:var(--stone)">
-              <div style="font-size:2.2rem;margin-bottom:.4rem">📸</div>
+              <div style="font-size:2.2rem;margin-bottom:.4rem"><i data-lucide=camera class=ic></i></div>
               <div style="font-weight:600;margin-bottom:.2rem">Cliquez ou déposez vos photos ici</div>
               <div style="font-size:.8rem">JPG, PNG — max 30 photos</div>
               <div class="pk-photo-count" style="font-size:.8rem;margin-top:.4rem;color:var(--terra)">0/30 photos</div>
@@ -2216,7 +2216,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <input type="file" id="vm-photo-input" multiple accept="image/*" style="display:none" onchange="handleVmPhotos(this.files)">
           </div>
           <div id="vm-photo-preview" class="pk-photo-grid" style="margin-top:.8rem"></div>
-          <div id="vm-photo-required-msg" style="display:none;font-size:.8rem;color:#d9534f;margin-top:.4rem">⚠️ Ajoutez au moins une photo</div>
+          <div id="vm-photo-required-msg" style="display:none;font-size:.8rem;color:#d9534f;margin-top:.4rem"><i data-lucide=alert-triangle class=ic></i> Ajoutez au moins une photo</div>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVm(13)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -2232,7 +2232,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="aok" id="vm-ok"></div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVm(14)"><i data-lucide=arrow-left class=ic></i> Retour</button>
-          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteMaison()">🚀 Publier mon annonce</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteMaison()"><i data-lucide=send class=ic></i> Publier mon annonce</button>
         </div>
       </div>
 
@@ -2245,12 +2245,12 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Que vendez-vous ?</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1rem">
           <button type="button" class="tloc-card" id="vg-type-place" onclick="selectVgType('place')" style="flex-direction:column;align-items:center;padding:1.1rem .8rem">
-            <div class="tloc-icon" style="font-size:1.8rem">🅿️</div>
+            <div class="tloc-icon" style="font-size:1.8rem"><i data-lucide=circle-parking class=ic></i></div>
             <div class="tloc-title" style="margin-top:.3rem">Place de parking</div>
             <div class="tloc-sub">Extérieure, couverte ou sous-sol</div>
           </button>
           <button type="button" class="tloc-card" id="vg-type-garage" onclick="selectVgType('garage')" style="flex-direction:column;align-items:center;padding:1.1rem .8rem">
-            <div class="tloc-icon" style="font-size:1.8rem">🚗</div>
+            <div class="tloc-icon" style="font-size:1.8rem"><i data-lucide=car class=ic></i></div>
             <div class="tloc-title" style="margin-top:.3rem">Garage / Box</div>
             <div class="tloc-sub">Box fermé, garage, double garage</div>
           </button>
@@ -2411,14 +2411,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <p class="wstep-title">Accès & sécurité</p>
         <div class="fcard">
           <div class="equip-chips">
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-securise">🔒 Parking sécurisé</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-portail-auto">🚧 Portail automatique</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-badge">💳 Badge d'accès</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-telecommande">📡 Télécommande</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-gardien">👤 Gardien</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-cameras">📷 Caméras</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eclairage">💡 Éclairage</label>
-            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-acces-24h">🕐 Accès 24h/24</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-securise"><i data-lucide=lock class=ic></i> Parking sécurisé</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-portail-auto"><i data-lucide=triangle-alert class=ic></i> Portail automatique</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-badge"><i data-lucide=credit-card class=ic></i> Badge d'accès</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-telecommande"><i data-lucide=antenna class=ic></i> Télécommande</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-gardien"><i data-lucide=user class=ic></i> Gardien</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-cameras"><i data-lucide=camera class=ic></i> Caméras</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eclairage"><i data-lucide=lightbulb class=ic></i> Éclairage</label>
+            <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-acces-24h"><i data-lucide=clock class=ic></i> Accès 24h/24</label>
           </div>
         </div>
         <div class="wizard-nav">
@@ -2434,11 +2434,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div>
             <p style="font-size:.8rem;font-weight:700;color:var(--stone);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Installations</p>
             <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-electricite">⚡ Électricité</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-prise">🔌 Prise électrique</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-borne-recharge">🔋 Borne de recharge VE</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eau">💧 Eau</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-porte-elec">🚪 Porte électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-electricite"><i data-lucide=zap class=ic></i> Électricité</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-prise"><i data-lucide=plug class=ic></i> Prise électrique</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-borne-recharge"><i data-lucide=battery-charging class=ic></i> Borne de recharge VE</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-eau"><i data-lucide=droplet class=ic></i> Eau</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="vg-porte-elec"><i data-lucide=door-open class=ic></i> Porte électrique</label>
             </div>
           </div>
           <div id="vg-stockage-wrap">
@@ -2486,7 +2486,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <textarea class="fi" id="vg-description" rows="5" maxlength="1000" placeholder="Box fermé de 15 m² situé au niveau -1 d'une résidence sécurisée. Accès par portail automatique. Porte basculante. Électricité disponible." oninput="document.getElementById('vg-desc-counter').textContent=this.value.length+'/1000'"></textarea>
             <div id="vg-desc-counter" style="text-align:right;font-size:.75rem;color:var(--stone-l);margin-top:.2rem">0/1000</div>
           </div>
-          <button type="button" class="btn btn-s" style="justify-content:center" onclick="genVgDescription()">✨ Générer une description</button>
+          <button type="button" class="btn btn-s" style="justify-content:center" onclick="genVgDescription()"><i data-lucide=sparkles class=ic></i> Générer une description</button>
         </div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVg(8)"><i data-lucide=arrow-left class=ic></i> Retour</button>
@@ -2500,7 +2500,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="fcard">
           <div id="vg-photo-upload-area" class="pk-drop-zone" ondragover="event.preventDefault()" ondrop="handleVgDrop(event)" onclick="document.getElementById('vg-photo-input').click()" style="cursor:pointer">
             <div style="text-align:center;padding:1.5rem;color:var(--stone)">
-              <div style="font-size:2rem;margin-bottom:.4rem">📸</div>
+              <div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=camera class=ic></i></div>
               <div style="font-weight:600;margin-bottom:.2rem">Cliquez ou déposez vos photos</div>
               <div style="font-size:.8rem">JPG, PNG — 10 photos max</div>
               <div class="pk-photo-count" style="font-size:.8rem;margin-top:.4rem;color:var(--terra)">0/10 photos</div>
@@ -2523,7 +2523,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="aok" id="vg-ok"></div>
         <div class="wizard-nav">
           <button class="btn btn-s" onclick="wizardGoVg(10)"><i data-lucide=arrow-left class=ic></i> Retour</button>
-          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteGarage()">🚀 Publier mon annonce</button>
+          <button class="btn btn-p" style="padding:.85rem 1.5rem;font-size:.95rem" onclick="doPostVenteGarage()"><i data-lucide=send class=ic></i> Publier mon annonce</button>
         </div>
       </div>
 
@@ -2743,7 +2743,7 @@ async function searchAgencies(){
   const addr=document.getElementById('ag-search-address')?.value.trim();
   const statusEl=document.getElementById('ag-search-statut');
   const resultsEl=document.getElementById('ag-search-results');
-  if(!addr){toast('<i data-lucide=alert-triangle class=ic></i>️ Enter votre bien\'s address');return;}
+  if(!addr){toast('<i data-lucide=alert-triangle class=ic></i> Enter votre bien\'s address');return;}
   statusEl.innerHTML='<span style="color:var(--stone-l)"><i data-lucide=map-pin class=ic></i> Locating address...</span>';
   resultsEl.innerHTML='';
 
@@ -2788,7 +2788,7 @@ async function searchAgencies(){
         </div>
       </div>`).join('');
   }catch(e){
-    statusEl.innerHTML='<span style="color:var(--terra)"><i data-lucide=alert-triangle class=ic></i>️ Could not check this address right now</span>';
+    statusEl.innerHTML='<span style="color:var(--terra)"><i data-lucide=alert-triangle class=ic></i> Could not check this address right now</span>';
   }
 }
 
@@ -2804,7 +2804,7 @@ async function requestEstimation(agencyId,agencyNom){
       <div style="font-weight:800;font-size:1.05rem;margin-bottom:.3rem"><i data-lucide=ruler class=ic></i> Request an estimation  depuis  ${agencyNom}</div>
       <div style="font-size:.8rem;color:var(--stone-l);margin-bottom:1.1rem">Tell them a bit about votre bien — they'll get back to you directly.</div>
       <div class="fg2"><label>What kind of estimation?</label>
-        <select class="fi" id="est-req-type"><option value="location"><i data-lucide=home class=ic></i> Location estimation</option><option value="sale"><i data-lucide=tag class=ic></i>️ Sale estimation</option></select>
+        <select class="fi" id="est-req-type"><option value="location"><i data-lucide=home class=ic></i> Location estimation</option><option value="sale"><i data-lucide=tag class=ic></i> Sale estimation</option></select>
       </div>
       <div class="fg2"><label>Bien address *</label><input class="fi" id="est-req-address" value="${prefillAdresse.replace(/"/g,'&quot;')}" placeholder="12 Triq il-Kbira, Paris"></div>
       <div class="fg2"><label>Anything else? (optional)</label><textarea class="fi" id="est-req-notes" rows="3" placeholder="Bien type, size, condition..."></textarea></div>
@@ -2816,7 +2816,7 @@ async function requestEstimation(agencyId,agencyNom){
 
 async function submitEstimationRequest(agencyId){
   const address=document.getElementById('est-req-address')?.value.trim();
-  if(!address){toast('<i data-lucide=alert-triangle class=ic></i>️ Bien address is required');return;}
+  if(!address){toast('<i data-lucide=alert-triangle class=ic></i> Bien address is required');return;}
   const requestType=document.getElementById('est-req-type')?.value||'location';
   const notes=document.getElementById('est-req-notes')?.value.trim()||'';
   try{
@@ -2950,7 +2950,7 @@ async function geocodeAdresse(){
     const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(query)}`,{headers:{'Accept-Language':'fr'}});
     const results=await res.json();
     if(!results||!results.length){
-      statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Adresse introuvable — vérifiez l\'orthographe, vous pouvez quand même publier';
+      statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Adresse introuvable — vérifiez l\'orthographe, vous pouvez quand même publier';
       mapEl.style.display='none';
       return;
     }
@@ -2977,7 +2977,7 @@ async function geocodeAdresse(){
     }
     L.marker([lat,lng]).addTo(addressMapInstance);
   }catch(e){
-    statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Could not check this address right now';
+    statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Could not check this address right now';
     mapEl.style.display='none';
   }
 }
@@ -3145,7 +3145,7 @@ async function loadHeroAnnonces(){
   try{
     const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
     if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Aucune annonce en ligne</div><div class="ps">Soyez le premier à publier!</div></div></div>';return;}
-    const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
+    const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
     const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
     wrap.innerHTML=data.map(l=>`
       <div class="pitem" onclick="openDet('${l.id}')">
@@ -3227,9 +3227,9 @@ function goToListingsPage(n){
 async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
 
 function rCard(l){
-  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>️'};
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
   const bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)',for_sale:'linear-gradient(135deg,#F3EEFB,#E1D4F5)'};
-  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',long:l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide',for_sale:'<i data-lucide=tag class=ic></i>️ À vendre'};
+  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',long:l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide',for_sale:'<i data-lucide=tag class=ic></i> À vendre'};
   const lbColor={short:'#1B4FD8',room_rental:'#3B82F6',long:'#2E6B8A',for_sale:'#6366F1'};
   const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Charges incl.':null,l.ac?'Clim':null,l.parking?'Parking':null,l.pool?'Piscine':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} chambres`:null].filter(Boolean).slice(0,3);
   const _avDate=l.available_from?new Date(l.available_from):null;
@@ -3284,7 +3284,7 @@ async function openDet(id){
       }).catch(e=>console.error('[views] fetch failed:',e.message));
     }
   }catch(e){console.error('[views] outer erreur:',e.message);}
-  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️'},bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)'};
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>'},bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)'};
   // ── Photo grid Laforêt ──────────────────────────────────────────
   const photos=l.photos&&l.photos.length>0?l.photos:[];
   const pgw=document.getElementById('dphoto-grid-wrap');
@@ -3361,7 +3361,7 @@ async function openDet(id){
   } else if(l.video_url){
     pgw.innerHTML=`<div class="pgrid-ph"><button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button><video src="${l.video_url}" controls style="width:100%;height:100%;object-fit:contain;border-radius:16px"></video></div>`;
   } else {
-    pgw.innerHTML=`<div class="pgrid-ph"><button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button><span style="font-size:6rem">${ic[l.type]||'🏠'}</span></div>`;
+    pgw.innerHTML=`<div class="pgrid-ph"><button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button><span style="font-size:6rem">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</span></div>`;
   }
 
   document.getElementById('dti').textContent=l.title;
@@ -3501,8 +3501,8 @@ async function openDet(id){
         +'</div>';
     }).join('');
     const lbl='<div style="font-size:.62rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.45rem">';
-    const dpeBlock='<div style="flex:1;min-width:0">'+lbl+'⚡ Consommation</div>'+dpeBands+'</div>';
-    const gesBlock=ges?'<div style="flex:1;min-width:0">'+lbl+'☁ Émissions GES</div>'+gesBands+'</div>':'';
+    const dpeBlock='<div style="flex:1;min-width:0">'+lbl+'<i data-lucide=zap class=ic></i> Consommation</div>'+dpeBands+'</div>';
+    const gesBlock=ges?'<div style="flex:1;min-width:0">'+lbl+' Émissions GES</div>'+gesBands+'</div>':'';
     return'<div style="margin-top:.9rem"><div style="display:flex;gap:.75rem;align-items:flex-start">'+dpeBlock+gesBlock+'</div></div>';
   }
 
@@ -3518,7 +3518,7 @@ async function openDet(id){
   function buildDinHtml(l,badge,ratingHtml,tl,tenureLabels,finishLabels){
     if(l.type==='for_sale') return (badge?'<div style="background:rgba(76,175,125,.1);color:#4CAF7D;border:1px solid rgba(76,175,125,.2);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem">'+badge+'</div>':'')
       +ratingHtml
-      +drow('Type','<i data-lucide=tag class=ic></i>️ À vendre')
+      +drow('Type','<i data-lucide=tag class=ic></i> À vendre')
       +(l.tenure?drow('Régime',tenureLabels[l.tenure]||l.tenure):'')
       +(l.finish_status?drow('État',finishLabels[l.finish_status]||l.finish_status):'')
 ;
@@ -3548,7 +3548,7 @@ async function openDet(id){
     // ── Résumé — 4 tuiles fluides ──
     function _pill(inclus,label){
       return inclus
-        ?'<span style="display:inline-block;background:rgba(34,139,34,.1);border:1px solid rgba(34,139,34,.25);color:#1a7a1a;border-radius:20px;padding:.15rem .55rem;font-size:.72rem;font-weight:600">✓ Inclus</span>'
+        ?'<span style="display:inline-block;background:rgba(34,139,34,.1);border:1px solid rgba(34,139,34,.25);color:#1a7a1a;border-radius:20px;padding:.15rem .55rem;font-size:.72rem;font-weight:600"><i data-lucide=check class=ic></i> Inclus</span>'
         :'<span style="display:inline-block;background:rgba(232,144,10,.1);border:1px solid rgba(232,144,10,.3);color:#b06800;border-radius:20px;padding:.15rem .55rem;font-size:.72rem;font-weight:600">À la charge</span>';
     }
     const chaufDetail=l.chauffage_type?(l.chauffage_type==='collectif'?'Collectif':'Individuel')+(l.chauffage_mode?' — '+(_eeMap[l.chauffage_mode]||l.chauffage_mode):''):'—';
@@ -3811,9 +3811,9 @@ async function requestVisitFromDetail(){
   document.getElementById('vr-send-btn').onclick=async()=>{
     const visitDate=document.getElementById('vr-date')?.value;
     const visitTime=document.getElementById('vr-time')?.value||'14:00';
-    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a date');return;}
+    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a date');return;}
     const today=new Date();today.setHours(0,0,0,0);
-    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
+    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a future date');return;}
 
     const{error:visitInsertErr}=await sb.from('visits').insert({
       listing_id:AL.id,
@@ -3832,7 +3832,7 @@ async function requestVisitFromDetail(){
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
       await sb.from('messages').insert({
         listing_id:AL.id,sender_id:'system',receiver_id:AL.landlord_id,
-        content:'📅 '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
+        content:'<i data-lucide=calendar class=ic></i> '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
         type:'visit_request'
       });
     }catch(e){}
@@ -3872,7 +3872,7 @@ async function sendMsg(){
     const invited=await inviteCoLocataires(AL.id, coLocataireEmails);
     const notFound=invited.filter(i=>!i.found).map(i=>i.email);
     if(notFound.length){
-      setTimeout(()=>toast(`<i data-lucide=alert-triangle class=ic></i>️ ${notFound.length} co-locataire(s) don't have a Trouve Ton Toit compte yet — invite them to sign up.`),1000);
+      setTimeout(()=>toast(`<i data-lucide=alert-triangle class=ic></i> ${notFound.length} co-locataire(s) don't have a Trouve Ton Toit compte yet — invite them to sign up.`),1000);
     }
     c+=`\n\n<i data-lucide=users class=ic></i> Group visite — co-locataires: ${coLocataireEmails.join(', ')}`;
   }
@@ -3911,7 +3911,12 @@ async function requestBail(){
 }
 
 let _wizardStep=1;
-const _WIZARD_LABELS=['','Type','Bien','Adresse','Surface','Charges','Prix','Équipements','Photos'];
+// ── Location tunnel (8 étapes → 8 dots) ──────────────────────
+const _LOC_LABELS=['Type','Bien','Lieu','Surface','Charges','Prix','Équip.','Photos'];
+
+function _renderLocationDots(){
+  if(document.querySelectorAll('.wdot').length!==_LOC_LABELS.length)_renderDots(_LOC_LABELS);
+}
 
 function wizardGoTo(n){
   // Masquer l'étape courante
@@ -3925,20 +3930,9 @@ function wizardGoTo(n){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display=n>=3?'block':'none';
   if(n>=3){
-    // Barre de progression (étapes 3-8 → positions 3..8 sur 8)
-    const fill=document.getElementById('wizard-fill');
-    if(fill)fill.style.width=Math.round(n/8*100)+'%';
-    // Compteur
-    const ctr=document.getElementById('wizard-step-counter');
-    if(ctr)ctr.textContent='Étape '+n+' sur 8';
-    const lbl=document.getElementById('wizard-step-label');
-    if(lbl)lbl.textContent=_WIZARD_LABELS[n]||'';
-    // Points de progression
-    document.querySelectorAll('.wdot').forEach((d,i)=>{
-      d.classList.remove('actif','done');
-      if(i+1<n)d.classList.add('done');
-      else if(i+1===n)d.classList.add('actif');
-    });
+    // S'assurer qu'on est sur les dots location (8 dots)
+    _renderLocationDots();
+    _applyDotState(n-1,_LOC_LABELS);
   }
   // Remonter en haut du formulaire
   const fc=document.getElementById('post-self-form');
@@ -4029,7 +4023,7 @@ function setT(el,t){
     bail_vide:'<i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans (loi du 6 juillet 1989). Dépôt plafonné à 1 mois de loyer hors charges.',
     bail_meuble:'<i data-lucide=sofa class=ic></i> Bail meublé : durée minimum 1 an (9 mois pour les étudiants). Dépôt plafonné à 2 mois de loyer hors charges.',
     room_rental:'<i data-lucide=bed-double class=ic></i> Chambre / Coloc : mise en relation uniquement. Trouve Ton Toit ne génère pas de bail — le contrat est géré directement entre les parties.',
-    for_sale:'<i data-lucide=tag class=ic></i>️ À vendre : votre annonce reste en ligne pour 2€/semaine, facturé automatiquement. Annulable à tout moment.'
+    for_sale:'<i data-lucide=tag class=ic></i> À vendre : votre annonce reste en ligne pour 2€/semaine, facturé automatiquement. Annulable à tout moment.'
   };
   if(typeInfo)typeInfo.innerHTML=infos[t]||'';
 
@@ -4139,17 +4133,17 @@ function autoDetectZoneTendue(cp){
   if(r===true){
     ztInput.value='oui';
     badge.innerHTML=`<div style="display:flex;align-items:flex-start;gap:.5rem;background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:.55rem .8rem;font-size:.78rem;color:#92400E;line-height:1.45">
-      <span style="flex-shrink:0">🏙️</span>
+      <span style="flex-shrink:0"><i data-lucide=building-2 class=ic></i></span>
       <div><strong>Zone tendue détectée</strong> — encadrement des loyers applicable.<br>
       <span style="opacity:.8">Les loyers de référence seront à renseigner dans le bail.</span></div></div>`;
   }else if(r===false){
     ztInput.value='non';
     badge.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:.5rem .8rem;font-size:.78rem;color:#166534">
-      <span>✅</span><span>Hors zone tendue — aucun encadrement des loyers applicable.</span></div>`;
+      <span><i data-lucide=check-circle-2 class=ic></i></span><span>Hors zone tendue — aucun encadrement des loyers applicable.</span></div>`;
   }else{
     ztInput.value='';
     badge.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;background:var(--s2,#F8F9FA);border:1px solid var(--b2,#E2E8F0);border-radius:8px;padding:.5rem .8rem;font-size:.78rem;color:var(--stone-l)">
-      <span>❓</span><span>Zone tendue non déterminée pour ce secteur — à vérifier dans le bail si nécessaire.</span></div>`;
+      <span><i data-lucide=help-circle class=ic></i></span><span>Zone tendue non déterminée pour ce secteur — à vérifier dans le bail si nécessaire.</span></div>`;
   }
   if(wrap) wrap.style.display='block';
 }
@@ -4336,7 +4330,7 @@ function onDisponibleFromChange(val){
 
 function chkPost(){
   if(!U){toast('Pbail sign in to post a annonce');go('auth');return;}
-  if(P?.role!=='bailleur'){toast('<i data-lucide=alert-triangle class=ic></i>️ You need a propriétaire compte to post.');return;}
+  if(P?.role!=='bailleur'){toast('<i data-lucide=alert-triangle class=ic></i> You need a propriétaire compte to post.');return;}
 
   // Vérifier les champs essentiels du profil
   const missing=[];
@@ -4348,8 +4342,8 @@ function chkPost(){
   if(missing.length>0){
     // Afficher un message clair et rediriger vers le profil
     const msg=missing.length===1
-      ? `<i data-lucide=alert-triangle class=ic></i>️ Pbail complete votre profil before posting — missing: ${missing[0]}`
-      : `<i data-lucide=alert-triangle class=ic></i>️ Pbail complete votre profil before posting — ${missing.length} fields missing`;
+      ? `<i data-lucide=alert-triangle class=ic></i> Pbail complete votre profil before posting — missing: ${missing[0]}`
+      : `<i data-lucide=alert-triangle class=ic></i> Pbail complete votre profil before posting — ${missing.length} fields missing`;
 
     // Toast visible + modal de confirmation
     toast(msg);
@@ -4485,7 +4479,7 @@ async function openSaleActivation(listingId){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div style="background:white;border-radius:18px;padding:1.75rem;max-width:420px;width:100%">
-      <div style="font-size:2rem;margin-bottom:.5rem;text-align:center"><i data-lucide=tag class=ic></i>️</div>
+      <div style="font-size:2rem;margin-bottom:.5rem;text-align:center"><i data-lucide=tag class=ic></i></div>
       <div style="font-weight:800;font-size:1.1rem;margin-bottom:.3rem;text-align:center">Activer  votre annonce</div>
       <div style="background:var(--sand);border-radius:10px;padding:.75rem 1rem;margin:1rem 0">
         <div style="font-weight:700">${l.title}</div>
@@ -4501,7 +4495,7 @@ async function openSaleActivation(listingId){
 
 async function confirmSaleActivation(listingId,listingTitle){
   const email=document.getElementById('sale-act-email')?.value.trim();
-  if(!email){toast('<i data-lucide=alert-triangle class=ic></i>️ Enter votre email');return;}
+  if(!email){toast('<i data-lucide=alert-triangle class=ic></i> Enter votre email');return;}
   const btn=document.getElementById('sale-act-btn');
   if(btn){btn.textContent='Redirecting to paiement...';btn.disabled=true;}
   try{
@@ -4560,7 +4554,7 @@ async function doPost(){
   if(!anneeVal||anneeVal<1800||anneeVal>2030){
     const el=document.getElementById('p-annee-construction');
     if(el){el.style.borderColor='var(--terra)';el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();}
-    sA(err,'<i data-lucide=alert-triangle class=ic></i>️ L\'année de construction est obligatoire.');
+    sA(err,'<i data-lucide=alert-triangle class=ic></i> L\'année de construction est obligatoire.');
     return;
   }
 
@@ -4571,11 +4565,11 @@ async function doPost(){
     document.getElementById('photo-upload-area').style.borderColor='var(--terra)';
     document.getElementById('photo-upload-area').style.boxShadow='0 0 0 3px rgba(201,85,58,.2)';
     document.getElementById('photo-upload-area').scrollIntoView({behavior:'smooth',block:'center'});
-    sA(err,'<i data-lucide=alert-triangle class=ic></i>️ At least 1 photo is required to publish  votre annonce.');
+    sA(err,'<i data-lucide=alert-triangle class=ic></i> At least 1 photo is required to publish  votre annonce.');
     return;
   }
 
-  sA(ok,'⏳ Publishing  votre annonce…');
+  sA(ok,'Publishing  votre annonce…');
   ok.style.background='rgba(46,107,138,0.08)';
   ok.style.color='var(--sea)';
   const fields={
@@ -4698,13 +4692,13 @@ async function doPost(){
   // Téléverser video if provided
   const videoInput=document.getElementById('video-input');
   if(videoInput?.files[0]&&annonce){
-    sA(ok,'⏳ Upchargement video...');
+    sA(ok,'Upchargement video...');
     await uploadVisitVideo(videoInput,annonce.id);
   }
   uploadedPhotos=[];document.getElementById('photo-pavis').innerHTML='';
   document.getElementById('video-pavis').innerHTML='';
   if(document.getElementById('pt').value==='for_sale'&&annonce){
-    sA(ok,'⏳ Redirecting you to activate  votre annonce (€2/week)...');
+    sA(ok,'Redirecting you to activate  votre annonce (€2/week)...');
     try{
       const res=await fetch('/.netlify/functions/create-sale-subscription',{
         method:'POST',headers:{'Content-Type':'application/json'},
@@ -4720,7 +4714,7 @@ async function doPost(){
   }else if(document.getElementById('pt').value==='room_rental'&&annonce){
     // Pas de commission ni de bail/État des lieux sur les room locations — un petit
     // frais fixe à la publication à la place, une seule fois par annonce.
-    sA(ok,'⏳ Redirecting you to activate  votre annonce (€3)...');
+    sA(ok,'Redirecting you to activate  votre annonce (€3)...');
     try{
       const res=await fetch('/.netlify/functions/create-room-location-fee-paiement',{
         method:'POST',headers:{'Content-Type':'application/json'},
@@ -4771,11 +4765,11 @@ async function loadML(){
   if(P?.role!=='bailleur'){w.innerHTML='<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Switch to a propriétaire compte to post et manage annonces.</p></div>';return;}
   const{data}=await sb.from('listings').select('*').eq('landlord_id',U.id).order('created_at',{ascending:false});
   if(!data||data.length===0){w.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=clipboard-list class=ic></i></div><p>Aucune annonce. Publiez votre premier logement et commencez à recevoir des messages!</p><button class="btn btn-p" onclick="go('post')">Publier ma première annonce →</button></div>`;return;}
-  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>️',for_sale:'<i data-lucide=tag class=ic></i>️'};
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=landmark class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
   w.innerHTML=data.map(l=>{
     const isSale=l.type==='for_sale';
     const pendingSale=isSale&&l.sale_subscription_status!=='actif';
-    const statusLabel=pendingSale?'⏳ Not activated — €2/week to go live':l.actif?'Actif':'Paused';
+    const statusLabel=pendingSale?'Not activated — €2/week to go live':l.actif?'Actif':'Paused';
     const dotClass=pendingSale?'dg':l.actif?'dg':'dr';
     const priceLabel=isSale?`€${l.sale_price||l.price}`:`€${l.price}/mois`;
     const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
@@ -4787,7 +4781,7 @@ async function loadML(){
         :`<button class="btn btn-p btn-sm" onclick="retrySaleActivation('${l.id}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer</button>`)
       :`<button class="btn ${l.actif?'btn-s':'btn-p'} btn-sm" onclick="togL('${l.id}',${l.actif})">${l.actif?'Pause':'Activer'}</button>`;
     const hasPhotos=l.photos&&l.photos.length>0;
-    const photoBtn=`<button class="btn btn-s btn-sm" onclick="editPhotos('${l.id}')" title="${hasPhotos?l.photos.length+' photo(s)':'Aucune photo !'}"><i data-lucide=camera class=ic></i>${hasPhotos?'':'⚠'}</button>`;
+    const photoBtn=`<button class="btn btn-s btn-sm" onclick="editPhotos('${l.id}')" title="${hasPhotos?l.photos.length+' photo(s)':'Aucune photo !'}"><i data-lucide=camera class=ic></i>${hasPhotos?'':'<i data-lucide=alert-triangle class=ic></i>'}</button>`;
     return`<div class="mlcard"><div class="mlico">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div><div class="mli"><div class="mlt">${l.title}</div><div class="mls">${priceLabel} · ${l.zone} · <span class="dot ${dotClass}"></span>${statusLabel}${boostLabel?' · '+boostLabel:''}</div></div><div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-s btn-sm" onclick="openDet('${l.id}')">Voir</button>${photoBtn}${actionBtn}${boostBtn}</div></div>`;
   }).join('');
 }
@@ -4834,7 +4828,7 @@ async function editPhotos(listingId){
 async function saveEditPhotos(listingId){
   const errEl=document.getElementById('ep-err');
   const btn=document.querySelector('[onclick*="saveEditPhotos"]');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Upload...';}
+  if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide=loader-2 class=ic></i> Upload...';}
   try{
     let newUrls=[];
     if(window._epFiles&&window._epFiles.length>0){
@@ -4854,7 +4848,7 @@ async function saveEditPhotos(listingId){
 
 async function startBoostPaiement(listingId,listingTitle,listingType){
   const btn=event?.target;
-  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='⏳ Redirecting...';}
+  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='Redirecting...';}
   toast('<i data-lucide=credit-card class=ic></i> Redirecting to paiement...');
   try{
     const res=await fetch('/.netlify/functions/create-boost-paiement',{
@@ -4872,7 +4866,7 @@ async function startBoostPaiement(listingId,listingTitle,listingType){
 
 async function retrySaleActivation(listingId,listingTitle){
   const btn=event?.target;
-  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='⏳ Redirecting...';}
+  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='Redirecting...';}
   try{
     const res=await fetch('/.netlify/functions/create-sale-subscription',{
       method:'POST',headers:{'Content-Type':'application/json'},
@@ -4887,7 +4881,7 @@ async function retrySaleActivation(listingId,listingTitle){
   }
 }
 
-async function togL(id,a){await sb.from('listings').update({actif:!a}).eq('id',id);toast(a?'⏸ Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
+async function togL(id,a){await sb.from('listings').update({actif:!a}).eq('id',id);toast(a?'<i data-lucide=pause class=ic></i> Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
 
 async function loadMM(){
   const w=document.getElementById('mym'),field=P?.role==='bailleur'?'receiver_id':'sender_id';
@@ -5108,7 +5102,7 @@ async function uploadVisitVideo(input, listingId){
   const file=input.files[0];
   if(!file)return;
   if(file.size>50*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Video max 50MB');return;}
-  toast('⏳ Upchargement video...');
+  toast('Upchargement video...');
   const ext=file.name.split('.').pop();
   const path=`videos/${listingId}/visite.${ext}`;
   const{data,error}=await sb.storage.from('annonces').upload(path,file,{upsert:true,cacheControl:'3600'});
@@ -5230,31 +5224,36 @@ function _launchVsMaison(){
   wizardStartVenteMaison();
 }
 
+// ── Helpers dots dynamiques ──────────────────────────────────
+function _renderDots(labels){
+  const c=document.getElementById('wizard-dots');
+  if(!c)return;
+  c.innerHTML=labels.map((lbl,i)=>
+    `<button class="wdot"><span class="wdot-num">${i+1}</span><span class="wdot-lbl">${lbl}</span></button>`
+  ).join('');
+}
+function _applyDotState(activeDot,labels){
+  document.querySelectorAll('.wdot').forEach((d,i)=>{
+    d.classList.remove('actif','done','active');
+    if(i<activeDot)d.classList.add('done');
+    else if(i===activeDot)d.classList.add('actif');
+  });
+  const total=labels.length;
+  const ctr=document.getElementById('wizard-step-counter');
+  if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur '+total;
+  const fill=document.getElementById('wizard-fill');
+  if(fill)fill.style.width=Math.round((activeDot+1)/total*100)+'%';
+  const lbl=document.getElementById('wizard-step-label');
+  if(lbl)lbl.textContent=labels[activeDot]||'';
+}
+// ── VS – Vente Appartement (14 étapes → 10 dots) ─────────────
+const _VS_LABELS=['Type','Lieu','Prix','Surface','Pièces','Extérieur','État','Équip.','DPE','Photos'];
+const _VS_DOTMAP=[0,1,2,3,4,5,6,7,7,8,8,9,9,9];
 function _updateVsDots(vsN){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
-  // Labels vente appart : Type,Bien,Lieu,Prix,Caract.,Extérieur,Équip.,Photos
-  const vsLabels=['Type','Bien','Lieu','Prix','Caract.','Extérieur','Équip.','Photos'];
-  document.querySelectorAll('.wdot').forEach((d,i)=>{
-    const lbl=d.querySelector('.wdot-lbl');
-    if(lbl&&vsLabels[i])lbl.textContent=vsLabels[i];
-  });
-  // vsN 1-14 → dot index 0-7 (dot0=Type done, dot1=Bien done/active)
-  // VS1(sous-type)→dot1, VS2(lieu)→dot2, VS3(prix)→dot3, VS4-5→dot4,
-  // VS6-7→dot5, VS8-11→dot6, VS12-14→dot7
-  const dotMap=[1,2,3,4,4,5,5,6,6,6,6,7,7,7];// index=vsN-1, value=dotIndex
-  const activeDot=dotMap[vsN-1];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done','actif');
-    if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('actif');
-  });
-  const phase=activeDot+1;
-  const ctr=document.getElementById('wizard-step-counter');
-  if(ctr)ctr.textContent='Étape '+phase+' sur 8';
-  const fill=document.getElementById('wizard-fill');
-  if(fill)fill.style.width=Math.round(phase/8*100)+'%';
+  if(document.querySelectorAll('.wdot').length!==_VS_LABELS.length)_renderDots(_VS_LABELS);
+  _applyDotState(_VS_DOTMAP[vsN-1],_VS_LABELS);
 }
 
 function exitVenteMode(){
@@ -5275,6 +5274,8 @@ function exitVenteMode(){
   // cacher le header (on revient à step 1)
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='none';
+  // Remettre les dots location (8 dots) pour le retour à step 1
+  _renderDots(_LOC_LABELS);
   // show step 1
   const s1=document.getElementById('wstep-1');
   if(s1)s1.style.display='block';
@@ -5471,7 +5472,7 @@ function _updateVsPhotoArea(){
     const url=URL.createObjectURL(f);
     const wrap=document.createElement('div');
     wrap.className='pk-photo-thumb';
-    wrap.innerHTML='<img src="'+url+'" alt="Photo '+( idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVsPhoto(this,'+idx+')">✕</button>';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+( idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVsPhoto(this,'+idx+')"><i data-lucide=x class=ic></i></button>';
     preview.appendChild(wrap);
   });
   const msg=document.getElementById('vs-photo-required-msg');
@@ -5681,7 +5682,7 @@ async function doPostVente(){
       if(upErr)console.warn('Photo upload error:',upErr);
     }
     // success
-    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    if(okEl){okEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
     toast('Annonce déposée avec succès !');
     // reset after 3s
     setTimeout(()=>{
@@ -5690,7 +5691,7 @@ async function doPostVente(){
   } catch(e){
     console.error('doPostVente error:',e);
     if(errEl){errEl.textContent='Erreur lors de la publication : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
   }
 }
 
@@ -5712,24 +5713,14 @@ function wizardStartVenteGarage(){
   _updateVgDots(1);
 }
 
+// ── VG – Vente Garage (11 étapes → 8 dots) ───────────────────
+const _VG_LABELS=['Type','Lieu','Prix','Détails','Accès','Équip.','Médias','Récap'];
+const _VG_DOTMAP=[0,1,2,3,3,4,5,5,6,6,7];
 function _updateVgDots(vgN){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
-  const vgLabels=['Type','Bien','Localisation','Prix','Accès','Équip.','Description','Photos'];
-  const dotMap=[2,2,3,3,4,5,5,6,6,7,7];
-  const activeDot=dotMap[vgN-1];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done','actif');
-    const lbl=d.querySelector('.wdot-lbl');
-    if(lbl&&vgLabels[i])lbl.textContent=vgLabels[i];
-    if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('actif');
-  });
-  const ctr=document.getElementById('wizard-step-counter');
-  if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
-  const fill=document.getElementById('wizard-fill');
-  if(fill)fill.style.width=Math.round((activeDot+1)/8*100)+'%';
+  if(document.querySelectorAll('.wdot').length!==_VG_LABELS.length)_renderDots(_VG_LABELS);
+  _applyDotState(_VG_DOTMAP[vgN-1],_VG_LABELS);
 }
 
 function exitVenteGarageMode(){
@@ -5904,7 +5895,7 @@ function _updateVgPhotoArea(){
     const url=URL.createObjectURL(f);
     const wrap=document.createElement('div');
     wrap.className='pk-photo-thumb';
-    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVgPhoto(this,'+idx+')">✕</button>';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVgPhoto(this,'+idx+')"><i data-lucide=x class=ic></i></button>';
     preview.appendChild(wrap);
   });
   const area=document.getElementById('vg-photo-upload-area');
@@ -6055,13 +6046,13 @@ async function doPostVenteGarage(){
       const {error:upErr}=await sb.storage.from('annonces').upload(path,f,{contentType:f.type});
       if(upErr)console.warn('Photo upload error:',upErr);
     }
-    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    if(okEl){okEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
     toast('Annonce déposée avec succès !');
     setTimeout(()=>{exitVenteGarageMode();},3000);
   }catch(e){
     console.error('doPostVenteGarage error:',e);
     if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
   }
 }
 
@@ -6083,24 +6074,14 @@ function wizardStartVenteMaison(){
   _updateVmDots(1);
 }
 
+// ── VM – Vente Maison (15 étapes → 10 dots) ──────────────────
+const _VM_LABELS=['Type','Lieu','Prix','Surface','Terrain','Annexes','État','Équip.','DPE','Photos'];
+const _VM_DOTMAP=[0,1,2,3,3,4,5,5,6,7,8,8,9,9,9];
 function _updateVmDots(vmN){
   const wh=document.getElementById('wizard-header');
   if(wh)wh.style.display='block';
-  const vmLabels=['Type','Bien','Localisation','Prix','Caract.','Terrain','Équip.','Photos'];
-  const dotMap=[2,2,3,3,4,4,5,5,6,6,6,6,7,7,7]; // index=vmN-1
-  const activeDot=dotMap[vmN-1];
-  const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.classList.remove('active','done','actif');
-    const lbl=d.querySelector('.wdot-lbl');
-    if(lbl&&vmLabels[i])lbl.textContent=vmLabels[i];
-    if(i<activeDot) d.classList.add('done');
-    else if(i===activeDot) d.classList.add('actif');
-  });
-  const ctr=document.getElementById('wizard-step-counter');
-  if(ctr)ctr.textContent='Étape '+(activeDot+1)+' sur 8';
-  const fill=document.getElementById('wizard-fill');
-  if(fill)fill.style.width=Math.round((activeDot+1)/8*100)+'%';
+  if(document.querySelectorAll('.wdot').length!==_VM_LABELS.length)_renderDots(_VM_LABELS);
+  _applyDotState(_VM_DOTMAP[vmN-1],_VM_LABELS);
 }
 
 function exitVenteMaisonMode(){
@@ -6286,7 +6267,7 @@ function _updateVmPhotoArea(){
     const url=URL.createObjectURL(f);
     const wrap=document.createElement('div');
     wrap.className='pk-photo-thumb';
-    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVmPhoto(this,'+idx+')">✕</button>';
+    wrap.innerHTML='<img src="'+url+'" alt="Photo '+(idx+1)+'"><button type="button" class="pk-photo-rm" onclick="removeVmPhoto(this,'+idx+')"><i data-lucide=x class=ic></i></button>';
     preview.appendChild(wrap);
   });
   const msg=document.getElementById('vm-photo-required-msg');
@@ -6495,13 +6476,13 @@ async function doPostVenteMaison(){
       const {error:upErr}=await sb.storage.from('annonces').upload(path,f,{contentType:f.type});
       if(upErr)console.warn('Photo upload error:',upErr);
     }
-    if(okEl){okEl.textContent='✅ Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
+    if(okEl){okEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Votre annonce a été enregistrée ! Elle sera visible après validation.';okEl.style.display='block';}
     toast('Annonce déposée avec succès !');
     setTimeout(()=>{exitVenteMaisonMode();},3000);
   }catch(e){
     console.error('doPostVenteMaison error:',e);
     if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='🚀 Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
   }
 }
 
@@ -6536,29 +6517,17 @@ function wizardStartParking(){
   if(fc)fc.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// ── PK – Location Parking (5 étapes → 6 dots) ────────────────
+const _PK_LABELS=['Type','P/Garage','Adresse','Caract.','Loyer','Photos'];
+const _PK_DOTMAP=[0,1,2,3,4,5]; // pkN 1-5 → dots 1-5, dot0 = Type (done)
 function _updatePkDots(pkN){
-  const dots=document.querySelectorAll('.wdot');
-  const pkLabels=['P/Garage','Adresse','Caract.','Loyer','Photos'];
-  dots.forEach((d,i)=>{
-    d.classList.remove('actif','done');
-    if(i===0){
-      d.style.display='';
-      d.classList.add('done');
-      const l=d.querySelector('.wdot-lbl');
-      if(l)l.textContent='Type';
-    } else if(i>=1&&i<=5){
-      d.style.display='';
-      const pks=i; // pk step 1..5
-      const l=d.querySelector('.wdot-lbl');
-      if(l)l.textContent=pkLabels[i-1];
-      if(pks<pkN)d.classList.add('done');
-      else if(pks===pkN)d.classList.add('actif');
-    } else {
-      d.style.display='none';
-    }
-  });
-  const fill=document.getElementById('wizard-fill');
-  if(fill)fill.style.width=Math.round(pkN/5*100)+'%';
+  const wh=document.getElementById('wizard-header');
+  if(wh)wh.style.display='block';
+  if(document.querySelectorAll('.wdot').length!==_PK_LABELS.length)_renderDots(_PK_LABELS);
+  // dot 0 (Type) always done
+  _applyDotState(pkN,_PK_LABELS);
+  const dot0=document.querySelector('.wdot');
+  if(dot0){dot0.classList.remove('actif');dot0.classList.add('done');}
 }
 
 function exitParkingMode(){
@@ -6575,14 +6544,9 @@ function exitParkingMode(){
   if(nb)nb.style.display='none';
   const btn=document.getElementById('wstep1-next-btn');
   if(btn)btn.setAttribute('onclick','wizardGoTo(2)');
-  const normalLabels=['Type','Bien','Adresse','Surface','Charges','Prix','Équip.','Photos'];
+  // Remettre les dots location (8 dots)
+  _renderDots(_LOC_LABELS);
   const dots=document.querySelectorAll('.wdot');
-  dots.forEach((d,i)=>{
-    d.style.display='';
-    d.classList.remove('actif','done');
-    const l=d.querySelector('.wdot-lbl');
-    if(l)l.textContent=normalLabels[i]||'';
-  });
   if(dots[0])dots[0].classList.add('actif');
   const s1=document.getElementById('wstep-1');
   if(s1)s1.style.display='block';
@@ -6696,7 +6660,7 @@ function handlePkPhotos(files){
       const idx=_pkPhotos.length-1;
       const div=document.createElement('div');
       div.style.cssText='position:relative;width:80px;height:80px';
-      div.innerHTML=`<img src="${ev.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"><button onclick="removePkPhoto(this,${idx})" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`;
+      div.innerHTML=`<img src="${ev.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"><button onclick="removePkPhoto(this,${idx})" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center"><i data-lucide=x class=ic></i></button>`;
       preview.appendChild(div);
       _updatePkPhotoArea();
     };
@@ -6734,18 +6698,18 @@ async function doPostParking(){
 
   const loyer=document.getElementById('p-pk-loyer')?.value;
   if(!loyer||parseFloat(loyer)<=0){
-    if(err){err.innerHTML='⚠️ Le loyer mensuel est obligatoire.';err.style.display='block';}
+    if(err){err.innerHTML='<i data-lucide=alert-triangle class=ic></i> Le loyer mensuel est obligatoire.';err.style.display='block';}
     wizardGoPk(4);return;
   }
   const adresse=document.getElementById('p-pk-adresse')?.value.trim();
   if(!adresse){
-    if(err){err.innerHTML='⚠️ L\'adresse est obligatoire.';err.style.display='block';}
+    if(err){err.innerHTML='<i data-lucide=alert-triangle class=ic></i> L\'adresse est obligatoire.';err.style.display='block';}
     wizardGoPk(2);return;
   }
   const cp=document.getElementById('p-pk-cp')?.value.trim();
   const ville=document.getElementById('p-pk-ville')?.value.trim();
   if(!cp||!ville){
-    if(err){err.innerHTML='⚠️ Le code postal et la ville sont obligatoires.';err.style.display='block';}
+    if(err){err.innerHTML='<i data-lucide=alert-triangle class=ic></i> Le code postal et la ville sont obligatoires.';err.style.display='block';}
     wizardGoPk(2);return;
   }
   if(_pkPhotos.length===0){
@@ -6753,12 +6717,12 @@ async function doPostParking(){
     if(msg)msg.style.display='block';
     const area=document.getElementById('pk-photo-upload-area');
     if(area){area.style.borderColor='var(--terra)';area.style.boxShadow='0 0 0 3px rgba(201,85,58,.2)';area.scrollIntoView({behavior:'smooth',block:'center'});}
-    if(err){err.innerHTML='⚠️ Au moins 1 photo est requise.';err.style.display='block';}
+    if(err){err.innerHTML='<i data-lucide=alert-triangle class=ic></i> Au moins 1 photo est requise.';err.style.display='block';}
     return;
   }
   if(!U){toast('Connectez-vous pour publier une annonce');return;}
 
-  if(ok){ok.innerHTML='⏳ Publication en cours…';ok.style.display='block';ok.style.background='rgba(46,107,138,.08)';ok.style.color='var(--sea)';}
+  if(ok){ok.innerHTML='<i data-lucide=loader-2 class=ic></i> Publication en cours…';ok.style.display='block';ok.style.background='rgba(46,107,138,.08)';ok.style.color='var(--sea)';}
 
   const subtype=document.getElementById('p-pk-subtype')?.value||'parking';
   const numero=document.getElementById('p-pk-numero')?.value.trim();
@@ -6780,7 +6744,7 @@ async function doPostParking(){
 
   const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
   if(error){
-    if(err){err.innerHTML='❌ '+error.message;err.style.display='block';}
+    if(err){err.innerHTML='<i data-lucide=x-circle class=ic></i> '+error.message;err.style.display='block';}
     if(ok)ok.style.display='none';
     return;
   }
@@ -6831,7 +6795,7 @@ async function doPostParking(){
       }
       if(urls.length>0)await sb.from('listings').update({photos:urls}).eq('id',annonce.id);
     }catch(photoErr){
-      if(err){err.innerHTML='⚠️ '+photoErr.message+' — Vérifiez que le bucket "annonces" est Public.';err.style.display='block';}
+      if(err){err.innerHTML='<i data-lucide=alert-triangle class=ic></i> '+photoErr.message+' — Vérifiez que le bucket "annonces" est Public.';err.style.display='block';}
       if(ok)ok.style.display='none';
       return;
     }
