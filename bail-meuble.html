@@ -2595,7 +2595,7 @@ async function sendToTenant(){
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='pending_tenant';
   // Message au locataire
-  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
+  const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant';
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('✅ Bail envoyé au locataire pour relecture !');
   renderNegocBar();renderLandlordGuide();renderStatusAndSigs();
