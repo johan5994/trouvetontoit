@@ -1376,7 +1376,7 @@ function renderLandlordGuide(){
 
   // Chercher ou créer le panneau guide
   let guide=document.getElementById('ll-guide-panel');
-  if(!isLandlord||allSigned){if(guide)guide.style.display='none';return;}
+  if(!isLandlord||allSigned||ns==='agreed'||ns==='signed'){if(guide)guide.style.display='none';return;}
 
   // Injecter dans bail-tools-wrap (espace de travail, hors document)
   if(!guide){
@@ -1848,7 +1848,8 @@ function renderBail(){
 
   // Determine edit mode (landlord before signing)
   const isLandlord=myRole==='landlord'||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!LEASE.landlord_signed_at);
-  _editMode=isLandlord&&!LEASE.landlord_signed_at;
+  const _ns=LEASE.negotiation_status||'';
+  _editMode=isLandlord&&!LEASE.landlord_signed_at&&_ns!=='agreed'&&_ns!=='signed';
   const isTenant=myRole==='tenant'||ROLE_PARAM==='tenant';
   _tenantEditMode=isTenant&&(LEASE.negotiation_status==='pending_tenant');
   // Afficher le bouton SQL migrations pour le bailleur (en mode édition)
@@ -2808,10 +2809,10 @@ function renderStatusAndSigs(){
   if(L.garant_name){
     if(gSigned&&L.garant_signature){
       show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts">✅ Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
-    }else if(!gSigned&&llSigned&&tSigned&&canSign){
+    }else if(!gSigned&&canSign){
       show('sig-g-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-g" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('g')">Effacer</button><button class="sign" onclick="prepareSign('g')">Valider →</button></div>`);
       setTimeout(()=>initCanvas('g'),50);
-    }else{show('sig-g-pad-area','<div class="sig-awaiting">⏳ Attend la signature des deux parties</div>');}
+    }else{show('sig-g-pad-area','<div class="sig-awaiting">⏳ Signatures disponibles une fois le bail accepté</div>');}
   }
 
   // Submit bar
@@ -2851,7 +2852,7 @@ function prepareSign(who){
 }
 
 async function submitSignature(){
-  if(!U){alert('Vous devez être connecté pour signer.');return;}
+  if(!U&&!ROLE_PARAM){alert('Vous devez être connecté pour signer.');return;}
   const who=window._pendingSigWho,sigData=window._pendingSigData;
   if(!who||!sigData){
     const c=document.getElementById('sig-canvas-ll')||document.getElementById('sig-canvas-t')||document.getElementById('sig-canvas-g');
@@ -2885,7 +2886,7 @@ async function submitSignature(){
 
   if(who==='ll'){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
+    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id||'system',receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
     toast('✅ Bail signé — lien envoyé au locataire par messagerie');
   }else if(who==='t'){
     toast('✅ Bail signé par les deux parties !');
