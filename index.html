@@ -227,7 +227,14 @@ footer ul a:hover{color:var(--terra)}
 .cl{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--stone);cursor:pointer}
 .cl input{accent-color:var(--terra);width:15px;height:15px;cursor:pointer}
 /* Type de bien cards */
-.tbien-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.4rem}
+/* Cartes type de location */
+.tloc-card{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:1rem .75rem;border:2px solid var(--b2);border-radius:14px;background:#fff;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;text-align:center}
+.tloc-card:hover{border-color:var(--terra,#1B4FD8);background:#f0f4ff}
+.tloc-card.actif{border-color:var(--terra,#1B4FD8);background:#eef2ff;box-shadow:0 0 0 3px rgba(27,79,216,.12)}
+.tloc-icon{font-size:1.6rem;line-height:1}
+.tloc-title{font-size:.88rem;font-weight:700;color:var(--deep,#1A1410)}
+.tloc-sub{font-size:.72rem;color:var(--stone-l,#887A68)}
+.tbien-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.4rem}
 .tbien-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border:2px solid var(--b2);border-radius:12px;background:var(--s);color:var(--stone);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;font-weight:500}
 .tbien-btn svg{width:22px;height:22px;stroke:currentColor}
 .tbien-btn.actif{border-color:var(--terra);color:var(--terra);background:rgba(201,85,58,.06);font-weight:700}
@@ -235,7 +242,7 @@ footer ul a:hover{color:var(--terra)}
 .tpill-wrap{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem}
 .tpill{padding:.4rem .85rem;border:1.5px solid var(--b2);border-radius:20px;background:var(--s);color:var(--stone);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
 .tpill.actif{border-color:var(--terra);background:rgba(201,85,58,.09);color:var(--terra);font-weight:600}
-@media(max-width:500px){.tbien-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:500px){.tbien-grid{grid-template-columns:repeat(2,1fr)!important}}
 /* Form section headers */
 .fsect-hd{display:flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:700;color:var(--bleu,#1B4FD8);text-transform:uppercase;letter-spacing:.06em;padding:.55rem 0 .3rem;border-top:2px solid var(--b2);margin-top:1.4rem}
 /* Charges sub-cards */
@@ -560,33 +567,53 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     <div class="fcard" id="post-self-form" style="display:none">
       <h3><i data-lucide=clipboard-list class=ic></i> Déposer une annonce</h3>
 
-      <!-- ═══ 1. TYPE DE CONTRAT ═══ -->
-      <div class="fsect-hd" style="border-top:none;margin-top:.5rem"><i data-lucide=file-text class=ic></i> Type de contrat</div>
-      <div class="fg2">
-        <label>Bail type *</label>
-        <div class="ttog">
-          <button class="tbtn actif" onclick="setT(this,'bail_vide')"><i data-lucide=home class=ic></i> Bail vide</button>
-          <button class="tbtn" onclick="setT(this,'bail_meuble')"><i data-lucide=sofa class=ic></i> Bail meublé</button>
-          <button class="tbtn" onclick="setT(this,'room_rental')"><i data-lucide=bed-double class=ic></i> Chambre / Coloc</button>
-          <button class="tbtn" onclick="setT(this,'for_sale')"><i data-lucide=tag class=ic></i>️ À vendre</button>
-        </div>
-        <input type="hidden" id="pt" value="long"><input type="hidden" id="pt-bail-subtype" value="vide">
-        <div id="type-info" style="margin-top:.5rem;font-size:.72rem;color:var(--stone-l);line-height:1.5">
-          <i data-lucide=home class=ic></i> Bail vide : durée minimum 3 ans. Le locataire bénéficie du droit au maintien dans les lieux.
-        </div>
+      <!-- ═══ ÉTAPE 1 — TYPE DE LOCATION ═══ -->
+      <p style="font-size:.82rem;color:var(--stone-l);margin:.15rem 0 .9rem">Quel type de bien proposez-vous ?</p>
+      <div id="type-location-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.5rem">
+
+        <button type="button" class="tloc-card" id="tloc-meuble" onclick="selectTypeLocation('bail_meuble')">
+          <div class="tloc-icon">🛋️</div>
+          <div class="tloc-title">Location meublée</div>
+          <div class="tloc-sub">Bail 1 an · dépôt 2 mois</div>
+        </button>
+
+        <button type="button" class="tloc-card" id="tloc-vide" onclick="selectTypeLocation('bail_vide')">
+          <div class="tloc-icon">🏠</div>
+          <div class="tloc-title">Location vide</div>
+          <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
+        </button>
+
+        <button type="button" class="tloc-card" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
+          <div class="tloc-icon">🤝</div>
+          <div class="tloc-title">Chambre / Coloc</div>
+          <div class="tloc-sub">Mise en relation</div>
+        </button>
+
+        <button type="button" class="tloc-card" id="tloc-vente" onclick="selectTypeLocation('for_sale')">
+          <div class="tloc-icon">🏷️</div>
+          <div class="tloc-title">Vente</div>
+          <div class="tloc-sub">Mise en vente du bien</div>
+        </button>
+
       </div>
-      <div id="bail-vide-opts" style="background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+      <input type="hidden" id="pt" value=""><input type="hidden" id="pt-bail-subtype" value="">
+
+      <!-- Infos légales selon type sélectionné -->
+      <div id="bail-vide-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=home class=ic></i> Bail vide (non meublé)</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges. Le locataire peut résilier avec 3 mois de préavis (1 mois en zone tendue).</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>3 ans</strong> (loi du 6 juillet 1989). Dépôt de garantie plafonné à <strong>1 mois</strong> de loyer hors charges.</div>
       </div>
-      <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+      <div id="bail-meuble-opts" style="display:none;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--bleu,#1B4FD8);margin-bottom:.3rem"><i data-lucide=sofa class=ic></i> Bail meublé</div>
         <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Durée minimum <strong>1 an</strong> (9 mois pour les étudiants). Dépôt de garantie plafonné à <strong>2 mois</strong> de loyer hors charges. Le logement doit comporter la liste légale de mobilier obligatoire.</div>
       </div>
-      <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-top:.5rem">
+      <div id="room-rental-opts" style="display:none;background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.25);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--ochre,#D4A847);margin-bottom:.3rem"><i data-lucide=bed-double class=ic></i> Chambre / Colocation</div>
-        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — Trouve Ton Toit ne génère pas de bail pour les colocations. Le propriétaire et le locataire gèrent le contrat directement entre eux.</div>
+        <div style="font-size:.75rem;color:var(--stone-l);line-height:1.6"><i data-lucide=info class=ic></i> Mise en relation uniquement — le propriétaire et le locataire gèrent le contrat directement.</div>
       </div>
+
+      <!-- Le reste du formulaire — masqué tant qu'aucun type n'est choisi -->
+      <div id="post-form-body" style="display:none">
 
       <!-- ═══ 2. TYPE DE BIEN ═══ -->
       <div class="fsect-hd"><i data-lucide=home class=ic></i> Type de bien</div>
@@ -595,9 +622,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
         <div class="tbien-grid">
           <button type="button" class="tbien-btn actif" onclick="setTB(this,'appartement')"><i data-lucide=building-2 class=ic></i><span>Appartement</span></button>
           <button type="button" class="tbien-btn" onclick="setTB(this,'maison')"><i data-lucide=home class=ic></i><span>Maison</span></button>
-          <button type="button" class="tbien-btn" onclick="setTB(this,'terrain')"><i data-lucide=map class=ic></i><span>Terrain</span></button>
           <button type="button" class="tbien-btn" onclick="setTB(this,'parking')"><i data-lucide=car class=ic></i><span>Parking</span></button>
-          <button type="button" class="tbien-btn" onclick="setTB(this,'autre')"><i data-lucide=package class=ic></i><span>Autre</span></button>
         </div>
         <input type="hidden" id="p-type-bien" value="appartement">
       </div>
@@ -975,6 +1000,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
       <div class="aerr" id="poer"></div><div class="aok" id="pook"></div>
       <button class="btn btn-p" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:1rem" onclick="doPost()"><i data-lucide=rocket class=ic></i> Publier mon annonce →</button>
+      </div><!-- /post-form-body -->
     </div>
   </div>
 </div>
@@ -2355,6 +2381,24 @@ function filterContactData(text){
 async function requestBail(){
   // Bail is now generated by propriétaire depuis leur tableau de bord
   toast('<i data-lucide=file-text class=ic></i> Bail signing is initiated by the propriétaire. They will send you a DocuSeal email to sign.');
+}
+
+function selectTypeLocation(t){
+  // Mettre à jour les cartes visuelles
+  ['meuble','vide','coloc','vente'].forEach(k=>{
+    const c=document.getElementById('tloc-'+k);
+    if(c)c.classList.remove('actif');
+  });
+  const map={bail_meuble:'meuble',bail_vide:'vide',room_rental:'coloc',for_sale:'vente'};
+  const activeCard=document.getElementById('tloc-'+map[t]);
+  if(activeCard)activeCard.classList.add('actif');
+
+  // Afficher le reste du formulaire
+  const body=document.getElementById('post-form-body');
+  if(body)body.style.display='block';
+
+  // Mettre à jour type hidden + infos légales via setT existant
+  setT({classList:{contains:()=>false,add:()=>{}}},t);
 }
 
 function setT(el,t){
