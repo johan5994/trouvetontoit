@@ -169,6 +169,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .lcard{background:white;border-radius:18px;overflow:hidden;border:1px solid rgba(107,95,82,.08);transition:all .3s;cursor:pointer}
 .lcard:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(26,20,16,.1)}
 .limg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
+/* Carte annonce — mosaïque photos (1 grande + jusqu'à 3 miniatures), aucun texte sur la photo */
+.lmos{display:grid;grid-template-columns:3fr 1fr;gap:3px;width:100%;aspect-ratio:3/2;overflow:hidden;background:var(--sand)}
+.lmos.lmos-1{grid-template-columns:1fr}
+.lmos-main{position:relative;overflow:hidden;min-width:0;min-height:0}
+.lmos-side{display:grid;grid-auto-rows:1fr;gap:3px;min-width:0;min-height:0}
+.lmos-side>div{position:relative;overflow:hidden;min-height:0}
+.lmos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.lmos-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;color:#8FA3CC;background:linear-gradient(135deg,#EAF0FB,#D5DFF3)}
+.lprice2{font-size:1.3rem;font-weight:800;color:var(--deep);line-height:1.2}
+.lprice2 small{font-size:.85rem;font-weight:600;color:var(--stone)}
+.ltitle2{font-size:.98rem;font-weight:700;color:var(--deep);margin-top:.35rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lfacts{font-size:.88rem;color:var(--stone);margin-top:.35rem;line-height:1.4}
+.lzone2{font-size:.84rem;color:var(--stone-l);margin-top:.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lmeta{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;padding-top:.7rem;border-top:1px solid rgba(107,95,82,.1)}
+.lsrc{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.22rem .6rem;border-radius:100px;white-space:nowrap}
+.lsrc-own{background:rgba(76,175,125,.12);color:#2e7d52;border:1px solid rgba(76,175,125,.3)}
+.lsrc-ag{background:rgba(139,92,246,.1);color:#6D28D9;border:1px solid rgba(139,92,246,.3)}
+.lsrc-boost{background:rgba(245,158,11,.12);color:#B45309;border:1px solid rgba(245,158,11,.35)}
+.ldispo{font-size:.74rem;color:var(--stone-l);white-space:nowrap}
 .lbadge{position:absolute;top:.75rem;left:.75rem;padding:.25rem .7rem;border-radius:100px;font-size:.68rem;font-weight:700}
 .bs{background:var(--terra);color:white}.bl{background:var(--sea);color:white}.bsub{background:var(--ochre);color:white}
 .lbody{padding:1.1rem}
@@ -409,7 +428,7 @@ footer ul a:hover{color:var(--terra)}
   .nav-act .btn-sm{padding:.4rem .65rem!important;font-size:.72rem!important;min-height:44px}
   .dépôt de garantie-grid{grid-template-columns:1fr 1fr!important}
 }
-@media(max-width:1200px) et (min-width:901px){
+@media(max-width:1200px) and (min-width:901px){
   .lgrid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){
@@ -3229,39 +3248,64 @@ async function updC(){const{count}=await sb.from('listings').select('*',{count:'
 
 function rCard(l){
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
-  const bg={short:'linear-gradient(135deg,#FEF0E8,#FDDCC6)',room_rental:'linear-gradient(135deg,#FEF9EC,#FBF0C8)',long:'linear-gradient(135deg,#EAF3F8,#CDE3EE)',for_sale:'linear-gradient(135deg,#F3EEFB,#E1D4F5)'};
-  const lb={short:'<i data-lucide=home class=ic></i> Location courte durée',room_rental:'<i data-lucide=key class=ic></i> Colocation',long:l.meublé?'<i data-lucide=sofa class=ic></i> Bail meublé':'<i data-lucide=home class=ic></i> Bail vide',for_sale:'<i data-lucide=tag class=ic></i> À vendre'};
-  const lbColor={short:'#1B4FD8',room_rental:'#3B82F6',long:'#2E6B8A',for_sale:'#6366F1'};
-  const tags=[l.meublé?'Meublé':null,l.wifi?'WiFi':null,l.bills_included?'Charges incl.':null,l.ac?'Clim':null,l.parking?'Parking':null,l.pool?'Piscine':null,l.balcon?'Balcon':null,l.spots>1?`${l.spots} chambres`:null].filter(Boolean).slice(0,3);
+  const _esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const _avDate=l.available_from?new Date(l.available_from):null;
   const _today=new Date(); _today.setHours(0,0,0,0);
   const fr=l.available_indefinitely?'Disponible immédiatement':!_avDate||_avDate<=_today?'Disponible maintenant':'Dispo le '+_avDate.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
-  // Annonce source badge — agence or direct  depuis  owner
-  const sourceBadge=l.agency_annonce?
-    `<span style="position:absolute;top:.5rem;left:.5rem;background:#8B5CF6;color:white;font-size:.58rem;font-weight:700;padding:.2rem .45rem;border-radius:100px"><i data-lucide=building-2 class=ic></i> ${l.agency_name||'Agence immobilière'}</span>`:
-    `<span style="position:absolute;top:.5rem;left:.5rem;background:rgba(76,175,125,.9);color:white;font-size:.58rem;font-weight:700;padding:.2rem .45rem;border-radius:100px"><i data-lucide=home class=ic></i> Directement du propriétaire</span>`;
-  // Attestation badge — only show when accepté, et never pour agence annonces (info not collected)
-  const attBadge=(l.accepts_attestation&&!l.agency_annonce)?
-    `<span style="position:absolute;bottom:.5rem;right:.5rem;background:rgba(46,107,138,.9);color:white;font-size:.55rem;font-weight:700;padding:.15rem .4rem;border-radius:100px"><i data-lucide=clipboard-list class=ic></i> Att. <i data-lucide=check-circle-2 class=ic></i></span>`:'';
   const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
-  const boostBadge=isBoosted?
-    `<span style="position:absolute;bottom:.5rem;left:.5rem;background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;font-size:.58rem;font-weight:800;padding:.2rem .5rem;border-radius:100px;box-shadow:0 2px 6px rgba(220,38,38,.4)"><i data-lucide=flame class=ic></i> Boosted</span>`:'';
+
+  // ── Mosaïque photos : 1 grande + jusqu'à 3 miniatures, sans aucun texte dessus ──
+  const photos=Array.isArray(l.photos)?l.photos.filter(Boolean):[];
+  const _img=(src,i)=>`<img src="${_esc(src)}" loading="lazy" onerror="this.style.display='none'" alt="${_esc(l.title)}${i?' — photo '+(i+1):''}">`;
+  let mos;
+  if(!photos.length){
+    mos=`<div class="lmos lmos-1"><div class="lmos-main lmos-ph">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div></div>`;
+  }else if(photos.length===1){
+    mos=`<div class="lmos lmos-1"><div class="lmos-main">${_img(photos[0],0)}</div></div>`;
+  }else{
+    const side=photos.slice(1,4).map((p,i)=>`<div>${_img(p,i+1)}</div>`).join('');
+    mos=`<div class="lmos"><div class="lmos-main">${_img(photos[0],0)}</div><div class="lmos-side">${side}</div></div>`;
+  }
+
+  // ── Prix ──
+  const _p=l.type==='for_sale'?(l.sale_price||l.price):l.price;
+  const priceTxt=(_p!=null&&_p!=='')?Number(_p).toLocaleString('fr-FR')+' €':'—';
+  const priceHtml=`<div class="lprice2">${priceTxt}${l.type==='for_sale'?'':'<small> /mois</small>'}</div>`;
+
+  // ── Caractéristiques : pièces · chambres · m² · étage ──
+  const _pieces={studio:'Studio',t1:'1 pièce',t2:'2 pièces',t3:'3 pièces',t4:'4 pièces',t5:'5 pièces',t6plus:'6 pièces et +'};
+  const _nb=l.chambres||l.spots;
+  const facts=[];
+  if(l.type!=='parking'){
+    if(l.typology&&_pieces[l.typology])facts.push(_pieces[l.typology]);
+    if(_nb&&l.typology!=='studio')facts.push(_nb+' chambre'+(_nb>1?'s':''));
+  }
+  if(l.sqm)facts.push(Number(l.sqm).toLocaleString('fr-FR')+' m²');
+  if(l.type!=='parking'&&l.etage!=null&&l.etage!=='')facts.push(Number(l.etage)===0?'Rez-de-chaussée':(Number(l.etage)===1?'1er étage':l.etage+'e étage'));
+  const factsHtml=facts.length?`<div class="lfacts">${facts.join(' · ')}</div>`:'';
+
+  // ── Badges sous la photo (sur le blanc) ──
+  const sourceBadge=l.agency_annonce
+    ?`<span class="lsrc lsrc-ag"><i data-lucide=building-2 class=ic></i> ${_esc(l.agency_name||'Agence immobilière')}</span>`
+    :`<span class="lsrc lsrc-own"><i data-lucide=home class=ic></i> Directement du propriétaire</span>`;
+  const boostBadge=isBoosted?`<span class="lsrc lsrc-boost"><i data-lucide=flame class=ic></i> Boosté</span>`:'';
+
   return`<div class="lcard" onclick="openDet('${l.id}')" style="${isBoosted?'box-shadow:0 0 0 2px #F59E0B,0 4px 14px rgba(245,158,11,.25)':''}">
-    <div class="limg" style="background:${bg[l.type]||bg.room_rental}">
-      ${l.photos&&l.photos.length>0?`<img src="${l.photos[0]}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0" onerror="this.style.display='none'" alt="${l.title}">`:`<span style="font-size:3rem">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</span>`}
-      <span style="position:absolute;top:.5rem;right:.5rem;background:${lbColor[l.type]||'#1B4FD8'};color:white;font-size:.65rem;font-weight:700;padding:.25rem .6rem;border-radius:100px">${lb[l.type]||'Annonce'}</span>
-      ${sourceBadge}${attBadge}${boostBadge}
-    </div>
+    ${mos}
     <div class="lbody">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
-        <div style="min-width:0">
-          <div class="lzone"><i data-lucide=map-pin class=ic></i> ${l.zone}</div>
-          <div class="ltitle">${l.title}</div>
+        <div style="min-width:0;flex:1">
+          ${priceHtml}
+          <div class="ltitle2">${_esc(l.title)}</div>
+          ${factsHtml}
+          <div class="lzone2"><i data-lucide=map-pin class=ic></i> ${_esc(l.zone)}</div>
         </div>
-        ${l.agency_logo_url?`<img src="${l.agency_logo_url}" style="width:32px;height:32px;object-fit:cover;border-radius:7px;border:1px solid var(--stone-xl);flex-shrink:0" alt="${l.agency_name||'Agence'}">`:''}
+        ${l.agency_logo_url?`<img src="${_esc(l.agency_logo_url)}" style="width:32px;height:32px;object-fit:cover;border-radius:7px;border:1px solid var(--stone-xl);flex-shrink:0" alt="${_esc(l.agency_name||'Agence')}">`:''}
       </div>
-      <div class="ltags">${tags.map(t=>`<span class="ltag">${t}</span>`).join('')}</div>
-      <div class="lfoot"><div><span class="lprice">€${l.type==='for_sale'?(l.sale_price||l.price):l.price}</span>${l.type==='for_sale'?'':'<span class="lper"> /mois</span>'}</div><span style="font-size:.7rem;color:var(--stone-l)">${fr}</span></div>
+      <div class="lmeta">
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap">${sourceBadge}${boostBadge}</div>
+        <span class="ldispo">${fr}</span>
+      </div>
     </div>
   </div>`;
 }
@@ -3404,7 +3448,9 @@ async function _openDetBody(l,id){
     const _tb=(icon,text,bg,bdr,col)=>'<span style="background:'+(bg||'rgba(27,79,216,.07)')+';border:1.5px solid '+(bdr||'rgba(27,79,216,.2)')+';border-radius:20px;padding:.35rem .85rem;font-size:.82rem;font-weight:700;color:'+(col||'var(--bleu,#1B4FD8)')+';display:inline-flex;align-items:center;gap:.35rem">'+icon+' '+text+'</span>';
     const _bs=[];
     const _bl={short:'Location courte durée',room_rental:'Colocation',long:l.meublé?'Bail meublé (1 an)':'Bail vide (3 ans)',for_sale:'À vendre'};
-    _bs.push(_tb('<i data-lucide=file-text class=ic></i>',_bl[l.type]||l.type));
+    // Pas de badge vide si l'annonce n'a pas de type enregistré
+    const _blTxt=_bl[l.type]||l.type;
+    if(_blTxt)_bs.push(_tb('<i data-lucide=file-text class=ic></i>',_blTxt));
     _bs.push(_tb('<i data-lucide='+(_dispoOk?'check-circle-2':'calendar')+' class=ic></i>',
       _dispoOk?'Disponible maintenant':'Dispo le '+(_avD?_avD.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):''),
       _dispoOk?'rgba(76,175,125,.1)':'rgba(27,79,216,.07)',
@@ -3976,10 +4022,11 @@ function setT(el,t){
     if(label)label.style.color='';
   });
   if(el.classList.contains('tbtn')) el.classList.add('actif');
-  else {
+  else if(el.style){
+    // Seulement pour un vrai élément DOM — le tunnel passe un faux objet sans style
     el.style.border='2px solid var(--terra)';
     el.style.background='rgba(201,85,58,.06)';
-    const label=el.querySelector('div:nth-child(2)');
+    const label=el.querySelector?el.querySelector('div:nth-child(2)'):null;
     if(label)label.style.color='var(--terra)';
   }
   // bail_vide et bail_meuble → type DB = 'long', seul le sous-type change
@@ -4552,6 +4599,8 @@ async function doPost(){
   const err=document.getElementById('poer'),ok=document.getElementById('pook');err.style.display='none';ok.style.display='none';
   const ti=document.getElementById('pti').value.trim(),pr=document.getElementById('ppr').value;
   if(!ti){sA(err,'Title is required');return;}
+  // Sécurité : ne jamais enregistrer une annonce sans type
+  if(!document.getElementById('pt').value){sA(err,'<i data-lucide=alert-triangle class=ic></i> Type d\'annonce manquant — revenez à l\'étape 1 et choisissez un type.');return;}
   if(!pr||parseFloat(pr)<=0){sA(err,'Pbail enter a valid price greater than €0');return;}
   const anneeVal=parseInt(document.getElementById('p-annee-construction')?.value||'');
   if(!anneeVal||anneeVal<1800||anneeVal>2030){
