@@ -180,6 +180,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .ph-blur::before{content:'';position:absolute;inset:-24px;background-image:var(--ph);background-size:cover;background-position:center;filter:blur(20px) brightness(.8);pointer-events:none}
 .ph-blur>img.ph-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:contain!important;z-index:1}
 .pgrid.pgrid-1{grid-template-columns:1fr}
+/* Page détail : grande photo horizontale à gauche, carte contact à droite */
+@media(min-width:901px){
+  #page-det .dwrap{max-width:1180px}
+  #page-det .dgrid{grid-template-columns:minmax(0,1.9fr) minmax(300px,1fr);gap:2.25rem;align-items:start}
+}
+.dcar{position:relative;width:100%;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:var(--b2);margin-bottom:1.1rem;cursor:pointer}
+.dcar>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.dcar-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:44px;height:44px;border-radius:50%;border:none;background:#fff;color:var(--deep);box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.dcar-nav:hover{transform:translateY(-50%) scale(1.07)}
+.dcar-nav svg,.dcar-nav .ic{width:20px;height:20px}
+.dcar-prev{left:.9rem}.dcar-next{right:.9rem}
+.dcar-all{position:absolute;left:.9rem;bottom:.9rem;z-index:3;display:inline-flex;align-items:center;gap:.45rem;background:#fff;color:var(--deep);border:none;border-radius:100px;padding:.55rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer}
+.dcar-video{left:auto;right:.9rem;bottom:3.2rem}
+.dcar-count{position:absolute;right:.9rem;bottom:.9rem;z-index:3;background:rgba(0,0,0,.78);color:#fff;border-radius:100px;padding:.25rem .75rem;font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
+#page-det .pgrid-ph{height:auto;aspect-ratio:16/10}
+@media(max-width:600px){.dcar{border-radius:12px;aspect-ratio:4/3}.dcar-nav{width:38px;height:38px}}
 .lmos-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;color:#8FA3CC;background:linear-gradient(135deg,#EAF0FB,#D5DFF3)}
 .lprice2{font-size:1.3rem;font-weight:800;color:var(--deep);line-height:1.2}
 .lprice2 small{font-size:.85rem;font-weight:600;color:var(--stone)}
@@ -2576,12 +2592,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 <!-- DETAIL -->
 <div class="page" id="page-det">
   <div class="dwrap">
-    <div style="margin-bottom:.75rem">
-      <div id="dphoto-grid-wrap"></div>
-    </div>
     <div class="dgrid">
       <!-- COLONNE GAUCHE -->
-      <div>
+      <div style="min-width:0">
+        <div id="dphoto-grid-wrap"></div>
         <div class="dtitle" id="dti"></div>
         <div class="dzone" id="dzo"></div>
 
@@ -3405,33 +3419,39 @@ async function _openDetBody(l,id){
   };
 
   if(photos.length>0){
-    // Jusqu'à 5 photos dans la grille (1 grande + 4 miniatures)
-    const gridPhotos=photos.slice(0,5);
-    const remaining=photos.length-5;
-    const _thumb=(p,idx,showOverlay)=>{
-      const overlayHtml=showOverlay
-        ?`<div class="pgrid-see" onclick="openLightbox(${idx})"><i data-lucide=images style="width:22px;height:22px"></i><div style="font-size:.82rem;font-weight:600;margin-top:.2rem">Toutes les photos</div><div style="font-size:.75rem;opacity:.85">${photos.length} photos</div></div>`
-        :'';
-      return `<div class="pgrid-th" onclick="openLightbox(${idx})">`
-        +`<img src="${p}" loading="lazy" alt="photo ${idx+1}">`
-        +overlayHtml
-        +'</div>';
+    // Visionneuse horizontale : une grande photo, flèches, compteur, bouton "Afficher les N photos"
+    window._carIdx=0;
+    window.carShow=function(i){
+      const ps=window._pgPhotos||[];
+      if(!ps.length)return;
+      window._carIdx=((i%ps.length)+ps.length)%ps.length;
+      const box=document.getElementById('dcar-box'),img=document.getElementById('dcar-img'),cnt=document.getElementById('dcar-count');
+      if(!box||!img)return;
+      box.classList.remove('ph-blur');box.style.removeProperty('--ph');img.classList.remove('ph-portrait');
+      img.src=ps[window._carIdx];
+      if(cnt)cnt.textContent=(window._carIdx+1)+' / '+ps.length;
     };
-    const thumbsHtml=gridPhotos.slice(1).map((p,i)=>{
-      const isLast=i===3;
-      return _thumb(p,i+1,isLast&&remaining>0);
-    }).join('');
-    // Vidéo : tuile supplémentaire si présente
-    const videoTile=l.video_url&&gridPhotos.length<5
-      ?`<div class="pgrid-th" onclick="(function(){const v=document.createElement('video');v.src='${l.video_url}';v.controls=true;v.autoplay=true;v.style.cssText='position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:9999';v.onclick=()=>v.remove();document.body.appendChild(v);})()" style="background:#111;display:flex;align-items:center;justify-content:center;color:white"><i data-lucide=play-circle style="width:32px;height:32px"></i></div>`
-      :'';
-    pgw.innerHTML=`<div class="pgrid${gridPhotos.length===1&&!videoTile?' pgrid-1':''}">
-      <button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button>
-      <div class="pgrid-main" onclick="openLightbox(0)">
-        <img src="${gridPhotos[0]}" onload="fitPhoto(this)" alt="photo principale">
-      </div>
-      ${thumbsHtml}${videoTile}
+    const many=photos.length>1;
+    const _vid=String(l.video_url||'').replace(/['"\\<>]/g,'');
+    pgw.innerHTML=`<div class="dcar" id="dcar-box" onclick="openLightbox(window._carIdx||0)">
+      <img id="dcar-img" src="${photos[0]}" onload="fitPhoto(this)" alt="Photo du logement">
+      <button class="bbtn" onclick="event.stopPropagation();go('home')" style="z-index:3">← Retour</button>
+      ${many?`<button class="dcar-nav dcar-prev" aria-label="Photo précédente" onclick="event.stopPropagation();carShow(window._carIdx-1)"><i data-lucide=chevron-left class=ic></i></button>
+      <button class="dcar-nav dcar-next" aria-label="Photo suivante" onclick="event.stopPropagation();carShow(window._carIdx+1)"><i data-lucide=chevron-right class=ic></i></button>`:''}
+      <button class="dcar-all" onclick="event.stopPropagation();openLightbox(window._carIdx||0)"><i data-lucide=camera class=ic></i> ${many?'Afficher les '+photos.length+' photos':'Agrandir la photo'}</button>
+      ${_vid?`<button class="dcar-all dcar-video" onclick="event.stopPropagation();(function(){const v=document.createElement('video');v.src='${_vid}';v.controls=true;v.autoplay=true;v.style.cssText='position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:9999';v.onclick=()=>v.remove();document.body.appendChild(v);})()"><i data-lucide=play-circle class=ic></i> Vidéo</button>`:''}
+      ${many?`<span class="dcar-count" id="dcar-count">1 / ${photos.length}</span>`:''}
     </div>`;
+    // Balayage au doigt sur mobile
+    if(many){
+      const _box=document.getElementById('dcar-box');let _sx=null;
+      _box.addEventListener('touchstart',e=>{_sx=e.touches[0].clientX;},{passive:true});
+      _box.addEventListener('touchend',e=>{
+        if(_sx===null)return;
+        const dx=e.changedTouches[0].clientX-_sx;_sx=null;
+        if(Math.abs(dx)>40)carShow(window._carIdx+(dx<0?1:-1));
+      },{passive:true});
+    }
   } else if(l.video_url){
     pgw.innerHTML=`<div class="pgrid-ph"><button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button><video src="${l.video_url}" controls style="width:100%;height:100%;object-fit:contain;border-radius:16px"></video></div>`;
   } else {
