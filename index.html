@@ -3273,7 +3273,9 @@ async function openDet(id){
   }catch(e){console.error('[openDet] fetch error:',e);go('home');return;}
   if(!l){go('home');return;}
   AL=l;
-  try{await _openDetBody(l,id);}catch(e){console.error('[openDet] render error:',e);go('det');}
+  // Navigate to det immediately so user never sees a blank/stuck home page
+  go('det');
+  try{await _openDetBody(l,id);}catch(e){console.error('[openDet] render error:',e);}
 }
 async function _openDetBody(l,id){
 
@@ -3516,9 +3518,10 @@ async function _openDetBody(l,id){
   }
 
   // ─── Infos bail & finances ──────────────────────────────────────
-  const badge=await getLandlordResponseBadge(l.landlord_id);
-  const propriétaireRating=await getLandlordRating(l.landlord_id);
-  const agencyRating=l.agency_annonce?await getAgenceRating(l.agent_id):null;
+  let badge=null,propriétaireRating=null,agencyRating=null;
+  try{badge=await getLandlordResponseBadge(l.landlord_id);}catch(e){console.warn('[det] badge err',e);}
+  try{propriétaireRating=await getLandlordRating(l.landlord_id);}catch(e){console.warn('[det] rating err',e);}
+  try{if(l.agency_annonce)agencyRating=await getAgenceRating(l.agent_id);}catch(e){console.warn('[det] agence err',e);}
   const ratingHtml=(propriétaireRating?`<div style="background:rgba(212,168,71,.1);color:var(--ochre);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${propriétaireRating.avg.toFixed(1)} propriétaire rating <span style="font-weight:400;color:var(--stone-l)">(${propriétaireRating.count} avis${propriétaireRating.count>1?'s':''})</span></div>`:'')
     +(agencyRating?`<div style="background:rgba(46,107,138,.1);color:var(--sea);border:1px solid rgba(46,107,138,.25);border-radius:8px;padding:.4rem .8rem;font-size:.75rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=star class=ic></i> ${agencyRating.avg.toFixed(1)} agence rating <span style="font-weight:400;color:var(--stone-l)">(${agencyRating.count} avis${agencyRating.count>1?'s':''})</span></div>`:'');
   const tenureLabels={freehold:'Freehold',bailhold:'Bailhold',perpetual_ground_rent:'Perpetual ground loyer'};
