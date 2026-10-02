@@ -176,6 +176,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .lmos-side{display:grid;grid-auto-rows:1fr;gap:3px;min-width:0;min-height:0}
 .lmos-side>div{position:relative;overflow:hidden;min-height:0}
 .lmos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ph-blur{background:#15130f}
+.ph-blur::before{content:'';position:absolute;inset:-24px;background-image:var(--ph);background-size:cover;background-position:center;filter:blur(20px) brightness(.8);pointer-events:none}
+.ph-blur>img.ph-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:contain!important;z-index:1}
+.pgrid.pgrid-1{grid-template-columns:1fr}
 .lmos-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;color:#8FA3CC;background:linear-gradient(135deg,#EAF0FB,#D5DFF3)}
 .lprice2{font-size:1.3rem;font-weight:800;color:var(--deep);line-height:1.2}
 .lprice2 small{font-size:.85rem;font-weight:600;color:var(--stone)}
@@ -1035,6 +1039,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
             <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
             <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
+            <div style="font-size:.72rem;color:var(--stone);margin-top:.3rem;font-weight:600">Conseil : prenez vos photos à l'horizontale, en pleine lumière — elles s'affichent bien mieux.</div>
             <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
           </div>
           <div id="photo-pavis" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
@@ -3246,6 +3251,19 @@ function goToListingsPage(n){
 
 async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
 
+// Photo verticale (prise au téléphone en portrait) : on l'affiche en entier, centrée,
+// sur une copie floutée d'elle-même, au lieu de n'en montrer qu'une bande rognée.
+function fitPhoto(img){
+  if(!img||!img.naturalWidth)return;
+  if(img.naturalHeight>img.naturalWidth*1.1){
+    const box=img.parentElement;
+    if(!box)return;
+    img.classList.add('ph-portrait');
+    box.classList.add('ph-blur');
+    box.style.setProperty('--ph','url("'+String(img.currentSrc||img.src).replace(/"/g,'%22')+'")');
+  }
+}
+
 function rCard(l){
   const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
   const _esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -3256,7 +3274,7 @@ function rCard(l){
 
   // ── Mosaïque photos : 1 grande + jusqu'à 3 miniatures, sans aucun texte dessus ──
   const photos=Array.isArray(l.photos)?l.photos.filter(Boolean):[];
-  const _img=(src,i)=>`<img src="${_esc(src)}" loading="lazy" onerror="this.style.display='none'" alt="${_esc(l.title)}${i?' — photo '+(i+1):''}">`;
+  const _img=(src,i)=>`<img src="${_esc(src)}" loading="lazy" ${i===0?'onload="fitPhoto(this)" ':''}onerror="this.style.display='none'" alt="${_esc(l.title)}${i?' — photo '+(i+1):''}">`;
   let mos;
   if(!photos.length){
     mos=`<div class="lmos lmos-1"><div class="lmos-main lmos-ph">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div></div>`;
@@ -3407,10 +3425,10 @@ async function _openDetBody(l,id){
     const videoTile=l.video_url&&gridPhotos.length<5
       ?`<div class="pgrid-th" onclick="(function(){const v=document.createElement('video');v.src='${l.video_url}';v.controls=true;v.autoplay=true;v.style.cssText='position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:9999';v.onclick=()=>v.remove();document.body.appendChild(v);})()" style="background:#111;display:flex;align-items:center;justify-content:center;color:white"><i data-lucide=play-circle style="width:32px;height:32px"></i></div>`
       :'';
-    pgw.innerHTML=`<div class="pgrid">
+    pgw.innerHTML=`<div class="pgrid${gridPhotos.length===1&&!videoTile?' pgrid-1':''}">
       <button class="bbtn" onclick="go('home')" style="z-index:3">← Retour</button>
       <div class="pgrid-main" onclick="openLightbox(0)">
-        <img src="${gridPhotos[0]}" alt="photo principale">
+        <img src="${gridPhotos[0]}" onload="fitPhoto(this)" alt="photo principale">
       </div>
       ${thumbsHtml}${videoTile}
     </div>`;
