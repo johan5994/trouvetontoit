@@ -2727,6 +2727,12 @@ async function initClerk() {
   }
   loadL(); updC(); loadHeroAnnonces();
 
+  // Lien direct vers une annonce : /?annonce=<id>
+  try{
+    const _aid=new URLSearchParams(window.location.search).get('annonce');
+    if(_aid){window.history.replaceState({},'',window.location.pathname);openDet(_aid);}
+  }catch(e){}
+
   clerk.addListener(({ user }) => {
     if (user) {
       const isNewLogin = !initialUser;
@@ -3786,6 +3792,12 @@ async function _openDetBody(l,id){
     return;
   }
 
+  // Message tapé avant d'être envoyé compléter son profil : on le remet dans le champ
+  try{
+    const _dm=document.getElementById('dmsg'),_dr=sessionStorage.getItem('ttt_draft_'+id);
+    if(_dm&&_dr){if(!_dm.value)_dm.value=_dr;sessionStorage.removeItem('ttt_draft_'+id);}
+  }catch(e){}
+
   // Si un message existe déjà avec ce propriétaire pour cette annonce, pas besoin
   // de forcer un nouveau message — la discussion a déjà commencé
   const vBtn=document.getElementById('visite-req-btn'),vHint=document.getElementById('visite-req-hint');
@@ -3869,6 +3881,25 @@ async function inviteCoLocataires(listingId, coLocataireEmails){
   return invited;
 }
 
+// Profil incomplet : au lieu d'une alerte, on emmène directement sur la page "Mon profil"
+// du tableau de bord, qui affiche un message expliquant quoi remplir.
+function goCompleteProfile(need,missingKeys){
+  const lid=AL?.id||'';
+  // Garder le message déjà tapé pour le retrouver en revenant sur l'annonce
+  try{
+    const d=document.getElementById('dmsg')?.value.trim();
+    if(lid&&d)sessionStorage.setItem('ttt_draft_'+lid,d);
+  }catch(e){}
+  if(P?.role==='agent'){
+    toast('<i data-lucide=alert-triangle class=ic></i> Complétez votre profil avant de continuer.');
+    return;
+  }
+  const base=(P?.role==='bailleur'||P?.role==='propriétaire')?'/landlord-dashboard.html':'/tenant-dashboard.html';
+  window.location.href=base+'?tab=profil&need='+encodeURIComponent(need)
+    +'&missing='+encodeURIComponent((missingKeys||[]).join(','))
+    +(lid?'&annonce='+encodeURIComponent(lid):'');
+}
+
 async function requestVisitFromDetail(){
   if(!U){toast('Pbail sign in first');go('auth');return;}
   if(!AL){toast('<i data-lucide=x-circle class=ic></i> Annonce not loaded');return;}
@@ -3878,15 +3909,9 @@ async function requestVisitFromDetail(){
     return;
   }
 
-  const missing=[];
-  if(!P?.full_name)missing.push('Full name');
-  if(!P?.passport_number)missing.push('Passport/ID');
-  if(!P?.nationality)missing.push('Nationalité');
-  if(!P?.date_of_birth)missing.push('Date of birth');
-  if(!P?.home_address)missing.push('Accueil address');
+  const missing=['full_name','passport_number','nationality','date_of_birth','home_address'].filter(k=>!P?.[k]);
   if(missing.length>0){
-    toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before requesting a visite');
-    alert(`Pbail complete votre profil first.\n\nMissing: ${missing.join(', ')}\n\nGo to votre tableau de bord → Profil → fill in all fields → Enregistrer.`);
+    goCompleteProfile('visite',missing);
     return;
   }
 
@@ -3952,15 +3977,9 @@ async function sendMsg(){
   if(!c){toast('Pbail write a message');return;}
 
   // Check minimum profil before contact
-  const missingFields=[];
-  if(!P?.full_name)missingFields.push('Full name');
-  if(!P?.passport_number)missingFields.push('Passport/ID');
-  if(!P?.nationality)missingFields.push('Nationalité');
-  if(!P?.date_of_birth)missingFields.push('Date of birth');
-  if(!P?.home_address)missingFields.push('Accueil address');
+  const missingFields=['full_name','passport_number','nationality','date_of_birth','home_address'].filter(k=>!P?.[k]);
   if(missingFields.length>0){
-    toast('<i data-lucide=x-circle class=ic></i> Complete votre profil before contacting a propriétaire');
-    alert(`Pbail complete votre profil first.\n\nMissing: ${missingFields.join(', ')}\n\nGo to votre tableau de bord → Profil → fill in all fields → Enregistrer.`);
+    goCompleteProfile('contact',missingFields);
     return;
   }
 
