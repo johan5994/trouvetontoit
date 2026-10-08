@@ -4246,14 +4246,14 @@ async function doLogout(){await window.Clerk.signOut();window.location.reload();
   loadAll();
 
   // Retour depuis Stripe après (dés)activation de l'abonnement agence
-  const urlParams=new URLRechercherParams(window.location.search);
+  const urlParams=new URLSearchParams(window.location.search);
   if(urlParams.get('subscription_activated')){
     toast('<i data-lucide=check-circle-2 class=ic></i> Subscription activated!');
-    window.history.replaceState({},'','agence-tableau de bord.html');
+    window.history.replaceState({},'','agency-dashboard.html');
     setTimeout(()=>{sp('subscription',null);},600);
   }else if(urlParams.get('subscription_cancelled')){
     toast('Checkout cancelled — vous can try again anytime  depuis  Subscription.');
-    window.history.replaceState({},'','agence-tableau de bord.html');
+    window.history.replaceState({},'','agency-dashboard.html');
   }
 })();
 
