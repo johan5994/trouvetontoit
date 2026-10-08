@@ -169,6 +169,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gl-ico .ic{width:18px;height:18px}
 .gl-add{width:100%;margin-top:.4rem;padding:1.1rem;border:1.5px solid var(--bleu);border-radius:10px;background:rgba(27,79,216,.12);color:var(--bleu);font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
 .gl-add:hover{background:rgba(27,79,216,.2)}
+.ai.dtype-chosen{background:transparent;border:none;padding:.2rem 0;margin-bottom:.5rem;color:var(--txt);font-size:.92rem}
 .heb-done{margin-top:.75rem;background:var(--grdim);color:var(--green);border-radius:8px;padding:.6rem .85rem;font-size:.84rem;font-weight:600}
 .dossier-type-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
 .dtg-item{border:2px solid var(--b2);border-radius:12px;padding:.85rem 1.1rem;cursor:pointer;transition:all .15s;background:var(--s)}
@@ -807,7 +808,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                 </div>
                 <div id="dupload-0" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-0"></div>
+                  <div class="ai dtype-chosen" id="dtype-label-0"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-0').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,0)">
                     <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                     <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -816,7 +817,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <div id="dfile-preview-0" style="display:none;margin-top:.75rem"></div>
                   <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(0)">← Changer de type</button>
                     <button class="btn bp bsm" onclick="confirmDossierStep(0)">Confirmer et continuer →</button>
                   </div>
                 </div>
@@ -857,7 +857,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <p style="font-size:.88rem;color:var(--txt);line-height:1.6;margin-top:1rem">Veuillez fournir votre <strong>avis de taxe foncière <span class="heb-year"></span></strong>. Vous pouvez le télécharger sur le <a href="https://www.impots.gouv.fr/accueil" target="_blank" rel="noopener" style="color:var(--bleu);text-decoration:underline">site internet des impôts</a>.</p>
                   </div>
                 <div id="dupload-1" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-1"></div>
+                  <div class="ai dtype-chosen" id="dtype-label-1"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-1').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,1)">
                     <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                     <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -937,9 +937,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div><div style="font-weight:600;font-size:.88rem">Autres activités</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Artiste, intermittent...</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
+                  <div class="doc-type-card" onclick="proNoActivity()">
+                    <div><div style="font-weight:600;font-size:.88rem">Sans activité</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Rien à fournir — l'étape est terminée</div></div>
+                    <span class="dtc-arrow">›</span>
+                  </div>
                 </div>
                 <div id="dupload-2" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-2"></div>
+                  <div class="ai dtype-chosen" id="dtype-label-2"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-2').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,2)">
                     <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                     <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -948,7 +952,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <div id="dfile-preview-2" style="display:none;margin-top:.75rem"></div>
                   <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(2)">← Changer de type</button>
                     <button class="btn bp bsm" onclick="confirmDossierStep(2)">Confirmer et continuer →</button>
                   </div>
                 </div>
@@ -983,6 +986,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                       <input type="file" id="dfile-3" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(3,this.files)">
                     </div>
                     <div id="dfile-preview-3" style="display:none;margin-top:.75rem"></div>
+                  </div>
+                  <div id="res-explain-wrap" class="res-amount" style="display:none">
+                    <label for="res-explain">Vous pouvez ajouter une explication sur votre situation ici si vous le souhaitez : (facultatif)</label>
+                    <textarea class="fi" id="res-explain" maxlength="1000" rows="3" style="width:100%;margin-top:.45rem;resize:vertical;font-family:inherit" oninput="document.getElementById('res-explain-count').textContent=this.value.length"></textarea>
+                    <div class="res-ex"><span id="res-explain-count">0</span>/1000 caractères</div>
                   </div>
                   <div id="res-note" class="heb-info" style="display:none;margin-top:1rem"><i data-lucide=info class=ic></i><div id="res-note-txt"></div></div>
                   <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
@@ -1020,7 +1028,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                 </div>
                 <div id="dupload-4" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-4"></div>
+                  <div class="ai dtype-chosen" id="dtype-label-4"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-4').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,4)">
                     <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                     <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -1029,7 +1037,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <div id="dfile-preview-4" style="display:none;margin-top:.75rem"></div>
                   <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(4)">← Changer de type</button>
                     <button class="btn bp bsm" onclick="confirmDossierStep(4)">Confirmer et continuer →</button>
                   </div>
                 </div>
@@ -1065,7 +1072,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                 </div>
                 <div id="dupload-5" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-5"></div>
+                  <div class="ai dtype-chosen" id="dtype-label-5"></div>
                   <!-- Garant organisme / moral: simple upload -->
                   <div id="garant-simple-upload">
                     <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
@@ -1076,7 +1083,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     </div>
                     <div id="dfile-preview-5" style="display:none;margin-top:.75rem"></div>
                     <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                      <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
                       <button class="btn bp bsm" onclick="confirmDossierStep(5)">Confirmer et continuer →</button>
                     </div>
                   </div>
@@ -1116,9 +1122,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div id="garant-sub-2" class="garant-sub-screen"></div>
                     <div id="garant-sub-3" class="garant-sub-screen"></div>
                     <div id="garant-sub-4" class="garant-sub-screen"></div>
-                    <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
-                      <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
-                    </div>
                     </div><!-- /garant-edit -->
                   </div>
                 </div>
@@ -4792,6 +4795,7 @@ const DOSSIER_STEPS=[
 const DOSSIER_TYPE_LABELS={
   cni:'Carte nationale d\'identité',passeport:'Passeport',sejour:'Carte / titre de séjour',permis:'Permis de conduire',france_identite:'France Identité',autre_id:'Autre document',
   locataire:'Locataire (bail + quittances)',heberge:'Hébergé (avec participation)',heberge_gratuit:'Hébergé à titre gratuit',proprietaire:'Propriétaire (titre de propriété)',autre_heberg:'Autres situations',
+  sans_activite:'Sans activité',
   cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',service_civique:'Service civique',intermittent:'Intermittent / Artiste auteur',allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
   bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',bourse:'Bourse d\'études (CROUS)',are_allocation:'ARE — indemnités chômage',caf_rsa:'Allocations CAF / RSA',aide_logement:'Aide au logement CAF/MSA',revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
   avec_impot:'Avis d\'imposition',
@@ -4946,7 +4950,7 @@ function restoreUploadedStep(idx,saved){
   const preview=document.getElementById('dfile-preview-'+idx);
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
-  if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+'</strong>';
+  if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+'</span><button type="button" class="heb-mod" onclick="resetDocType('+idx+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
   // Handle garant personne sub-dossier restore
   if(idx===5&&saved.type==='garant_personne'){
     const simpleUpload=document.getElementById('garant-simple-upload');
@@ -4959,6 +4963,11 @@ function restoreUploadedStep(idx,saved){
   if(preview&&saved.files&&saved.files.length>0){
     preview.style.display='block';
     preview.innerHTML=saved.files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  } else if(preview&&saved.noDoc){
+    const area=upload?.querySelector('.dossier-upload-area');if(area)area.style.display='none';
+    preview.style.display='block';
+    preview.innerHTML=`<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> ${DOSSIER_TYPE_LABELS[saved.type]||saved.type} — étape validée, aucun document à fournir.</div>`;
     if(typeof lucide!=='undefined')lucide.createIcons();
   } else if(preview&&saved.skipped){
     preview.style.display='block';
@@ -4996,6 +5005,14 @@ function hebPickDoc(type){
   ['locataire','heberge'].forEach(k=>{const el=_hebEl('heb-sub-'+k);if(el)el.style.display='none';});
   _hebEl('heb-done-note').style.display='none';
   selectDocType(1,type);
+}
+// Situation professionnelle « Sans activité » : rien à fournir, l'étape est validée
+async function proNoActivity(){
+  dossierState[2]={type:'sans_activite',files:[],noDoc:true};
+  await saveDossierState();
+  renderDossierState();
+  setTimeout(()=>showDossierStep(3),300);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape 3 validée');
 }
 async function hebNoAttestation(){
   dossierState[1]={situation:'heberge',type:'heberge_sans_attestation',files:[],noDoc:true};
@@ -5038,10 +5055,10 @@ const RES_TREE={
   root:{q:null,opts:[
     {k:'travail',t:'Revenus du travail',s:'Salarié, indépendant, intermittent…',next:'travail'},
     {k:'aide',t:'Aide sociale',s:'Chômage, allocations familiales, APL, RSA…',next:'aide'},
-    {k:'pension',t:'Retraite ou autre pension',s:'Pension alimentaire, d’invalidité…',leaf:'pension_rev'},
-    {k:'rente',t:'Rente',s:'Revenus locatifs, rente viagère…',leaf:'rente_rev'},
-    {k:'bourse',t:'Bourse',leaf:'bourse'},
-    {k:'aucun',t:'Pas de revenus',leaf:'sans_revenus'}]},
+    {k:'pension',t:'Retraite ou autre pension',s:'Pension alimentaire, d’invalidité…',next:'pension'},
+    {k:'rente',t:'Rente',s:'Revenus locatifs, rente viagère…',next:'rente'},
+    {k:'bourse',t:'Bourse',c:'Vous êtes boursier',leaf:'bourse'},
+    {k:'aucun',t:'Pas de revenus',c:'Vous n’avez pas de revenus',leaf:'sans_revenus'}]},
   travail:{q:'Vous êtes :',opts:[
     {k:'salarie',t:'salarié',c:'Vous êtes salarié',next:'salarie'},
     {k:'independant',t:'indépendant',c:'Vous êtes indépendant',leaf:'independant_rev'},
@@ -5053,6 +5070,24 @@ const RES_TREE={
     {k:'apl',t:'l’aide personnalisée au logement (APL)',s:'ou bien vous allez la toucher',c:'Vous touchez l’aide personnalisée au logement (APL)',next:'aide_apl'},
     {k:'aah',t:'l’allocation aux adultes handicapés (AAH)',c:'Vous touchez l’allocation aux adultes handicapés (AAH)',next:'aide_aah'},
     {k:'autre',t:'une autre aide',leaf:'aide_autre'}]},
+  pension:{q:'Vous touchez :',opts:[
+    {k:'retraite',t:'une retraite',c:'Vous touchez une retraite',next:'pension_retraite'},
+    {k:'invalidite',t:'une pension d’invalidité',c:'Vous touchez une pension d’invalidité',next:'pension_inval'},
+    {k:'alimentaire',t:'une pension alimentaire',c:'Vous touchez une pension alimentaire',leaf:'pension_alimentaire'}]},
+  pension_retraite:{q:null,opts:[
+    {k:'bulletin',t:'Vous avez un bulletin de pension',s:'Info retraite, AGIRC-ARRCO, Carsat',leaf:'retraite_bulletin'},
+    {k:'sans',t:'Vous n’avez pas de bulletin de pension',leaf:'retraite_sans_bulletin'}]},
+  pension_inval:{q:null,opts:[
+    {k:'plus3',t:'Depuis plus de 3 mois',leaf:'invalidite_plus3'},
+    {k:'moins3',t:'Depuis moins de 3 mois',leaf:'invalidite_moins3'},
+    {k:'pasencore',t:'Vous ne touchez pas encore de pension d’invalidité',leaf:'invalidite_pas_encore'}]},
+  rente:{q:'Vous touchez :',opts:[
+    {k:'locatifs',t:'des revenus locatifs',c:'Vous touchez des revenus locatifs',next:'rente_locatifs'},
+    {k:'viagere',t:'une rente viagère',c:'Vous touchez une rente viagère',leaf:'rente_viagere'},
+    {k:'autre',t:'un autre type de rente',c:'Vous touchez un autre type de rente',leaf:'rente_autre'}]},
+  rente_locatifs:{q:null,opts:[
+    {k:'quittance',t:'Vous avez une quittance',leaf:'locatifs_quittance'},
+    {k:'sans',t:'Vous n’avez pas de quittance',leaf:'locatifs_sans_quittance'}]},
   aide_caf:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_caf_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_caf_moins3'}]},
   aide_ft:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_ft_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_ft_moins3'},{k:'pasencore',t:'Vous ne touchez pas encore l’aide',leaf:'aide_ft_pas_encore'}]},
   aide_apl:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_apl_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_apl_moins3'},{k:'pasencore',t:'Vous ne touchez pas encore l’APL',leaf:'aide_apl_pas_encore'}]},
@@ -5079,8 +5114,8 @@ const RES_LEAF={
   aide_sociale:{amount:true,upload:true,docs:()=>'Veuillez fournir une <strong>attestation de droits de moins de 3 mois</strong> (France Travail, CAF, MSA…).',note:_RES_REAL},
   pension_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>dernier bulletin de pension</strong> ou une attestation de l’organisme qui la verse.',note:_RES_REAL},
   rente_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir un <strong>justificatif de la rente</strong> (avis d’imposition, quittances perçues, contrat de rente viagère…).',note:_RES_REAL},
-  bourse:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>avis d’attribution de bourse</strong> de l’année en cours.',note:_RES_REAL},
-  sans_revenus:{instant:true}
+  bourse:{amount:true,upload:false,amountLabel:'Saisissez le montant de vos revenus mensuels nets moyens :',amountEx:'300'},
+  sans_revenus:{amount:false,upload:false,explain:true,note:'Vous touchez une aide sociale, une rente ou une pension ? <strong>Ce sont aussi des revenus.</strong> Ajoutez-les à votre dossier.'}
 };
 // Aides sociales : à la fin, uniquement le montant mensuel de l'aide (pas de document)
 (function(){
@@ -5091,6 +5126,19 @@ const RES_LEAF={
     RES_LEAF[key]={amount:true,upload:false,amountLabel:w==='pas_encore'?'Saisissez le <strong>montant mensuel de l’aide que vous allez recevoir</strong>, sans virgule :':'Saisissez le <strong>montant mensuel de l’aide que vous recevez</strong>, sans virgule :',amountEx:'300'};
     DOSSIER_TYPE_LABELS[key]=AIDES[a]+' — '+WHEN[w];
   }));
+  const _pen=(ex,label)=>({amount:true,upload:false,amountLabel:'Saisissez le montant de vos revenus mensuels nets moyens :',amountEx:ex,label});
+  Object.entries({
+    retraite_bulletin:_pen('1200','Retraite — avec bulletin de pension'),
+    retraite_sans_bulletin:_pen('1200','Retraite — sans bulletin de pension'),
+    invalidite_plus3:_pen('1200','Pension d’invalidité — depuis plus de 3 mois'),
+    invalidite_moins3:_pen('1200','Pension d’invalidité — depuis moins de 3 mois'),
+    invalidite_pas_encore:_pen('1200','Pension d’invalidité — pas encore perçue'),
+    pension_alimentaire:_pen('300','Pension alimentaire'),
+    locatifs_quittance:_pen('1200','Revenus locatifs — avec quittance'),
+    locatifs_sans_quittance:_pen('1200','Revenus locatifs — sans quittance'),
+    rente_viagere:_pen('1200','Rente viagère'),
+    rente_autre:_pen('1200','Autre type de rente')
+  }).forEach(([k,v])=>{RES_LEAF[k]=v;DOSSIER_TYPE_LABELS[k]=v.label;});
   RES_LEAF.aide_autre={amount:true,upload:false,amountLabel:'Saisissez le montant de vos revenus mensuels nets moyens :',amountEx:'300'};
   DOSSIER_TYPE_LABELS.aide_autre='Autre aide sociale';
 })();
@@ -5144,6 +5192,9 @@ function _resRender(){
     _resEl('res-docs-txt').style.display=cfg.docs?'block':'none';
     _resEl('dupload-3').style.display=cfg.upload?'block':'none';
     _resEl('res-note').style.display=cfg.note?'flex':'none';
+    _resEl('res-explain-wrap').style.display=cfg.explain?'block':'none';
+    if(cfg.explain&&!_resEl('res-explain').value&&st.explication){_resEl('res-explain').value=st.explication;}
+    _resEl('res-explain-count').textContent=_resEl('res-explain').value.length;
     _resEl('res-note-txt').innerHTML=cfg.note||'';
   } else if(st.pendingType){delete st.pendingType;}
   if(typeof lucide!=='undefined')lucide.createIcons();
@@ -5160,6 +5211,7 @@ async function resConfirm(){
   st.type=leaf;delete st.pendingType;
   st.amount=cfg.amount?amount:null;
   st.noDoc=!cfg.upload;
+  st.explication=cfg.explain?(_resEl('res-explain').value.trim()||null):null;
   if(!cfg.upload)st.files=[];
   await saveDossierState();
   renderDossierState();
@@ -5176,13 +5228,6 @@ async function resNoIncome(){
 // Réaffiche un choix déjà enregistré (les anciens types restent affichés tels quels)
 function resRestore(saved){
   const path=_resPathFromLeaf(saved.type);
-  if(saved.type==='sans_revenus'){
-    _resPath=path;_resRender();
-    _resEl('res-opts').style.display='none';
-    _resEl('res-chosen').insertAdjacentHTML('beforeend','<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> Vous n\'avez pas de revenus — étape validée, aucun document à fournir.</div>');
-    if(typeof lucide!=='undefined')lucide.createIcons();
-    return;
-  }
   if(!path.length){
     // ancien type (avant la refonte) : on montre ce qui a été fourni, avec la possibilité de refaire
     _resPath=[];_resRender();
@@ -5208,7 +5253,7 @@ function selectDocType(idx,type){
   const label=document.getElementById('dtype-label-'+idx);
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
-  if(label)label.innerHTML='<i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Type sélectionné : <strong>'+(DOSSIER_TYPE_LABELS[type]||type)+'</strong>';
+  if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(DOSSIER_TYPE_LABELS[type]||type)+'</span><button type="button" class="heb-mod" onclick="resetDocType('+idx+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
   // Garant personne physique: show sub-dossier BEFORE instruction box logic
   // (instruction box uses insertBefore with .dossier-upload-area which is a grandchild of dupload-5 — would throw DOMException)
   if(type==='garant_personne'){
@@ -5246,6 +5291,7 @@ function selectDocType(idx,type){
   // Store type but not yet confirmed
   if(!dossierState[idx])dossierState[idx]={};
   dossierState[idx].pendingType=type;
+  delete dossierState[idx].noDoc; // un type avec document remplace un choix « sans document »
   dossierState[idx].files=dossierState[idx].files||[];
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
@@ -5253,6 +5299,7 @@ function selectDocType(idx,type){
 function resetDocType(idx){
   const grid=document.getElementById('dtype-grid-'+idx);
   const upload=document.getElementById('dupload-'+idx);
+  const _area=upload?.querySelector('.dossier-upload-area');if(_area)_area.style.display='';
   const preview=document.getElementById('dfile-preview-'+idx);
   if(grid)grid.style.display='';
   if(upload)upload.style.display='none';
@@ -5324,7 +5371,7 @@ function handleDossierDrop(event,idx){
 async function confirmDossierStep(idx){
   const st=dossierState[idx];
   if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
-  if(!st?.files?.length&&!st?.skipped){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+  if(!st?.files?.length&&!st?.skipped&&!st?.noDoc){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
   if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
   if(idx===1){st.situation=st.pendingSituation||HEB_FROM_TYPE[st.type]||st.situation;delete st.pendingSituation;delete st.noDoc;}
   await saveDossierState();
@@ -5541,7 +5588,10 @@ function renderGarantSelector(){
   sel.innerHTML=`<div class="heb-info" style="margin-bottom:.75rem"><i data-lucide=info class=ic></i><div><strong>Vos garants s’ajoutent un par un.</strong><br>Remplissez d’abord le dossier complet de ce garant (identité + 5 rubriques). Une fois terminé, vous pourrez ajouter un autre garant si besoin.</div></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
       <div style="font-size:.95rem;font-weight:800;color:var(--deep)"><i data-lucide=user class=ic></i> Garant n°${activeGarantIdx+1}</div>
-      ${others||isGarantComplete(activeGarantIdx)?`<button type="button" class="heb-mod" onclick="showGarantList()">Voir mes garants (${garants.length}) →</button>`:''}
+      <span style="display:flex;gap:1rem;flex-wrap:wrap">
+        ${others||isGarantComplete(activeGarantIdx)?`<button type="button" class="heb-mod" onclick="showGarantList()">Voir mes garants (${garants.length}) →</button>`:''}
+        <button type="button" class="heb-mod" onclick="resetDocType(5)" title="Revenir au choix du type de garant">Type de garant : une personne · Modifier <i data-lucide=rotate-ccw class=ic></i></button>
+      </span>
     </div>`;
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
@@ -5729,19 +5779,17 @@ function renderGarantSubScreen(i){
       <div class="dossier-type-grid">${opts.map(o=>`<div class="dtg-item" onclick="selectGarantType(${i},'${o.key}')"><div class="dtg-label">${o.label}</div><div class="dtg-hint">${o.hint}</div></div>`).join('')}</div>`;
   } else if(noUpload){
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
-      <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:1rem;margin-bottom:1rem">
-        <div style="font-size:.85rem;font-weight:600;color:var(--deep);margin-bottom:.3rem">✓ ${opt.label}</div>
-        <div style="font-size:.78rem;color:var(--tm)">${opt.hint}</div>
-      </div>
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
-        <button class="btn bg bsm" onclick="resetGarantType(${i})">← Changer</button>
+      <div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt.label}</span><button type="button" class="heb-mod" onclick="resetGarantType(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>
+      <div class="heb-done">${opt.hint}</div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem">
         <button class="btn bp bsm" onclick="confirmGarantSub(${i})">${i<4?'Continuer →':'Valider le dossier garant →'}</button>
       </div>`;
   } else {
     const files=sub?.files||[];
     const fileHtml=files.length>0?`<div style="margin-bottom:.5rem">${files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('')}</div>`:'';
-    sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} — <span style="color:var(--bleu);font-weight:400">${opt?.label||sub.type}</span></div>
-      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">${opt?.hint||''}</div>
+    sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
+      <div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt?.label||sub.type}</span><button type="button" class="heb-mod" onclick="resetGarantType(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>
+      <div style="font-size:.78rem;color:var(--tm);margin:.35rem 0 .75rem">${opt?.hint||''}</div>
       ${fileHtml}
       <div class="dossier-upload-area" onclick="document.getElementById('gfile-${i}').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,${i})">
         <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
@@ -5750,7 +5798,6 @@ function renderGarantSubScreen(i){
         <input type="file" id="gfile-${i}" accept="image/*,.pdf" ${isMultiple?'multiple':''} style="display:none" onchange="uploadGarantFile(${i},this.files)">
       </div>
       <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-        <button class="btn bg bsm" onclick="resetGarantType(${i})">← Changer de type</button>
         ${files.length>0?`<button class="btn bp bsm" onclick="confirmGarantSub(${i})">${i<4?'Valider et continuer →':'Valider le dossier garant →'}</button>`:''}
       </div>`;
   }
@@ -5828,7 +5875,9 @@ const _G_TXT=[
   ['l’aide que vous recevez','l’aide que votre garant reçoit'],['l’aide que vous allez recevoir','l’aide que votre garant va recevoir'],
   ['Saisissez le montant de vos revenus mensuels nets moyens','Saisissez le montant des revenus mensuels nets moyens de votre garant'],
   ['Veuillez fournir vos ','Veuillez fournir ses '],['Veuillez fournir votre ','Veuillez fournir son '],[', votre <strong>',', son <strong>'],
-  ['votre contrat indique','son contrat indique'],['votre salaire net mensuel','son salaire net mensuel'],['à vos bulletins','à ses bulletins']
+  ['votre contrat indique','son contrat indique'],['votre salaire net mensuel','son salaire net mensuel'],['à vos bulletins','à ses bulletins'],
+  ['Vous n’avez pas de bulletin','Votre garant n’a pas de bulletin'],['Vous avez un bulletin','Votre garant a un bulletin'],
+  ['Vous n’avez pas de quittance','Votre garant n’a pas de quittance'],['Vous avez une quittance','Votre garant a une quittance']
 ];
 function gTxt(s){if(!s)return s;_G_TXT.forEach(([a,b])=>{s=s.split(a).join(b);});return s;}
 function _gResOpts(node){return RES_TREE[node].opts.filter(o=>!(node==='root'&&o.k==='aucun'));}
