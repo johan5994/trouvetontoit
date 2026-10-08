@@ -1459,7 +1459,7 @@ function renderDossierHTML(dd){
     autre_heberg:'Autres situations',
     salarie_plus3:'Salarié depuis plus de 3 mois',salarie_moins3:'Salarié depuis moins de 3 mois',salarie_pas_encore:'Salarié — poste pas encore pris ou depuis moins d\'un mois',
     independant_rev:'Indépendant',intermittent_rev:'Intermittent',artiste_rev:'Artiste-auteur',aide_sociale:'Aide sociale',pension_rev:'Retraite ou autre pension',rente_rev:'Rente',sans_revenus:'Pas de revenus',
-    aide_caf_plus3:'Aide CAF / MSA — depuis plus de 3 mois',aide_caf_moins3:'Aide CAF / MSA — depuis moins de 3 mois',aide_caf_pas_encore:'Aide CAF / MSA — pas encore perçue',aide_ft_plus3:'Aide France Travail — depuis plus de 3 mois',aide_ft_moins3:'Aide France Travail — depuis moins de 3 mois',aide_ft_pas_encore:'Aide France Travail — pas encore perçue',aide_apl_plus3:'APL — depuis plus de 3 mois',aide_apl_moins3:'APL — depuis moins de 3 mois',aide_apl_pas_encore:'APL — pas encore perçue',aide_aah_plus3:'AAH — depuis plus de 3 mois',aide_aah_moins3:'AAH — depuis moins de 3 mois',aide_aah_pas_encore:'AAH — pas encore perçue',aide_autre:'Autre aide sociale',
+    aide_caf_plus3:'Aide CAF / MSA — depuis plus de 3 mois',aide_caf_moins3:'Aide CAF / MSA — depuis moins de 3 mois',aide_caf_pas_encore:'Aide CAF / MSA — pas encore perçue',aide_ft_plus3:'Aide France Travail — depuis plus de 3 mois',aide_ft_moins3:'Aide France Travail — depuis moins de 3 mois',aide_ft_pas_encore:'Aide France Travail — pas encore perçue',aide_apl_plus3:'APL — depuis plus de 3 mois',aide_apl_moins3:'APL — depuis moins de 3 mois',aide_apl_pas_encore:'APL — pas encore perçue',aide_aah_plus3:'AAH — depuis plus de 3 mois',aide_aah_moins3:'AAH — depuis moins de 3 mois',aide_aah_pas_encore:'AAH — pas encore perçue',aide_autre:'Autre aide sociale',retraite_bulletin:'Retraite — avec bulletin de pension',retraite_sans_bulletin:'Retraite — sans bulletin de pension',invalidite_plus3:'Pension d’invalidité — depuis plus de 3 mois',invalidite_moins3:'Pension d’invalidité — depuis moins de 3 mois',invalidite_pas_encore:'Pension d’invalidité — pas encore perçue',pension_alimentaire:'Pension alimentaire',locatifs_quittance:'Revenus locatifs — avec quittance',locatifs_sans_quittance:'Revenus locatifs — sans quittance',rente_viagere:'Rente viagère',rente_autre:'Autre type de rente',
     quittances:'Locataire — 3 dernières quittances de loyer',attestation_paiement:'Locataire — attestation de bon paiement des loyers',
     attestation_hebergement:'Hébergé — attestation d\'hébergement de moins de 3 mois',heberge_sans_attestation:'Hébergé — sans attestation d\'hébergement',
     taxe_fonciere:'Propriétaire — avis de taxe foncière',
@@ -1467,7 +1467,7 @@ function renderDossierHTML(dd){
     independant:'Indépendant / Micro-entreprise',retraite:'Retraite',
     chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',
     service_civique:'Service civique',intermittent:'Intermittent / Artiste auteur',
-    allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
+    allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',sans_activite:'Sans activité',
     bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',
     bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',
     bourse:'Bourse d\'études',are_allocation:'ARE — chômage',
@@ -1506,6 +1506,7 @@ function renderDossierHTML(dd){
       </div>
       ${step.type&&!skipped?`<div style="font-size:.73rem;font-weight:600;color:var(--txt);margin-bottom:.3rem">📄 ${typeLabel}</div>`:''}
       ${step.amount?`<div style="font-size:.73rem;color:var(--txt);margin-bottom:.3rem">Revenu mensuel net déclaré : <strong>${Number(step.amount).toLocaleString('fr-FR')} €</strong></div>`:''}
+      ${step.explication?`<div style="font-size:.72rem;color:var(--txt);margin-bottom:.3rem;font-style:italic;white-space:pre-wrap">« ${String(step.explication).replace(/</g,'&lt;')} »</div>`:''}
       ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
         <span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${f.name||'Fichier'}</span>
         <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
