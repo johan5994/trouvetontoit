@@ -167,7 +167,7 @@ function setTab(role){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 // Ouvrir directement sur le bon onglet si on arrive avec ?role=propriétaire etc.
-const params=new URLRechercherParams(window.location.search);
+const params=new URLSearchParams(window.location.search);
 const initial=params.get('role');
 if(initial&&['locataire','propriétaire','agence'].includes(initial))setTab(initial);
 </script>
