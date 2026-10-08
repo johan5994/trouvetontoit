@@ -919,7 +919,8 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
     setTimeout(()=>{
       const profileBtn=document.querySelector('.ni[onclick*="profil"]');
       sp('profil',profileBtn);
-      toast('<i data-lucide=user class=ic></i> Veuillez compléter votre profil pour publier une annonce');
+      const _need=urlParams.get('need');
+      toast('<i data-lucide=user class=ic></i> Veuillez compléter votre profil '+(_need==='visite'?'avant de demander une visite':_need==='contact'?'avant de contacter un propriétaire':'pour publier une annonce'));
     },800);
   }
 })();
