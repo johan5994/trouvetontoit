@@ -1336,16 +1336,45 @@ let clerk,U=null,P=null,selectedRating=5;
   // Normalise : la colonne Supabase s'appelle 'vérifié' (accent) — on expose aussi P.verified pour le reste du code
   if(P&&P['vérifié']!==undefined)P.verified=!!P['vérifié'];
   if(P&&P['vérifié_at']!==undefined)P.verified_at=P['vérifié_at'];
-  if(P?.role==='bailleur'||P?.role==='propriétaire'){window.location.href='/landlord-dashboard.html';return;}
+  if(P?.role==='bailleur'||P?.role==='propriétaire'){window.location.href='/landlord-dashboard.html'+window.location.search;return;}
   initUI();loadAll();
+
+  // Arrivée depuis une annonce avec un profil incomplet : ouvrir directement "Mon profil" avec un message
+  try{
+    const qp=new URLSearchParams(window.location.search);
+    if(qp.get('tab')==='profil'){
+      const need=qp.get('need'),miss=(qp.get('missing')||'').split(',');
+      const back=(qp.get('annonce')||'').replace(/[^a-zA-Z0-9-]/g,'');
+      window.history.replaceState({},'',window.location.pathname);
+      sp('profil',document.querySelector('.ni[onclick*="profil"]'));
+      showProfileNeeded(need,miss,back);
+    }
+  }catch(e){console.error('[profil] deep link:',e);}
 })();
+
+function showProfileNeeded(need,missing,back){
+  const labels={full_name:'Nom complet',passport_number:"Pièce d'identité",nationality:'Nationalité',date_of_birth:'Date de naissance',home_address:'Adresse'};
+  const list=(missing||[]).map(k=>labels[k]).filter(Boolean);
+  const why=need==='visite'?'avant de demander une visite':'avant de contacter un propriétaire';
+  const page=document.getElementById('page-profil');
+  if(!page)return;
+  document.getElementById('profil-needed-banner')?.remove();
+  const d=document.createElement('div');
+  d.id='profil-needed-banner';
+  d.style.cssText='background:rgba(27,79,216,.08);border:1.5px solid rgba(27,79,216,.35);color:var(--txt);border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.88rem;line-height:1.55';
+  d.innerHTML='<strong style="color:var(--bleu)">Complétez votre profil '+why+'.</strong>'
+    +(list.length?'<br>Il manque : <strong>'+list.join(', ')+'</strong>.':'')
+    +'<br>Remplissez ces champs puis cliquez sur « Enregistrer profil ».'
+    +(back?' <a href="/?annonce='+back+'" style="color:var(--bleu);font-weight:700;text-decoration:underline;white-space:nowrap">Revenir à l\'annonce →</a>':'');
+  page.insertBefore(d,page.firstChild);
+}
 
 function initUI(){
   const n=P?.full_name||'Locataire';
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
   document.getElementById('tbs').textContent='Bienvenue, '+n.split(' ')[0]+' !';
-  if(!P?.full_name||!P?.passport_number)setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
+  if((!P?.full_name||!P?.passport_number)&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
 }
 
 async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);}
