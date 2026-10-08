@@ -76,6 +76,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .fl{font-size:.75rem;font-weight:600;color:var(--tm)}
 .fi{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%}
 .fi:focus{border-color:var(--bleu)}
+.fi.fi-need,.fsel.fi-need{border:2px solid var(--bleu)!important;background:rgba(27,79,216,.06)!important}
+.fg:has(.fi-need)>.fl::after{content:'À remplir';margin-left:.45rem;background:var(--bleu);color:#fff;font-size:.62rem;font-weight:700;padding:.08rem .45rem;border-radius:100px;vertical-align:1px}
 .fsel{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;cursor:pointer;width:100%}
 .fta{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%;resize:vertical}
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
@@ -134,6 +136,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .doc-type-card:hover{border-color:var(--bleu);background:var(--tdim)}
 .doc-type-card.dtc-selected{border-color:var(--bleu);background:var(--tdim)}
 .dtc-arrow{color:var(--td);font-size:1.1rem;flex-shrink:0}
+/* Situation d'hébergement — choix en liste, comme DossierFacile */
+.heb-list{display:flex;flex-direction:column;gap:.75rem;margin-top:1rem}
+.heb-opt{width:100%;text-align:left;font-family:inherit;border:2px solid var(--b2);border-radius:12px;padding:1rem 1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.75rem;transition:all .15s;background:var(--s);color:var(--txt)}
+.heb-opt:hover{border-color:var(--bleu);background:rgba(27,79,216,.05)}
+.heb-opt:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+.heb-t{display:block;font-weight:700;font-size:.95rem;color:var(--bleu);line-height:1.35}
+.heb-s{display:block;font-size:.8rem;color:var(--tm);margin-top:.3rem}
+.heb-arr{color:var(--bleu);flex-shrink:0;width:18px;height:18px}
+.heb-chosen{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;font-size:.92rem;color:var(--txt);padding:.4rem 0}
+.heb-mod{background:none;border:none;color:var(--bleu);font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem}
+.heb-info{display:flex;gap:.7rem;border:1.5px solid var(--bleu);border-left-width:6px;border-radius:8px;padding:.85rem 1rem;font-size:.82rem;color:var(--tm);line-height:1.55}
+.heb-info strong{color:var(--txt)}
+.heb-info .ic{color:var(--bleu);flex-shrink:0;margin-top:.15rem}
+.res-q{font-size:.92rem;color:var(--txt);margin-top:1rem}
+.res-amount{margin-top:1rem}
+.res-amount label{display:block;font-size:.9rem;color:var(--txt);line-height:1.5}
+.res-ex{font-size:.75rem;color:var(--td);margin:.2rem 0 .45rem}
+.res-amount .fi{width:100%;max-width:100%;font-size:.95rem}
+.res-docs{margin-top:1.1rem;font-size:.9rem;color:var(--txt);line-height:1.6}
+.res-docs ul{margin:.4rem 0 .4rem 1.2rem}
+.res-docs li{font-weight:700}
+.gl-title{font-size:1.15rem;font-weight:800;color:var(--deep);margin-bottom:1rem}
+.gl-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:var(--s);border:1px solid var(--b2);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:.6rem}
+.gl-name{font-weight:700;font-size:.95rem;color:var(--deep);min-width:7rem}
+.gl-badge{display:inline-flex;align-items:center;gap:.35rem;border-radius:100px;padding:.25rem .75rem;font-size:.8rem;font-weight:600}
+.gl-badge.ok{background:var(--grdim);color:var(--green)}
+.gl-badge.ko{background:rgba(27,79,216,.08);color:var(--bleu)}
+.gl-actions{margin-left:auto;display:flex;gap:.5rem}
+.gl-ico{width:40px;height:40px;border:1.5px solid var(--bleu);border-radius:8px;background:var(--s);color:var(--bleu);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.gl-ico:hover{background:rgba(27,79,216,.08)}
+.gl-ico .ic{width:18px;height:18px}
+.gl-add{width:100%;margin-top:.4rem;padding:1.1rem;border:1.5px solid var(--bleu);border-radius:10px;background:rgba(27,79,216,.12);color:var(--bleu);font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
+.gl-add:hover{background:rgba(27,79,216,.2)}
+.heb-done{margin-top:.75rem;background:var(--grdim);color:var(--green);border-radius:8px;padding:.6rem .85rem;font-size:.84rem;font-weight:600}
 .dossier-type-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
 .dtg-item{border:2px solid var(--b2);border-radius:12px;padding:.85rem 1.1rem;cursor:pointer;transition:all .15s;background:var(--s)}
 .dtg-item:hover{border-color:var(--bleu);background:var(--tdim)}
@@ -589,7 +625,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <div class="page" id="page-profil">
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Mon profil</div>
-      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complétez votre profil une seule fois — toutes ces informations servent à générer automatiquement votre bail. Les champs marqués * sont requis avant de pouvoir contacter un propriétaire ou demander une visite.</div>
+      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complétez votre profil une seule fois — toutes ces informations servent à générer automatiquement votre bail. Pour contacter un propriétaire ou demander une visite, il faut le nom, la nationalité, la pièce d'identité, la date de naissance et l'adresse ; les autres champs * servent au bail.</div>
       <div class="card" style="margin-bottom:1rem">
         <div class="ch"><div class="ct">Informations personnelles</div><span id="complete-pct" style="font-size:.75rem;color:var(--td)"></span></div>
         <div class="cb">
@@ -629,7 +665,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div class="card">
         <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Vérification d'identité</div><span id="verify-badge" class="badge b-dim">Non vérifié</span></div>
         <div class="cb">
-          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l\'équipe vérifiera votre identité sous 24h.</p>
+          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l'équipe vérifiera votre identité sous 24h.</p>
 
           <div id="verify-upload-section">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
@@ -698,11 +734,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem">Étapes</div>
 
           <div class="dossier-step ds-act" id="dstep-0" onclick="showDossierStep(0)">
-            <div class="dossier-step-num">1</div><span>Pièce d\'identité</span>
+            <div class="dossier-step-num">1</div><span>Pièce d'identité</span>
           </div>
           <div class="ds-connector"></div>
           <div class="dossier-step" id="dstep-1" onclick="showDossierStep(1)">
-            <div class="dossier-step-num">2</div><span>Situation d\'hébergement</span>
+            <div class="dossier-step-num">2</div><span>Situation d'hébergement</span>
           </div>
           <div class="ds-connector"></div>
           <div class="dossier-step" id="dstep-2" onclick="showDossierStep(2)">
@@ -714,7 +750,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           </div>
           <div class="ds-connector"></div>
           <div class="dossier-step" id="dstep-4" onclick="showDossierStep(4)">
-            <div class="dossier-step-num">5</div><span>Avis d\'imposition</span>
+            <div class="dossier-step-num">5</div><span>Avis d'imposition</span>
           </div>
           <div class="ds-connector"></div>
           <div class="dossier-step" id="dstep-5" onclick="showDossierStep(5)">
@@ -739,18 +775,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="dossier-screen ds-visible" id="dscreen-0">
             <div class="card">
               <div class="ch">
-                <div class="ct"><i data-lucide=id-card class=ic></i> Pièce d\'identité</div>
+                <div class="ct"><i data-lucide=id-card class=ic></i> Pièce d'identité</div>
                 <span class="badge b-dim" id="dstatus-0">Non fourni</span>
               </div>
               <div class="cb">
-                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Sélectionnez le type de document d\'identité que vous souhaitez fournir.</p>
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Choisissez <strong style="color:var(--bleu)">un seul</strong> document parmi ceux ci-dessous — pas besoin de tous les fournir.</p>
                 <div class="doc-type-grid" id="dtype-grid-0">
                   <div class="doc-type-card" onclick="selectDocType(0,'cni')">
-                    <div><div style="font-weight:600;font-size:.88rem">Carte nationale d\'identité</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Recto et verso</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Carte nationale d'identité</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Recto et verso</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(0,'passeport')">
-                    <div><div style="font-weight:600;font-size:.88rem">Passeport</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pages d\'identité</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Passeport</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pages d'identité</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(0,'sejour')">
@@ -792,33 +828,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="dossier-screen" id="dscreen-1">
             <div class="card">
               <div class="ch">
-                <div class="ct"><i data-lucide=home class=ic></i> Situation d\'hébergement</div>
+                <div class="ct"><i data-lucide=home class=ic></i> Situation d'hébergement</div>
                 <span class="badge b-dim" id="dstatus-1">Non fourni</span>
               </div>
               <div class="cb">
-                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Quelle est votre situation d\'hébergement actuelle ?</p>
-                <div class="doc-type-grid" id="dtype-grid-1">
-                  <div class="doc-type-card" onclick="selectDocType(1,'locataire')">
-                    <div><div style="font-weight:600;font-size:.88rem">Locataire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Bail + quittances de loyer</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(1,'heberge')">
-                    <div><div style="font-weight:600;font-size:.88rem">Hébergé (avec participation)</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Bail ou attestation + loyer payé</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(1,'heberge_gratuit')">
-                    <div><div style="font-weight:600;font-size:.88rem">Hébergé à titre gratuit</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation d\'hébergement gratuit</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(1,'proprietaire')">
-                    <div><div style="font-weight:600;font-size:.88rem">Propriétaire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Titre de propriété</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(1,'autre_heberg')">
-                    <div><div style="font-weight:600;font-size:.88rem">Autres situations</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Résidence universitaire, etc.</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Quelle est votre situation d'hébergement actuelle ? Choisissez <strong style="color:var(--bleu)">une seule</strong> réponse.</p>
+                <div class="heb-list" id="dtype-grid-1">
+                  <button type="button" class="heb-opt" onclick="hebChoose('locataire')"><span class="heb-t">Locataire</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                  <button type="button" class="heb-opt" onclick="hebChoose('heberge')"><span><span class="heb-t">Hébergé chez quelqu'un</span><span class="heb-s">Chez vos parents, un ami, un proche…</span></span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                  <button type="button" class="heb-opt" onclick="hebChoose('proprietaire')"><span class="heb-t">Propriétaire</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
                 </div>
+                <div id="heb-sub" style="display:none">
+                  <div class="heb-chosen">
+                    <span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> <span id="heb-chosen-txt"></span></span>
+                    <button type="button" class="heb-mod" onclick="hebReset()">Modifier <i data-lucide=rotate-ccw class=ic></i></button>
+                  </div>
+                  <div id="heb-done-note" class="heb-done" style="display:none"></div>
+                  <div class="heb-list" id="heb-sub-locataire" style="display:none">
+                    <button type="button" class="heb-opt" onclick="hebPickDoc('quittances')"><span class="heb-t">Vous avez vos 3 dernières quittances de loyer</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                    <button type="button" class="heb-opt" onclick="hebPickDoc('attestation_paiement')"><span class="heb-t">Vous avez une attestation de bon paiement des loyers</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                    <div class="heb-info"><i data-lucide=info class=ic></i><div><strong>Vous n'avez pas de quittance de loyer ?</strong><br>Contactez votre propriétaire : il est légalement tenu de vous les fournir.</div></div>
+                  </div>
+                  <div class="heb-list" id="heb-sub-heberge" style="display:none">
+                    <button type="button" class="heb-opt" onclick="hebPickDoc('attestation_hebergement')"><span class="heb-t">Vous avez une attestation d'hébergement de moins de 3 mois</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                    <button type="button" class="heb-opt" onclick="hebNoAttestation()"><span class="heb-t">Vous n'avez pas d'attestation d'hébergement</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>
+                  </div>
+                  <div id="heb-sub-proprietaire" style="display:none">
+                    <p style="font-size:.88rem;color:var(--txt);line-height:1.6;margin-top:1rem">Veuillez fournir votre <strong>avis de taxe foncière <span class="heb-year"></span></strong>. Vous pouvez le télécharger sur le <a href="https://www.impots.gouv.fr/accueil" target="_blank" rel="noopener" style="color:var(--bleu);text-decoration:underline">site internet des impôts</a>.</p>
+                  </div>
                 <div id="dupload-1" style="display:none;margin-top:1rem">
                   <div class="ai" id="dtype-label-1"></div>
                   <div class="dossier-upload-area" onclick="document.getElementById('dfile-1').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,1)">
@@ -829,10 +866,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <div id="dfile-preview-1" style="display:none;margin-top:.75rem"></div>
                   <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(1)">← Changer de type</button>
+                    <button class="btn bg bsm" onclick="hebBack()">← Retour</button>
                     <button class="btn bp bsm" onclick="confirmDossierStep(1)">Confirmer et continuer →</button>
                   </div>
                 </div>
+                </div><!-- /heb-sub -->
               </div>
             </div>
           </div>
@@ -876,7 +914,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(2,'alternance')">
-                    <div><div style="font-weight:600;font-size:.88rem">Alternance</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat d\'apprentissage</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Alternance</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Contrat d'apprentissage</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="selectDocType(2,'stage')">
@@ -926,61 +964,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <span class="badge b-dim" id="dstatus-3">Non fourni</span>
               </div>
               <div class="cb">
-                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Fournissez un justificatif de vos revenus. Vous pouvez uploader plusieurs fichiers (ex : 3 bulletins de salaire).</p>
-                <div class="doc-type-grid" id="dtype-grid-3">
-                  <div class="doc-type-card" onclick="selectDocType(3,'bulletins')">
-                    <div><div style="font-weight:600;font-size:.88rem">3 derniers bulletins de salaire</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Salarié / Fonctionnaire</div></div>
-                    <span class="dtc-arrow">›</span>
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Quels sont vos revenus ? Choisissez <strong style="color:var(--bleu)">une seule</strong> réponse à chaque question.</p>
+                <div id="res-chosen"></div>
+                <div id="res-q" class="res-q" style="display:none"></div>
+                <div class="heb-list" id="res-opts"></div>
+                <div id="res-leaf" style="display:none">
+                  <div id="res-amount-wrap" class="res-amount">
+                    <label for="res-amount" id="res-amount-label"></label>
+                    <div class="res-ex" id="res-amount-ex"></div>
+                    <input class="fi" id="res-amount" inputmode="numeric" autocomplete="off" placeholder="Montant en euros" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                   </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'avis_impot_ressources')">
-                    <div><div style="font-weight:600;font-size:.88rem">Avis d\'imposition</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Revenu annuel</div></div>
-                    <span class="dtc-arrow">›</span>
+                  <div id="res-docs-txt" class="res-docs"></div>
+                  <div id="dupload-3" style="display:none;margin-top:.75rem">
+                    <div class="dossier-upload-area" onclick="document.getElementById('dfile-3').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,3)">
+                      <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
+                      <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                      <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
+                      <input type="file" id="dfile-3" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(3,this.files)">
+                    </div>
+                    <div id="dfile-preview-3" style="display:none;margin-top:.75rem"></div>
                   </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'bilan')">
-                    <div><div style="font-weight:600;font-size:.88rem">Bilan comptable</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pour les indépendants</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'pension')">
-                    <div><div style="font-weight:600;font-size:.88rem">Attestation de pension</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Retraite / invalidité</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'bourse')">
-                    <div><div style="font-weight:600;font-size:.88rem">Bourse d\'études</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation CROUS</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'are_allocation')">
-                    <div><div style="font-weight:600;font-size:.88rem">ARE (indemnités chômage)</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation Pôle Emploi / France Travail</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'caf_rsa')">
-                    <div><div style="font-weight:600;font-size:.88rem">Allocations CAF / RSA</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Attestation de droits CAF</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'revenus_fonciers')">
-                    <div><div style="font-weight:600;font-size:.88rem">Revenus fonciers</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Loyers perçus, quittances</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'aide_logement')">
-                    <div><div style="font-weight:600;font-size:.88rem">Aide au logement CAF/MSA</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Simulation ou attestation APL/ALS</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(3,'autre_ressources')">
-                    <div><div style="font-weight:600;font-size:.88rem">Autres ressources</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Rentes, aide familiale...</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                </div>
-                <div id="dupload-3" style="display:none;margin-top:1rem">
-                  <div class="ai" id="dtype-label-3"></div>
-                  <div class="dossier-upload-area" onclick="document.getElementById('dfile-3').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,3)">
-                    <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
-                    <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
-                    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo — Plusieurs fichiers acceptés</div>
-                    <input type="file" id="dfile-3" accept="image/*,.pdf" multiple style="display:none" onchange="uploadDossierFile(3,this.files)">
-                  </div>
-                  <div id="dfile-preview-3" style="display:none;margin-top:.75rem"></div>
-                  <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-                    <button class="btn bg bsm" onclick="resetDocType(3)">← Changer de type</button>
-                    <button class="btn bp bsm" onclick="confirmDossierStep(3)">Confirmer et continuer →</button>
+                  <div id="res-note" class="heb-info" style="display:none;margin-top:1rem"><i data-lucide=info class=ic></i><div id="res-note-txt"></div></div>
+                  <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
+                    <button class="btn bg bsm" onclick="resBack()">← Retour</button>
+                    <button class="btn bp bsm" onclick="resConfirm()">Confirmer et continuer →</button>
                   </div>
                 </div>
               </div>
@@ -991,30 +998,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="dossier-screen" id="dscreen-4">
             <div class="card">
               <div class="ch">
-                <div class="ct"><i data-lucide=file-text class=ic></i> Avis d\'imposition</div>
+                <div class="ct"><i data-lucide=file-text class=ic></i> Avis d'imposition</div>
                 <span class="badge b-dim" id="dstatus-4">Non fourni</span>
               </div>
               <div class="cb">
-                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Avez-vous un avis d\'imposition à fournir ?</p>
+                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Avez-vous un avis d'imposition à fournir ?</p>
                 <div class="doc-type-grid" id="dtype-grid-4">
                   <div class="doc-type-card" onclick="selectDocType(4,'avec_impot')">
                     <div>
-                      <div style="font-weight:600;font-size:.88rem">Vous avez un avis d\'impôt</div>
+                      <div style="font-weight:600;font-size:.88rem">Vous avez un avis d'impôt</div>
                       <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Avis disponible sur impots.gouv.fr</div>
                     </div>
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="skipDossierStep(4)">
                     <div>
-                      <div style="font-weight:600;font-size:.88rem">Non imposable / Pas d\'avis d\'impôt</div>
-                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Première année de travail, revenus faibles</div>
-                    </div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="skipDossierStep(4,'rattache')">
-                    <div>
-                      <div style="font-weight:600;font-size:.88rem">Rattaché au foyer fiscal de mes parents</div>
-                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Pas d\'avis d\'impôt personnel</div>
+                      <div style="font-weight:600;font-size:.88rem">Vous n'avez pas d'avis d'impôt</div>
+                      <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Rien à fournir — l'étape est terminée</div>
                     </div>
                     <span class="dtc-arrow">›</span>
                   </div>
@@ -1060,7 +1060,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <span class="dtc-arrow">›</span>
                   </div>
                   <div class="doc-type-card" onclick="skipDossierStep(5)">
-                    <div><div style="font-weight:600;font-size:.88rem">Pas de garant</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Je n\'ai pas de garant</div></div>
+                    <div><div style="font-weight:600;font-size:.88rem">Pas de garant</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Je n'ai pas de garant</div></div>
                     <span class="dtc-arrow">›</span>
                   </div>
                 </div>
@@ -1082,7 +1082,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                   </div>
                   <!-- Garant personne physique: nom + 5 sous-étapes dynamiques -->
                   <div id="garant-sub-dossier" style="display:none">
-                    <!-- Sélecteur multi-garant -->
+                    <!-- Liste "Mes garants" (affichée quand un garant est terminé) -->
+                    <div id="garant-list" style="display:none"></div>
+                    <div id="garant-edit">
+                    <!-- Rappel : un garant à la fois -->
                     <div id="garant-multi-selector" style="margin-bottom:1rem"></div>
                     <!-- Identité du garant courant -->
                     <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:1rem;margin-bottom:1rem">
@@ -1093,15 +1096,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                           <input type="text" id="garant-nom" placeholder="Nom de naissance" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
                         </div>
                         <div>
-                          <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Nom d'usage <span style="font-weight:400;opacity:.7">(facultatif)</span></label>
-                          <input type="text" id="garant-nom-usage" placeholder="Nom marital, etc." oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
-                        </div>
-                      </div>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
-                        <div>
                           <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Prénom *</label>
                           <input type="text" id="garant-prenom" placeholder="Prénom" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
                         </div>
+                      </div>
+                      <div style="display:grid;grid-template-columns:1fr;gap:.6rem">
                         <div>
                           <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Email du garant *</label>
                           <input type="email" id="garant-email" placeholder="email@exemple.fr" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
@@ -1120,6 +1119,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
                       <button class="btn bg bsm" onclick="resetDocType(5)">← Changer de type</button>
                     </div>
+                    </div><!-- /garant-edit -->
                   </div>
                 </div>
               </div>
@@ -1361,12 +1361,19 @@ function showProfileNeeded(need,missing,back){
   document.getElementById('profil-needed-banner')?.remove();
   const d=document.createElement('div');
   d.id='profil-needed-banner';
+  d.dataset.back=back||'';
   d.style.cssText='background:rgba(27,79,216,.08);border:1.5px solid rgba(27,79,216,.35);color:var(--txt);border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.88rem;line-height:1.55';
   d.innerHTML='<strong style="color:var(--bleu)">Complétez votre profil '+why+'.</strong>'
     +(list.length?'<br>Il manque : <strong>'+list.join(', ')+'</strong>.':'')
     +'<br>Remplissez ces champs puis cliquez sur « Enregistrer profil ».'
     +(back?' <a href="/?annonce='+back+'" style="color:var(--bleu);font-weight:700;text-decoration:underline;white-space:nowrap">Revenir à l\'annonce →</a>':'');
   page.insertBefore(d,page.firstChild);
+  // Une fois le profil chargé : encadrer les champs manquants et amener au premier
+  setTimeout(()=>{
+    updateProfileeCompleteness();
+    const first=CONTACT_FIELDS.map(([id])=>document.getElementById(id)).find(el=>el&&!el.value.trim());
+    if(first){first.scrollIntoView({behavior:'smooth',block:'center'});try{first.focus({preventScroll:true});}catch(e){}}
+  },900);
 }
 
 function initUI(){
@@ -4399,28 +4406,30 @@ async function loadProfilee(){
   }
 }
 
+// Champs exigés pour contacter un propriétaire / demander une visite (même liste que sur le site)
+const CONTACT_FIELDS=[['p-name','Nom complet'],['p-nat','Nationalité'],['p-passport',"Pièce d'identité"],['p-dob','Date de naissance'],['p-address','Adresse']];
+// Champs en plus, utilisés pour générer le bail
+const LEASE_FIELDS=[['p-phone','Téléphone'],['p-pob','Lieu de naissance'],['p-profession','Profession']];
+const _val=id=>(document.getElementById(id)?.value||'').trim();
+
 function updateProfileeCompleteness(){
-  const required=[
-    document.getElementById('p-name')?.value,
-    document.getElementById('p-phone')?.value,
-    document.getElementById('p-nat')?.value,
-    document.getElementById('p-passport')?.value,
-    document.getElementById('p-dob')?.value,
-    document.getElementById('p-pob')?.value,
-    document.getElementById('p-address')?.value,
-    document.getElementById('p-profession')?.value,
-  ];
-  const filled=required.filter(v=>v&&v.trim()!=='').length;
-  const pct=Math.round(filled/required.length*100);
+  const all=[...CONTACT_FIELDS,...LEASE_FIELDS];
+  const filled=all.filter(([id])=>_val(id)).length;
+  const pct=Math.round(filled/all.length*100);
+  const missContact=CONTACT_FIELDS.filter(([id])=>!_val(id));
+  const missLease=LEASE_FIELDS.filter(([id])=>!_val(id));
+  // Encadrer en bleu les champs qui bloquent encore le contact
+  CONTACT_FIELDS.forEach(([id])=>document.getElementById(id)?.classList.toggle('fi-need',!_val(id)));
   const bar=document.getElementById('completeness-bar');
   const text=document.getElementById('completeness-text');
   const pctEl=document.getElementById('complete-pct');
   if(bar)bar.style.width=pct+'%';
-  if(bar)bar.style.background=pct===100?'var(--green)':pct>50?'var(--marine)':'var(--bleu)';
+  if(bar)bar.style.background=pct===100?'var(--green)':!missContact.length?'var(--marine)':'var(--bleu)';
   if(text){
     if(pct===100)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez contacter les propriétaires et demander des visites';
-    else text.innerHTML=`${pct}% — remplissez tous les champs requis (*) pour débloquer le contact et les visites`;
-    text.style.color=pct===100?'var(--green)':'var(--td)';
+    else if(!missContact.length)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous pouvez contacter les propriétaires et demander des visites. Pour le bail, il restera : '+missLease.map(f=>f[1]).join(', ')+'.';
+    else text.innerHTML='Pour contacter un propriétaire ou demander une visite, il manque : <strong>'+missContact.map(f=>f[1]).join(', ')+'</strong>.';
+    text.style.color=pct===100||!missContact.length?'var(--green)':'var(--td)';
   }
   if(pctEl)pctEl.textContent=pct+'% complété';
   return pct;
@@ -4451,6 +4460,14 @@ async function saveProfilee(){
   }
   const ok=document.getElementById('prof-ok');ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
   toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
+  const ban=document.getElementById('profil-needed-banner');
+  if(ban&&CONTACT_FIELDS.every(([id])=>_val(id))){
+    const back=ban.dataset.back||'';
+    ban.style.background='rgba(76,175,125,.1)';ban.style.borderColor='rgba(76,175,125,.4)';
+    ban.innerHTML='<strong style="color:var(--green)">C\'est bon, vous pouvez maintenant contacter le propriétaire.</strong>'
+      +(back?' <a href="/?annonce='+back+'" style="color:var(--bleu);font-weight:700;text-decoration:underline;white-space:nowrap">Revenir à l\'annonce →</a>':'');
+    ban.scrollIntoView({behavior:'smooth',block:'center'});
+  }
 }
 
 async function uploadID(input){
@@ -4778,12 +4795,21 @@ const DOSSIER_TYPE_LABELS={
   cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant / Micro-entreprise',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',service_civique:'Service civique',intermittent:'Intermittent / Artiste auteur',allocations_rsa:'RSA / Allocations',autre_pro:'Autres activités',
   bulletins:'3 derniers bulletins de salaire',avis_impot_ressources:'Avis d\'imposition (revenus)',bilan:'Bilan comptable',pension:'3 derniers bulletins de pension',bourse:'Bourse d\'études (CROUS)',are_allocation:'ARE — indemnités chômage',caf_rsa:'Allocations CAF / RSA',aide_logement:'Aide au logement CAF/MSA',revenus_fonciers:'Revenus fonciers',autre_ressources:'Autres ressources',
   avec_impot:'Avis d\'imposition',
+  salarie_plus3:'Salarié depuis plus de 3 mois',salarie_moins3:'Salarié depuis moins de 3 mois',salarie_pas_encore:'Salarié — poste pas encore pris ou depuis moins d\'un mois',
+  independant_rev:'Indépendant',intermittent_rev:'Intermittent',artiste_rev:'Artiste-auteur',aide_sociale:'Aide sociale',pension_rev:'Retraite ou autre pension',rente_rev:'Rente',sans_revenus:'Pas de revenus',
+  quittances:'Locataire — 3 dernières quittances de loyer',attestation_paiement:'Locataire — attestation de bon paiement des loyers',
+  attestation_hebergement:'Hébergé — attestation d\'hébergement de moins de 3 mois',heberge_sans_attestation:'Hébergé — sans attestation d\'hébergement',
+  taxe_fonciere:'Propriétaire — avis de taxe foncière',
   garant_personne:'Garant — une personne physique',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
   skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_rattache:'Rattaché au foyer fiscal des parents',skipped_garant:'Pas de garant'
 };
 
 // Contextual instructions shown after type selection — like DossierFacile
 const DOSSIER_TYPE_INSTRUCTIONS={
+  quittances:'Vos 3 dernières quittances de loyer. Vous pouvez les ajouter une par une ou en un seul PDF.',
+  attestation_paiement:'Attestation de bon paiement des loyers signée par votre propriétaire ou votre agence.',
+  attestation_hebergement:'Attestation d\'hébergement datée de moins de 3 mois, signée par la personne qui vous héberge.',
+  taxe_fonciere:'Votre dernier avis de taxe foncière, toutes les pages visibles.',
   cni:'Recto et verso obligatoires. Le document doit être en cours de validité.',
   passeport:'Les pages contenant votre photo et vos informations personnelles (double-page). En cours de validité.',
   sejour:'Recto et verso du titre de séjour. En cours de validité.',
@@ -4870,7 +4896,7 @@ function renderDossierState(){
     const isDone=st?.type&&(!isGarantPersonne||garantComplete);
     if(isDone){
       if(stepEl){stepEl.classList.remove('ds-act');stepEl.classList.add('ds-done');}
-      if(badgeEl){badgeEl.textContent=st.skipped?'Non applicable':'Fourni';badgeEl.className=st.skipped?'badge b-gold':'badge b-green';}
+      if(badgeEl){badgeEl.textContent=st.skipped?'Non applicable':st.noDoc?'Validé':'Fourni';badgeEl.className=st.skipped?'badge b-gold':'badge b-green';}
       done++;
     } else {
       if(stepEl)stepEl.classList.remove('ds-done');
@@ -4899,6 +4925,8 @@ function showDossierStep(idx){
   if(idx===6){renderDossierCompletion();if(typeof lucide!=='undefined')lucide.createIcons();return;}
   const saved=dossierState[idx];
   if(saved?.type){restoreUploadedStep(idx,saved);}
+  else if(idx===1){hebReset();}
+  else if(idx===3){resStart();}
   // Sécurité supplémentaire : si garant_personne (type ou pendingType), forcer le sous-dossier
   if(idx===5&&(saved?.type==='garant_personne'||saved?.pendingType==='garant_personne')){
     const simpleUpload=document.getElementById('garant-simple-upload');
@@ -4910,6 +4938,8 @@ function showDossierStep(idx){
 }
 
 function restoreUploadedStep(idx,saved){
+  if(idx===1&&hebRestore(saved))return;
+  if(idx===3){resRestore(saved);return;}
   const grid=document.getElementById('dtype-grid-'+idx);
   const upload=document.getElementById('dupload-'+idx);
   const label=document.getElementById('dtype-label-'+idx);
@@ -4933,6 +4963,241 @@ function restoreUploadedStep(idx,saved){
   } else if(preview&&saved.skipped){
     preview.style.display='block';
     preview.innerHTML=`<div style="background:var(--gdim);border-radius:8px;padding:.5rem .75rem;font-size:.82rem;color:var(--gold)"><i data-lucide=info class=ic></i> Non applicable — étape ignorée</div>`;
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  }
+}
+
+// ── Étape 2 : situation d'hébergement (Locataire / Hébergé / Propriétaire) ──
+const HEB_CHOSEN={locataire:'Vous êtes locataire',heberge:'Vous êtes hébergé',proprietaire:'Vous êtes propriétaire',autre:'Autre situation'};
+const HEB_FROM_TYPE={quittances:'locataire',attestation_paiement:'locataire',locataire:'locataire',attestation_hebergement:'heberge',heberge_sans_attestation:'heberge',heberge:'heberge',heberge_gratuit:'heberge',taxe_fonciere:'proprietaire',proprietaire:'proprietaire',autre_heberg:'autre'};
+const _hebEl=id=>document.getElementById(id);
+function _hebTaxYear(){const d=new Date();return d.getMonth()>=8?d.getFullYear():d.getFullYear()-1;} // avis reçu fin août / septembre
+
+function hebShowSituation(sit){
+  _hebEl('dtype-grid-1').style.display='none';
+  _hebEl('heb-sub').style.display='block';
+  _hebEl('heb-chosen-txt').textContent=HEB_CHOSEN[sit]||'';
+  ['locataire','heberge','proprietaire'].forEach(k=>{const el=_hebEl('heb-sub-'+k);if(el)el.style.display=k===sit?(k==='proprietaire'?'block':'flex'):'none';});
+  document.querySelectorAll('.heb-year').forEach(e=>e.textContent=_hebTaxYear());
+  _hebEl('heb-done-note').style.display='none';
+  _hebEl('dupload-1').style.display='none';
+}
+function hebChoose(sit){
+  if(!dossierState[1])dossierState[1]={};
+  dossierState[1].pendingSituation=sit;
+  hebShowSituation(sit);
+  if(sit==='proprietaire')hebPickDoc('taxe_fonciere');
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function hebPickDoc(type){
+  const st=dossierState[1]=dossierState[1]||{};
+  const cur=st.pendingType||st.type;
+  if(cur&&cur!==type){st.files=[];const pv=_hebEl('dfile-preview-1');if(pv){pv.style.display='none';pv.innerHTML='';}}
+  ['locataire','heberge'].forEach(k=>{const el=_hebEl('heb-sub-'+k);if(el)el.style.display='none';});
+  _hebEl('heb-done-note').style.display='none';
+  selectDocType(1,type);
+}
+async function hebNoAttestation(){
+  dossierState[1]={situation:'heberge',type:'heberge_sans_attestation',files:[],noDoc:true};
+  await saveDossierState();
+  renderDossierState();
+  setTimeout(()=>showDossierStep(2),300);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape 2 validée');
+}
+function hebBack(){
+  const st=dossierState[1]||{};
+  delete st.pendingType;
+  const sit=st.pendingSituation||st.situation||HEB_FROM_TYPE[st.type];
+  if(!sit||sit==='proprietaire'||sit==='autre'){hebReset();return;}
+  hebShowSituation(sit);
+}
+function hebReset(){
+  const st=dossierState[1];
+  if(st){delete st.pendingType;delete st.pendingSituation;}
+  _hebEl('dtype-grid-1').style.display='';
+  _hebEl('heb-sub').style.display='none';
+  _hebEl('dupload-1').style.display='none';
+}
+// Réaffiche un choix déjà enregistré. Renvoie true si tout est géré ici (pas de fichier à montrer).
+function hebRestore(saved){
+  const sit=saved.situation||HEB_FROM_TYPE[saved.type]||'autre';
+  hebShowSituation(sit);
+  if(saved.noDoc){
+    const n=_hebEl('heb-done-note');
+    n.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous n\'avez pas d\'attestation d\'hébergement — étape validée, aucun document à fournir.';
+    n.style.display='block';
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    return true;
+  }
+  ['locataire','heberge','proprietaire'].forEach(k=>{if(k!=='proprietaire'||sit!=='proprietaire'){const el=_hebEl('heb-sub-'+k);if(el)el.style.display='none';}});
+  return false; // la suite (type choisi + fichiers) est affichée par restoreUploadedStep
+}
+
+// ── Étape 4 : justificatif de ressources (questions successives, comme DossierFacile) ──
+const RES_TREE={
+  root:{q:null,opts:[
+    {k:'travail',t:'Revenus du travail',s:'Salarié, indépendant, intermittent…',next:'travail'},
+    {k:'aide',t:'Aide sociale',s:'Chômage, allocations familiales, APL, RSA…',next:'aide'},
+    {k:'pension',t:'Retraite ou autre pension',s:'Pension alimentaire, d’invalidité…',leaf:'pension_rev'},
+    {k:'rente',t:'Rente',s:'Revenus locatifs, rente viagère…',leaf:'rente_rev'},
+    {k:'bourse',t:'Bourse',leaf:'bourse'},
+    {k:'aucun',t:'Pas de revenus',leaf:'sans_revenus'}]},
+  travail:{q:'Vous êtes :',opts:[
+    {k:'salarie',t:'salarié',c:'Vous êtes salarié',next:'salarie'},
+    {k:'independant',t:'indépendant',c:'Vous êtes indépendant',leaf:'independant_rev'},
+    {k:'intermittent',t:'intermittent',c:'Vous êtes intermittent',leaf:'intermittent_rev'},
+    {k:'artiste',t:'artiste-auteur',c:'Vous êtes artiste-auteur',leaf:'artiste_rev'}]},
+  aide:{q:'Vous recevez :',opts:[
+    {k:'caf',t:'une aide de la CAF ou de la MSA',s:'RSA, prime d’activité…',c:'Vous touchez une aide de la CAF ou de la MSA',next:'aide_caf'},
+    {k:'ft',t:'une aide de France Travail',s:'chômage, aide au retour à l’emploi (ARE)…',c:'Vous touchez une aide de France Travail',next:'aide_ft'},
+    {k:'apl',t:'l’aide personnalisée au logement (APL)',s:'ou bien vous allez la toucher',c:'Vous touchez l’aide personnalisée au logement (APL)',next:'aide_apl'},
+    {k:'aah',t:'l’allocation aux adultes handicapés (AAH)',c:'Vous touchez l’allocation aux adultes handicapés (AAH)',next:'aide_aah'},
+    {k:'autre',t:'une autre aide',leaf:'aide_autre'}]},
+  aide_caf:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_caf_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_caf_moins3'}]},
+  aide_ft:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_ft_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_ft_moins3'},{k:'pasencore',t:'Vous ne touchez pas encore l’aide',leaf:'aide_ft_pas_encore'}]},
+  aide_apl:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_apl_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_apl_moins3'},{k:'pasencore',t:'Vous ne touchez pas encore l’APL',leaf:'aide_apl_pas_encore'}]},
+  aide_aah:{q:null,opts:[{k:'plus3',t:'Depuis plus de 3 mois',leaf:'aide_aah_plus3'},{k:'moins3',t:'Depuis moins de 3 mois',leaf:'aide_aah_moins3'},{k:'pasencore',t:'Vous ne touchez pas encore l’AAH',leaf:'aide_aah_pas_encore'}]},
+  salarie:{q:null,opts:[
+    {k:'plus3',t:'Depuis plus de 3 mois',leaf:'salarie_plus3'},
+    {k:'moins3',t:'Depuis moins de 3 mois',leaf:'salarie_moins3'},
+    {k:'pasencore',t:'Vous n’avez pas encore pris votre poste ou vous avez commencé depuis moins d’un mois',c:'Pas encore commencé ou depuis moins d’un mois',leaf:'salarie_pas_encore'}]}
+};
+const _RES_REAL='<strong>Le montant saisi doit être réaliste.</strong><br>Un revenu surévalué peut faire refuser votre dossier par le propriétaire.';
+function _resMonths(){
+  const m=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const now=new Date().getMonth();
+  const at=k=>m[(now-k+12)%12];
+  return {three:[at(4),at(3),at(2)],extra:at(1)};
+}
+const RES_LEAF={
+  salarie_plus3:{amount:true,upload:true,docs:()=>{const mo=_resMonths();return 'Veuillez fournir vos <strong>3 derniers bulletins de salaire</strong> :<ul>'+mo.three.map(x=>'<li>'+x+'</li>').join('')+'</ul>Vous pouvez ajouter le bulletin de '+mo.extra+' si vous l’avez.';},note:'Le montant doit correspondre à vos bulletins de salaire.'},
+  salarie_moins3:{amount:true,upload:false,note:_RES_REAL},
+  salarie_pas_encore:{amount:true,upload:false,note:'<strong>Le montant saisi doit être réaliste.</strong><br>Par exemple : si votre contrat indique un montant de 30000€ par an, votre salaire net mensuel est de 30000/12x0,75=1875€ net par mois.<br><strong>Un revenu surévalué peut faire refuser votre dossier par le propriétaire.</strong>'},
+  independant_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>dernier bilan comptable</strong> ou, à défaut, votre <strong>dernier avis d’imposition</strong> ou une attestation de chiffre d’affaires (URSSAF).',note:_RES_REAL},
+  intermittent_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir vos <strong>3 derniers bulletins de salaire</strong> et/ou votre <strong>attestation d’indemnisation France Travail</strong>.',note:_RES_REAL},
+  artiste_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>dernier avis d’imposition</strong> ou une attestation URSSAF artistes-auteurs.',note:_RES_REAL},
+  aide_sociale:{amount:true,upload:true,docs:()=>'Veuillez fournir une <strong>attestation de droits de moins de 3 mois</strong> (France Travail, CAF, MSA…).',note:_RES_REAL},
+  pension_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>dernier bulletin de pension</strong> ou une attestation de l’organisme qui la verse.',note:_RES_REAL},
+  rente_rev:{amount:true,upload:true,docs:()=>'Veuillez fournir un <strong>justificatif de la rente</strong> (avis d’imposition, quittances perçues, contrat de rente viagère…).',note:_RES_REAL},
+  bourse:{amount:true,upload:true,docs:()=>'Veuillez fournir votre <strong>avis d’attribution de bourse</strong> de l’année en cours.',note:_RES_REAL},
+  sans_revenus:{instant:true}
+};
+// Aides sociales : à la fin, uniquement le montant mensuel de l'aide (pas de document)
+(function(){
+  const AIDES={caf:'Aide CAF / MSA',ft:'Aide France Travail',apl:'APL',aah:'AAH'};
+  const WHEN={plus3:'depuis plus de 3 mois',moins3:'depuis moins de 3 mois',pas_encore:'pas encore perçue'};
+  Object.keys(AIDES).forEach(a=>Object.keys(WHEN).forEach(w=>{
+    const key='aide_'+a+'_'+w;
+    RES_LEAF[key]={amount:true,upload:false,amountLabel:w==='pas_encore'?'Saisissez le <strong>montant mensuel de l’aide que vous allez recevoir</strong>, sans virgule :':'Saisissez le <strong>montant mensuel de l’aide que vous recevez</strong>, sans virgule :',amountEx:'300'};
+    DOSSIER_TYPE_LABELS[key]=AIDES[a]+' — '+WHEN[w];
+  }));
+  RES_LEAF.aide_autre={amount:true,upload:false,amountLabel:'Saisissez le montant de vos revenus mensuels nets moyens :',amountEx:'300'};
+  DOSSIER_TYPE_LABELS.aide_autre='Autre aide sociale';
+})();
+const _RES_AMOUNT_LABEL='Saisissez votre <strong>revenu mensuel net moyen avant prélèvement à la source</strong>, sans virgule :';
+const _resEl=id=>document.getElementById(id);
+let _resPath=[]; // suite des choix faits : [{node,opt}]
+
+function _resOpt(node,k){return RES_TREE[node].opts.find(o=>o.k===k);}
+function _resPathFromLeaf(leaf){
+  // retrouve le chemin des choix à partir du type enregistré
+  const walk=(node,acc)=>{for(const o of RES_TREE[node].opts){const a=acc.concat([{node,k:o.k}]);if(o.leaf===leaf)return a;if(o.next){const r=walk(o.next,a);if(r)return r;}}return null;};
+  return walk('root',[])||[];
+}
+function resStart(){_resPath=[];_resRender();}
+function resPick(node,k){
+  const i=_resPath.findIndex(p=>p.node===node);
+  if(i>=0)_resPath=_resPath.slice(0,i);
+  _resPath.push({node,k});
+  const o=_resOpt(node,k);
+  if(o.leaf&&RES_LEAF[o.leaf]?.instant){resNoIncome();return;}
+  _resRender();
+}
+function resModify(i){_resPath=_resPath.slice(0,i);_resRender();}
+function resBack(){_resPath.pop();_resRender();}
+
+function _resRender(){
+  const st=dossierState[3]=dossierState[3]||{};
+  // lignes "✓ choix — Modifier"
+  _resEl('res-chosen').innerHTML=_resPath.map((p,i)=>{const o=_resOpt(p.node,p.k);return '<div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(o.c||o.t)+'</span><button type="button" class="heb-mod" onclick="resModify('+i+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';}).join('');
+  const last=_resPath[_resPath.length-1];
+  const lastOpt=last?_resOpt(last.node,last.k):null;
+  const leaf=lastOpt?.leaf||null;
+  const node=leaf?null:(lastOpt?.next||'root');
+  // question + options
+  _resEl('res-q').style.display=node&&RES_TREE[node].q?'block':'none';
+  _resEl('res-q').textContent=node?RES_TREE[node].q||'':'';
+  _resEl('res-opts').style.display=node?'flex':'none';
+  _resEl('res-opts').innerHTML=node?RES_TREE[node].opts.map(o=>'<button type="button" class="heb-opt" onclick="resPick(\''+node+'\',\''+o.k+'\')"><span><span class="heb-t">'+o.t+'</span>'+(o.s?'<span class="heb-s">'+o.s+'</span>':'')+'</span><i data-lucide=arrow-right class="ic heb-arr"></i></button>').join(''):'';
+  // formulaire de fin (montant, documents, note)
+  const cfg=leaf&&!RES_LEAF[leaf]?.instant?RES_LEAF[leaf]:null; // « Pas de revenus » : rien à saisir
+  _resEl('res-leaf').style.display=cfg?'block':'none';
+  if(cfg){
+    const cur=st.pendingType||st.type;
+    if(cur&&cur!==leaf){st.files=[];const pv=_resEl('dfile-preview-3');if(pv){pv.style.display='none';pv.innerHTML='';}}
+    st.pendingType=leaf;
+    _resEl('res-amount-wrap').style.display=cfg.amount?'block':'none';
+    _resEl('res-amount-label').innerHTML=cfg.amountLabel||_RES_AMOUNT_LABEL;
+    _resEl('res-amount-ex').textContent='Exemple : '+(cfg.amountEx||'2400');
+    if(cfg.amount&&!_resEl('res-amount').value&&st.amount)_resEl('res-amount').value=st.amount;
+    _resEl('res-docs-txt').innerHTML=cfg.docs?cfg.docs():'';
+    _resEl('res-docs-txt').style.display=cfg.docs?'block':'none';
+    _resEl('dupload-3').style.display=cfg.upload?'block':'none';
+    _resEl('res-note').style.display=cfg.note?'flex':'none';
+    _resEl('res-note-txt').innerHTML=cfg.note||'';
+  } else if(st.pendingType){delete st.pendingType;}
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+async function resConfirm(){
+  const st=dossierState[3]=dossierState[3]||{};
+  const leaf=st.pendingType;
+  const cfg=RES_LEAF[leaf];
+  if(!cfg){toast('<i data-lucide=alert-triangle class=ic></i> Choisissez votre situation');return;}
+  const amount=parseInt(_resEl('res-amount').value,10);
+  if(cfg.amount&&!(amount>0)){toast('<i data-lucide=alert-triangle class=ic></i> Saisissez votre revenu mensuel net');_resEl('res-amount').focus();return;}
+  if(cfg.upload&&!st.files?.length){toast('<i data-lucide=alert-triangle class=ic></i> Ajoutez au moins un document');return;}
+  st.type=leaf;delete st.pendingType;
+  st.amount=cfg.amount?amount:null;
+  st.noDoc=!cfg.upload;
+  if(!cfg.upload)st.files=[];
+  await saveDossierState();
+  renderDossierState();
+  setTimeout(()=>showDossierStep(4),300);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape 4 enregistrée !');
+}
+async function resNoIncome(){
+  dossierState[3]={type:'sans_revenus',files:[],noDoc:true,amount:null};
+  await saveDossierState();
+  renderDossierState();
+  setTimeout(()=>showDossierStep(4),300);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Étape 4 validée');
+}
+// Réaffiche un choix déjà enregistré (les anciens types restent affichés tels quels)
+function resRestore(saved){
+  const path=_resPathFromLeaf(saved.type);
+  if(saved.type==='sans_revenus'){
+    _resPath=path;_resRender();
+    _resEl('res-opts').style.display='none';
+    _resEl('res-chosen').insertAdjacentHTML('beforeend','<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> Vous n\'avez pas de revenus — étape validée, aucun document à fournir.</div>');
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    return;
+  }
+  if(!path.length){
+    // ancien type (avant la refonte) : on montre ce qui a été fourni, avec la possibilité de refaire
+    _resPath=[];_resRender();
+    const files=(saved.files||[]).map(f=>'<div style="font-size:.82rem;margin-top:.25rem">📄 '+f.name+'</div>').join('');
+    _resEl('res-chosen').innerHTML='<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> Déjà fourni : '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+files+'</div><div class="res-q">Pour mettre à jour, choisissez votre situation :</div>';
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    return;
+  }
+  _resPath=path;
+  if(saved.amount)_resEl('res-amount').value=saved.amount;
+  _resRender();
+  const pv=_resEl('dfile-preview-3');
+  if(pv&&saved.files?.length){
+    pv.style.display='block';
+    pv.innerHTML=saved.files.map(f=>'<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="flex:1;font-size:.82rem">'+f.name+'</span></div>').join('');
     if(typeof lucide!=='undefined')lucide.createIcons();
   }
 }
@@ -5061,6 +5326,7 @@ async function confirmDossierStep(idx){
   if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
   if(!st?.files?.length&&!st?.skipped){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
   if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
+  if(idx===1){st.situation=st.pendingSituation||HEB_FROM_TYPE[st.type]||st.situation;delete st.pendingSituation;delete st.noDoc;}
   await saveDossierState();
   renderDossierState();
   const docStepsLen=DOSSIER_STEPS.filter(s=>!s.isValidation).length;
@@ -5112,7 +5378,7 @@ function showDossierSummary(){
       ${st?.type?'<div class="dsr-sub">'+(DOSSIER_TYPE_LABELS[st.type]||st.type)+'</div>':''}
       </div>
       <div style="display:flex;align-items:center;gap:.5rem">
-        ${hasDoc?'<span class="badge-uploaded"><i data-lucide=check-circle-2 class=ic></i> Fourni</span>':skipped?'<span class="badge b-gold" style="font-size:.68rem">Non applicable</span>':'<span class="badge-missing">DOCUMENT MANQUANT</span>'}
+        ${hasDoc?'<span class="badge-uploaded"><i data-lucide=check-circle-2 class=ic></i> '+(st.noDoc?'Validé':'Fourni')+'</span>':skipped?'<span class="badge b-gold" style="font-size:.68rem">Non applicable</span>':'<span class="badge-missing">DOCUMENT MANQUANT</span>'}
         <button class="btn bg bsm" onclick="showDossierStep(${i});document.getElementById(\'dossier-summary-modal\').classList.remove(\'open\')" style="font-size:.72rem;padding:.25rem .65rem">${hasDoc||skipped?'Modifier':'Ajouter →'}</button>
       </div>
     </div>`;
@@ -5186,11 +5452,11 @@ const GARANT_TYPE_OPTIONS={
     {key:'g_autre_id',label:'Autre document',hint:'Tout document officiel avec photo en cours de validité'}
   ],
   1:[
-    {key:'g_locataire',label:'Locataire',hint:'Quittance de loyer de moins de 6 mois'},
-    {key:'g_proprietaire',label:'Propriétaire',hint:'Taxe foncière ou titre de propriété'},
-    {key:'g_heberge',label:'Hébergé chez quelqu\'un',hint:'Chez un parent, un ami, un proche — attestation hébergeur + sa pièce d\'identité'},
-    {key:'g_logement_fonction',label:'Dans un logement de fonction',hint:'Bulletin de salaire ou contrat mentionnant le logement'},
-    {key:'g_autre_heberg',label:'Autre',hint:'Tout justificatif de domicile officiel de moins de 3 mois'}
+    {key:'g_quittances',sit:'locataire',label:'3 dernières quittances de loyer',hint:'Les 3 dernières quittances de loyer de votre garant.'},
+    {key:'g_attest_paiement',sit:'locataire',label:'Attestation de bon paiement des loyers',hint:'Signée par son propriétaire ou son agence.'},
+    {key:'g_attest_heberg',sit:'heberge',label:'Attestation d\'hébergement de moins de 3 mois',hint:'Datée de moins de 3 mois, signée par la personne qui l\'héberge.'},
+    {key:'g_heberge_sans_attest',sit:'heberge',label:'Pas d\'attestation d\'hébergement',hint:'Aucun document à fournir',needsUpload:false},
+    {key:'g_taxe_fonciere',sit:'proprietaire',label:'Avis de taxe foncière',hint:'Son dernier avis de taxe foncière, toutes les pages visibles.'}
   ],
   2:[
     {key:'g_cdi',label:'CDI',hint:'Contrat de travail ou attestation employeur'},
@@ -5213,7 +5479,7 @@ const GARANT_TYPE_OPTIONS={
   ],
   4:[
     {key:'g_avec_impot',label:"Votre garant a un avis d'impôt",hint:'Français ou étranger — avis complet sur impots.gouv.fr, toutes les pages',needsUpload:true},
-    {key:'g_sans_impot',label:"Votre garant n'a pas d'avis d'impôt",hint:'Étudiant, à charge des parents, première déclaration… — aucun document à fournir',needsUpload:false}
+    {key:'g_sans_impot',label:"Votre garant n'a pas d'avis d'impôt",hint:'Rien à fournir — l\'étape est terminée',needsUpload:false}
   ]
 };
 const GARANT_TRAVAIL_SUBTYPES=[
@@ -5271,28 +5537,75 @@ function renderGarantSelector(){
   const sel=document.getElementById('garant-multi-selector');
   if(!sel)return;
   const garants=dossierState[5]?.garants||[];
-  if(!garants.length){sel.innerHTML='';return;}
-  const firstOk=isGarantComplete(0);
-  let html=`<div style="font-size:.82rem;font-weight:700;color:var(--deep);margin-bottom:.5rem"><i data-lucide=users class=ic></i> Garants</div>
-    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem">`;
-  garants.forEach((g,i)=>{
-    const nm=[g.garant_name?.prenom,g.garant_name?.nom].filter(Boolean).join(' ')||'Garant '+(i+1);
-    const ok=isGarantComplete(i);
-    const act=i===activeGarantIdx;
-    html+=`<div style="display:flex;align-items:center;gap:.3rem;padding:.35rem .85rem;border-radius:100px;cursor:pointer;font-size:.78rem;font-weight:600;border:1.5px solid ${act?'var(--bleu)':ok?'var(--green)':'var(--b2)'};background:${act?'var(--bleu)':ok?'var(--grdim)':'var(--s2)'};color:${act?'white':ok?'var(--green)':'var(--tm)'};transition:all .15s" onclick="switchGarant(${i})">
-      ${ok?'<i data-lucide=check-circle-2 style="width:12px;height:12px;margin-right:2px"></i>':''} ${nm}
-      ${i>0?`<span onclick="event.stopPropagation();removeGarant(${i})" style="margin-left:.25rem;opacity:.65;font-size:.85em;line-height:1">✕</span>`:''}
+  const others=garants.filter((_,i)=>i!==activeGarantIdx).length;
+  sel.innerHTML=`<div class="heb-info" style="margin-bottom:.75rem"><i data-lucide=info class=ic></i><div><strong>Vos garants s’ajoutent un par un.</strong><br>Remplissez d’abord le dossier complet de ce garant (identité + 5 rubriques). Une fois terminé, vous pourrez ajouter un autre garant si besoin.</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <div style="font-size:.95rem;font-weight:800;color:var(--deep)"><i data-lucide=user class=ic></i> Garant n°${activeGarantIdx+1}</div>
+      ${others||isGarantComplete(activeGarantIdx)?`<button type="button" class="heb-mod" onclick="showGarantList()">Voir mes garants (${garants.length}) →</button>`:''}
     </div>`;
-  });
-  if(firstOk){
-    html+=`<div style="padding:.35rem .85rem;border-radius:100px;cursor:pointer;font-size:.78rem;font-weight:600;border:1.5px dashed var(--bleu);background:transparent;color:var(--bleu)" onclick="addNewGarant()">+ Ajouter un garant</div>`;
-  }
-  html+='</div>';
-  if(firstOk&&allGarantsComplete()){
-    html+=`<button class="btn bp bsm" onclick="saveAndGoToValidation()" style="font-size:.82rem"><i data-lucide=arrow-right class=ic></i> Continuer vers la validation →</button>`;
-  }
-  sel.innerHTML=html;
   if(typeof lucide!=='undefined')lucide.createIcons();
+}
+
+// ── Liste "Mes garants" : nom, statut, modifier, supprimer, ajouter ──
+function showGarantEdit(){
+  const l=document.getElementById('garant-list'),e=document.getElementById('garant-edit');
+  if(l)l.style.display='none';
+  if(e)e.style.display='block';
+}
+function showGarantList(){
+  // (les champs nom/prénom/email enregistrent déjà à chaque frappe)
+  const l=document.getElementById('garant-list'),e=document.getElementById('garant-edit');
+  if(!l)return;
+  const garants=dossierState[5]?.garants||[];
+  const allOk=allGarantsComplete();
+  l.innerHTML=`<div class="gl-title">Mes garants</div>`
+    +garants.map((g,i)=>{
+      const nm=[g.garant_name?.prenom,g.garant_name?.nom].filter(Boolean).join(' ')||'Garant n°'+(i+1);
+      const ok=isGarantComplete(i);
+      return `<div class="gl-row">
+        <div class="gl-name">${nm.replace(/</g,'&lt;')}</div>
+        <span class="gl-badge ${ok?'ok':'ko'}"><i data-lucide=${ok?'check-circle-2':'x-circle'} class=ic></i> ${ok?'Terminé':'Non terminé'}</span>
+        <div class="gl-actions">
+          <button type="button" class="gl-ico" title="Modifier ce garant" aria-label="Modifier ce garant" onclick="editGarant(${i})"><i data-lucide=pencil class=ic></i></button>
+          <button type="button" class="gl-ico" title="Supprimer ce garant" aria-label="Supprimer ce garant" onclick="deleteGarant(${i})"><i data-lucide=trash-2 class=ic></i></button>
+        </div>
+      </div>`;}).join('')
+    +`<button type="button" class="gl-add" onclick="addNewGarant()">Ajouter un nouveau garant ?</button>
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
+        ${allOk?'':'<span style="font-size:.78rem;color:var(--td)">Terminez ou supprimez les garants non terminés pour continuer.</span>'}
+        <button class="btn bp" ${allOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="saveAndGoToValidation()">Continuer →</button>
+      </div>`;
+  if(e)e.style.display='none';
+  l.style.display='block';
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function editGarant(i){
+  showGarantEdit();
+  switchGarant(i);
+}
+async function deleteGarant(i){
+  const gs=dossierState[5]?.garants;
+  if(!gs||!gs[i])return;
+  const nm=[gs[i].garant_name?.prenom,gs[i].garant_name?.nom].filter(Boolean).join(' ')||'ce garant';
+  if(!confirm('Supprimer '+nm+' ?'))return;
+  gs.splice(i,1);
+  if(!gs.length){
+    delete dossierState[5];
+    activeGarantIdx=0;
+    await saveDossierState();
+    resetDocType(5);
+    renderDossierState();
+    toast('Garant supprimé');
+    return;
+  }
+  activeGarantIdx=0;
+  // remettre dans les champs l'identité du garant désormais actif
+  const gn=gs[0].garant_name||{};
+  [['garant-nom',gn.nom],['garant-prenom',gn.prenom],['garant-email',gn.email]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v||'';});
+  await saveDossierState();
+  renderDossierState();
+  showGarantList();
+  toast('Garant supprimé');
 }
 
 function switchGarant(idx){
@@ -5316,6 +5629,7 @@ function switchGarant(idx){
 }
 
 function addNewGarant(){
+  showGarantEdit();
   if(!dossierState[5].garants)gState();
   dossierState[5].garants.push({garant_name:{},garant_subs:{},files:[]});
   activeGarantIdx=dossierState[5].garants.length-1;
@@ -5383,6 +5697,7 @@ function initGarantSubDossier(){
   if(nomEl)nomEl.value=gn.nom||'';
   if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
   if(emailEl)emailEl.value=gn.email||'';
+  garantHebSit=null;garantResPath=[];garantRevenueAdding=null;garantRevFiles=[];garantRevSalaireMontant='';
   garantSubStep=0;
   for(let i=0;i<5;i++){
     if(!garantSubDone(i)){garantSubStep=i;break;}
@@ -5392,12 +5707,15 @@ function initGarantSubDossier(){
   renderGarantSubNav();
   renderGarantSelector();
   showGarantSubStep(garantSubStep);
+  if((dossierState[5]?.garants||[]).some((_,i)=>isGarantComplete(i)))showGarantList();
+  else showGarantEdit();
 }
 
 function renderGarantSubScreen(i){
   const sc=document.getElementById('garant-sub-'+i);
   if(!sc)return;
   if(i===3){renderGarantRevenueScreen();return;}
+  if(i===1){renderGarantHebScreen();return;}
   const step=GARANT_SUB_STEPS[i];
   const opts=GARANT_TYPE_OPTIONS[i];
   const sub=gState().garant_subs?.[i];
@@ -5407,7 +5725,7 @@ function renderGarantSubScreen(i){
   const isMultiple=i===2||i===3;
   if(!hasType){
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
-      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">Choisissez la situation du garant :</div>
+      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">${i===0?'Choisissez <strong style="color:var(--bleu)">un seul</strong> document parmi ceux ci-dessous — pas besoin de tous les fournir.':'Choisissez la situation du garant :'}</div>
       <div class="dossier-type-grid">${opts.map(o=>`<div class="dtg-item" onclick="selectGarantType(${i},'${o.key}')"><div class="dtg-label">${o.label}</div><div class="dtg-hint">${o.hint}</div></div>`).join('')}</div>`;
   } else if(noUpload){
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
@@ -5439,103 +5757,137 @@ function renderGarantSubScreen(i){
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
-// ── Ressources garant — multi-revenus ──────────────────────────
+// ── Hébergement garant : Locataire / Hébergé / Propriétaire (comme pour le locataire) ──
+let garantHebSit=null;
+const G_HEB_TXT={locataire:'Votre garant est locataire',heberge:'Votre garant est hébergé',proprietaire:'Votre garant est propriétaire'};
+const G_HEB_LEGACY={g_locataire:'locataire',g_proprietaire:'proprietaire',g_heberge:'heberge'};
+const _gArrow='<i data-lucide=arrow-right class="ic heb-arr"></i>';
+function _gFilesHtml(files){
+  return files.length?'<div style="margin:.5rem 0">'+files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${f.name}</span>${f.url?`<a href="${f.url}" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--bleu)">Voir →</a>`:''}</div>`).join('')+'</div>':'';
+}
+function _gUploadArea(inputId,onchange,ondrop,hasFiles){
+  return `<div class="dossier-upload-area" onclick="document.getElementById('${inputId}').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="${ondrop}">
+    <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+    <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">${hasFiles?"Ajouter d'autres fichiers":'Cliquer ou déposer'}</div>
+    <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo · Plusieurs fichiers acceptés</div>
+    <input type="file" id="${inputId}" accept="image/*,.pdf" multiple style="display:none" onchange="${onchange}">
+  </div>`;
+}
+function renderGarantHebScreen(){
+  const sc=document.getElementById('garant-sub-1');
+  if(!sc)return;
+  const sub=gState().garant_subs?.[1]||{};
+  const opts=GARANT_TYPE_OPTIONS[1];
+  const opt=opts.find(o=>o.key===sub.type);
+  const sit=opt?.sit||G_HEB_LEGACY[sub.type]||garantHebSit;
+  let h='<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=home class=ic></i> Hébergement du garant</div>';
+  if(!sit&&!sub.type){
+    h+='<div style="font-size:.82rem;color:var(--tm)">Quelle est la situation d’hébergement de votre garant ? Choisissez <strong style="color:var(--bleu)">une seule</strong> réponse.</div><div class="heb-list">'
+      +[['locataire','Locataire',''],['heberge','Hébergé chez quelqu’un','Chez ses parents, un ami, un proche…'],['proprietaire','Propriétaire','']]
+        .map(([k,t,s])=>`<button type="button" class="heb-opt" onclick="garantHebChoose('${k}')"><span><span class="heb-t">${t}</span>${s?`<span class="heb-s">${s}</span>`:''}</span>${_gArrow}</button>`).join('')
+      +'</div>';
+  } else {
+    h+=`<div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${G_HEB_TXT[sit]||(opt?.label||sub.type)}</span><button type="button" class="heb-mod" onclick="resetGarantType(1)">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>`;
+    if(!sub.type){
+      h+='<div class="heb-list">'+opts.filter(o=>o.sit===sit).map(o=>`<button type="button" class="heb-opt" onclick="selectGarantType(1,'${o.key}')"><span class="heb-t">${o.key==='g_heberge_sans_attest'?'Votre garant n’a pas d’attestation d’hébergement':o.key==='g_attest_heberg'?'Votre garant a une attestation d’hébergement de moins de 3 mois':o.key==='g_quittances'?'Votre garant a ses 3 dernières quittances de loyer':'Votre garant a une attestation de bon paiement des loyers'}</span>${_gArrow}</button>`).join('')+'</div>';
+      if(sit==='locataire')h+='<div class="heb-info" style="margin-top:.75rem"><i data-lucide=info class=ic></i><div><strong>Votre garant n’a pas de quittance de loyer ?</strong><br>Son propriétaire est légalement tenu de les lui fournir.</div></div>';
+    } else if(opt?.needsUpload===false){
+      h+=`<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> Votre garant n’a pas d’attestation d’hébergement — étape validée, aucun document à fournir.</div>`;
+    } else {
+      const files=sub.files||[];
+      if(sit!=='proprietaire'&&opt)h+=`<div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt.label}</span><button type="button" class="heb-mod" onclick="garantHebDocBack()">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>`;
+      h+=sit==='proprietaire'
+        ?`<p style="font-size:.85rem;color:var(--txt);line-height:1.6;margin:.75rem 0">Veuillez fournir son <strong>avis de taxe foncière ${_hebTaxYear()}</strong>. Il peut le télécharger sur le <a href="https://www.impots.gouv.fr/accueil" target="_blank" rel="noopener" style="color:var(--bleu);text-decoration:underline">site internet des impôts</a>.</p>`
+        :`<div style="font-size:.8rem;color:var(--tm);margin:.5rem 0 .75rem">${opt?.hint||''}</div>`;
+      h+=_gFilesHtml(files)+_gUploadArea('gfile-1','uploadGarantFile(1,this.files)','handleGarantDrop(event,1)',files.length>0)
+        +`<div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">${files.length?`<button class="btn bp bsm" onclick="confirmGarantSub(1)">Valider et continuer →</button>`:''}</div>`;
+    }
+  }
+  sc.innerHTML=h;
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function garantHebChoose(sit){
+  garantHebSit=sit;
+  if(sit==='proprietaire'){selectGarantType(1,'g_taxe_fonciere');return;}
+  renderGarantSubScreen(1);
+}
+function garantHebDocBack(){
+  const s=gState().garant_subs?.[1]||{};
+  garantHebSit=GARANT_TYPE_OPTIONS[1].find(o=>o.key===s.type)?.sit||garantHebSit;
+  gState().garant_subs[1]={files:[]};
+  renderGarantSubScreen(1);renderGarantSubNav();
+}
+
+// ── Ressources garant : mêmes questions que pour le locataire, plusieurs revenus possibles ──
+let garantResPath=[];
+const _G_TXT=[
+  ['Vous êtes :','Votre garant est :'],['Vous recevez :','Votre garant reçoit :'],
+  ['Vous n’avez pas encore pris votre poste ou vous avez commencé depuis moins d’un mois','Votre garant n’a pas encore pris son poste ou a commencé depuis moins d’un mois'],
+  ['Vous êtes ','Votre garant est '],['Vous touchez ','Votre garant touche '],['Vous ne touchez pas encore','Votre garant ne touche pas encore'],
+  ['Saisissez votre <strong>revenu mensuel net moyen','Saisissez le <strong>revenu mensuel net moyen de votre garant'],
+  ['l’aide que vous recevez','l’aide que votre garant reçoit'],['l’aide que vous allez recevoir','l’aide que votre garant va recevoir'],
+  ['Saisissez le montant de vos revenus mensuels nets moyens','Saisissez le montant des revenus mensuels nets moyens de votre garant'],
+  ['Veuillez fournir vos ','Veuillez fournir ses '],['Veuillez fournir votre ','Veuillez fournir son '],[', votre <strong>',', son <strong>'],
+  ['votre contrat indique','son contrat indique'],['votre salaire net mensuel','son salaire net mensuel'],['à vos bulletins','à ses bulletins']
+];
+function gTxt(s){if(!s)return s;_G_TXT.forEach(([a,b])=>{s=s.split(a).join(b);});return s;}
+function _gResOpts(node){return RES_TREE[node].opts.filter(o=>!(node==='root'&&o.k==='aucun'));}
 function renderGarantRevenueScreen(){
   const sc=document.getElementById('garant-sub-3');
   if(!sc)return;
   gState();
   if(!gState().garant_subs[3])gState().garant_subs[3]={revenues:[]};
   const revs=gState().garant_subs[3].revenues||[];
-  if(garantRevenueAdding){
-    const opt=GARANT_TYPE_OPTIONS[3].find(o=>o.key===garantRevenueAdding);
-    // Niveau intermédiaire : sous-types Revenus du travail
-    if(garantRevenueAdding==='g_travail'&&!garantRevSubType){
-      sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.25rem"><i data-lucide=banknote class=ic></i> Revenus du travail</div>
-        <div style="font-size:.78rem;color:var(--tm);margin-bottom:.85rem">La situation de votre garant :</div>
-        <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
-          ${GARANT_TRAVAIL_SUBTYPES.map(s=>`<div class="dtg-item" style="text-align:left;display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;cursor:pointer" onclick="selectGarantRevSubType('${s.key}','${s.label}')">
-            <div><div style="font-size:.88rem;font-weight:600;color:var(--bleu)">${s.label}</div><div style="font-size:.72rem;color:var(--tm);margin-top:.15rem">${s.hint}</div></div>
-            <span style="font-size:1.1rem;color:var(--bleu);margin-left:.75rem">→</span>
-          </div>`).join('')}
-        </div>
-        <button class="btn bg bsm" onclick="cancelAddGarantRevenue()">← Retour</button>`;
-      if(typeof lucide!=='undefined')lucide.createIcons();
-      return;
-    }
-    // Niveau 3 : ancienneté du salarié
-    if(garantRevenueAdding==='g_travail'&&garantRevSubType==='g_trav_salarie'&&!garantRevSalarieAnc){
-      const ancs=[
-        {key:'plus_3_mois',label:'Depuis plus de 3 mois',hint:'3 derniers bulletins de salaire requis'},
-        {key:'moins_3_mois',label:'Depuis moins de 3 mois',hint:'Bulletins disponibles + contrat de travail'},
-        {key:'nouveau_poste',label:"Garant n'a pas encore pris son poste ou commencé depuis moins d'un mois",hint:'Contrat de travail signé uniquement'}
-      ];
-      sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.25rem"><i data-lucide=banknote class=ic></i> Revenus du travail — <span style="color:var(--bleu);font-weight:400">Salarié</span></div>
-        <div style="font-size:.78rem;color:var(--tm);margin-bottom:.85rem">Depuis quand votre garant est-il en poste ?</div>
-        <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
-          ${ancs.map(a=>`<div class="dtg-item" onclick="selectGarantSalarieAnc('${a.key}')">
-            <div class="dtg-label">${a.label}</div>
-            <div class="dtg-hint">${a.hint}</div>
-          </div>`).join('')}
-        </div>
-        <button class="btn bg bsm" onclick="cancelAddGarantRevenue()">← Retour</button>`;
-      if(typeof lucide!=='undefined')lucide.createIcons();
-      return;
-    }
-    const subLabel=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.label;
-    const ancLabel=garantRevSalarieAnc==='plus_3_mois'?'Depuis plus de 3 mois':garantRevSalarieAnc==='moins_3_mois'?'Depuis moins de 3 mois':garantRevSalarieAnc==='nouveau_poste'?'Nouveau poste':'';
-    const displayLabel=garantRevSubType?`${opt?.label||garantRevenueAdding} — ${subLabel}${ancLabel?' ('+ancLabel+')':''}` :(opt?.label||garantRevenueAdding);
-    // Hint adapté selon ancienneté salarié
-    let displayHint=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.hint||opt?.hint||'';
-    let extraHtml='';
-    if(garantRevSubType==='g_trav_salarie'&&garantRevSalarieAnc){
-      if(garantRevSalarieAnc==='plus_3_mois'){
-        const lastMonths=getLastMonthNames(3);
-        const curMonth=new Date().toLocaleDateString('fr-FR',{month:'long'});
-        displayHint=`Veuillez fournir les <strong>3 derniers bulletins de salaire</strong> : ${lastMonths.join(', ')}.<br><span style="font-size:.75rem;color:var(--td)">Vous pouvez ajouter le bulletin de ${curMonth} si vous l'avez.</span>`;
-        extraHtml=`<div style="margin-bottom:.85rem">
-          <label style="font-size:.82rem;font-weight:600;color:var(--deep);display:block;margin-bottom:.35rem">Revenu mensuel net moyen avant prélèvement à la source, sans virgule :</label>
-          <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem">Exemple : 2400</div>
-          <input type="number" id="garant-salaire-montant" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="garantRevSalaireMontant=this.value" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.88rem;background:var(--s);color:var(--deep);box-sizing:border-box">
-        </div>`;
-      } else if(garantRevSalarieAnc==='moins_3_mois'){
-        displayHint='Bulletins de salaire disponibles + contrat de travail signé';
-        extraHtml=`<div style="margin-bottom:.85rem">
-          <label style="font-size:.82rem;font-weight:600;color:var(--deep);display:block;margin-bottom:.35rem">Revenu mensuel net moyen avant prélèvement à la source, sans virgule :</label>
-          <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem">Exemple : 2400</div>
-          <input type="number" id="garant-salaire-montant" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="garantRevSalaireMontant=this.value" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--b2);border-radius:8px;font-size:.88rem;background:var(--s);color:var(--deep);box-sizing:border-box">
-        </div>`;
-      } else if(garantRevSalarieAnc==='nouveau_poste'){
-        displayHint='Contrat de travail signé uniquement — aucun bulletin de salaire requis';
-      }
-    }
-    sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=banknote class=ic></i> Ressources — <span style="color:var(--bleu);font-weight:400">${displayLabel}</span></div>
-      <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem;line-height:1.5">${displayHint}</div>
-      ${extraHtml}
-      ${garantRevFiles.length>0?`<div style="margin-bottom:.5rem">${garantRevFiles.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('')}</div>`:''}
-      <div class="dossier-upload-area" onclick="document.getElementById('gfile-rev').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantRevDrop(event)">
-        <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
-        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">${garantRevFiles.length>0?"Ajouter d'autres fichiers":'Cliquer ou déposer'}</div>
-        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo · Plusieurs fichiers acceptés</div>
-        <input type="file" id="gfile-rev" accept="image/*,.pdf" multiple style="display:none" onchange="uploadGarantRevFile(this.files)">
-      </div>
-      <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
-        <button class="btn bg bsm" onclick="cancelAddGarantRevenue()">← Retour</button>
-        ${garantRevFiles.length>0?`<button class="btn bp bsm" onclick="confirmAddGarantRevenue()">Ajouter ce justificatif →</button>`:''}
-      </div>`;
+  let h='<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide=banknote class=ic></i> Ressources du garant</div>';
+  if(!garantResPath.length){
+    h+=`${revs.length>0?`<div style="margin-bottom:.85rem">${revs.map((r,idx)=>`<div style="display:flex;align-items:center;gap:.75rem;background:var(--grdim);border:1px solid var(--b2);border-radius:10px;padding:.55rem .85rem;margin-bottom:.35rem"><i data-lucide=check-circle-2 class=ic style="color:var(--green);flex-shrink:0"></i><div style="flex:1"><div style="font-size:.83rem;font-weight:600;color:var(--deep)">${r.label}</div><div style="font-size:.72rem;color:var(--tm)">${[r.montant?Number(r.montant).toLocaleString('fr-FR')+' € / mois':'',r.files?.length?r.files.length+' fichier'+(r.files.length>1?'s':''):''].filter(Boolean).join(' · ')}</div></div><button class="btn bg bsm" style="font-size:.7rem;padding:.2rem .5rem" onclick="removeGarantRevenue(${idx})">✕</button></div>`).join('')}</div>`:''}
+      <div style="font-size:.82rem;color:var(--tm)">${revs.length?'Ajouter une autre source de revenus (facultatif) :':'Quels sont les revenus de votre garant ? Choisissez <strong style="color:var(--bleu)">une seule</strong> réponse à chaque question.'}</div>
+      <div class="heb-list">${_gResOpts('root').map(o=>`<button type="button" class="heb-opt" onclick="garantResPick('root','${o.k}')"><span><span class="heb-t">${o.t}</span>${o.s?`<span class="heb-s">${o.s}</span>`:''}</span>${_gArrow}</button>`).join('')}</div>
+      ${revs.length>0?`<button class="btn bp bsm" style="margin-top:1rem" onclick="confirmGarantSub(3)">Valider les ressources →</button>`:''}`;
   } else {
-    sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.75rem"><i data-lucide=banknote class=ic></i> Ressources du garant</div>
-      <div style="background:#1B4FD818;border-left:3px solid var(--bleu);border-radius:0 6px 6px 0;padding:.7rem 1rem;margin-bottom:1rem;font-size:.8rem;color:var(--deep);line-height:1.6">
-        Les documents permettent aux propriétaires de <strong>connaître les moyens financiers</strong> du garant.<br>
-        Vous pouvez ajouter <strong>autant de sources de revenus que nécessaire</strong>.
-      </div>
-      ${revs.length>0?`<div style="margin-bottom:.85rem">${revs.map((r,idx)=>`<div style="display:flex;align-items:center;gap:.75rem;background:var(--grdim);border:1px solid var(--b2);border-radius:10px;padding:.55rem .85rem;margin-bottom:.35rem"><i data-lucide=check-circle-2 class=ic style="color:var(--green);flex-shrink:0"></i><div style="flex:1"><div style="font-size:.83rem;font-weight:600;color:var(--deep)">${r.label}</div><div style="font-size:.72rem;color:var(--tm)">${r.files?.length||0} fichier${(r.files?.length||0)>1?'s':''}</div></div><button class="btn bg bsm" style="font-size:.7rem;padding:.2rem .5rem" onclick="removeGarantRevenue(${idx})">✕</button></div>`).join('')}</div>`:'<div style="font-size:.8rem;color:var(--tm);text-align:center;padding:.75rem 0;margin-bottom:.5rem">Aucun revenu déclaré</div>'}
-      <div style="font-size:.8rem;font-weight:600;color:var(--tm);margin-bottom:.5rem">Ajouter une source de revenus :</div>
-      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem">
-        ${GARANT_TYPE_OPTIONS[3].map(o=>`<div class="dtg-item" style="text-align:left;display:flex;justify-content:space-between;align-items:center;padding:.65rem .9rem" onclick="startAddGarantRevenue('${o.key}')"><div><div class="dtg-label" style="text-align:left;margin-bottom:.1rem">${o.label}</div><div class="dtg-hint" style="text-align:left">${o.hint}</div></div><span style="font-size:1.2rem;color:var(--bleu);font-weight:300;margin-left:.5rem">+</span></div>`).join('')}
-      </div>
-      ${revs.length>0?`<button class="btn bp bsm" onclick="confirmGarantSub(3)">Valider les ressources →</button>`:''}`;
+    h+=garantResPath.map((p,i)=>{const o=_resOpt(p.node,p.k);return `<div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${gTxt(o.c||o.t)}</span><button type="button" class="heb-mod" onclick="garantResModify(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>`;}).join('');
+    const last=garantResPath[garantResPath.length-1];
+    const lo=_resOpt(last.node,last.k);
+    if(!lo.leaf){
+      const node=lo.next;
+      if(RES_TREE[node].q)h+=`<div class="res-q">${gTxt(RES_TREE[node].q)}</div>`;
+      h+='<div class="heb-list">'+_gResOpts(node).map(o=>`<button type="button" class="heb-opt" onclick="garantResPick('${node}','${o.k}')"><span><span class="heb-t">${gTxt(o.t)}</span>${o.s?`<span class="heb-s">${o.s}</span>`:''}</span>${_gArrow}</button>`).join('')+'</div>';
+      h+='<div style="margin-top:1rem"><button class="btn bg bsm" onclick="garantResBack()">← Retour</button></div>';
+    } else {
+      const cfg=RES_LEAF[lo.leaf]||{};
+      if(cfg.amount)h+=`<div class="res-amount"><label for="garant-res-amount">${gTxt(cfg.amountLabel||_RES_AMOUNT_LABEL)}</label><div class="res-ex">Exemple : ${cfg.amountEx||'2400'}</div><input class="fi" id="garant-res-amount" inputmode="numeric" autocomplete="off" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');garantRevSalaireMontant=this.value"></div>`;
+      if(cfg.docs)h+=`<div class="res-docs">${gTxt(cfg.docs())}</div>`;
+      if(cfg.upload)h+=_gFilesHtml(garantRevFiles)+'<div style="margin-top:.6rem"></div>'+_gUploadArea('gfile-rev','uploadGarantRevFile(this.files)','handleGarantRevDrop(event)',garantRevFiles.length>0);
+      if(cfg.note)h+=`<div class="heb-info" style="margin-top:1rem"><i data-lucide=info class=ic></i><div>${gTxt(cfg.note)}</div></div>`;
+      h+=`<div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="garantResBack()">← Retour</button><button class="btn bp bsm" onclick="confirmGarantRes()">Ajouter ce revenu →</button></div>`;
+    }
   }
+  sc.innerHTML=h;
   if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function _gResResetLeaf(){garantRevenueAdding=null;garantRevFiles=[];}
+function garantResPick(node,k){
+  const i=garantResPath.findIndex(p=>p.node===node);
+  if(i>=0)garantResPath=garantResPath.slice(0,i);
+  garantResPath.push({node,k});
+  const o=_resOpt(node,k);
+  if(o.leaf){if(garantRevenueAdding!==o.leaf){garantRevFiles=[];}garantRevenueAdding=o.leaf;}else _gResResetLeaf();
+  renderGarantSubScreen(3);
+}
+function garantResModify(i){garantResPath=garantResPath.slice(0,i);_gResResetLeaf();renderGarantSubScreen(3);}
+function garantResBack(){garantResPath.pop();_gResResetLeaf();renderGarantSubScreen(3);}
+function confirmGarantRes(){
+  const leaf=garantRevenueAdding;
+  const cfg=RES_LEAF[leaf];
+  if(!cfg)return;
+  const amount=parseInt(garantRevSalaireMontant,10);
+  if(cfg.amount&&!(amount>0)){toast('<i data-lucide=alert-triangle class=ic></i> Saisissez le montant mensuel');document.getElementById('garant-res-amount')?.focus();return;}
+  if(cfg.upload&&!garantRevFiles.length){toast('<i data-lucide=alert-triangle class=ic></i> Ajoutez au moins un document');return;}
+  const revs=gState().garant_subs[3].revenues=gState().garant_subs[3].revenues||[];
+  revs.push({type:leaf,montant:cfg.amount?amount:null,label:DOSSIER_TYPE_LABELS[leaf]||leaf,files:cfg.upload?[...garantRevFiles]:[]});
+  garantResPath=[];_gResResetLeaf();garantRevSalaireMontant='';
+  renderGarantSubScreen(3);renderGarantSubNav();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Revenu ajouté');
 }
 
 function startAddGarantRevenue(typeKey){
@@ -5644,9 +5996,11 @@ function selectGarantType(subIdx,typeKey){
   gState().garant_subs[subIdx].type=typeKey;
   renderGarantSubScreen(subIdx);
   renderGarantSubNav();
+  if(GARANT_TYPE_OPTIONS[subIdx]?.find(o=>o.key===typeKey)?.needsUpload===false)confirmGarantSub(subIdx);
 }
 
 function resetGarantType(subIdx){
+  if(subIdx===1)garantHebSit=null;
   if(!gState().garant_subs)return;
   gState().garant_subs[subIdx]={files:[]};
   renderGarantSubScreen(subIdx);
@@ -5727,7 +6081,8 @@ async function confirmGarantSub(subIdx){
     await saveDossierState();
     renderDossierState();
     renderGarantSelector();
-    toast('<i data-lucide=check-circle-2 class=ic></i> Garant '+(activeGarantIdx+1)+' complet ! Ajoutez un autre garant ou continuez vers la validation.');
+    showGarantList();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Garant n°'+(activeGarantIdx+1)+' terminé');
   }
 }
 
