@@ -1544,7 +1544,7 @@ function renderDossierHTML(dd){
         g_cni:"Carte d'identité",g_passeport:'Passeport',g_sejour:'Titre de séjour',g_permis:'Permis de conduire',g_france_id:'France Identité',g_autre_id:'Autre document',
         g_quittances:'Locataire — 3 dernières quittances',g_attest_paiement:'Locataire — attestation de bon paiement',g_attest_heberg:"Hébergé — attestation d'hébergement",g_heberge_sans_attest:"Hébergé — sans attestation",g_taxe_fonciere:'Propriétaire — avis de taxe foncière',
         g_locataire:'Locataire',g_proprietaire:'Propriétaire',g_heberge:'Hébergé',g_logement_fonction:'Logement de fonction',g_autre_heberg:'Autre justificatif domicile',
-        g_cdi:'CDI',g_cdd:'CDD / Intérim',g_fonctionnaire:'Fonctionnaire',g_independant:'Indépendant',g_retraite:'Retraite',g_chomage:'Chômage',g_etudiant:'Étudiant',g_alternance:'Alternance',g_intermittent:'Intermittent',g_sans_activite:'Sans activité',
+        g_cdi:'CDI',g_cdd:'CDD / Intérim',g_fonctionnaire:'Fonctionnaire',g_independant:'Indépendant',g_retraite:'Retraite',g_chomage:'Chômage',g_etudiant:'Étudiant',g_alternance:'Alternance',g_intermittent:'Intermittent',g_sans_activite:'Sans activité',g_stage:'Stage',g_service_civique:'Service civique',g_rsa:'RSA / Allocations',g_autre_pro:'Autres activités',
         g_travail:'Revenus du travail',g_aide_sociale:'Aide sociale',g_retraite_pension:'Retraite / pension',g_rente:'Rente',g_bourse:'Bourse',
         g_avec_impot:"Avis d'imposition",g_sans_impot:"Sans avis d'imposition"
       };
@@ -1600,7 +1600,7 @@ function renderDossierHTML(dd){
                 <span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${f.name||'Doc'}</span>
                 <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
               </div>`).join('')}
-              ${!subFiles.length&&sub.type!=='g_sans_impot'?'<div style="font-size:.64rem;color:var(--td);font-style:italic">Aucun fichier</div>':''}
+              ${!subFiles.length&&!['g_sans_impot','g_sans_activite','g_heberge_sans_attest'].includes(sub.type)?'<div style="font-size:.64rem;color:var(--td);font-style:italic">Aucun fichier</div>':''}
             </div>`;
           }
         }
