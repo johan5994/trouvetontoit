@@ -3909,7 +3909,10 @@ async function requestVisitFromDetail(){
     return;
   }
 
-  const missing=['full_name','passport_number','nationality','date_of_birth','home_address'].filter(k=>!P?.[k]);
+  // Visite : profil COMPLET obligatoire (tous les champs du bail)
+  const _vk=['full_name','phone','nationality','date_of_birth','place_of_birth','home_address','profession'];
+  if(P?.statut_juridique==='morale')_vk.push('denomination_sociale');
+  const missing=_vk.filter(k=>!String(P?.[k]||'').trim());
   if(missing.length>0){
     goCompleteProfile('visite',missing);
     return;
@@ -3977,7 +3980,7 @@ async function sendMsg(){
   if(!c){toast('Pbail write a message');return;}
 
   // Check minimum profil before contact
-  const missingFields=['full_name','passport_number','nationality','date_of_birth','home_address'].filter(k=>!P?.[k]);
+  const missingFields=['full_name','nationality','date_of_birth','home_address'].filter(k=>!P?.[k]);
   if(missingFields.length>0){
     goCompleteProfile('contact',missingFields);
     return;
@@ -4443,7 +4446,6 @@ function chkPost(){
   const missing=[];
   if(!P?.full_name) missing.push('Full name');
   if(!P?.phone) missing.push('Téléphone');
-  if(!P?.passport_number) missing.push('Passport/ID');
   if(!P?.iban) missing.push('IBAN ( pour  paiements)');
 
   if(missing.length>0){
