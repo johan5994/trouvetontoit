@@ -3093,7 +3093,9 @@ async function setRoleAndContinue(role) {
   try {
     if(!U){toast('<i data-lucide=x-circle class=ic></i> Pbail sign in first');return;}
 
-    const full_name = P?.full_name || U.clerk?.fullName || U.clerk?.firstName || '';
+    // Le nom légal est saisi par l'utilisateur dans son profil (il doit correspondre à sa pièce d'identité) :
+    // on ne reprend pas le nom du compte Google / e-mail.
+    const full_name = P?.full_name || null;
     const email = P?.email || U.email || U.clerk?.primaryEmailAddress?.emailAddress || '';
 
     // Essayer d'abord un UPDATE
