@@ -714,7 +714,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 <option value="Zimbabwean">Zimbabwéen</option>
               </select>
             </div>
-            <div class="fg"><label class="fl">N° pièce d'identité / passeport *</label><input class="fi" id="prof-id" placeholder="ex. 12345678A" oninput="updateLLCompleteness()"></div>
+            <div class="fg"><label class="fl" for="prof-statut">Statut *</label><select class="fsel" id="prof-statut" onchange="toggleDenomination('prof');updateLLCompleteness()"><option value="physique">Personne physique (particulier)</option><option value="morale">Personne morale (société, SCI…)</option></select></div>
+            <div class="fg" id="prof-denomination-wrap" style="display:none"><label class="fl" for="prof-denomination">Dénomination sociale *</label><input class="fi" id="prof-denomination" placeholder="ex. SCI Les Tilleuls" oninput="updateLLCompleteness()"></div>
             <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="prof-dob" oninput="updateLLCompleteness()"></div>
           </div>
 
@@ -1443,8 +1444,10 @@ function normalizeDossier(raw){
   if(Array.isArray(raw))return raw;
   if(typeof raw==='object'){
     const maxIdx=Math.max(...Object.keys(raw).map(Number).filter(n=>!isNaN(n)),-1);
-    if(maxIdx<0)return null;
-    const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(raw[i]||null);return arr;
+    if(maxIdx<0){if(raw.df){const a=[];a.df=raw.df;return a;}return null;}
+    const arr=[];for(let i=0;i<=maxIdx;i++)arr.push(raw[i]||null);
+    if(raw.df)arr.df=raw.df; // DossierFacile importé par le locataire
+    return arr;
   }
   return null;
 }
@@ -1476,7 +1479,7 @@ function renderDossierHTML(dd){
     avec_impot:'Avis d\'imposition',
     skipped_impot:'Non imposable / Pas d\'avis d\'impôt',
     skipped_rattache:'Rattaché au foyer fiscal des parents',
-    garant_personne:'Garant — personne physique',garant_organisme:'Garant — organisme (Visale…)',
+    garant_personne:'Garant — personne physique',garant_organisme:'Garant — organisme (Visale…)',garant_visale:'Garant — Garantie Visale',garant_autre_organisme:'Garant — autre organisme',
     garant_moral:'Garant — personne morale',skipped_garant:'Pas de garant'
   };
   const STEP_META=[
@@ -1488,6 +1491,17 @@ function renderDossierHTML(dd){
   ];
   const GARANT_LIEN={parent:'Parent',conjoint:'Conjoint(e)',ami:'Ami(e)',employeur:'Employeur',autre:'Autre lien'};
   let html='';
+
+  // DossierFacile importé par le locataire (PDF et/ou lien de partage)
+  if(dd.df&&(dd.df.link||(dd.df.files||[]).length)){
+    const _e=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    const fs=(dd.df.files||[]).filter(f=>f?.url);
+    html+=`<div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.3);border-radius:9px;padding:.55rem .7rem;margin-bottom:.5rem">
+      <div style="font-size:.7rem;font-weight:800;color:var(--bleu);margin-bottom:.3rem">📁 DossierFacile du locataire</div>
+      ${dd.df.link&&/^https?:\/\//i.test(dd.df.link)?`<a href="${_e(dd.df.link)}" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--bleu);font-weight:700;word-break:break-all">Ouvrir le dossier en ligne →</a>`:''}
+      ${fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.25rem .5rem;margin-top:.25rem"><span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${_e(f.name)}</span><a href="${_e(f.url)}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join('')}
+    </div>`;
+  }
 
   // Étapes 0–4 : locataire
   for(let i=0;i<5;i++){
@@ -1534,6 +1548,19 @@ function renderDossierHTML(dd){
         g_travail:'Revenus du travail',g_aide_sociale:'Aide sociale',g_retraite_pension:'Retraite / pension',g_rente:'Rente',g_bourse:'Bourse',
         g_avec_impot:"Avis d'imposition",g_sans_impot:"Sans avis d'imposition"
       };
+      // Organisme ou personne morale : infos + fichiers
+      if(garantStep.type!=='garant_personne'){
+        const _e=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        const _f=(arr,title)=>{const fs=(arr||[]).filter(f=>f?.url);return fs.length?`<div style="font-size:.63rem;font-weight:700;color:var(--td);text-transform:uppercase;margin:.3rem 0 .15rem">${title}</div>`+fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem"><span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${_e(f.name)||'Doc'}</span><a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join(''):'';};
+        if(garantStep.type==='garant_moral'){
+          const pieces={cni:"carte d'identité",passeport:'passeport',sejour:'titre de séjour',autre:'autre pièce'};
+          html+=`<div style="font-size:.72rem;color:var(--txt);margin-bottom:.2rem">Société : <strong>${_e(garantStep.moral_nom)||'—'}</strong></div>
+            <div style="font-size:.72rem;color:var(--txt);margin-bottom:.2rem">Représentant : <strong>${_e(garantStep.rep_nom)||'—'}</strong>${garantStep.rep_piece?' ('+pieces[garantStep.rep_piece]+')':''}</div>`
+            +_f(garantStep.files,'Kbis / existence légale')+_f(garantStep.rep_files,"Pièce d'identité du représentant");
+        } else {
+          html+=_f(garantStep.files,'Certificat de garantie');
+        }
+      }
       const garants=garantStep.garants||[];
       garants.forEach((g,gi)=>{
         const gn=g.garant_name||{};
@@ -1730,7 +1757,7 @@ async function loadBookingDossier(booking){
     ?'<span style="background:var(--grdim);color:var(--green);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> ID Vérifié</span>'
     :'<span style="background:rgba(212,168,71,.15);color:var(--gold);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=alert-triangle class=ic></i>️ Non vérifié</span>';
 
-  const fields=[profil.full_name,profil.passport_number,profil.nationality,profil.date_of_birth,profil.phone,profil.email,profil.emprent];
+  const fields=[profil.full_name,profil.nationality,profil.date_of_birth,profil.phone,profil.email,profil.emprent];
   const pct=Math.round(fields.filter(Boolean).length/fields.length*100);
   const progressColor=pct>=80?'var(--green)':pct>=50?'var(--gold)':'var(--red)';
 
@@ -1761,7 +1788,7 @@ async function loadBookingDossier(booking){
         <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Date de naissance</div><div style="font-weight:600">${profil.date_of_birth||'—'}</div></div>
 
         <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Nationalité</div><div style="font-weight:600">${profil.nationality||'—'}</div></div>
-        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">N° passeport / pièce d'identité</div><div style="font-weight:600">${profil.passport_number||'—'}</div></div>
+        <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Statut</div><div style="font-weight:600">${profil.statut_juridique==='morale'?'Personne morale'+(profil.denomination_sociale?' — '+String(profil.denomination_sociale).replace(/</g,'&lt;'):''):'Personne physique'}</div></div>
 
       </div>
     </div>
@@ -2331,7 +2358,7 @@ function generateQuittance(pay){
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(80,80,80);
     doc.text(`Date: ${today.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,20,y);y+=8;
     doc.text(`Propriétaire: ${P?.full_name||'Propriétaire'}`,20,y);y+=6;
-    if(P?.passport_number){doc.text(`ID/Passport: ${P.passport_number}`,20,y);y+=6;}
+    if(P?.statut_juridique==='morale'&&P?.denomination_sociale){doc.text(`Société: ${P.denomination_sociale}`,20,y);y+=6;}
     if(P?.home_address){doc.text(`Adresse: ${P.home_address}`,20,y);y+=6;}
     y+=4;
     doc.text(`Locataire: ${pay.tenant_name||'Locataire'}`,20,y);y+=6;
@@ -3362,7 +3389,6 @@ function updateLLCompleteness(){
     {id:'prof-name',label:'Full legal name'},
     {id:'prof-phone',label:'Téléphone'},
     {id:'prof-nat',label:'Nationalité'},
-    {id:'prof-id',label:'ID/Passport'},
     {id:'prof-dob',label:'Date de naissance'},
     {id:'prof-home-address',label:'Adresse de résidence'},
     {id:'prof-iban',label:'IBAN'},
@@ -3372,11 +3398,14 @@ function updateLLCompleteness(){
     'prof-name': document.getElementById('prof-name')?.value?.trim() || P?.full_name,
     'prof-phone': document.getElementById('prof-phone')?.value?.trim() || P?.phone,
     'prof-nat': document.getElementById('prof-nat')?.value?.trim() || P?.nationality,
-    'prof-id': document.getElementById('prof-id')?.value?.trim() || P?.passport_number,
     'prof-dob': document.getElementById('prof-dob')?.value?.trim() || P?.date_of_birth,
     'prof-home-address': document.getElementById('prof-home-address')?.value?.trim() || P?.home_address,
     'prof-iban': document.getElementById('prof-iban')?.value?.trim() || P?.iban,
   };
+  if((document.getElementById('prof-statut')?.value||P?.statut_juridique)==='morale'){
+    required.push({id:'prof-denomination',label:'Dénomination sociale'});
+    profileData['prof-denomination']=document.getElementById('prof-denomination')?.value?.trim()||P?.denomination_sociale;
+  }
   const missing=required.filter(f=>!profileData[f.id]);
   const filled=required.length-missing.length;
   const pct=Math.round(filled/required.length*100);
@@ -3399,8 +3428,26 @@ function updateLLCompleteness(){
   return pct===100;
 }
 
+// Enregistre le profil. Si les colonnes statut_juridique / denomination_sociale n'existent pas encore
+// dans Supabase (migration pas encore lancée), on enregistre quand même le reste du profil.
+async function _updateProfileSafe(updates){
+  let{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
+  if(error&&/statut_juridique|denomination_sociale/i.test(error.message||'')){
+    console.warn('[profil] colonnes statut juridique absentes — lancer la migration SQL. Erreur:',error.message);
+    const u={...updates};delete u.statut_juridique;delete u.denomination_sociale;
+    ({error}=await sb.from('profiles').update(u).eq('clerk_id',U.id));
+  }
+  return error;
+}
+function toggleDenomination(prefix){
+  const morale=document.getElementById(prefix+'-statut')?.value==='morale';
+  const w=document.getElementById(prefix+'-denomination-wrap');
+  if(w)w.style.display=morale?'':'none';
+}
+
 function checkLLProfileComplete(){
-  const req=[P?.full_name,P?.phone,P?.nationality,P?.passport_number,P?.date_of_birth,P?.home_address,P?.iban];
+  const req=[P?.full_name,P?.phone,P?.nationality,P?.date_of_birth,P?.home_address,P?.iban];
+  if(P?.statut_juridique==='morale')req.push(P?.denomination_sociale);
   return req.every(Boolean);
 }
 
@@ -3432,7 +3479,9 @@ async function loadProfilee(){
       if(opt) _natEl.value = opt.value;
     }
   }
-  document.getElementById('prof-id').value=P.passport_number||'';
+  document.getElementById('prof-statut').value=P.statut_juridique==='morale'?'morale':'physique';
+  document.getElementById('prof-denomination').value=P.denomination_sociale||'';
+  toggleDenomination('prof');
   document.getElementById('prof-dob').value=P.date_of_birth||'';
   document.getElementById('prof-home-address').value=P.home_address||'';
   document.getElementById('prof-iban').value=P.iban||'';
@@ -3522,7 +3571,8 @@ async function saveProfilee(){
     full_name:document.getElementById('prof-name').value.trim(),
     phone:(document.getElementById('prof-phone-country')?.value||'')+document.getElementById('prof-phone').value.trim(),
     nationality:document.getElementById('prof-nat').value.trim(),
-    passport_number:document.getElementById('prof-id').value.trim(),
+    statut_juridique:document.getElementById('prof-statut').value||'physique',
+    denomination_sociale:document.getElementById('prof-statut').value==='morale'?(document.getElementById('prof-denomination').value.trim()||null):null,
     date_of_birth:document.getElementById('prof-dob').value||null,
     home_address:document.getElementById('prof-home-address').value.trim(),
     iban:document.getElementById('prof-iban').value.trim(),
@@ -3531,7 +3581,7 @@ async function saveProfilee(){
   // Co-bailleurs (liste, peut être vide)
   const coArr = getCoBailleursFromForm();
   updates.co_bailleur_data = coArr.length ? coArr : null;
-  const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
+  const error=await _updateProfileSafe(updates);
   if(error){toast('Erreur: '+error.message);return;}
   Object.assign(P,updates);
   if('co_bailleur_data' in updates) P.co_bailleur_data=updates.co_bailleur_data;
