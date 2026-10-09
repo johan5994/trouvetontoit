@@ -188,6 +188,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
 .gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 .gate-tag{background:var(--bleu);color:#fff;font-size:.65rem;font-weight:700;padding:.12rem .5rem;border-radius:100px}
+.ac-wrap{position:relative}
+.ac-wrap .fi{width:100%}
+.ac-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden}
+.ac-item{padding:.6rem .9rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--b);display:flex;gap:.5rem;align-items:baseline}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.ac-on{background:rgba(27,79,216,.07)}
+.ac-item small{color:var(--td);font-size:.75rem}
 .heb-done{margin-top:.75rem;background:var(--grdim);color:var(--green);border-radius:8px;padding:.6rem .85rem;font-size:.84rem;font-weight:600}
 .dossier-type-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
 .dtg-item{border:2px solid var(--b2);border-radius:12px;padding:.85rem 1.1rem;cursor:pointer;transition:all .15s;background:var(--s)}
@@ -662,8 +669,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <div class="fg"><label class="fl" for="p-statut">Statut *</label><select class="fsel" id="p-statut" onchange="toggleDenomination('p');updateProfileeCompleteness()"><option value="physique">Personne physique (particulier)</option><option value="morale">Personne morale (société, SCI…)</option></select></div>
             <div class="fg" id="p-denomination-wrap" style="display:none"><label class="fl" for="p-denomination">Dénomination sociale *</label><input class="fi" id="p-denomination" placeholder="ex. SCI Les Tilleuls" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob" onchange="updateProfileeCompleteness()"></div>
-            <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France" oninput="updateProfileeCompleteness()"></div>
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><div class="ac-wrap"><input class="fi" id="p-pob" placeholder="Commencez à taper votre ville de naissance…" autocomplete="off" oninput="updateProfileeCompleteness();acInput(this,'city')" onblur="acHide(this)"><div class="ac-list" id="p-pob-ac"></div></div><div style="font-size:.7rem;color:var(--td);margin-top:.25rem">Né(e) à l'étranger ? Tapez « Ville, Pays ».</div></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><div class="ac-wrap"><input class="fi" id="p-address" placeholder="Commencez à taper votre adresse…" autocomplete="off" oninput="updateProfileeCompleteness();acInput(this,'address')" onblur="acHide(this)"><div class="ac-list" id="p-address-ac"></div></div></div>
             <div class="fg" style="grid-column:1/-1"><label class="fl">Profession * <span style="font-size:.68rem;color:var(--td)">(mentionnée sur le bail)</span></label><input class="fi" id="p-profession" placeholder="ex. Ingénieur, Étudiant, Auto-entrepreneur..." oninput="updateProfileeCompleteness()"></div>
           </div>
 
@@ -680,49 +687,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <button class="btn bp" onclick="saveProfilee()">Enregistrer profil →</button>
             <span id="prof-ok" style="font-size:.82rem;color:var(--green);display:none"><i data-lucide=check-circle-2 class=ic></i> Enregistré !</span>
           </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ch"><div class="ct"><i data-lucide=id-card class=ic></i> Vérification d'identité</div><span id="verify-badge" class="badge b-dim">Non vérifié</span></div>
-        <div class="cb">
-          <p style="font-size:.85rem;color:var(--tm);margin-bottom:.75rem;line-height:1.6">Vérifié locataires get a <i data-lucide=check-circle-2 class=ic></i> badge visible to all propriétaires et are prioritised in locataire matching. A Trouve Ton Toit membre de l'équipe vérifiera votre identité sous 24h.</p>
-
-          <div id="verify-upload-section">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
-              <!-- ID upload -->
-              <div>
-                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=id-card class=ic></i> CNI ou passeport</div>
-                <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('id-up').click()">
-                  <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=id-card class=ic></i></div>
-                  <div id="id-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour télécharger</div>
-                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG, PDF · Max 5MB</div>
-                  <input type="file" id="id-up" accepter="image/*,.pdf" style="display:none" onchange="onIDSelected(this)">
-                </div>
-                <div id="id-pavis-small" style="display:none;margin-top:.4rem;text-align:center">
-                  <img id="id-pavis-img" style="max-width:100%;border-radius:8px;max-height:80px;object-fit:cover;border:2px solid var(--green)">
-                  <div style="font-size:.68rem;color:var(--green);margin-top:.2rem"><i data-lucide=check-circle-2 class=ic></i> Ready</div>
-                </div>
-              </div>
-              <!-- Selfie upload -->
-              <div>
-                <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--txt)"><i data-lucide=camera class=ic></i> Selfie</div>
-                <div style="border:2px dashed var(--b2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer" onclick="document.getElementById('selfie-up').click()">
-                  <div style="font-size:1.5rem;margin-bottom:.3rem"><i data-lucide=camera class=ic></i></div>
-                  <div id="selfie-upload-label" style="font-size:.75rem;color:var(--tm)">Cliquer pour télécharger</div>
-                  <div style="font-size:.65rem;color:var(--td);margin-top:.15rem">JPG, PNG · Photo de visage nette</div>
-                  <input type="file" id="selfie-up" accepter="image/*" style="display:none" onchange="onSelfieSelected(this)">
-                </div>
-                <div id="selfie-pavis-small" style="display:none;margin-top:.4rem;text-align:center">
-                  <img id="selfie-pavis-img" style="max-width:100%;border-radius:8px;max-height:80px;object-fit:cover;border:2px solid var(--green)">
-                  <div style="font-size:.68rem;color:var(--green);margin-top:.2rem"><i data-lucide=check-circle-2 class=ic></i> Ready</div>
-                </div>
-              </div>
-            </div>
-            <button id="submit-verify-btn" onclick="submitIDForVerification()" disabled style="width:100%;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.65rem;font-size:.85rem;font-weight:700;cursor:pointer;opacity:.5">Soumettre pour vérification →</button>
-            <div id="upload-statut" style="margin-top:.75rem;display:none"></div>
-          </div>
-
-          <div id="id-statut" style="margin-top:.75rem;font-size:.82rem;color:var(--td)"></div>
         </div>
       </div>
       <div id="dossier-check-result" style="margin-top:.75rem"></div>
@@ -1446,7 +1410,7 @@ function showProfileNeeded(need,missing,back){
 }
 
 function initUI(){
-  const n=P?.full_name||'Locataire';
+  const n=P?.full_name||clerk?.user?.firstName||'Locataire';
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
   document.getElementById('tbs').textContent='Bienvenue, '+n.split(' ')[0]+' !';
@@ -4440,7 +4404,10 @@ async function loadAvisAboutMe(){
 
 async function loadProfilee(){
   if(!P)return;
-  document.getElementById('p-name').value=P.full_name||'';
+  // Nom repris automatiquement du compte (Google…) sur un profil jamais complété : on laisse vide
+  const _acct=[clerk?.user?.fullName,clerk?.user?.firstName].filter(Boolean);
+  const _autoName=P.full_name&&_acct.includes(P.full_name)&&!P.date_of_birth&&!P.nationality&&!P.home_address;
+  document.getElementById('p-name').value=_autoName?'':(P.full_name||'');
   document.getElementById('p-email').value=P.email||U.email||'';
   document.getElementById('p-phone').value=P.phone||'';
   document.getElementById('p-nat').value=P.nationality||'';
@@ -4456,6 +4423,7 @@ async function loadProfilee(){
   // Gestion section vérification
   const uploadSection = document.getElementById('verify-upload-section');
   const badge = document.getElementById('verify-badge');
+  if(!badge)return; // carte « Vérification d'identité » retirée
   if(P.verified){
     badge.className='badge b-green';
     badge.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vérifié';
@@ -4515,6 +4483,39 @@ function goToProfileFor(need,missing){
   document.getElementById('page-profil')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// ── Autocomplétion adresse / ville (Base Adresse Nationale, comme dans la création d'annonce) ──
+let _acTimer=null,_acData={};
+function acInput(inp,mode){
+  clearTimeout(_acTimer);
+  const list=document.getElementById(inp.id+'-ac');
+  const q=inp.value.trim();
+  if(q.length<3||(mode==='city'&&q.includes(','))){list.style.display='none';return;}
+  _acTimer=setTimeout(async()=>{
+    try{
+      const url='https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6'+(mode==='city'?'&type=municipality':'');
+      const d=await (await fetch(url)).json();
+      const fs=d.features||[];
+      _acData[inp.id]=fs.map(f=>{
+        const p=f.properties;
+        return mode==='city'
+          ?{main:p.city||p.name,sub:(p.postcode||'')+(p.context?' · '+p.context:''),val:(p.city||p.name)+', France'}
+          :{main:p.name||p.label,sub:[p.postcode,p.city].filter(Boolean).join(' '),val:p.label};
+      });
+      if(!fs.length){list.style.display='none';return;}
+      const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      list.innerHTML=_acData[inp.id].map((o,i)=>`<div class="ac-item" onmousedown="acPick('${inp.id}',${i})"><span style="font-weight:600">${esc(o.main)}</span><small>${esc(o.sub)}</small></div>`).join('');
+      list.style.display='block';
+    }catch(e){list.style.display='none';}
+  },250);
+}
+function acPick(id,i){
+  const o=_acData[id]?.[i];if(!o)return;
+  const inp=document.getElementById(id);inp.value=o.val;
+  document.getElementById(id+'-ac').style.display='none';
+  updateProfileeCompleteness();
+}
+function acHide(inp){setTimeout(()=>{const l=document.getElementById(inp.id+'-ac');if(l)l.style.display='none';},150);}
+
 function updateProfileeCompleteness(){
   const all=[...CONTACT_FIELDS,...LEASE_FIELDS,...(_val('p-statut')==='morale'?[['p-denomination','Dénomination sociale']]:[])];
   const filled=all.filter(([id])=>_val(id)).length;
@@ -4522,8 +4523,7 @@ function updateProfileeCompleteness(){
   const missContact=CONTACT_FIELDS.filter(([id])=>!_val(id));
   const missLease=[...LEASE_FIELDS,...(_val('p-statut')==='morale'?[['p-denomination','Dénomination sociale']]:[])].filter(([id])=>!_val(id));
   // Encadrer en bleu les champs qui bloquent encore (contact, ou tout le profil pour une visite / candidature)
-  _allProfileFields().forEach(([id])=>document.getElementById(id)?.classList.remove('fi-need'));
-  _neededFields().forEach(([id])=>document.getElementById(id)?.classList.toggle('fi-need',!_val(id)));
+  _allProfileFields().forEach(([id])=>document.getElementById(id)?.classList.toggle('fi-need',!_val(id)));
   const bar=document.getElementById('completeness-bar');
   const text=document.getElementById('completeness-text');
   const pctEl=document.getElementById('complete-pct');
@@ -7279,8 +7279,8 @@ function initPhonePicker(){
   script.src = 'https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js';
   script.onload = () => {
     itiLocataire = window.intlTelInput(input, {
-      initialCountry: 'mt',
-      preferredCountries: ['mt','fr','gb','de','it','es'],
+      initialCountry: 'fr',
+      preferredCountries: ['fr','be','ch','lu','mt','gb','de','it','es'],
       separateDialCode: true,
       utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/utils.js'
     });
