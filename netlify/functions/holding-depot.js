@@ -24,6 +24,37 @@ exports.handler = async (event) => {
 
     const { action, ...params } = JSON.parse(event.body);
 
+    // ── Enregistrer la carte du locataire (SetupIntent, aucun débit) ──────────
+    if (action === 'setup_paiement') {
+      const { locataire_email, locataire_name, locataire_id } = params;
+      if (!locataire_email) {
+        return { statusCode: 400, headers, body: JSON.stringify({ success: false, erreur: 'Email manquant' }) };
+      }
+      let customerId;
+      const existing = await stripe.customers.list({ email: locataire_email, limit: 1 });
+      if (existing.data.length > 0) {
+        customerId = existing.data[0].id;
+      } else {
+        const customer = await stripe.customers.create({
+          email: locataire_email,
+          name: locataire_name || 'Locataire',
+          metadata: { locataire_id: locataire_id || '' }
+        });
+        customerId = customer.id;
+      }
+      const setupIntent = await stripe.setupIntents.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        usage: 'off_session',
+        metadata: { type: 'locataire_carte', locataire_id: locataire_id || '' }
+      });
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, client_secret: setupIntent.client_secret, customer_id: customerId })
+      };
+    }
+
     // ── Créer la pré-autorisation des frais TTT (10%) côté locataire ──────────
     // Autorisée maintenant, capturée seulement si le propriétaire accepte.
     if (action === 'create_commission_intent') {
