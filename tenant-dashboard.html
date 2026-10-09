@@ -170,6 +170,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gl-add{width:100%;margin-top:.4rem;padding:1.1rem;border:1.5px solid var(--bleu);border-radius:10px;background:rgba(27,79,216,.12);color:var(--bleu);font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
 .gl-add:hover{background:rgba(27,79,216,.2)}
 .ai.dtype-chosen{background:transparent;border:none;padding:.2rem 0;margin-bottom:.5rem;color:var(--txt);font-size:.92rem}
+.file-row{display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.45rem .75rem;margin-bottom:.3rem}
+.file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem;font-weight:600;color:var(--green)}
+.file-see{font-size:.75rem;color:var(--bleu);text-decoration:none;white-space:nowrap}
+.file-rm{display:inline-flex;align-items:center;gap:.25rem;background:none;border:1px solid var(--b2);border-radius:6px;padding:.2rem .5rem;font-family:inherit;font-size:.72rem;font-weight:600;color:var(--tm);cursor:pointer;white-space:nowrap}
+.file-rm:hover{border-color:#C9553A;color:#C9553A}
+.file-rm .ic{width:12px;height:12px}
+.gar-opt{padding:0;align-items:stretch;gap:0}
+.gar-opt>.gar-radio{flex-shrink:0;width:18px;height:18px;border:2px solid var(--bleu);border-radius:50%;margin:auto 0 auto 1.1rem}
+.gar-opt>span:nth-child(2){padding:1rem .9rem}
+.gar-ico{flex-shrink:0;width:68px;border-left:1px solid var(--b2);display:flex;align-items:center;justify-content:center;color:var(--bleu)}
+.gar-ico .ic{width:24px;height:24px}
+.gar-radio-line{display:flex;align-items:center;gap:.6rem;font-size:.95rem;color:var(--txt);padding:.35rem 0;cursor:pointer}
+.gar-radio-line input{width:18px;height:18px;accent-color:var(--bleu);margin:0}
+.gm-block{border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem;background:var(--s)}
+.gm-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bleu);margin-bottom:.7rem}
+.gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
+.gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.gate-tag{background:var(--bleu);color:#fff;font-size:.65rem;font-weight:700;padding:.12rem .5rem;border-radius:100px}
 .heb-done{margin-top:.75rem;background:var(--grdim);color:var(--green);border-radius:8px;padding:.6rem .85rem;font-size:.84rem;font-weight:600}
 .dossier-type-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
 .dtg-item{border:2px solid var(--b2);border-radius:12px;padding:.85rem 1.1rem;cursor:pointer;transition:all .15s;background:var(--s)}
@@ -626,14 +644,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <div class="page" id="page-profil">
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Mon profil</div>
-      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complétez votre profil une seule fois — toutes ces informations servent à générer automatiquement votre bail. Pour contacter un propriétaire ou demander une visite, il faut le nom, la nationalité, la pièce d'identité, la date de naissance et l'adresse ; les autres champs * servent au bail.</div>
+      <div class="aw"><i data-lucide=clipboard-list class=ic></i> Complétez votre profil une seule fois — toutes ces informations servent à générer automatiquement votre bail. Pour envoyer un message, il faut le nom, la nationalité, la date de naissance et l'adresse. Pour demander une visite ou postuler, <strong>tous les champs *</strong> doivent être remplis.</div>
       <div class="card" style="margin-bottom:1rem">
         <div class="ch"><div class="ct">Informations personnelles</div><span id="complete-pct" style="font-size:.75rem;color:var(--td)"></span></div>
         <div class="cb">
           <!-- Identity -->
           <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem"><i data-lucide=id-card class=ic></i> Identité</div>
           <div class="fgrid2">
-            <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(tel que sur le passeport)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(exactement comme sur votre pièce d'identité)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont" oninput="updateProfileeCompleteness()"><div style="font-size:.7rem;color:var(--bleu);margin-top:.3rem;line-height:1.4"><i data-lucide=info class=ic></i> Ce nom sera écrit sur votre bail : il doit être identique à celui de votre passeport ou carte d'identité (prénoms et nom).</div></div>
             <div class="fg"><label class="fl">E-mail</label><input class="fi" id="p-email" readonly style="opacity:.6"></div>
             <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="+33 1 00 00 00 00" autocomplete="tel" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Nationalité *</label>
@@ -641,7 +659,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <option value="">Sélectionner le pays...</option>
                 <option value="Afghan">Afghan</option><option value="Albanian">Albanian</option><option value="Algerian">Algerian</option><option value="American">American</option><option value="Andorran">Andorran</option><option value="Angolan">Angolan</option><option value="Argentine">Argentine</option><option value="Armenian">Armenian</option><option value="Australian">Australian</option><option value="Austrian">Austrian</option><option value="Azerbaijani">Azerbaijani</option><option value="Bahraini">Bahraini</option><option value="Bangladeshi">Bangladeshi</option><option value="Belgian">Belgian</option><option value="Bolivian">Bolivian</option><option value="Bosnian">Bosnian</option><option value="Brazilian">Brazilian</option><option value="British">British</option><option value="Bulgarian">Bulgarian</option><option value="Cambodian">Cambodian</option><option value="Cameroonian">Cameroonian</option><option value="Canadian">Canadian</option><option value="Chilean">Chilean</option><option value="Chinese">Chinese</option><option value="Colombian">Colombian</option><option value="Croatian">Croatian</option><option value="Cuban">Cuban</option><option value="Cypriot">Cypriot</option><option value="Czech">Czech</option><option value="Danish">Danish</option><option value="Dominican">Dominican</option><option value="Dutch">Dutch</option><option value="Ecuadorian">Ecuadorian</option><option value="Egyptian">Egyptian</option><option value="Emirati">Emirati</option><option value="Estonian">Estonian</option><option value="Ethiopian">Ethiopian</option><option value="Filipino">Filipino</option><option value="Finnish">Finnish</option><option value="French">French</option><option value="Georgian">Georgian</option><option value="German">German</option><option value="Ghanaian">Ghanaian</option><option value="Greek">Greek</option><option value="Guatemalan">Guatemalan</option><option value="Honduran">Honduran</option><option value="Hungarian">Hungarian</option><option value="Icelandic">Icelandic</option><option value="Indian">Indian</option><option value="Indonesian">Indonesian</option><option value="Iranian">Iranian</option><option value="Iraqi">Iraqi</option><option value="Irish">Irish</option><option value="Israeli">Israeli</option><option value="Italian">Italian</option><option value="Ivorian">Ivorian</option><option value="Jamaican">Jamaican</option><option value="Japanese">Japanese</option><option value="Jordanian">Jordanian</option><option value="Kazakh">Kazakh</option><option value="Kenyan">Kenyan</option><option value="Korean">Korean</option><option value="Kuwaiti">Kuwaiti</option><option value="Latvian">Latvian</option><option value="Lebanese">Lebanese</option><option value="Libyan">Libyan</option><option value="Lithuanian">Lithuanian</option><option value="Luxembourgish">Luxembourgish</option><option value="Macedonian">Macedonian</option><option value="Malaysian">Malaysian</option><option value="français">français</option><option value="Mexican">Mexican</option><option value="Moldovan">Moldovan</option><option value="Mongolian">Mongolian</option><option value="Montenegrin">Montenegrin</option><option value="Moroccan">Moroccan</option><option value="Mozambican">Mozambican</option><option value="Namibian">Namibian</option><option value="Nepali">Nepali</option><option value="New Zealander">New Zealander</option><option value="Nicaraguan">Nicaraguan</option><option value="Nigerian">Nigerian</option><option value="Norwegian">Norwegian</option><option value="Omani">Omani</option><option value="Pakistani">Pakistani</option><option value="Panamanian">Panamanian</option><option value="Paraguayan">Paraguayan</option><option value="Peruvian">Peruvian</option><option value="Polish">Polish</option><option value="Portuguese">Portuguese</option><option value="Qatari">Qatari</option><option value="Romanian">Romanian</option><option value="Russian">Russian</option><option value="Saudi">Saudi</option><option value="Senegalese">Senegalese</option><option value="Serbian">Serbian</option><option value="Singaporean">Singaporean</option><option value="Slovak">Slovak</option><option value="Slovenian">Slovenian</option><option value="South African">South African</option><option value="Spanish">Spanish</option><option value="Sri Lankan">Sri Lankan</option><option value="Sudanese">Sudanese</option><option value="Swedish">Swedish</option><option value="Swiss">Swiss</option><option value="Syrian">Syrian</option><option value="Taiwanese">Taiwanese</option><option value="Tanzanian">Tanzanian</option><option value="Thai">Thai</option><option value="Tunisian">Tunisian</option><option value="Turkish">Turkish</option><option value="Ugandan">Ugandan</option><option value="Ukrainian">Ukrainian</option><option value="Uruguayan">Uruguayan</option><option value="Uzbek">Uzbek</option><option value="Venezuelan">Venezuelan</option><option value="Vietnamese">Vietnamese</option><option value="Yemeni">Yemeni</option><option value="Zambian">Zambian</option><option value="Zimbabwean">Zimbabwean</option>
               </select></div>
-            <div class="fg"><label class="fl">Numéro de passeport / CNI *</label><input class="fi" id="p-passport" placeholder="ex. 12345678A" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl" for="p-statut">Statut *</label><select class="fsel" id="p-statut" onchange="toggleDenomination('p');updateProfileeCompleteness()"><option value="physique">Personne physique (particulier)</option><option value="morale">Personne morale (société, SCI…)</option></select></div>
+            <div class="fg" id="p-denomination-wrap" style="display:none"><label class="fl" for="p-denomination">Dénomination sociale *</label><input class="fi" id="p-denomination" placeholder="ex. SCI Les Tilleuls" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Date de naissance *</label><input class="fi" type="date" id="p-dob" onchange="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Lieu de naissance * <span style="font-size:.68rem;color:var(--td)">(ville, pays)</span></label><input class="fi" id="p-pob" placeholder="Paris, France" oninput="updateProfileeCompleteness()"></div>
             <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse actuelle * <span style="font-size:.68rem;color:var(--td)">(votre adresse complète en France)</span></label><input class="fi" id="p-address" placeholder="12 Rue de la Paix, 75001 Paris" oninput="updateProfileeCompleteness()"></div>
@@ -712,6 +731,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div style="margin-top:1.5rem;margin-bottom:.75rem">
         <div style="font-size:1rem;font-weight:700"><i data-lucide=folder-open class=ic></i> Mon Dossier Locataire</div>
         <div style="font-size:.78rem;color:var(--tm);margin-top:.2rem">Constituez votre dossier étape par étape — comme sur DossierFacile</div>
+      </div>
+
+      <!-- Import d'un DossierFacile déjà constitué -->
+      <div id="df-import" style="background:rgba(27,79,216,.05);border:1.5px solid rgba(27,79,216,.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
+        <div style="font-size:.92rem;font-weight:800;color:var(--deep)"><i data-lucide=file-up class=ic></i> Vous avez déjà un dossier sur DossierFacile ?</div>
+        <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez-le ici (le PDF téléchargé depuis DossierFacile et/ou votre lien de partage) : il sera envoyé au propriétaire avec chaque candidature.</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+          <input class="fi" id="df-link" placeholder="Lien de partage DossierFacile (facultatif)" style="flex:1;min-width:220px" onchange="dfSaveLink()">
+          <button class="btn bp bsm" onclick="document.getElementById('df-file').click()"><i data-lucide=upload class=ic></i> Ajouter le PDF</button>
+          <input type="file" id="df-file" accept=".pdf,image/*" multiple style="display:none" onchange="dfUpload(this.files)">
+        </div>
+        <div id="df-files" style="margin-top:.6rem"></div>
       </div>
 
       <!-- Progress bar global -->
@@ -1052,29 +1083,63 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                 <span class="badge b-dim" id="dstatus-5">Non fourni</span>
               </div>
               <div class="cb">
-                <p style="font-size:.85rem;color:var(--tm);line-height:1.6">Avez-vous un garant pour votre location ?</p>
-                <div class="doc-type-grid" id="dtype-grid-5">
-                  <div class="doc-type-card" onclick="selectDocType(5,'garant_personne')">
-                    <div><div style="font-weight:600;font-size:.88rem">Une personne</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Parent, proche, ami</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(5,'garant_organisme')">
-                    <div><div style="font-weight:600;font-size:.88rem">Un organisme</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Visale, Action Logement</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="selectDocType(5,'garant_moral')">
-                    <div><div style="font-weight:600;font-size:.88rem">Une personne morale</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Entreprise, association</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
-                  <div class="doc-type-card" onclick="skipDossierStep(5)">
-                    <div><div style="font-weight:600;font-size:.88rem">Pas de garant</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Je n'ai pas de garant</div></div>
-                    <span class="dtc-arrow">›</span>
-                  </div>
+                <div class="heb-info" style="margin-top:.25rem"><i data-lucide=info class=ic></i><div>Si vous avez 2 garants, ajoutez-les l'un après l'autre. <strong>Les documents de vos 2 garants ne doivent pas être mélangés.</strong></div></div>
+                <div id="dtype-grid-5">
+                <p class="res-q">Votre garant est :</p>
+                <div class="heb-list">
+                  <button type="button" class="heb-opt gar-opt" onclick="selectDocType(5,'garant_personne')"><span class="gar-radio"></span><span style="flex:1"><span class="heb-t">Une personne</span><span class="heb-s">Exemple : un parent, un proche</span></span><span class="gar-ico"><i data-lucide=user class=ic></i></span></button>
+                  <button type="button" class="heb-opt gar-opt" onclick="garOrgStart()"><span class="gar-radio"></span><span style="flex:1"><span class="heb-t">Un organisme</span><span class="heb-s">Exemple : Visale</span></span><span class="gar-ico"><i data-lucide=award class=ic></i></span></button>
+                  <button type="button" class="heb-opt gar-opt" onclick="gmStart()"><span class="gar-radio"></span><span style="flex:1"><span class="heb-t">Une personne morale</span><span class="heb-s">Exemple : une entreprise</span></span><span class="gar-ico"><i data-lucide=landmark class=ic></i></span></button>
+                  <button type="button" class="heb-opt gar-opt" onclick="skipDossierStep(5)"><span class="gar-radio"></span><span style="flex:1"><span class="heb-t">Vous n'avez pas de garant</span></span><span class="gar-ico"><i data-lucide=x class=ic></i></span></button>
+                </div>
                 </div>
                 <div id="dupload-5" style="display:none;margin-top:1rem">
                   <div class="ai dtype-chosen" id="dtype-label-5"></div>
                   <!-- Garant organisme / moral: simple upload -->
                   <div id="garant-simple-upload">
+                    <div id="garant-moral" style="display:none">
+                      <div class="gm-block">
+                        <div class="gm-title">1. Identité de la personne morale</div>
+                        <label class="fl" for="gm-nom">Nom de la personne morale (obligatoire) :</label>
+                        <input class="fi" id="gm-nom" placeholder="ex. SARL Dupont &amp; Fils" style="width:100%;margin:.35rem 0 .9rem" oninput="gmSave()">
+                        <div style="font-weight:700;color:var(--deep);font-size:.92rem;margin-bottom:.6rem">J'ajoute un extrait Kbis de la société, ou toute autre pièce justifiant de l'existence légale de la personne.</div>
+                        <div class="dossier-upload-area" onclick="document.getElementById('gm-file-kbis').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="event.preventDefault();this.classList.remove('dua-dragover');gmUpload('kbis',event.dataTransfer.files)">
+                          <div style="font-size:1.6rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                          <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                          <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                          <input type="file" id="gm-file-kbis" accept="image/*,.pdf" multiple style="display:none" onchange="gmUpload('kbis',this.files)">
+                        </div>
+                        <div id="gm-files-kbis" style="margin-top:.6rem"></div>
+                      </div>
+                      <div class="gm-block">
+                        <div class="gm-title">2. Identité du représentant</div>
+                        <label class="fl" for="gm-rep">Nom du représentant de la personne morale (obligatoire) :</label>
+                        <input class="fi" id="gm-rep" placeholder="Nom" style="width:100%;margin:.35rem 0 .9rem" oninput="gmSave()">
+                        <label class="fl" for="gm-piece">J'ajoute une pièce d'identité en cours de validité. Attention : veillez à ajouter la pièce recto-verso (obligatoire) :</label>
+                        <select class="fsel" id="gm-piece" style="width:100%;margin:.35rem 0 .75rem" onchange="gmSave();gmPieceShow()">
+                          <option value="">Choisir le type de pièce…</option>
+                          <option value="cni">Carte d'identité</option>
+                          <option value="passeport">Passeport</option>
+                          <option value="sejour">Titre de séjour</option>
+                          <option value="autre">Autre</option>
+                        </select>
+                        <div id="gm-rep-upload" style="display:none">
+                        <div class="dossier-upload-area" onclick="document.getElementById('gm-file-rep').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="event.preventDefault();this.classList.remove('dua-dragover');gmUpload('rep',event.dataTransfer.files)">
+                          <div style="font-size:1.6rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
+                          <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
+                          <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>
+                          <input type="file" id="gm-file-rep" accept="image/*,.pdf" multiple style="display:none" onchange="gmUpload('rep',this.files)">
+                        </div>
+                        <div id="gm-files-rep" style="margin-top:.6rem"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="garant-org" style="display:none;margin-bottom:.9rem">
+                      <div style="font-size:1rem;font-weight:700;color:var(--deep);margin-bottom:.6rem">J'ajoute un certificat ou un visa délivré par l'organisme qui se porte garant pour moi.</div>
+                      <label class="gar-radio-line"><input type="radio" name="garant-org" value="garant_visale" onchange="garOrgPick(this.value)"> Garantie Visale</label>
+                      <label class="gar-radio-line"><input type="radio" name="garant-org" value="garant_autre_organisme" onchange="garOrgPick(this.value)"> Autre organisme</label>
+                      <div id="garant-org-hint" style="display:none;margin-top:.75rem;font-size:.9rem;color:var(--txt);line-height:1.6"></div>
+                    </div>
                     <div class="dossier-upload-area" onclick="document.getElementById('dfile-5').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleDossierDrop(event,5)">
                       <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div>
                       <div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div>
@@ -1356,9 +1421,10 @@ let clerk,U=null,P=null,selectedRating=5;
 })();
 
 function showProfileNeeded(need,missing,back){
-  const labels={full_name:'Nom complet',passport_number:"Pièce d'identité",nationality:'Nationalité',date_of_birth:'Date de naissance',home_address:'Adresse'};
+  const labels={full_name:'Nom complet',phone:'Téléphone',nationality:'Nationalité',date_of_birth:'Date de naissance',place_of_birth:'Lieu de naissance',home_address:'Adresse',profession:'Profession',denomination_sociale:'Dénomination sociale'};
   const list=(missing||[]).map(k=>labels[k]).filter(Boolean);
-  const why=need==='visite'?'avant de demander une visite':'avant de contacter un propriétaire';
+  window._profilNeed=need;
+  const why=need==='visite'?'en entier avant de demander une visite':need==='candidature'?'en entier avant de postuler':'avant de contacter un propriétaire';
   const page=document.getElementById('page-profil');
   if(!page)return;
   document.getElementById('profil-needed-banner')?.remove();
@@ -1374,7 +1440,7 @@ function showProfileNeeded(need,missing,back){
   // Une fois le profil chargé : encadrer les champs manquants et amener au premier
   setTimeout(()=>{
     updateProfileeCompleteness();
-    const first=CONTACT_FIELDS.map(([id])=>document.getElementById(id)).find(el=>el&&!el.value.trim());
+    const first=_neededFields().map(([id])=>document.getElementById(id)).find(el=>el&&!el.value.trim());
     if(first){first.scrollIntoView({behavior:'smooth',block:'center'});try{first.focus({preventScroll:true});}catch(e){}}
   },900);
 }
@@ -1384,7 +1450,7 @@ function initUI(){
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
   document.getElementById('tbs').textContent='Bienvenue, '+n.split(' ')[0]+' !';
-  if((!P?.full_name||!P?.passport_number)&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
+  if(!P?.full_name&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
 }
 
 async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);}
@@ -4378,7 +4444,9 @@ async function loadProfilee(){
   document.getElementById('p-email').value=P.email||U.email||'';
   document.getElementById('p-phone').value=P.phone||'';
   document.getElementById('p-nat').value=P.nationality||'';
-  document.getElementById('p-passport').value=P.passport_number||'';
+  document.getElementById('p-statut').value=P.statut_juridique==='morale'?'morale':'physique';
+  document.getElementById('p-denomination').value=P.denomination_sociale||'';
+  toggleDenomination('p');
   document.getElementById('p-dob').value=P.date_of_birth||'';
   document.getElementById('p-address').value=P.home_address||'';
   document.getElementById('p-pob').value=P.place_of_birth||'';
@@ -4410,28 +4478,61 @@ async function loadProfilee(){
 }
 
 // Champs exigés pour contacter un propriétaire / demander une visite (même liste que sur le site)
-const CONTACT_FIELDS=[['p-name','Nom complet'],['p-nat','Nationalité'],['p-passport',"Pièce d'identité"],['p-dob','Date de naissance'],['p-address','Adresse']];
+const CONTACT_FIELDS=[['p-name','Nom complet'],['p-nat','Nationalité'],['p-dob','Date de naissance'],['p-address','Adresse']];
 // Champs en plus, utilisés pour générer le bail
 const LEASE_FIELDS=[['p-phone','Téléphone'],['p-pob','Lieu de naissance'],['p-profession','Profession']];
 const _val=id=>(document.getElementById(id)?.value||'').trim();
+// Enregistre le profil. Si les colonnes statut_juridique / denomination_sociale n'existent pas encore
+// dans Supabase (migration pas encore lancée), on enregistre quand même le reste du profil.
+async function _updateProfileSafe(updates){
+  let{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
+  if(error&&/statut_juridique|denomination_sociale/i.test(error.message||'')){
+    console.warn('[profil] colonnes statut juridique absentes — lancer la migration SQL. Erreur:',error.message);
+    const u={...updates};delete u.statut_juridique;delete u.denomination_sociale;
+    ({error}=await sb.from('profiles').update(u).eq('clerk_id',U.id));
+  }
+  return error;
+}
+function toggleDenomination(prefix){
+  const morale=document.getElementById(prefix+'-statut')?.value==='morale';
+  const w=document.getElementById(prefix+'-denomination-wrap');
+  if(w)w.style.display=morale?'':'none';
+}
+
+
+// Visite et candidature : profil complet obligatoire. Simple message : les 4 champs de contact suffisent.
+function _allProfileFields(){return [...CONTACT_FIELDS,...LEASE_FIELDS,...(_val('p-statut')==='morale'?[['p-denomination','Dénomination sociale']]:[])];}
+function _neededFields(){return (window._profilNeed==='visite'||window._profilNeed==='candidature')?_allProfileFields():CONTACT_FIELDS;}
+// Même vérification à partir du profil enregistré (P), utilisée avant une visite ou une candidature
+function profileMissingForVisit(){
+  const keys=['full_name','phone','nationality','date_of_birth','place_of_birth','home_address','profession'];
+  if(P?.statut_juridique==='morale')keys.push('denomination_sociale');
+  return keys.filter(k=>!String(P?.[k]||'').trim());
+}
+function goToProfileFor(need,missing){
+  sp('profil',document.querySelector('.ni[onclick*="profil"]'));
+  showProfileNeeded(need,missing,'');
+  document.getElementById('page-profil')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 function updateProfileeCompleteness(){
-  const all=[...CONTACT_FIELDS,...LEASE_FIELDS];
+  const all=[...CONTACT_FIELDS,...LEASE_FIELDS,...(_val('p-statut')==='morale'?[['p-denomination','Dénomination sociale']]:[])];
   const filled=all.filter(([id])=>_val(id)).length;
   const pct=Math.round(filled/all.length*100);
   const missContact=CONTACT_FIELDS.filter(([id])=>!_val(id));
-  const missLease=LEASE_FIELDS.filter(([id])=>!_val(id));
-  // Encadrer en bleu les champs qui bloquent encore le contact
-  CONTACT_FIELDS.forEach(([id])=>document.getElementById(id)?.classList.toggle('fi-need',!_val(id)));
+  const missLease=[...LEASE_FIELDS,...(_val('p-statut')==='morale'?[['p-denomination','Dénomination sociale']]:[])].filter(([id])=>!_val(id));
+  // Encadrer en bleu les champs qui bloquent encore (contact, ou tout le profil pour une visite / candidature)
+  _allProfileFields().forEach(([id])=>document.getElementById(id)?.classList.remove('fi-need'));
+  _neededFields().forEach(([id])=>document.getElementById(id)?.classList.toggle('fi-need',!_val(id)));
   const bar=document.getElementById('completeness-bar');
   const text=document.getElementById('completeness-text');
   const pctEl=document.getElementById('complete-pct');
   if(bar)bar.style.width=pct+'%';
   if(bar)bar.style.background=pct===100?'var(--green)':!missContact.length?'var(--marine)':'var(--bleu)';
   if(text){
-    if(pct===100)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez contacter les propriétaires et demander des visites';
-    else if(!missContact.length)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous pouvez contacter les propriétaires et demander des visites. Pour le bail, il restera : '+missLease.map(f=>f[1]).join(', ')+'.';
-    else text.innerHTML='Pour contacter un propriétaire ou demander une visite, il manque : <strong>'+missContact.map(f=>f[1]).join(', ')+'</strong>.';
+    if(pct===100)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez contacter les propriétaires, demander des visites et postuler';
+    else if(!missContact.length)text.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous pouvez envoyer un message aux propriétaires. Pour demander une visite ou postuler, il manque : '+missLease.map(f=>f[1]).join(', ')+'.';
+    else text.innerHTML='Pour contacter un propriétaire, il manque : <strong>'+missContact.map(f=>f[1]).join(', ')+'</strong>.';
     text.style.color=pct===100||!missContact.length?'var(--green)':'var(--td)';
   }
   if(pctEl)pctEl.textContent=pct+'% complété';
@@ -4443,13 +4544,14 @@ async function saveProfilee(){
     full_name:document.getElementById('p-name').value.trim(),
     phone:itiLocataire?itiLocataire.getNumber():document.getElementById('p-phone').value.trim(),
     nationality:document.getElementById('p-nat').value.trim(),
-    passport_number:document.getElementById('p-passport').value.trim(),
+    statut_juridique:document.getElementById('p-statut').value||'physique',
+    denomination_sociale:document.getElementById('p-statut').value==='morale'?(document.getElementById('p-denomination').value.trim()||null):null,
     date_of_birth:document.getElementById('p-dob').value||null,
     home_address:document.getElementById('p-address').value.trim(),
     place_of_birth:document.getElementById('p-pob').value.trim(),
     profession:document.getElementById('p-profession').value.trim()
   };
-  const{error}=await sb.from('profiles').update(updates).eq('clerk_id',U.id);
+  const error=await _updateProfileSafe(updates);
   if(error){
     toast('<i data-lucide=x-circle class=ic></i> Erreur sauvegarde : '+error.message);
     alert('❌ Impossible de sauvegarder le profil :\n\n'+error.message+'\n\nContactez le support si le problème persiste.');
@@ -4464,10 +4566,10 @@ async function saveProfilee(){
   const ok=document.getElementById('prof-ok');ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
   toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
   const ban=document.getElementById('profil-needed-banner');
-  if(ban&&CONTACT_FIELDS.every(([id])=>_val(id))){
+  if(ban&&_neededFields().every(([id])=>_val(id))){
     const back=ban.dataset.back||'';
     ban.style.background='rgba(76,175,125,.1)';ban.style.borderColor='rgba(76,175,125,.4)';
-    ban.innerHTML='<strong style="color:var(--green)">C\'est bon, vous pouvez maintenant contacter le propriétaire.</strong>'
+    ban.innerHTML='<strong style="color:var(--green)">'+(window._profilNeed==='visite'?'C\'est bon, vous pouvez maintenant demander une visite.':window._profilNeed==='candidature'?'C\'est bon, vous pouvez maintenant postuler.':'C\'est bon, vous pouvez maintenant contacter le propriétaire.')+'</strong>'
       +(back?' <a href="/?annonce='+back+'" style="color:var(--bleu);font-weight:700;text-decoration:underline;white-space:nowrap">Revenir à l\'annonce →</a>':'');
     ban.scrollIntoView({behavior:'smooth',block:'center'});
   }
@@ -4804,7 +4906,7 @@ const DOSSIER_TYPE_LABELS={
   quittances:'Locataire — 3 dernières quittances de loyer',attestation_paiement:'Locataire — attestation de bon paiement des loyers',
   attestation_hebergement:'Hébergé — attestation d\'hébergement de moins de 3 mois',heberge_sans_attestation:'Hébergé — sans attestation d\'hébergement',
   taxe_fonciere:'Propriétaire — avis de taxe foncière',
-  garant_personne:'Garant — une personne physique',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',
+  garant_personne:'Garant — une personne physique',garant_organisme:'Garant — organisme (Visale, etc.)',garant_moral:'Garant — personne morale',gm_cni:"Carte d'identité",gm_passeport:'Passeport',gm_sejour:'Titre de séjour',gm_autre:'Autre pièce',garant_visale:'Garant — Garantie Visale',garant_autre_organisme:'Garant — autre organisme',
   skipped_impot:'Non imposable / Pas d\'avis d\'impôt',skipped_rattache:'Rattaché au foyer fiscal des parents',skipped_garant:'Pas de garant'
 };
 
@@ -4876,6 +4978,7 @@ async function initDossierPage(){
   }
   renderDossierState();
   showDossierStep(0);
+  dfRender();
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
@@ -4952,6 +5055,16 @@ function restoreUploadedStep(idx,saved){
   if(upload)upload.style.display='block';
   if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+'</span><button type="button" class="heb-mod" onclick="resetDocType('+idx+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
   // Handle garant personne sub-dossier restore
+  if(idx===5&&saved.type==='garant_moral'){
+    gmShow(true);gmRender();
+    return;
+  }
+  if(idx===5&&(saved.type==='garant_visale'||saved.type==='garant_autre_organisme')){
+    if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> Votre garant est un organisme</span><button type="button" class="heb-mod" onclick="resetDocType(5)">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
+    document.getElementById('garant-org').style.display='block';
+    garOrgPick(saved.type,true);
+    delete dossierState[5].pendingType;
+  }
   if(idx===5&&saved.type==='garant_personne'){
     const simpleUpload=document.getElementById('garant-simple-upload');
     const subDossier=document.getElementById('garant-sub-dossier');
@@ -4962,7 +5075,7 @@ function restoreUploadedStep(idx,saved){
   }
   if(preview&&saved.files&&saved.files.length>0){
     preview.style.display='block';
-    preview.innerHTML=saved.files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
+    preview.innerHTML=fileRowsHtml(saved.files,i=>`removeDossierFile(${idx},${i})`);
     if(typeof lucide!=='undefined')lucide.createIcons();
   } else if(preview&&saved.noDoc){
     const area=upload?.querySelector('.dossier-upload-area');if(area)area.style.display='none';
@@ -5242,9 +5355,137 @@ function resRestore(saved){
   const pv=_resEl('dfile-preview-3');
   if(pv&&saved.files?.length){
     pv.style.display='block';
-    pv.innerHTML=saved.files.map(f=>'<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="flex:1;font-size:.82rem">'+f.name+'</span></div>').join('');
+    pv.innerHTML=fileRowsHtml(saved.files,i=>`removeDossierFile(3,${i})`);
     if(typeof lucide!=='undefined')lucide.createIcons();
   }
+}
+
+// ── Fichiers envoyés : liste avec « Voir » et « Retirer » ──
+function fileRowsHtml(files,rm){
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  return (files||[]).map((f,i)=>`<div class="file-row"><i data-lucide=file-check class=ic style="color:var(--green);flex-shrink:0"></i><span class="file-name">${esc(f.name)}</span>${f.url?`<a href="${esc(f.url)}" target="_blank" rel="noopener" class="file-see">Voir →</a>`:''}${rm?`<button type="button" class="file-rm" title="Retirer ce fichier" aria-label="Retirer ${esc(f.name)}" onclick="${rm(i)}"><i data-lucide=x class=ic></i> Retirer</button>`:''}</div>`).join('');
+}
+function _rmStorage(f){
+  if(f?.path){try{sb.storage.from('documents-dossiers').remove([f.path]).catch(()=>{});}catch(e){}}
+}
+async function removeDossierFile(idx,fi){
+  const st=dossierState[idx];
+  const f=st?.files?.[fi];
+  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  st.files.splice(fi,1);
+  _rmStorage(f);
+  // Plus aucun fichier : l'étape n'est plus « fournie » tant qu'on n'en ajoute pas un autre
+  if(!st.files.length&&st.type&&!st.noDoc&&!st.skipped){st.pendingType=st.type;delete st.type;}
+  await saveDossierState();
+  renderDossierState();
+  const pv=document.getElementById('dfile-preview-'+idx);
+  if(pv){
+    pv.innerHTML=fileRowsHtml(st.files,i=>`removeDossierFile(${idx},${i})`);
+    pv.style.display=st.files.length?'block':'none';
+  }
+  const area=document.getElementById('dfile-'+idx)?.closest('.dossier-upload-area');
+  if(area&&!st.files.length){const t=area.querySelector('div[style*="font-weight:600"]');if(t)t.textContent='Glisser-déposer ou cliquer pour choisir';}
+  if(typeof lucide!=='undefined')lucide.createIcons();
+  toast('Fichier retiré');
+}
+async function removeGarantFile(subIdx,fi){
+  const sub=gState().garant_subs?.[subIdx];
+  const f=sub?.files?.[fi];
+  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  sub.files.splice(fi,1);
+  _rmStorage(f);
+  renderGarantSubScreen(subIdx);renderGarantSubNav();renderGarantSelector();
+  await saveDossierState();renderDossierState();
+  toast('Fichier retiré');
+}
+function removeGarantRevFile(fi){
+  const f=garantRevFiles[fi];
+  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  garantRevFiles.splice(fi,1);
+  _rmStorage(f);
+  renderGarantSubScreen(3);
+  toast('Fichier retiré');
+}
+
+// ── Garant « Une personne morale » : identité de la société + identité du représentant ──
+function gmShow(on){
+  const m=document.getElementById('garant-moral');if(m)m.style.display=on?'block':'none';
+  const area=document.querySelector('#garant-simple-upload > .dossier-upload-area');if(area)area.style.display=on?'none':'';
+  const pv=document.getElementById('dfile-preview-5');if(pv&&on)pv.style.display='none';
+  if(on)document.querySelector('#dupload-5 .dossier-instr-box')?.remove();
+}
+function gmRender(){
+  const st=dossierState[5]||{};
+  document.getElementById('gm-nom').value=st.moral_nom||'';
+  document.getElementById('gm-rep').value=st.rep_nom||'';
+  document.getElementById('gm-piece').value=st.rep_piece||'';
+  gmPieceShow();
+  document.getElementById('gm-files-kbis').innerHTML=fileRowsHtml(st.files||[],i=>`gmRemove('kbis',${i})`);
+  document.getElementById('gm-files-rep').innerHTML=fileRowsHtml(st.rep_files||[],i=>`gmRemove('rep',${i})`);
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function gmPieceShow(){document.getElementById('gm-rep-upload').style.display=document.getElementById('gm-piece').value?'block':'none';}
+function gmSave(){
+  const st=dossierState[5]=dossierState[5]||{};
+  st.moral_nom=document.getElementById('gm-nom').value.trim();
+  st.rep_nom=document.getElementById('gm-rep').value.trim();
+  st.rep_piece=document.getElementById('gm-piece').value;
+}
+function gmStart(){
+  const st=dossierState[5]||{};
+  const prev=st.type||st.pendingType;
+  selectDocType(5,'garant_moral');
+  if(prev&&prev!=='garant_moral'){Object.assign(dossierState[5],{files:[],rep_files:[],moral_nom:'',rep_nom:'',rep_piece:''});}
+  gmShow(true);gmRender();
+}
+async function gmUpload(kind,files){
+  if(!files||!files.length)return;
+  const st=dossierState[5]=dossierState[5]||{};
+  const key=kind==='kbis'?'files':'rep_files';
+  const box=document.getElementById('gm-files-'+kind);
+  if(box)box.insertAdjacentHTML('beforeend','<div class="gm-loading" style="font-size:.8rem;color:var(--tm)">Envoi en cours…</div>');
+  try{
+    for(const file of Array.from(files)){
+      if(file.size>10*1024*1024){toast('Fichier trop lourd (max 10 Mo) : '+file.name);continue;}
+      const ext=file.name.split('.').pop();
+      const path=`dossier/${U.id}/garant_moral_${kind}_${Date.now()}.${ext}`;
+      const{error}=await sb.storage.from('documents-dossiers').upload(path,file,{upsert:true,contentType:file.type});
+      if(error)throw error;
+      const{data:urlData}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
+      (st[key]=st[key]||[]).push({name:file.name,path,url:urlData?.signedUrl||'',ext});
+    }
+    toast('<i data-lucide=check-circle-2 class=ic></i> Fichier envoyé');
+  }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Erreur upload : '+e.message);}
+  gmRender();
+}
+async function gmRemove(kind,i){
+  const st=dossierState[5];const key=kind==='kbis'?'files':'rep_files';
+  const f=st?.[key]?.[i];
+  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  st[key].splice(i,1);_rmStorage(f);gmRender();
+  // Un document obligatoire manque à nouveau : l'étape n'est plus « fournie »
+  if(st.type==='garant_moral'&&(!st.files?.length||!st.rep_files?.length)){st.pendingType=st.type;delete st.type;}
+  saveDossierState();renderDossierState();
+}
+
+// ── Garant « Un organisme » : Garantie Visale ou autre organisme ──
+function garOrgStart(){
+  selectDocType(5,'garant_organisme');
+  document.querySelector('#dupload-5 .dossier-instr-box')?.remove();
+  document.getElementById('garant-org').style.display='block';
+  document.querySelectorAll('input[name="garant-org"]').forEach(r=>r.checked=false);
+  document.getElementById('garant-org-hint').style.display='none';
+  const area=document.querySelector('#garant-simple-upload > .dossier-upload-area');if(area)area.style.display='none';
+}
+function garOrgPick(type,keepFiles){
+  const st=dossierState[5]=dossierState[5]||{};
+  if(!keepFiles&&(st.pendingType||st.type)&&(st.pendingType||st.type)!==type&&st.files?.length){st.files=[];const pv=document.getElementById('dfile-preview-5');if(pv){pv.innerHTML='';pv.style.display='none';}}
+  st.pendingType=type;
+  const r=document.querySelector('input[name="garant-org"][value="'+type+'"]');if(r)r.checked=true;
+  const h=document.getElementById('garant-org-hint');
+  h.innerHTML='Assurez-vous de joindre <strong>votre justificatif'+(type==='garant_visale'?' Visale':'')+'</strong> :<ul style="margin:.3rem 0 0 1.2rem"><li><strong>à votre nom</strong></li><li><strong>en cours de validité</strong></li></ul>';
+  h.style.display='block';
+  const area=document.querySelector('#garant-simple-upload > .dossier-upload-area');if(area)area.style.display='';
 }
 
 function selectDocType(idx,type){
@@ -5253,7 +5494,7 @@ function selectDocType(idx,type){
   const label=document.getElementById('dtype-label-'+idx);
   if(grid)grid.style.display='none';
   if(upload)upload.style.display='block';
-  if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(DOSSIER_TYPE_LABELS[type]||type)+'</span><button type="button" class="heb-mod" onclick="resetDocType('+idx+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
+  if(label)label.innerHTML='<div class="heb-chosen" style="padding:0"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> '+(type==='garant_organisme'?'Votre garant est un organisme':type==='garant_moral'?'Votre garant est une personne morale':(DOSSIER_TYPE_LABELS[type]||type))+'</span><button type="button" class="heb-mod" onclick="resetDocType('+idx+')">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>';
   // Garant personne physique: show sub-dossier BEFORE instruction box logic
   // (instruction box uses insertBefore with .dossier-upload-area which is a grandchild of dupload-5 — would throw DOMException)
   if(type==='garant_personne'){
@@ -5299,7 +5540,7 @@ function selectDocType(idx,type){
 function resetDocType(idx){
   const grid=document.getElementById('dtype-grid-'+idx);
   const upload=document.getElementById('dupload-'+idx);
-  const _area=upload?.querySelector('.dossier-upload-area');if(_area)_area.style.display='';
+  const _area=idx===5?document.querySelector('#garant-simple-upload > .dossier-upload-area'):upload?.querySelector('.dossier-upload-area');if(_area)_area.style.display='';
   const preview=document.getElementById('dfile-preview-'+idx);
   if(grid)grid.style.display='';
   if(upload)upload.style.display='none';
@@ -5310,6 +5551,7 @@ function resetDocType(idx){
   if(simpleUpload)simpleUpload.style.display='block';
   if(subDossier)subDossier.style.display='none';
   if(dossierState[idx]){delete dossierState[idx].pendingType;}
+  if(idx===5){const o=document.getElementById('garant-org');if(o)o.style.display='none';gmShow(false);}
 }
 
 async function skipDossierStep(idx,variant){
@@ -5351,7 +5593,7 @@ async function uploadDossierFile(idx,files){
     if(preview){
       preview.style.display='block';
       const allFiles=dossierState[idx].files;
-      preview.innerHTML=allFiles.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.5rem .75rem;margin-bottom:.3rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.82rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu);text-decoration:none">Voir →</a></div>`).join('');
+      preview.innerHTML=fileRowsHtml(allFiles,i=>`removeDossierFile(${idx},${i})`);
     }
     if(typeof lucide!=='undefined')lucide.createIcons();
     toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
@@ -5371,6 +5613,17 @@ function handleDossierDrop(event,idx){
 async function confirmDossierStep(idx){
   const st=dossierState[idx];
   if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
+  if(idx===5&&(st.pendingType||st.type)==='garant_moral'){
+    gmSave();
+    const miss=[];
+    if(!st.moral_nom)miss.push('le nom de la personne morale');
+    if(!st.files?.length)miss.push('le Kbis');
+    if(!st.rep_nom)miss.push('le nom du représentant');
+    if(!st.rep_piece)miss.push('le type de pièce d\'identité');
+    if(!st.rep_files?.length)miss.push('la pièce d\'identité du représentant');
+    if(miss.length){toast('<i data-lucide=alert-triangle class=ic></i> Il manque : '+miss.join(', '));return;}
+  }
+  if(idx===5&&st.pendingType==='garant_organisme'){toast('<i data-lucide=alert-triangle class=ic></i> Choisissez Garantie Visale ou Autre organisme');return;}
   if(!st?.files?.length&&!st?.skipped&&!st?.noDoc){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
   if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
   if(idx===1){st.situation=st.pendingSituation||HEB_FROM_TYPE[st.type]||st.situation;delete st.pendingSituation;delete st.noDoc;}
@@ -5786,7 +6039,7 @@ function renderGarantSubScreen(i){
       </div>`;
   } else {
     const files=sub?.files||[];
-    const fileHtml=files.length>0?`<div style="margin-bottom:.5rem">${files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green)">${f.name}</span><a href="${f.url||'#'}" target="_blank" style="margin-left:auto;font-size:.72rem;color:var(--bleu)">Voir →</a></div>`).join('')}</div>`:'';
+    const fileHtml=files.length>0?`<div style="margin-bottom:.5rem">${fileRowsHtml(files,fi=>`removeGarantFile(${i},${fi})`)}</div>`:'';
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
       <div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt?.label||sub.type}</span><button type="button" class="heb-mod" onclick="resetGarantType(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>
       <div style="font-size:.78rem;color:var(--tm);margin:.35rem 0 .75rem">${opt?.hint||''}</div>
@@ -5809,8 +6062,8 @@ let garantHebSit=null;
 const G_HEB_TXT={locataire:'Votre garant est locataire',heberge:'Votre garant est hébergé',proprietaire:'Votre garant est propriétaire'};
 const G_HEB_LEGACY={g_locataire:'locataire',g_proprietaire:'proprietaire',g_heberge:'heberge'};
 const _gArrow='<i data-lucide=arrow-right class="ic heb-arr"></i>';
-function _gFilesHtml(files){
-  return files.length?'<div style="margin:.5rem 0">'+files.map(f=>`<div style="display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.4rem .7rem;margin-bottom:.25rem"><i data-lucide=file-check class=ic style="color:var(--green)"></i><span style="font-size:.8rem;font-weight:600;color:var(--green);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${f.name}</span>${f.url?`<a href="${f.url}" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--bleu)">Voir →</a>`:''}</div>`).join('')+'</div>':'';
+function _gFilesHtml(files,rm){
+  return files.length?'<div style="margin:.5rem 0">'+fileRowsHtml(files,rm)+'</div>':'';
 }
 function _gUploadArea(inputId,onchange,ondrop,hasFiles){
   return `<div class="dossier-upload-area" onclick="document.getElementById('${inputId}').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="${ondrop}">
@@ -5846,7 +6099,7 @@ function renderGarantHebScreen(){
       h+=sit==='proprietaire'
         ?`<p style="font-size:.85rem;color:var(--txt);line-height:1.6;margin:.75rem 0">Veuillez fournir son <strong>avis de taxe foncière ${_hebTaxYear()}</strong>. Il peut le télécharger sur le <a href="https://www.impots.gouv.fr/accueil" target="_blank" rel="noopener" style="color:var(--bleu);text-decoration:underline">site internet des impôts</a>.</p>`
         :`<div style="font-size:.8rem;color:var(--tm);margin:.5rem 0 .75rem">${opt?.hint||''}</div>`;
-      h+=_gFilesHtml(files)+_gUploadArea('gfile-1','uploadGarantFile(1,this.files)','handleGarantDrop(event,1)',files.length>0)
+      h+=_gFilesHtml(files,fi=>`removeGarantFile(1,${fi})`)+_gUploadArea('gfile-1','uploadGarantFile(1,this.files)','handleGarantDrop(event,1)',files.length>0)
         +`<div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">${files.length?`<button class="btn bp bsm" onclick="confirmGarantSub(1)">Valider et continuer →</button>`:''}</div>`;
     }
   }
@@ -5906,7 +6159,7 @@ function renderGarantRevenueScreen(){
       const cfg=RES_LEAF[lo.leaf]||{};
       if(cfg.amount)h+=`<div class="res-amount"><label for="garant-res-amount">${gTxt(cfg.amountLabel||_RES_AMOUNT_LABEL)}</label><div class="res-ex">Exemple : ${cfg.amountEx||'2400'}</div><input class="fi" id="garant-res-amount" inputmode="numeric" autocomplete="off" placeholder="Montant en euros" value="${garantRevSalaireMontant||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');garantRevSalaireMontant=this.value"></div>`;
       if(cfg.docs)h+=`<div class="res-docs">${gTxt(cfg.docs())}</div>`;
-      if(cfg.upload)h+=_gFilesHtml(garantRevFiles)+'<div style="margin-top:.6rem"></div>'+_gUploadArea('gfile-rev','uploadGarantRevFile(this.files)','handleGarantRevDrop(event)',garantRevFiles.length>0);
+      if(cfg.upload)h+=_gFilesHtml(garantRevFiles,fi=>`removeGarantRevFile(${fi})`)+'<div style="margin-top:.6rem"></div>'+_gUploadArea('gfile-rev','uploadGarantRevFile(this.files)','handleGarantRevDrop(event)',garantRevFiles.length>0);
       if(cfg.note)h+=`<div class="heb-info" style="margin-top:1rem"><i data-lucide=info class=ic></i><div>${gTxt(cfg.note)}</div></div>`;
       h+=`<div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="garantResBack()">← Retour</button><button class="btn bp bsm" onclick="confirmGarantRes()">Ajouter ce revenu →</button></div>`;
     }
@@ -6194,14 +6447,14 @@ function renderDossierCompletion(){
 // ── Vérification dossier avant demande de visite ──────────────
 async function checkDossierBeforeVisit(){
   // Check profil completeness
-  const profileFields=[P?.full_name,P?.passport_number,P?.date_of_birth,P?.nationality,P?.home_address];
+  const profileFields=[P?.full_name,P?.date_of_birth,P?.nationality,P?.home_address];
   const profileComplete=profileFields.every(Boolean);
   // Check docs uploaded
   const docsComplete=DOCS_REQUIRED.every(d=>uploadedDocs[d]);
   // Check identity vérifié
   const idVerified=P?.verified||false;
   const issues=[];
-  if(!profileComplete)issues.push('Incomplete profil (name, passport, date of birth, nationality, address)');
+  if(!profileComplete)issues.push('Profil incomplet (nom, date de naissance, nationalité, adresse)');
   if(!uploadedDocs['id'])issues.push('Passeport / ID non uploadé');
   if(!uploadedDocs['emprent_letter'])issues.push('Lettre d\'employeur ou d\'admission non uploadée');
   if(!idVerified)issues.push('Identity not vérifié (selfie + ID required)');
@@ -6272,7 +6525,150 @@ async function submitIDForVerification(){
   }
 }
 
+// ── Import DossierFacile : PDF et/ou lien, stockés dans dossierState.df ──
+function dfRender(){
+  const df=dossierState?.df||{};
+  const l=document.getElementById('df-link');if(l&&document.activeElement!==l)l.value=df.link||'';
+  const b=document.getElementById('df-files');if(b)b.innerHTML=fileRowsHtml(df.files||[],i=>`dfRemove(${i})`);
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+async function dfSaveLink(){
+  const v=document.getElementById('df-link').value.trim();
+  if(v&&!/^https?:\/\//i.test(v)){toast('<i data-lucide=alert-triangle class=ic></i> Le lien doit commencer par https://');return;}
+  dossierState.df=dossierState.df||{};dossierState.df.link=v;
+  await saveDossierState();toast('<i data-lucide=check-circle-2 class=ic></i> Lien enregistré');
+}
+async function dfUpload(files){
+  if(!files?.length)return;
+  dossierState.df=dossierState.df||{};
+  const df=dossierState.df;df.files=df.files||[];
+  try{
+    for(const file of Array.from(files)){
+      if(file.size>15*1024*1024){toast('Fichier trop lourd (max 15 Mo) : '+file.name);continue;}
+      const ext=file.name.split('.').pop();
+      const path=`dossier/${U.id}/dossierfacile_${Date.now()}.${ext}`;
+      const{error}=await sb.storage.from('documents-dossiers').upload(path,file,{upsert:true,contentType:file.type});
+      if(error)throw error;
+      const{data:u}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
+      df.files.push({name:file.name,path,url:u?.signedUrl||'',ext});
+    }
+    await saveDossierState();
+    toast('<i data-lucide=check-circle-2 class=ic></i> DossierFacile ajouté');
+  }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Erreur upload : '+e.message);}
+  dfRender();
+}
+async function dfRemove(i){
+  const f=dossierState?.df?.files?.[i];
+  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  dossierState.df.files.splice(i,1);_rmStorage(f);
+  await saveDossierState();dfRender();
+}
+
+// ═══ Avant de postuler : profil complet, nom = pièce d'identité, dossier fortement recommandé, garant ═══
+const DOSSIER_BOOST_TXT='jusqu’à 80 % de chances en plus d’être choisis';
+async function _ensureDossierLoaded(){
+  if(Object.keys(dossierState||{}).length)return;
+  try{
+    const{data}=await sb.from('profiles').select('dossier_data').eq('clerk_id',U.id).single();
+    if(data?.dossier_data)dossierState=typeof data.dossier_data==='string'?JSON.parse(data.dossier_data):data.dossier_data;
+  }catch(e){}
+  if(!Object.keys(dossierState||{}).length){try{const l=localStorage.getItem('dossier_'+U.id);if(l)dossierState=JSON.parse(l);}catch(e){}}
+}
+function _dossierStepsDone(){
+  return [0,1,2,3,4,5].filter(i=>{const st=dossierState?.[i];return st?.type&&(st.type!=='garant_personne'||allGarantsComplete());}).length;
+}
+function _garantReady(){
+  const st=dossierState?.[5];
+  return !!(st?.type&&st.type!=='skipped_garant'&&(st.type!=='garant_personne'||allGarantsComplete()));
+}
+function _goDossierStep(i){
+  document.getElementById('apply-gate-overlay')?.remove();
+  sp('profil',document.querySelector('.ni[onclick*="profil"]'));
+  setTimeout(()=>{initDossierPage().then(()=>{showDossierStep(i);document.querySelector('.dossier-layout')?.scrollIntoView({behavior:'smooth',block:'start'});});},400);
+}
+function applicationGate(listingId){
+  return new Promise(async resolve=>{
+    const missing=profileMissingForVisit();
+    if(missing.length){
+      toast('<i data-lucide=alert-triangle class=ic></i> Complétez tout votre profil avant de postuler');
+      goToProfileFor('candidature',missing);
+      return resolve(false);
+    }
+    await _ensureDossierLoaded();
+    const done=_dossierStepsDone();
+    const hasDF=!!(dossierState?.df?.files?.length||dossierState?.df?.link);
+    const dossierOk=done>=6||hasDF;
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const ov=document.createElement('div');
+    ov.id='apply-gate-overlay';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:18px;padding:1.4rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto">
+      <div style="font-size:1.05rem;font-weight:800;margin-bottom:1rem">Avant d'envoyer votre candidature</div>
+
+      <div class="gate-box">
+        <div class="gate-h">1. Votre nom sur le bail</div>
+        <div style="font-size:.85rem;margin:.3rem 0 .5rem">Le bail sera établi au nom de : <strong style="color:var(--bleu)">${esc(P?.full_name)}</strong></div>
+        <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="checkbox" id="gate-name-ok" style="margin-top:.15rem;accent-color:var(--bleu);flex-shrink:0"><span>Je confirme que ce nom est <strong>exactement</strong> celui de ma pièce d'identité (passeport ou carte d'identité).</span></label>
+        <a href="#" onclick="document.getElementById('apply-gate-overlay').remove();goToProfileFor('candidature',[]);return false" style="font-size:.75rem;color:var(--bleu)">Corriger mon nom dans le profil →</a>
+      </div>
+
+      <div class="gate-box" style="${dossierOk?'':'border-color:var(--bleu);background:rgba(27,79,216,.05)'}">
+        <div class="gate-h">2. Votre dossier locataire ${dossierOk?'<span style="color:var(--green)">✓</span>':'<span class="gate-tag">Fortement recommandé</span>'}</div>
+        ${dossierOk
+          ?`<div style="font-size:.82rem;color:var(--green)">${hasDF?'Votre DossierFacile importé sera envoyé au propriétaire avec votre candidature.':'Votre dossier est complet — il sera envoyé au propriétaire.'}</div>`
+          :`<div style="font-size:.82rem;line-height:1.55">Votre dossier est rempli à ${done}/6. Il n'est pas obligatoire, mais les locataires qui envoient un dossier complet ont <strong>${DOSSIER_BOOST_TXT}</strong> par le propriétaire.</div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">
+              <button class="btn bp bsm" onclick="_goDossierStep(0)">Compléter mon dossier →</button>
+              <button class="btn bg bsm" onclick="document.getElementById('apply-gate-overlay').remove();sp('profil',document.querySelector('.ni[onclick*=profil]'));setTimeout(()=>document.getElementById('df-import')?.scrollIntoView({behavior:'smooth',block:'center'}),400)">J'ai déjà un DossierFacile</button>
+            </div>`}
+      </div>
+
+      <div class="gate-box">
+        <div class="gate-h">3. Avez-vous un garant ?</div>
+        <div style="display:flex;gap:1rem;margin:.4rem 0">
+          <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="gate-garant" value="oui" style="accent-color:var(--bleu)"> Oui</label>
+          <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="gate-garant" value="non" style="accent-color:var(--bleu)"> Non</label>
+        </div>
+        <div id="gate-garant-msg"></div>
+      </div>
+
+      <div id="gate-err" style="color:#C9553A;font-size:.8rem;margin:.5rem 0;display:none"></div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem;flex-wrap:wrap">
+        <button class="btn bg" id="gate-cancel">Annuler</button>
+        <button class="btn bp" id="gate-go">Continuer ma candidature →</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    const garMsg=()=>{
+      const v=ov.querySelector('input[name="gate-garant"]:checked')?.value;
+      const m=ov.querySelector('#gate-garant-msg');
+      if(v==='oui'&&!_garantReady()){
+        m.innerHTML=`<div style="background:rgba(201,85,58,.08);border:1.5px solid rgba(201,85,58,.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:#C9553A">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
+      }else if(v==='oui'){
+        m.innerHTML='<div style="font-size:.82rem;color:var(--green)">✓ Votre garant est dans votre dossier — il figurera dans le bail.</div>';
+      }else m.innerHTML='';
+    };
+    ov.querySelectorAll('input[name="gate-garant"]').forEach(r=>r.addEventListener('change',garMsg));
+    ov.querySelector('#gate-cancel').onclick=()=>{ov.remove();resolve(false);};
+    ov.querySelector('#gate-go').onclick=()=>{
+      const err=ov.querySelector('#gate-err');
+      const g=ov.querySelector('input[name="gate-garant"]:checked')?.value;
+      let msg='';
+      if(!ov.querySelector('#gate-name-ok').checked)msg='Confirmez que votre nom est identique à celui de votre pièce d\'identité.';
+      else if(!g)msg='Indiquez si vous avez un garant.';
+      else if(g==='oui'&&!_garantReady())msg='Ajoutez d\'abord votre garant à votre dossier.';
+      if(msg){err.textContent=msg;err.style.display='block';return;}
+      window._applyGatePassed=listingId;
+      ov.remove();resolve(true);
+    };
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  });
+}
+
 async function showNegotiationModal(listingId, listingTitle, contactId, price){
+  if(window._applyGatePassed!==listingId){
+    if(!(await applicationGate(listingId)))return;
+  }
   const hasCard=!!(P?.stripe_customer_id);
   let commissionRate=0.10,commissionLabel='10%';
   try{
@@ -6444,17 +6840,10 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
 async function requestVisitFromContact(listingId, landlordId, listingTitle){
   if(!listingId||!landlordId){toast('<i data-lucide=x-circle class=ic></i> Informations d\'annonce manquantes');return;}
 
-  const missing=[];
-  if(!P?.full_name)missing.push('Nom complet');
-  if(!P?.passport_number)missing.push('Passeport/CNI');
-  if(!P?.nationality)missing.push('Nationalité');
-  if(!P?.date_of_birth)missing.push('Date de naissance');
-  if(!P?.place_of_birth)missing.push('Lieu de naissance');
-  if(!P?.profession)missing.push('Profession');
-  if(!P?.home_address)missing.push('Adresse actuelle');
+  const missing=profileMissingForVisit();
   if(missing.length>0){
-    toast('<i data-lucide=x-circle class=ic></i> Complétez votre profil avant de demander une visite');
-    alert(`Veuillez d'abord compléter votre profil.\n\nManquant : ${missing.join(', ')}`);
+    toast('<i data-lucide=alert-triangle class=ic></i> Complétez tout votre profil avant de demander une visite');
+    goToProfileFor('visite',missing);
     return;
   }
 
@@ -6571,7 +6960,6 @@ async function lookupCoLocataire(slotId){
   const missingFields=[];
   if(profil){
     if(!profil.full_name)missingFields.push('name');
-    if(!profil.passport_number)missingFields.push('passport/ID');
     if(!profil.nationality)missingFields.push('nationality');
     if(!profil.home_address)missingFields.push('home address');
   }
@@ -6939,7 +7327,7 @@ async function checkCoLocataire(idx){
     }
 
     // Vérifier que le profil est complet
-    const required = [profil.full_name, profil.passport_number, profil.date_of_birth, profil.nationality, profil.home_address];
+    const required = [profil.full_name, profil.date_of_birth, profil.nationality, profil.home_address];
     const missing = required.filter(f=>!f).length;
 
     if(missing > 0){
