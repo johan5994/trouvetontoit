@@ -186,6 +186,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gm-block{border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem;background:var(--s)}
 .gm-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bleu);margin-bottom:.7rem}
 .gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
+.gate-g{display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:9px;padding:.5rem .65rem;cursor:pointer;font-size:.84rem}.gate-g.on{border-color:var(--bleu);background:rgba(27,79,216,.06)}.gate-g.off{opacity:.75;cursor:default}.gate-g input{width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0}
 .gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 .gate-tag{background:var(--bleu);color:#fff;font-size:.65rem;font-weight:700;padding:.12rem .5rem;border-radius:100px}
 .ac-wrap{position:relative}
@@ -660,7 +661,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="fgrid2">
             <div class="fg"><label class="fl">Nom complet * <span style="font-size:.68rem;color:var(--td)">(exactement comme sur votre pièce d'identité)</span></label><input class="fi" id="p-name" placeholder="Marie Dupont" oninput="updateProfileeCompleteness()"><div style="font-size:.7rem;color:var(--bleu);margin-top:.3rem;line-height:1.4"><i data-lucide=info class=ic></i> Ce nom sera écrit sur votre bail : il doit être identique à celui de votre passeport ou carte d'identité (prénoms et nom).</div></div>
             <div class="fg"><label class="fl">E-mail</label><input class="fi" id="p-email" readonly style="opacity:.6"></div>
-            <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="+33 1 00 00 00 00" autocomplete="tel" oninput="updateProfileeCompleteness()"></div>
+            <div class="fg"><label class="fl">Téléphone *</label><input class="fi" id="p-phone" placeholder="6 12 34 56 78" autocomplete="tel" oninput="updateProfileeCompleteness()"></div>
             <div class="fg"><label class="fl">Nationalité *</label>
               <select class="fsel" id="p-nat" onchange="updateProfileeCompleteness()">
                 <option value="">Sélectionner le pays...</option>
@@ -5003,7 +5004,7 @@ function renderDossierState(){
     const isDone=st?.type&&(!isGarantPersonne||garantComplete);
     if(isDone){
       if(stepEl){stepEl.classList.remove('ds-act');stepEl.classList.add('ds-done');}
-      if(badgeEl){badgeEl.textContent=st.skipped?'Non applicable':st.noDoc?'Validé':'Fourni';badgeEl.className=st.skipped?'badge b-gold':'badge b-green';}
+      if(badgeEl){badgeEl.textContent=st.skipped||st.noDoc?'Validé':'Fourni';badgeEl.className='badge b-green';}
       done++;
     } else {
       if(stepEl)stepEl.classList.remove('ds-done');
@@ -5083,8 +5084,15 @@ function restoreUploadedStep(idx,saved){
     preview.innerHTML=`<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> ${DOSSIER_TYPE_LABELS[saved.type]||saved.type} — étape validée, aucun document à fournir.</div>`;
     if(typeof lucide!=='undefined')lucide.createIcons();
   } else if(preview&&saved.skipped){
+    // Étape sans document (pas de garant, pas d'avis d'impôt) : aucune zone d'envoi
+    const area=idx===5?document.querySelector('#garant-simple-upload > .dossier-upload-area'):upload?.querySelector('.dossier-upload-area');
+    if(area)area.style.display='none';
+    if(idx===5){const o=document.getElementById('garant-org');if(o)o.style.display='none';if(typeof gmShow==='function')gmShow(false);if(area)area.style.display='none';}
+    const msg=saved.type==='skipped_garant'?"Vous n'avez pas de garant — étape terminée, rien à fournir."
+      :saved.type==='skipped_impot'?"Vous n'avez pas d'avis d'impôt — étape terminée, rien à fournir."
+      :'Étape terminée — rien à fournir.';
     preview.style.display='block';
-    preview.innerHTML=`<div style="background:var(--gdim);border-radius:8px;padding:.5rem .75rem;font-size:.82rem;color:var(--gold)"><i data-lucide=info class=ic></i> Non applicable — étape ignorée</div>`;
+    preview.innerHTML=`<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> ${msg}</div>`;
     if(typeof lucide!=='undefined')lucide.createIcons();
   }
 }
@@ -5744,12 +5752,12 @@ const GARANT_SUB_STEPS=[
 ];
 const GARANT_TYPE_OPTIONS={
   0:[
-    {key:'g_cni',label:'Carte d\'identité',hint:'Française ou étrangère — recto + verso'},
-    {key:'g_passeport',label:'Passeport',hint:'Français ou étranger — pages 2-3 + signature'},
-    {key:'g_sejour',label:'Carte ou titre de séjour',hint:'Recto + verso en cours de validité'},
-    {key:'g_permis',label:'Permis de conduire',hint:'Français ou étranger — recto + verso'},
-    {key:'g_france_id',label:'France Identité',hint:'Document numérique officiel'},
-    {key:'g_autre_id',label:'Autre document',hint:'Tout document officiel avec photo en cours de validité'}
+    {key:'g_cni',doc:'cni',label:'Carte nationale d\'identité',hint:'Recto et verso'},
+    {key:'g_passeport',doc:'passeport',label:'Passeport',hint:'Pages d\'identité'},
+    {key:'g_sejour',doc:'sejour',label:'Carte / titre de séjour',hint:'En cours de validité'},
+    {key:'g_permis',doc:'permis',label:'Permis de conduire',hint:'Français ou européen'},
+    {key:'g_france_id',doc:'france_identite',label:'France Identité',hint:'Attestation numérique'},
+    {key:'g_autre_id',doc:'autre_id',label:'Autre document',hint:'Document officiel'}
   ],
   1:[
     {key:'g_quittances',sit:'locataire',label:'3 dernières quittances de loyer',hint:'Les 3 dernières quittances de loyer de votre garant.'},
@@ -5759,16 +5767,20 @@ const GARANT_TYPE_OPTIONS={
     {key:'g_taxe_fonciere',sit:'proprietaire',label:'Avis de taxe foncière',hint:'Son dernier avis de taxe foncière, toutes les pages visibles.'}
   ],
   2:[
-    {key:'g_cdi',label:'CDI',hint:'Contrat de travail ou attestation employeur'},
-    {key:'g_cdd',label:'CDD / CTT (intérim)',hint:'Contrat en cours de validité'},
-    {key:'g_fonctionnaire',label:'Fonctionnaire',hint:'Arrêté de titularisation'},
-    {key:'g_independant',label:'Indépendant / Auto-entrepreneur',hint:'Kbis, extrait SIRENE ou attestation URSSAF'},
-    {key:'g_retraite',label:'Retraite',hint:'Attestation de pension de retraite'},
-    {key:'g_chomage',label:'Chômage',hint:'Attestation France Travail (ARE)'},
-    {key:'g_etudiant',label:'Étudiant',hint:'Certificat de scolarité de l\'année en cours'},
-    {key:'g_alternance',label:'Apprentissage / Alternance',hint:'Contrat d\'apprentissage signé'},
-    {key:'g_intermittent',label:'Intermittent / Artiste-auteur',hint:'Contrats + attestation France Travail'},
-    {key:'g_sans_activite',label:'Sans activité',hint:'Déclaration sur l\'honneur de non-activité'}
+    {key:'g_cdi',doc:'cdi',label:'CDI',hint:'Contrat à durée indéterminée'},
+    {key:'g_cdd',doc:'cdd',label:'CDD',hint:'Contrat à durée déterminée'},
+    {key:'g_fonctionnaire',doc:'fonctionnaire',label:'Fonctionnaire',hint:'Arrêté de nomination'},
+    {key:'g_independant',doc:'independant',label:'Indépendant',hint:'Micro-entreprise, freelance'},
+    {key:'g_retraite',doc:'retraite',label:'Retraite',hint:'Attestation de retraite'},
+    {key:'g_chomage',doc:'chomage',label:'Chômage',hint:'Attestation France Travail'},
+    {key:'g_etudiant',doc:'etudes',label:'Études',hint:'Carte étudiante / certificat'},
+    {key:'g_alternance',doc:'alternance',label:'Alternance',hint:'Contrat d\'apprentissage'},
+    {key:'g_stage',doc:'stage',label:'Stage',hint:'Convention de stage signée'},
+    {key:'g_service_civique',doc:'service_civique',label:'Service civique',hint:'Contrat de service civique'},
+    {key:'g_intermittent',doc:'intermittent',label:'Intermittent / Artiste auteur',hint:'Attestation France Travail ou AGESSA'},
+    {key:'g_rsa',doc:'allocations_rsa',label:'RSA / Allocations',hint:'Bénéficiaire CAF / RSA'},
+    {key:'g_autre_pro',doc:'autre_pro',label:'Autres activités',hint:'Artiste, intermittent…'},
+    {key:'g_sans_activite',label:'Sans activité',hint:'Rien à fournir — l\'étape est terminée',needsUpload:false}
   ],
   3:[
     {key:'g_travail',label:'Revenus du travail',hint:'Salarié, indépendant, intermittent…'},
@@ -6029,7 +6041,7 @@ function renderGarantSubScreen(i){
   if(!hasType){
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
       <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">${i===0?'Choisissez <strong style="color:var(--bleu)">un seul</strong> document parmi ceux ci-dessous — pas besoin de tous les fournir.':'Choisissez la situation du garant :'}</div>
-      <div class="dossier-type-grid">${opts.map(o=>`<div class="dtg-item" onclick="selectGarantType(${i},'${o.key}')"><div class="dtg-label">${o.label}</div><div class="dtg-hint">${o.hint}</div></div>`).join('')}</div>`;
+      <div class="doc-type-grid">${opts.map(o=>`<div class="doc-type-card" onclick="selectGarantType(${i},'${o.key}')"><div><div style="font-weight:600;font-size:.88rem">${o.label}</div><div style="font-size:.72rem;color:var(--td);margin-top:.2rem">${o.hint}</div></div><span class="dtc-arrow">›</span></div>`).join('')}</div>`;
   } else if(noUpload){
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
       <div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt.label}</span><button type="button" class="heb-mod" onclick="resetGarantType(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>
@@ -6042,13 +6054,13 @@ function renderGarantSubScreen(i){
     const fileHtml=files.length>0?`<div style="margin-bottom:.5rem">${fileRowsHtml(files,fi=>`removeGarantFile(${i},${fi})`)}</div>`:'';
     sc.innerHTML=`<div style="font-size:.88rem;font-weight:600;margin-bottom:.6rem"><i data-lucide="${step.icon}" class=ic></i> ${step.label} du garant</div>
       <div class="heb-chosen"><span><i data-lucide=check-circle-2 class=ic style="color:var(--bleu)"></i> ${opt?.label||sub.type}</span><button type="button" class="heb-mod" onclick="resetGarantType(${i})">Modifier <i data-lucide=rotate-ccw class=ic></i></button></div>
-      <div style="font-size:.78rem;color:var(--tm);margin:.35rem 0 .75rem">${opt?.hint||''}</div>
+      ${(()=>{const t=opt?.doc&&DOSSIER_TYPE_INSTRUCTIONS[opt.doc];return t?`<div class="dossier-instr-box" style="background:color-mix(in srgb,var(--bleu) 8%,transparent);border:1px solid color-mix(in srgb,var(--bleu) 25%,transparent);border-radius:10px;padding:.75rem 1rem;font-size:.8rem;color:var(--tm);line-height:1.6;margin:.5rem 0 .75rem"><span style="font-weight:700;color:var(--bleu)"><i data-lucide=info class=ic></i> Documents à fournir pour votre garant</span><br>${t}</div>`:`<div style="font-size:.78rem;color:var(--tm);margin:.35rem 0 .75rem">${opt?.hint||''}</div>`;})()}
       ${fileHtml}
       <div class="dossier-upload-area" onclick="document.getElementById('gfile-${i}').click()" ondragover="event.preventDefault();this.classList.add('dua-dragover')" ondragleave="this.classList.remove('dua-dragover')" ondrop="handleGarantDrop(event,${i})">
         <div style="font-size:1.5rem;margin-bottom:.4rem"><i data-lucide=upload-cloud class=ic></i></div>
         <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">${files.length>0?"Ajouter d'autres fichiers":'Cliquer ou déposer'}</div>
-        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo${isMultiple?' · Plusieurs fichiers acceptés':''}</div>
-        <input type="file" id="gfile-${i}" accept="image/*,.pdf" ${isMultiple?'multiple':''} style="display:none" onchange="uploadGarantFile(${i},this.files)">
+        <div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo · Plusieurs fichiers acceptés</div>
+        <input type="file" id="gfile-${i}" accept="image/*,.pdf" multiple style="display:none" onchange="uploadGarantFile(${i},this.files)">
       </div>
       <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
         ${files.length>0?`<button class="btn bp bsm" onclick="confirmGarantSub(${i})">${i<4?'Valider et continuer →':'Valider le dossier garant →'}</button>`:''}
@@ -6581,6 +6593,11 @@ function _garantReady(){
   const st=dossierState?.[5];
   return !!(st?.type&&st.type!=='skipped_garant'&&(st.type!=='garant_personne'||allGarantsComplete()));
 }
+function _gateGarantList(){
+  const st=dossierState?.[5];
+  if(st?.type!=='garant_personne'||!Array.isArray(st.garants))return [];
+  return st.garants.map((g,i)=>{const n=g?.garant_name||{};return{i,name:[n.prenom,n.nom].filter(Boolean).join(' ')||('Garant '+(i+1)),ok:isGarantComplete(i)};});
+}
 function _goDossierStep(i){
   document.getElementById('apply-gate-overlay')?.remove();
   sp('profil',document.querySelector('.ni[onclick*="profil"]'));
@@ -6632,6 +6649,14 @@ function applicationGate(listingId){
         <div id="gate-garant-msg"></div>
       </div>
 
+      <div class="gate-box">
+        <div class="gate-h">4. Emménagez-vous avec quelqu'un ?</div>
+        <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Ajoutez les autres personnes qui seront sur le bail avec vous (conjoint, colocataires…). Sinon, laissez vide.</div>
+        <div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.</div>
+        <div id="colocataires-list"></div>
+        <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:10px;padding:.55rem;font-size:.8rem;font-weight:700;cursor:pointer">+ Ajouter un co-locataire</button>
+      </div>
+
       <div id="gate-err" style="color:#C9553A;font-size:.8rem;margin:.5rem 0;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem;flex-wrap:wrap">
         <button class="btn bg" id="gate-cancel">Annuler</button>
@@ -6639,10 +6664,21 @@ function applicationGate(listingId){
       </div>
     </div>`;
     document.body.appendChild(ov);
+    window._coLocatairesData=[];coLocataireSlotCount=0;
     const garMsg=()=>{
       const v=ov.querySelector('input[name="gate-garant"]:checked')?.value;
       const m=ov.querySelector('#gate-garant-msg');
-      if(v==='oui'&&!_garantReady()){
+      const gl=_gateGarantList();
+      if(v==='oui'&&gl.length&&gl.some(x=>x.ok)){
+        const prev=window._gateGarants?.idx;
+        m.innerHTML=`<div style="font-size:.8rem;margin:.2rem 0 .45rem;color:var(--tm)">Cochez le ou les garants à joindre à cette candidature :</div>
+          <div style="display:flex;flex-direction:column;gap:.35rem">${gl.map(x=>{
+            const on=x.ok&&(prev?prev.includes(x.i):true);
+            return `<label class="gate-g${on?' on':''}${x.ok?'':' off'}"><input type="checkbox" class="gate-g-chk" value="${x.i}" ${on?'checked':''} ${x.ok?'':'disabled'} onchange="this.parentElement.classList.toggle('on',this.checked)">
+              <span style="flex:1;min-width:0"><strong>${esc(x.name)}</strong><span style="display:block;font-size:.72rem;color:${x.ok?'var(--green)':'#C9553A'}">${x.ok?'✓ Dossier complet — figurera dans le bail':'Dossier incomplet — ne peut pas être sélectionné'}</span></span>
+              ${x.ok?'':`<a href="#" onclick="_goDossierStep(5);return false" style="font-size:.72rem;color:var(--bleu);white-space:nowrap">Compléter →</a>`}</label>`;}).join('')}</div>
+          <a href="#" onclick="_goDossierStep(5);return false" style="display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--bleu)">+ Ajouter ou modifier un garant →</a>`;
+      }else if(v==='oui'&&!_garantReady()){
         m.innerHTML=`<div style="background:rgba(201,85,58,.08);border:1.5px solid rgba(201,85,58,.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:#C9553A">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
       }else if(v==='oui'){
         m.innerHTML='<div style="font-size:.82rem;color:var(--green)">✓ Votre garant est dans votre dossier — il figurera dans le bail.</div>';
@@ -6656,8 +6692,25 @@ function applicationGate(listingId){
       let msg='';
       if(!ov.querySelector('#gate-name-ok').checked)msg='Confirmez que votre nom est identique à celui de votre pièce d\'identité.';
       else if(!g)msg='Indiquez si vous avez un garant.';
-      else if(g==='oui'&&!_garantReady())msg='Ajoutez d\'abord votre garant à votre dossier.';
+      const gl=_gateGarantList(),useList=g==='oui'&&gl.some(x=>x.ok);
+      const picked=[...ov.querySelectorAll('.gate-g-chk:checked')].map(c=>+c.value);
+      if(!msg&&useList&&!picked.length)msg='Cochez au moins un garant (ou répondez « Non »).';
+      else if(!msg&&g==='oui'&&!useList&&!_garantReady())msg='Ajoutez d\'abord votre garant à votre dossier.';
+      let coloc=[];
+      if(!msg){
+        const slots=[...ov.querySelectorAll('[id^="colocataire-slot-"]')].map(el=>+el.id.split('-').pop());
+        for(const i of slots){
+          const d=window._coLocatairesData[i];
+          const em=ov.querySelector('#ct-email-'+i)?.value.trim();
+          if(!d){if(em){msg='Cliquez sur « Rechercher » pour chaque co-locataire (ou retirez la ligne).';break;}continue;}
+          if(!d.hasAccount){msg='Chaque co-locataire doit avoir un compte Trouve Ton Toit pour figurer sur le bail (ou retirez la ligne).';break;}
+          if(d.incomplete){msg='Le profil d\'un co-locataire est incomplet : il doit le compléter avant que vous puissiez continuer (ou retirez la ligne).';break;}
+          coloc.push(d);
+        }
+      }
       if(msg){err.textContent=msg;err.style.display='block';return;}
+      window._gateColoc={listingId,list:coloc};
+      window._gateGarants={listingId,idx:g==='non'?[]:(useList?picked:null)};
       window._applyGatePassed=listingId;
       ov.remove();resolve(true);
     };
@@ -6699,13 +6752,6 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
       <div style="font-size:.78rem;color:rgba(240,237,232,.4);margin-bottom:1.2rem"><strong style="color:#F0EDE8">€${price||'—'}/mois</strong> · ${listingTitle||''}</div>
 
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
-        <div style="font-size:.8rem;font-weight:600;color:#F0EDE8;margin-bottom:.2rem"><i data-lucide=users class=ic></i> Moving in avec someone?</div>
-        <div style="font-size:.7rem;color:rgba(240,237,232,.35);margin-bottom:.65rem">Add anyone else who will be on the bail avec you</div>
-        <div id="colocataires-list"></div>
-        <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1px dashed rgba(255,255,255,.15);color:rgba(240,237,232,.5);border-radius:10px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer">+ Ajouter un co-locataire</button>
-      </div>
-
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
         <div style="font-size:.8rem;font-weight:600;color:#F0EDE8;margin-bottom:.6rem"><i data-lucide=calendar class=ic></i> Your entrée dans les lieux details</div>
         <div>
           <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.3rem">Desired entrée dans les lieux date *</label>
@@ -6729,8 +6775,6 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
       </div>
     </div>`;
   document.body.appendChild(modal);
-  window._coLocatairesData=[];
-  coLocataireSlotCount=0;
 }
 
 async function registerCardThenSend(listingId, listingTitle, contactId, price){
@@ -6759,15 +6803,16 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
     const btn=document.getElementById('inline-card-save-btn');
     const errEl=document.getElementById('inline-card-erreur');
     errEl.style.display='none';
-    btn.textContent='Saving...';btn.disabled=true;
+    btn.textContent='Enregistrement…';btn.disabled=true;
 
     try{
-      const res=await fetch('/.netlify/functions/visite-noshow',{
+      const res=await fetch('/.netlify/functions/holding-depot',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'setup_paiement',locataire_email:U.email,locataire_name:P?.full_name||'Locataire'})
+        body:JSON.stringify({action:'setup_paiement',locataire_email:U.email||P?.email||'',locataire_name:P?.full_name||'Locataire',locataire_id:U.id})
       });
-      const data=await res.json();
-      if(!data.success)throw new Error(data.erreur||'Could not start card setup');
+      let data;
+      try{data=await res.json();}catch(_){throw new Error('Service de paiement indisponible pour le moment. Réessayez dans quelques minutes.');}
+      if(!data.success)throw new Error(data.erreur||'Impossible de démarrer l\'enregistrement de la carte.');
 
       const{error:erreur,setupIntent}=await stripeInstance.confirmCardSetup(data.client_secret,{payment_method:{card:inlineCard}});
       if(erreur)throw new Error(erreur.message);
@@ -6816,9 +6861,8 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
   if(!moveIn){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner votre date d\'entrée souhaitée');window._submittingApplication=false;return;}
   // Collecter les co-locataires MAINTENANT — leurs champs DOM disparaissent
   // avec cette modal, donc on résout tout avant de la fermer.
-  const coLocatairesFull=(window._coLocatairesData||[])
-    .map((d,i)=>d&&(!d.hasAccount||d.incomplete)?collectCoLocataireManualFields(i):d)
-    .filter(Boolean);
+  // Les co-locataires sont choisis dans la fenêtre « Avant d'envoyer votre candidature »
+  const coLocatairesFull=window._gateColoc?.listingId===listingId?(window._gateColoc.list||[]):[];
 
   document.querySelector('#nego-modal-overlay')?.remove();
 
@@ -6916,11 +6960,11 @@ function addCoLocataireSlot(){
   card.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
       <div style="font-size:.78rem;font-weight:700"><i data-lucide=user class=ic></i> Co-locataire ${slotId+1}</div>
-      <button type="button" onclick="removeCoLocataireSlot(${slotId})" style="background:none;border:none;color:var(--red);font-size:.8rem;cursor:pointer"><i data-lucide=x class=ic></i> Remove</button>
+      <button type="button" onclick="removeCoLocataireSlot(${slotId})" style="background:none;border:none;color:var(--red);font-size:.8rem;cursor:pointer"><i data-lucide=x class=ic></i> Retirer</button>
     </div>
     <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
-      <input type="email" id="ct-email-${slotId}" placeholder="Their email address" style="flex:1;background:var(--s);border:1px solid var(--b2);border-radius:8px;padding:.5rem .6rem;color:var(--txt);font-size:.8rem">
-      <button type="button" onclick="lookupCoLocataire(${slotId})" style="background:var(--marine);color:white;border:none;border-radius:8px;padding:.5rem .8rem;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap">Find compte</button>
+      <input type="email" id="ct-email-${slotId}" placeholder="Son adresse e-mail" style="flex:1;background:var(--s);border:1px solid var(--b2);border-radius:8px;padding:.5rem .6rem;color:var(--txt);font-size:.8rem">
+      <button type="button" onclick="lookupCoLocataire(${slotId})" style="background:var(--marine);color:white;border:none;border-radius:8px;padding:.5rem .8rem;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap">Rechercher</button>
     </div>
     <div id="ct-result-${slotId}" style="font-size:.75rem"></div>
     <div id="ct-manual-${slotId}" style="display:none;margin-top:.5rem"></div>`;
@@ -6946,7 +6990,7 @@ async function lookupCoLocataire(slotId){
   }
   const resultEl=document.getElementById(`ct-result-${slotId}`);
   const manualEl=document.getElementById(`ct-manual-${slotId}`);
-  resultEl.innerHTML='⏳ Recherchering...';
+  resultEl.innerHTML='⏳ Recherche…';
 
   let profil=null;
   try{
@@ -6959,13 +7003,13 @@ async function lookupCoLocataire(slotId){
   // silencieusement, avec des champs vides sur le document.
   const missingFields=[];
   if(profil){
-    if(!profil.full_name)missingFields.push('name');
-    if(!profil.nationality)missingFields.push('nationality');
-    if(!profil.home_address)missingFields.push('home address');
+    if(!profil.full_name)missingFields.push('nom');
+    if(!profil.nationality)missingFields.push('nationalité');
+    if(!profil.home_address)missingFields.push('adresse');
   }
 
   if(profil&&!missingFields.length){
-    resultEl.innerHTML=`<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Found: <strong>${profil.full_name||'Trouve Ton Toit compte'}</strong> — their profil will be used pour the bail.</span>`;
+    resultEl.innerHTML=`<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Compte trouvé : <strong>${profil.full_name||'compte Trouve Ton Toit'}</strong> — son profil sera utilisé pour le bail.</span>`;
     manualEl.style.display='none';
     manualEl.innerHTML='';
     window._coLocatairesData[slotId]={
@@ -6976,30 +7020,15 @@ async function lookupCoLocataire(slotId){
       phone:profil.phone||'',verified:!!(profil['vérifié']||profil.verified)
     };
   }else if(profil&&missingFields.length){
-    resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ Found their Trouve Ton Toit compte, but their profil is missing: ${missingFields.join(', ')}. Ask them to complete their profil first, or fill in their details manually below.</span>`;
-    manualEl.style.display='block';
-    manualEl.innerHTML=`
-      <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="ct-name-${slotId}" type="text" value="${(profil.full_name||'').replace(/"/g,'&quot;')}"></div>
-      <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ct-phone-${slotId}" type="text" value="${(profil.phone||'').replace(/"/g,'&quot;')}"></div>
-      <div class="fg"><label class="fl">Passport / ID number</label><input class="fi" id="ct-passport-${slotId}" type="text" value="${(profil.passport_number||'').replace(/"/g,'&quot;')}"></div>
-      <div class="fg"><label class="fl">Nationalité</label><input class="fi" id="ct-nat-${slotId}" type="text" value="${(profil.nationality||'').replace(/"/g,'&quot;')}"></div>
-      <div class="fg"><label class="fl">Accueil address</label><input class="fi" id="ct-addr-${slotId}" type="text" value="${(profil.home_address||'').replace(/"/g,'&quot;')}"></div>
-`;
-    // On a bien trouvé un vrai compte (locataire_id conservé) — mais tant
-    // que les champs manquants ne sont pas remplis ci-dessus, l'envoi
-    // final revalidera avant de permettre de continuer.
+    resultEl.innerHTML=`<span style="color:#C9553A"><i data-lucide=alert-triangle class=ic></i> Compte trouvé, mais son profil est incomplet (${missingFields.join(', ')}). Demandez-lui de compléter son profil sur Trouve Ton Toit, puis cliquez à nouveau sur « Rechercher ».</span>`;
+    manualEl.style.display='none';manualEl.innerHTML='';
     window._coLocatairesData[slotId]={hasAccount:true,incomplete:true,locataire_id:profil.clerk_id,email};
   }else{
-    resultEl.innerHTML=`<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Aucun compte Trouve Ton Toit trouvé pour cet e-mail — veuillez remplir leurs informations ci-dessous.</span>`;
-    manualEl.style.display='block';
-    manualEl.innerHTML=`
-      <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="ct-name-${slotId}" type="text"></div>
-      <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ct-phone-${slotId}" type="text"></div>
-      <div class="fg"><label class="fl">Passport / ID number</label><input class="fi" id="ct-passport-${slotId}" type="text"></div>
-      <div class="fg"><label class="fl">Nationalité</label><input class="fi" id="ct-nat-${slotId}" type="text"></div>
-      <div class="fg"><label class="fl">Accueil address</label><input class="fi" id="ct-addr-${slotId}" type="text"></div>
-`;
-    window._coLocatairesData[slotId]={hasAccount:false,manual:true,email};
+    const invite=location.origin+'/';
+    resultEl.innerHTML=`<span style="color:#C9553A"><i data-lucide=alert-triangle class=ic></i> Aucun compte Trouve Ton Toit pour cet e-mail. Cette personne doit <strong>créer un compte locataire</strong> et compléter son profil pour apparaître sur le bail, puis cliquez à nouveau sur « Rechercher ».</span>
+      <div style="margin-top:.45rem"><button type="button" class="btn bg bsm" onclick="navigator.clipboard?.writeText('${invite}').then(()=>toast('Lien copié — envoyez-le à votre co-locataire'))"><i data-lucide=link class=ic></i> Copier le lien d'inscription</button></div>`;
+    manualEl.style.display='none';manualEl.innerHTML='';
+    window._coLocatairesData[slotId]={hasAccount:false,email};
   }
 }
 
@@ -7059,9 +7088,11 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
     const step5=dd?.[5];
     if(step5?.type==='garant_personne'){
       const garants=step5.garants||[{garant_name:step5.garant_name||{},garant_subs:step5.garant_subs||{}}];
+      const _gsel=window._gateGarants?.listingId===listingId?window._gateGarants.idx:null;
       garants.forEach((g,i)=>{
         const gn=g.garant_name||{};
         if(!gn.nom&&!gn.prenom) return; // garant vide
+        if(_gsel&&!_gsel.includes(i)) return; // non retenu à l'étape précédente
         _availableGarants.push({
           id:'garant_'+i,
           garant_prenom:gn.prenom||null,
@@ -7071,7 +7102,8 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
           garant_adresse:null,
           garant_profession:null,
           garant_lien:null,
-          garant_revenus:null
+          garant_revenus:null,
+          preselected:!!_gsel
         });
       });
     }
@@ -7093,8 +7125,8 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         ${_availableGarants.map(g=>{
           const name=[g.garant_prenom,g.garant_nom].filter(Boolean).join(' ');
           const sub=[lienLbl[g.garant_lien]||g.garant_lien,g.garant_profession,g.garant_revenus?g.garant_revenus.toLocaleString('fr-FR')+' €/mois':null].filter(Boolean).join(' · ');
-          return `<label id="garant-lbl-${g.id}" style="display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:8px;padding:.5rem .65rem;cursor:pointer;transition:all .15s">
-            <input type="checkbox" id="garant-chk-${g.id}" onchange="(function(id){const lbl=document.getElementById('garant-lbl-'+id);lbl.style.borderColor=this.checked?'var(--bleu)':'var(--b)';lbl.style.background=this.checked?'#EFF6FF':'var(--s)';}).call(this,'${g.id}')" style="width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0;cursor:pointer">
+          return `<label id="garant-lbl-${g.id}" style="display:flex;align-items:center;gap:.6rem;background:${g.preselected?'#EFF6FF':'var(--s)'};border:1.5px solid ${g.preselected?'var(--bleu)':'var(--b)'};border-radius:8px;padding:.5rem .65rem;cursor:pointer;transition:all .15s">
+            <input type="checkbox" id="garant-chk-${g.id}" ${g.preselected?'checked':''} onchange="(function(id){const lbl=document.getElementById('garant-lbl-'+id);lbl.style.borderColor=this.checked?'var(--bleu)':'var(--b)';lbl.style.background=this.checked?'#EFF6FF':'var(--s)';}).call(this,'${g.id}')" style="width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0;cursor:pointer">
             <div style="min-width:0">
               <div style="font-size:.83rem;font-weight:700;color:var(--txt)">${name}</div>
               ${sub?`<div style="font-size:.71rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>`:''}
@@ -7281,6 +7313,9 @@ function initPhonePicker(){
     itiLocataire = window.intlTelInput(input, {
       initialCountry: 'fr',
       preferredCountries: ['fr','be','ch','lu','mt','gb','de','it','es'],
+      // Exemple de numéro adapté au pays choisi (France : 6 12 34 56 78)
+      autoPlaceholder: 'aggressive',
+      placeholderNumberType: 'MOBILE',
       separateDialCode: true,
       utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/utils.js'
     });
