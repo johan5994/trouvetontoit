@@ -270,7 +270,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   <div class="sb-user">
     <div class="uav" id="uav">?</div>
     <div style="flex:1;min-width:0"><div class="un" id="uname">Chargement...</div><div class="ur">Locataire</div></div>
-    <button class="btn bg bsm" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark mode"><i data-lucide=sun class=ic></i>️</button>
+    <button class="btn bg bsm" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark mode"><i data-lucide=sun class=ic></i></button>
     <button class="btn bg bsm" onclick="doLogout()" title="Se déconnecter">↩</button>
   </div>
 </aside>
@@ -356,7 +356,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
         <div id="ml-bail-progress"></div>
 
-        <div id="ml-no-tracking-notice" style="display:none;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ️ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
+        <div id="ml-no-tracking-notice" style="display:none;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
 
         <div style="display:flex;gap:.4rem;margin:1rem 0;overflow-x:auto;padding-bottom:.2rem">
           <button class="ml-tab act" id="ml-tabbtn-bail" onclick="showMlTab('bail')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=file-text class=ic></i> Bail & État des lieux</button>
@@ -413,7 +413,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="page" id="page-roommates">
       <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;overflow-x:auto">
         <button class="ml-tab" id="rm-tabbtn-channel" onclick="showRmTab('channel')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=message-circle class=ic></i> Community Channel</button>
-        <button class="ml-tab" id="rm-tabbtn-dms" onclick="showRmTab('dms')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=mail class=ic></i>️ Mes messages<span class="badge" id="rm-dms-badge" style="display:none;margin-left:.3rem"></span></button>
+        <button class="ml-tab" id="rm-tabbtn-dms" onclick="showRmTab('dms')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=mail class=ic></i> Mes messages<span class="badge" id="rm-dms-badge" style="display:none;margin-left:.3rem"></span></button>
         <button class="ml-tab" id="rm-tabbtn-profil" onclick="showRmTab('profil')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=user class=ic></i> Mon compte</button>
         <button class="ml-tab" id="rm-tabbtn-groups" onclick="showRmTab('groups')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=users class=ic></i> Mes groupes</button>
       </div>
@@ -445,7 +445,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Sub-tab: Mes messages (DMs) -->
       <div id="rm-tab-dms" style="display:none">
         <div class="card">
-          <div class="ch"><div class="ct"><i data-lucide=mail class=ic></i>️ Mes messages</div><span style="font-size:.68rem;color:var(--td)">Conversations privées avec les autres locataires</span></div>
+          <div class="ch"><div class="ct"><i data-lucide=mail class=ic></i> Mes messages</div><span style="font-size:.68rem;color:var(--td)">Conversations privées avec les autres locataires</span></div>
           <div id="rm-dms-list" style="padding:.5rem 0"><div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--td)">Chargement...</div></div>
         </div>
       </div>
@@ -1257,10 +1257,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <select class="fsel" id="tick-type">
         <option value="Plumbing"><i data-lucide=droplet class=ic></i> Plomberie (fuite, robinet, WC)</option>
         <option value="Electricity"><i data-lucide=lightbulb class=ic></i> Électricité (panne, prise, éclairage)</option>
-        <option value="Chauffage/AC"><i data-lucide=snowflake class=ic></i>️ Chauffage / Climatisation</option>
+        <option value="Chauffage/AC"><i data-lucide=snowflake class=ic></i> Chauffage / Climatisation</option>
         <option value="Doors/Windows"><i data-lucide=door-open class=ic></i> Portes / Fenêtres</option>
         <option value="Pests"><i data-lucide=bug class=ic></i> Nuisibles / Insectes</option>
-        <option value="Structure"><i data-lucide=construction class=ic></i>️ Dégâts structurels</option>
+        <option value="Structure"><i data-lucide=construction class=ic></i> Dégâts structurels</option>
         <option value="Lock"><i data-lucide=lock class=ic></i> Serrure / Sécurité</option>
         <option value="Appliances"><i data-lucide=utensils class=ic></i> Électroménager (four, frigo...)</option>
         <option value="Internet"><i data-lucide=wifi class=ic></i> Internet / TV</option>
@@ -1415,7 +1415,7 @@ function initUI(){
   document.getElementById('uav').textContent=n[0].toUpperCase();
   document.getElementById('uname').textContent=n;
   document.getElementById('tbs').textContent='Bienvenue, '+n.split(' ')[0]+' !';
-  if(!P?.full_name&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i>️ Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
+  if(!P?.full_name&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i> Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
 }
 
 async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);}
@@ -1449,18 +1449,18 @@ let rmActifGroupId=null;
 let rmCurrentZone='Général';
 
 const RM_VILLES=[
-  {zone:'Général',   label:'🌐 Général',      subtitle:'Tous ceux qui cherchent un colocataire'},
-  {zone:'Paris',     label:'🗼 Paris',          subtitle:'Île-de-France'},
-  {zone:'Lyon',      label:'🦁 Lyon',           subtitle:'Auvergne-Rhône-Alpes'},
-  {zone:'Marseille', label:'⛵ Marseille',      subtitle:'Provence-Alpes-Côte d\'Azur'},
-  {zone:'Bordeaux',  label:'🍷 Bordeaux',       subtitle:'Nouvelle-Aquitaine'},
-  {zone:'Toulouse',  label:'🌸 Toulouse',       subtitle:'Occitanie'},
-  {zone:'Nice',      label:'🌊 Nice',           subtitle:'Côte d\'Azur'},
-  {zone:'Nantes',    label:'🦢 Nantes',         subtitle:'Pays de la Loire'},
-  {zone:'Lille',     label:'🌻 Lille',          subtitle:'Hauts-de-France'},
-  {zone:'Rennes',    label:'🎭 Rennes',         subtitle:'Bretagne'},
-  {zone:'Strasbourg',label:'🥨 Strasbourg',     subtitle:'Grand Est'},
-  {zone:'Montpellier',label:'🌴 Montpellier',   subtitle:'Occitanie'},
+  {zone:'Général',   label:'<i data-lucide=globe class=ic></i> Général',      subtitle:'Tous ceux qui cherchent un colocataire'},
+  {zone:'Paris',     label:'<i data-lucide=map-pin class=ic></i> Paris',          subtitle:'Île-de-France'},
+  {zone:'Lyon',      label:'<i data-lucide=map-pin class=ic></i> Lyon',           subtitle:'Auvergne-Rhône-Alpes'},
+  {zone:'Marseille', label:'<i data-lucide=map-pin class=ic></i> Marseille',      subtitle:'Provence-Alpes-Côte d\'Azur'},
+  {zone:'Bordeaux',  label:'<i data-lucide=map-pin class=ic></i> Bordeaux',       subtitle:'Nouvelle-Aquitaine'},
+  {zone:'Toulouse',  label:'<i data-lucide=map-pin class=ic></i> Toulouse',       subtitle:'Occitanie'},
+  {zone:'Nice',      label:'<i data-lucide=map-pin class=ic></i> Nice',           subtitle:'Côte d\'Azur'},
+  {zone:'Nantes',    label:'<i data-lucide=map-pin class=ic></i> Nantes',         subtitle:'Pays de la Loire'},
+  {zone:'Lille',     label:'<i data-lucide=map-pin class=ic></i> Lille',          subtitle:'Hauts-de-France'},
+  {zone:'Rennes',    label:'<i data-lucide=map-pin class=ic></i> Rennes',         subtitle:'Bretagne'},
+  {zone:'Strasbourg',label:'<i data-lucide=map-pin class=ic></i> Strasbourg',     subtitle:'Grand Est'},
+  {zone:'Montpellier',label:'<i data-lucide=map-pin class=ic></i> Montpellier',   subtitle:'Occitanie'},
 ];
 
 function renderRmChannelList(){
@@ -1648,7 +1648,7 @@ async function sendRmChannelMsg(){
   const content=input?.value.trim();
   if(!content)return;
   const{data:myProfile}=await sb.from('roommate_profiles').select('id').eq('locataire_id',U.id).maybeSingle();
-  if(!myProfile){toast('<i data-lucide=alert-triangle class=ic></i>️ Configurez d\'abord votre profil pour que les autres sachent qui vous êtes');showRmTab('profil');return;}
+  if(!myProfile){toast('<i data-lucide=alert-triangle class=ic></i> Configurez d\'abord votre profil pour que les autres sachent qui vous êtes');showRmTab('profil');return;}
   input.value='';
   try{
     const zoneVal=rmCurrentZone==='Général'?null:rmCurrentZone;
@@ -1916,8 +1916,8 @@ async function searchMemberByEmail(){
 async function submitCreateGroup(){
   const name=document.getElementById('rm-group-name').value.trim();
   const selected=[...document.querySelectorAll('.rm-member-cb:checked')].map(cb=>cb.value);
-  if(!name){toast('<i data-lucide=alert-triangle class=ic></i>️ Donnez un nom à votre groupe');return;}
-  if(!selected.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez au moins un membre');return;}
+  if(!name){toast('<i data-lucide=alert-triangle class=ic></i> Donnez un nom à votre groupe');return;}
+  if(!selected.length){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez au moins un membre');return;}
   try{
     const{data:group,error}=await sb.from('roommate_groups').insert({name,created_by:U.id}).select().single();
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
@@ -2154,7 +2154,7 @@ async function loadMyLocation(){
   const leftNoticeEl=document.getElementById('ml-tenancy-ended-notice');
   if(leftNoticeEl){
     leftNoticeEl.style.display=daysLeftToView?'block':'none';
-    if(daysLeftToView)leftNoticeEl.innerHTML=`<i data-lucide=alert-triangle class=ic></i>️ You've left ce logement. It'll be removed  depuis  here in ${daysLeftToView} day${daysLeftToView>1?'s':''} — save anything you need now.`;
+    if(daysLeftToView)leftNoticeEl.innerHTML=`<i data-lucide=alert-triangle class=ic></i> You've left ce logement. It'll be removed  depuis  here in ${daysLeftToView} day${daysLeftToView>1?'s':''} — save anything you need now.`;
   }
 
   const progressEl=document.getElementById('ml-bail-progress');
@@ -2188,11 +2188,11 @@ function renderBailDocCard(bk,annonce){
   }
   const bothSigned=bk.bail_signed_landlord&&bk.bail_signed_tenant;
   return`<div class="card">
-    <div class="ch"><div class="ct"><i data-lucide=file-text class=ic></i> ${annonce?.type==='short'?'Location courte durée':'Location longue durée'} Private Residential Bail</div>${bothSigned?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Fully signed</span>':'<span class="badge b-gold">⏳ In progress</span>'}</div>
+    <div class="ch"><div class="ct"><i data-lucide=file-text class=ic></i> ${annonce?.type==='short'?'Location courte durée':'Location longue durée'} Private Residential Bail</div>${bothSigned?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Fully signed</span>':'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> In progress</span>'}</div>
     <div class="cb">
       <div style="font-size:.8rem;color:var(--tm);margin-bottom:.75rem">${annonce?.title||'Your bien'} · ${annonce?.full_address||annonce?.zone||'France'}</div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        ${bk.bail_tenant_embed?`<a href="${bk.bail_tenant_embed}" target="_blank" class="btn ${bk.bail_signed_tenant?'bg':'bp'} bsm">${bk.bail_signed_tenant?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i>️ Sign now'}</a>`:''}
+        ${bk.bail_tenant_embed?`<a href="${bk.bail_tenant_embed}" target="_blank" class="btn ${bk.bail_signed_tenant?'bg':'bp'} bsm">${bk.bail_signed_tenant?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i> Sign now'}</a>`:''}
       </div>
       ${bothSigned?`<div style="margin-top:.75rem;font-size:.72rem;color:var(--td)"><i data-lucide=file-edit class=ic></i> Remember to register this bail at <strong>rentregistration.fr</strong> within 30 days of the start date.</div>`:''}
     </div>
@@ -2207,21 +2207,21 @@ function renderEdlDocCard(bk){
   }
   const bothSigned=bk.edl_signed_landlord&&bk.edl_signed_tenant;
   return`<div class="card">
-    <div class="ch"><div class="ct"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (État des lieux)</div>${bothSigned||bk.status==='move_in_ready'?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Fully signed</span>':'<span class="badge b-gold">⏳ In progress</span>'}</div>
+    <div class="ch"><div class="ct"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux État des lieux (État des lieux)</div>${bothSigned||bk.status==='move_in_ready'?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Fully signed</span>':'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> In progress</span>'}</div>
     <div class="cb">
       <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=home class=ic></i> Propriétaire</span>
-          ${bk.edl_signed_landlord||bk.status==='move_in_ready'?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${bk.edl_signed_landlord||bk.status==='move_in_ready'?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=user class=ic></i> You</span>
-          ${myEdlSigned||bk.status==='move_in_ready'?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${myEdlSigned||bk.status==='move_in_ready'?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>
         ${renderEdlCoLocataireSignatureRowsLocataire(bk)}
       </div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        ${myEdlEmbed?`<a href="${bk.edl_pdf_url||myEdlEmbed}" target="_blank" class="btn ${myEdlSigned?'bg':'bp'} bsm">${myEdlSigned?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i>️ Sign now'}</a>`:''}
+        ${myEdlEmbed?`<a href="${bk.edl_pdf_url||myEdlEmbed}" target="_blank" class="btn ${myEdlSigned?'bg':'bp'} bsm">${myEdlSigned?'<i data-lucide=file-text class=ic></i> View my copy':'<i data-lucide=pen-line class=ic></i> Sign now'}</a>`:''}
         <button onclick="viewEdlDossierLocataire('${bk.id}')" class="btn bg bsm"><i data-lucide=clipboard-list class=ic></i> View full dossier ( avec  photos)</button>
       </div>
     </div>
@@ -2475,7 +2475,7 @@ async function declarePaidFromMessage(msgId, listingId){
 
   // Vérifier que le bail est bien signé avant de permettre le paiement
   if(bail&&bail.status!=='signed'&&bail.status!=='pending_signature'){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Veuillez d\'abord signer votre bail avant de déclarer un paiement.');
+    toast('<i data-lucide=alert-triangle class=ic></i> Veuillez d\'abord signer votre bail avant de déclarer un paiement.');
     return;
   }
 
@@ -2551,7 +2551,7 @@ async function declarePaidFromMessage(msgId, listingId){
         listing_id:listingId,
         sender_id:'system',
         receiver_id:bail.landlord_id,
-        content:`💶 ${P?.full_name||'Votre locataire'} a déclaré un paiement de €${total}.\n\n🔒 Dépôt de garantie : €${depot}\n🏠 Premier mois : €${firstMonth}\n${quittanceUrl?`\n📎 Quittance : ${quittanceUrl}`:''}\n\nVeuillez vérifier votre compte bancaire / Revolut et confirmer la quittance dans votre tableau de bord → Paiements.`,
+        content:`${P?.full_name||'Votre locataire'} a déclaré un paiement de €${total}.\n\nDépôt de garantie : €${depot}\nPremier mois : €${firstMonth}\n${quittanceUrl?`\nQuittance : ${quittanceUrl}`:''}\n\nVeuillez vérifier votre compte bancaire / Revolut et confirmer la quittance dans votre tableau de bord → Paiements.`,
         type:'paiement_declared'
       });
     }catch(e){}
@@ -2623,7 +2623,7 @@ async function loadTickets(){
   const pc={high:'ph',medium:'pm',low:'pl'};
   const sc={open:'to',in_progress:'tip',resolved:'tr'};
   const sl={open:'Ouvert',in_progress:'En cours <i data-lucide=settings class=ic></i>',resolved:'Résolu <i data-lucide=check class=ic></i>'};
-  wrap.innerHTML=data.map(t=>'<div class="tcard"><div class="tpri '+(pc[t.priority]||'pm')+'"></div><div style="font-size:1.2rem">'+(t.title?.includes('Plumb')?'<i data-lucide=droplet class=ic></i>':t.title?.includes('Elect')?'<i data-lucide=lightbulb class=ic></i>':t.title?.includes('A/C')?'<i data-lucide=snowflake class=ic></i>️':'<i data-lucide=wrench class=ic></i>')+'</div><div style="flex:1"><div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">'+t.title+'</div><div style="font-size:.72rem;color:var(--tm)">'+(t.description||'')+' · '+new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div></div><span class="tst '+(sc[t.statut]||'to')+'">'+(sl[t.statut]||'Ouvrir')+'</span></div>').join('');
+  wrap.innerHTML=data.map(t=>'<div class="tcard"><div class="tpri '+(pc[t.priority]||'pm')+'"></div><div style="font-size:1.2rem">'+(t.title?.includes('Plumb')?'<i data-lucide=droplet class=ic></i>':t.title?.includes('Elect')?'<i data-lucide=lightbulb class=ic></i>':t.title?.includes('A/C')?'<i data-lucide=snowflake class=ic></i>':'<i data-lucide=wrench class=ic></i>')+'</div><div style="flex:1"><div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">'+t.title+'</div><div style="font-size:.72rem;color:var(--tm)">'+(t.description||'')+' · '+new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div></div><span class="tst '+(sc[t.statut]||'to')+'">'+(sl[t.statut]||'Ouvrir')+'</span></div>').join('');
 }
 
 async function openTicketModal(){
@@ -2634,7 +2634,7 @@ async function openTicketModal(){
     bk=d;
   }catch(e){bk=null;}
   if(!bk){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Vous avez besoin d\'un bail actif pour signaler des problèmes de maintenance.');
+    toast('<i data-lucide=alert-triangle class=ic></i> Vous avez besoin d\'un bail actif pour signaler des problèmes de maintenance.');
     return;
   }
   window._activeTicketBooking=bk;
@@ -2700,7 +2700,7 @@ async function submitTicket(){
   if(bk?.landlord_id){
     try{await sb.from('messages').insert({
       listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-      content:`🔧 New maintenance ticket  depuis  ${P?.full_name||' votre  locataire'}\n\n${title} — ${priority==='high'?'⚪ High priority':priority==='low'?'⚪ Low priority':'⚪ Medium priority'}\n${desc}\n\nCheck votre Maintenance page to respond.`,
+      content:`New maintenance ticket  depuis  ${P?.full_name||' votre  locataire'}\n\n${title} — ${priority==='high'?'High priority':priority==='low'?'Low priority':'Medium priority'}\n${desc}\n\nCheck votre Maintenance page to respond.`,
       type:'maintenance_new'
     });}catch(e){}
   }
@@ -2845,7 +2845,7 @@ function renderLocataireVisitCard(v){
     'cancelled':'b-dim','declined':'b-dim'
   };
   const statusLabels={
-    'pending':'⏳ En attente de confirmation',
+    'pending':'<i data-lucide=hourglass class=ic></i> En attente de confirmation',
     'confirmed':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmée',
     'completed':'<i data-lucide=flag class=ic></i> Visite effectuée',
     'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée',
@@ -2873,7 +2873,7 @@ function renderLocataireVisitCard(v){
       <!-- ÉTAPE 1 : En attente confirmation propriétaire -->
       ${v.status==='pending'?`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
-        ⏳ En attente de confirmation du propriétaire.
+        <i data-lucide=hourglass class=ic></i> En attente de confirmation du propriétaire.
       </div>`:''}
 
       <!-- ÉTAPE 3 : Visite confirmée -->
@@ -2903,7 +2903,7 @@ function renderLocataireVisitCard(v){
         <span style="font-size:.76rem"><i data-lucide=file-text class=ic></i> Reservation fee quittance</span>
         ${bk?.quittance_signed_tenant
           ?`<div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.7rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span><a href="${bk.quittance_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a></div>`
-          :`<a href="${bk.quittance_locataire_embed}" target="_blank" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none"><i data-lucide=pen-line class=ic></i>️ Sign now</a>`}
+          :`<a href="${bk.quittance_locataire_embed}" target="_blank" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none"><i data-lucide=pen-line class=ic></i> Sign now</a>`}
       </div>`:''}`:''} 
 
       <!-- ÉTAPES 6+ : Bail, paiement, État des lieux -->
@@ -2951,7 +2951,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=map-pin class=ic></i> ${annonce.zone||'France'} · Candidat principal: ${b.locataire_name||'—'}</div>`;
 
         if(b.status==='pending'||b.status==='booking_pending'){
-          html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600">⏳ Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
+          html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
         }else if(isAccepted){
           html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry);
         }else{
@@ -3054,7 +3054,7 @@ function renderCoLocataireSignatureRowsLocataire(bk){
       <span style="font-size:.78rem"><i data-lucide=users class=ic></i> ${cl.name||'Co-locataire'}</span>
       ${cl.signed
         ?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>'
-        :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+        :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
     </div>`).join('');
 }
 
@@ -3068,7 +3068,7 @@ function renderEdlCoLocataireSignatureRowsLocataire(bk){
       <span style="font-size:.78rem"><i data-lucide=users class=ic></i> ${cl.name||'Co-locataire'}</span>
       ${cl.signed
         ?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>'
-        :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+        :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
     </div>`).join('');
 }
 
@@ -3113,14 +3113,14 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       const tSigned=!!lease.tenant_signed_at;
       if(tSigned&&llSigned){
         // Tout signé
-        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> ✅ Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
+        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> <i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
       }else if(tSigned&&!llSigned){
         // Locataire a signé, attend bailleur
         bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check class=ic></i> Vous avez signé — en attente de la signature du bailleur</div>${leaseBtn('Voir le bail →',false)}`;
       }else{
         // Accord trouvé, signatures ouvertes — CTA principal
         bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Bail accepté${llSigned?' — le bailleur a déjà signé':' — signatures ouvertes'}</div>
-        <a href="${leaseUrl}" style="display:block;width:100%;background:var(--green,#16a34a);color:white;border:none;border-radius:8px;padding:.5rem;font-size:.82rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.4rem;letter-spacing:.01em">✍️ Signer le bail maintenant →</a>`;
+        <a href="${leaseUrl}" style="display:block;width:100%;background:var(--green,#16a34a);color:white;border:none;border-radius:8px;padding:.5rem;font-size:.82rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.4rem;letter-spacing:.01em"><i data-lucide=pen-tool class=ic></i> Signer le bail maintenant →</a>`;
       }
     }else{
       bailBlock='<div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;color:var(--td)"><i data-lucide=clock class=ic></i> Le propriétaire prépare le bail</div>';
@@ -3139,11 +3139,11 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
         <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
           <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=clipboard-list class=ic></i> État des lieux / Key handover</div>
-          <div style="font-size:.8rem;font-weight:600">${edlDate?new Date(edlDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
+          <div style="font-size:.8rem;font-weight:600">${edlDate?new Date(edlDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'<i data-lucide=hourglass class=ic></i> TBC'}</div>
         </div>
         <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
           <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=home class=ic></i> Entrée dans les lieux date</div>
-          <div style="font-size:.8rem;font-weight:600">${moveIn?new Date(moveIn).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'⏳ TBC'}</div>
+          <div style="font-size:.8rem;font-weight:600">${moveIn?new Date(moveIn).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'<i data-lucide=hourglass class=ic></i> TBC'}</div>
         </div>
       </div>
 
@@ -3155,11 +3155,11 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=home class=ic></i> Propriétaire</span>
-          ${llSigned?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${llSigned?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>
         ${coLocataireEntry?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${bk.locataire_name||'Main locataire'}</span>
-          ${bk.bail_signed_tenant?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${bk.bail_signed_tenant?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>`:''}
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${coLocataireEntry?'You (co-locataire)':'You'}</span>
@@ -3168,14 +3168,14 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
             :lease&&(lease.negotiation_status==='agreed'||lease.negotiation_status==='signed')
               ?`<a href="/bail-meuble.html?lease_id=${lease.id}&role=tenant" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer</a>`
               :mySignEmbed
-                ?`<button onclick="${mySignFn}" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i>️ Sign now</button>`
-                :'<span style="font-size:.72rem;color:var(--gold)">⏳ En cours de préparation</span>'}
+                ?`<button onclick="${mySignFn}" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i> Sign now</button>`
+                :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> En cours de préparation</span>'}
         </div>
         ${lease?.garant_name?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
           ${lease.garant_signed_at
             ?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>'
-            :'<span style="font-size:.72rem;color:var(--gold)">⏳ En attente</span>'}
+            :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> En attente</span>'}
         </div>`:''}
         ${!coLocataireEntry?renderCoLocataireSignatureRowsLocataire(bk):''}
       </div>
@@ -3217,17 +3217,17 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=home class=ic></i> Propriétaire</span>
-          ${bk.edl_signed_landlord?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${bk.edl_signed_landlord?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>
         ${coLocataireEntry?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${bk.locataire_name||'Main locataire'}</span>
-          ${bk.edl_signed_tenant?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          ${bk.edl_signed_tenant?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
         </div>`:''}
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
           <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${coLocataireEntry?'You (co-locataire)':'You'}</span>
           ${myEdlSigned
             ?`<div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span><a href="${bk.edl_pdf_url||myEdlEmbed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a></div>`
-            :`<button onclick="${myEdlSignFn}" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i>️ Sign now</button>`}
+            :`<button onclick="${myEdlSignFn}" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i> Sign now</button>`}
         </div>
         ${!coLocataireEntry?renderEdlCoLocataireSignatureRowsLocataire(bk):''}
       </div>
@@ -3257,7 +3257,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       </div>`:''}
       ${!payDeclared&&!payConfirmered
         ?`<button onclick="declareLocatairePaiement('${bk.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> I have transferred the paiement →</button>`
-        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600">⏳ Paiement declared — awaiting propriétaire confirmation</div>`}
+        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=hourglass class=ic></i> Paiement declared — awaiting propriétaire confirmation</div>`}
       `:`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmed by propriétaire</div>
       ${!coLocataireEntry?renderLocataireEdlSection(bk):''}`}
       `}
@@ -3321,7 +3321,7 @@ async function openLocataireEdl(bookingId){
       try{
         await sb.from('messages').insert({
           listing_id:booking.listing_id,sender_id:'system',receiver_id:booking.landlord_id,
-          content:'📋 Your locataire has started the entrée dans les lieux état des lieux (État des lieux). You\'ll be notified once it\'s prêt à signer.',
+          content:'Your locataire has started the entrée dans les lieux état des lieux (État des lieux). You\'ll be notified once it\'s prêt à signer.',
           type:'edl_started'
         });
       }catch(e){}
@@ -3430,7 +3430,7 @@ async function openLocataireEdl(bookingId){
             </div>
           </div>
           <div style="margin-top:.65rem;background:rgba(212,168,71,.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
-            <i data-lucide=alert-triangle class=ic></i>️ Take photos of both meters. These readings will be annexed to the bail.
+            <i data-lucide=alert-triangle class=ic></i> Take photos of both meters. These readings will be annexed to the bail.
           </div>
         </div>
         <div style="display:flex;gap:.5rem">
@@ -3472,8 +3472,8 @@ async function openLocataireEdl(bookingId){
           <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">ce logement will move to Rented statut once you et votre propriétaire have both signed.</div>
           <div style="font-size:.76rem;color:var(--td);text-align:left;background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem;line-height:2">
             <i data-lucide=check-circle-2 class=ic></i> État des lieux & meter readings recorded<br>
-            ⏳ Waiting on votre signature<br>
-            ⏳ Waiting on votre propriétaire's signature
+            <i data-lucide=hourglass class=ic></i> Waiting on votre signature<br>
+            <i data-lucide=hourglass class=ic></i> Waiting on votre propriétaire's signature
           </div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.75rem"><i data-lucide=file-edit class=ic></i> Remember to submit ARMS Form H (change of occupants) within 30 days — <a href="https://www.arms.com.fr" target="_blank" style="color:var(--gold)">arms.com.fr</a>.</div>
           <button onclick="loadLocataireApplicationsPage()" style="background:var(--bleu);color:white;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.85rem;font-weight:700;cursor:pointer">← Retour</button>
@@ -3516,7 +3516,7 @@ async function uploadTnEdlPhotos(files,key,previewElId){
     if(file.size>8*1024*1024){toast('<i data-lucide=x-circle class=ic></i> '+file.name+' too large — max 8MB');continue;}
     const placeholder=document.createElement('div');
     placeholder.style.cssText='width:44px;height:44px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--td)';
-    placeholder.textContent='⏳';
+    placeholder.textContent='…';
     if(previewEl)previewEl.appendChild(placeholder);
     try{
       const ext=file.name.split('.').pop();
@@ -3564,7 +3564,7 @@ function showEdlSigningOptionsScreenLocataire(bookingId,signLink,landlordEmail,p
       <div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:var(--td);word-break:break-all;margin-bottom:.75rem">${signLink}</div>
       <button onclick="navigator.clipboard.writeText('${signLink}');this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Link copied';this.disabled=true;this.style.opacity='.7'" class="btn bg" style="width:100%;justify-content:center;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> Copy link</button>
       <a href="${waHref}" target="_blank" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Sent via WhatsApp';this.style.opacity='.7';},300)" class="btn bg" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem;background:#25D366;color:white;border:none"><i data-lucide=message-circle class=ic></i> Envoyer via WhatsApp</a>
-      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i>️ Envoyer by email</a>
+      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i> Envoyer by email</a>
       <button onclick="this.closest('div[style*=fixed]').remove()" class="btn bg" style="width:100%;justify-content:center">Fermer</button>
     </div>`;
   document.body.appendChild(modal);
@@ -3581,7 +3581,7 @@ async function generateAnnexAndCompleteTn(){
   const rooms=collectEdlRoomsTn();
 
   const statusEl=document.getElementById('tn-annex-statut');
-  if(statusEl){statusEl.style.display='block';statusEl.textContent='⏳ Generating Annex A (État des lieux)...';}
+  if(statusEl){statusEl.style.display='block';statusEl.textContent='Generating Annex A (État des lieux)...';}
 
   const landlordField={name:ctx.landlord?.full_name||ctx.listing?.manual_landlord_name||'',email:ctx.landlord?.email||ctx.listing?.manual_landlord_email||'',passport:ctx.landlord?.passport_number||''};
   const tenantField={name:ctx.tenant?.full_name||'',email:ctx.tenant?.email||'',passport:ctx.tenant?.passport_number||'',nationality:ctx.tenant?.nationality||''};
@@ -3605,7 +3605,7 @@ async function generateAnnexAndCompleteTn(){
       return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',locataire_id:match?.tenant_id||null,signed:false};
     });
     if(!edlLandlordEmbed||!edlTenantEmbed){
-      if(statusEl){statusEl.style.color='var(--gold)';statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ État des lieux saved, but signature links failed: '+(edlData?.message||'unknown erreur');}
+      if(statusEl){statusEl.style.color='var(--gold)';statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> État des lieux saved, but signature links failed: '+(edlData?.message||'unknown erreur');}
     }else{
       if(statusEl)statusEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Annex A (État des lieux) sent pour signature!';
     }
@@ -3629,7 +3629,7 @@ async function generateAnnexAndCompleteTn(){
     }).eq('id',ctx.bookingId);
   }catch(e){}
 
-  const notif='📋 The entrée dans les lieux état des lieux (État des lieux) has been generated et sent pour signature.';
+  const notif='The entrée dans les lieux état des lieux (État des lieux) has been generated et sent pour signature.';
   try{if(ctx.booking?.landlord_id)await sb.from('messages').insert({listing_id:ctx.booking.listing_id,sender_id:'system',receiver_id:ctx.booking.landlord_id,content:notif,type:'edl_generated'});}catch(e){}
 
   showEdlStepTn(3);
@@ -3733,16 +3733,16 @@ function doOuvrirLocataireDoc(bk,bookingId,embedSrc,dbField,title){
     try{
       const{error:updErr}=await sb.from('bookings').update({[dbField]:true}).eq('id',bookingId);
       if(updErr){
-        alert('❌ Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message+'\n\nField: '+dbField+'\nBooking ID: '+bookingId);
+        alert('Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message+'\n\nField: '+dbField+'\nBooking ID: '+bookingId);
       }else{
         updateOk=true;
       }
       await sb.from('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-        content:'✅ Locataire signed '+title,type:dbField
+        content:'Locataire signed '+title,type:dbField
       });
     }catch(e){
-      alert('❌ Signed on DocuSeal, but an erreur occurred updating Trouve Ton Toit:\n'+e.message);
+      alert('Signed on DocuSeal, but an erreur occurred updating Trouve Ton Toit:\n'+e.message);
     }
     if(updateOk)toast('<i data-lucide=check-circle-2 class=ic></i> Signed!');
     modal.remove();
@@ -3801,7 +3801,7 @@ function doOuvrirLocataireBailDoc(bk,bookingId){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column';
   const header=document.createElement('div');
   header.style.cssText='background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0';
-  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i>️ Contrat de bail</div>';
+  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i> Contrat de bail</div>';
   const closeBtn=document.createElement('button');
   closeBtn.style.cssText='background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer';
   closeBtn.innerHTML='<i data-lucide=x class=ic></i>';
@@ -3820,7 +3820,7 @@ function doOuvrirLocataireBailDoc(bk,bookingId){
       if(signErr)console.error('Could not save signature statut (webhook should catch up):',signErr.message);
       await sb.from('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-        content:'✅ Locataire signed the bail!',type:'bail_signed_tenant'
+        content:'Locataire signed the bail!',type:'bail_signed_tenant'
       });
     }catch(e){}
     modal.remove();
@@ -3853,7 +3853,7 @@ function doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column';
   const header=document.createElement('div');
   header.style.cssText='background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0';
-  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i>️ Contrat de bail (co-locataire)</div>';
+  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i> Contrat de bail (co-locataire)</div>';
   const closeBtn=document.createElement('button');
   closeBtn.style.cssText='background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer';
   closeBtn.innerHTML='<i data-lucide=x class=ic></i>';
@@ -3878,7 +3878,7 @@ function doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry){
       }
       await sb.from('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-        content:'✅ Co-locataire '+(P?.full_name||'')+' signed the bail!',type:'bail_signed_colocataire'
+        content:'Co-locataire '+(P?.full_name||'')+' signed the bail!',type:'bail_signed_colocataire'
       });
     }catch(e){}
     modal.remove();
@@ -3915,7 +3915,7 @@ function doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column';
   const header=document.createElement('div');
   header.style.cssText='background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0';
-  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i>️ Entrée dans les lieux État des lieux (co-locataire)</div>';
+  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i> Entrée dans les lieux État des lieux (co-locataire)</div>';
   const closeBtn=document.createElement('button');
   closeBtn.style.cssText='background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer';
   closeBtn.innerHTML='<i data-lucide=x class=ic></i>';
@@ -3940,7 +3940,7 @@ function doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry){
       }
       await sb.from('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-        content:'✅ Co-locataire '+(P?.full_name||'')+' signed the entrée dans les lieux état des lieux (État des lieux)!',type:'edl_signed_colocataire'
+        content:'Co-locataire '+(P?.full_name||'')+' signed the entrée dans les lieux état des lieux (État des lieux)!',type:'edl_signed_colocataire'
       });
     }catch(e){}
     modal.remove();
@@ -3961,7 +3961,7 @@ async function locataireConfirmerProposedVisit(visitId){
     await sb.from('visits').update({status:'confirmed'}).eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:v.listing_id,sender_id:'system',receiver_id:v.landlord_id,
-      content:`✅ ${P?.full_name||'The locataire'} confirmed the proposed visite pour ${annonce?.title||'the bien'}.`,
+      content:`${P?.full_name||'The locataire'} confirmed the proposed visite pour ${annonce?.title||'the bien'}.`,
       type:'visit_confirmed'
     });
     toast('<i data-lucide=check-circle-2 class=ic></i> Visite confirmée !');
@@ -3976,7 +3976,7 @@ async function locataireDeclineProposedVisit(visitId){
     await sb.from('visits').delete().eq('id',visitId);
     await sb.from('messages').insert({
       listing_id:v.listing_id,sender_id:'system',receiver_id:v.landlord_id,
-      content:`📅 ${P?.full_name||'The locataire'} can't make that date — could you propose another one?`,
+      content:`${P?.full_name||'The locataire'} can't make that date — could you propose another one?`,
       type:'message'
     });
     toast('Sent — waiting on a new proposed date.');
@@ -4010,10 +4010,10 @@ async function cancelVisit(visitId, agentId, listingId){
       listing_id:listingToNotify,
       sender_id:'system',
       receiver_id:agentToNotify,
-      content:`❌ Visite cancelled by locataire.
+      content:`Visite cancelled by locataire.
 
-👤 Locataire: ${P?.full_name||'—'}
-📅 Visite was scheduled  pour : ${visitDateStr}${isLate?'\n\nNote: cancelled less than 24 hours before the visite.':''}`,
+Locataire: ${P?.full_name||'—'}
+Visite was scheduled  pour : ${visitDateStr}${isLate?'\n\nNote: cancelled less than 24 hours before the visite.':''}`,
       type:'visit_cancelled'
     });}catch(e){}
   }
@@ -4024,7 +4024,7 @@ async function cancelVisit(visitId, agentId, listingId){
       listing_id:listingToNotify,
       sender_id:'system',
       receiver_id:visite.landlord_id,
-      content:`❌ Visite cancelled by locataire (${P?.full_name||'—'}) scheduled pour ${visitDateStr}.`,
+      content:`Visite cancelled by locataire (${P?.full_name||'—'}) scheduled pour ${visitDateStr}.`,
       type:'visit_cancelled'
     });}catch(e){}
   }
@@ -4060,7 +4060,7 @@ async function leaveCurrentProperty(){
       listing_id:bk.listing_id,
       sender_id:'system',
       receiver_id:bk.landlord_id,
-      content:`🚪 ${P?.full_name||'Your locataire'} has ended their tenancy pour ${annonce?.title||'the bien'}. It'll sortie des lieux of Rented Biens in 7 days.`,
+      content:`${P?.full_name||'Your locataire'} has ended their tenancy pour ${annonce?.title||'the bien'}. It'll sortie des lieux of Rented Biens in 7 days.`,
       type:'tenancy_ended'
     });}catch(e){}
   }
@@ -4102,7 +4102,7 @@ async function loadPaiementsData(){
           <div style="font-size:.78rem;color:var(--tm)">Due ${p.due_date?new Date(p.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'now'} · Pay via bank transfer or Revolut to votre propriétaire</div>
         </div>
         ${p.status==='declared'
-          ?'<span class="badge b-gold">⏳ Awaiting propriétaire confirmation</span>'
+          ?'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> Awaiting propriétaire confirmation</span>'
           :`<button class="btn bp" onclick="declarePaid('${p.id}')"><i data-lucide=check-circle-2 class=ic></i> I paid →</button>`}
       </div>`).join('');
   } else if(dueWrap){
@@ -4112,7 +4112,7 @@ async function loadPaiementsData(){
   // "Paiement history" — seulement ce qui est réellement confirmé payé
   const confirmedPaiements=payments.filter(p=>p.status==='paid');
   const sc={paid:'b-green',declared:'b-gold',pending:'b-dim',late:'b-red'};
-  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Confirmered',declared:'<i data-lucide=message-circle class=ic></i> Déclaré — en attente propriétaire',pending:'⏳ En attente',late:'<i data-lucide=alert-triangle class=ic></i>️ En retard'};
+  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Confirmered',declared:'<i data-lucide=message-circle class=ic></i> Déclaré — en attente propriétaire',pending:'<i data-lucide=hourglass class=ic></i> En attente',late:'<i data-lucide=alert-triangle class=ic></i> En retard'};
   document.getElementById('pay-list').innerHTML=confirmedPaiements.length
     ?'<div style="padding:0 1.2rem">'+confirmedPaiements.map(p=>`
       <div style="display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)">
@@ -4171,7 +4171,7 @@ function downloadLocataireQuittance(paiementId,montant,date){
 
 async function declarePaid(paiementId){
   const btn=event?.target;
-  if(btn){btn.disabled=true;btn.textContent='⏳ Sending...';}
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
   const{error}=await sb.from('payments').update({
     status:'declared',
     declared_at:new Date().toISOString(),
@@ -4431,15 +4431,15 @@ async function loadProfilee(){
     if(uploadSection) uploadSection.innerHTML=`
       <div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;padding:1.2rem;text-align:center">
         <div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=check-circle-2 class=ic></i></div>
-        <div style="font-weight:700;color:var(--green);margin-bottom:.3rem">Identité vérifiée ✅</div>
-        <div style="font-size:.78rem;color:var(--tm)">Votre identité a été vérifiée par Trouve Ton Toit. Votre badge ✅ est visible par tous les propriétaires.</div>
+        <div style="font-weight:700;color:var(--green);margin-bottom:.3rem">Identité vérifiée <i data-lucide=check-circle-2 class=ic></i></div>
+        <div style="font-size:.78rem;color:var(--tm)">Votre identité a été vérifiée par Trouve Ton Toit. Votre badge <i data-lucide=check-circle-2 class=ic></i> est visible par tous les propriétaires.</div>
       </div>`;
   } else if(P.id_submitted){
     badge.className='badge b-gold';
-    badge.textContent='⏳ En attente';
+    badge.textContent='En attente';
     if(uploadSection) uploadSection.innerHTML=`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center">
-        <div style="font-size:2rem;margin-bottom:.4rem">⏳</div>
+        <div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=hourglass class=ic></i></div>
         <div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">En cours de vérification</div>
         <div style="font-size:.78rem;color:var(--tm)">Vos documents ont été soumis. Un membre de l\'équipe Trouve Ton Toit vérifiera votre identité sous 24h.</div>
       </div>`;
@@ -4555,7 +4555,7 @@ async function saveProfilee(){
   const error=await _updateProfileSafe(updates);
   if(error){
     toast('<i data-lucide=x-circle class=ic></i> Erreur sauvegarde : '+error.message);
-    alert('❌ Impossible de sauvegarder le profil :\n\n'+error.message+'\n\nContactez le support si le problème persiste.');
+    alert('Impossible de sauvegarder le profil :\n\n'+error.message+'\n\nContactez le support si le problème persiste.');
     return;
   }
   Object.assign(P,updates);
@@ -4674,7 +4674,7 @@ async function uploadSupportDoc(input,docType){
   if(!file)return;
   if(file.size>10*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Fichier trop volumineux — max 10 Mo');return;}
   const statusEl=document.getElementById(DOC_STATUS_ID_MAP[docType]||`doc-${docType.replace(/_/g,'-')}-statut`);
-  if(statusEl){statusEl.textContent='⏳ Upchargement...';statusEl.style.color='var(--gold)';statusEl.classNom='';}
+  if(statusEl){statusEl.textContent='Upchargement...';statusEl.style.color='var(--gold)';statusEl.classNom='';}
 
   try{
     const ext=file.name.split('.').pop();
@@ -4755,7 +4755,7 @@ function openSigningDoc(embedSrc, title, bookingId){
             try{
               await sb.from('messages').insert({
                 listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
-                content:'✍️ The locataire has signed the bail!\n\nBoth parties signed. Waiting pour first paiement.',
+                content:'The locataire has signed the bail!\n\nBoth parties signed. Waiting pour first paiement.',
                 type:'bail_signed_tenant'
               });
             }catch(e){}
@@ -4790,7 +4790,7 @@ async function confirmLocatairePaiement(bookingId){
     if(b?.landlord_id){
       await sb.from('messages').insert({
         listing_id:b.listing_id,sender_id:'system',receiver_id:b.landlord_id,
-        content:'💶 Notification de paiement !\n\nVotre locataire a confirmé le virement du premier paiement (dépôt + premier mois prorata).\n\nVeuillez vérifier votre compte bancaire et confirmer la quittance dans votre page visites.',
+        content:'Notification de paiement !\n\nVotre locataire a confirmé le virement du premier paiement (dépôt + premier mois prorata).\n\nVeuillez vérifier votre compte bancaire et confirmer la quittance dans votre page visites.',
         type:'paiement_sent'
       });
     }
@@ -5352,7 +5352,7 @@ function resRestore(saved){
   if(!path.length){
     // ancien type (avant la refonte) : on montre ce qui a été fourni, avec la possibilité de refaire
     _resPath=[];_resRender();
-    const files=(saved.files||[]).map(f=>'<div style="font-size:.82rem;margin-top:.25rem">📄 '+f.name+'</div>').join('');
+    const files=(saved.files||[]).map(f=>'<div style="font-size:.82rem;margin-top:.25rem"><i data-lucide=file-text class=ic></i> '+f.name+'</div>').join('');
     _resEl('res-chosen').innerHTML='<div class="heb-done"><i data-lucide=check-circle-2 class=ic></i> Déjà fourni : '+(DOSSIER_TYPE_LABELS[saved.type]||saved.type)+files+'</div><div class="res-q">Pour mettre à jour, choisissez votre situation :</div>';
     if(typeof lucide!=='undefined')lucide.createIcons();
     return;
@@ -5607,7 +5607,7 @@ async function uploadDossierFile(idx,files){
     toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
   }catch(e){
     if(uploadArea)uploadArea.innerHTML=`<div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=upload-cloud class=ic></i></div><div style="font-weight:600;font-size:.88rem;margin-bottom:.25rem">Glisser-déposer ou cliquer pour choisir</div><div style="font-size:.72rem;color:var(--td)">JPG, PNG, PDF · Max 10 Mo</div>`;
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Erreur upload : '+e.message);
+    toast('<i data-lucide=alert-triangle class=ic></i> Erreur upload : '+e.message);
   }
 }
 
@@ -5620,7 +5620,7 @@ function handleDossierDrop(event,idx){
 
 async function confirmDossierStep(idx){
   const st=dossierState[idx];
-  if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
+  if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez un type de document');return;}
   if(idx===5&&(st.pendingType||st.type)==='garant_moral'){
     gmSave();
     const miss=[];
@@ -5632,7 +5632,7 @@ async function confirmDossierStep(idx){
     if(miss.length){toast('<i data-lucide=alert-triangle class=ic></i> Il manque : '+miss.join(', '));return;}
   }
   if(idx===5&&st.pendingType==='garant_organisme'){toast('<i data-lucide=alert-triangle class=ic></i> Choisissez Garantie Visale ou Autre organisme');return;}
-  if(!st?.files?.length&&!st?.skipped&&!st?.noDoc){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+  if(!st?.files?.length&&!st?.skipped&&!st?.noDoc){toast('<i data-lucide=alert-triangle class=ic></i> Uploadez au moins un fichier');return;}
   if(st.pendingType){st.type=st.pendingType;delete st.pendingType;}
   if(idx===1){st.situation=st.pendingSituation||HEB_FROM_TYPE[st.type]||st.situation;delete st.pendingSituation;delete st.noDoc;}
   await saveDossierState();
@@ -6252,7 +6252,7 @@ function cancelAddGarantRevenue(){
 }
 
 function confirmAddGarantRevenue(){
-  if(!garantRevFiles.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+  if(!garantRevFiles.length){toast('<i data-lucide=alert-triangle class=ic></i> Uploadez au moins un fichier');return;}
   const opt=GARANT_TYPE_OPTIONS[3].find(o=>o.key===garantRevenueAdding);
   const subLabel=GARANT_TRAVAIL_SUBTYPES.find(s=>s.key===garantRevSubType)?.label;
   const ancLabel=garantRevSalarieAnc==='plus_3_mois'?'Depuis plus de 3 mois':garantRevSalarieAnc==='moins_3_mois'?'Depuis moins de 3 mois':garantRevSalarieAnc==='nouveau_poste'?'Nouveau poste':'';
@@ -6293,7 +6293,7 @@ async function uploadGarantRevFile(files){
     toast('<i data-lucide=check-circle-2 class=ic></i> '+(files.length>1?files.length+' fichiers envoyés':'Fichier envoyé'));
   }catch(e){
     renderGarantSubScreen(3);
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Erreur : '+e.message);
+    toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+e.message);
   }
 }
 
@@ -6364,7 +6364,7 @@ async function uploadGarantFile(subIdx,files){
     toast('<i data-lucide=check-circle-2 class=ic></i> '+(uploaded.length>1?uploaded.length+' fichiers envoyés':'Fichier envoyé'));
   }catch(e){
     renderGarantSubScreen(subIdx);
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Erreur : '+e.message);
+    toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+e.message);
   }
 }
 
@@ -6377,13 +6377,13 @@ function handleGarantDrop(event,subIdx){
 async function confirmGarantSub(subIdx){
   if(subIdx===3){
     if(!gState().garant_subs?.[3]?.revenues?.length){
-      toast('<i data-lucide=alert-triangle class=ic></i>️ Déclarez au moins une source de revenus');return;
+      toast('<i data-lucide=alert-triangle class=ic></i> Déclarez au moins une source de revenus');return;
     }
   } else {
     const sub=gState().garant_subs?.[subIdx];
-    if(!sub?.type){toast('<i data-lucide=alert-triangle class=ic></i>️ Sélectionnez un type de document');return;}
+    if(!sub?.type){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez un type de document');return;}
     const opt=GARANT_TYPE_OPTIONS[subIdx]?.find(o=>o.key===sub.type);
-    if(opt?.needsUpload!==false&&!sub.files?.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Uploadez au moins un fichier');return;}
+    if(opt?.needsUpload!==false&&!sub.files?.length){toast('<i data-lucide=alert-triangle class=ic></i> Uploadez au moins un fichier');return;}
   }
   renderGarantSubNav();
   renderGarantSelector();
@@ -6417,7 +6417,7 @@ function renderDossierCompletion(){
   let html='';
   if(allDone){
     html=`<div class="dossier-finish-badge">
-      <div class="dfb-icon">🎉</div>
+      <div class="dfb-icon"><i data-lucide=party-popper class=ic></i></div>
       <div class="dfb-title">Dossier complet !</div>
       <div class="dfb-sub">Tous vos documents sont prêts. Vous pouvez maintenant partager votre dossier avec des propriétaires ou des agences.</div>
     </div>`;
@@ -6518,7 +6518,7 @@ async function submitIDForVerification(){
   if(!_idFile || !_selfieFile){ toast('Veuillez téléverser votre pièce d\'identité et un selfie'); return; }
   const statut = document.getElementById('upload-statut');
   const btn = document.getElementById('submit-verify-btn');
-  if(statut){ statut.style.display='block'; statut.innerHTML='<div style="color:var(--gold)">⏳ Upchargement...</div>'; }
+  if(statut){ statut.style.display='block'; statut.innerHTML='<div style="color:var(--gold)"><i data-lucide=hourglass class=ic></i> Upchargement...</div>'; }
   if(btn){ btn.disabled=true; btn.style.opacity='.5'; }
   try{
     const idExt = _idFile.name.split('.').pop();
@@ -6761,15 +6761,15 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
       ${commission>0?`
         <div style="font-size:.78rem;font-weight:700;color:var(--green);margin-bottom:.4rem"><i data-lucide=credit-card class=ic></i> Platform fee authorization</div>
         <div style="font-size:.72rem;color:rgba(240,237,232,.5);line-height:1.6;margin-bottom:.5rem">By proceeding, you authorize Trouve Ton Toit to charge <strong style="color:#F0EDE8">€${commission} (${commissionLabel})</strong> only if votre application is accepté by the propriétaire.</div>
-        <div id="nego-card-statut">${hasCard?`<div style="font-size:.72rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Card on file — will be charged only if accepté</div>`:`<div style="font-size:.72rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i>️ A card is required. You won't be charged unless accepté.</div><button onclick="registerCardThenSend('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=credit-card class=ic></i> Register my card first →</button>`}</div>
+        <div id="nego-card-statut">${hasCard?`<div style="font-size:.72rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Card on file — will be charged only if accepté</div>`:`<div style="font-size:.72rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> A card is required. You won't be charged unless accepté.</div><button onclick="registerCardThenSend('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=credit-card class=ic></i> Register my card first →</button>`}</div>
       </div>
       <div style="display:flex;gap:.5rem" id="nego-action-buttons">
-        ${hasCard?`<button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='⏳ Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`:`<button disabled style="flex:1;background:rgba(255,255,255,.1);color:rgba(240,237,232,.3);border:none;border-radius:10px;padding:.7rem;font-size:.88rem;cursor:not-allowed"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`}
+        ${hasCard?`<button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`:`<button disabled style="flex:1;background:rgba(255,255,255,.1);color:rgba(240,237,232,.3);border:none;border-radius:10px;padding:.7rem;font-size:.88rem;cursor:not-allowed"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`}
       `:`
         <div style="font-size:.72rem;color:rgba(240,237,232,.5);line-height:1.6;margin-bottom:.5rem"><i data-lucide=building-2 class=ic></i> ce logement is managed by an agence — vous pay nothing to Trouve Ton Toit to apply.</div>
       </div>
       <div style="display:flex;gap:.5rem" id="nego-action-buttons">
-        <button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='⏳ Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>
+        <button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>
       `}
         <button onclick="document.getElementById('nego-modal-overlay').remove()" style="background:rgba(255,255,255,.06);color:rgba(240,237,232,.5);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;cursor:pointer">Annuler</button>
       </div>
@@ -6934,7 +6934,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
       const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
       await sb.from('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:landlordId,
-        content:'📅 '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(annonce?.title||listingTitle||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
+        content:''+(P?.full_name||'A locataire')+' requested a visite\n\n'+(annonce?.title||listingTitle||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
         type:'visit_request'
       });
     }catch(e){}
@@ -6950,7 +6950,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
 let coLocataireSlotCount=0;
 
 function addCoLocataireSlot(){
-  if(coLocataireSlotCount>=5){toast('<i data-lucide=alert-triangle class=ic></i>️ Maximum 5 co-locataires');return;}
+  if(coLocataireSlotCount>=5){toast('<i data-lucide=alert-triangle class=ic></i> Maximum 5 co-locataires');return;}
   const slotId=coLocataireSlotCount++;
   window._coLocatairesData[slotId]=null;
   const list=document.getElementById('colocataires-list');
@@ -6990,7 +6990,7 @@ async function lookupCoLocataire(slotId){
   }
   const resultEl=document.getElementById(`ct-result-${slotId}`);
   const manualEl=document.getElementById(`ct-manual-${slotId}`);
-  resultEl.innerHTML='⏳ Recherche…';
+  resultEl.innerHTML='<i data-lucide=hourglass class=ic></i> Recherche…';
 
   let profil=null;
   try{
@@ -7113,14 +7113,14 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
     const lienLbl={parent:'Parent',conjoint:'Conjoint(e)',ami:'Ami(e)',employeur:'Employeur',autre:'Autre'};
     if(!_availableGarants.length){
       return `<div style="background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem">
-        <div style="font-weight:700;margin-bottom:.25rem">🛡️ Garant</div>
+        <div style="font-weight:700;margin-bottom:.25rem"><i data-lucide=shield-check class=ic></i> Garant</div>
         <div style="color:var(--td)">Aucun garant renseigné dans vos dossiers.
           <a href="#" onclick="sp('profil',document.querySelector('.ni[onclick*=profil]'));return false" style="color:var(--bleu);font-weight:600">Compléter mon profil →</a>
         </div>
       </div>`;
     }
     return `<div style="background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem">
-      <div style="font-size:.8rem;font-weight:700;margin-bottom:.55rem">🛡️ Sélectionner un ou plusieurs garants</div>
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:.55rem"><i data-lucide=shield-check class=ic></i> Sélectionner un ou plusieurs garants</div>
       <div style="display:flex;flex-direction:column;gap:.35rem" id="garant-select-list">
         ${_availableGarants.map(g=>{
           const name=[g.garant_prenom,g.garant_nom].filter(Boolean).join(' ');
@@ -7191,7 +7191,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         try{
           await sb.from('messages').insert({
             listing_id:listingId,sender_id:'system',receiver_id:landlordId,
-            content:'🏠 '+(P?.full_name||'A locataire')+' wants to loyer votre bien!\n\nCheck votre Applications page to avis their dossier et accepter or decline.',
+            content:''+(P?.full_name||'A locataire')+' wants to loyer votre bien!\n\nCheck votre Applications page to avis their dossier et accepter or decline.',
             type:'wants_to_rent'
           });
         }catch(e){}
@@ -7285,7 +7285,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       try{
         await sb.from('messages').insert({
           listing_id:listingId,sender_id:'system',receiver_id:landlordId,
-          content:'🏠 '+(P?.full_name||'A locataire')+' wants to loyer votre bien!\n\nThey have authorized the Trouve Ton Toit fee. Check votre visites page to avis their dossier et accepter or decline.',
+          content:''+(P?.full_name||'A locataire')+' wants to loyer votre bien!\n\nThey have authorized the Trouve Ton Toit fee. Check votre visites page to avis their dossier et accepter or decline.',
           type:'wants_to_rent'
         });
       }catch(e){}
@@ -7349,14 +7349,14 @@ async function checkCoLocataire(idx){
   const email = document.getElementById('colocataire-email-'+idx)?.value.trim();
   const statut = document.getElementById('colocataire-statut-'+idx);
   if(!email || !statut){ toast('Veuillez saisir une adresse e-mail'); return; }
-  statut.innerHTML = '<span style="color:var(--td)">⏳ Vérification...</span>';
+  statut.innerHTML = '<span style="color:var(--td)"><i data-lucide=hourglass class=ic></i> Vérification...</span>';
 
   try{
     // Vérifier si un profil existe avec cet email
     const{data:profil} = await sb.from('profiles').select('clerk_id,full_name,passport_number,date_of_birth,nationality,home_address').eq('email',email).maybeSingle();
 
     if(!profil){
-      statut.innerHTML = '<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i>️ No Trouve Ton Toit compte found. An invitation will be sent.</span>';
+      statut.innerHTML = '<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> No Trouve Ton Toit compte found. An invitation will be sent.</span>';
       coLocatairesData[idx] = { email, profil: null, invited: true };
       return;
     }
@@ -7383,15 +7383,15 @@ function toggleTheme(){
   const isDark=document.documentElement.classList.toggle('dark');
   localStorage.setItem('rm_theme',isDark?'dark':'light');
   const btn=document.getElementById('theme-toggle-btn');
-  if(btn)btn.innerHTML=isDark?'<i data-lucide=moon class=ic></i>':'<i data-lucide=sun class=ic></i>️';
+  if(btn)btn.innerHTML=isDark?'<i data-lucide=moon class=ic></i>':'<i data-lucide=sun class=ic></i>';
 }
 (function syncThemeIcon(){
   const btn=document.getElementById('theme-toggle-btn');
-  if(btn)btn.innerHTML=document.documentElement.classList.contains('dark')?'<i data-lucide=moon class=ic></i>':'<i data-lucide=sun class=ic></i>️';
+  if(btn)btn.innerHTML=document.documentElement.classList.contains('dark')?'<i data-lucide=moon class=ic></i>':'<i data-lucide=sun class=ic></i>';
 })();
 
 async function doLogout(){await clerk.signOut();window.location.href='/';}
-function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');window.lucide&&lucide.createIcons();setTimeout(()=>t.classList.remove('show'),3200);}
 setRating(5);
 
 // Fermer le menu mobile en cliquant en dehors, ou après avoir choisi une page
