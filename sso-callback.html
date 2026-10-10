@@ -7,9 +7,11 @@
   window.__clerk_publishable_key = 'pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 </head>
 <body>
-<p style="font-family:sans-serif;text-align:center;margin-top:3rem">Connecting... pbail wait ⏳</p>
+<p style="font-family:sans-serif;text-align:center;margin-top:3rem">Connecting... pbail wait <i data-lucide=hourglass class=ic></i></p>
 <script>
 (async () => {
   const clerk = window.Clerk;
@@ -17,6 +19,15 @@
   // Clerk handles the OAuth callback automatically — just redirect home
   await clerk.handleRedirectCallback();
   window.location.href = '/';
+})();
+</script>
+<script>
+// Icônes Lucide (remplacent les émojis) — conversion au chargement puis
+// vérification légère toutes les 2 s pour le contenu généré en JS.
+(function initLucideIcons(){
+  if(!window.lucide)return setTimeout(initLucideIcons,50);
+  lucide.createIcons();
+  setInterval(()=>{const a=document.activeElement;if(a&&/^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))return;lucide.createIcons();},2000);
 })();
 </script>
 </body>
