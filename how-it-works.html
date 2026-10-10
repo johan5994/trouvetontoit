@@ -46,6 +46,8 @@ h1 em{font-style:italic;color:var(--bleu)}
 .faq-item p{font-size:.84rem;color:var(--stone);line-height:1.65}
 footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;border-top:1px solid rgba(107,95,82,.12)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 </head>
 <body>
 <div class="nav">
@@ -60,59 +62,59 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
 </div>
 
 <div class="tabs">
-  <button class="tab act" id="tabbtn-locataire" onclick="setTab('locataire')">🎒 I'm a Locataire</button>
-  <button class="tab" id="tabbtn-propriétaire" onclick="setTab('propriétaire')">🏠 I'm a Propriétaire</button>
-  <button class="tab" id="tabbtn-agence" onclick="setTab('agence')">🏢 I'm an Agence</button>
+  <button class="tab act" id="tabbtn-locataire" onclick="setTab('locataire')"><i data-lucide=backpack class=ic></i> I'm a Locataire</button>
+  <button class="tab" id="tabbtn-propriétaire" onclick="setTab('propriétaire')"><i data-lucide=home class=ic></i> I'm a Propriétaire</button>
+  <button class="tab" id="tabbtn-agence" onclick="setTab('agence')"><i data-lucide=building-2 class=ic></i> I'm an Agence</button>
 </div>
 
 <div class="wrap">
 
   <!-- LESSEE -->
   <div class="panel act" id="panel-locataire">
-    <div class="stepnote">👋 Vous cherchez un logement ? Tout se passe depuis votre <strong>locataire tableau de bord</strong> dès votre inscription — sans application séparée.</div>
+    <div class="stepnote"><i data-lucide=hand class=ic></i> Vous cherchez un logement ? Tout se passe depuis votre <strong>locataire tableau de bord</strong> dès votre inscription — sans application séparée.</div>
     <div class="steps">
-      <div class="step"><div class="snum">01</div><div class="sico">🔍</div><h3>Browse & filter</h3><p>Recherchez par zone, budget et type de bail — location courte durée, longue duréeue durée, or a room in a shared flat. Switch to map view to see everything geographically, or watch a virtual tour video if the propriétaire added one.</p></div>
-      <div class="step"><div class="snum">02</div><div class="sico">💬</div><h3>Message directly, no numbers shared</h3><p>Chat en direct avec le propriétaire ou l'agence, dans l'application. Votre numéro de téléphoneber stays private until you choose to share it — no more handing it out to strangers on Facebook groups.</p></div>
-      <div class="step"><div class="snum">03</div><div class="sico">📋</div><h3>Constituez votre dossier une seule fois</h3><p>Téléverser votre ID, an employment letter, bank statements et references a single time. From then on, every application reuses the same vérifié dossier — no re-upchargement pour each flat you're interested in.</p></div>
-      <div class="step"><div class="snum">04</div><div class="sico">👥</div><h3>Bringing roommates?</h3><p>Ajoutez des co-locataires directement à votre candidature — ils reçoivent chacun une invitation their own dossier et sign the bail alongside you. Recherchering pour people to share avec in the first place? Find a Roommate connects you avec others looking too.</p></div>
-      <div class="step"><div class="snum">05</div><div class="sico">🤝</div><h3>Postuler</h3><p>Envoyez votre candidature avec votre date d'entrée et des notes pour the propriétaire. If there's a platform fee pour this annonce, it's authorized on votre card at this point — but only actually charged if the propriétaire accepts. Nothing is taken upfront.</p></div>
-      <div class="step"><div class="snum">06</div><div class="sico">✍️</div><h3>Bail generated & e-signed</h3><p>Dès que vous êtes accepté, un bail conforme à la loi française est généréted automatically avec votre details already filled in. Avis et sign it  depuis  votre phone — no printing, no in-person meeting required.</p></div>
-      <div class="step"><div class="snum">07</div><div class="sico">📸</div><h3>Entrée dans les lieux état des lieux</h3><p>Avant de recevoir les clés, chaque pièce et les deux compteurs (eau et électricité) sont photographed et logged, then signed by both you et votre propriétaire. This becomes votre proof of the bien's condition — real protection if there's ever a dispute over the dépôt de garantie.</p></div>
-      <div class="step"><div class="snum">08</div><div class="sico">🏡</div><h3>Live & manage</h3><p>Votre tableau de bord suit chaque paiement dû, vous permet de signaler des problèmeses avec photos, et keeps votre full conversation history avec votre propriétaire. Dépôt de garantie et loyer go directly to votre propriétaire's compte — Trouve Ton Toit never holds votre money.</p></div>
-      <div class="step"><div class="snum">09</div><div class="sico">📅</div><h3>Renewing or leaving</h3><p>When votre bail is coming to an end, renew it or generate votre official notice to leave — both handled right  depuis  the app, correctly timed to français bail law. Leave a avis of votre propriétaire when you're done, et see the avis they've left pour you too.</p></div>
+      <div class="step"><div class="snum">01</div><div class="sico"><i data-lucide=search class=ic></i></div><h3>Browse & filter</h3><p>Recherchez par zone, budget et type de bail — location courte durée, longue duréeue durée, or a room in a shared flat. Switch to map view to see everything geographically, or watch a virtual tour video if the propriétaire added one.</p></div>
+      <div class="step"><div class="snum">02</div><div class="sico"><i data-lucide=message-circle class=ic></i></div><h3>Message directly, no numbers shared</h3><p>Chat en direct avec le propriétaire ou l'agence, dans l'application. Votre numéro de téléphoneber stays private until you choose to share it — no more handing it out to strangers on Facebook groups.</p></div>
+      <div class="step"><div class="snum">03</div><div class="sico"><i data-lucide=clipboard-list class=ic></i></div><h3>Constituez votre dossier une seule fois</h3><p>Téléverser votre ID, an employment letter, bank statements et references a single time. From then on, every application reuses the same vérifié dossier — no re-upchargement pour each flat you're interested in.</p></div>
+      <div class="step"><div class="snum">04</div><div class="sico"><i data-lucide=users class=ic></i></div><h3>Bringing roommates?</h3><p>Ajoutez des co-locataires directement à votre candidature — ils reçoivent chacun une invitation their own dossier et sign the bail alongside you. Recherchering pour people to share avec in the first place? Find a Roommate connects you avec others looking too.</p></div>
+      <div class="step"><div class="snum">05</div><div class="sico"><i data-lucide=handshake class=ic></i></div><h3>Postuler</h3><p>Envoyez votre candidature avec votre date d'entrée et des notes pour the propriétaire. If there's a platform fee pour this annonce, it's authorized on votre card at this point — but only actually charged if the propriétaire accepts. Nothing is taken upfront.</p></div>
+      <div class="step"><div class="snum">06</div><div class="sico"><i data-lucide=pen-tool class=ic></i></div><h3>Bail generated & e-signed</h3><p>Dès que vous êtes accepté, un bail conforme à la loi française est généréted automatically avec votre details already filled in. Avis et sign it  depuis  votre phone — no printing, no in-person meeting required.</p></div>
+      <div class="step"><div class="snum">07</div><div class="sico"><i data-lucide=camera class=ic></i></div><h3>Entrée dans les lieux état des lieux</h3><p>Avant de recevoir les clés, chaque pièce et les deux compteurs (eau et électricité) sont photographed et logged, then signed by both you et votre propriétaire. This becomes votre proof of the bien's condition — real protection if there's ever a dispute over the dépôt de garantie.</p></div>
+      <div class="step"><div class="snum">08</div><div class="sico"><i data-lucide=home class=ic></i></div><h3>Live & manage</h3><p>Votre tableau de bord suit chaque paiement dû, vous permet de signaler des problèmeses avec photos, et keeps votre full conversation history avec votre propriétaire. Dépôt de garantie et loyer go directly to votre propriétaire's compte — Trouve Ton Toit never holds votre money.</p></div>
+      <div class="step"><div class="snum">09</div><div class="sico"><i data-lucide=calendar class=ic></i></div><h3>Renewing or leaving</h3><p>When votre bail is coming to an end, renew it or generate votre official notice to leave — both handled right  depuis  the app, correctly timed to français bail law. Leave a avis of votre propriétaire when you're done, et see the avis they've left pour you too.</p></div>
     </div>
     <div class="cta"><a class="btn" href="/#auth">Start browsing flats →</a></div>
   </div>
 
   <!-- LESSOR -->
   <div class="panel" id="panel-propriétaire">
-    <div class="stepnote">👋 Renting out a bien? Everything below happens  depuis  votre <strong>propriétaire tableau de bord</strong> — vous can self-manage entirely, or hand it to an agence at any point.</div>
+    <div class="stepnote"><i data-lucide=hand class=ic></i> Renting out a bien? Everything below happens  depuis  votre <strong>propriétaire tableau de bord</strong> — vous can self-manage entirely, or hand it to an agence at any point.</div>
     <div class="steps">
-      <div class="step"><div class="snum">01</div><div class="sico">✍️</div><h3>List votre bien</h3><p>Fill in the details yourself — title, photos, price, bail type (location courte durée, location longue durée, or room location). Selling instead of renting? List it pour sale too, same platform, its own separate flow.</p></div>
-      <div class="step"><div class="snum">02</div><div class="sico">📋</div><h3>Set votre terms</h3><p>Decide votre dépôt de garantie montant, whether you accepter bail attestation pour non-EU locataires needing it pour their residence permit, et any house rules. All of this shows on the annonce before anyone applies.</p></div>
-      <div class="step"><div class="snum">03</div><div class="sico">💬</div><h3>Get discovered</h3><p>Locataires message et apply directly through chat en direct. Prefer hands-off management instead? Browse agences et hand the whole thing to one — they'll handle visites, applications et entrée dans les lieux on votre behalf.</p></div>
-      <div class="step"><div class="snum">04</div><div class="sico">🔎</div><h3>Avis real dossiers</h3><p>Before accepting anyone, see their vérifié ID, employment letter, bank statements, references — et their rating  depuis  previous propriétaires, if they have one. Decide avec real information, not just a WhatsApp message.</p></div>
-      <div class="step"><div class="snum">05</div><div class="sico">✅</div><h3>Accepter & sign</h3><p>Accepting an application instantly generates the bail avec both parties' details pre-filled, compliant  avec le Private Residential Bails Act. Sign it  depuis  votre tableau de bord — no printing, no notary required pour a standard bail.</p></div>
-      <div class="step"><div class="snum">06</div><div class="sico">📷</div><h3>Entrée dans les lieux day, together</h3><p>Complete the entrée dans les lieux état des lieux avec votre locataire — every room et both meter readings photographed et logged, signed by both of you. This is what protects you if there's ever a disagreement about the bien's condition later.</p></div>
-      <div class="step"><div class="snum">07</div><div class="sico">💶</div><h3>Get paid directly</h3><p>Dépôt de garantie et first month's loyer land straight in votre own compte once the bail is signed — Trouve Ton Toit is never in the middle of votre money. Track every paiement's statut  depuis  Rented Biens going forward.</p></div>
-      <div class="step"><div class="snum">08</div><div class="sico">🔧</div><h3>Maintenance, votre way</h3><p>When a locataire reports an issue avec photos, choose how to handle it: fix it yourself, hire votre own contractor, or request quotes through Trouve Ton Toit's network — all tracked in one place, nothing falls through the cracks.</p></div>
-      <div class="step"><div class="snum">09</div><div class="sico">📊</div><h3>Manage & renew</h3><p>Rented Biens gives you a single view of every tenancy, paiement statut et bail end date. When the time comes, renew the bail or generate an official notice to leave, correctly timed to loi française — then leave a avis of votre locataire.</p></div>
+      <div class="step"><div class="snum">01</div><div class="sico"><i data-lucide=pen-tool class=ic></i></div><h3>List votre bien</h3><p>Fill in the details yourself — title, photos, price, bail type (location courte durée, location longue durée, or room location). Selling instead of renting? List it pour sale too, same platform, its own separate flow.</p></div>
+      <div class="step"><div class="snum">02</div><div class="sico"><i data-lucide=clipboard-list class=ic></i></div><h3>Set votre terms</h3><p>Decide votre dépôt de garantie montant, whether you accepter bail attestation pour non-EU locataires needing it pour their residence permit, et any house rules. All of this shows on the annonce before anyone applies.</p></div>
+      <div class="step"><div class="snum">03</div><div class="sico"><i data-lucide=message-circle class=ic></i></div><h3>Get discovered</h3><p>Locataires message et apply directly through chat en direct. Prefer hands-off management instead? Browse agences et hand the whole thing to one — they'll handle visites, applications et entrée dans les lieux on votre behalf.</p></div>
+      <div class="step"><div class="snum">04</div><div class="sico"><i data-lucide=search class=ic></i></div><h3>Avis real dossiers</h3><p>Before accepting anyone, see their vérifié ID, employment letter, bank statements, references — et their rating  depuis  previous propriétaires, if they have one. Decide avec real information, not just a WhatsApp message.</p></div>
+      <div class="step"><div class="snum">05</div><div class="sico"><i data-lucide=check-circle-2 class=ic></i></div><h3>Accepter & sign</h3><p>Accepting an application instantly generates the bail avec both parties' details pre-filled, compliant  avec le Private Residential Bails Act. Sign it  depuis  votre tableau de bord — no printing, no notary required pour a standard bail.</p></div>
+      <div class="step"><div class="snum">06</div><div class="sico"><i data-lucide=camera class=ic></i></div><h3>Entrée dans les lieux day, together</h3><p>Complete the entrée dans les lieux état des lieux avec votre locataire — every room et both meter readings photographed et logged, signed by both of you. This is what protects you if there's ever a disagreement about the bien's condition later.</p></div>
+      <div class="step"><div class="snum">07</div><div class="sico"><i data-lucide=euro class=ic></i></div><h3>Get paid directly</h3><p>Dépôt de garantie et first month's loyer land straight in votre own compte once the bail is signed — Trouve Ton Toit is never in the middle of votre money. Track every paiement's statut  depuis  Rented Biens going forward.</p></div>
+      <div class="step"><div class="snum">08</div><div class="sico"><i data-lucide=wrench class=ic></i></div><h3>Maintenance, votre way</h3><p>When a locataire reports an issue avec photos, choose how to handle it: fix it yourself, hire votre own contractor, or request quotes through Trouve Ton Toit's network — all tracked in one place, nothing falls through the cracks.</p></div>
+      <div class="step"><div class="snum">09</div><div class="sico"><i data-lucide=bar-chart-3 class=ic></i></div><h3>Manage & renew</h3><p>Rented Biens gives you a single view of every tenancy, paiement statut et bail end date. When the time comes, renew the bail or generate an official notice to leave, correctly timed to loi française — then leave a avis of votre locataire.</p></div>
     </div>
     <div class="cta"><a class="btn" href="/#auth">List votre bien →</a></div>
   </div>
 
   <!-- AGENCY -->
   <div class="panel" id="panel-agence">
-    <div class="stepnote">👋 Managing biens professionally? Everything below happens  depuis  votre <strong>agence tableau de bord</strong> — built pour a whole team, not just one person.</div>
+    <div class="stepnote"><i data-lucide=hand class=ic></i> Managing biens professionally? Everything below happens  depuis  votre <strong>agence tableau de bord</strong> — built pour a whole team, not just one person.</div>
     <div class="steps">
-      <div class="step"><div class="snum">01</div><div class="sico">🏢</div><h3>Set up votre directory profil</h3><p>Your agence gets its own public profil — propriétaires browsing by zone can find et contact you directly, without you having to chase leads. Pick up estimation requests  depuis  propriétaires wanting a valuation too.</p></div>
-      <div class="step"><div class="snum">02</div><div class="sico">⚡</div><h3>Import or create annonces</h3><p>Pull details straight  depuis  an existing annonce URL, bulk-import a whole portfolio via CSV, or build annonces manually one at a time — whatever fits how you already work.</p></div>
-      <div class="step"><div class="snum">03</div><div class="sico">👥</div><h3>Manage votre whole team</h3><p>Add team members avec their own PIN-protected identity — each person's clients, annonces et messages stay separated automatically, tracked to whoever's actually handling them. A full agence admin view (its own separate PIN) sees everything across the team when you need the big picture.</p></div>
-      <div class="step"><div class="snum">04</div><div class="sico">📋</div><h3>Avis applications</h3><p>See each locataire's full vérifié dossier — ID, employment letter, references — right on the application card, before deciding whether to accepter on the propriétaire's behalf.</p></div>
-      <div class="step"><div class="snum">05</div><div class="sico">✍️</div><h3>Handle the bail votre way</h3><p>If the propriétaire n'a pas de compte Trouve Ton Toit, look them up by email to link one — or if you're authorized to sign on their behalf, do it directly. Otherwise, relay the signing link however's easiest: copy it, send via WhatsApp, or email.</p></div>
-      <div class="step"><div class="snum">06</div><div class="sico">📷</div><h3>Entrée dans les lieux day</h3><p>Run the entrée dans les lieux état des lieux avec photos et meter readings, get it signed by both propriétaire et locataire — the same protection every Trouve Ton Toit tenancy gets, whether you manage it or they do it themselves.</p></div>
-      <div class="step"><div class="snum">07</div><div class="sico">🗂️</div><h3>Track everything in one place</h3><p>A real CRM — separate locataire et propriétaire contact databases avec names, nationality, phone et email. Applications, visites et messages all filterable to just votre own clients, or the whole team's.</p></div>
-      <div class="step"><div class="snum">08</div><div class="sico">💶</div><h3>Get paid votre way</h3><p>Trouve Ton Toit runs on a flat monthly subscription pour agences — never a cut of votre commission. What you charge propriétaires et locataires is arranged et paid directly, entirely outside the platform. Post sale annonces pour free too.</p></div>
+      <div class="step"><div class="snum">01</div><div class="sico"><i data-lucide=building-2 class=ic></i></div><h3>Set up votre directory profil</h3><p>Your agence gets its own public profil — propriétaires browsing by zone can find et contact you directly, without you having to chase leads. Pick up estimation requests  depuis  propriétaires wanting a valuation too.</p></div>
+      <div class="step"><div class="snum">02</div><div class="sico"><i data-lucide=zap class=ic></i></div><h3>Import or create annonces</h3><p>Pull details straight  depuis  an existing annonce URL, bulk-import a whole portfolio via CSV, or build annonces manually one at a time — whatever fits how you already work.</p></div>
+      <div class="step"><div class="snum">03</div><div class="sico"><i data-lucide=users class=ic></i></div><h3>Manage votre whole team</h3><p>Add team members avec their own PIN-protected identity — each person's clients, annonces et messages stay separated automatically, tracked to whoever's actually handling them. A full agence admin view (its own separate PIN) sees everything across the team when you need the big picture.</p></div>
+      <div class="step"><div class="snum">04</div><div class="sico"><i data-lucide=clipboard-list class=ic></i></div><h3>Avis applications</h3><p>See each locataire's full vérifié dossier — ID, employment letter, references — right on the application card, before deciding whether to accepter on the propriétaire's behalf.</p></div>
+      <div class="step"><div class="snum">05</div><div class="sico"><i data-lucide=pen-tool class=ic></i></div><h3>Handle the bail votre way</h3><p>If the propriétaire n'a pas de compte Trouve Ton Toit, look them up by email to link one — or if you're authorized to sign on their behalf, do it directly. Otherwise, relay the signing link however's easiest: copy it, send via WhatsApp, or email.</p></div>
+      <div class="step"><div class="snum">06</div><div class="sico"><i data-lucide=camera class=ic></i></div><h3>Entrée dans les lieux day</h3><p>Run the entrée dans les lieux état des lieux avec photos et meter readings, get it signed by both propriétaire et locataire — the same protection every Trouve Ton Toit tenancy gets, whether you manage it or they do it themselves.</p></div>
+      <div class="step"><div class="snum">07</div><div class="sico"><i data-lucide=folders class=ic></i></div><h3>Track everything in one place</h3><p>A real CRM — separate locataire et propriétaire contact databases avec names, nationality, phone et email. Applications, visites et messages all filterable to just votre own clients, or the whole team's.</p></div>
+      <div class="step"><div class="snum">08</div><div class="sico"><i data-lucide=euro class=ic></i></div><h3>Get paid votre way</h3><p>Trouve Ton Toit runs on a flat monthly subscription pour agences — never a cut of votre commission. What you charge propriétaires et locataires is arranged et paid directly, entirely outside the platform. Post sale annonces pour free too.</p></div>
     </div>
     <div class="cta"><a class="btn" href="/#auth">Set up votre agence →</a></div>
   </div>
@@ -126,32 +128,32 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
   </div>
 
   <div class="faq-item">
-    <h4>📸 What's the "entrée dans les lieux état des lieux"?</h4>
+    <h4><i data-lucide=camera class=ic></i> What's the "entrée dans les lieux état des lieux"?</h4>
     <p>Formally called an État des lieux (état des lieux) in français location practice — a room-by-room record of the bien's condition et both meter readings, photographed et signed by both parties the day the locataire moves in. Its whole purpose is to settle disputes fairly later — if something's disputed at move-out, there's an agreed, dated record  depuis  entrée dans les lieux to compare against.</p>
   </div>
 
   <div class="faq-item">
-    <h4>🪪 Why does Trouve Ton Toit need my ID?</h4>
+    <h4><i data-lucide=id-card class=ic></i> Why does Trouve Ton Toit need my ID?</h4>
     <p>Two reasons. First, trust — a propriétaire reviewing votre application, or a locataire reviewing who they're renting  depuis , can see a vérifié identity instead of just a name in a chat. Second, français bails legally require each party's identification to appear on the document itself, so it's needed either way.</p>
   </div>
 
   <div class="faq-item">
-    <h4>💶 What's the platform fee actually  pour ?</h4>
+    <h4><i data-lucide=euro class=ic></i> What's the platform fee actually  pour ?</h4>
     <p>It covers running the verification, e-signing et hosting behind the platform. It's only ever charged if a locataire's application is actually accepté — never upfront, et never if you're refusé. Biens managed by an agence don't carry this fee at all, since agences pay their own separate subscription instead.</p>
   </div>
 
   <div class="faq-item">
-    <h4>🏢 Do I need an agence, or can I self-manage?</h4>
+    <h4><i data-lucide=building-2 class=ic></i> Do I need an agence, or can I self-manage?</h4>
     <p>Self-managing directly between propriétaire et locataire is the default et works pour most people — Trouve Ton Toit handles the bail, e-signing et entrée dans les lieux état des lieux either way. An agence is there pour propriétaires who'd rather hand off the day-to-day (visites, applications, coordination) entirely.</p>
   </div>
 
   <div class="faq-item">
-    <h4>⚖️ Is the bail actually legally valid?</h4>
+    <h4><i data-lucide=scale class=ic></i> Is the bail actually legally valid?</h4>
     <p>Bails generated through Trouve Ton Toit are built to comply avec France's Private Residential Bails Act (Chapter 604) — covering the bien address, agreed use, duration, loyer et paiement method, dépôt de garantie, et the entrée dans les lieux état des lieux as required by law. It remains the propriétaire's responsibility to register the bail  avec le Housing Authority within the legally required timeframe.</p>
   </div>
 
   <div class="faq-item">
-    <h4>🔑 What happens to my dépôt de garantie et loyer?</h4>
+    <h4><i data-lucide=key-round class=ic></i> What happens to my dépôt de garantie et loyer?</h4>
     <p>They're never held by Trouve Ton Toit. Once a bail is signed, dépôt de garantie et first month's loyer go straight  depuis  the locataire's paiement method to the propriétaire's own compte — the platform only ever facilitates the transaction, it isn't a party to it.</p>
   </div>
 </div>
@@ -170,6 +172,15 @@ function setTab(role){
 const params=new URLSearchParams(window.location.search);
 const initial=params.get('role');
 if(initial&&['locataire','propriétaire','agence'].includes(initial))setTab(initial);
+</script>
+<script>
+// Icônes Lucide (remplacent les émojis) — conversion au chargement puis
+// vérification légère toutes les 2 s pour le contenu généré en JS.
+(function initLucideIcons(){
+  if(!window.lucide)return setTimeout(initLucideIcons,50);
+  lucide.createIcons();
+  setInterval(()=>{const a=document.activeElement;if(a&&/^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))return;lucide.createIcons();},2000);
+})();
 </script>
 </body>
 </html>
