@@ -240,7 +240,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <div class="nl">Compte</div>
     <button class="ni" onclick="sp('subscription',this)"><span class="nico"><i data-lucide=credit-card class=ic></i></span>Subscription</button>
-    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=paramètres class=ic></i>️</span>Agence Profil</button>
+    <button class="ni" onclick="sp('profil',this)"><span class="nico"><i data-lucide=paramètres class=ic></i></span>Agence Profil</button>
     <button class="ni" onclick="window.location.href='/'"><span class="nico"><i data-lucide=globe class=ic></i></span>Retour to site</button>
   </div>
 
@@ -342,7 +342,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- Modal: Modifier l'annonce -->
     <div id="edit-annonce-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='edit-annonce-modal')closeModifierAnnonce()">
       <div style="background:var(--s);border:1px solid var(--b);border-radius:16px;padding:1.5rem;max-width:480px;width:100%;max-height:85vh;overflow-y:auto">
-        <div style="font-weight:700;font-size:1rem;margin-bottom:1rem"><i data-lucide=pencil class=ic></i>️ Modifier annonce</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:1rem"><i data-lucide=pencil class=ic></i> Modifier annonce</div>
         <div class="fg"><label class="fl">Title</label><input class="fi" id="edit-title"></div>
         <div class="fgrid2">
           <div class="fg" id="edit-price-wrap"><label class="fl" id="edit-price-label">Prix (€)</label><input class="fi" type="number" id="edit-price"></div>
@@ -370,10 +370,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem">What are you importing?</div>
           <div style="display:flex;gap:.5rem">
             <label style="flex:1;display:flex;align-items:center;gap:.5rem;background:var(--s2);border:2px solid var(--agencybright);border-radius:10px;padding:.6rem .8rem;cursor:pointer" id="import-mode-location-label">
-              <input type="radio" name="import-mode" value="long" checked onchange="setImportMode('long')"> <i data-lucide=landmark class=ic></i>️ Location
+              <input type="radio" name="import-mode" value="long" checked onchange="setImportMode('long')"> <i data-lucide=landmark class=ic></i> Location
             </label>
             <label style="flex:1;display:flex;align-items:center;gap:.5rem;background:var(--s2);border:2px solid var(--b2);border-radius:10px;padding:.6rem .8rem;cursor:pointer" id="import-mode-sale-label">
-              <input type="radio" name="import-mode" value="for_sale" onchange="setImportMode('for_sale')"> <i data-lucide=tag class=ic></i>️ À vendre
+              <input type="radio" name="import-mode" value="for_sale" onchange="setImportMode('for_sale')"> <i data-lucide=tag class=ic></i> À vendre
             </label>
           </div>
         </div>
@@ -423,7 +423,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="cb" id="import-pavis-content"></div>
           <div style="padding:.75rem 1.2rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
             <button class="btn bp" onclick="publishImportedAnnonce()" style="flex:1;justify-content:center"><i data-lucide=rocket class=ic></i> Publish to Trouve Ton Toit</button>
-            <button class="btn bg bsm" onclick="document.getElementById('import-pavis').style.display='none'"><i data-lucide=pencil class=ic></i>️ Modifier</button>
+            <button class="btn bg bsm" onclick="document.getElementById('import-pavis').style.display='none'"><i data-lucide=pencil class=ic></i> Modifier</button>
           </div>
         </div>
       </div>
@@ -440,7 +440,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="fgrid2">
             <div class="fg" style="grid-column:1/-1"><label class="fl">Bien Title *</label><input class="fi" id="nl-title" placeholder="Modern 2BR apartment in Lyon"></div>
             <div class="fg"><label class="fl">Zone *</label><select class="fsel" id="nl-zone"><option value="">Select zone...</option><option>Paris</option><option>Lyon</option><option>Marseille</option><option>Bordeaux</option><option>Toulouse</option><option>Nice</option><option>Pembroke</option><option>St Paul's Bay</option><option>Montpellier</option><option>Marsaskala</option><option>Bugibba</option><option>Lille</option><option>Strasbourg</option><option>San Gwann</option><option>Attard</option><option>Balzan</option><option>Other</option></select></div>
-            <div class="fg"><label class="fl">Annonce type</label><select class="fsel" id="nl-mode" onchange="toggleListingMode('nl')"><option value="long"><i data-lucide=landmark class=ic></i>️ Location longue durée (location)</option><option value="for_sale"><i data-lucide=tag class=ic></i>️ À vendre</option></select></div>
+            <div class="fg"><label class="fl">Annonce type</label><select class="fsel" id="nl-mode" onchange="toggleListingMode('nl')"><option value="long"><i data-lucide=landmark class=ic></i> Location longue durée (location)</option><option value="for_sale"><i data-lucide=tag class=ic></i> À vendre</option></select></div>
             <div class="fg"><label class="fl" id="nl-price-label">Monthly Loyer (€) *</label><input class="fi" type="number" id="nl-price" placeholder="850"></div>
             <div class="fg"><label class="fl">Chambres</label><select class="fsel" id="nl-beds"><option value="0">Studio</option><option value="1">1 Chambre</option><option value="2">2 Chambres</option><option value="3">3 Chambres</option><option value="4">4+ Chambres</option></select></div>
             <div class="fg"><label class="fl">Salles de bain</label><select class="fsel" id="nl-baths"><option value="1">1 Salle de bain</option><option value="2">2 Salles de bain</option><option value="3">3+ Salles de bain</option></select></div>
@@ -454,7 +454,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
           <!-- Champs spécifiques à une vente — n'apparaissent qu'en mode "À vendre" -->
           <div id="nl-sale-details-wrap" style="display:none;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.75rem">
-            <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Sale details</div>
+            <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i> Sale details</div>
             <div class="fgrid2">
               <div class="fg"><label class="fl">Tenure *</label><select class="fsel" id="nl-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
               <div class="fg"><label class="fl">Finish statut *</label><select class="fsel" id="nl-finish"><option value="finished">Fully finished</option><option value="meublé">Finished & meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
@@ -677,7 +677,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   <!-- ── PROFILE ── -->
   <div class="page" id="page-profil">
     <div style="max-width:600px">
-      <div style="margin-bottom:1.2rem"><div style="font-size:1rem;font-weight:700"><i data-lucide=paramètres class=ic></i>️ Agence Profil</div></div>
+      <div style="margin-bottom:1.2rem"><div style="font-size:1rem;font-weight:700"><i data-lucide=paramètres class=ic></i> Agence Profil</div></div>
       <div class="card">
         <div class="ch"><div class="ct">Agence Information</div></div>
         <div class="cb">
@@ -1177,7 +1177,7 @@ async function submitAgenceAdminPin(isFirstTime){
   const pin=document.getElementById('pin-input')?.value.trim();
   const errEl=document.getElementById('pin-erreur');
   if(!pin||!/^\d{4}$/.test(pin)){
-    if(errEl){errEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Enter exactly 4 digits';errEl.style.display='block';}
+    if(errEl){errEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Enter exactly 4 digits';errEl.style.display='block';}
     return;
   }
 
@@ -1224,7 +1224,7 @@ async function submitTeamMemberPin(name,isFirstTime){
   const pin=document.getElementById('pin-input')?.value.trim();
   const errEl=document.getElementById('pin-erreur');
   if(!pin||!/^\d{4}$/.test(pin)){
-    if(errEl){errEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Enter exactly 4 digits';errEl.style.display='block';}
+    if(errEl){errEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Enter exactly 4 digits';errEl.style.display='block';}
     return;
   }
 
@@ -1269,12 +1269,12 @@ async function addAndSelectTeamMember(){
   const name=document.getElementById('wau-new-name')?.value.trim();
   if(!name){toast('Enter a name');return;}
   const members=getTeamMembers();
-  if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i>️ That name is already on the list — select it et enter its PIN instead.');return;}
+  if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i> That name is already on the list — select it et enter its PIN instead.');return;}
   members.push({name,pin:null});
   try{
     const{data:updated,erreur}=await sb. depuis ('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id).select();
     if(erreur){toast('<i data-lucide=x-circle class=ic></i> Could not save: '+erreur.message);return;}
-    if(!updated||!updated.length){toast('<i data-lucide=alert-triangle class=ic></i>️ Enregistrer blocked (0 rows updated) — likely a database permissions issue (RLS). Tell votre developer.');return;}
+    if(!updated||!updated.length){toast('<i data-lucide=alert-triangle class=ic></i> Enregistrer blocked (0 rows updated) — likely a database permissions issue (RLS). Tell votre developer.');return;}
     agencyData={...agencyData,team_members:JSON.stringify(members)};
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);return;}
   document.getElementById('whoareyou-modal')?.remove();
@@ -1307,7 +1307,7 @@ async function addTeamMemberFromParamètres(){
   const name=input?.value.trim();
   if(!name){toast('Enter a name');return;}
   const members=getTeamMembers();
-  if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i>️ Already added');return;}
+  if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i> Already added');return;}
   members.push({name,pin:null});
   try{
     const{erreur}=await sb. depuis ('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id);
@@ -1469,13 +1469,13 @@ async function loadAnnonces(){
           </td>
           <td style="font-size:.82rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${l.zone||'—'}</td>
           <td style="font-weight:700;color:var(--green)">${l.type==='for_sale'?`€${l.sale_price||l.price||'—'}`:`€${l.price||'—'}/mois`}</td>
-          <td>${l.type==='for_sale'?'<span class="agence-annonce-badge" style="background:var(--grdim);color:#2d7a56"><i data-lucide=tag class=ic></i>️ À vendre</span>':'<span class="agence-annonce-badge"><i data-lucide=building-2 class=ic></i> Agence</span>'}</td>
+          <td>${l.type==='for_sale'?'<span class="agence-annonce-badge" style="background:var(--grdim);color:#2d7a56"><i data-lucide=tag class=ic></i> À vendre</span>':'<span class="agence-annonce-badge"><i data-lucide=building-2 class=ic></i> Agence</span>'}</td>
           <td style="font-size:.82rem;color:var(--td)" id="visite-count-${l.id}">—</td>
           <td style="position:relative">
             <button onclick="toggleListingMenu(event,'${l.id}')" style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;width:32px;height:32px;font-size:1rem;cursor:pointer;color:var(--txt)">⋮</button>
             <div id="annonce-menu-${l.id}" style="display:none;position:absolute;right:0;top:38px;background:var(--s);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);min-width:190px;z-index:50;overflow:hidden">
               <a href="https://trouve-ton-toit.netlify.app/#annonce-${l.id}" target="_blank" style="display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;font-size:.8rem;color:var(--txt);text-decoration:none;border-bottom:1px solid var(--b)"><i data-lucide=eye class=ic></i> View annonce</a>
-              <div onclick="editAnnonce('${l.id}')" style="display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--b)"><i data-lucide=pencil class=ic></i>️ Modifier</div>
+              <div onclick="editAnnonce('${l.id}')" style="display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--b)"><i data-lucide=pencil class=ic></i> Modifier</div>
               ${l.propriétaire_has_account||l.manual_propriétaire_name?`<div onclick="openOwnerLinkModal('${l.id}')" style="display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--b)"><i data-lucide=home class=ic></i> Owner compte</div>`:''}
               <div onclick="deleteAnnonce('${l.id}','${(l.title||'').replace(/'/g,"\\'")}',this)" style="display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;font-size:.8rem;cursor:pointer;color:var(--red)"><i data-lucide=trash-2 class=ic></i> Supprimer</div>
             </div>
@@ -1485,7 +1485,7 @@ async function loadAnnonces(){
     </table>`;
 
     // Charger les stats de visites pour chaque annonce
-     pour (const l of (annonces||[])){
+     for (const l of (annonces||[])){
       loadListingVisitCount(l.id);
     }
   }catch(e){console.warn('Annonces:',e);wrap.innerHTML='<div style="color:var(--red);padding:1rem"><i data-lucide=x-circle class=ic></i> '+e.message+'</div>';}
@@ -1550,7 +1550,7 @@ async function deleteAnnonce(id, title, btn){
     return;
   }
   if(!confirm(`Supprimer annonce "${title}"? This cannot be undone.`)) return;
-  btn.textContent='⏳';
+  btn.textContent='…';
   const{erreur}=await sb. depuis ('annonces').delete().eq('id',id);
   if(erreur){
     // Le plus souvent : des messages existent encore pour cette annonce.
@@ -1565,7 +1565,7 @@ async function deleteAnnonce(id, title, btn){
         btn.innerHTML='<i data-lucide=trash-2 class=ic></i>';
         return;
       }
-      toast('<i data-lucide=alert-triangle class=ic></i>️ Annonce hidden  depuis  search (message history kept).');
+      toast('<i data-lucide=alert-triangle class=ic></i> Annonce hidden  depuis  search (message history kept).');
       loadAnnonces();
       return;
     }
@@ -1583,7 +1583,7 @@ async function deleteAnnonce(id, title, btn){
       btn.innerHTML='<i data-lucide=trash-2 class=ic></i>';
       return;
     }
-    toast('<i data-lucide=trash-2 class=ic></i>️ Annonce et its messages permanently deleted');
+    toast('<i data-lucide=trash-2 class=ic></i> Annonce et its messages permanently deleted');
     loadAnnonces();
     return;
   }
@@ -1642,7 +1642,7 @@ async function runBulkImport(){
   bulkResults=[];
   const progressEl=document.getElementById('import-bulk-progress');
 
-   pour (let i=0;i<selected.length;i++){
+   for (let i=0;i<selected.length;i++){
     progressEl.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;color:var(--agencybright);font-size:.8rem"><div class="sp"></div><span>Importing ${i+1} of ${selected.length}...</span></div>`;
     try{
       const response=await fetch('/.netlify/functions/extract-annonce',{
@@ -1728,8 +1728,8 @@ function showImportPavis(data){
       <div class="fg" id="prev-dépôt de garantie-wrap" style="${isSale?'display:none':''}"><label class="fl">Dépôt de garantie (€)</label><input class="fi" type="number" id="prev-dépôt de garantie" placeholder="Same as loyer if left empty"></div>
       <div class="fg" id="prev-disponible-wrap" style="${isSale?'display:none':''}"><label class="fl">Disponible From</label><input class="fi" type="date" id="prev-disponible"></div>
       <div class="fg"><label class="fl">Bien Type</label><select class="fsel" id="prev-ptype"><option value="apartment">Apartment</option><option value="house">House / Terrassed House</option><option value="penthouse">Penthouse</option><option value="maisonette">Maisonette</option><option value="townhouse">Townhouse</option><option value="studio">Studio</option><option value="villa">Villa</option></select></div>
-      <div class="fg"><label class="fl">Salles de bain</label><select class="fsel" id="prev-baths"><option value="1" ${(!data.salle de bains||data.salle de bains==1)?'selected':''}>1 Salle de bain</option><option value="2" ${data.salle de bains==2?'selected':''}>2 Salles de bain</option><option value="3" ${data.salle de bains>=3?'selected':''}>3+ Salles de bain</option></select></div>
-      <div class="fg"><label class="fl">${isSale?'Annonce type':'Bail Type'}</label><div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.65rem;font-size:.85rem;color:var(--tm)">${isSale?'<i data-lucide=tag class=ic></i>️ À vendre':'<i data-lucide=landmark class=ic></i>️ Location longue durée (1 year+)'} <span style="font-size:.7rem;color:var(--td)">— set on the Import mode toggle above</span></div></div>
+      <div class="fg"><label class="fl">Salles de bain</label><select class="fsel" id="prev-baths"><option value="1" ${(!data.bathrooms||data.bathrooms==1)?'selected':''}>1 Salle de bain</option><option value="2" ${data.bathrooms==2?'selected':''}>2 Salles de bain</option><option value="3" ${data.bathrooms>=3?'selected':''}>3+ Salles de bain</option></select></div>
+      <div class="fg"><label class="fl">${isSale?'Annonce type':'Bail Type'}</label><div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.65rem;font-size:.85rem;color:var(--tm)">${isSale?'<i data-lucide=tag class=ic></i> À vendre':'<i data-lucide=landmark class=ic></i> Location longue durée (1 year+)'} <span style="font-size:.7rem;color:var(--td)">— set on the Import mode toggle above</span></div></div>
       <div class="fg" id="prev-bills-wrap" style="${isSale?'display:none':''}"><label class="fl">Bills</label><select class="fsel" id="prev-bills"><option value="included" ${data.bills==='included'?'selected':''}>All bills included</option><option value="excluded" ${(!data.bills||data.bills==='excluded')?'selected':''}>Bills not included</option></select></div>
       <div class="fg"><label class="fl">Étage</label><select class="fsel" id="prev-étage"><option value="">—</option><option value="Ground étage">Ground étage</option><option value="1st étage">1st étage</option><option value="2nd étage">2nd étage</option><option value="3rd étage">3rd étage</option><option value="4th étage">4th étage</option><option value="5th étage+">5th étage+</option><option value="Penthouse level">Penthouse level</option></select></div>
       <div class="fg" style="grid-column:1/-1"><label class="fl">Description</label><textarea class="fi" id="prev-desc" rows="3">${data.description||''}</textarea></div>
@@ -1737,7 +1737,7 @@ function showImportPavis(data){
 
       ${isSale?`
       <div class="fg" style="grid-column:1/-1;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:.75rem 1rem;margin-top:.3rem">
-        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i>️ Sale details</div>
+        <div style="font-size:.78rem;font-weight:700;color:#6366F1;margin-bottom:.6rem"><i data-lucide=tag class=ic></i> Sale details</div>
         <div class="fgrid2">
           <div class="fg"><label class="fl">Tenure *</label><select class="fsel" id="prev-tenure"><option value="freehold">Freehold</option><option value="bailhold">Bailhold</option><option value="perpetual_ground_rent">Perpetual ground loyer</option></select></div>
           <div class="fg"><label class="fl">Finish statut *</label><select class="fsel" id="prev-finish"><option value="finished">Fully finished</option><option value="meublé">Finished & meublé</option><option value="semi_finished">Semi-finished</option><option value="shell">Shell form (bare)</option></select></div>
@@ -1885,7 +1885,7 @@ async function previewPhotos(input){
   const files=[...input.files];
   wrap.innerHTML=files.map(()=>`<div style="width:60px;height:50px;border-radius:6px;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center"><div class="sp" style="width:14px;height:14px"></div></div>`).join('');
   uploadedPhotos=[];
-   pour (const file of files){
+   for (const file of files){
     try{
       const ext=file.name.split('.').pop();
       const path=`annonce-photos/${U.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
@@ -1906,7 +1906,7 @@ function addFeatureTag(containerId,rawValue){
   if(!value)return;
   if(!window._featureTags[containerId])window._featureTags[containerId]=[];
   const list=window._featureTags[containerId];
-  if(list.some(v=>v.toLowerCase()===value.toLowerCase())){toast('<i data-lucide=alert-triangle class=ic></i>️ Already added');return;}
+  if(list.some(v=>v.toLowerCase()===value.toLowerCase())){toast('<i data-lucide=alert-triangle class=ic></i> Already added');return;}
   list.push(value);
   renderFeatureTags(containerId);
 }
@@ -2230,12 +2230,12 @@ function renderCRM(searchQuery){
         <div style="font-size:.7rem;color:var(--td);display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.15rem">
           ${x.nationality?`<span><i data-lucide=globe class=ic></i> ${x.nationality}</span>`:''}
           ${x.phone?`<span><i data-lucide=phone class=ic></i> ${x.phone}</span>`:''}
-          ${x.email?`<span><i data-lucide=mail class=ic></i>️ ${x.email}</span>`:''}
+          ${x.email?`<span><i data-lucide=mail class=ic></i> ${x.email}</span>`:''}
         </div>
       </div>
       <div style="display:flex;gap:.3rem;flex-shrink:0">
         <button onclick="toggleCRMFavorite('${x.clerk_id}')" title="${isFav?'Remove  depuis  favourites':'Add to favourites'}" style="background:none;border:none;font-size:1rem;cursor:pointer;color:${isFav?'var(--gold)':'var(--td)'}"><i data-lucide=star class=ic style="${isFav?'fill:var(--gold)':''}"></i></button>
-        <button onclick="hideCRMClient('${x.clerk_id}','${(x.full_name||'').replace(/'/g,"\\'")}')" title="Remove  depuis  CRM" style="background:none;border:none;font-size:.9rem;cursor:pointer;color:var(--td)"><i data-lucide=trash-2 class=ic></i>️</button>
+        <button onclick="hideCRMClient('${x.clerk_id}','${(x.full_name||'').replace(/'/g,"\\'")}')" title="Remove  depuis  CRM" style="background:none;border:none;font-size:.9rem;cursor:pointer;color:var(--td)"><i data-lucide=trash-2 class=ic></i></button>
       </div>
     </div>`;
   }).join('')+'</div></div>';
@@ -2482,9 +2482,9 @@ async function proposeVisitFromAgenceChat(){
   document.getElementById('apv-send-btn').onclick=async()=>{
     const visitDate=document.getElementById('apv-date')?.value;
     const visitTime=document.getElementById('apv-time')?.value||'14:00';
-    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a date');return;}
+    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a date');return;}
     const today=new Date();today.setHours(0,0,0,0);
-    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i>️ Pbail select a future date');return;}
+    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a future date');return;}
 
     try{
       const{data:annonce}=await sb. depuis ('annonces').select('title,zone').eq('id',listingId).maybeSingle();
@@ -2503,7 +2503,7 @@ async function proposeVisitFromAgenceChat(){
       const dateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       await sb. depuis ('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:locataireId,
-        content:`📅 The agence proposes a visite:\n\n${annonce?.title||'Bien'}\n📅 ${dateStr} at ${visitTime}\n\nGo to Mes visites to confirm or decline.`,
+        content:`The agence proposes a visite:\n\n${annonce?.title||'Bien'}\n${dateStr} at ${visitTime}\n\nGo to Mes visites to confirm or decline.`,
         type:'visit_proposed'
       });
       modal.remove();
@@ -2547,7 +2547,7 @@ async function loadEstimations(){
           <div style="flex:1">
             <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
               <span style="font-weight:700">${r.propriétaire_name||'Propriétaire'}</span>
-              <span class="badge ${r.request_type==='sale'?'b-gold':'b-sea'}" style="font-size:.62rem">${r.request_type==='sale'?'<i data-lucide=tag class=ic></i>️ Sale estimation':'<i data-lucide=home class=ic></i> Location estimation'}</span>
+              <span class="badge ${r.request_type==='sale'?'b-gold':'b-sea'}" style="font-size:.62rem">${r.request_type==='sale'?'<i data-lucide=tag class=ic></i> Sale estimation':'<i data-lucide=home class=ic></i> Location estimation'}</span>
               <span class="badge ${r.statut==='en attente'?'b-gold':r.statut==='contacted'?'b-sea':'b-dim'}" style="font-size:.62rem">${r.statut||'en attente'}</span>
             </div>
             <div style="font-size:.82rem;color:var(--td);margin-bottom:.3rem"><i data-lucide=map-pin class=ic></i> ${r.address||'—'}</div>
@@ -2577,7 +2577,7 @@ function renderCoLocataireSignatureRows(bk){
       <span style="font-size:.78rem"><i data-lucide=users class=ic></i> ${cl.name||'Co-locataire'}</span>
       ${cl.signed
         ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${cl.embed_src?` <a href="${cl.embed_src}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
-        :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+        :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
     </div>`).join('');
 }
 
@@ -2591,7 +2591,7 @@ function renderEdlCoLocataireSignatureRows(bk){
       <span style="font-size:.78rem"><i data-lucide=users class=ic></i> ${cl.name||'Co-locataire'}</span>
       ${cl.signed
         ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${cl.embed_src?` <a href="${cl.embed_src}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
-        :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+        :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
     </div>`).join('');
 }
 
@@ -2631,7 +2631,7 @@ function renderAgenceEdlSection(b){
         <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire</span>
         ${b.edl_signed_locataire
           ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>`
-          :'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+          :'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
       </div>
       ${renderEdlCoLocataireSignatureRows(b)}
     </div>`;
@@ -2651,7 +2651,7 @@ async function agencyEdlDecision(bookingId,agencyHandles){
     await sb. depuis ('bookings').update({edl_handler:agencyHandles?'agence':'agency_declined'}).eq('id',bookingId);
     if(!agencyHandles&&bk){
       // Prévenir propriétaire et locataire — à eux de décider qui s'en charge, un seul des deux
-      const notif='📋 Your agence won\'t be handling the entrée dans les lieux état des lieux (État des lieux) pour ce logement directly. Would you like to use Trouve Ton Toit\'s entrée dans les lieux état des lieux feature yourself? Check votre tableau de bord to decide.';
+      const notif='Your agence won\'t be handling the entrée dans les lieux état des lieux (État des lieux) pour ce logement directly. Would you like to use Trouve Ton Toit\'s entrée dans les lieux état des lieux feature yourself? Check votre tableau de bord to decide.';
       try{if(bk.propriétaire_id)await sb. depuis ('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.propriétaire_id,content:notif,type:'edl_handler_ask'});}catch(e){}
       try{if(bk.locataire_id)await sb. depuis ('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.locataire_id,content:notif,type:'edl_handler_ask'});}catch(e){}
     }
@@ -2777,7 +2777,7 @@ async function openAgenceÉtat des lieux(bookingId){
             </div>
           </div>
           <div style="margin-top:.65rem;background:rgba(212,168,71,.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
-            <i data-lucide=alert-triangle class=ic></i>️ Take photos of both meters. These readings will be annexed to the bail.
+            <i data-lucide=alert-triangle class=ic></i> Take photos of both meters. These readings will be annexed to the bail.
           </div>
         </div>
         <div style="display:flex;gap:.5rem">
@@ -2819,8 +2819,8 @@ async function openAgenceÉtat des lieux(bookingId){
           <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">The bien will move to Rented Biens once the propriétaire et locataire have both signed.</div>
           <div style="font-size:.76rem;color:var(--td);text-align:left;background:var(--s2);border-radius:10px;padding:.75rem;margin-bottom:1rem;line-height:2">
             <i data-lucide=check-circle-2 class=ic></i> État des lieux & meter readings recorded<br>
-            ⏳ Waiting on propriétaire's signature<br>
-            ⏳ Waiting on locataire's signature
+            <i data-lucide=hourglass class=ic></i> Waiting on propriétaire's signature<br>
+            <i data-lucide=hourglass class=ic></i> Waiting on locataire's signature
           </div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=file-edit class=ic></i> Remind the propriétaire to register the bail at <strong>rentregistration.fr</strong> within 30 days.</div>
           <button onclick="loadApplications()" style="background:var(--agencybright);color:white;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.85rem;font-weight:700;cursor:pointer">← Retour to applications</button>
@@ -2830,7 +2830,7 @@ async function openAgenceÉtat des lieux(bookingId){
 }
 
 function showEdlStepAg(step){
-   pour (let i=0;i<4;i++){
+   for (let i=0;i<4;i++){
     const el=document.getElementById('ag-edl-step-'+i);
     if(el)el.style.display=i===step?'block':'none';
     const badge=document.getElementById('ag-edl-badge-'+i);
@@ -2859,11 +2859,11 @@ async function uploadAgEdlPhotos(files,key,previewElId){
   if(!ctx)return;
   window._agEdlPhotos[key]=window._agEdlPhotos[key]||[];
   const previewEl=document.getElementById(previewElId);
-   pour (const file of files){
+   for (const file of files){
     if(file.size>8*1024*1024){toast('<i data-lucide=x-circle class=ic></i> '+file.name+' too large — max 8MB');continue;}
     const placeholder=document.createElement('div');
     placeholder.style.cssText='width:44px;height:44px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--td)';
-    placeholder.textContent='⏳';
+    placeholder.textContent='…';
     if(previewEl)previewEl.appendChild(placeholder);
     try{
       const ext=file.name.split('.').pop();
@@ -2909,7 +2909,7 @@ function showEdlSigningOptionsScreen(bookingId,signLink,propriétaireE-mail,prop
       <div style="font-size:1.6rem;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i></div>
       <div style="font-weight:700;font-size:1rem;margin-bottom:.4rem">État des lieux generated — who signs as Propriétaire?</div>
       <div style="font-size:.8rem;color:var(--td);margin-bottom:1rem;line-height:1.5">Sign it yourself now if you're authorized to, or send it to the propriétaire to sign themselves.</div>
-      <button onclick="this.closest('div[style*=fixed]').remove();signAsAgencePropriétaireEdl('${bookingId}','${signLink}')" class="btn bp" style="width:100%;justify-content:center;margin-bottom:.75rem"><i data-lucide=pen-line class=ic></i>️ Sign now myself</button>
+      <button onclick="this.closest('div[style*=fixed]').remove();signAsAgencePropriétaireEdl('${bookingId}','${signLink}')" class="btn bp" style="width:100%;justify-content:center;margin-bottom:.75rem"><i data-lucide=pen-line class=ic></i> Sign now myself</button>
       <div style="text-align:center;font-size:.72rem;color:var(--td);margin-bottom:.75rem">— or send it to the propriétaire —</div>
       <div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:var(--td);word-break:break-all;margin-bottom:.75rem">${signLink}</div>
       <div style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.6rem .75rem;margin-bottom:.75rem">
@@ -2922,7 +2922,7 @@ function showEdlSigningOptionsScreen(bookingId,signLink,propriétaireE-mail,prop
       </div>
       <button onclick="navigator.clipboard.writeText('${signLink}');this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Link copied';this.disabled=true;this.style.opacity='.7'" class="btn bg" style="width:100%;justify-content:center;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> Copy link</button>
       <a href="${waHref}" target="_blank" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Sent via WhatsApp';this.style.opacity='.7';},300)" class="btn bg" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem;background:#25D366;color:white;border:none"><i data-lucide=message-circle class=ic></i> Envoyer via WhatsApp</a>
-      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i>️ Envoyer by email</a>
+      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i> Envoyer by email</a>
       <button onclick="this.closest('div[style*=fixed]').remove()" class="btn bg" style="width:100%;justify-content:center">Fermer</button>
     </div>`;
   document.body.appendChild(modal);
@@ -2933,7 +2933,7 @@ function signAsAgencePropriétaireEdl(bookingId,embedSrc){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column';
   const header=document.createElement('div');
   header.style.cssText='background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0';
-  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i>️ Sign État des lieux on behalf of the propriétaire</div>';
+  header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i> Sign État des lieux on behalf of the propriétaire</div>';
   const closeBtn=document.createElement('button');
   closeBtn.style.cssText='background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer';
   closeBtn.innerHTML='<i data-lucide=x class=ic></i>';
@@ -2960,10 +2960,10 @@ async function checkAndSendEdlViaTrouve Ton Toit(bookingId,signLink,propertyTitl
   const email=document.getElementById('edl-rm-email')?.value.trim();
   const resultEl=document.getElementById('edl-rm-result');
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Enter a valid email first';}
+    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Enter a valid email first';}
     return;
   }
-  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  if(btn){btn.disabled=true;btn.textContent='…';}
   try{
     const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').ilike('email',email).maybeSingle();
     if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=search class=ic></i> Check';}
@@ -2986,7 +2986,7 @@ async function checkAndSendEdlViaTrouve Ton Toit(bookingId,signLink,propertyTitl
 }
 
 async function sendEdlViaTrouve Ton Toit(realPropriétaireId,bookingId,signLink,propertyTitle,btn){
-  if(btn){btn.disabled=true;btn.textContent='⏳ Sending...';}
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
   try{
     const{data:booking}=await sb. depuis ('bookings').select('listing_id').eq('id',bookingId).maybeSingle();
     // Le propriétaire n'avait peut-être pas de compte au moment de la candidature —
@@ -2995,7 +2995,7 @@ async function sendEdlViaTrouve Ton Toit(realPropriétaireId,bookingId,signLink,
     await sb. depuis ('bookings').update({propriétaire_id:realPropriétaireId}).eq('id',bookingId).is('propriétaire_id',null);
     const{erreur}=await sb. depuis ('messages').insert({
       listing_id:booking?.listing_id||null,sender_id:'system',receiver_id:realPropriétaireId,
-      content:`📋 The entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} is ready pour votre signature!\n\n${signLink}`,
+      content:`The entrée dans les lieux état des lieux (État des lieux) pour ${propertyTitle} is ready pour votre signature!\n\n${signLink}`,
       type:'edl_ready_agency'
     });
     if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=smartphone class=ic></i> Envoyer';}return;}
@@ -3015,7 +3015,7 @@ async function generateAnnexAndCompleteAg(){
   const rooms=collectEdlRoomsAg();
 
   const statusEl=document.getElementById('ag-annex-statut');
-  if(statusEl){statusEl.style.display='block';statusEl.textContent='⏳ Generating Annex A (État des lieux)...';}
+  if(statusEl){statusEl.style.display='block';statusEl.textContent='Generating Annex A (État des lieux)...';}
 
   // L'agence remplit le formulaire, mais ce sont le vrai propriétaire et le vrai
   // locataire qui signent — jamais l'agence elle-même, comme pour le bail.
@@ -3041,7 +3041,7 @@ async function generateAnnexAndCompleteAg(){
       return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',locataire_id:match?.locataire_id||null,signed:false};
     });
     if(!edlPropriétaireEmbed||!edlLocataireEmbed){
-      if(statusEl){statusEl.style.color='var(--gold)';statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ État des lieux saved, but signature links failed: '+(edlData?.message||'unknown erreur');}
+      if(statusEl){statusEl.style.color='var(--gold)';statusEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> État des lieux saved, but signature links failed: '+(edlData?.message||'unknown erreur');}
     }else{
       if(statusEl)statusEl.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Annex A (État des lieux) sent pour signature!';
     }
@@ -3065,7 +3065,7 @@ async function generateAnnexAndCompleteAg(){
     }).eq('id',ctx.bookingId);
   }catch(e){}
 
-  const notif='📋 The entrée dans les lieux état des lieux (État des lieux) has been generated et sent pour signature.\n\n📄 The propriétaire should register the bail at rentregistration.fr within 30 days.';
+  const notif='The entrée dans les lieux état des lieux (État des lieux) has been generated et sent pour signature.\n\nThe propriétaire should register the bail at rentregistration.fr within 30 days.';
   try{if(ctx.booking?.locataire_id)await sb. depuis ('messages').insert({listing_id:ctx.booking.listing_id,sender_id:'system',receiver_id:ctx.booking.locataire_id,content:notif,type:'edl_generated'});}catch(e){}
   try{if(ctx.booking?.propriétaire_id)await sb. depuis ('messages').insert({listing_id:ctx.booking.listing_id,sender_id:'system',receiver_id:ctx.booking.propriétaire_id,content:notif,type:'edl_generated'});}catch(e){}
 
@@ -3118,7 +3118,7 @@ async function loadRentedPropertiesAgence(){
         const daysLeft=Math.ceil((new Date(bk.bail_end)-new Date())/(1000*60*60*24));
         const urgent=daysLeft<=60;
         const color=daysLeft<0?'var(--red)':urgent?'var(--gold)':'var(--td)';
-        const label=daysLeft<0?`<i data-lucide=alert-triangle class=ic></i>️ Bail ended ${Math.abs(daysLeft)} days ago`:`<i data-lucide=calendar class=ic></i> Bail ends in ${daysLeft} days`;
+        const label=daysLeft<0?`<i data-lucide=alert-triangle class=ic></i> Bail ended ${Math.abs(daysLeft)} days ago`:`<i data-lucide=calendar class=ic></i> Bail ends in ${daysLeft} days`;
         bailEndHtml=`<div style="font-size:.7rem;color:${color};font-weight:${urgent?700:400}">${label}</div>`;
       }
       return`
@@ -3180,18 +3180,18 @@ async function loadApplications(){
         if(b.bail_signed_propriétaire){
           propriétaireSignRow=`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${b.bail_propriétaire_embed?` <a href="${b.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`;
         }else if(b.bail_propriétaire_embed){
-          propriétaireSignRow=`<span style="font-size:.72rem;color:var(--gold)">⏳ Waiting</span> <button onclick="signAsAgencePropriétaire('${b.id}','${b.bail_propriétaire_embed}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=pen-line class=ic></i>️ Sign now</button> <button onclick="showBailSigningOptionsScreen('${b.id}','${b.bail_propriétaire_embed}','${(annonce.manual_propriétaire_email||'').replace(/'/g,"\\'")}','${(annonce.title||'').replace(/'/g,"\\'")}','${annonce.manual_propriétaire_phone||''}')" style="background:var(--s2);color:var(--txt);border:1px solid var(--b2);border-radius:6px;padding:.25rem .6rem;font-size:.68rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=link class=ic></i> Envoyer to propriétaire</button>`;
+          propriétaireSignRow=`<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Waiting</span> <button onclick="signAsAgencePropriétaire('${b.id}','${b.bail_propriétaire_embed}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=pen-line class=ic></i> Sign now</button> <button onclick="showBailSigningOptionsScreen('${b.id}','${b.bail_propriétaire_embed}','${(annonce.manual_propriétaire_email||'').replace(/'/g,"\\'")}','${(annonce.title||'').replace(/'/g,"\\'")}','${annonce.manual_propriétaire_phone||''}')" style="background:var(--s2);color:var(--txt);border:1px solid var(--b2);border-radius:6px;padding:.25rem .6rem;font-size:.68rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=link class=ic></i> Envoyer to propriétaire</button>`;
         }else{
-          propriétaireSignRow=`<span style="font-size:.72rem;color:var(--gold)">⏳ Waiting</span> <button onclick="resendOrRegenerateBail('${b.id}','${b.listing_id}','${b.locataire_id}','${b.bail_propriétaire_embed||''}','${(annonce.manual_propriétaire_email||'').replace(/'/g,"\\'")}','${(annonce.title||'').replace(/'/g,"\\'")}','${annonce.manual_propriétaire_phone||''}')" style="background:var(--s2);color:var(--txt);border:1px solid var(--b2);border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=link class=ic></i> Resend link</button>`;
+          propriétaireSignRow=`<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Waiting</span> <button onclick="resendOrRegenerateBail('${b.id}','${b.listing_id}','${b.locataire_id}','${b.bail_propriétaire_embed||''}','${(annonce.manual_propriétaire_email||'').replace(/'/g,"\\'")}','${(annonce.title||'').replace(/'/g,"\\'")}','${annonce.manual_propriétaire_phone||''}')" style="background:var(--s2);color:var(--txt);border:1px solid var(--b2);border-radius:6px;padding:.2rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;margin-left:.3rem"><i data-lucide=link class=ic></i> Resend link</button>`;
         }
 
         const paiementRow=paiementConfirmered
           ?'<span style="font-size:.78rem"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmed</span>'
           :(b.no_propriétaire_tracking&&!b.propriétaire_id)
-            ?`<span style="font-size:.78rem">⏳ Waiting pour funds</span><button onclick="agencyConfirmerPaiementReceived('${b.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;margin-left:.4rem"><i data-lucide=check-circle-2 class=ic></i> Confirmer received</button>`
+            ?`<span style="font-size:.78rem"><i data-lucide=hourglass class=ic></i> Waiting pour funds</span><button onclick="agencyConfirmerPaiementReceived('${b.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;margin-left:.4rem"><i data-lucide=check-circle-2 class=ic></i> Confirmer received</button>`
             :b.first_paiement_sent
               ?`<span style="font-size:.78rem"><i data-lucide=euro class=ic></i> Locataire declared paiement</span><button onclick="agencyConfirmerPaiementReceived('${b.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;margin-left:.4rem"><i data-lucide=check-circle-2 class=ic></i> Confirmer received</button>`
-              :'<span style="font-size:.78rem">⏳ Waiting pour the locataire to send funds</span>';
+              :'<span style="font-size:.78rem"><i data-lucide=hourglass class=ic></i> Waiting pour the locataire to send funds</span>';
 
         return`<div class="card" style="margin-bottom:.85rem">
           <div class="cb">
@@ -3200,7 +3200,7 @@ async function loadApplications(){
                 <div style="font-weight:700;font-size:.92rem">${locataire.full_name||b.locataire_name||'Locataire'}</div>
                 <div style="font-size:.75rem;color:var(--td)"><i data-lucide=home class=ic></i> ${annonce.title||'Bien'} — ${annonce.zone||''}</div>
               </div>
-              <span class="badge ${bailSigned&&paiementConfirmered?'b-green':'b-sea'}" style="font-size:.65rem">${bailSigned&&paiementConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Done':bailSigned?'<i data-lucide=euro class=ic></i> Awaiting paiement':'<i data-lucide=pen-line class=ic></i>️ Bail en attente'}</span>
+              <span class="badge ${bailSigned&&paiementConfirmered?'b-green':'b-sea'}" style="font-size:.65rem">${bailSigned&&paiementConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Done':bailSigned?'<i data-lucide=euro class=ic></i> Awaiting paiement':'<i data-lucide=pen-line class=ic></i> Bail en attente'}</span>
             </div>
 
             <div style="font-size:.68rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Signatures</div>
@@ -3211,7 +3211,7 @@ async function loadApplications(){
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
                 <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire</span>
-                ${b.bail_signed_locataire?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${b.bail_locataire_embed?` <a href="${b.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`:'<span style="font-size:.72rem;color:var(--gold)">⏳ Not yet</span>'}
+                ${b.bail_signed_locataire?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${b.bail_locataire_embed?` <a href="${b.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`:'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
               </div>
               ${renderCoLocataireSignatureRows(b)}
             </div>
@@ -3243,7 +3243,7 @@ async function loadApplications(){
                 <div style="font-weight:700;font-size:.92rem">${locataire.full_name||'Locataire'} ${locataire.vérifié?'<i data-lucide=check-circle-2 class=ic></i>':''}</div>
                 <div style="font-size:.75rem;color:var(--td)">${locataire.email||''} ${locataire.phone?' · '+locataire.phone:''}</div>
               </div>
-              <span class="badge b-gold" style="font-size:.65rem">⏳ En attente</span>
+              <span class="badge b-gold" style="font-size:.65rem"><i data-lucide=hourglass class=ic></i> En attente</span>
             </div>
             <div style="font-size:.8rem;color:var(--tm);margin-bottom:.5rem"><i data-lucide=home class=ic></i> ${annonce.title||'Bien'} — ${annonce.zone||''} · €${b.monthly_rent||annonce.price||0}/mois</div>
             ${b.move_in_date?`<div style="font-size:.76rem;color:var(--td);margin-bottom:.3rem"><i data-lucide=calendar class=ic></i> Entrée dans les lieux: ${new Date(b.move_in_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}
@@ -3251,10 +3251,10 @@ async function loadApplications(){
             ${b.negotiation_note?`<div style="font-size:.76rem;color:var(--tm);background:var(--s2);border-radius:8px;padding:.5rem;margin-bottom:.5rem"><i data-lucide=message-circle class=ic></i> "${b.negotiation_note}"</div>`:''}
             <div id="t-dossier-${b.locataire_id}" style="margin-bottom:.5rem">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
-                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Full name</div><div id="t-name-${b.locataire_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Vérifié</div><div id="t-ver-${b.locataire_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${b.locataire_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
-                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${b.locataire_id}" style="font-size:.73rem;font-weight:600">⏳</div></div>
+                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Full name</div><div id="t-name-${b.locataire_id}" style="font-size:.73rem;font-weight:600"><i data-lucide=hourglass class=ic></i></div></div>
+                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Vérifié</div><div id="t-ver-${b.locataire_id}" style="font-size:.73rem;font-weight:600"><i data-lucide=hourglass class=ic></i></div></div>
+                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${b.locataire_id}" style="font-size:.73rem;font-weight:600"><i data-lucide=hourglass class=ic></i></div></div>
+                <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${b.locataire_id}" style="font-size:.73rem;font-weight:600"><i data-lucide=hourglass class=ic></i></div></div>
               </div>
               <div style="margin-bottom:.5rem">
                 <div style="font-size:.65rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem"><i data-lucide=file-text class=ic></i> Documents</div>
@@ -3309,7 +3309,7 @@ async function loadLocataireDossierForAgence(locataireId){
     const docs=document.getElementById('t-docs-chips-'+locataireId);
     if(name)name.textContent=p.full_name||'—';
     if(nat)nat.textContent=p.nationality||'—';
-    if(ver)ver.innerHTML=p.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p.id_submitted?'<span style="color:var(--gold)">⏳ En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
+    if(ver)ver.innerHTML=p.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p.id_submitted?'<span style="color:var(--gold)"><i data-lucide=hourglass class=ic></i> En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
     if(phone)phone.textContent=p.phone||'—';
     if(docs){
       if(!p.documents){docs.innerHTML='<div style="font-size:.72rem;color:var(--td)">No documents uploaded yet</div>';return;}
@@ -3327,7 +3327,7 @@ async function loadLocataireDossierForAgence(locataireId){
 }
 
 async function sendLocataireDossierToOwner(locataireId,listingId,propertyTitle,propriétaireE-mail,propriétaireTéléphone,realPropriétaireId){
-  toast('⏳ Preparing dossier...');
+  toast('<i data-lucide=hourglass class=ic></i> Preparing dossier...');
   try{
     const{data:p}=await sb. depuis ('profiles').select('full_name,nationality,phone,vérifié,documents').eq('clerk_id',locataireId).maybeSingle();
     if(!p){toast('<i data-lucide=x-circle class=ic></i> Could not load locataire profil');return;}
@@ -3339,7 +3339,7 @@ async function sendLocataireDossierToOwner(locataireId,listingId,propertyTitle,p
       const docLabels={id:'ID/Passport',bank_statement:'Bank statement',emprent_letter:'Employment letter',reference_letter:'Reference letter',rent1:'Loyer quittance 1',rent2:'Loyer quittance 2',rent3:'Loyer quittance 3'};
       const entries=Object.entries(docMap).filter(([,d])=>d?.path);
       lines.push('Documents:');
-       pour (const[key,doc] of entries){
+       for (const[key,doc] of entries){
         // Lien longue durée (7 jours) — contrairement à la consultation
         // immédiate dans le tableau de bord qui n'a besoin que de 5 minutes
         try{
@@ -3379,7 +3379,7 @@ function showLocataireDossierRelayScreen(dossierText,propriétaireE-mail,propert
       </div>
       <button onclick="navigator.clipboard.writeText(\`${dossierText.replace(/`/g,'\\`')}\`);this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Copied';this.disabled=true;this.style.opacity='.7'" class="btn bg" style="width:100%;justify-content:center;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> Copy text</button>
       <a href="${waHref}" target="_blank" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Sent via WhatsApp';this.style.opacity='.7';},300)" class="btn bg" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem;background:#25D366;color:white;border:none"><i data-lucide=message-circle class=ic></i> Envoyer via WhatsApp</a>
-      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i>️ Envoyer by email</a>
+      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i> Envoyer by email</a>
       <button onclick="this.closest('div[style*=fixed]').remove()" class="btn bg" style="width:100%;justify-content:center">Fermer</button>
     </div>`;
   document.body.appendChild(modal);
@@ -3389,10 +3389,10 @@ async function checkAndSendDossierViaTrouve Ton Toit(listingId,dossierText,btn){
   const email=document.getElementById('dossier-rm-email')?.value.trim();
   const resultEl=document.getElementById('dossier-rm-result');
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Enter a valid email first';}
+    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Enter a valid email first';}
     return;
   }
-  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  if(btn){btn.disabled=true;btn.textContent='…';}
   try{
     const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').ilike('email',email).maybeSingle();
     if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=search class=ic></i> Check';}
@@ -3415,7 +3415,7 @@ async function checkAndSendDossierViaTrouve Ton Toit(listingId,dossierText,btn){
 }
 
 async function sendDossierViaTrouve Ton Toit(realPropriétaireId,listingId,dossierText,btn){
-  if(btn){btn.disabled=true;btn.textContent='⏳ Sending...';}
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
   try{
     const{erreur}=await sb. depuis ('messages').insert({
       listing_id:listingId,sender_id:'system',receiver_id:realPropriétaireId,
@@ -3440,13 +3440,13 @@ async function agencyConfirmerPaiementReceived(bookingId){
   if(!confirm('Confirmer the dépôt de garantie + first month\'s loyer have been received?'))return;
   try{
     const{data:bk,erreur:fetchErr}=await sb. depuis ('bookings').select('*').eq('id',bookingId).single();
-    if(fetchErr||!bk){alert('❌ Could not load booking: '+(fetchErr?.message||'not found'));return;}
+    if(fetchErr||!bk){alert('Could not load booking: '+(fetchErr?.message||'not found'));return;}
 
     const{erreur:updErr}=await sb. depuis ('bookings').update({
       first_paiement_confirmed:true,
       first_paiement_sent:true
     }).eq('id',bookingId);
-    if(updErr){alert('❌ Could not confirm paiement:\n\n'+updErr.message+'\n\nCode: '+(updErr.code||'—'));return;}
+    if(updErr){alert('Could not confirm paiement:\n\n'+updErr.message+'\n\nCode: '+(updErr.code||'—'));return;}
 
     if(bk.locataire_id&&bk.listing_id&&bk.monthly_rent){
       let locataire=null;
@@ -3462,13 +3462,13 @@ async function agencyConfirmerPaiementReceived(bookingId){
     if(bk.locataire_id){
       await sb. depuis ('messages').insert({
         listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.locataire_id,
-        content:'✅ Your agence confirmed receiving votre paiement!\n\nEverything is set pour votre entrée dans les lieux — vous\'ll be contacted pour the entry état des lieux.',
+        content:'Your agence confirmed receiving votre paiement!\n\nEverything is set pour votre entrée dans les lieux — vous\'ll be contacted pour the entry état des lieux.',
         type:'paiement_confirmed'
       });
     }
     toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed! Ready pour entrée dans les lieux.');
     loadApplications();
-  }catch(e){alert('❌ '+e.message);}
+  }catch(e){alert(''+e.message);}
 }
 
 async function declineApplicationAgence(bookingId,listingId,locataireId){
@@ -3487,10 +3487,10 @@ async function declineApplicationAgence(bookingId,listingId,locataireId){
 async function checkPropriétaireE-mailInline(bookingId){
   const email=document.getElementById('li-lookup-email-'+bookingId)?.value.trim();
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ Enter a valid email first');
+    toast('<i data-lucide=alert-triangle class=ic></i> Enter a valid email first');
     return;
   }
-  toast('⏳ Checking...');
+  toast('<i data-lucide=hourglass class=ic></i> Checking...');
   try{
     const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').ilike('email',email).maybeSingle();
     const foundEl=document.getElementById('li-found-'+bookingId);
@@ -3553,10 +3553,10 @@ async function acceptApplicationAgence(bookingId,listingId,locataireId){
 
   // Rien trouvé via la recherche — lire les champs manuels remplis directement sur la carte
   const name=document.getElementById('li-name-'+bookingId)?.value.trim();
-  if(!name){toast('<i data-lucide=alert-triangle class=ic></i>️ Propriétaire full name is required');return;}
+  if(!name){toast('<i data-lucide=alert-triangle class=ic></i> Propriétaire full name is required');return;}
   const email=document.getElementById('li-email-'+bookingId)?.value.trim();
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ A valid propriétaire email is required — DocuSeal needs it to create the signature request');
+    toast('<i data-lucide=alert-triangle class=ic></i> A valid propriétaire email is required — DocuSeal needs it to create the signature request');
     document.getElementById('li-email-'+bookingId)?.focus();
     return;
   }
@@ -3603,7 +3603,7 @@ async function saveManualPropriétaireModifier(){
   if(!_ownerLinkListingId)return;
   const email=document.getElementById('oli-email').value.trim();
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    toast('<i data-lucide=alert-triangle class=ic></i>️ A valid email is required');
+    toast('<i data-lucide=alert-triangle class=ic></i> A valid email is required');
     return;
   }
   try{
@@ -3614,7 +3614,7 @@ async function saveManualPropriétaireModifier(){
     }).eq('id',_ownerLinkListingId).select();
     if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);return;}
     if(!data||!data.length){
-      alert('❌ The save reported no erreur but changed 0 rows.\n\nThis usually means a database security rule (RLS) is silently blocking updates on the annonces table — ask the developer to check/disable RLS on it.');
+      alert('The save reported no erreur but changed 0 rows.\n\nThis usually means a database security rule (RLS) is silently blocking updates on the annonces table — ask the developer to check/disable RLS on it.');
       return;
     }
     toast('<i data-lucide=check-circle-2 class=ic></i> Owner details updated — vous can now retry generating the bail');
@@ -3694,12 +3694,12 @@ async function resendOrRegenerateBail(bookingId,listingId,locataireId,existingEm
   }
   // Aucun lien n'a jamais été créé (la génération initiale a dû échouer
   // silencieusement) — on relance vraiment la génération avant de proposer le relais
-  toast('⏳ No bail link found — generating it now...');
+  toast('<i data-lucide=hourglass class=ic></i> No bail link found — generating it now...');
   await generateBailFromBookingAgence(bookingId,listingId,locataireId);
 }
 
 async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
-  toast('⏳ Processing acceptance...');
+  toast('<i data-lucide=hourglass class=ic></i> Processing acceptance...');
   try{
     let booking=null,annonce=null,locataireProfile=null,propriétaireInfo=null;
     try{const{data:b}=await sb. depuis ('bookings').select('*').eq('id',bookingId).single();booking=b;}catch(e){}
@@ -3730,7 +3730,7 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
       try{
         await sb. depuis ('messages').insert({
           listing_id:listingId,sender_id:'system',receiver_id:locataireId,
-          content:`✅ Your request pour "${annonce?.title||'this room'}" has been accepté! Pbail arrange the entrée dans les lieux details directly  avec le propriétaire.`,
+          content:`Your request pour "${annonce?.title||'this room'}" has been accepté! Pbail arrange the entrée dans les lieux details directly  avec le propriétaire.`,
           type:'room_rental_accepté'
         });
       }catch(e){}
@@ -3742,7 +3742,7 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
     // DocuSeal exige un email valide pour chaque signataire — vérifier avant
     // d'appeler l'API plutôt que d'envoyer une requête vouée à l'échec
     if(!propriétaireInfo?.email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(propriétaireInfo.email)){
-      alert('❌ Cannot generate the bail: the propriétaire\'s email is missing or invalid.\n\nGo to Mes annonces → ⋮ menu → Owner compte, et add a valid email pour ce logement\'s owner before trying again.');
+      alert('Cannot generate the bail: the propriétaire\'s email is missing or invalid.\n\nGo to Mes annonces → ⋮ menu → Owner compte, et add a valid email pour ce logement\'s owner before trying again.');
       toast('<i data-lucide=x-circle class=ic></i> Missing or invalid propriétaire email');
       return;
     }
@@ -3781,17 +3781,17 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
             return{role:cl.role,embed_src:cl.embed_src,email:cl.email,name:match?.name||'',locataire_id:match?.locataire_id||null,signed:false};
           });
           if(!propriétaireEmbed&&!locataireEmbed){
-            alert('⚠️ The bail function ran but returned no signing links.\n\nMessage: '+(docuData.message||'—')+'\n\nThis usually means DocuSeal isn\'t configured correctly on the server (missing API key) — check the Netlify environment variables.');
+            alert('The bail function ran but returned no signing links.\n\nMessage: '+(docuData.message||'—')+'\n\nThis usually means DocuSeal isn\'t configured correctly on the server (missing API key) — check the Netlify environment variables.');
           }
         }else{
-          alert('❌ Bail generation failed:\n\n'+(docuData.erreur||docuData.message||'Unknown erreur'));
+          alert('Bail generation failed:\n\n'+(docuData.erreur||docuData.message||'Unknown erreur'));
         }
       }else{
         const errText=await docuRes.text().catch(()=>'');
-        alert('❌ The bail server function returned an erreur (HTTP '+docuRes.statut+'):\n\n'+errText.slice(0,300));
+        alert('The bail server function returned an erreur (HTTP '+docuRes.statut+'):\n\n'+errText.slice(0,300));
       }
     }catch(e){
-      alert('❌ Could not reach the bail generation function:\n\n'+e.message);
+      alert('Could not reach the bail generation function:\n\n'+e.message);
     }
 
     // propriétaire_id reste l'agence pour la messagerie/le suivi au quotidien —
@@ -3814,11 +3814,11 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
       no_propriétaire_tracking:!(annonce?.propriétaire_has_account)
     }).eq('id',bookingId).select();
     if(updateErr){
-      alert('❌ Could not accepter the booking:\n\n'+updateErr.message+'\n\nCode: '+(updateErr.code||'—')+'\nDetails: '+(updateErr.details||'—'));
+      alert('Could not accepter the booking:\n\n'+updateErr.message+'\n\nCode: '+(updateErr.code||'—')+'\nDetails: '+(updateErr.details||'—'));
       return;
     }
     if(!updateResult||!updateResult.length){
-      alert('❌ The booking update reported no erreur but changed 0 rows.\n\nThis usually means a database security rule (RLS) is silently blocking updates on the bookings table — ask the developer to check/disable RLS on it.\n\nBooking ID: '+bookingId);
+      alert('The booking update reported no erreur but changed 0 rows.\n\nThis usually means a database security rule (RLS) is silently blocking updates on the bookings table — ask the developer to check/disable RLS on it.\n\nBooking ID: '+bookingId);
       return;
     }
 
@@ -3831,7 +3831,7 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
     if(locataireId){
       try{await sb. depuis ('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:locataireId,
-        content:'🎉 Your application has been accepté!\n\n📄 Your bail is prêt à signer — check votre visites page.'+paiementNote,
+        content:'Your application has been accepté!\n\nYour bail is prêt à signer — check votre visites page.'+paiementNote,
         type:'booking_accepté'
       });}catch(e){}
     }
@@ -3841,7 +3841,7 @@ async function generateBailFromBookingAgence(bookingId,listingId,locataireId){
     if(annonce?.propriétaire_has_account&&annonce?.real_propriétaire_id&&propriétaireEmbed){
       try{await sb. depuis ('messages').insert({
         listing_id:listingId,sender_id:'system',receiver_id:annonce.real_propriétaire_id,
-        content:`📄 A new bail is ready pour votre signature!\n\n🏠 ${annonce.title||'Your bien'}\n\nYour agence accepté a locataire application — go to "Agence-managed" in votre tableau de bord to avis et sign.`,
+        content:`A new bail is ready pour votre signature!\n\n${annonce.title||'Your bien'}\n\nYour agence accepté a locataire application — go to "Agence-managed" in votre tableau de bord to avis et sign.`,
         type:'bail_ready_agency'
       });}catch(e){}
     }
@@ -3859,10 +3859,10 @@ async function checkAndSendBailViaTrouve Ton Toit(bookingId,signLink,propertyTit
   const email=document.getElementById('bail-rm-email')?.value.trim();
   const resultEl=document.getElementById('bail-rm-result');
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i>️ Enter a valid email first';}
+    if(resultEl){resultEl.style.color='var(--red)';resultEl.innerHTML='<i data-lucide=alert-triangle class=ic></i> Enter a valid email first';}
     return;
   }
-  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  if(btn){btn.disabled=true;btn.textContent='…';}
   try{
     const{data:profil}=await sb. depuis ('profiles').select('clerk_id,full_name').ilike('email',email).maybeSingle();
     if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=search class=ic></i> Check';}
@@ -3885,12 +3885,12 @@ async function checkAndSendBailViaTrouve Ton Toit(bookingId,signLink,propertyTit
 }
 
 async function sendBailViaTrouve Ton Toit(realPropriétaireId,bookingId,signLink,propertyTitle,btn){
-  if(btn){btn.disabled=true;btn.textContent='⏳ Sending...';}
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
   try{
     const{data:booking}=await sb. depuis ('bookings').select('listing_id').eq('id',bookingId).maybeSingle();
     const{erreur}=await sb. depuis ('messages').insert({
       listing_id:booking?.listing_id||null,sender_id:'system',receiver_id:realPropriétaireId,
-      content:`📄 The bail pour ${propertyTitle} is ready pour votre signature!\n\n${signLink}`,
+      content:`The bail pour ${propertyTitle} is ready pour votre signature!\n\n${signLink}`,
       type:'bail_ready_agency'
     });
     if(erreur){toast('<i data-lucide=x-circle class=ic></i> '+erreur.message);if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=smartphone class=ic></i> Envoyer';}return;}
@@ -3913,7 +3913,7 @@ function showBailSigningOptionsScreen(bookingId,signLink,propriétaireE-mail,pro
       <div style="font-size:1.6rem;margin-bottom:.5rem"><i data-lucide=party-popper class=ic></i></div>
       <div style="font-weight:700;font-size:1rem;margin-bottom:.4rem">Bail generated — who signs as Propriétaire?</div>
       <div style="font-size:.8rem;color:var(--td);margin-bottom:1rem;line-height:1.5">Sign it yourself now if you're authorized to, or send it to the propriétaire to sign themselves.</div>
-      <button onclick="this.closest('div[style*=fixed]').remove();signAsAgencePropriétaire('${bookingId}','${signLink}')" class="btn bp" style="width:100%;justify-content:center;margin-bottom:.75rem"><i data-lucide=pen-line class=ic></i>️ Sign now myself</button>
+      <button onclick="this.closest('div[style*=fixed]').remove();signAsAgencePropriétaire('${bookingId}','${signLink}')" class="btn bp" style="width:100%;justify-content:center;margin-bottom:.75rem"><i data-lucide=pen-line class=ic></i> Sign now myself</button>
       <div style="text-align:center;font-size:.72rem;color:var(--td);margin-bottom:.75rem">— or send it to the propriétaire —</div>
       <div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:var(--td);word-break:break-all;margin-bottom:.75rem">${signLink}</div>
       <div style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.6rem .75rem;margin-bottom:.75rem">
@@ -3926,7 +3926,7 @@ function showBailSigningOptionsScreen(bookingId,signLink,propriétaireE-mail,pro
       </div>
       <button onclick="navigator.clipboard.writeText('${signLink}');this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Link copied';this.disabled=true;this.style.opacity='.7'" class="btn bg" style="width:100%;justify-content:center;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> Copy link</button>
       <a href="${waHref}" target="_blank" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Sent via WhatsApp';this.style.opacity='.7';},300)" class="btn bg" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem;background:#25D366;color:white;border:none"><i data-lucide=message-circle class=ic></i> Envoyer via WhatsApp</a>
-      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i>️ Envoyer by email</a>
+      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i> Envoyer by email</a>
       <button onclick="this.closest('div[style*=fixed]').remove()" class="btn bg" style="width:100%;justify-content:center">Fermer</button>
     </div>`;
   document.body.appendChild(modal);
@@ -3938,7 +3938,7 @@ function signAsAgencePropriétaire(bookingId,embedSrc){
     modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;flex-direction:column';
     const header=document.createElement('div');
     header.style.cssText='background:var(--s);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0';
-    header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i>️ Sign bail on behalf of the propriétaire</div>';
+    header.innerHTML='<div style="font-weight:700;font-size:.9rem"><i data-lucide=pen-line class=ic></i> Sign bail on behalf of the propriétaire</div>';
     const closeBtn=document.createElement('button');
     closeBtn.style.cssText='background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer';
     closeBtn.innerHTML='<i data-lucide=x class=ic></i>';
@@ -3955,13 +3955,13 @@ function signAsAgencePropriétaire(bookingId,embedSrc){
       try{
         const{data:updData,erreur:updErr}=await sb. depuis ('bookings').update({bail_signed_propriétaire:true}).eq('id',bookingId).select();
         if(updErr){
-          alert('❌ Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message);
+          alert('Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message);
         }else if(!updData||!updData.length){
-          alert('❌ Signed on DocuSeal, but the statut update affected 0 rows in Trouve Ton Toit.\n\nThis usually means a database security rule (RLS) is silently blocking this update — ask the developer to check/disable RLS on the bookings table.\n\nBooking ID: '+bookingId);
+          alert('Signed on DocuSeal, but the statut update affected 0 rows in Trouve Ton Toit.\n\nThis usually means a database security rule (RLS) is silently blocking this update — ask the developer to check/disable RLS on the bookings table.\n\nBooking ID: '+bookingId);
         }else{
           updateOk=true;
         }
-      }catch(e){alert('❌ '+e.message);}
+      }catch(e){alert(''+e.message);}
       if(updateOk)toast('<i data-lucide=check-circle-2 class=ic></i> Signed as authorized representative!');
       setTimeout(()=>{modal.remove();loadApplications();},1200);
     });
@@ -3997,7 +3997,7 @@ function showPropriétaireRelayScreen(signLink,propriétaireE-mail,propertyTitle
       <div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:var(--td);word-break:break-all;margin-bottom:.75rem">${signLink}</div>
       <button onclick="navigator.clipboard.writeText('${signLink}');this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Link copied';this.disabled=true;this.style.opacity='.7'" class="btn bg" style="width:100%;justify-content:center;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> Copy link</button>
       <a href="${waHref}" target="_blank" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Sent via WhatsApp';this.style.opacity='.7';},300)" class="btn bg" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem;background:#25D366;color:white;border:none"><i data-lucide=message-circle class=ic></i> Envoyer via WhatsApp</a>
-      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i>️ Envoyer by email</a>
+      <a href="${mailtoHref}" onclick="setTimeout(()=>{this.innerHTML='<i data-lucide=check-circle-2 class=ic></i> E-mail opened';this.style.opacity='.7';},300)" class="btn bp" style="width:100%;justify-content:center;text-decoration:none;margin-bottom:.5rem"><i data-lucide=mail class=ic></i> Envoyer by email</a>
       <button onclick="this.closest('div[style*=fixed]').remove()" class="btn bg" style="width:100%;justify-content:center">Fermer</button>
     </div>`;
   document.body.appendChild(modal);
@@ -4052,7 +4052,7 @@ async function loadVisits(){
         const t=vLocataireMap[v.locataire_id]||{};
         return`<tr>
         <td style="font-weight:600">${v.locataire_name||'—'}</td>
-        <td style="font-size:.72rem;color:var(--td)">${t.email?`<i data-lucide=mail class=ic></i>️ ${t.email}`:''}${t.email&&t.phone?'<br>':''}${t.phone?`<i data-lucide=phone class=ic></i> ${t.phone}`:''}${!t.email&&!t.phone?'—':''}</td>
+        <td style="font-size:.72rem;color:var(--td)">${t.email?`<i data-lucide=mail class=ic></i> ${t.email}`:''}${t.email&&t.phone?'<br>':''}${t.phone?`<i data-lucide=phone class=ic></i> ${t.phone}`:''}${!t.email&&!t.phone?'—':''}</td>
         <td style="color:var(--td)">${vListingMap[v.listing_id]||v.listing_title||'—'}</td>
         <td style="font-size:.78rem;color:var(--td)">${v.visit_date?new Date(v.visit_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'-'}${v.visit_time?` · ${v.visit_time}`:''}</td>
         <td><span class="badge ${v.statut==='confirmed'?'b-green':v.statut==='completed'?'b-sea':v.statut==='awaiting_propriétaire'?'b-gold':'b-dim'}" style="font-size:.62rem">${v.statut==='awaiting_propriétaire'?'🆕 New':v.statut==='confirmed'?'<i data-lucide=check-circle-2 class=ic></i> Confirmered':v.statut==='completed'?'<i data-lucide=flag class=ic></i> Visite done':v.statut||'—'}</span></td>
@@ -4082,7 +4082,7 @@ async function agencyConfirmerVisit(visitId,response,listingId,locataireId){
         await sb. depuis ('messages').insert({
           listing_id:listingId,sender_id:'system',receiver_id:locataireId,
           visit_id:visitId,
-          content:'✅ Your visite is confirmed! Your agence has confirmed the date.',
+          content:'Your visite is confirmed! Your agence has confirmed the date.',
           type:'visit_confirmed'
         });
       }
@@ -4093,7 +4093,7 @@ async function agencyConfirmerVisit(visitId,response,listingId,locataireId){
         await sb. depuis ('messages').insert({
           listing_id:listingId,sender_id:'system',receiver_id:locataireId,
           visit_id:visitId,
-          content:'❌ Sorry, we can\'t make this visite date work. Pbail suggest another date or contact us to reschedule.',
+          content:'Sorry, we can\'t make this visite date work. Pbail suggest another date or contact us to reschedule.',
           type:'visit_declined'
         });
       }
@@ -4108,7 +4108,7 @@ async function loadSubscription(){
   const wrap=document.getElementById('current-sub');
   const statut=agencyData?.subscription_status||'inactif';
   const statusBadge=statut==='actif'?'<span class="badge b-agence">Actif</span>'
-    :statut==='past_due'?'<span class="badge b-gold"><i data-lucide=alert-triangle class=ic></i>️ Paiement issue</span>'
+    :statut==='past_due'?'<span class="badge b-gold"><i data-lucide=alert-triangle class=ic></i> Paiement issue</span>'
     :statut==='cancelled'?'<span class="badge b-dim">Annulerled</span>'
     :'<span class="badge b-dim">Not activated</span>';
   wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between">
@@ -4124,7 +4124,7 @@ async function loadSubscription(){
 
 async function selectPlan(plan){
   const btn=event?.target;
-  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='⏳ Redirecting...';}
+  if(btn){if(btn.disabled)return;btn.disabled=true;btn.dataset.origText=btn.textContent;btn.textContent='Redirecting...';}
   toast('<i data-lucide=credit-card class=ic></i> Redirecting to checkout...');
   try{
     const res=await fetch('/.netlify/functions/create-agence-subscription',{
@@ -4199,7 +4199,7 @@ async function previewLogo(input){
 // ── Utils ─────────────────────────────────────────────────────
 function toast(msg){
   const t=document.getElementById('toast');
-  t.innerHTML=msg;t.classList.add('show');
+  t.innerHTML=msg;t.classList.add('show');window.lucide&&lucide.createIcons();
   setTimeout(()=>t.classList.remove('show'),3200);
 }
 
@@ -4208,11 +4208,11 @@ function toggleTheme(){
   const isLight=document.documentElement.classList.toggle('light');
   localStorage.setItem('rm_theme',isLight?'light':'dark');
   const btn=document.getElementById('theme-toggle-btn');
-  if(btn)btn.innerHTML=isLight?'<i data-lucide=sun class=ic></i>️':'<i data-lucide=moon class=ic></i>';
+  if(btn)btn.innerHTML=isLight?'<i data-lucide=sun class=ic></i>':'<i data-lucide=moon class=ic></i>';
 }
 (function syncThemeIcon(){
   const btn=document.getElementById('theme-toggle-btn');
-  if(btn)btn.innerHTML=document.documentElement.classList.contains('light')?'<i data-lucide=sun class=ic></i>️':'<i data-lucide=moon class=ic></i>';
+  if(btn)btn.innerHTML=document.documentElement.classList.contains('light')?'<i data-lucide=sun class=ic></i>':'<i data-lucide=moon class=ic></i>';
 })();
 
 async function doLogout(){await window.Clerk.signOut();window.location.reload();}
@@ -4225,7 +4225,7 @@ async function doLogout(){await window.Clerk.signOut();window.location.reload();
   
   // Charger profil
   let P_data=null;
-   pour (let i=0;i<5;i++){
+   for (let i=0;i<5;i++){
     const{data}=await sb. depuis ('profiles').select('*').eq('clerk_id',U.id).single();
     if(data){P_data=data;break;}
     await new Promise(r=>setTimeout(r,800));
