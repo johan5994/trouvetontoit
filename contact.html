@@ -25,6 +25,8 @@ h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bo
 .notice{background:rgba(212,168,71,.12);border:1px solid rgba(212,168,71,.3);border-radius:10px;padding:1rem 1.2rem;margin-bottom:2rem;font-size:.85rem;color:var(--deep)}
 footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;border-top:1px solid rgba(107,95,82,.12)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 </head>
 <body>
 <div class="nav">
@@ -36,7 +38,7 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
   <div class="sub">Questions, feedback, or need help avec votre compte? We're happy to help.</div>
 
   <div class="card">
-    <div class="ico">✉️</div>
+    <div class="ico"><i data-lucide=mail class=ic></i></div>
     <div>
       <div class="card-title">General & support enquiries</div>
       <a href="mailto:contact.trouve-ton-toit@gmail.com">contact.trouve-ton-toit@gmail.com</a>
@@ -45,7 +47,7 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
   </div>
 
   <div class="card">
-    <div class="ico">🔒</div>
+    <div class="ico"><i data-lucide=lock class=ic></i></div>
     <div>
       <div class="card-title">Privacy & data requests</div>
       <a href="mailto:contact.trouve-ton-toit@gmail.com">contact.trouve-ton-toit@gmail.com</a>
@@ -54,7 +56,7 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
   </div>
 
   <div class="card">
-    <div class="ico">🏢</div>
+    <div class="ico"><i data-lucide=building-2 class=ic></i></div>
     <div>
       <div class="card-title">For immobilier agences</div>
       <a href="/#agences">Learn about annonce avec Trouve Ton Toit →</a>
@@ -63,5 +65,14 @@ footer{text-align:center;padding:2rem;color:var(--stone-l);font-size:.8rem;borde
   </div>
 </div>
 <footer>© 2026 Trouve Ton Toit. Tous droits réservés.</footer>
+<script>
+// Icônes Lucide (remplacent les émojis) — conversion au chargement puis
+// vérification légère toutes les 2 s pour le contenu généré en JS.
+(function initLucideIcons(){
+  if(!window.lucide)return setTimeout(initLucideIcons,50);
+  lucide.createIcons();
+  setInterval(()=>{const a=document.activeElement;if(a&&/^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))return;lucide.createIcons();},2000);
+})();
+</script>
 </body>
 </html>
