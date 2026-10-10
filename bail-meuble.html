@@ -127,6 +127,18 @@
     .missing-badge:hover{background:#FFEDD5;border-color:#EA580C;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
 
     /* EDIT BTN — pencil for pre-filled fields */
+    .bc-card{border:1.5px solid rgba(27,79,216,.25);background:rgba(27,79,216,.03);border-radius:10px;padding:.85rem 1rem;margin-top:.9rem}
+    .bc-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--bleu);margin-bottom:.55rem}
+    .bc-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-bottom:.5rem}
+    .bc-lbl{font-size:.74rem;font-weight:700;color:var(--td);min-width:150px}
+    .bc-pill{border:1.5px solid var(--border,#D8DCE6);background:#fff;color:inherit;border-radius:20px;padding:.22rem .7rem;font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit}
+    .bc-pill.on{background:var(--bleu);border-color:var(--bleu);color:#fff}
+    .bc-sum{margin:0;padding-left:1.1rem;font-size:.84rem;line-height:1.6}
+    .bc-sum li{margin:.1rem 0}
+    .regles-list{margin:0;padding-left:1.1rem;font-size:.8rem;line-height:1.55}
+    .regles-list li{margin:.3rem 0}
+    .regles-list .rg-k{font-weight:700}
+    @media print{.bc-edit{display:none!important}}
     .edit-btn{display:inline-flex;align-items:center;padding:.1rem .28rem;border-radius:5px;font-size:.68rem;background:#EFF6FF;color:var(--bleu);border:1px solid #BFDBFE;cursor:pointer;margin-left:.3rem;line-height:1;transition:background .12s;vertical-align:middle;user-select:none}
     .edit-btn:hover{background:#DBEAFE;border-color:var(--bleu)}
     /* PARTIE EDIT ROW — small edit buttons below each party */
@@ -303,6 +315,8 @@
       .caution-card{break-before:page}
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 </head>
 <body>
 
@@ -311,8 +325,6 @@
   <a href="/" class="nav-brand">★ Trouve Ton Toit</a>
   <div class="nav-actions">
     <span id="nav-user" style="font-size:.78rem;color:var(--td)"></span>
-    <button class="btn btn-outline btn-sm" id="migr-btn" style="display:none" onclick="showMigrations()" title="Migrations Supabase">🛠 SQL</button>
-    <button class="btn btn-outline" onclick="window.print()">🖨️ PDF</button>
   </div>
 </nav>
 
@@ -330,7 +342,7 @@
 <!-- MODAL DEMANDE DE MODIFICATION -->
 <div id="modif-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='modif-modal')closeModifModal()">
   <div style="background:var(--s,#fff);border-radius:16px;padding:1.5rem;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-    <div style="font-weight:700;font-size:1rem;margin-bottom:.75rem">📝 Demande de modification</div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:.75rem"><i data-lucide=file-pen class=ic></i> Demande de modification</div>
     <div style="font-size:.82rem;color:var(--td);margin-bottom:.75rem">Indiquez au bailleur les points que vous souhaitez modifier ou discuter avant de signer.</div>
     <textarea id="modif-notes" rows="5" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.65rem;font-size:.83rem;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="ex. Souhait de modifier la durée du bail, date d'entrée, montant des charges…"></textarea>
     <div style="display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end">
@@ -343,7 +355,7 @@
 <!-- MODAL CLAUSE PARTICULIÈRE -->
 <div id="clause-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='clause-modal')closeClauseModal()">
   <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-    <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem" id="clause-modal-title">📋 Ajouter une clause particulière</div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem" id="clause-modal-title"><i data-lucide=clipboard-list class=ic></i> Ajouter une clause particulière</div>
     <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Cette clause sera ajoutée à l'Article 23 du bail.</div>
     <div style="margin-bottom:.65rem">
       <label style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.3rem">Titre de la clause</label>
@@ -364,7 +376,7 @@
 <!-- MODAL MIGRATIONS SUPABASE -->
 <div id="migration-modal" onclick="if(event.target.id==='migration-modal')closeMigrations()">
   <div class="migr-box">
-    <div class="migr-title">🛠 Migrations Supabase requises</div>
+    <div class="migr-title"><i data-lucide=wrench class=ic></i> Migrations Supabase requises</div>
     <div class="migr-sub">Copiez ce SQL et exécutez-le dans l'éditeur SQL de votre projet Supabase (<a href="https://supabase.com/dashboard" target="_blank">supabase.com/dashboard</a> → SQL Editor).</div>
     <div class="migr-sql" id="migr-sql-block">-- Chargement…</div>
     <div class="migr-step">
@@ -374,7 +386,7 @@
       4. Revenez ici et rafraîchissez la page — toutes les colonnes seront disponibles.
     </div>
     <div class="migr-actions">
-      <button class="btn-copy" onclick="copyMigrationSQL()">📋 Copier le SQL</button>
+      <button class="btn-copy" onclick="copyMigrationSQL()"><i data-lucide=clipboard-list class=ic></i> Copier le SQL</button>
       <button class="btn btn-outline" onclick="closeMigrations()">Fermer</button>
     </div>
   </div>
@@ -389,12 +401,12 @@
 
     <!-- ═══ ESPACE DE TRAVAIL (guide + historique — jamais imprimé) ═══ -->
     <div id="bail-tools-wrap" class="no-print">
-      <div class="tools-header">🛠 Espace de travail</div>
+      <div class="tools-header"><i data-lucide=wrench class=ic></i> Espace de travail</div>
     </div>
 
     <!-- Séparateur "Document officiel" -->
     <div class="doc-separator no-print" id="doc-separator" style="display:none">
-      <span>📄 Document officiel</span>
+      <span><i data-lucide=file-text class=ic></i> Document officiel</span>
     </div>
 
     <!-- ═══ DOCUMENT OFFICIEL ═══ -->
@@ -419,6 +431,9 @@
             <!-- rempli dynamiquement -->
           </div>
 
+          <!-- GARANTIE & COLOCATION — choix du bailleur + résumé (rempli par JS) -->
+          <div id="garanties-summary"></div>
+
           <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE — insérée ici quand un garant est désigné -->
           <div id="caution-section" style="display:none;margin-top:.9rem">
             <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
@@ -442,9 +457,10 @@
               </div>
 
               <div class="article-content">
-                <p>La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2298 C.civ.) et au bénéfice de division.</p>
-                <p>Le garant peut mettre fin à son engagement à l'issue de chaque période annuelle du bail, par lettre recommandée avec avis de réception adressée au bailleur au moins deux (2) mois avant la date d'échéance annuelle (art. 22-1-II de la loi du 6 juillet 1989). La résiliation ne prend effet qu'à compter de la prochaine échéance annuelle suivant le délai de préavis.</p>
-                <div class="warning">⚠️ Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
+                <p id="c-nature-text">La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2305 C. civ.) et au bénéfice de division (art. 2306 C. civ.).</p>
+                <p id="c-coloc-text" style="display:none"></p>
+                <p>Lorsque l'engagement est à durée indéterminée, le garant peut le résilier par lettre recommandée avec avis de réception adressée au bailleur ; la résiliation prend effet au terme du bail — initial, reconduit ou renouvelé — au cours duquel le bailleur la reçoit (art. 22-1 de la loi du 6 juillet 1989).</p>
+                <div class="warning"><i data-lucide=alert-triangle class=ic></i> Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
                 <p style="font-size:.74rem;color:var(--td);margin-top:.5rem"><em>Depuis l'ordonnance n° 2021-1192 du 15 sept. 2021 (en vigueur le 1<sup>er</sup> janv. 2022), la mention manuscrite mot-pour-mot n'est plus obligatoire (art. 2297 al. 2 C.civ.). La formulation ci-dessus reprend les éléments requis par l'art. 22-1 de la loi du 6 juillet 1989.</em></p>
               </div>
             </div>
@@ -563,7 +579,7 @@
               <li><strong>2 mois</strong> en cas de dégradations constatées à l'état des lieux de sortie</li>
             </ul>
             <p>Passé ces délais, le bailleur est redevable d'une majoration équivalant à 10 % du loyer mensuel hors charges par mois de retard commencé (art. 22 loi 89).</p>
-            <div class="highlight">💶 Dépôt de garantie : <strong id="depot-highlight">—</strong></div>
+            <div class="highlight"><i data-lucide=euro class=ic></i> Dépôt de garantie : <strong id="depot-highlight">—</strong></div>
           </div>
         </div>
 
@@ -641,7 +657,7 @@
           <div class="article-title">Article 11 — Assurance obligatoire</div>
           <div class="article-content">
             <p>Le locataire est <strong>tenu de s'assurer</strong> contre les risques locatifs (incendie, dégâts des eaux, explosion, responsabilité civile…) auprès d'une compagnie notoirement solvable et d'en justifier lors de la remise des clés <strong>puis chaque année</strong> à la date anniversaire du bail (art. 7-g de la loi du 6 juillet 1989).</p>
-            <div class="warning">⚠️ À défaut de production d'attestation d'assurance dans le délai d'un mois suivant mise en demeure, le bailleur pourra : <strong>(a)</strong> résilier le bail, ou <strong>(b)</strong> souscrire lui-même une assurance pour le compte du locataire, récupérable par douzièmes sur le loyer.</div>
+            <div class="warning"><i data-lucide=alert-triangle class=ic></i> À défaut de production d'attestation d'assurance dans le délai d'un mois suivant mise en demeure, le bailleur pourra : <strong>(a)</strong> résilier le bail, ou <strong>(b)</strong> souscrire lui-même une assurance pour le compte du locataire, récupérable par douzièmes sur le loyer.</div>
             <p>Il est rappelé que la <strong>Garantie Visale</strong> (caution gratuite Action Logement) peut être souscrite en substitution d'un garant physique par les locataires éligibles.</p>
           </div>
         </div>
@@ -729,9 +745,9 @@
               <li>Défaut de souscription d'une assurance contre les risques locatifs</li>
               <li>Trouble de voisinage constaté par décision de justice passée en force de chose jugée</li>
             </ul>
-            <div class="warning">⚠️ Ces quatre motifs sont <strong>limitatifs</strong>. Toute autre clause résolutoire est réputée non écrite (art. 4 de la loi du 6 juillet 1989). La résiliation ne peut intervenir qu'à l'initiative du bailleur et sur décision judiciaire. Le commandement de payer doit être délivré par acte d'huissier de justice et mentionner expressément la clause résolutoire et le délai de deux mois.</div>
+            <div class="warning"><i data-lucide=alert-triangle class=ic></i> Ces quatre motifs sont <strong>limitatifs</strong>. Toute autre clause résolutoire est réputée non écrite (art. 4 de la loi du 6 juillet 1989). La résiliation ne peut intervenir qu'à l'initiative du bailleur et sur décision judiciaire. Le commandement de payer doit être délivré par acte d'huissier de justice et mentionner expressément la clause résolutoire et le délai de deux mois.</div>
             <div class="note-juridique" style="background:#F0FDF4;border-left:3px solid #16A34A;padding:.6rem .85rem;border-radius:0 6px 6px 0;font-size:.8rem;color:#15803D;margin:.6rem 0">
-              <strong>📅 Régime applicable :</strong> Le présent bail est conclu le 30 septembre 2026, soit la veille de l'entrée en vigueur des nouvelles règles issues du décret modifiant le contrat-type (applicables aux contrats conclus ou renouvelés à compter du 1er octobre 2026). Il est donc entièrement régi par le régime antérieur. En cas de renouvellement à compter du 1er octobre 2026, les nouvelles dispositions s'appliqueront.
+              <strong><i data-lucide=calendar class=ic></i> Régime applicable :</strong> Le présent bail est conclu le 30 septembre 2026, soit la veille de l'entrée en vigueur des nouvelles règles issues du décret modifiant le contrat-type (applicables aux contrats conclus ou renouvelés à compter du 1er octobre 2026). Il est donc entièrement régi par le régime antérieur. En cas de renouvellement à compter du 1er octobre 2026, les nouvelles dispositions s'appliqueront.
             </div>
             <p>En cas de commandement de payer, le locataire peut saisir le juge des contentieux de la protection aux fins de délais de paiement (art. 24-II). La procédure d'expulsion est suspendue durant la trêve hivernale (1<sup>er</sup> novembre — 31 mars).</p>
           </div>
@@ -816,6 +832,17 @@
 
         <hr class="divider">
 
+        <!-- ART 24 — RÈGLES DE DROIT APPLICABLES (adaptées aux choix du bailleur) -->
+        <div class="section" id="regles-section">
+          <div class="article-title">Article 24 — Règles de droit applicables</div>
+          <div class="article-content">
+            <p style="font-size:.82rem;color:var(--td);margin-bottom:.5rem">Le présent bail est régi par les textes suivants, auxquels les parties se réfèrent pour tout ce qui n'y est pas prévu :</p>
+            <ul class="regles-list" id="regles-droit"></ul>
+          </div>
+        </div>
+
+        <hr class="divider">
+
         <!-- FAIT À -->
         <div class="section">
           <div class="article-content">
@@ -825,7 +852,7 @@
 
         <!-- SIGNATURES PRINCIPALES -->
         <div class="sig-section" id="sig-section-main" style="display:none">
-          <div class="sig-title">🖊️ Signatures électroniques des parties</div>
+          <div class="sig-title"><i data-lucide=pen-line class=ic></i> Signatures électroniques des parties</div>
           <div class="sig-grid">
             <div class="sig-block" id="sig-ll-block">
               <div class="sig-block-header">
@@ -851,7 +878,7 @@
             <div class="sig-block caution-sig" id="sig-g-block" style="display:none;grid-column:1/-1">
               <div class="sig-block-header">
                 <div>
-                  <div class="role" style="color:var(--gold)">Le Garant (Caution solidaire)</div>
+                  <div class="role" style="color:var(--gold)" id="sig-g-role">Le Garant (Caution solidaire)</div>
                   <div class="name" id="sig-g-name">—</div>
                 </div>
                 <div id="sig-g-status" style="font-size:.68rem"></div>
@@ -878,8 +905,7 @@
 <div class="submit-bar" id="submit-bar" style="display:none">
   <div class="submit-bar-inner">
     <div id="submit-hint">—</div>
-    <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()">✍️ Signer le bail</button>
-    <button class="btn btn-outline" onclick="window.print()">🖨️ PDF</button>
+    <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()"><i data-lucide=pen-tool class=ic></i> Signer le bail</button>
   </div>
 </div>
 
@@ -986,7 +1012,10 @@ const FIELD_LABELS={
   dpe_depenses_max:'Dépenses énergie estimées — max (€/an)',
   dpe_annee_ref:'Année de référence des prix énergie',
   deposit_mode:'Mode de dépôt de garantie',
-  garant_type:'Type de caution',
+  garant_type:'Type de garantie',
+  colocation_type:'Colocation',
+  visale_ref:'N° de visa Visale',
+  garant_organisme:'Organisme / banque garant',
   garant_duree_type:'Durée d\'engagement de la caution',
   travaux_realises:'Travaux réalisés ?',
   travaux_nature:'Nature des travaux',
@@ -1079,7 +1108,9 @@ const FIELD_CONFIGS={
   dpe_depenses_max:{type:'number',placeholder:'ex. 980',step:1,min:0},
   dpe_annee_ref:{type:'number',placeholder:'ex. 2021',step:1,min:2000,max:2030},
   deposit_mode:{type:'select',options:[{v:'0',l:'Aucun dépôt de garantie'},{v:'1',l:'1 mois de loyer HC'},{v:'2',l:'2 mois de loyer HC (max. meublé)'},{v:'custom',l:'Montant personnalisé'}]},
-  garant_type:{type:'select',options:[{v:'solidaire',l:'Caution solidaire'},{v:'simple',l:'Caution simple'},{v:'visale',l:'Garantie Visale (Action Logement)'},{v:'aucune',l:'Pas de caution / garant'}]},
+  garant_type:{type:'select',options:[{v:'solidaire',l:'Caution solidaire'},{v:'simple',l:'Caution simple'},{v:'visale',l:'Garantie Visale (Action Logement)'},{v:'organisme',l:'Organisme privé ou caution bancaire'},{v:'aucune',l:'Pas de caution / garant'}]},
+  visale_ref:{type:'text',placeholder:'ex. V123456789'},
+  garant_organisme:{type:'text',placeholder:'ex. GarantMe, Cautioneo, banque…'},
   garant_duree_type:{type:'select',options:[{v:'determinee',l:'Durée déterminée (bail + renouvellements explicites)'},{v:'indeterminee',l:'Durée indéterminée (résiliable annuellement)'}]},
   travaux_realises:{type:'select',options:[{v:'non',l:'Non — aucun travaux depuis le dernier locataire'},{v:'oui',l:'Oui — travaux réalisés'}]},
   travaux_nature:{type:'text',placeholder:'ex. Peinture chambre, remplacement robinetterie cuisine'},
@@ -1196,27 +1227,27 @@ function closeMigrations(){
 async function copyMigrationSQL(){
   try{
     await navigator.clipboard.writeText(MIGRATION_SQL);
-    toast('✅ SQL copié dans le presse-papiers !');
+    toast('<i data-lucide=check-circle-2 class=ic></i> SQL copié dans le presse-papiers !');
   }catch(e){
     // fallback: select the text
     const el=document.getElementById('migr-sql-block');
     const range=document.createRange();range.selectNode(el);
     window.getSelection().removeAllRanges();window.getSelection().addRange(range);
-    toast('📋 Sélectionnez et copiez le SQL (Ctrl+C)');
+    toast('<i data-lucide=clipboard-list class=ic></i> Sélectionnez et copiez le SQL (Ctrl+C)');
   }
 }
 
-// Returns an orange "⚠ field name" badge for missing fields when in edit mode
+// Returns an orange "<i data-lucide=alert-triangle class=ic></i> field name" badge for missing fields when in edit mode
 function mf(key){
   if(!_editMode)return'—';
   const lbl=FIELD_LABELS[key]||key;
-  return`<span class="missing-badge" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+  return`<span class="missing-badge" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${lbl}</span>`;
 }
 
 // Returns value + small edit pencil button when in edit mode (for pre-filled fields)
 function ev(key, displayVal){
   if(!_editMode) return displayVal;
-  return `${displayVal} <span class="edit-btn" onclick="editField(event,'${key}')">✏️</span>`;
+  return `${displayVal} <span class="edit-btn" onclick="editField(event,'${key}')"><i data-lucide=pencil class=ic></i></span>`;
 }
 
 function editField(evt,key){
@@ -1229,6 +1260,9 @@ function editField(evt,key){
   if(LL_PROFILE_MAP&&LL_PROFILE_MAP[key]){currentVal=LL_PROFILE?.[LL_PROFILE_MAP[key]]??'';}
   else if(T_PROFILE_MAP&&T_PROFILE_MAP[key]){currentVal=T_PROFILE?.[T_PROFILE_MAP[key]]??'';}
   else{currentVal=LEASE[key]!=null?String(LEASE[key]):'';}
+  // Adresse : pré-remplie avec l'adresse de résidence du profil si le bail n'en a pas encore
+  if(!currentVal&&key==='landlord_address')currentVal=LL_PROFILE?.home_address||'';
+  if(!currentVal&&key==='tenant_address')currentVal=T_PROFILE?.home_address||'';
   currentVal=String(currentVal);
   let inputHtml='';
   if(cfg.type==='select'){
@@ -1283,7 +1317,7 @@ async function saveFieldFromPopup(key){
   if(cfg.type==='travaux'){
     const cb=document.getElementById('ep-aucun');
     if(cb&&cb.checked) val='aucun';
-    else if(!val){toast('⚠️ Décrivez les travaux ou cochez "Aucun travaux".',3500);return;}
+    else if(!val){toast('<i data-lucide=alert-triangle class=ic></i> Décrivez les travaux ou cochez "Aucun travaux".',3500);return;}
   }else if(cfg.type==='number')val=val?parseFloat(val):null;
   // Boolean fields stored as BOOLEAN in Supabase — convert 'true'/'false' string
   else if(key==='regime_copro'||key==='zone_tendue')val=val==='true'?true:val==='false'?false:null;
@@ -1293,8 +1327,8 @@ async function saveFieldFromPopup(key){
 }
 
 // Champs qui vivent dans profiles, pas dans leases
-// landlord_address / tenant_address absents : la colonne 'address' n'existe pas encore dans profiles
-// → SQL à exécuter dans Supabase : ALTER TABLE profiles ADD COLUMN address TEXT;
+// Adresses : lues depuis profiles.home_address (adresse de résidence du profil),
+// avec un éventuel override dans leases.landlord_address / tenant_address.
 const LL_PROFILE_MAP={landlord_name:'full_name',landlord_email:'email',landlord_phone:'phone'};
 const T_PROFILE_MAP={tenant_name:'full_name',tenant_email:'email',tenant_phone:'phone',tenant_nationality:'nationality'};
 // Champs adresse : stockés dans leases comme overrides (nécessitent la colonne dans leases)
@@ -1309,7 +1343,7 @@ async function saveField(key,value){
     const old=LL_PROFILE?.[col];
     if(String(value??'')===String(old??''))return;
     const{error}=await sb.from('profiles').update({[col]:value}).eq('clerk_id',LEASE.landlord_id);
-    if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+    if(error){toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);return;}
     if(LL_PROFILE)LL_PROFILE[col]=value;
     // Log dans lease
     if(FIELD_LABELS[key]){
@@ -1318,7 +1352,7 @@ async function saveField(key,value){
       const{error:le}=await sb.from('leases').update({modifs_log:newLog}).eq('id',LEASE.id);
       if(!le)LEASE.modifs_log=newLog;
     }
-    toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+    toast('<i data-lucide=check-circle-2 class=ic></i> '+(FIELD_LABELS[key]||key)+' enregistré');
     renderBail();
     return;
   }
@@ -1327,7 +1361,7 @@ async function saveField(key,value){
     const old=T_PROFILE?.[col];
     if(String(value??'')===String(old??''))return;
     const{error}=await sb.from('profiles').update({[col]:value}).eq('clerk_id',LEASE.tenant_id);
-    if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+    if(error){toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);return;}
     if(T_PROFILE)T_PROFILE[col]=value;
     if(FIELD_LABELS[key]){
       const entry={par:'landlord',date:new Date().toISOString(),champs:[{cle:key,label:FIELD_LABELS[key],ancien:old??null,nouveau:value??null}],note:null};
@@ -1335,7 +1369,7 @@ async function saveField(key,value){
       const{error:le}=await sb.from('leases').update({modifs_log:newLog}).eq('id',LEASE.id);
       if(!le)LEASE.modifs_log=newLog;
     }
-    toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+    toast('<i data-lucide=check-circle-2 class=ic></i> '+(FIELD_LABELS[key]||key)+' enregistré');
     renderBail();
     return;
   }
@@ -1353,17 +1387,17 @@ async function saveField(key,value){
   if(error){
     // Colonne absente → ouvrir le panneau migrations
     if(error.message&&(error.message.includes('column')||error.message.includes('schema cache'))){
-      toast(`⚠️ Colonne "${key}" absente. Cliquez 🛠 SQL dans la barre de navigation.`,6000);
+      toast(`<i data-lucide=alert-triangle class=ic></i> Ce champ ne peut pas encore être enregistré (« ${key} »). Contactez le support Trouve Ton Toit.`,6000);
       // Montrer le bouton SQL dans la nav si pas encore visible
       const migrBtn=document.getElementById('migr-btn');
       if(migrBtn){migrBtn.style.display='';migrBtn.style.background='#FEF3C7';migrBtn.style.borderColor='#F59E0B';migrBtn.style.color='#92400E';}
     } else {
-      toast('⚠️ Erreur : '+error.message,5000);
+      toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);
     }
     return;
   }
   LEASE[key]=value;
-  toast('✅ '+(FIELD_LABELS[key]||key)+' enregistré');
+  toast('<i data-lucide=check-circle-2 class=ic></i> '+(FIELD_LABELS[key]||key)+' enregistré');
   renderBail();
 }
 
@@ -1404,13 +1438,13 @@ function renderLandlordGuide(){
     <div class="ll-guide-step">
       ${stepNum(1,step1Done)}
       <div class="ll-step-text">
-        <strong>Complétez le bail</strong> — Les champs <span style="display:inline-flex;align-items:center;gap:.2rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:#C2410C;vertical-align:middle">⚠ surlignés</span> sont manquants. Cliquez dessus directement dans le document pour les renseigner.
+        <strong>Complétez le bail</strong> — Les champs <span style="display:inline-flex;align-items:center;gap:.2rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:#C2410C;vertical-align:middle"><i data-lucide=alert-triangle class=ic></i> surlignés</span> sont manquants. Cliquez dessus directement dans le document pour les renseigner.
       </div>
     </div>
     <div class="ll-guide-step">
       ${stepNum(2,step1Done)}
       <div class="ll-step-text">
-        <strong>Envoyez au locataire pour relecture</strong> — Cliquez sur <strong>📨 Envoyer au locataire →</strong> dans la barre bleue ci-dessous. Il recevra un lien pour lire le bail et l'accepter (ou demander des modifications).
+        <strong>Envoyez au locataire pour relecture</strong> — Cliquez sur <strong><i data-lucide=send class=ic></i> Envoyer au locataire →</strong> dans la barre bleue ci-dessous. Il recevra un lien pour lire le bail et l'accepter (ou demander des modifications).
       </div>
     </div>
     <div class="ll-guide-step">
@@ -1428,12 +1462,12 @@ function renderLandlordGuide(){
 
   // Message contextuel selon l'étape actuelle
   let contextMsg='';
-  if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">👉 <strong>Étape actuelle :</strong> Complétez les champs manquants puis cliquez sur <strong>📨 Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
-  else if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">⏳ <strong>En attente :</strong> Le locataire doit relire et accepter le bail. Vous recevrez un message dès qu'il aura répondu.</p>`;
-  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">🔄 <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong>✅ Valider le modèle final →</strong>.</p>`;
-  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">✅ <strong>Modèle accepté !</strong> Les signatures sont maintenant débloquées. Faites défiler vers le bas pour apposer votre signature.</p>`;
+  if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=arrow-right class=ic></i> <strong>Étape actuelle :</strong> Complétez les champs manquants puis cliquez sur <strong><i data-lucide=send class=ic></i> Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
+  else if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=hourglass class=ic></i> <strong>En attente :</strong> Le locataire doit relire et accepter le bail. Vous recevrez un message dès qu'il aura répondu.</p>`;
+  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=refresh-cw class=ic></i> <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong><i data-lucide=check-circle-2 class=ic></i> Valider le modèle final →</strong>.</p>`;
+  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=check-circle-2 class=ic></i> <strong>Modèle accepté !</strong> Les signatures sont maintenant débloquées. Faites défiler vers le bas pour apposer votre signature.</p>`;
 
-  guide.innerHTML=`<div class="ll-guide-title">📋 Guide — Comment signer votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
+  guide.innerHTML=`<div class="ll-guide-title"><i data-lucide=clipboard-list class=ic></i> Guide — Comment signer votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
   guide.style.display='block';
   updateToolsVisibility();
 }
@@ -1470,7 +1504,7 @@ function renderClauses(){
         ${c.title?`<div class="clause-item-title">${escHtml(c.title)}</div>`:''}
         <div class="clause-item-body">${escHtml(c.content||'')}</div>
         ${canEdit?`<div class="clause-edit-actions">
-          <button class="clause-btn-edit" onclick="openClauseModal(${i})">✏️ Modifier</button>
+          <button class="clause-btn-edit" onclick="openClauseModal(${i})"><i data-lucide=pencil class=ic></i> Modifier</button>
           <button class="clause-btn-del" onclick="deleteClause(${i})">✕ Supprimer</button>
         </div>`:''}
       </div>`;
@@ -1497,12 +1531,12 @@ function openClauseModal(idx){
     titleInput.value=c.title||'';
     bodyInput.value=c.content||'';
     editIdx.value=String(idx);
-    modalTitle.textContent='✏️ Modifier la clause';
+    modalTitle.textContent='Modifier la clause';
   }else{
     titleInput.value='';
     bodyInput.value='';
     editIdx.value='-1';
-    modalTitle.textContent='📋 Ajouter une clause particulière';
+    modalTitle.textContent='Ajouter une clause particulière';
   }
   modal.style.display='flex';
   setTimeout(()=>titleInput.focus(),80);
@@ -1519,7 +1553,7 @@ async function saveClause(){
   const editIdx=parseInt(document.getElementById('clause-edit-idx').value);
   const title=(titleInput.value||'').trim();
   const content=(bodyInput.value||'').trim();
-  if(!content){toast('⚠️ Le contenu de la clause est requis.',3500);bodyInput.focus();return;}
+  if(!content){toast('<i data-lucide=alert-triangle class=ic></i> Le contenu de la clause est requis.',3500);bodyInput.focus();return;}
   const clauses=[...(LEASE.custom_clauses||[])];
   if(editIdx>=0 && editIdx<clauses.length){
     clauses[editIdx]={title,content};
@@ -1529,15 +1563,15 @@ async function saveClause(){
   const{error}=await sb.from('leases').update({custom_clauses:clauses}).eq('id',LEASE.id);
   if(error){
     if(error.message&&error.message.includes('column')){
-      toast('⚠️ Colonne manquante — exécutez le SQL de migration dans Supabase.',6000);
+      toast('<i data-lucide=alert-triangle class=ic></i> Colonne manquante — exécutez le SQL de migration dans Supabase.',6000);
     }else{
-      toast('⚠️ Erreur : '+error.message,5000);
+      toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);
     }
     return;
   }
   LEASE.custom_clauses=clauses;
   closeClauseModal();
-  toast('✅ Clause '+(editIdx>=0?'modifiée':'ajoutée'));
+  toast('<i data-lucide=check-circle-2 class=ic></i> Clause '+(editIdx>=0?'modifiée':'ajoutée'));
   renderClauses();
 }
 
@@ -1546,9 +1580,9 @@ async function deleteClause(idx){
   const clauses=[...(LEASE.custom_clauses||[])];
   clauses.splice(idx,1);
   const{error}=await sb.from('leases').update({custom_clauses:clauses}).eq('id',LEASE.id);
-  if(error){toast('⚠️ Erreur : '+error.message,5000);return;}
+  if(error){toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);return;}
   LEASE.custom_clauses=clauses;
-  toast('🗑️ Clause supprimée');
+  toast('<i data-lucide=trash-2 class=ic></i> Clause supprimée');
   renderClauses();
 }
 
@@ -1594,7 +1628,7 @@ function q(id){return document.getElementById(id);}
 function show(id,html){const el=q(id);if(el)el.innerHTML=html;}
 function toast(msg,dur=3000){
   const d=document.createElement('div');d.className='toast';d.innerHTML=msg;
-  q('toast-container').appendChild(d);setTimeout(()=>d.remove(),dur);
+  q('toast-container').appendChild(d);window.lucide&&lucide.createIcons();setTimeout(()=>d.remove(),dur);
 }
 function dpeColor(c){return{A:'#1E7E34',B:'#28a745',C:'#94C11F',D:'#F5A623',E:'#E67E22',F:'#E74C3C',G:'#C0392B'}[c]||'var(--td)';}
 function gesColor(c){return{A:'#6B21A8',B:'#7E22CE',C:'#A855F7',D:'#F59E0B',E:'#F97316',F:'#EF4444',G:'#991B1B'}[c]||'var(--td)';}
@@ -1644,13 +1678,13 @@ function renderModifsPanel(){
 
   panel.style.display='block';
   panel.innerHTML=`
-    <div class="modifs-panel-hd">📝 Historique des modifications <span class="modif-cnt-badge">${total}</span></div>
+    <div class="modifs-panel-hd"><i data-lucide=file-pen class=ic></i> Historique des modifications <span class="modif-cnt-badge">${total}</span></div>
     <div>
       ${recent.map(e=>{
         const d=new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
         const badge=e.par==='landlord'
-          ?'<span class="modif-badge modif-badge-ll">🔵 Bailleur</span>'
-          :'<span class="modif-badge modif-badge-t">🟠 Locataire</span>';
+          ?'<span class="modif-badge modif-badge-ll"><i data-lucide=circle class=ic style=color:#2563EB;fill:currentColor></i> Bailleur</span>'
+          :'<span class="modif-badge modif-badge-t"><i data-lucide=circle class=ic style=color:#EA580C;fill:currentColor></i> Locataire</span>';
         let body='';
         if(e.note) body+=`<div class="modif-note">« ${e.note} »</div>`;
         if(e.champs?.length) body+=e.champs.map(c=>`
@@ -1699,7 +1733,7 @@ async function loadBail(){
         const deposit=listing?.deposit||(rent*2);
         const start=bk.move_in_date||new Date().toISOString().slice(0,10);
         const endDate=new Date(start);endDate.setFullYear(endDate.getFullYear()+1);
-        const newLeaseData={listing_id:bk.listing_id,listing_title:listing?.title||'',tenant_id:bk.tenant_id,landlord_id:bk.landlord_id,start_date:start,end_date:endDate.toISOString().slice(0,10),rent,deposit,status:'pending',booking_id:BOOKING_ID,charges:listing?.bills_included?0:50};
+        const newLeaseData={listing_id:bk.listing_id,listing_title:listing?.title||'',tenant_id:bk.tenant_id,landlord_id:bk.landlord_id,start_date:start,end_date:endDate.toISOString().slice(0,10),rent,deposit,status:'pending',booking_id:BOOKING_ID,charges:listing?.bills_included?0:(listing?.charges_mensuelles||0)};
         const{data:nl,error:le}=await sb.from('leases').insert(newLeaseData).select().single();
         if(le){
           // fallback sans booking_id
@@ -1716,6 +1750,16 @@ async function loadBail(){
     if(LEASE?.listing_id&&!LISTING){
       const{data:li}=await sb.from('listings').select('*').eq('id',LEASE.listing_id).single();
       LISTING=li;
+    }
+    // Anciens baux : la provision sur charges était fixée à 50 € par défaut, quelle
+    // que soit l'annonce. Tant que le bail n'est pas signé, on reprend le montant
+    // réel de l'annonce (charges mensuelles, ou 0 si charges comprises).
+    if(LEASE&&LISTING&&Number(LEASE.charges)===50&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){
+      const real=LISTING.bills_included?0:(Number(LISTING.charges_mensuelles)||0);
+      if(real!==50){
+        LEASE.charges=real;
+        try{await sb.from('leases').update({charges:real}).eq('id',LEASE.id);}catch(e){}
+      }
     }
     if(LEASE?.booking_id&&!BOOKING){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
@@ -1846,6 +1890,96 @@ function calcLoyerRef(ville,epoque,pieces){
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
+// ── Garantie & colocation : choix du bailleur ──────────────────────────────
+function _bailArr(v){try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return (Array.isArray(v)?v:(v?[v]:[])).filter(x=>x&&x.name);}
+function bailChoices(L){
+  const coLocs=_bailArr(BOOKING?.co_locataires_data);
+  const g=L.garant_type||(L.garant_name?'solidaire':'aucune');
+  const c=L.colocation_type||(coLocs.length?'commun_solidaire':'seul');
+  return{g,physique:g==='solidaire'||g==='simple',c,coLocs};
+}
+function _escB(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function renderGarantiesBlock(L){
+  const{g,physique,c,coLocs}=bailChoices(L);
+  const pill=(key,val,label,on)=>`<button type="button" class="bc-pill${on?' on':''}" onclick="saveField('${key}','${val}')">${label}</button>`;
+  // Résumé court (visible par tous, dans le bail)
+  const lines=[];
+  if(physique){
+    const t=g==='simple'?'simple':'solidaire';
+    lines.push(L.garant_name?`<strong>Garantie :</strong> caution ${t} de <strong>${_escB(L.garant_name)}</strong> (garant personne physique) — voir l'engagement ci-dessous.`:(_editMode?`<strong>Garantie :</strong> caution ${t} d'une personne physique — garant à désigner.`:`<strong>Garantie :</strong> aucun garant désigné à ce jour.`));
+  }else if(g==='visale'){
+    lines.push(`<strong>Garantie :</strong> Visale (Action Logement)${L.visale_ref?` — visa n° <strong>${_escB(L.visale_ref)}</strong>`:''}. Le bailleur valide le contrat de cautionnement sur visale.fr.`);
+  }else if(g==='organisme'){
+    lines.push(`<strong>Garantie :</strong> organisme privé ou caution bancaire${L.garant_organisme?` — <strong>${_escB(L.garant_organisme)}</strong>`:''}, selon le contrat conclu avec cet organisme.`);
+  }else{
+    lines.push(`<strong>Garantie :</strong> aucune caution. Le dépôt de garantie n'est pas une caution.`);
+  }
+  if(c==='commun_solidaire')lines.push(`<strong>Colocation :</strong> bail commun à tous les colocataires, <strong>avec clause de solidarité</strong> entre eux.`);
+  else if(c==='commun_simple')lines.push(`<strong>Colocation :</strong> bail commun, <strong>sans solidarité</strong> — chaque colocataire n'est tenu que de sa part.`);
+  else if(c==='individuel')lines.push(`<strong>Location individuelle :</strong> ce bail ne concerne que le locataire désigné, qui ne répond pas des dettes des autres occupants.`);
+  const sum=`<ul class="bc-sum">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+  if(!_editMode){show('garanties-summary',`<div class="bc-card"><div class="bc-title">Garantie et colocation</div>${sum}</div>`);return;}
+  // Mode édition bailleur : choix par boutons
+  const extra=[];
+  if(g==='visale')extra.push(L.visale_ref?`<span class="edit-btn" onclick="editField(event,'visale_ref')"><i data-lucide=pencil class=ic></i> Visa ${_escB(L.visale_ref)}</span>`:`<span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'visale_ref')"><i data-lucide=alert-triangle class=ic></i> N° de visa Visale</span>`);
+  if(g==='organisme')extra.push(L.garant_organisme?`<span class="edit-btn" onclick="editField(event,'garant_organisme')"><i data-lucide=pencil class=ic></i> ${_escB(L.garant_organisme)}</span>`:`<span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'garant_organisme')"><i data-lucide=alert-triangle class=ic></i> Nom de l'organisme / banque</span>`);
+  show('garanties-summary',`<div class="bc-card">
+    <div class="bc-title">Garantie et colocation — à choisir</div>
+    <div class="bc-edit">
+      <div class="bc-row"><span class="bc-lbl">Type de garantie</span>
+        ${pill('garant_type','aucune','Aucune',g==='aucune')}
+        ${pill('garant_type',physique?g:'solidaire','Garant physique',physique)}
+        ${pill('garant_type','visale','Visale',g==='visale')}
+        ${pill('garant_type','organisme','Organisme / banque',g==='organisme')}
+        ${extra.join('')}
+      </div>
+      ${physique?`<div class="bc-row"><span class="bc-lbl">Engagement du garant</span>
+        ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
+        ${pill('garant_type','simple','Caution simple',g==='simple')}
+      </div>`:''}
+      <div class="bc-row"><span class="bc-lbl">Colocation</span>
+        ${pill('colocation_type','seul','Un seul locataire',c==='seul')}
+        ${pill('colocation_type','commun_solidaire','Bail commun avec solidarité',c==='commun_solidaire')}
+        ${pill('colocation_type','commun_simple','Bail commun sans solidarité',c==='commun_simple')}
+        ${pill('colocation_type','individuel','Bail individuel (chambre)',c==='individuel')}
+      </div>
+      ${(c==='commun_solidaire'||c==='commun_simple')&&!coLocs.length?'<div style="font-size:.72rem;color:#C2410C;margin:-.2rem 0 .4rem">Aucun co-locataire n\'a été ajouté à cette candidature.</div>':''}
+    </div>
+    ${sum}
+  </div>`);
+}
+function renderReglesDroit(L){
+  const{g,c}=bailChoices(L);
+  const R=[];
+  const add=(k,t)=>R.push(`<li><span class="rg-k">${k} :</span> ${t}</li>`);
+  add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; décret n° 2015-587 du 29 mai 2015 (contrat type) ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
+  add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle (art. 23 loi 89-462).');
+  add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
+  if(g==='solidaire'||g==='simple'){
+    add('Cautionnement','art. 22-1 loi 89-462 et art. 2288 s. du Code civil. La caution signe son engagement et reçoit un exemplaire du bail.'+(g==='solidaire'
+      ?' <strong>Caution solidaire</strong> : elle renonce au bénéfice de discussion et de division ; le bailleur peut lui réclamer directement les sommes couvertes et exigibles (art. 2305 et 2306 C. civ.).'
+      :' <strong>Caution simple</strong> : elle bénéficie du bénéfice de discussion ; le bailleur doit d\'abord poursuivre le locataire (art. 2305 C. civ.).'));
+    add('Caution et assurance loyers impayés','un bailleur ayant souscrit une assurance loyers impayés (GLI) ne peut pas exiger de caution, sauf si le locataire est étudiant ou apprenti (art. 22-1 al. 1 loi 89-462).');
+    add('Durée de l\'engagement',L.garant_duree_type==='determinee'
+      ?'engagement à durée déterminée : la caution reste tenue jusqu\'au terme indiqué dans son engagement (art. 22-1 loi 89-462).'
+      :'engagement sans durée déterminée : la caution peut le résilier ; la résiliation prend effet au terme du bail (initial, reconduit ou renouvelé) au cours duquel le bailleur la reçoit (art. 22-1 loi 89-462).');
+  }else if(g==='visale'){
+    add('Garantie Visale','cautionnement gratuit d\'Action Logement, sous conditions d\'éligibilité. Le locataire obtient un visa ; le bailleur le vérifie et valide le contrat de cautionnement sur visale.fr. Les sommes avancées par Action Logement restent dues par le locataire. Selon les conditions Visale, elle n\'est pas cumulable avec une autre caution ni avec une assurance loyers impayés. Trouve Ton Toit enregistre la référence du visa sans la valider.');
+  }else if(g==='organisme'){
+    add('Garantie par un organisme ou une banque','régie par le contrat conclu avec l\'organisme ou la banque, et par les art. 2288 s. du Code civil pour le cautionnement. Conditions, coût et plafonds propres à chaque organisme.');
+  }
+  if(c==='commun_solidaire'||c==='commun_simple'){
+    add('Colocation','art. 8-1 loi 89-462 : un bail unique signé par tous les colocataires.'+(c==='commun_solidaire'
+      ?' <strong>Clause de solidarité</strong> : chaque colocataire peut être tenu de payer la totalité du loyer et des charges. Le colocataire qui donne congé — et sa caution — restent tenus jusqu\'à l\'arrivée d\'un nouveau colocataire au bail, et au plus tard 6 mois après la fin de son préavis (art. 8-1 VI). L\'acte de caution doit identifier le colocataire dont le départ met fin à l\'engagement.'
+      :' <strong>Sans clause de solidarité</strong> : la solidarité ne se présume pas (art. 1310 C. civ.) ; chaque colocataire n\'est tenu que de sa part.'));
+    if(g==='solidaire'||g==='simple')add('Plusieurs garants','lorsque plusieurs personnes se portent caution, chacune n\'est tenue que dans les limites de son propre engagement ; elles ne sont pas solidaires entre elles sauf stipulation expresse.');
+  }else if(c==='individuel'){
+    add('Bail individuel','art. 8-1 I loi 89-462 : le logement peut être loué par baux séparés. Chaque bail fixe son propre loyer et ses conditions ; le départ d\'un autre occupant ne modifie pas le présent bail.');
+  }
+  add('Signature électronique','art. 1366 et 1367 du Code civil ; règlement (UE) n° 910/2014 (eIDAS).');
+  show('regles-droit',R.join(''));
+}
+
 function renderBail(){
   const L=LEASE,Li=LISTING;
   const rent=L.rent||0, deposit=L.deposit||(rent*2), charges=L.charges||0;
@@ -1891,11 +2025,11 @@ function renderBail(){
   // Parties — format identification juridique bail français
   // Resolve avec overrides lease en priorité sur le profil
   const llName=L.landlord_name||LL_PROFILE?.full_name||'—';
-  const llAddr=L.landlord_address||LL_PROFILE?.address||'';
+  const llAddr=L.landlord_address||LL_PROFILE?.home_address||LL_PROFILE?.address||'';
   const llEmail=L.landlord_email||LL_PROFILE?.email||'';
   const llPhone=L.landlord_phone||LL_PROFILE?.phone||'';
   const tName=L.tenant_name||T_PROFILE?.full_name||'—';
-  const tAddr=T_PROFILE?.address||'';
+  const tAddr=L.tenant_address||T_PROFILE?.home_address||T_PROFILE?.address||'';
   const tEmail=L.tenant_email||T_PROFILE?.email||'';
   const tPhone=L.tenant_phone||T_PROFILE?.phone||'';
   const tNat=L.tenant_nationality||T_PROFILE?.nationality||'';
@@ -1908,16 +2042,28 @@ function renderBail(){
     if(fields.tel) parts.push(`tél. : <strong>${fields.tel}</strong>`);
     if(fields.extra) parts.push(fields.extra);
     return`<div class="partie-ident"><strong>${fields.nom}</strong>${parts.length?', '+parts.join(', '):''}
-      <span class="partie-denom">ci-après dénommé « ${denom} »</span></div>`;
+      ${denom?`<span class="partie-denom">ci-après dénommé « ${denom} »</span>`:''}</div>`;
   }
-  // pairs: [[key, effectiveValue], ...] — badge ⚠ si vide, ✏️ si valeur présente
+  // Co-bailleurs (profil du bailleur) et co-locataires (candidature) — figurent au bail
+  const _arr=v=>{try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return (Array.isArray(v)?v:(v?[v]:[])).filter(x=>x&&x.name);};
+  // Co-bailleurs choisis à l'acceptation (bookings.co_bailleurs_data, [] = aucun) ;
+  // sinon, ceux du profil du bailleur
+  const coBailleurs=(BOOKING&&BOOKING.co_bailleurs_data!=null)?_arr(BOOKING.co_bailleurs_data):_arr(LL_PROFILE?.co_bailleur_data);
+  const _bc=bailChoices(L);
+  // Bail individuel (location d'une chambre) : seul le locataire désigné figure au bail
+  const coLocs=_bc.c==='individuel'?[]:_bc.coLocs;
+  const llMorale=LL_PROFILE?.statut_juridique==='morale'&&LL_PROFILE?.denomination_sociale&&!L.landlord_name;
+  const llNameFull=llMorale?`${LL_PROFILE.denomination_sociale}, représentée par ${llName}`:llName;
+  const plural=(n,one,many)=>n?many:one;
+  const multiNote=(n,txt)=>n?`<div class="partie-denom" style="margin-top:.35rem">${txt}</div>`:'';
+  // pairs: [[key, effectiveValue], ...] — badge <i data-lucide=alert-triangle class=ic></i> si vide, <i data-lucide=pencil class=ic></i> si valeur présente
   function editIcons(pairs){
     if(!_editMode) return '';
     const btns=pairs.map(([key,val])=>{
       const lbl=FIELD_LABELS[key]||key;
       const hasVal=val!=null&&val!==''&&val!=='—';
-      if(hasVal) return`<span class="edit-btn" onclick="editField(event,'${key}')" title="Corriger ${lbl}">✏️ ${lbl}</span>`;
-      return`<span class="missing-badge" style="font-size:.71rem" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+      if(hasVal) return`<span class="edit-btn" onclick="editField(event,'${key}')" title="Corriger ${lbl}"><i data-lucide=pencil class=ic></i> ${lbl}</span>`;
+      return`<span class="missing-badge" style="font-size:.71rem" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${lbl}</span>`;
     });
     return'<div class="partie-edit-row">'+btns.join('')+'</div>';
   }
@@ -1926,14 +2072,14 @@ function renderBail(){
     const btns=pairs.map(([key,val])=>{
       const lbl=FIELD_LABELS[key]||key;
       const hasVal=val!=null&&val!==''&&val!=='—';
-      if(hasVal) return`<span class="edit-btn" style="background:rgba(27,79,216,.08);color:var(--bleu)" onclick="editField(event,'${key}')" title="Modifier ${lbl}">✏️ ${lbl}</span>`;
-      return`<span class="missing-badge" style="font-size:.71rem;background:rgba(27,79,216,.07);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'${key}')">⚠ ${lbl}</span>`;
+      if(hasVal) return`<span class="edit-btn" style="background:rgba(27,79,216,.08);color:var(--bleu)" onclick="editField(event,'${key}')" title="Modifier ${lbl}"><i data-lucide=pencil class=ic></i> ${lbl}</span>`;
+      return`<span class="missing-badge" style="font-size:.71rem;background:rgba(27,79,216,.07);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${lbl}</span>`;
     });
     return'<div class="partie-edit-row" style="background:rgba(27,79,216,.04);border:1px dashed rgba(27,79,216,.25);border-radius:6px;padding:.25rem .4rem;margin-top:.25rem"><span style="font-size:.6rem;color:var(--bleu);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:.3rem">Vos infos :</span>'+btns.join('')+'</div>';
   }
   function tenantFlag(label){
     if(!_tenantEditMode) return '';
-    return`<span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;margin-left:.4rem;vertical-align:middle" onclick="openModifModalWithContext('${label}')">⚠️ Contester</span>`;
+    return`<span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;margin-left:.4rem;vertical-align:middle" onclick="openModifModalWithContext('${label}')"><i data-lucide=alert-triangle class=ic></i> Contester</span>`;
   }
 
   const llLabel=myRole==='landlord'||ROLE_PARAM==='landlord'?'Le Bailleur (vous)':'Le Bailleur';
@@ -1942,21 +2088,27 @@ function renderBail(){
     <div class="partie-card">
       <span class="partie-pill">${llLabel}</span>
       <div class="partie-body">
-        ${buildIdent({nom:llName,adresse:llAddr,email:llEmail,tel:llPhone},'le bailleur')}
+        ${buildIdent({nom:llNameFull,adresse:llAddr,email:llEmail,tel:llPhone},coBailleurs.length?null:'le bailleur')}
+        ${coBailleurs.map(c=>buildIdent({nom:c.name,adresse:c.address||llAddr,nat:c.nationality,email:c.email},null)).join('')}
+        ${multiNote(coBailleurs.length,'ci-après dénommés ensemble « le bailleur », agissant conjointement et solidairement')}
         ${editIcons([['landlord_name',llName],['landlord_address',llAddr],['landlord_email',llEmail],['landlord_phone',llPhone]])}
       </div>
     </div>
     <div class="partie-card">
       <span class="partie-pill">${tLabel}</span>
       <div class="partie-body">
-        ${buildIdent({nom:tName,adresse:tAddr,nat:tNat,email:tEmail,tel:tPhone},'le locataire')}
+        ${buildIdent({nom:tName,adresse:tAddr,nat:tNat,email:tEmail,tel:tPhone},coLocs.length?null:'le locataire')}
+        ${coLocs.map(c=>buildIdent({nom:c.name,adresse:c.address,nat:c.nationality,email:c.email,tel:c.phone},null)).join('')}
+        ${multiNote(coLocs.length,_bc.c==='commun_simple'?'ci-après dénommés ensemble « le locataire », chacun n\'étant tenu que de sa part, sans solidarité entre eux':'ci-après dénommés ensemble « le locataire », tenus solidairement et indivisiblement de l\'exécution du présent bail')}
         ${editIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
         ${tenantEditIcons([['tenant_name',tName],['tenant_email',tEmail],['tenant_phone',tPhone],['tenant_nationality',tNat]])}
       </div>
     </div>`;
   show('parties-grid',partiesHtml);
-  show('sig-ll-name',LL_PROFILE?.full_name||'Bailleur');
-  show('sig-t-name',T_PROFILE?.full_name||'Locataire');
+  renderGarantiesBlock(L);
+  renderReglesDroit(L);
+  show('sig-ll-name',[llMorale?llNameFull:(LL_PROFILE?.full_name||'Bailleur'),...coBailleurs.map(c=>c.name)].join(' · '));
+  show('sig-t-name',[T_PROFILE?.full_name||'Locataire',...coLocs.map(c=>c.name)].join(' · '));
 
   // Logement grid 1
   const anneeCons=L.annee_construction||Li?.annee_construction;
@@ -1981,7 +2133,7 @@ function renderBail(){
   const items1=[
     {label:'Adresse complète',value:propAddr?ev('prop_address',propAddr):mf('prop_address')},
     {label:'Type de logement',value:ev('prop_type',propType)},
-    {label:'Surface habitable',value:surfBoutin?(hl('surface_boutin',surfBoutin+' m²')+(_editMode?` <span class="edit-btn" onclick="editField(event,'surface_boutin')">✏️</span>`:'')):mf('surface_boutin')},
+    {label:'Surface habitable',value:surfBoutin?(hl('surface_boutin',surfBoutin+' m²')+(_editMode?` <span class="edit-btn" onclick="editField(event,'surface_boutin')"><i data-lucide=pencil class=ic></i></span>`:'')):mf('surface_boutin')},
     {label:'Nombre de pièces',value:propPieces?ev('prop_pieces',nb(propPieces)+' pièce'+(propPieces>1?'s':'')):mf('prop_pieces')},
     {label:'Étage',value:propEtageRaw?ev('prop_etage',propEtageRaw):(_editMode?ev('prop_etage','Rez-de-chaussée'):'Rez-de-chaussée ou non renseigné')},
     {label:'Statut',value:'Résidence principale'}
@@ -1997,26 +2149,26 @@ function renderBail(){
   ];
   if(L.regime_copro||Li?.regime_copro){
     const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
-    items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')">⚠ N° de lot</span>`:'')});
+    items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')"><i data-lucide=alert-triangle class=ic></i> N° de lot</span>`:'')});
   } else if(_editMode){
-    items2.push({label:'Copropriété',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'regime_copro')">⚠ Déclarer si copropriété</span>`});
+    items2.push({label:'Copropriété',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'regime_copro')"><i data-lucide=alert-triangle class=ic></i> Déclarer si copropriété</span>`});
   }
   // Dépendances — n'apparaissent dans le bail QUE si le bailleur a explicitement renseigné les détails
   if(L.parking_type||L.parking_details){
     const parkLabel=[L.parking_type,L.parking_details].filter(Boolean).join(' — ');
     items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',parkLabel))});
   } else if(_editMode){
-    items2.push({label:'Stationnement',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'parking_details')">⚠ Ajouter si inclus</span>`});
+    items2.push({label:'Stationnement',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'parking_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si inclus</span>`});
   }
   if(L.cave_details){
     items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
   } else if(_editMode){
-    items2.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'cave_details')">⚠ Ajouter si incluse</span>`});
+    items2.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'cave_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si incluse</span>`});
   }
   if(L.box_details){
     items2.push({label:'Box / local',value:ev('box_details',hl('box_details',L.box_details))});
   } else if(_editMode){
-    items2.push({label:'Box / local',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'box_details')">⚠ Ajouter si inclus</span>`});
+    items2.push({label:'Box / local',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'box_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si inclus</span>`});
   }
   const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
@@ -2028,43 +2180,43 @@ function renderBail(){
     const caveNum=L.dep_cave_numero?` — ${L.dep_cave_numero}`:'';
     items3.push({label:'Cave',value:'Oui'+caveNum+(_editMode?` ${ev('dep_cave_numero',L.dep_cave_numero||'Ajouter numéro')}`:'')});
   } else if(_editMode){
-    items3.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_cave')">⚠ Cave incluse ?</span>`});
+    items3.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_cave')"><i data-lucide=alert-triangle class=ic></i> Cave incluse ?</span>`});
   }
   // Parking
   if(L.dep_parking==='oui'){
     items3.push({label:'Parking',value:ev('dep_parking','Oui')});
   } else if(_editMode){
-    items3.push({label:'Parking',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_parking')">⚠ Parking inclus ?</span>`});
+    items3.push({label:'Parking',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_parking')"><i data-lucide=alert-triangle class=ic></i> Parking inclus ?</span>`});
   }
   // Garage
   if(L.dep_garage==='oui'){
     items3.push({label:'Garage',value:ev('dep_garage','Oui')});
   } else if(_editMode){
-    items3.push({label:'Garage',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_garage')">⚠ Garage inclus ?</span>`});
+    items3.push({label:'Garage',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_garage')"><i data-lucide=alert-triangle class=ic></i> Garage inclus ?</span>`});
   }
   // Balcon
   if(L.dep_balcon==='oui'){
     items3.push({label:'Balcon',value:ev('dep_balcon','Oui')});
   } else if(_editMode){
-    items3.push({label:'Balcon',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_balcon')">⚠ Balcon ?</span>`});
+    items3.push({label:'Balcon',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_balcon')"><i data-lucide=alert-triangle class=ic></i> Balcon ?</span>`});
   }
   // Terrasse
   if(L.dep_terrasse==='oui'){
     items3.push({label:'Terrasse',value:ev('dep_terrasse','Oui')});
   } else if(_editMode){
-    items3.push({label:'Terrasse',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_terrasse')">⚠ Terrasse ?</span>`});
+    items3.push({label:'Terrasse',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_terrasse')"><i data-lucide=alert-triangle class=ic></i> Terrasse ?</span>`});
   }
   // Jardin
   if(L.dep_jardin==='oui'){
     items3.push({label:'Jardin',value:ev('dep_jardin','Oui')});
   } else if(_editMode){
-    items3.push({label:'Jardin',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_jardin')">⚠ Jardin ?</span>`});
+    items3.push({label:'Jardin',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_jardin')"><i data-lucide=alert-triangle class=ic></i> Jardin ?</span>`});
   }
   // Autres dépendances
   if(L.dep_autres){
     items3.push({label:'Autres',value:ev('dep_autres',L.dep_autres)});
   } else if(_editMode){
-    items3.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_autres')">⚠ Autres dépendances ?</span>`});
+    items3.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_autres')"><i data-lucide=alert-triangle class=ic></i> Autres dépendances ?</span>`});
   }
   if(items3.length){
     const g3=document.getElementById('logement-grid3');
@@ -2092,7 +2244,7 @@ function renderBail(){
   if(L.commun_autres){
     items4.push({label:'Autres',value:ev('commun_autres',L.commun_autres)});
   } else if(_editMode){
-    items4.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'commun_autres')">⚠ Autres équipements communs ?</span>`});
+    items4.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'commun_autres')"><i data-lucide=alert-triangle class=ic></i> Autres équipements communs ?</span>`});
   }
   if(items4.length){
     const g4=document.getElementById('logement-grid4');
@@ -2105,22 +2257,22 @@ function renderBail(){
   if(L.telecom_fibre==='oui'){
     items5.push({label:'Fibre',value:ev('telecom_fibre','Oui — disponible')});
   } else if(_editMode){
-    items5.push({label:'Fibre',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_fibre')">⚠ Fibre disponible ?</span>`});
+    items5.push({label:'Fibre',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_fibre')"><i data-lucide=alert-triangle class=ic></i> Fibre disponible ?</span>`});
   }
   if(L.telecom_prise_tv==='oui'){
     items5.push({label:'Prise TV',value:ev('telecom_prise_tv','Oui')});
   } else if(_editMode){
-    items5.push({label:'Prise TV',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_prise_tv')">⚠ Prise TV ?</span>`});
+    items5.push({label:'Prise TV',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_prise_tv')"><i data-lucide=alert-triangle class=ic></i> Prise TV ?</span>`});
   }
   if(L.telecom_internet_fourni==='oui'){
     items5.push({label:'Internet fourni',value:ev('telecom_internet_fourni','Oui — inclus bailleur')});
   } else if(_editMode){
-    items5.push({label:'Internet fourni',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_internet_fourni')">⚠ Internet inclus ?</span>`});
+    items5.push({label:'Internet fourni',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_internet_fourni')"><i data-lucide=alert-triangle class=ic></i> Internet inclus ?</span>`});
   }
   if(L.telecom_autres){
     items5.push({label:'Autres',value:ev('telecom_autres',L.telecom_autres)});
   } else if(_editMode){
-    items5.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_autres')">⚠ Autres télécoms ?</span>`});
+    items5.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_autres')"><i data-lucide=alert-triangle class=ic></i> Autres télécoms ?</span>`});
   }
   if(items5.length){
     const g5=document.getElementById('logement-grid5');
@@ -2153,28 +2305,28 @@ function renderBail(){
     const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
     const manquePieces=!nbPieces&&_editMode;
     const manqueAnnee=!anneeCons&&_editMode;
-    show('zone-tendue-block',`<div class="alert-red">🏙️ <strong>Zone tendue — Encadrement des loyers obligatoire</strong>
+    show('zone-tendue-block',`<div class="alert-red"><i data-lucide=building class=ic></i> <strong>Zone tendue — Encadrement des loyers obligatoire</strong>
       ${isLyonZone?'<span style="font-size:.75rem;opacity:.85"> (Lyon — encadrement en vigueur depuis novembre 2021)</span>':''}
-      ${isAuto?`<span style="font-size:.72rem;background:rgba(255,255,255,.35);border-radius:4px;padding:.1rem .4rem;margin-left:.4rem">⚙️ calculé automatiquement</span>`:''}
+      ${isAuto?`<span style="font-size:.72rem;background:rgba(255,255,255,.35);border-radius:4px;padding:.1rem .4rem;margin-left:.4rem"><i data-lucide=settings class=ic></i> calculé automatiquement</span>`:''}
       <br>
-      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')">⚠ à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')">✏️</span>`:''}
+      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')"><i data-lucide=pencil class=ic></i></span>`:''}
       &nbsp;·&nbsp;
-      Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')">⚠ à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')">✏️</span>`:''}<br>
-      ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')">⚠ Renseignez l'année de construction pour calcul auto</span>`:''}
-      ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')">⚠ Nombre de pièces manquant</span>`:''}
+      Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=pencil class=ic></i></span>`:''}<br>
+      ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')"><i data-lucide=alert-triangle class=ic></i> Renseignez l'année de construction pour calcul auto</span>`:''}
+      ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')"><i data-lucide=alert-triangle class=ic></i> Nombre de pièces manquant</span>`:''}
       Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
       <em style="font-size:.78rem">Conformément à l'art. 17 de la loi du 6 juillet 1989 modifié par la loi ELAN, le loyer ne peut excéder le loyer de référence majoré. Tout dépassement peut être contesté.</em></div>`);
   } else if(_editMode){
-    show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')">⚠ Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
+    show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')"><i data-lucide=alert-triangle class=ic></i> Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
   }
 
   // Loyer
   const payDay=L.payment_due_day||Li?.payment_due_day||'1';
-  show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')">✏️</span>`:'')+tenantFlag('Montant du loyer'));
+  show('loyer-txt',rent.toString()+(_editMode?` <span class="edit-btn" onclick="editField(event,'rent')"><i data-lucide=pencil class=ic></i></span>`:'')+tenantFlag('Montant du loyer'));
   show('loyer-val',ev('rent',fmt(rent))+tenantFlag('Montant du loyer'));
   show('charges-val',ev('charges',charges>0?fmt(charges):'Incluses')+tenantFlag('Charges'));
   show('total-val',fmt(rent+(charges||0)));
-  show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')">✏️</span>`:'<sup>er</sup>'));
+  show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')"><i data-lucide=pencil class=ic></i></span>`:'<sup>er</sup>'));
   show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois')+tenantFlag('Échéance du loyer'));
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
 
@@ -2186,25 +2338,25 @@ function renderBail(){
   const obligatoireMention=!isPremiere&&hasDepart&&moisEcoules!==null&&moisEcoules<18;
 
   if(isPremiere){
-    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem">🏠 <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.</div>`);
+    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem"><i data-lucide=home class=ic></i> <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.</div>`);
   }else if(L.dernier_loyer&&L.dernier_locataire_depart){
     const alertClass=obligatoireMention?'alert-red':'info-blue';
     show('dernier-loyer-block',`<div class="${alertClass}" style="font-size:.82rem">
-      📋 <strong>Précédent locataire</strong> — Dernier loyer : <strong>${fmt(L.dernier_loyer)}</strong>
+      <i data-lucide=clipboard-list class=ic></i> <strong>Précédent locataire</strong> — Dernier loyer : <strong>${fmt(L.dernier_loyer)}</strong>
       · Départ : <strong>${fmtDate(L.dernier_locataire_depart)}</strong>
       ${L.dernier_loyer_revision?'· Dernière révision IRL : <strong>'+fmtDate(L.dernier_loyer_revision)+'</strong>':''}
-      ${obligatoireMention?'<br><em style="font-size:.75rem">⚖️ Mention obligatoire : départ il y a '+moisEcoules+' mois (moins de 18 mois).</em>':''}
-      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')">✏️</span>`:''}
+      ${obligatoireMention?'<br><em style="font-size:.75rem"><i data-lucide=scale class=ic></i> Mention obligatoire : départ il y a '+moisEcoules+' mois (moins de 18 mois).</em>':''}
+      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')"><i data-lucide=pencil class=ic></i></span>`:''}
     </div>`);
   }else if(_editMode){
     // Pas encore renseigné — inviter le bailleur à préciser
     show('dernier-loyer-block',`<div class="alert-red" style="font-size:.82rem;padding:.75rem 1rem">
-      ⚠️ <strong>Situation locative antérieure non renseignée</strong><br>
+      <i data-lucide=alert-triangle class=ic></i> <strong>Situation locative antérieure non renseignée</strong><br>
       <span style="font-size:.78rem">Obligatoire si un précédent locataire a occupé le logement dans les 18 derniers mois.</span><br>
       <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
-        <span class="missing-badge" onclick="editField(event,'premiere_mise_en_location')">⚠ Première mise en location ?</span>
-        <span class="missing-badge" onclick="editField(event,'dernier_loyer')">⚠ Dernier loyer</span>
-        <span class="missing-badge" onclick="editField(event,'dernier_locataire_depart')">⚠ Date de départ</span>
+        <span class="missing-badge" onclick="editField(event,'premiere_mise_en_location')"><i data-lucide=alert-triangle class=ic></i> Première mise en location ?</span>
+        <span class="missing-badge" onclick="editField(event,'dernier_loyer')"><i data-lucide=alert-triangle class=ic></i> Dernier loyer</span>
+        <span class="missing-badge" onclick="editField(event,'dernier_locataire_depart')"><i data-lucide=alert-triangle class=ic></i> Date de départ</span>
       </div>
     </div>`);
   }
@@ -2215,13 +2367,13 @@ function renderBail(){
     const loyerMax=s&&loyerRefMaj?(s*loyerRefMaj).toFixed(0):null;
     const depasse=loyerMax&&rent>Number(loyerMax);
     show('encadrement-block',`<div class="${depasse?'alert-red':'highlight'}" style="margin-top:.5rem">
-      📋 <strong>Encadrement des loyers — Récapitulatif</strong><br>
+      <i data-lucide=clipboard-list class=ic></i> <strong>Encadrement des loyers — Récapitulatif</strong><br>
       <table style="width:100%;border-collapse:collapse;margin-top:.4rem;font-size:.82rem">
         <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRef?loyerRef+' €/m²':mf('loyer_ref')}</td></tr>
         <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence majoré</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRefMaj?loyerRefMaj+' €/m²':mf('loyer_ref_majore')}</td></tr>
         <tr><td style="padding:.2rem .4rem;color:var(--td)">Surface Boutin</td><td style="padding:.2rem .4rem;font-weight:600">${s?s+' m²':mf('surface_boutin')}</td></tr>
         <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer maximum autorisé</td><td style="padding:.2rem .4rem;font-weight:700;color:var(--green)">${loyerMax?fmt(Number(loyerMax)):'—'}</td></tr>
-        <tr style="${depasse?'background:#FEE2E2':''}}"><td style="padding:.2rem .4rem;color:var(--td)">Loyer de base pratiqué</td><td style="padding:.2rem .4rem;font-weight:700;color:${depasse?'var(--red)':'var(--bleu)'}">${fmt(rent)}${depasse?' ⚠ DÉPASSE le plafond':''}</td></tr>
+        <tr style="${depasse?'background:#FEE2E2':''}}"><td style="padding:.2rem .4rem;color:var(--td)">Loyer de base pratiqué</td><td style="padding:.2rem .4rem;font-weight:700;color:${depasse?'var(--red)':'var(--bleu)'}">${fmt(rent)}${depasse?' <i data-lucide=alert-triangle class=ic></i> DÉPASSE le plafond':''}</td></tr>
       </table>
       <p style="font-size:.75rem;color:var(--td);margin-top:.4rem">Tout complément de loyer éventuel doit être justifié par des caractéristiques de localisation ou de confort exceptionnelles par rapport aux logements comparables (art. 17 loi 89 modifié ELAN).</p>
     </div>`);
@@ -2238,15 +2390,15 @@ function renderBail(){
   const depotDepasse=depotEffectif>depotMax&&depotMax>0;
   const depotMois=rent>0&&depotEffectif>0?Math.round((depotEffectif/rent)*10)/10:0;
   const depotMoisLabel=depotMois===0?'aucun dépôt':depotMois===1?'un (1) mois':depotMois===2?'deux (2) mois':(depotMois.toFixed(1)+' mois');
-  const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem">⚠ Dépasse le plafond légal (2 mois — meublé)</span>`:'';
-  const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')">✏️ Mode</span>`:'';
+  const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem"><i data-lucide=alert-triangle class=ic></i> Dépasse le plafond légal (2 mois — meublé)</span>`:'';
+  const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')"><i data-lucide=pencil class=ic></i> Mode</span>`:'';
   show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn+tenantFlag('Dépôt de garantie'));
   show('depot-mois-txt',depotMoisLabel);
   show('depot-highlight',ev('deposit',fmt(depotEffectif))+' — à verser avant l\'entrée dans les lieux'+depotWarnHtml);
 
   // Charges / bills
   if(Li?.bills_included){
-    show('bills-block','<div class="highlight">✅ Charges comprises dans le loyer — eau, électricité, internet inclus.</div>');
+    show('bills-block','<div class="highlight"><i data-lucide=check-circle-2 class=ic></i> Charges comprises dans le loyer — eau, électricité, internet inclus.</div>');
   }
 
   // DPE — lecture depuis listing (colonnes réelles : dpe, ges)
@@ -2260,8 +2412,8 @@ function renderBail(){
   show('dpe-grid',dpeHtml);
 
   let dpeWarn='';
-  if(epc==='F'){dpeWarn='<div class="warning">⚠️ Logement classé F — interdiction de louer à partir du 1ᵉʳ janvier 2034 (loi Climat et Résilience).</div>';}
-  else if(epc==='G'){dpeWarn='<div class="alert-red">🚫 Logement classé G — interdiction de louer à partir du 1ᵉʳ janvier 2028 (loi Climat et Résilience).</div>';}
+  if(epc==='F'){dpeWarn='<div class="warning"><i data-lucide=alert-triangle class=ic></i> Logement classé F — interdiction de louer à partir du 1ᵉʳ janvier 2034 (loi Climat et Résilience).</div>';}
+  else if(epc==='G'){dpeWarn='<div class="alert-red"><i data-lucide=ban class=ic></i> Logement classé G — interdiction de louer à partir du 1ᵉʳ janvier 2028 (loi Climat et Résilience).</div>';}
   show('dpe-warning-block',dpeWarn);
 
   // DPE — dépenses énergétiques estimées
@@ -2272,12 +2424,12 @@ function renderBail(){
     let depHtml='';
     if(dMin&&dMax){
       depHtml=`<div class="info-blue" style="font-size:.82rem;padding:.55rem .9rem;margin-top:.4rem">
-        🔋 <strong>Dépenses annuelles d'énergie estimées :</strong> entre <strong>${dMin} €</strong> et <strong>${dMax} €</strong> par an
+        <i data-lucide=battery-medium class=ic></i> <strong>Dépenses annuelles d'énergie estimées :</strong> entre <strong>${dMin} €</strong> et <strong>${dMax} €</strong> par an
         ${dAnnee?`<span style="opacity:.75"> — prix de référence : année ${dAnnee}</span>`:''}
-        ${_editMode?` <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_min')">✏️ min</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_max')">✏️ max</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_annee_ref')">✏️ année</span>`:''}
+        ${_editMode?` <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_min')"><i data-lucide=pencil class=ic></i> min</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_max')"><i data-lucide=pencil class=ic></i> max</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_annee_ref')"><i data-lucide=pencil class=ic></i> année</span>`:''}
       </div>`;
     } else if(_editMode){
-      depHtml=`<div style="margin-top:.35rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_min')">⚠ Dépenses min (€/an)</span> <span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_max')">⚠ Dépenses max (€/an)</span> <span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'dpe_annee_ref')">⚠ Année référence prix</span></div>`;
+      depHtml=`<div style="margin-top:.35rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_min')"><i data-lucide=alert-triangle class=ic></i> Dépenses min (€/an)</span> <span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_max')"><i data-lucide=alert-triangle class=ic></i> Dépenses max (€/an)</span> <span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'dpe_annee_ref')"><i data-lucide=alert-triangle class=ic></i> Année référence prix</span></div>`;
     }
     show('dpe-depenses-block',depHtml);
   }
@@ -2294,19 +2446,19 @@ function renderBail(){
   const diagRows=[
     {name:'DPE (Performance énergétique)',oblig:'Toujours obligatoire',res:epc?`Classe ${epc}`:'Non renseigné',fk:'dpe_energy_rating'},
     {name:'GES (Gaz à effet de serre)',oblig:'Toujours obligatoire',res:ges?`Classe ${ges}`:'Non renseigné',fk:'dpe_ges_rating'},
-    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée ✅',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis ⚠️',na:'Non applicable'}),fk:'diag_amiante'},
-    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée ✅',presence:'Présence < seuil',risque:'Risque exposition ⚠️',na:'Non applicable'}),fk:'diag_plomb'},
-    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(dElec,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Non applicable'}),fk:'diag_elec'},
-    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(dGaz,{conforme:'Conforme ✅',anomalie:'Anomalie(s) détectée(s) ⚠️',na:'Pas d\'installation gaz'}),fk:'diag_gaz'},
-    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire ✅',na:'Zone hors risque'}),fk:'diag_erp'},
+    {name:'Amiante',oblig:'Immeuble permis construire avant juil. 1997',res:getLabel(dAmiante,{absence:'Absence constatée <i data-lucide=check-circle-2 class=ic></i>',presence:'Présence détectée (surveillance)',travaux:'Amiante — travaux requis <i data-lucide=alert-triangle class=ic></i>',na:'Non applicable'}),fk:'diag_amiante'},
+    {name:'Plomb (CREP)',oblig:'Immeuble avant 1949',res:getLabel(dPlomb,{absence:'Absence constatée <i data-lucide=check-circle-2 class=ic></i>',presence:'Présence < seuil',risque:'Risque exposition ',na:'Non applicable'}),fk:'diag_plomb'},
+    {name:'Électricité',oblig:'Installation > 15 ans',res:getLabel(dElec,{conforme:'Conforme <i data-lucide=check-circle-2 class=ic></i>',anomalie:'Anomalie(s) détectée(s) <i data-lucide=alert-triangle class=ic></i>',na:'Non applicable'}),fk:'diag_elec'},
+    {name:'Gaz',oblig:'Installation > 15 ans',res:getLabel(dGaz,{conforme:'Conforme <i data-lucide=check-circle-2 class=ic></i>',anomalie:'Anomalie(s) détectée(s) <i data-lucide=alert-triangle class=ic></i>',na:'Pas d\'installation gaz'}),fk:'diag_gaz'},
+    {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire <i data-lucide=check-circle-2 class=ic></i>',na:'Zone hors risque'}),fk:'diag_erp'},
     {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'}),fk:'diag_bruit'}
   ];
   show('diag-tbody',diagRows.map(r=>{
-    const cls=r.res.includes('✅')?'diag-ok':r.res.includes('⚠️')?'diag-req':'diag-na';
+    const cls=r.res.includes('<i data-lucide=check-circle-2 class=ic></i>')?'diag-ok':r.res.includes('<i data-lucide=alert-triangle class=ic></i>')?'diag-req':'diag-na';
     const editBtn=(_editMode&&r.fk)
       ?(r.res==='Non renseigné'||r.res==='—'
-        ?`<span class="missing-badge" style="font-size:.68rem;margin-left:.4rem" onclick="editField(event,'${r.fk}')">⚠ Renseigner</span>`
-        :`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'${r.fk}')">✏️</span>`)
+        ?`<span class="missing-badge" style="font-size:.68rem;margin-left:.4rem" onclick="editField(event,'${r.fk}')"><i data-lucide=alert-triangle class=ic></i> Renseigner</span>`
+        :`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'${r.fk}')"><i data-lucide=pencil class=ic></i></span>`)
       :'';
     return`<tr><td>${r.name}</td><td style="font-size:.75rem;color:var(--td)">${r.oblig}</td><td class="${cls}">${hl(r.fk,r.res)}${editBtn}</td></tr>`;
   }).join(''));
@@ -2342,7 +2494,7 @@ function renderBail(){
     const noTravaux=tReal==='non'||tLegacy==='aucun'||(!tReal&&!tLegacy&&!_editMode);
     const ouiTravaux=tReal==='oui'||(!tReal&&tLegacy&&tLegacy!=='aucun');
     if(noTravaux){
-      show('travaux-block',`<div class="info-blue">ℹ️ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_realises')">✏️ Modifier</span>`:''}</div>`);
+      show('travaux-block',`<div class="info-blue">ℹ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_realises')"><i data-lucide=pencil class=ic></i> Modifier</span>`:''}</div>`);
     }else if(ouiTravaux){
       const rows=[];
       const tNat=L.travaux_nature||tLegacy||'';
@@ -2351,15 +2503,15 @@ function renderBail(){
       const tAm=L.travaux_amelioration;
       const tCo=L.travaux_conformite;
       const tIl=L.travaux_impact_loyer;
-      if(tNat) rows.push({l:'Nature',v:tNat+(_editMode?` ${ev('travaux_nature','')}`:'')}); else if(_editMode) rows.push({l:'Nature',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_nature')">⚠ Nature des travaux</span>`});
-      if(tMt)  rows.push({l:'Montant',v:nb(tMt)+' €'+(_editMode?` ${ev('travaux_montant','')}`:'')}); else if(_editMode) rows.push({l:'Montant',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_montant')">⚠ Montant</span>`});
-      if(tDt)  rows.push({l:'Date',v:fmtDate(tDt)+(_editMode?` ${ev('travaux_date','')}`:'')}); else if(_editMode) rows.push({l:'Date',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_date')">⚠ Date</span>`});
-      if(tAm==='oui') rows.push({l:'Amélioration',v:'Oui'+(_editMode?` ${ev('travaux_amelioration','')}`:'')}); else if(_editMode) rows.push({l:'Amélioration',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_amelioration')">⚠ Travaux d'amélioration ?</span>`});
-      if(tCo==='oui') rows.push({l:'Mise en conformité',v:'Oui'+(_editMode?` ${ev('travaux_conformite','')}`:'')}); else if(_editMode) rows.push({l:'Mise en conformité',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_conformite')">⚠ Conformité décence ?</span>`});
-      if(tIl&&tIl!=='aucun') rows.push({l:'Impact loyer',v:(tIl==='majoration'?'Majoration prévue':'Diminution temporaire accordée')+(_editMode?` ${ev('travaux_impact_loyer','')}`:'')}); else if(_editMode) rows.push({l:'Impact loyer',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_impact_loyer')">⚠ Impact sur le loyer ?</span>`});
+      if(tNat) rows.push({l:'Nature',v:tNat+(_editMode?` ${ev('travaux_nature','')}`:'')}); else if(_editMode) rows.push({l:'Nature',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_nature')"><i data-lucide=alert-triangle class=ic></i> Nature des travaux</span>`});
+      if(tMt)  rows.push({l:'Montant',v:nb(tMt)+' €'+(_editMode?` ${ev('travaux_montant','')}`:'')}); else if(_editMode) rows.push({l:'Montant',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_montant')"><i data-lucide=alert-triangle class=ic></i> Montant</span>`});
+      if(tDt)  rows.push({l:'Date',v:fmtDate(tDt)+(_editMode?` ${ev('travaux_date','')}`:'')}); else if(_editMode) rows.push({l:'Date',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_date')"><i data-lucide=alert-triangle class=ic></i> Date</span>`});
+      if(tAm==='oui') rows.push({l:'Amélioration',v:'Oui'+(_editMode?` ${ev('travaux_amelioration','')}`:'')}); else if(_editMode) rows.push({l:'Amélioration',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_amelioration')"><i data-lucide=alert-triangle class=ic></i> Travaux d'amélioration ?</span>`});
+      if(tCo==='oui') rows.push({l:'Mise en conformité',v:'Oui'+(_editMode?` ${ev('travaux_conformite','')}`:'')}); else if(_editMode) rows.push({l:'Mise en conformité',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_conformite')"><i data-lucide=alert-triangle class=ic></i> Conformité décence ?</span>`});
+      if(tIl&&tIl!=='aucun') rows.push({l:'Impact loyer',v:(tIl==='majoration'?'Majoration prévue':'Diminution temporaire accordée')+(_editMode?` ${ev('travaux_impact_loyer','')}`:'')}); else if(_editMode) rows.push({l:'Impact loyer',v:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'travaux_impact_loyer')"><i data-lucide=alert-triangle class=ic></i> Impact sur le loyer ?</span>`});
       const rowsHtml=rows.map(r=>`<div class="info-row"><span class="ir-label">${r.l}</span><span class="ir-value">${r.v}</span></div>`).join('');
       show('travaux-block',`<div style="background:rgba(27,79,216,.04);border:1px solid rgba(27,79,216,.15);border-radius:8px;padding:.55rem .8rem;margin:.35rem 0">
-        🔨 <strong style="font-size:.82rem">Travaux réalisés</strong>${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.35rem" onclick="editField(event,'travaux_realises')">✏️ Statut</span>`:''}
+        <i data-lucide=hammer class=ic></i> <strong style="font-size:.82rem">Travaux réalisés</strong>${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.35rem" onclick="editField(event,'travaux_realises')"><i data-lucide=pencil class=ic></i> Statut</span>`:''}
         <div class="info-rows" style="margin-top:.45rem">${rowsHtml}</div>
       </div>`);
     }else{
@@ -2421,18 +2573,22 @@ function renderBail(){
     <span style="flex:1">${a.txt}</span>
     ${a.url
       ?(a.official
-        ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC">📄 PDF officiel</a>`
-        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener">📥 PDF</a>`)
+        ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC"><i data-lucide=file-text class=ic></i> PDF officiel</a>`
+        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
         :_editMode&&a.uploadKey
-          ?`<label class="annexe-upload-btn" title="Déposer PDF ou photo"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0">📤 PDF ou photo</label>`
+          ?`<label class="annexe-upload-btn" title="Déposer PDF ou photo"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=upload class=ic></i> PDF ou photo</label>`
           :'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'
     }
   </li>`).join(''));
 
-  // Clause de cautionnement intégrée
-  if(L.garant_name){
+  // Clause de cautionnement intégrée — uniquement pour un garant personne physique
+  const _bcc=bailChoices(L);
+  if(!_bcc.physique){
+    q('caution-section').style.display='none';
+    q('sig-g-block').style.display='none';
+  } else if(L.garant_name){
     q('caution-section').style.display='block';
     q('sig-g-block').style.display='block';
     const bailDate=fmtDate(L.start_date);
@@ -2440,7 +2596,8 @@ function renderBail(){
 
     // Bailleur (dans la clause)
     const llName=L.landlord_name||LL_PROFILE?.full_name||'—';
-    show('c-landlord-name2',llName);
+    const _cb=(()=>{let v=(BOOKING&&BOOKING.co_bailleurs_data!=null)?BOOKING.co_bailleurs_data:LL_PROFILE?.co_bailleur_data;try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return (Array.isArray(v)?v:(v?[v]:[])).filter(x=>x&&x.name).map(x=>x.name);})();
+    show('c-landlord-name2',[llName,..._cb].join(' et '));
 
     // Garant — identification dans l'en-tête de la clause
     show('c-garant-name2',L.garant_name);
@@ -2498,33 +2655,47 @@ function renderBail(){
       des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
       pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em>, et pendant toute la durée du bail
       et de ses renouvellements ou reconductions, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
-      en cas de défaillance du locataire, sans pouvoir bénéficier de discussion ni de division.
+      en cas de défaillance du locataire, ${_bcc.g==='simple'?'le bailleur devant poursuivre d\'abord le locataire (bénéfice de discussion)':'sans pouvoir bénéficier de discussion ni de division'}.
       Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
       »`);
     // Caution type + duree
-    const gType=L.garant_type||'solidaire';
+    const gType=_bcc.g;
+    const _simple=gType==='simple';
+    show('c-nature-text',_simple
+      ?'La présente caution est <strong>simple</strong> : le garant bénéficie du bénéfice de discussion — le bailleur doit d\'abord poursuivre le locataire avant de se retourner contre lui (art. 2305 C. civ.).'
+      :'La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2305 C. civ.) et au bénéfice de division (art. 2306 C. civ.).');
+    const _cl=q('c-coloc-text');
+    if(_cl){
+      if(_bcc.coLocs.length&&_bcc.c!=='individuel'){
+        _cl.style.display='';
+        _cl.innerHTML=`Colocation : le présent engagement garantit les obligations de <strong>${T_PROFILE?.full_name||'le locataire'}</strong>. Il prend fin lorsqu'un nouveau colocataire le remplace au bail, et au plus tard six (6) mois après la fin du préavis de ce colocataire (art. 8-1 VI de la loi du 6 juillet 1989).`;
+      }else _cl.style.display='none';
+    }
+    const _role='Le Garant (Caution '+(_simple?'simple':'solidaire')+')';
+    show('sig-g-role',_role);
+    document.querySelectorAll('.garant-card .partie-pill').forEach(el=>el.textContent=_role);
     const gDuree=L.garant_duree_type||'indeterminee';
     const typeLabels={solidaire:'Solidaire (sans bénéfice de discussion)',simple:'Simple (avec bénéfice de discussion)',visale:'Garantie Visale (Action Logement)',aucune:'Aucune caution'};
     const titleLabels={solidaire:'Clause de cautionnement solidaire',simple:'Clause de cautionnement simple',visale:'Garantie Visale — Action Logement',aucune:'Caution'};
     const elTitle=q('c-caution-title');
     if(elTitle) elTitle.textContent=(titleLabels[gType]||titleLabels.solidaire)+' — art. 22-1 loi n° 89-462 du 6 juillet 1989';
-    show('c-nature-caution',(typeLabels[gType]||typeLabels.solidaire)+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_type')">✏️</span>`:''));
+    show('c-nature-caution',(typeLabels[gType]||typeLabels.solidaire)+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     if(gDuree==='determinee'){
-      show('c-resil-caution','Engagement limité à la durée du bail et de ses renouvellements explicites'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')">✏️</span>`:''));
+      show('c-resil-caution','Engagement limité à la durée du bail et de ses renouvellements explicites'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     } else {
-      show('c-resil-caution','Résiliable à chaque échéance annuelle (2 mois de préavis LRAR — art. 22-1-II loi 89)'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')">✏️</span>`:''));
+      show('c-resil-caution','Résiliable par LRAR — effet au terme du bail en cours (art. 22-1 loi 89)'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     }
   } else if(_editMode){
     q('caution-section').style.display='block';
     show('c-garant-header',`<div class="partie-card" style="border:1.5px dashed var(--gold);background:rgba(180,83,9,.05);margin:0;padding:.8rem">
-      <span class="missing-badge" style="font-size:.8rem" onclick="editField(event,'garant_name')">⚠ Ajouter un garant (caution solidaire) — optionnel</span>
-      <span class="missing-badge" style="font-size:.75rem;margin-left:.5rem" onclick="editField(event,'garant_type')">⚠ Type de caution</span>
+      <span class="missing-badge" style="font-size:.8rem" onclick="editField(event,'garant_name')"><i data-lucide=alert-triangle class=ic></i> Désigner le garant (caution ${_bcc.g==='simple'?'simple':'solidaire'})</span>
+      <span class="missing-badge" style="font-size:.75rem;margin-left:.5rem" onclick="editField(event,'garant_type')"><i data-lucide=alert-triangle class=ic></i> Type de caution</span>
     </div>`);
     q('sig-g-block').style.display='none';
-  } else if(_tenantEditMode){
+  } else if(_tenantEditMode&&_bcc.physique){
     q('caution-section').style.display='block';
     show('c-garant-header',`<div class="partie-card" style="border:1.5px dashed rgba(27,79,216,.3);background:rgba(27,79,216,.04);margin:0;padding:.8rem">
-      <span class="missing-badge" style="font-size:.8rem;background:rgba(27,79,216,.08);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'garant_name')">⚠ Ajouter votre garant (caution solidaire) — si requis</span>
+      <span class="missing-badge" style="font-size:.8rem;background:rgba(27,79,216,.08);border-color:rgba(27,79,216,.3);color:var(--bleu)" onclick="editField(event,'garant_name')"><i data-lucide=alert-triangle class=ic></i> Ajouter votre garant (caution solidaire) — si requis</span>
     </div>`);
     q('sig-g-block').style.display='none';
   }
@@ -2538,7 +2709,7 @@ function renderBail(){
       editBanner=document.createElement('div');
       editBanner.id='edit-mode-banner';
       editBanner.className='edit-banner';
-      editBanner.innerHTML='✏️ <span><strong>Mode édition actif</strong> — Les champs <span class="edit-banner-sample">⚠ À renseigner</span> sont manquants. Cliquez dessus pour les compléter directement dans le bail.</span>';
+      editBanner.innerHTML='<i data-lucide=pencil class=ic></i> <span><strong>Mode édition actif</strong> — Les champs <span class="edit-banner-sample"><i data-lucide=alert-triangle class=ic></i> À renseigner</span> sont manquants. Cliquez dessus pour les compléter directement dans le bail.</span>';
       const toolsWrap=document.getElementById('bail-tools-wrap');
       if(toolsWrap)toolsWrap.appendChild(editBanner);
     }
@@ -2586,13 +2757,13 @@ function renderTenantGuide(){
     <div class="ll-guide-step">
       ${stepNum(1,false)}
       <div class="ll-step-text">
-        <strong>Lisez attentivement le bail</strong> — Chaque section peut être contestée avec le bouton <span style="display:inline-flex;align-items:center;gap:.2rem;background:rgba(212,168,71,.1);border:1.5px solid rgba(212,168,71,.4);border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:var(--gold);vertical-align:middle">⚠️ Contester</span>. Vous pouvez aussi modifier vos informations personnelles avec les boutons ✏️ bleus.
+        <strong>Lisez attentivement le bail</strong> — Chaque section peut être contestée avec le bouton <span style="display:inline-flex;align-items:center;gap:.2rem;background:rgba(212,168,71,.1);border:1.5px solid rgba(212,168,71,.4);border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:var(--gold);vertical-align:middle"><i data-lucide=alert-triangle class=ic></i> Contester</span>. Vous pouvez aussi modifier vos informations personnelles avec les boutons <i data-lucide=pencil class=ic></i> bleus.
       </div>
     </div>
     <div class="ll-guide-step">
       ${stepNum(2,step1Done)}
       <div class="ll-step-text">
-        <strong>Acceptez ou demandez des modifications</strong> — Si tout vous convient, cliquez <strong>✅ J'accepte le bail</strong>. Sinon, <strong>📝 Demander des modifications →</strong> pour envoyer vos remarques au bailleur.
+        <strong>Acceptez ou demandez des modifications</strong> — Si tout vous convient, cliquez <strong><i data-lucide=check-circle-2 class=ic></i> J'accepte le bail</strong>. Sinon, <strong><i data-lucide=file-pen class=ic></i> Demander des modifications →</strong> pour envoyer vos remarques au bailleur.
       </div>
     </div>
     <div class="ll-guide-step">
@@ -2609,11 +2780,11 @@ function renderTenantGuide(){
     </div>`;
 
   let contextMsg='';
-  if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#92400e">👉 <strong>Étape actuelle :</strong> Lisez le bail, utilisez les boutons <strong>⚠️ Contester</strong> sur les sections qui vous posent problème, puis acceptez ou demandez des modifications via la barre ci-dessous.</p>`;
-  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note">⏳ <strong>Vos remarques ont été transmises.</strong> Le bailleur les étudie et reviendra vers vous prochainement.</p>`;
-  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#16a34a">✅ <strong>Modèle accepté !</strong> Faites défiler vers le bas pour apposer votre signature.</p>`;
+  if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#92400e"><i data-lucide=arrow-right class=ic></i> <strong>Étape actuelle :</strong> Lisez le bail, utilisez les boutons <strong><i data-lucide=alert-triangle class=ic></i> Contester</strong> sur les sections qui vous posent problème, puis acceptez ou demandez des modifications via la barre ci-dessous.</p>`;
+  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=hourglass class=ic></i> <strong>Vos remarques ont été transmises.</strong> Le bailleur les étudie et reviendra vers vous prochainement.</p>`;
+  else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note" style="color:#16a34a"><i data-lucide=check-circle-2 class=ic></i> <strong>Modèle accepté !</strong> Faites défiler vers le bas pour apposer votre signature.</p>`;
 
-  guide.innerHTML=`<div class="ll-guide-title" style="color:var(--gold)">📋 Guide — Comment lire et valider votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
+  guide.innerHTML=`<div class="ll-guide-title" style="color:var(--gold)"><i data-lucide=clipboard-list class=ic></i> Guide — Comment lire et valider votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
   guide.style.display='block';
   updateToolsVisibility();
 }
@@ -2636,7 +2807,7 @@ function addSectionTenantFlags(){
     if(el&&!el.querySelector('.tf-flag')){
       const span=document.createElement('span');
       span.className='tf-flag';
-      span.innerHTML=` <span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;vertical-align:middle;font-style:normal" onclick="openModifModalWithContext('${label}')">⚠️ Contester</span>`;
+      span.innerHTML=` <span class="missing-badge" style="font-size:.69rem;background:rgba(212,168,71,.1);border-color:rgba(212,168,71,.4);color:var(--gold);cursor:pointer;vertical-align:middle;font-style:normal" onclick="openModifModalWithContext('${label}')"><i data-lucide=alert-triangle class=ic></i> Contester</span>`;
       el.appendChild(span);
     }
   });
@@ -2655,11 +2826,11 @@ function renderNegocBar(){
   bar.style.display='block';
 
   const steps={
-    draft:        {label:'📋 Brouillon — En attente d\'envoi au locataire',    color:'#6b7280'},
-    pending_tenant:{label:'📨 Envoyé au locataire — en attente de sa relecture', color:'#1d4ed8'},
-    pending_landlord:{label:'🔄 Le locataire a demandé des modifications',       color:'#d97706'},
-    agreed:       {label:'✅ Modèle accepté par les deux parties — signatures ouvertes', color:'#16a34a'},
-    signed:       {label:'✅ Bail entièrement signé',                            color:'#16a34a'},
+    draft:        {label:'<i data-lucide=clipboard-list class=ic></i> Brouillon — En attente d\'envoi au locataire',    color:'#6b7280'},
+    pending_tenant:{label:'<i data-lucide=send class=ic></i> Envoyé au locataire — en attente de sa relecture', color:'#1d4ed8'},
+    pending_landlord:{label:'<i data-lucide=refresh-cw class=ic></i> Le locataire a demandé des modifications',       color:'#d97706'},
+    agreed:       {label:'<i data-lucide=check-circle-2 class=ic></i> Modèle accepté par les deux parties — signatures ouvertes', color:'#16a34a'},
+    signed:       {label:'<i data-lucide=check-circle-2 class=ic></i> Bail entièrement signé',                            color:'#16a34a'},
   };
   const s=steps[ns]||steps.draft;
   step.innerHTML=`<span style="color:${s.color}">${s.label}</span>`
@@ -2669,15 +2840,15 @@ function renderNegocBar(){
   const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=label;b.onclick=fn;acts.appendChild(b);};
 
   if(effectiveRole==='landlord'){
-    if(ns==='draft')                  btn('📨 Envoyer au locataire →','btn-blue',sendToTenant);
-    if(ns==='pending_landlord')       btn('✅ Valider le modèle final →','btn-green',landlordValidateModel);
-    if(ns==='pending_landlord')       btn('📨 Renvoyer au locataire →','btn-outline',sendToTenant);
+    if(ns==='draft')                  btn('<i data-lucide=send class=ic></i> Envoyer au locataire →','btn-blue',sendToTenant);
+    if(ns==='pending_landlord')       btn('<i data-lucide=check-circle-2 class=ic></i> Valider le modèle final →','btn-green',landlordValidateModel);
+    if(ns==='pending_landlord')       btn('<i data-lucide=send class=ic></i> Renvoyer au locataire →','btn-outline',sendToTenant);
   }
   if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
-      step.innerHTML+=`<div style="font-size:.73rem;color:#1d4ed8;background:rgba(27,79,216,.06);border-radius:6px;padding:.35rem .55rem;margin-top:.35rem">💡 Lisez le bail ci-dessous. Modifiez vos infos personnelles si nécessaire, utilisez les boutons <strong>⚠️ Contester</strong> pour signaler un désaccord, puis acceptez ou demandez des modifications.</div>`;
-      btn('✅ J\'accepte le bail','btn-green',tenantAcceptsModel);
-      btn('📝 Demander des modifications →','btn-orange',openModifModal);
+      step.innerHTML+=`<div style="font-size:.73rem;color:#1d4ed8;background:rgba(27,79,216,.06);border-radius:6px;padding:.35rem .55rem;margin-top:.35rem"><i data-lucide=lightbulb class=ic></i> Lisez le bail ci-dessous. Modifiez vos infos personnelles si nécessaire, utilisez les boutons <strong><i data-lucide=alert-triangle class=ic></i> Contester</strong> pour signaler un désaccord, puis acceptez ou demandez des modifications.</div>`;
+      btn('<i data-lucide=check-circle-2 class=ic></i> J\'accepte le bail','btn-green',tenantAcceptsModel);
+      btn('<i data-lucide=file-pen class=ic></i> Demander des modifications →','btn-orange',openModifModal);
     }
     if(ns==='pending_landlord') step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Votre demande a été transmise au bailleur. En attente de sa réponse.</div>`;
   }
@@ -2689,8 +2860,8 @@ async function sendToTenant(){
   LEASE.negotiation_status='pending_tenant';
   // Message au locataire
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant';
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
-  toast('✅ Bail envoyé au locataire pour relecture !');
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
+  toast('<i data-lucide=check-circle-2 class=ic></i> Bail envoyé au locataire pour relecture !');
   renderNegocBar();renderLandlordGuide();renderTenantGuide();renderStatusAndSigs();
 }
 
@@ -2701,19 +2872,19 @@ async function tenantAcceptsModel(){
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
   // Message au bailleur
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`✅ Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
   // Email au garant si présent
   if(LEASE.garant_email&&LEASE.garant_name){
     fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:LEASE.tenant_name||'Le locataire',listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||'',bailUrl:lien}})}).catch(()=>{});
   }
-  toast('✅ Modèle accepté ! Le bail est maintenant prêt pour signature.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Modèle accepté ! Le bail est maintenant prêt pour signature.');
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
 
 function openModifModal(){const ta=q('modif-notes');if(ta)ta.value='';q('modif-modal').style.display='flex';}
 function openModifModalWithContext(section){
   const ta=q('modif-notes');
-  if(ta){ta.value='📌 Section contestée : '+section+'\n\nDemande / remarque : ';}
+  if(ta){ta.value='Section contestée : '+section+'\n\nDemande / remarque : ';}
   q('modif-modal').style.display='flex';
   if(ta){ta.focus();const l=ta.value.length;ta.setSelectionRange(l,l);}
 }
@@ -2721,7 +2892,7 @@ function closeModifModal(){q('modif-modal').style.display='none';}
 
 async function submitModifRequest(){
   const notes=q('modif-notes')?.value?.trim();
-  if(!notes){toast('⚠️ Décrivez votre demande');return;}
+  if(!notes){toast('<i data-lucide=alert-triangle class=ic></i> Décrivez votre demande');return;}
   // Logger la demande du locataire dans le journal
   const tenantEntry={par:'tenant',date:new Date().toISOString(),champs:[],note:notes};
   const newLog=[...(LEASE.modifs_log||[]),tenantEntry];
@@ -2730,8 +2901,8 @@ async function submitModifRequest(){
   LEASE.negotiation_status='pending_landlord';LEASE.tenant_notes=notes;LEASE.modifs_log=newLog;
   // Message au bailleur
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`📝 Le locataire a demandé des modifications au bail :\n\n« ${notes} »\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
-  closeModifModal();toast('✅ Demande envoyée au bailleur !');
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a demandé des modifications au bail :\n\n« ${notes} »\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
+  closeModifModal();toast('<i data-lucide=check-circle-2 class=ic></i> Demande envoyée au bailleur !');
   renderNegocBar();
 }
 
@@ -2741,12 +2912,12 @@ async function landlordValidateModel(){
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`✅ Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
   // Email au garant si présent
   if(LEASE.garant_email&&LEASE.garant_name){
     fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:LEASE.tenant_name||'Le locataire',listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||'',bailUrl:lien}})}).catch(()=>{});
   }
-  toast('✅ Modèle validé ! Signatures ouvertes.');
+  toast('<i data-lucide=check-circle-2 class=ic></i> Modèle validé ! Signatures ouvertes.');
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
 
@@ -2761,10 +2932,10 @@ function renderStatusAndSigs(){
 
   // Status bar
   const sb2=q('status-bar');
-  if(allSigned){sb2.className='sb-complete';sb2.innerHTML='✅ Bail entièrement signé — '+fmtDate(L.tenant_signed_at);}
-  else if(llSigned&&tSigned&&hasGarant&&!gSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='🔵 Bail signé par les deux parties — en attente de la signature du garant';}
-  else if(llSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='🔵 Bail signé par le bailleur — en attente de la signature du locataire';}
-  else{sb2.className='sb-pending';sb2.innerHTML='⏳ Bail en attente de signatures';}
+  if(allSigned){sb2.className='sb-complete';sb2.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Bail entièrement signé — '+fmtDate(L.tenant_signed_at);}
+  else if(llSigned&&tSigned&&hasGarant&&!gSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='<i data-lucide=circle class=ic style=color:#2563EB;fill:currentColor></i> Bail signé par les deux parties — en attente de la signature du garant';}
+  else if(llSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='<i data-lucide=circle class=ic style=color:#2563EB;fill:currentColor></i> Bail signé par le bailleur — en attente de la signature du locataire';}
+  else{sb2.className='sb-pending';sb2.innerHTML='<i data-lucide=hourglass class=ic></i> Bail en attente de signatures';}
 
   // Bloquer signatures si modèle pas encore accepté
   const ns=L.negotiation_status||'agreed'; // rétrocompat: pas de statut = signable direct
@@ -2782,7 +2953,7 @@ function renderStatusAndSigs(){
         pending_landlord:'Le locataire a demandé des modifications. Relisez ses commentaires et validez.',
       };
       const msg=nsLabels[ns]||'Accord en cours.';
-      sigLocked.innerHTML=`<div class="sig-locked-placeholder no-print"><div class="slp-icon">🔒</div><div class="slp-title">Signatures disponibles après accord mutuel</div><div class="slp-sub">${msg}</div></div>`;
+      sigLocked.innerHTML=`<div class="sig-locked-placeholder no-print"><div class="slp-icon"></div><div class="slp-title">Signatures disponibles après accord mutuel</div><div class="slp-sub">${msg}</div></div>`;
       sigLocked.style.display='block';
     }else{
       sigLocked.style.display='none';
@@ -2791,43 +2962,43 @@ function renderStatusAndSigs(){
 
   // Sig bailleur
   if(llSigned&&L.landlord_signature){
-    show('sig-ll-pad-area',`<div class="sig-done"><img src="${L.landlord_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature bailleur"><div class="ts">✅ Signé le ${fmtDate(L.landlord_signed_at)}</div></div>`);
+    show('sig-ll-pad-area',`<div class="sig-done"><img src="${L.landlord_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature bailleur"><div class="ts"><i data-lucide=check-circle-2 class=ic></i> Signé le ${fmtDate(L.landlord_signed_at)}</div></div>`);
   }else if(effectiveRole==='landlord'&&!llSigned&&canSign){
     show('sig-ll-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-ll" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('ll')">Effacer</button><button class="sign" onclick="prepareSign('ll')">Valider →</button></div>`);
     setTimeout(()=>initCanvas('ll'),50);
   }else if(effectiveRole==='landlord'&&!llSigned&&!canSign){
-    show('sig-ll-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
+    show('sig-ll-pad-area','<div class="sig-awaiting"><i data-lucide=hourglass class=ic></i> En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-ll-pad-area','<div class="sig-awaiting">—</div>');}
 
   // Sig locataire
   if(tSigned&&L.tenant_signature){
-    show('sig-t-pad-area',`<div class="sig-done"><img src="${L.tenant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature locataire"><div class="ts">✅ Signé le ${fmtDate(L.tenant_signed_at)}</div></div>`);
+    show('sig-t-pad-area',`<div class="sig-done"><img src="${L.tenant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature locataire"><div class="ts"><i data-lucide=check-circle-2 class=ic></i> Signé le ${fmtDate(L.tenant_signed_at)}</div></div>`);
   }else if(effectiveRole==='tenant'&&!tSigned&&canSign){
-    if(!llSigned){show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente de la signature du bailleur d\'abord</div>');}
+    if(!llSigned){show('sig-t-pad-area','<div class="sig-awaiting"><i data-lucide=hourglass class=ic></i> En attente de la signature du bailleur d\'abord</div>');}
     else{show('sig-t-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-t" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('t')">Effacer</button><button class="sign" onclick="prepareSign('t')">Valider →</button></div>`);setTimeout(()=>initCanvas('t'),50);}
   }else if(effectiveRole==='tenant'&&!tSigned&&!canSign){
-    show('sig-t-pad-area','<div class="sig-awaiting">⏳ En attente d\'accord sur le modèle avant signature</div>');
+    show('sig-t-pad-area','<div class="sig-awaiting"><i data-lucide=hourglass class=ic></i> En attente d\'accord sur le modèle avant signature</div>');
   }else{show('sig-t-pad-area','<div class="sig-awaiting">—</div>');}
 
   // Sig garant
   if(L.garant_name){
     if(gSigned&&L.garant_signature){
-      show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts">✅ Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
+      show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts"><i data-lucide=check-circle-2 class=ic></i> Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
     }else if(!gSigned&&canSign&&effectiveRole==='garant'){
       show('sig-g-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-g" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('g')">Effacer</button><button class="sign" onclick="prepareSign('g')">Valider →</button></div>`);
       setTimeout(()=>initCanvas('g'),50);
     }else if(!gSigned&&canSign){
-      show('sig-g-pad-area','<div class="sig-awaiting">⏳ En attente de la signature du garant</div>');
-    }else{show('sig-g-pad-area','<div class="sig-awaiting">⏳ Signatures disponibles une fois le bail accepté</div>');}
+      show('sig-g-pad-area','<div class="sig-awaiting"><i data-lucide=hourglass class=ic></i> En attente de la signature du garant</div>');
+    }else{show('sig-g-pad-area','<div class="sig-awaiting"><i data-lucide=hourglass class=ic></i> Signatures disponibles une fois le bail accepté</div>');}
   }
 
   // Submit bar
   const hint=q('submit-hint'),btn=q('submit-btn');
-  if(allSigned){hint.textContent='✅ Bail entièrement signé. Téléchargez-le en PDF.';btn.style.display='none';}
-  else if(!canSign){hint.textContent='⏳ Bail en cours de négociation — signatures disponibles une fois le modèle accepté.';btn.style.display='none';}
-  else if(effectiveRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que bailleur';}
-  else if(effectiveRole==='landlord'&&llSigned){hint.innerHTML='✅ Vous avez signé. Lien locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant</code>';btn.style.display='none';}
-  else if(effectiveRole==='tenant'&&!tSigned&&llSigned){hint.textContent='Le bailleur a signé. Dessinez votre signature pour finaliser.';btn.style.display='inline-flex';btn.textContent='✍️ Signer en tant que locataire';}
+  if(allSigned){hint.textContent='Bail entièrement signé. Téléchargez-le en PDF.';btn.style.display='none';}
+  else if(!canSign){hint.textContent='Bail en cours de négociation — signatures disponibles une fois le modèle accepté.';btn.style.display='none';}
+  else if(effectiveRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='Signer en tant que bailleur';}
+  else if(effectiveRole==='landlord'&&llSigned){hint.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous avez signé. Lien locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant</code>';btn.style.display='none';}
+  else if(effectiveRole==='tenant'&&!tSigned&&llSigned){hint.textContent='Le bailleur a signé. Dessinez votre signature pour finaliser.';btn.style.display='inline-flex';btn.textContent='Signer en tant que locataire';}
   else{hint.textContent='Bail en préparation.';btn.style.display='none';}
 }
 
@@ -2876,7 +3047,7 @@ async function submitSignature(){
   if(llNowSigned&&tNowSigned){upd.negotiation_status='signed';upd.status='active';}
 
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
-  if(error){alert('⚠️ Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL (migration-leases.sql).\n\nDétail : '+error.message);return;}
+  if(error){alert('Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL (migration-leases.sql).\n\nDétail : '+error.message);return;}
   Object.assign(LEASE,upd);
   window._pendingSigWho=null;window._pendingSigData=null;
 
@@ -2895,13 +3066,13 @@ async function submitSignature(){
 
   if(who==='ll'){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id||'system',receiver_id:LEASE.tenant_id,content:`📄 Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
-    toast('✅ Bail signé — lien envoyé au locataire par messagerie');
+    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id||'system',receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
+    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé — lien envoyé au locataire par messagerie');
   }else if(who==='t'){
-    toast('✅ Bail signé par les deux parties !');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties !');
     if(LEASE.garant_name){
       const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-      toast('📤 Envoyez ce lien au garant pour sa signature',5000);
+      toast('<i data-lucide=upload class=ic></i> Envoyez ce lien au garant pour sa signature',5000);
     }
   }else if(who==='g'){
     // Notifier le bailleur et le locataire que le garant a signé (in-app + email)
@@ -2910,10 +3081,10 @@ async function submitSignature(){
     const locataireNom=LEASE.tenant_name||'Le locataire';
     const listingTitle=LEASE.listing_title||'le logement';
     if(LEASE.landlord_id){
-      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.landlord_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.landlord_id,content:`${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
     if(LEASE.tenant_id){
-      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`✅ ${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
     // Emails — garant (confirmation) + bailleur + locataire
     const emailData={garantNom,locataireNom,listingTitle,bailUrl:lien};
@@ -2921,7 +3092,7 @@ async function submitSignature(){
     if(LEASE.garant_email) sendMail(LEASE.garant_email,'garant');
     if(LEASE.landlord_email) sendMail(LEASE.landlord_email,'landlord');
     if(LEASE.tenant_email) sendMail(LEASE.tenant_email,'tenant');
-    toast('✅ Acte de caution solidaire signé — confirmation envoyée par email');
+    toast('<i data-lucide=check-circle-2 class=ic></i> Acte de caution solidaire signé — confirmation envoyée par email');
   }
 
   renderStatusAndSigs();
@@ -2938,19 +3109,19 @@ async function uploadDoc(key,inputEl){
   const allowedTypes=['application/pdf','image/jpeg','image/png','image/heic','image/heif'];
   const allowedExts=['.pdf','.jpg','.jpeg','.png','.heic','.heif'];
   if(!allowedTypes.includes(file.type)&&!allowedExts.some(e=>file.name.toLowerCase().endsWith(e))){
-    toast('⚠️ Format non accepté. PDF ou photo (JPG, PNG, HEIC) uniquement.',4000);inputEl.value='';return;
+    toast('Format non accepté. PDF ou photo (JPG, PNG, HEIC) uniquement.',4000);inputEl.value='';return;
   }
-  if(file.size>15*1024*1024){toast('⚠️ Fichier trop volumineux (max 15 Mo)',4000);inputEl.value='';return;}
-  if(!LEASE?.id){toast('⚠️ Bail non chargé — impossible d\'uploader',4000);return;}
+  if(file.size>15*1024*1024){toast('Fichier trop volumineux (max 15 Mo)',4000);inputEl.value='';return;}
+  if(!LEASE?.id){toast('<i data-lucide=alert-triangle class=ic></i> Bail non chargé — impossible d\'uploader',4000);return;}
 
   const statusEl=q('status-'+key);
-  if(statusEl)statusEl.innerHTML='<span class="cp-doc-uploading">⏳ Upload en cours…</span>';
+  if(statusEl)statusEl.innerHTML='<span class="cp-doc-uploading"><i data-lucide=hourglass class=ic></i> Upload en cours…</span>';
 
   const path=`${LEASE.id}/${key}_${Date.now()}.pdf`;
   const{data,error}=await sb.storage.from(DOC_BUCKET).upload(path,file,{upsert:true,contentType:'application/pdf'});
   if(error){
-    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem">❌ '+error.message+'</span>';
-    toast('❌ Upload échoué : '+error.message,5000);
+    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem"><i data-lucide=x-circle class=ic></i> '+error.message+'</span>';
+    toast('<i data-lucide=x-circle class=ic></i> Upload échoué : '+error.message,5000);
     return;
   }
 
@@ -2961,18 +3132,27 @@ async function uploadDoc(key,inputEl){
   // Sauvegarder l'URL dans la table leases
   const{error:upErr}=await sb.from('leases').update({[col]:publicUrl}).eq('id',LEASE.id);
   if(upErr){
-    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem">❌ Sauvegarde échouée</span>';
-    toast('❌ Sauvegarde URL échouée : '+upErr.message,5000);
+    if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem"><i data-lucide=x-circle class=ic></i> Sauvegarde échouée</span>';
+    toast('<i data-lucide=x-circle class=ic></i> Sauvegarde URL échouée : '+upErr.message,5000);
     return;
   }
   LEASE[col]=publicUrl;
 
-  if(statusEl)statusEl.innerHTML=`<span class="cp-doc-ok">✅ Déposé</span> <a href="${publicUrl}" target="_blank" class="cp-doc-link">Voir PDF</a>`;
-  toast(`✅ ${key.toUpperCase()} déposé avec succès`);
+  if(statusEl)statusEl.innerHTML=`<span class="cp-doc-ok"><i data-lucide=check-circle-2 class=ic></i> Déposé</span> <a href="${publicUrl}" target="_blank" class="cp-doc-link">Voir PDF</a>`;
+  toast(`<i data-lucide=check-circle-2 class=ic></i> ${key.toUpperCase()} déposé avec succès`);
   renderBail(); // Mettre à jour la liste des annexes
 }
 
 function showError(msg){q('loader').innerHTML=`<div style="color:var(--red);font-size:.9rem;padding:2rem">${msg}</div>`;}
+</script>
+<script>
+// Icônes Lucide (remplacent les émojis) — conversion au chargement puis
+// vérification légère toutes les 2 s pour le contenu généré en JS.
+(function initLucideIcons(){
+  if(!window.lucide)return setTimeout(initLucideIcons,50);
+  lucide.createIcons();
+  setInterval(()=>{const a=document.activeElement;if(a&&/^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))return;lucide.createIcons();},2000);
+})();
 </script>
 </body>
 </html>
