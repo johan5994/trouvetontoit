@@ -89,6 +89,10 @@
     .parties-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
     .partie-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:.9rem 1.15rem;display:flex;gap:1rem;align-items:flex-start}
     .partie-card.garant-card{background:#FFFBEB;border-color:#FDE68A}
+    .garant-bloc{background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.9rem 1.15rem}
+    .garant-bloc .partie-card{background:none;border:none;padding:0}
+    .garant-bloc .article-content{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed #FDE68A}
+    .garant-bloc .article-content p:last-child{margin-bottom:0}
     .partie-pill{font-size:.65rem;font-weight:800;color:#fff;background:var(--bleu);text-transform:uppercase;letter-spacing:.6px;padding:.25rem .65rem;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:.15rem}
     .garant-card .partie-pill{background:var(--gold)}
     .partie-body{flex:1;min-width:0}
@@ -136,6 +140,10 @@
     .bc-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-bottom:.5rem}
     .bc-lbl{font-size:.74rem;font-weight:700;color:var(--td);min-width:150px}
     .bc-pill{border:1.5px solid var(--border,#D8DCE6);background:#fff;color:inherit;border-radius:20px;padding:.22rem .7rem;font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit}
+    .yn-btns{display:inline-flex;gap:.25rem;margin-left:.35rem;vertical-align:middle}
+    .yn-btns .bc-pill{padding:.1rem .55rem;font-size:.72rem}
+    .na-note{font-size:.76rem;color:var(--td);font-style:italic}
+    @media print{.yn-btns,.na-note{display:none!important}}
     .bc-pill.on{background:var(--bleu);border-color:var(--bleu);color:#fff}
     .bc-sum{margin:0;padding-left:1.1rem;font-size:.84rem;line-height:1.6}
     .bc-sum li{margin:.1rem 0}
@@ -443,12 +451,14 @@
             <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
               <div class="article-title" style="color:var(--gold);margin-bottom:.7rem" id="c-caution-title">Engagement de caution solidaire</div>
 
-              <!-- Identification du garant (remplie par JS) -->
-              <div id="c-garant-header" style="margin-bottom:.85rem"></div>
+              <!-- Identification du garant + engagement : un seul bloc -->
+              <div class="garant-bloc">
+              <div id="c-garant-header"></div>
 
               <div class="article-content">
                 <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span>, déclare me porter caution <span id="c-nat-inline">solidaire</span> de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
                 <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable chaque année selon l'IRL.</p>
+              </div>
               </div>
 
               <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
@@ -785,7 +795,7 @@
         <div class="section">
           <div class="article-title">Article 21 — Inventaire du mobilier (Annexe 1)</div>
           <div class="article-content">
-            <p>Un inventaire et état détaillé du mobilier, établi lors de la remise des clés, est annexé au présent bail.</p>
+            <p>L'état des lieux d'entrée et l'inventaire détaillé du mobilier sont établis ensemble, contradictoirement, lors de la remise des clés, et annexés au présent bail.</p>
           </div>
         </div>
 
@@ -1818,7 +1828,7 @@ async function loadBail(){
         if(garantStep&&garantStep.type==='garant_personne'&&garantStep.garants?.length){
           const g=garantStep.garants[0];
           const gn=g.garant_name||{};
-          const nom=[gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' ');
+          const nom=cleanPersonName([gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' '));
           if(nom){
             const upd={garant_name:nom,garant_email:gn.email||null};
             await sb.from('leases').update(upd).eq('id',LEASE.id);
@@ -1828,6 +1838,7 @@ async function loadBail(){
       }catch(e){console.warn('Auto-load garant:',e);}
     }
 
+    if(LEASE?.garant_name)LEASE.garant_name=cleanPersonName(LEASE.garant_name);
     renderBail();
     renderNegocBar();
   }catch(e){showError('Erreur : '+e.message);}
@@ -1905,6 +1916,12 @@ function calcLoyerRef(ville,epoque,pieces){
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 // ── Garantie & colocation : choix du bailleur ──────────────────────────────
+// "delphine Delphine Grange " → "Delphine Grange" (prénom répété, espaces en trop)
+function cleanPersonName(n){
+  const w=String(n||'').trim().split(/\s+/).filter(Boolean);
+  while(w.length>1&&w[0].toLowerCase()===w[1].toLowerCase())w.shift();
+  return w.join(' ');
+}
 function _bailArr(v){try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return (Array.isArray(v)?v:(v?[v]:[])).filter(x=>x&&x.name);}
 function bailChoices(L){
   const coLocs=_bailArr(BOOKING?.co_locataires_data);
@@ -1913,7 +1930,8 @@ function bailChoices(L){
   const form=(L.garant_type==='simple'||L.garant_type==='solidaire')?L.garant_type:'solidaire';
   const kind=TENANT_GARANTIE||(L.garant_name?'physique':(['visale','organisme','aucune'].includes(L.garant_type)?L.garant_type:'aucune'));
   const g=kind==='physique'?form:kind;
-  const c=L.colocation_type||(coLocs.length?'commun_solidaire':'seul');
+  // Un seul locataire détecté : pas de colocation, rien à choisir
+  const c=!coLocs.length?'seul':(L.colocation_type&&L.colocation_type!=='seul'?L.colocation_type:'commun_solidaire');
   return{g,physique:g==='solidaire'||g==='simple',c,coLocs};
 }
 function _escB(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
@@ -1936,27 +1954,22 @@ function renderGarantiesBlock(L){
   else if(c==='commun_simple')lines.push(`<strong>Colocation :</strong> bail commun, <strong>sans solidarité</strong> — chaque colocataire n'est tenu que de sa part.`);
   else if(c==='individuel')lines.push(`<strong>Location individuelle :</strong> ce bail ne concerne que le locataire désigné, qui ne répond pas des dettes des autres occupants.`);
   const sum=`<ul class="bc-sum">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
-  if(!_editMode){show('garanties-summary',`<div class="bc-card"><div class="bc-title">Garantie et colocation</div>${sum}</div>`);return;}
+  if(!_editMode||(!physique&&!coLocs.length)){show('garanties-summary',`<div class="bc-card"><div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'}</div>${sum}</div>`);return;}
   // Mode édition bailleur : choix par boutons
   show('garanties-summary',`<div class="bc-card">
-    <div class="bc-title">Garantie et colocation — à choisir</div>
+    <div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'} — à choisir</div>
     <div style="font-size:.76rem;color:var(--td);margin-bottom:.45rem">Garantie indiquée par le locataire : <strong>${physique?'garant personne physique':g==='visale'?'Visale':g==='organisme'?'organisme ou banque':'aucune'}</strong></div>
     <div class="bc-edit">
       ${physique?`<div class="bc-row"><span class="bc-lbl">Engagement du garant</span>
         ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
         ${pill('garant_type','simple','Caution simple',g==='simple')}
       </div>
-      <div class="bc-row"><span class="bc-lbl">Durée de l'engagement</span>
-        ${pill('garant_duree_type','indeterminee','Sans durée (résiliable)',(L.garant_duree_type||'indeterminee')==='indeterminee')}
-        ${pill('garant_duree_type','determinee','Durée déterminée',L.garant_duree_type==='determinee')}
-      </div>`:''}
-      <div class="bc-row"><span class="bc-lbl">Colocation</span>
-        ${pill('colocation_type','seul','Un seul locataire',c==='seul')}
+`:''}
+      ${coLocs.length?`<div class="bc-row"><span class="bc-lbl">Colocation</span>
         ${pill('colocation_type','commun_solidaire','Bail commun avec solidarité',c==='commun_solidaire')}
         ${pill('colocation_type','commun_simple','Bail commun sans solidarité',c==='commun_simple')}
         ${pill('colocation_type','individuel','Bail individuel (chambre)',c==='individuel')}
-      </div>
-      ${(c==='commun_solidaire'||c==='commun_simple')&&!coLocs.length?'<div style="font-size:.72rem;color:#C2410C;margin:-.2rem 0 .4rem">Aucun co-locataire n\'a été ajouté à cette candidature.</div>':''}
+      </div>`:''}
     </div>
     ${sum}
   </div>`);
@@ -2210,50 +2223,32 @@ function renderBail(){
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
   // ── Dépendances ──────────────────────────────────────────────────────────
+  // Oui / Non pour chaque élément. "Non" : rien dans le bail ; le bailleur voit
+  // seulement une petite mention, modifiable, tant que le bail n'est pas signé.
+  const ynBtns=(key)=>` <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('${key}','oui')">Oui</button><button type="button" class="bc-pill" onclick="saveField('${key}','non')">Non</button></span>`;
+  const naNote=(key,w='Non')=>`<span class="na-note">${w} — ne figurera pas dans le bail <span class="edit-btn" onclick="saveField('${key}','')" title="Modifier"><i data-lucide=pencil class=ic></i></span></span>`;
+  const isNo=v=>v==='non'||v==='aucun';
+  const yn=(arr,key,label,ouiHtml)=>{
+    const v=L[key];
+    if(v==='oui')arr.push({label,value:ouiHtml||ev(key,'Oui')});
+    else if(isNo(v)){if(_editMode)arr.push({label,value:naNote(key)});}
+    else if(_editMode)arr.push({label,value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${label} ?</span>${ynBtns(key)}`});
+  };
+  const txt=(arr,key,label,q)=>{
+    const v=L[key];
+    if(v&&!isNo(v))arr.push({label,value:ev(key,v)});
+    else if(isNo(v)){if(_editMode)arr.push({label,value:naNote(key,'Aucun')});}
+    else if(_editMode)arr.push({label,value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${q}</span> <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('${key}','aucun')">Aucun</button></span>`});
+  };
   const items3=[];
-  // Cave
-  if(L.dep_cave==='oui'){
-    const caveNum=L.dep_cave_numero?` — ${L.dep_cave_numero}`:'';
-    items3.push({label:'Cave',value:'Oui'+caveNum+(_editMode?` ${ev('dep_cave_numero',L.dep_cave_numero||'Ajouter numéro')}`:'')});
-  } else if(_editMode){
-    items3.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_cave')"><i data-lucide=alert-triangle class=ic></i> Cave incluse ?</span>`});
-  }
-  // Parking
-  if(L.dep_parking==='oui'){
-    items3.push({label:'Parking',value:ev('dep_parking','Oui')});
-  } else if(_editMode){
-    items3.push({label:'Parking',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_parking')"><i data-lucide=alert-triangle class=ic></i> Parking inclus ?</span>`});
-  }
-  // Garage
-  if(L.dep_garage==='oui'){
-    items3.push({label:'Garage',value:ev('dep_garage','Oui')});
-  } else if(_editMode){
-    items3.push({label:'Garage',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_garage')"><i data-lucide=alert-triangle class=ic></i> Garage inclus ?</span>`});
-  }
-  // Balcon
-  if(L.dep_balcon==='oui'){
-    items3.push({label:'Balcon',value:ev('dep_balcon','Oui')});
-  } else if(_editMode){
-    items3.push({label:'Balcon',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_balcon')"><i data-lucide=alert-triangle class=ic></i> Balcon ?</span>`});
-  }
-  // Terrasse
-  if(L.dep_terrasse==='oui'){
-    items3.push({label:'Terrasse',value:ev('dep_terrasse','Oui')});
-  } else if(_editMode){
-    items3.push({label:'Terrasse',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_terrasse')"><i data-lucide=alert-triangle class=ic></i> Terrasse ?</span>`});
-  }
-  // Jardin
-  if(L.dep_jardin==='oui'){
-    items3.push({label:'Jardin',value:ev('dep_jardin','Oui')});
-  } else if(_editMode){
-    items3.push({label:'Jardin',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_jardin')"><i data-lucide=alert-triangle class=ic></i> Jardin ?</span>`});
-  }
-  // Autres dépendances
-  if(L.dep_autres){
-    items3.push({label:'Autres',value:ev('dep_autres',L.dep_autres)});
-  } else if(_editMode){
-    items3.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dep_autres')"><i data-lucide=alert-triangle class=ic></i> Autres dépendances ?</span>`});
-  }
+  yn(items3,'dep_cave','Cave','Oui'+(L.dep_cave_numero?` — ${L.dep_cave_numero}`:'')+(_editMode?` ${ev('dep_cave_numero',L.dep_cave_numero||'Ajouter numéro')}`:''));
+  yn(items3,'dep_parking','Parking');
+  yn(items3,'dep_garage','Garage');
+  yn(items3,'dep_balcon','Balcon');
+  yn(items3,'dep_terrasse','Terrasse');
+  yn(items3,'dep_jardin','Jardin');
+  txt(items3,'dep_autres','Autres','Autres dépendances ?');
+  if(!items3.length)show('logement-grid3','');
   if(items3.length){
     const g3=document.getElementById('logement-grid3');
     if(g3){g3.style.cssText='display:block;margin:0';}
@@ -2270,18 +2265,9 @@ function renderBail(){
     {key:'commun_laverie',label:'Laverie'},
   ];
   const items4=[];
-  commKeys.forEach(({key,label})=>{
-    if(L[key]==='oui'){
-      items4.push({label,value:ev(key,'Oui')});
-    } else if(_editMode){
-      items4.push({label,value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${key}')">${label} ?</span>`});
-    }
-  });
-  if(L.commun_autres){
-    items4.push({label:'Autres',value:ev('commun_autres',L.commun_autres)});
-  } else if(_editMode){
-    items4.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'commun_autres')"><i data-lucide=alert-triangle class=ic></i> Autres équipements communs ?</span>`});
-  }
+  commKeys.forEach(({key,label})=>yn(items4,key,label));
+  txt(items4,'commun_autres','Autres','Autres équipements communs ?');
+  if(!items4.length)show('logement-grid4','');
   if(items4.length){
     const g4=document.getElementById('logement-grid4');
     if(g4){g4.style.cssText='display:block;margin:0';}
@@ -2290,26 +2276,11 @@ function renderBail(){
 
   // ── Télécommunications ───────────────────────────────────────────────────
   const items5=[];
-  if(L.telecom_fibre==='oui'){
-    items5.push({label:'Fibre',value:ev('telecom_fibre','Oui — disponible')});
-  } else if(_editMode){
-    items5.push({label:'Fibre',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_fibre')"><i data-lucide=alert-triangle class=ic></i> Fibre disponible ?</span>`});
-  }
-  if(L.telecom_prise_tv==='oui'){
-    items5.push({label:'Prise TV',value:ev('telecom_prise_tv','Oui')});
-  } else if(_editMode){
-    items5.push({label:'Prise TV',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_prise_tv')"><i data-lucide=alert-triangle class=ic></i> Prise TV ?</span>`});
-  }
-  if(L.telecom_internet_fourni==='oui'){
-    items5.push({label:'Internet fourni',value:ev('telecom_internet_fourni','Oui — inclus bailleur')});
-  } else if(_editMode){
-    items5.push({label:'Internet fourni',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_internet_fourni')"><i data-lucide=alert-triangle class=ic></i> Internet inclus ?</span>`});
-  }
-  if(L.telecom_autres){
-    items5.push({label:'Autres',value:ev('telecom_autres',L.telecom_autres)});
-  } else if(_editMode){
-    items5.push({label:'Autres',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'telecom_autres')"><i data-lucide=alert-triangle class=ic></i> Autres télécoms ?</span>`});
-  }
+  yn(items5,'telecom_fibre','Fibre',ev('telecom_fibre','Oui — disponible'));
+  yn(items5,'telecom_prise_tv','Prise TV');
+  yn(items5,'telecom_internet_fourni','Internet fourni',ev('telecom_internet_fourni','Oui — inclus bailleur'));
+  txt(items5,'telecom_autres','Autres','Autres télécoms ?');
+  if(!items5.length)show('logement-grid5','');
   if(items5.length){
     const g5=document.getElementById('logement-grid5');
     if(g5){g5.style.cssText='display:block;margin:0';}
@@ -2559,8 +2530,7 @@ function renderBail(){
 
   // Annexes
   const annexes=[
-    {n:1,txt:'Inventaire détaillé du mobilier et des équipements (état, marque, quantité)',edl:true},
-    {n:2,txt:'État des lieux d\'entrée contradictoire',edl:true},
+    {n:1,txt:'État des lieux d\'entrée et inventaire du mobilier',edl:true},
     {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true},
