@@ -481,7 +481,9 @@
         <div class="section">
           <div class="article-title">Article 2 — Destination du logement</div>
           <div class="article-content">
-            <p>Le logement est loué à usage de <strong>résidence principale exclusive</strong> du locataire, à l'exclusion de tout exercice d'une activité commerciale, artisanale, libérale ou industrielle.</p>
+            <div id="usage-choice"></div>
+            <p id="usage-text">Le logement est loué à usage de <strong>résidence principale exclusive</strong> du locataire, à l'exclusion de tout exercice d'une activité commerciale, artisanale, libérale ou industrielle.</p>
+            <p id="copro-text" style="display:none"></p>
             <p>Le bailleur atteste que le logement respecte les critères de <strong>décence</strong> définis par le décret n° 2002-120 du 30 janvier 2002, notamment : surface habitable d'au moins 9 m², hauteur sous plafond d'au moins 2,20 m, équipements de sécurité conformes (détecteur de fumée obligatoire), absence de risque manifeste pour la sécurité et la santé du locataire.</p>
             <p>Le locataire ne pourra sous-louer tout ou partie des lieux loués sans l'accord <strong>exprès et écrit</strong> du bailleur, y compris pour des locations de courte durée (type Airbnb). Le cas échéant, le prix de la sous-location ne pourra excéder celui payé par le locataire.</p>
           </div>
@@ -647,9 +649,8 @@
         <div class="section">
           <div class="article-title">Article 11 — Assurance obligatoire</div>
           <div class="article-content">
-            <p>Le locataire est <strong>tenu de s'assurer</strong> contre les risques locatifs (incendie, dégâts des eaux, explosion, responsabilité civile…) auprès d'une compagnie notoirement solvable et d'en justifier lors de la remise des clés <strong>puis chaque année</strong> à la date anniversaire du bail (art. 7-g de la loi du 6 juillet 1989).</p>
-            <div class="warning"><i data-lucide=alert-triangle class=ic></i> À défaut de production d'attestation d'assurance dans le délai d'un mois suivant mise en demeure, le bailleur pourra : <strong>(a)</strong> résilier le bail, ou <strong>(b)</strong> souscrire lui-même une assurance pour le compte du locataire, récupérable par douzièmes sur le loyer.</div>
-            <p>Il est rappelé que la <strong>Garantie Visale</strong> (caution gratuite Action Logement) peut être souscrite en substitution d'un garant physique par les locataires éligibles.</p>
+            <p>Le locataire doit être assuré contre les risques locatifs (incendie, dégât des eaux, explosion…) et remettre une attestation d'assurance au bailleur à la remise des clés, puis chaque année.</p>
+            <p>À défaut d'attestation un mois après une mise en demeure, le bailleur peut résilier le bail ou souscrire lui-même une assurance pour le compte du locataire et lui en refacturer le coût chaque mois avec le loyer.</p>
           </div>
         </div>
 
@@ -729,18 +730,13 @@
         <div class="section">
           <div class="article-title">Article 17 — Clause résolutoire</div>
           <div class="article-content">
-            <p>Conformément à l'article 24 de la loi du 6 juillet 1989 dans sa rédaction applicable aux contrats conclus <strong>avant le 1er octobre 2026</strong>, le présent bail sera résilié de plein droit, si bon semble au bailleur, par décision judiciaire, <strong>deux mois</strong> après un commandement de payer ou d'agir demeuré infructueux, dans les quatre cas suivants :</p>
+            <p>Le présent bail sera résilié de plein droit, après un commandement resté sans effet, dans les cas suivants :</p>
             <ul>
-              <li>Non-paiement du loyer ou des charges aux termes convenus</li>
-              <li>Non-versement du dépôt de garantie</li>
-              <li>Défaut de souscription d'une assurance contre les risques locatifs</li>
-              <li>Trouble de voisinage constaté par décision de justice passée en force de chose jugée</li>
+              <li>non-paiement du loyer ou des charges, ou non-versement du dépôt de garantie : six semaines après un commandement de payer ;</li>
+              <li>défaut d'assurance contre les risques locatifs : un mois après un commandement ;</li>
+              <li>troubles de voisinage constatés par une décision de justice définitive.</li>
             </ul>
-            <div class="warning"><i data-lucide=alert-triangle class=ic></i> Ces quatre motifs sont <strong>limitatifs</strong>. Toute autre clause résolutoire est réputée non écrite (art. 4 de la loi du 6 juillet 1989). La résiliation ne peut intervenir qu'à l'initiative du bailleur et sur décision judiciaire. Le commandement de payer doit être délivré par acte d'huissier de justice et mentionner expressément la clause résolutoire et le délai de deux mois.</div>
-            <div class="note-juridique" style="background:#F0FDF4;border-left:3px solid #16A34A;padding:.6rem .85rem;border-radius:0 6px 6px 0;font-size:.8rem;color:#15803D;margin:.6rem 0">
-              <strong><i data-lucide=calendar class=ic></i> Régime applicable :</strong> Le présent bail est conclu le 30 septembre 2026, soit la veille de l'entrée en vigueur des nouvelles règles issues du décret modifiant le contrat-type (applicables aux contrats conclus ou renouvelés à compter du 1er octobre 2026). Il est donc entièrement régi par le régime antérieur. En cas de renouvellement à compter du 1er octobre 2026, les nouvelles dispositions s'appliqueront.
-            </div>
-            <p>En cas de commandement de payer, le locataire peut saisir le juge des contentieux de la protection aux fins de délais de paiement (art. 24-II). La procédure d'expulsion est suspendue durant la trêve hivernale (1<sup>er</sup> novembre — 31 mars).</p>
+            <p>Le locataire peut demander au juge des délais de paiement.</p>
           </div>
         </div>
 
@@ -1001,6 +997,7 @@ const FIELD_LABELS={
   dpe_annee_ref:'Année de référence des prix énergie',
   deposit_mode:'Mode de dépôt de garantie',
   garant_type:'Type de garantie',
+  usage_locaux:'Destination du logement',
   colocation_type:'Colocation',
   visale_ref:'N° de visa Visale',
   garant_organisme:'Organisme / banque garant',
@@ -1964,6 +1961,19 @@ function renderGarantiesBlock(L){
     ${sum}
   </div>`);
 }
+// Destination du logement : habitation seule ou usage mixte (habitation + activité pro)
+function renderUsage(L){
+  const u=L.usage_locaux==='mixte'?'mixte':'habitation';
+  show('usage-text',u==='mixte'
+    ?'Le logement est loué à <strong>usage mixte professionnel et d\'habitation</strong> et constitue la <strong>résidence principale</strong> du locataire. Le locataire peut y exercer une activité professionnelle, à l\'exclusion de toute activité commerciale, artisanale ou industrielle, et sous réserve du règlement de copropriété.'
+    :'Le logement est loué à usage de <strong>résidence principale exclusive</strong> du locataire, à l\'exclusion de tout exercice d\'une activité commerciale, artisanale, libérale ou industrielle.');
+  const pill=(v,l)=>`<button type="button" class="bc-pill${u===v?' on':''}" onclick="saveField('usage_locaux','${v}')">${l}</button>`;
+  const isCopro=!!(L.regime_copro||LISTING?.regime_copro);
+  const ct=q('copro-text');
+  if(ct){ct.style.display=isCopro?'':'none';ct.innerHTML=isCopro?'Le logement fait partie d\'une copropriété : le bailleur remet au locataire les extraits du règlement de copropriété relatifs à la destination de l\'immeuble, à l\'usage des parties communes et privatives et à la part des charges du logement.':'';}
+  show('usage-choice',_editMode?`<div class="bc-row bc-edit no-print" style="margin-bottom:.4rem"><span class="bc-lbl">Destination</span>${pill('habitation','Habitation uniquement')}${pill('mixte','Habitation + activité professionnelle')}</div>`:'');
+}
+
 function renderReglesDroit(L,opts={}){
   const{g,c}=bailChoices(L);
   const R=[];
@@ -1971,6 +1981,12 @@ function renderReglesDroit(L,opts={}){
   add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; décret n° 2015-587 du 29 mai 2015 (contrat type) ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
   add('Révision du loyer','une fois par an selon l\'indice de référence des loyers (IRL) publié par l\'INSEE (art. 17-1 loi 89-462).');
   if(opts.zoneTendue)add('Encadrement des loyers','le loyer de base ne peut excéder le loyer de référence majoré fixé par arrêté préfectoral ; un complément de loyer n\'est possible que pour des caractéristiques de localisation ou de confort exceptionnelles, et doit être mentionné et justifié au bail (art. 140 loi n° 2018-1021 ELAN ; art. 17 et 25-9 loi 89-462).');
+  add('Destination',L.usage_locaux==='mixte'
+    ?'usage mixte professionnel et d\'habitation ; le logement reste la résidence principale du locataire, occupée au moins 8 mois par an (art. 2 et 25-3 loi 89-462).'
+    :'usage d\'habitation, à titre de résidence principale du locataire, occupée au moins 8 mois par an (art. 2 et 25-3 loi 89-462).');
+  add('Assurance','obligation d\'assurance du locataire contre les risques locatifs et sanctions en cas de défaut (art. 7 g loi 89-462).');
+  add('Clause résolutoire','art. 24 loi 89-462, modifié par la loi n° 2023-668 du 27 juillet 2023 (délai de six semaines pour les baux conclus depuis le 29 juillet 2023). Seuls ces motifs peuvent entraîner la résiliation de plein droit ; toute autre clause résolutoire est réputée non écrite (art. 4). Le commandement est délivré par commissaire de justice. Aucune expulsion ne peut être exécutée du 1er novembre au 31 mars (art. L. 412-6 du Code des procédures civiles d\'exécution).');
+  if(L.regime_copro||LISTING?.regime_copro)add('Copropriété','communication au locataire des extraits du règlement de copropriété (art. 3 loi 89-462).');
   add('Mobilier','le logement meublé comporte au minimum les équipements fixés par le décret n° 2015-981 du 31 juillet 2015 ; un inventaire et état détaillé du mobilier est joint au bail (art. 25-4 et 25-5 loi 89-462).');
   add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle (art. 23 loi 89-462).');
   add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
@@ -2125,6 +2141,7 @@ function renderBail(){
     </div>`;
   show('parties-grid',partiesHtml);
   renderGarantiesBlock(L);
+  renderUsage(L);
   renderReglesDroit(L);
   show('sig-ll-name',[llMorale?llNameFull:(LL_PROFILE?.full_name||'Bailleur'),...coBailleurs.map(c=>c.name)].join(' · '));
   show('sig-t-name',[T_PROFILE?.full_name||'Locataire',...coLocs.map(c=>c.name)].join(' · '));
@@ -2548,13 +2565,12 @@ function renderBail(){
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true},
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf',official:true},
-    ...(L.regime_copro||Li?.regime_copro?[{n:7,txt:'Extrait du règlement de copropriété — parties communes et usage'}]:[]),
     ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
     ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
     ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec'}]:[]),
     ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz'}]:[]),
     ...(dBruit&&dBruit!=='non'&&dBruit!==''?[{n:12,txt:'Information sur les nuisances sonores (IAB)',url:L.doc_bruit_url,uploadKey:'bruit'}]:[]),
-    ...(L.garant_name?[{n:13,txt:'Clause de cautionnement solidaire (intégrée au bail, page 1)'}]:[])
+    // La clause de caution est dans le bail lui-même (page 1) : ce n'est pas une annexe
   ];
   // Ajouter documents uploadés même si pas dans les conditions ci-dessus (cas upload manuel)
   const docEntries=[
@@ -2577,6 +2593,7 @@ function renderBail(){
   const erpIdx=annexes.findIndex(a=>a.n===4);
   if(erpIdx>=0&&L.doc_erp_url) annexes[erpIdx].url=L.doc_erp_url;
 
+  annexes.forEach((a,i)=>a.n=i+1); // numérotation continue (sans trous)
   show('annexes-list',annexes.map(a=>`<li>
     <span class="annexe-num">${a.n}</span>
     <span style="flex:1">${a.txt}</span>
