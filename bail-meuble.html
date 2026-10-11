@@ -112,6 +112,10 @@
     .info-item .label{font-size:.63rem;font-weight:600;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.12rem}
     .info-item .value{font-size:.88rem;font-weight:700;color:var(--tm);line-height:1.3}
     .info-item .value.big{font-size:1.1rem;color:var(--bleu)}
+    #caution-section .c-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.4rem;margin:.6rem 0 0}
+    #caution-section .c-grid .info-item{padding:.4rem .6rem}
+    #caution-section .c-grid .value{font-size:.78rem;font-weight:600}
+    #caution-section .c-grid .value.big{font-size:.95rem}
 
     /* INFO ROWS — clean single-line key:value list */
     .info-rows{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:.7rem 0}
@@ -437,32 +441,19 @@
           <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE — insérée ici quand un garant est désigné -->
           <div id="caution-section" style="display:none;margin-top:.9rem">
             <div style="border:2px solid var(--gold);border-radius:10px;padding:1.1rem 1.2rem">
-              <div class="article-title" style="color:var(--gold);margin-bottom:.9rem" id="c-caution-title">Clause de cautionnement solidaire — art. 22-1 loi n° 89-462 du 6 juillet 1989</div>
+              <div class="article-title" style="color:var(--gold);margin-bottom:.7rem" id="c-caution-title">Engagement de caution solidaire</div>
 
               <!-- Identification du garant (remplie par JS) -->
               <div id="c-garant-header" style="margin-bottom:.85rem"></div>
 
               <div class="article-content">
-                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span>, déclare me porter caution solidaire de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
-                <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable annuellement par référence à l'IRL (art. 17-1 loi du 6 juillet 1989).</p>
+                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span>, déclare me porter caution <span id="c-nat-inline">solidaire</span> de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+                <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable chaque année selon l'IRL.</p>
               </div>
 
               <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
-
-              <div class="info-grid" style="margin:.75rem 0">
-                <div class="info-item"><div class="label">Montant max. cautionné</div><div class="value big" id="c-montant">—</div></div>
-                <div class="info-item"><div class="label">Durée de l'engagement</div><div class="value" id="c-duree-caution">—</div></div>
-                <div class="info-item"><div class="label">Nature</div><div class="value" id="c-nature-caution">Solidaire (sans bénéfice de discussion)</div></div>
-                <div class="info-item"><div class="label">Résiliation garant</div><div class="value" id="c-resil-caution">—</div></div>
-              </div>
-
-              <div class="article-content">
-                <p id="c-nature-text">La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2305 C. civ.) et au bénéfice de division (art. 2306 C. civ.).</p>
-                <p id="c-coloc-text" style="display:none"></p>
-                <p>Lorsque l'engagement est à durée indéterminée, le garant peut le résilier par lettre recommandée avec avis de réception adressée au bailleur ; la résiliation prend effet au terme du bail — initial, reconduit ou renouvelé — au cours duquel le bailleur la reçoit (art. 22-1 de la loi du 6 juillet 1989).</p>
-                <div class="warning"><i data-lucide=alert-triangle class=ic></i> Le garant est informé qu'il sera tenu du paiement des loyers, charges, réparations locatives et de toute autre somme due en vertu du présent bail, en cas de défaillance du locataire. En signant, le garant reconnaît avoir reçu une copie du contrat de location ainsi que les extraits du Code civil relatifs au cautionnement (art. 2288 à 2320).</div>
-                <p style="font-size:.74rem;color:var(--td);margin-top:.5rem"><em>Depuis l'ordonnance n° 2021-1192 du 15 sept. 2021 (en vigueur le 1<sup>er</sup> janv. 2022), la mention manuscrite mot-pour-mot n'est plus obligatoire (art. 2297 al. 2 C.civ.). La formulation ci-dessus reprend les éléments requis par l'art. 22-1 de la loi du 6 juillet 1989.</em></p>
-              </div>
+              <p id="c-coloc-text" style="display:none;font-size:.8rem;margin:.4rem 0 0"></p>
+              <p style="font-size:.74rem;color:var(--td);margin:.5rem 0 0">Règles applicables à cet engagement : voir l'article 24.</p>
             </div>
           </div>
 
@@ -920,6 +911,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
+let TENANT_GARANTIE=null; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
 let myRole=null; // 'landlord'|'tenant'|'garant'|null
 let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
 
@@ -1111,7 +1103,7 @@ const FIELD_CONFIGS={
   garant_type:{type:'select',options:[{v:'solidaire',l:'Caution solidaire'},{v:'simple',l:'Caution simple'},{v:'visale',l:'Garantie Visale (Action Logement)'},{v:'organisme',l:'Organisme privé ou caution bancaire'},{v:'aucune',l:'Pas de caution / garant'}]},
   visale_ref:{type:'text',placeholder:'ex. V123456789'},
   garant_organisme:{type:'text',placeholder:'ex. GarantMe, Cautioneo, banque…'},
-  garant_duree_type:{type:'select',options:[{v:'determinee',l:'Durée déterminée (bail + renouvellements explicites)'},{v:'indeterminee',l:'Durée indéterminée (résiliable annuellement)'}]},
+  garant_duree_type:{type:'select',options:[{v:'determinee',l:'Durée déterminée (jusqu\'au terme indiqué)'},{v:'indeterminee',l:'Durée indéterminée (résiliable par la caution)'}]},
   travaux_realises:{type:'select',options:[{v:'non',l:'Non — aucun travaux depuis le dernier locataire'},{v:'oui',l:'Oui — travaux réalisés'}]},
   travaux_nature:{type:'text',placeholder:'ex. Peinture chambre, remplacement robinetterie cuisine'},
   travaux_montant:{type:'number',placeholder:'ex. 3500',step:1,min:0},
@@ -1729,7 +1721,11 @@ async function loadBail(){
       else{
         const{data:listing}=await sb.from('listings').select('*').eq('id',bk.listing_id).single();
         LISTING=listing;
-        const rent=bk.monthly_rent||listing?.price||0;
+        // Le prix de l'annonce est un loyer CHARGES COMPRISES : le bail fixe le loyer
+        // hors charges = prix − provision sur charges
+        const loyerCC=Number(bk.monthly_rent||listing?.price||0);
+        const chargesInit=listing?.bills_included?0:(Number(listing?.charges_mensuelles)||0);
+        const rent=Math.max(0,loyerCC-chargesInit);
         const deposit=listing?.deposit||(rent*2);
         const start=bk.move_in_date||new Date().toISOString().slice(0,10);
         const endDate=new Date(start);endDate.setFullYear(endDate.getFullYear()+1);
@@ -1765,6 +1761,20 @@ async function loadBail(){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
       if(bk)BOOKING=bk;
     }
+    // Anciens baux : le loyer "hors charges" reprenait le prix de l'annonce, qui est
+    // charges comprises — les charges étaient donc comptées deux fois. Tant que le
+    // bail n'est pas signé, on recalcule : loyer HC = prix CC − provision sur charges.
+    if(LEASE&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){
+      const ch=Number(LEASE.charges)||0;
+      const cc=[BOOKING?.monthly_rent,LISTING?.price].map(Number).filter(v=>v>0);
+      if(ch>0&&cc.includes(Number(LEASE.rent))){
+        const oldRent=Number(LEASE.rent),newRent=Math.max(0,oldRent-ch);
+        const upd={rent:newRent};
+        if(Number(LEASE.deposit)===oldRent*2)upd.deposit=newRent*2;
+        Object.assign(LEASE,upd);
+        try{await sb.from('leases').update(upd).eq('id',LEASE.id);}catch(e){}
+      }
+    }
 
     const[{data:llP},{data:tP}]=await Promise.all([
       sb.from('profiles').select('*').eq('clerk_id',LEASE.landlord_id).maybeSingle(),
@@ -1787,6 +1797,17 @@ async function loadBail(){
         myRole='tenant';
       }
     }
+
+    // Garantie déclarée par le locataire (dossier, étape 5) — c'est lui qui la choisit, pas le bailleur
+    if(LEASE.tenant_id){
+      try{
+        const{data:tp}=await sb.from('profiles').select('dossier_data').eq('clerk_id',LEASE.tenant_id).maybeSingle();
+        let dd=tp?.dossier_data;try{dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(e){dd=null;}
+        const t=dd?.[5]?.type;
+        TENANT_GARANTIE=t==='garant_personne'?'physique':t==='garant_visale'?'visale':(t==='garant_organisme'||t==='garant_autre_organisme'||t==='garant_moral')?'organisme':t==='skipped_garant'?'aucune':null;
+      }catch(e){}
+    }
+    if(BOOKING?.garant_data){try{const gd=typeof BOOKING.garant_data==='string'?JSON.parse(BOOKING.garant_data):BOOKING.garant_data;if(Array.isArray(gd)&&gd.length)TENANT_GARANTIE='physique';}catch(e){}}
 
     // Auto-charger garant depuis dossier (profiles.dossier_data) si pas encore dans le bail
     if(!LEASE.garant_name&&LEASE.tenant_id){
@@ -1894,7 +1915,11 @@ function calcLoyerRef(ville,epoque,pieces){
 function _bailArr(v){try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return (Array.isArray(v)?v:(v?[v]:[])).filter(x=>x&&x.name);}
 function bailChoices(L){
   const coLocs=_bailArr(BOOKING?.co_locataires_data);
-  const g=L.garant_type||(L.garant_name?'solidaire':'aucune');
+  // Type de garantie : celui déclaré par le locataire ; le bailleur ne choisit que
+  // la forme de l'engagement (solidaire / simple) pour un garant personne physique
+  const form=(L.garant_type==='simple'||L.garant_type==='solidaire')?L.garant_type:'solidaire';
+  const kind=TENANT_GARANTIE||(L.garant_name?'physique':(['visale','organisme','aucune'].includes(L.garant_type)?L.garant_type:'aucune'));
+  const g=kind==='physique'?form:kind;
   const c=L.colocation_type||(coLocs.length?'commun_solidaire':'seul');
   return{g,physique:g==='solidaire'||g==='simple',c,coLocs};
 }
@@ -1920,22 +1945,17 @@ function renderGarantiesBlock(L){
   const sum=`<ul class="bc-sum">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
   if(!_editMode){show('garanties-summary',`<div class="bc-card"><div class="bc-title">Garantie et colocation</div>${sum}</div>`);return;}
   // Mode édition bailleur : choix par boutons
-  const extra=[];
-  if(g==='visale')extra.push(L.visale_ref?`<span class="edit-btn" onclick="editField(event,'visale_ref')"><i data-lucide=pencil class=ic></i> Visa ${_escB(L.visale_ref)}</span>`:`<span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'visale_ref')"><i data-lucide=alert-triangle class=ic></i> N° de visa Visale</span>`);
-  if(g==='organisme')extra.push(L.garant_organisme?`<span class="edit-btn" onclick="editField(event,'garant_organisme')"><i data-lucide=pencil class=ic></i> ${_escB(L.garant_organisme)}</span>`:`<span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'garant_organisme')"><i data-lucide=alert-triangle class=ic></i> Nom de l'organisme / banque</span>`);
   show('garanties-summary',`<div class="bc-card">
     <div class="bc-title">Garantie et colocation — à choisir</div>
+    <div style="font-size:.76rem;color:var(--td);margin-bottom:.45rem">Garantie indiquée par le locataire : <strong>${physique?'garant personne physique':g==='visale'?'Visale':g==='organisme'?'organisme ou banque':'aucune'}</strong></div>
     <div class="bc-edit">
-      <div class="bc-row"><span class="bc-lbl">Type de garantie</span>
-        ${pill('garant_type','aucune','Aucune',g==='aucune')}
-        ${pill('garant_type',physique?g:'solidaire','Garant physique',physique)}
-        ${pill('garant_type','visale','Visale',g==='visale')}
-        ${pill('garant_type','organisme','Organisme / banque',g==='organisme')}
-        ${extra.join('')}
-      </div>
       ${physique?`<div class="bc-row"><span class="bc-lbl">Engagement du garant</span>
         ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
         ${pill('garant_type','simple','Caution simple',g==='simple')}
+      </div>
+      <div class="bc-row"><span class="bc-lbl">Durée de l'engagement</span>
+        ${pill('garant_duree_type','indeterminee','Sans durée (résiliable)',(L.garant_duree_type||'indeterminee')==='indeterminee')}
+        ${pill('garant_duree_type','determinee','Durée déterminée',L.garant_duree_type==='determinee')}
       </div>`:''}
       <div class="bc-row"><span class="bc-lbl">Colocation</span>
         ${pill('colocation_type','seul','Un seul locataire',c==='seul')}
@@ -1953,10 +1973,11 @@ function renderReglesDroit(L){
   const R=[];
   const add=(k,t)=>R.push(`<li><span class="rg-k">${k} :</span> ${t}</li>`);
   add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; décret n° 2015-587 du 29 mai 2015 (contrat type) ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
+  add('Révision du loyer','une fois par an selon l\'indice de référence des loyers (IRL) publié par l\'INSEE (art. 17-1 loi 89-462).');
   add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle (art. 23 loi 89-462).');
   add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
   if(g==='solidaire'||g==='simple'){
-    add('Cautionnement','art. 22-1 loi 89-462 et art. 2288 s. du Code civil. La caution signe son engagement et reçoit un exemplaire du bail.'+(g==='solidaire'
+    add('Cautionnement','art. 22-1 loi 89-462 et art. 2288 à 2320 du Code civil. En cas de défaillance du locataire, la caution est tenue des loyers, charges, réparations locatives et autres sommes dues au titre du bail, dans la limite du montant indiqué. Elle signe son engagement et reçoit un exemplaire du bail. Depuis l\'ordonnance n° 2021-1192 du 15 septembre 2021, la mention manuscrite mot pour mot n\'est plus exigée (art. 2297 C. civ.).'+(g==='solidaire'
       ?' <strong>Caution solidaire</strong> : elle renonce au bénéfice de discussion et de division ; le bailleur peut lui réclamer directement les sommes couvertes et exigibles (art. 2305 et 2306 C. civ.).'
       :' <strong>Caution simple</strong> : elle bénéficie du bénéfice de discussion ; le bailleur doit d\'abord poursuivre le locataire (art. 2305 C. civ.).'));
     add('Caution et assurance loyers impayés','un bailleur ayant souscrit une assurance loyers impayés (GLI) ne peut pas exiger de caution, sauf si le locataire est étudiant ou apprenti (art. 22-1 al. 1 loi 89-462).');
@@ -2338,7 +2359,7 @@ function renderBail(){
   const obligatoireMention=!isPremiere&&hasDepart&&moisEcoules!==null&&moisEcoules<18;
 
   if(isPremiere){
-    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem"><i data-lucide=home class=ic></i> <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.</div>`);
+    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem"><i data-lucide=home class=ic></i> <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.${_editMode?` <span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'premiere_mise_en_location')" title="Modifier"><i data-lucide=pencil class=ic></i> Modifier</span>`:''}</div>`);
   }else if(L.dernier_loyer&&L.dernier_locataire_depart){
     const alertClass=obligatoireMention?'alert-red':'info-blue';
     show('dernier-loyer-block',`<div class="${alertClass}" style="font-size:.82rem">
@@ -2346,7 +2367,7 @@ function renderBail(){
       · Départ : <strong>${fmtDate(L.dernier_locataire_depart)}</strong>
       ${L.dernier_loyer_revision?'· Dernière révision IRL : <strong>'+fmtDate(L.dernier_loyer_revision)+'</strong>':''}
       ${obligatoireMention?'<br><em style="font-size:.75rem"><i data-lucide=scale class=ic></i> Mention obligatoire : départ il y a '+moisEcoules+' mois (moins de 18 mois).</em>':''}
-      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')"><i data-lucide=pencil class=ic></i></span>`:''}
+      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')"><i data-lucide=pencil class=ic></i></span><span class="edit-btn" style="margin-left:.3rem" onclick="editField(event,'premiere_mise_en_location')">Première mise en location ?</span>`:''}
     </div>`);
   }else if(_editMode){
     // Pas encore renseigné — inviter le bailleur à préciser
@@ -2640,17 +2661,17 @@ function renderBail(){
 
     // Durée
     if(L.start_date&&L.end_date){
-      show('c-duree-caution',`Bail initial du ${fmtDate(L.start_date)} au ${fmtDate(L.end_date)}, renouvelable par tacite reconduction d'un an`);
+      show('c-duree-caution',`${fmtDate(L.start_date)} → ${fmtDate(L.end_date)}, puis reconductions`);
     } else if(L.start_date){
-      show('c-duree-caution',`À compter du ${fmtDate(L.start_date)}, pour la durée du bail et ses renouvellements annuels`);
+      show('c-duree-caution',`Dès le ${fmtDate(L.start_date)}, bail et reconductions`);
     }
 
     // Engagement du garant
     const tenantName=T_PROFILE?.full_name||'le locataire';
     const adresse=Li?.full_address||'le logement';
     const loyerLetters=numEnLettres(loyerHC);
-    show('c-mention',`<strong>Engagement du garant (art. 22-1 de la loi n° 89-462 du 6 juillet 1989) :</strong><br><br>
-      « En me portant caution solidaire de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
+    show('c-mention',`<strong>Engagement du garant :</strong><br>
+      « En me portant caution ${_bcc.g==='simple'?'simple':'solidaire'} de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
       (<em>${numEnLettres(montantCaution)} euros</em>), couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em>,
       des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
       pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em>, et pendant toute la durée du bail
@@ -2661,6 +2682,7 @@ function renderBail(){
     // Caution type + duree
     const gType=_bcc.g;
     const _simple=gType==='simple';
+    show('c-nat-inline',_simple?'simple':'solidaire');
     show('c-nature-text',_simple
       ?'La présente caution est <strong>simple</strong> : le garant bénéficie du bénéfice de discussion — le bailleur doit d\'abord poursuivre le locataire avant de se retourner contre lui (art. 2305 C. civ.).'
       :'La présente caution est <strong>solidaire</strong> : le bailleur peut réclamer au garant le paiement de toute somme due sans être tenu de rechercher préalablement le locataire. Le garant renonce expressément au bénéfice de discussion (art. 2305 C. civ.) et au bénéfice de division (art. 2306 C. civ.).');
@@ -2668,22 +2690,22 @@ function renderBail(){
     if(_cl){
       if(_bcc.coLocs.length&&_bcc.c!=='individuel'){
         _cl.style.display='';
-        _cl.innerHTML=`Colocation : le présent engagement garantit les obligations de <strong>${T_PROFILE?.full_name||'le locataire'}</strong>. Il prend fin lorsqu'un nouveau colocataire le remplace au bail, et au plus tard six (6) mois après la fin du préavis de ce colocataire (art. 8-1 VI de la loi du 6 juillet 1989).`;
+        _cl.innerHTML=`<strong>Colocation :</strong> cet engagement garantit uniquement les obligations de <strong>${T_PROFILE?.full_name||'le locataire'}</strong>.`;
       }else _cl.style.display='none';
     }
     const _role='Le Garant (Caution '+(_simple?'simple':'solidaire')+')';
     show('sig-g-role',_role);
     document.querySelectorAll('.garant-card .partie-pill').forEach(el=>el.textContent=_role);
     const gDuree=L.garant_duree_type||'indeterminee';
-    const typeLabels={solidaire:'Solidaire (sans bénéfice de discussion)',simple:'Simple (avec bénéfice de discussion)',visale:'Garantie Visale (Action Logement)',aucune:'Aucune caution'};
-    const titleLabels={solidaire:'Clause de cautionnement solidaire',simple:'Clause de cautionnement simple',visale:'Garantie Visale — Action Logement',aucune:'Caution'};
+    const typeLabels={solidaire:'Solidaire',simple:'Simple',visale:'Garantie Visale (Action Logement)',aucune:'Aucune caution'};
+    const titleLabels={solidaire:'Engagement de caution solidaire',simple:'Engagement de caution simple'};
     const elTitle=q('c-caution-title');
-    if(elTitle) elTitle.textContent=(titleLabels[gType]||titleLabels.solidaire)+' — art. 22-1 loi n° 89-462 du 6 juillet 1989';
+    if(elTitle) elTitle.textContent=titleLabels[gType]||titleLabels.solidaire;
     show('c-nature-caution',(typeLabels[gType]||typeLabels.solidaire)+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     if(gDuree==='determinee'){
-      show('c-resil-caution','Engagement limité à la durée du bail et de ses renouvellements explicites'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
+      show('c-resil-caution','Au terme fixé'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     } else {
-      show('c-resil-caution','Résiliable par LRAR — effet au terme du bail en cours (art. 22-1 loi 89)'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
+      show('c-resil-caution','Par LRAR, effet en fin de bail'+(_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'garant_duree_type')"><i data-lucide=pencil class=ic></i></span>`:''));
     }
   } else if(_editMode){
     q('caution-section').style.display='block';
