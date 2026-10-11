@@ -787,13 +787,9 @@
 
         <!-- ART 21 — INVENTAIRE MOBILIER -->
         <div class="section">
-          <div class="article-title">Article 21 — Inventaire du mobilier réglementaire (Annexe 1)</div>
+          <div class="article-title">Article 21 — Inventaire du mobilier (Annexe 1)</div>
           <div class="article-content">
-            <p>Le logement est loué <strong>meublé</strong>. La liste minimale des meubles et équipements est fixée par le décret n° 2015-981 du 31 juillet 2015. Le bailleur atteste que le logement comprend au minimum les équipements suivants :</p>
-          </div>
-          <div class="inventaire-grid" id="inventaire-grid"></div>
-          <div class="article-content" style="margin-top:.5rem">
-            <p>L'inventaire détaillé (marques, état, quantités) sera établi contradictoirement lors de la remise des clés et constituera l'<strong>Annexe 1</strong> au présent bail. Tout équipement manquant au moment de l'état des lieux d'entrée devra être signalé par écrit.</p>
+            <p>Un inventaire et état détaillé du mobilier, établi lors de la remise des clés, est annexé au présent bail.</p>
           </div>
         </div>
 
@@ -1968,12 +1964,14 @@ function renderGarantiesBlock(L){
     ${sum}
   </div>`);
 }
-function renderReglesDroit(L){
+function renderReglesDroit(L,opts={}){
   const{g,c}=bailChoices(L);
   const R=[];
   const add=(k,t)=>R.push(`<li><span class="rg-k">${k} :</span> ${t}</li>`);
   add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; décret n° 2015-587 du 29 mai 2015 (contrat type) ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
   add('Révision du loyer','une fois par an selon l\'indice de référence des loyers (IRL) publié par l\'INSEE (art. 17-1 loi 89-462).');
+  if(opts.zoneTendue)add('Encadrement des loyers','le loyer de base ne peut excéder le loyer de référence majoré fixé par arrêté préfectoral ; un complément de loyer n\'est possible que pour des caractéristiques de localisation ou de confort exceptionnelles, et doit être mentionné et justifié au bail (art. 140 loi n° 2018-1021 ELAN ; art. 17 et 25-9 loi 89-462).');
+  add('Mobilier','le logement meublé comporte au minimum les équipements fixés par le décret n° 2015-981 du 31 juillet 2015 ; un inventaire et état détaillé du mobilier est joint au bail (art. 25-4 et 25-5 loi 89-462).');
   add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle (art. 23 loi 89-462).');
   add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
   if(g==='solidaire'||g==='simple'){
@@ -2326,17 +2324,14 @@ function renderBail(){
     const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
     const manquePieces=!nbPieces&&_editMode;
     const manqueAnnee=!anneeCons&&_editMode;
-    show('zone-tendue-block',`<div class="alert-red"><i data-lucide=building class=ic></i> <strong>Zone tendue — Encadrement des loyers obligatoire</strong>
-      ${isLyonZone?'<span style="font-size:.75rem;opacity:.85"> (Lyon — encadrement en vigueur depuis novembre 2021)</span>':''}
-      ${isAuto?`<span style="font-size:.72rem;background:rgba(255,255,255,.35);border-radius:4px;padding:.1rem .4rem;margin-left:.4rem"><i data-lucide=settings class=ic></i> calculé automatiquement</span>`:''}
-      <br>
-      Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')"><i data-lucide=pencil class=ic></i></span>`:''}
+    show('zone-tendue-block',`<div class="info-blue" style="font-size:.84rem">
+      ${_editMode&&isAuto?`<span class="no-print" style="font-size:.7rem;color:var(--td);display:block;margin-bottom:.2rem"><i data-lucide=settings class=ic></i> Loyers de référence calculés automatiquement — vérifiez-les</span>`:''}
+      <strong><i data-lucide=building class=ic></i> Zone tendue</strong> — Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')"><i data-lucide=pencil class=ic></i></span>`:''}
       &nbsp;·&nbsp;
       Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=pencil class=ic></i></span>`:''}<br>
       ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')"><i data-lucide=alert-triangle class=ic></i> Renseignez l'année de construction pour calcul auto</span>`:''}
       ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')"><i data-lucide=alert-triangle class=ic></i> Nombre de pièces manquant</span>`:''}
-      Loyer pratiqué : <strong>${rent} € / ${surfBoutin||'?'} m²</strong> soit <strong>${surfBoutin?(rent/surfBoutin).toFixed(2):' —'} €/m²</strong><br>
-      <em style="font-size:.78rem">Conformément à l'art. 17 de la loi du 6 juillet 1989 modifié par la loi ELAN, le loyer ne peut excéder le loyer de référence majoré. Tout dépassement peut être contesté.</em></div>`);
+</div>`);
   } else if(_editMode){
     show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')"><i data-lucide=alert-triangle class=ic></i> Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
   }
@@ -2382,22 +2377,15 @@ function renderBail(){
     </div>`);
   }
 
-  // Encadrement — résumé dans Art. 4
-  if(isZoneTendue){
-    const s=surfBoutin;
-    const loyerMax=s&&loyerRefMaj?(s*loyerRefMaj).toFixed(0):null;
-    const depasse=loyerMax&&rent>Number(loyerMax);
-    show('encadrement-block',`<div class="${depasse?'alert-red':'highlight'}" style="margin-top:.5rem">
-      <i data-lucide=clipboard-list class=ic></i> <strong>Encadrement des loyers — Récapitulatif</strong><br>
-      <table style="width:100%;border-collapse:collapse;margin-top:.4rem;font-size:.82rem">
-        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRef?loyerRef+' €/m²':mf('loyer_ref')}</td></tr>
-        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer de référence majoré</td><td style="padding:.2rem .4rem;font-weight:600">${loyerRefMaj?loyerRefMaj+' €/m²':mf('loyer_ref_majore')}</td></tr>
-        <tr><td style="padding:.2rem .4rem;color:var(--td)">Surface Boutin</td><td style="padding:.2rem .4rem;font-weight:600">${s?s+' m²':mf('surface_boutin')}</td></tr>
-        <tr><td style="padding:.2rem .4rem;color:var(--td)">Loyer maximum autorisé</td><td style="padding:.2rem .4rem;font-weight:700;color:var(--green)">${loyerMax?fmt(Number(loyerMax)):'—'}</td></tr>
-        <tr style="${depasse?'background:#FEE2E2':''}}"><td style="padding:.2rem .4rem;color:var(--td)">Loyer de base pratiqué</td><td style="padding:.2rem .4rem;font-weight:700;color:${depasse?'var(--red)':'var(--bleu)'}">${fmt(rent)}${depasse?' <i data-lucide=alert-triangle class=ic></i> DÉPASSE le plafond':''}</td></tr>
-      </table>
-      <p style="font-size:.75rem;color:var(--td);margin-top:.4rem">Tout complément de loyer éventuel doit être justifié par des caractéristiques de localisation ou de confort exceptionnelles par rapport aux logements comparables (art. 17 loi 89 modifié ELAN).</p>
-    </div>`);
+  // Encadrement : pas de récapitulatif dans le bail (seuls les loyers de référence sont
+  // obligatoires, ils figurent à l'article 1). Alerte visible du bailleur uniquement
+  // si le loyer dépasse le maximum autorisé.
+  {
+    const loyerMax=isZoneTendue&&surfBoutin&&loyerRefMaj?Math.round(surfBoutin*loyerRefMaj):null;
+    show('encadrement-block',_editMode&&loyerMax&&rent>loyerMax
+      ?`<div class="alert-red no-print" style="margin-top:.5rem;font-size:.8rem"><i data-lucide=alert-triangle class=ic></i> Le loyer hors charges (${fmt(rent)}) dépasse le maximum autorisé pour ce logement (${fmt(loyerMax)}).</div>`
+      :'');
+    renderReglesDroit(L,{zoneTendue:isZoneTendue});
   }
 
   // Dépôt
