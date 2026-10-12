@@ -93,6 +93,7 @@
     .garant-bloc .partie-card{background:none;border:none;padding:0}
     .garant-bloc .article-content{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed #FDE68A}
     .garant-bloc .article-content p:last-child{margin-bottom:0}
+    .garant-bloc #c-garant-header:empty+.article-content{border-top:none;margin-top:0;padding-top:0}
     .partie-pill{font-size:.65rem;font-weight:800;color:#fff;background:var(--bleu);text-transform:uppercase;letter-spacing:.6px;padding:.25rem .65rem;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:.15rem}
     .garant-card .partie-pill{background:var(--gold)}
     .partie-body{flex:1;min-width:0}
@@ -456,7 +457,7 @@
               <div id="c-garant-header"></div>
 
               <div class="article-content">
-                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span>, déclare me porter caution <span id="c-nat-inline">solidaire</span> de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
+                <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span><span id="c-garant-contact-inline"></span>, déclare me porter caution <span id="c-nat-inline">solidaire</span> de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
                 <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable chaque année selon l'IRL.</p>
               </div>
               </div>
@@ -1729,7 +1730,9 @@ async function loadBail(){
         const loyerCC=Number(bk.monthly_rent||listing?.price||0);
         const chargesInit=listing?.bills_included?0:(Number(listing?.charges_mensuelles)||0);
         const rent=Math.max(0,loyerCC-chargesInit);
-        const deposit=listing?.deposit||(rent*2);
+        // Dépôt choisi dans l'annonce (en mois de loyer HC → montant enregistré dans listings.depot)
+        const depAnnonce=listing?.depot??listing?.deposit;
+        const deposit=(depAnnonce!==null&&depAnnonce!==undefined&&depAnnonce!=='')?Number(depAnnonce):(rent*2);
         const start=bk.move_in_date||new Date().toISOString().slice(0,10);
         const endDate=new Date(start);endDate.setFullYear(endDate.getFullYear()+1);
         const newLeaseData={listing_id:bk.listing_id,listing_title:listing?.title||'',tenant_id:bk.tenant_id,landlord_id:bk.landlord_id,start_date:start,end_date:endDate.toISOString().slice(0,10),rent,deposit,status:'pending',booking_id:BOOKING_ID,charges:listing?.bills_included?0:(listing?.charges_mensuelles||0)};
@@ -2030,7 +2033,7 @@ function renderReglesDroit(L,opts={}){
 
 function renderBail(){
   const L=LEASE,Li=LISTING;
-  const rent=L.rent||0, deposit=L.deposit||(rent*2), charges=L.charges||0;
+  const rent=L.rent||0, deposit=(L.deposit!==null&&L.deposit!==undefined)?Number(L.deposit):(rent*2), charges=L.charges||0;
 
   // Determine edit mode (landlord before signing)
   const isLandlord=myRole==='landlord'||ROLE_PARAM==='landlord'||(!!BOOKING_ID&&!LEASE.landlord_signed_at);
@@ -2418,15 +2421,22 @@ function renderBail(){
     const dMin=L.dpe_depenses_min;
     const dMax=L.dpe_depenses_max;
     const dAnnee=L.dpe_annee_ref;
+    // Chaque valeur s'affiche dès qu'elle est saisie (avant : rien tant que min ET max n'étaient pas remplis)
+    const pen=(k,l)=>_editMode?` <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'${k}')"><i data-lucide=pencil class=ic></i> ${l}</span>`:'';
+    const miss=(k,l)=>_editMode?` <span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${k}')"><i data-lucide=alert-triangle class=ic></i> ${l}</span>`:'';
     let depHtml='';
-    if(dMin&&dMax){
+    if(dMin||dMax||dAnnee){
+      const fourchette=dMin&&dMax?`entre <strong>${dMin} €</strong> et <strong>${dMax} €</strong> par an`
+        :dMin?`à partir de <strong>${dMin} €</strong> par an`:dMax?`jusqu'à <strong>${dMax} €</strong> par an`:'';
       depHtml=`<div class="info-blue" style="font-size:.82rem;padding:.55rem .9rem;margin-top:.4rem">
-        <i data-lucide=battery-medium class=ic></i> <strong>Dépenses annuelles d'énergie estimées :</strong> entre <strong>${dMin} €</strong> et <strong>${dMax} €</strong> par an
+        <i data-lucide=battery-medium class=ic></i> <strong>Dépenses annuelles d'énergie estimées :</strong> ${fourchette}
         ${dAnnee?`<span style="opacity:.75"> — prix de référence : année ${dAnnee}</span>`:''}
-        ${_editMode?` <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_min')"><i data-lucide=pencil class=ic></i> min</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_depenses_max')"><i data-lucide=pencil class=ic></i> max</span> <span class="edit-btn" style="font-size:.7rem" onclick="editField(event,'dpe_annee_ref')"><i data-lucide=pencil class=ic></i> année</span>`:''}
+        ${dMin?pen('dpe_depenses_min','min'):miss('dpe_depenses_min','Dépenses min (€/an)')}
+        ${dMax?pen('dpe_depenses_max','max'):miss('dpe_depenses_max','Dépenses max (€/an)')}
+        ${dAnnee?pen('dpe_annee_ref','année'):miss('dpe_annee_ref','Année référence prix')}
       </div>`;
     } else if(_editMode){
-      depHtml=`<div style="margin-top:.35rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_min')"><i data-lucide=alert-triangle class=ic></i> Dépenses min (€/an)</span> <span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'dpe_depenses_max')"><i data-lucide=alert-triangle class=ic></i> Dépenses max (€/an)</span> <span class="missing-badge" style="font-size:.72rem" onclick="editField(event,'dpe_annee_ref')"><i data-lucide=alert-triangle class=ic></i> Année référence prix</span></div>`;
+      depHtml=`<div style="margin-top:.35rem">${miss('dpe_depenses_min','Dépenses min (€/an)')}${miss('dpe_depenses_max','Dépenses max (€/an)')}${miss('dpe_annee_ref','Année référence prix')}</div>`;
     }
     show('dpe-depenses-block',depHtml);
   }
@@ -2604,19 +2614,21 @@ function renderBail(){
     if(L.garant_birth_place)birthInlineParts.push('à '+L.garant_birth_place);
     show('c-garant-birth-inline',birthInlineParts.length?', '+birthInlineParts.join(' '):'');
     show('c-garant-addr-inline',L.garant_address?', demeurant '+L.garant_address:'');
+    const contactParts=[];
+    if(L.garant_pro)contactParts.push('profession : '+L.garant_pro);
+    if(L.garant_email)contactParts.push('courriel : '+L.garant_email);
+    if(L.garant_phone)contactParts.push('tél. : '+L.garant_phone);
+    show('c-garant-contact-inline',contactParts.length?', '+contactParts.join(', '):'');
     const gBirthParts=[];
     if(L.garant_birth_date)gBirthParts.push('né(e) le <strong>'+fmtDate(L.garant_birth_date)+'</strong>');
     if(L.garant_birth_place)gBirthParts.push('à <strong>'+L.garant_birth_place+'</strong>');
     const profExtra=L.garant_pro?`profession : <strong>${hl('garant_pro',L.garant_pro)}</strong>`:null;
     const extraParts=[gBirthParts.join(' '),profExtra].filter(Boolean).join(' — ');
-    show('c-garant-header',`<div class="partie-card garant-card" style="margin:0">
-      <span class="partie-pill" style="background:var(--gold)">Le Garant (Caution solidaire)</span>
-      <div class="partie-body">
-        ${buildIdent({nom:hl('garant_name',L.garant_name),adresse:L.garant_address||'',email:L.garant_email||'',tel:L.garant_phone||'',extra:extraParts||''},'le garant')}
-        ${editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro],['garant_birth_date',L.garant_birth_date],['garant_birth_place',L.garant_birth_place]])}
-        ${tenantEditIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone]])}
-      </div>
-    </div>`);
+    // Pas de fiche d'identité séparée : tout est dans « Je soussigné(e)… ».
+    // En édition, seuls les boutons pour compléter / corriger les infos du garant.
+    const _gEdit=editIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone],['garant_pro',L.garant_pro],['garant_birth_date',L.garant_birth_date],['garant_birth_place',L.garant_birth_place]])
+      +tenantEditIcons([['garant_name',L.garant_name],['garant_address',L.garant_address],['garant_email',L.garant_email],['garant_phone',L.garant_phone]]);
+    show('c-garant-header',_gEdit?`<div class="no-print" style="margin-bottom:.2rem">${_gEdit}</div>`:'');
 
     show('c-tenant-name',T_PROFILE?.full_name||L.tenant_id);
     show('c-adresse',Li?.full_address||'—');
