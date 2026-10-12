@@ -493,7 +493,9 @@
             <div id="usage-choice"></div>
             <p id="usage-text">Le logement est loué à usage de <strong>résidence principale exclusive</strong> du locataire, à l'exclusion de tout exercice d'une activité commerciale, artisanale, libérale ou industrielle.</p>
             <p id="copro-text" style="display:none"></p>
-            <p>Le bailleur atteste que le logement respecte les critères de <strong>décence</strong> définis par le décret n° 2002-120 du 30 janvier 2002, notamment : surface habitable d'au moins 9 m², hauteur sous plafond d'au moins 2,20 m, équipements de sécurité conformes (détecteur de fumée obligatoire), absence de risque manifeste pour la sécurité et la santé du locataire.</p>
+            <div id="servitude-choice"></div>
+            <p id="servitude-text" style="display:none">Le logement est soumis à l'obligation d'usage exclusif de résidence principale prévue à l'article L. 151-14-1 du Code de l'urbanisme.</p>
+            <p>Le bailleur atteste que le logement respecte les critères de <strong>décence</strong> en vigueur à la date de signature, y compris le niveau minimal de performance énergétique, notamment : surface habitable d'au moins 9 m², hauteur sous plafond d'au moins 2,20 m, équipements de sécurité conformes (détecteur de fumée obligatoire), absence de risque manifeste pour la sécurité et la santé du locataire.</p>
             <p>Le locataire ne pourra sous-louer tout ou partie des lieux loués sans l'accord <strong>exprès et écrit</strong> du bailleur, y compris pour des locations de courte durée (type Airbnb). Le cas échéant, le prix de la sous-location ne pourra excéder celui payé par le locataire.</p>
           </div>
         </div>
@@ -540,6 +542,7 @@
           <div class="article-content">
             <p id="dernier-loyer-block"></p>
             <p><strong>4.2 Révision annuelle du loyer (IRL)</strong></p>
+            <p id="irl-ref-txt"></p>
             <p>Le loyer sera révisé chaque année à la date anniversaire du contrat, en fonction de la variation de l'<strong>Indice de Référence des Loyers (IRL)</strong> publié par l'INSEE (art. 17-1 de la loi du 6 juillet 1989). La révision ne peut excéder la variation de cet indice. Le bailleur dispose d'un an à compter de la date de révision pour demander la réévaluation. Passé ce délai, il est réputé avoir renoncé à la révision pour la période écoulée.</p>
             <p><strong>4.3 Modalités de paiement</strong></p>
             <p>Le paiement s'effectue par virement bancaire, prélèvement automatique ou tout autre moyen convenu entre les parties. Une <strong>quittance de loyer</strong> sera remise au locataire sur simple demande dans les 5 jours ouvrables. La quittance est gratuite (art. 21 de la loi du 6 juillet 1989).</p>
@@ -555,7 +558,7 @@
         <div class="section">
           <div class="article-title" id="art5-title">Article 5 — Charges récupérables</div>
           <div class="article-content">
-            <p>En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle sur présentation de justificatifs (art. 23 et 24 de la loi du 6 juillet 1989).</p>
+            <p>En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle.</p>
             <p>Les charges récupérables (définies par le décret n° 87-713 du 26 août 1987) comprennent notamment :</p>
             <ul>
               <li>Les dépenses liées aux services collectifs : eau froide, eau chaude, chauffage collectif le cas échéant</li>
@@ -563,7 +566,7 @@
               <li>Les taxes et redevances locatives : taxe d'enlèvement des ordures ménagères (TEOM), redevance assainissement…</li>
               <li>Les frais de personnels d'immeubles (gardien, concierge) dans la limite des 3/4 du salaire charges comprises</li>
             </ul>
-            <p>Le décompte des charges, accompagné des justificatifs, sera transmis au locataire au moins un mois avant la régularisation. Le solde dû par l'une ou l'autre partie est exigible dans un délai de 3 ans à compter de la date d'arrêté des comptes.</p>
+            <p>Un mois avant la régularisation, le bailleur communique au locataire le décompte des charges par nature et le mode de répartition ; les justificatifs sont tenus à sa disposition pendant six mois.</p>
             <div id="bills-block"></div>
           </div>
         </div>
@@ -574,13 +577,13 @@
         <div class="section">
           <div class="article-title" id="art6-title">Article 6 — Dépôt de garantie</div>
           <div class="article-content">
-            <p>Un dépôt de garantie d'un montant de <strong id="depot-txt">—</strong> est versé ce jour par le locataire au bailleur, représentant <strong id="depot-mois-txt">deux (2) mois</strong> de loyer hors charges, conformément à l'article 22 de la loi du 6 juillet 1989.</p>
+            <p>Un dépôt de garantie d'un montant de <strong id="depot-txt">—</strong> est versé par le locataire au bailleur à la signature du bail, soit <strong id="depot-mois-txt">deux (2) mois</strong> de loyer hors charges.</p>
             <p><strong>Restitution :</strong> Le dépôt est restitué dans un délai maximal de :</p>
             <ul>
               <li><strong>1 mois</strong> si l'état des lieux de sortie est conforme à l'état des lieux d'entrée</li>
               <li><strong>2 mois</strong> en cas de dégradations constatées à l'état des lieux de sortie</li>
             </ul>
-            <p>Passé ces délais, le bailleur est redevable d'une majoration équivalant à 10 % du loyer mensuel hors charges par mois de retard commencé (art. 22 loi 89).</p>
+            <p>Les retenues éventuelles doivent être justifiées. Passé ces délais, le bailleur doit une majoration de 10 % du loyer mensuel hors charges par mois de retard commencé.</p>
             <div class="highlight"><i data-lucide=euro class=ic></i> Dépôt de garantie : <strong id="depot-highlight">—</strong></div>
           </div>
         </div>
@@ -603,6 +606,7 @@
 
           <p style="font-size:.72rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin:.8rem 0 .35rem">Tableau récapitulatif des diagnostics</p>
           <div style="overflow-x:auto">
+            <div id="diag-incoherences"></div>
             <table class="diag-table" id="diag-table">
               <thead>
                 <tr>
@@ -624,9 +628,8 @@
         <div class="section">
           <div class="article-title" id="art8-title">Article 8 — Travaux réalisés entre deux locations</div>
           <div class="article-content">
-            <p>Conformément à l'article 3 de la loi du 6 juillet 1989, le bailleur déclare que les travaux suivants ont été réalisés depuis le départ du dernier locataire ou, à défaut, au cours des trois dernières années :</p>
+            <p>Travaux d'amélioration ou de mise en conformité réalisés depuis la fin du dernier contrat de location ou depuis le dernier renouvellement (nature et montant) :</p>
             <div id="travaux-block"></div>
-            <p>Si aucun travaux n'ont été réalisés, cette mention est portée à la connaissance du locataire, qui l'accepte expressément.</p>
           </div>
         </div>
 
@@ -683,7 +686,7 @@
           <div class="article-title">Article 13 — Assurance obligatoire</div>
           <div class="article-content">
             <p>Le locataire doit être assuré contre les risques locatifs (incendie, dégât des eaux, explosion…) et remettre une attestation d'assurance au bailleur à la remise des clés, puis chaque année.</p>
-            <p>À défaut d'attestation un mois après une mise en demeure, le bailleur peut résilier le bail ou souscrire lui-même une assurance pour le compte du locataire et lui en refacturer le coût chaque mois avec le loyer.</p>
+            <p>À défaut d'attestation un mois après une mise en demeure, le bailleur peut mettre en œuvre la clause résolutoire (article 19) ou souscrire une assurance pour le compte du locataire, dans les conditions prévues par la loi, et en récupérer le coût mensuellement avec le loyer.</p>
           </div>
         </div>
 
@@ -693,10 +696,9 @@
         <div class="section">
           <div class="article-title">Article 14 — Entretien et réparations</div>
           <div class="article-content">
-            <p>Le locataire prend les lieux dans leur état actuel, tel qu'il ressort de l'état des lieux contradictoire établi lors de la remise des clés.</p>
-            <p>Les <strong>réparations locatives</strong> sont celles définies par la réglementation en vigueur, notamment le décret n° 87-712 du 26 août 1987. Elles comprennent l'entretien courant des équipements et installations, les menues réparations et le maintien en état de propreté des parties privatives.</p>
-            <p>Les <strong>grosses réparations</strong> sont à la charge du bailleur conformément à l'article 606 du Code civil.</p>
-            <p>Toute dégradation imputable au locataire constatée à l'état des lieux de sortie sera retenue sur le dépôt de garantie, sur présentation de devis ou factures.</p>
+            <p>Le locataire prend les lieux dans l'état décrit par l'état des lieux d'entrée. Il assure l'entretien courant et les menues réparations (réparations locatives), sauf si elles sont dues à la vétusté, à une malfaçon, à un vice de construction ou à un cas fortuit.</p>
+            <p>Le bailleur entretient les locaux en état de servir à l'usage prévu, effectue toutes les réparations autres que locatives et maintient le logement décent.</p>
+            <p>Les retenues sur le dépôt de garantie ne portent que sur les dégradations imputables au locataire et doivent être justifiées.</p>
           </div>
         </div>
 
@@ -706,10 +708,9 @@
         <div class="section">
           <div class="article-title">Article 15 — Travaux et aménagements par le locataire</div>
           <div class="article-content">
-            <p><strong>1 · Aménagements légers</strong> (fixation murale légère, pose de tringles, crochets, petits tableaux, déplacement de meubles…) : le locataire peut y procéder librement sans accord préalable. À son départ, il devra remettre les lieux en l'état initial à ses frais. Le bailleur peut toutefois accepter par écrit de conserver certaines améliorations sans indemnité, à sa discrétion.</p>
-            <p><strong>2 · Travaux soumis à autorisation du bailleur</strong> (pose d'un nouveau revêtement de sol, peinture teintée, changement de luminaires fixés, installation de climatisation réversible…) : un accord <strong>écrit et préalable</strong> du bailleur est obligatoire. Sans cet accord, le bailleur peut exiger la remise en état aux frais du locataire lors de la restitution des lieux, ou choisir de conserver les travaux sans indemnité. L'accord doit préciser si le locataire sera tenu ou non à remise en état.</p>
-            <p><strong>3 · Transformations structurelles</strong> (abattage ou percement de cloison, modification d'un mur porteur, changement de la distribution des pièces, déplacement de canalisations…) : nécessitent impérativement l'accord <strong>écrit et préalable</strong> du bailleur, et, le cas échéant, une déclaration préalable de travaux ou un permis de construire. Sans cet accord, le bailleur peut demander en justice la remise en état immédiate aux frais du locataire et/ou la résiliation du bail aux torts du locataire (art. 7-c loi du 6 juillet 1989).</p>
-            <p><strong>4 · Travaux d'adaptation au handicap ou à la perte d'autonomie</strong> : un locataire en situation de handicap ou âgé de plus de 60 ans peut faire réaliser à ses frais des travaux d'adaptation sans que le bailleur puisse s'y opposer (art. 7-1 loi du 6 juillet 1989, modifié par loi ELAN 2018 et loi du 28 décembre 2019), sous réserve d'une notification préalable au bailleur par lettre recommandée avec avis de réception. À la libération des lieux, aucune remise en état ne peut être exigée au titre de ces travaux d'adaptation.</p>
+            <p>Le locataire peut aménager librement les lieux (fixations légères, déplacement de meubles…), à charge de les remettre en état à son départ.</p>
+            <p>Toute transformation des locaux ou des équipements (revêtements, cloisons, installations fixes…) nécessite l'accord écrit préalable du bailleur. À défaut, le bailleur peut exiger la remise en état aux frais du locataire ou conserver les transformations sans indemnité.</p>
+            <p>Les travaux d'adaptation du logement à une situation de handicap ou de perte d'autonomie sont réalisés aux frais du locataire après demande écrite au bailleur ; sans réponse de sa part dans un délai de deux mois, la demande est réputée acceptée, et aucune remise en état ne pourra être exigée au départ.</p>
           </div>
         </div>
 
@@ -720,8 +721,8 @@
           <div class="article-title">Article 16 — Animaux domestiques</div>
           <div class="article-content">
             <p>Conformément à la loi n° 70-598 du 9 juillet 1970, <strong>toute clause interdisant la détention d'un animal domestique est réputée non écrite</strong>. Le locataire peut donc détenir un animal de compagnie dans le logement.</p>
-            <p>Toutefois, le locataire reste responsable de tout dégât causé par son animal. Les animaux dangereux de 1ère et 2ème catégorie (loi n° 99-5 du 6 janvier 1999) sont soumis à des obligations légales spécifiques (déclaration, assurance, muselière…) que le locataire doit respecter.</p>
-            <p>En cas de nuisances sonores ou olfactives répétées imputables à l'animal malgré mise en demeure, le bailleur peut invoquer l'article 14 de la loi du 6 juillet 1989 (trouble de jouissance).</p>
+            <p>Les animaux dangereux de 1ère et 2ème catégorie (loi n° 99-5 du 6 janvier 1999) sont soumis à des obligations légales spécifiques (déclaration, assurance, muselière…) que le locataire doit respecter.</p>
+            <p>Le locataire répond des dégâts et des troubles de voisinage causés par son animal.</p>
           </div>
         </div>
 
@@ -734,10 +735,10 @@
             <p>Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :</p>
             <ul>
               <li>Lettre recommandée avec avis de réception (LRAR)</li>
-              <li>Acte d'huissier de justice</li>
+              <li>Acte de commissaire de justice</li>
               <li>Remise en main propre contre récépissé ou émargement</li>
             </ul>
-            <p>Le délai de préavis court à compter du jour de <strong>réception</strong> de la lettre recommandée (et non d'envoi). Pendant la durée du préavis, le locataire est redevable du loyer et des charges. Si le logement est occupé avant la fin du préavis par un nouveau locataire accepté par le bailleur, le loyer n'est dû que jusqu'à l'occupation effective.</p>
+            <p>Le préavis court à compter du jour de <strong>réception</strong> de la lettre recommandée, de la signification de l'acte ou de la remise en main propre — et non de l'envoi. Pendant la durée du préavis, le locataire est redevable du loyer et des charges. Si le logement est occupé avant la fin du préavis par un nouveau locataire accepté par le bailleur, le loyer n'est dû que jusqu'à l'occupation effective.</p>
           </div>
         </div>
 
@@ -747,13 +748,13 @@
         <div class="section">
           <div class="article-title" id="art16-title">Article 18 — Congé donné par le bailleur</div>
           <div class="article-content">
-            <p>Le bailleur ne peut mettre fin au bail qu'à son <strong>expiration</strong>, sous réserve d'un préavis de <strong>trois (3) mois</strong> notifié par LRAR ou acte d'huissier, en justifiant impérativement de l'un des trois motifs limitatifs suivants (art. 15 de la loi du 6 juillet 1989) :</p>
+            <p>Le bailleur peut donner congé pour la fin du bail, avec un préavis de <strong>trois mois</strong>, par lettre recommandée avec avis de réception, acte de commissaire de justice ou remise en main propre contre récépissé, pour l'un des motifs suivants :</p>
             <ul>
-              <li><strong>Reprise pour habitation :</strong> le bailleur souhaite habiter le logement lui-même, ou le faire habiter par son conjoint, partenaire de PACS, ascendant ou descendant (ou ceux de son conjoint/partenaire). La reprise doit être effective et durable — toute reprise fictive engage la responsabilité pénale du bailleur.</li>
-              <li><strong>Congé pour vente :</strong> le bailleur peut donner congé afin de vendre le logement libre de toute occupation. Pour une location meublée à usage de résidence principale, le locataire <strong>ne bénéficie pas du droit de préemption</strong> prévu à l'article 15-II de la loi du 6 juillet 1989 (ce droit est réservé aux locations nues). Le congé doit mentionner le prix et les conditions de la vente envisagée.</li>
-              <li><strong>Motif légitime et sérieux :</strong> notamment l'inexécution par le locataire de l'une de ses obligations contractuelles (non-paiement, nuisances…) ou la nécessité de réaliser des travaux nécessitant l'évacuation des lieux.</li>
+              <li>reprise du logement pour y habiter lui-même ou y loger un proche (conjoint, partenaire de PACS, concubin notoire, ascendant ou descendant, ou ceux de son conjoint) ;</li>
+              <li>vente du logement ;</li>
+              <li>motif légitime et sérieux, notamment l'inexécution par le locataire de l'une de ses obligations.</li>
             </ul>
-            <p>Tout congé du bailleur doit mentionner <strong>le motif allégué</strong> ainsi que, pour la reprise, les coordonnées du bénéficiaire. Un congé délivré moins de 6 mois avant l'échéance ou ne respectant pas ces formes est nul.</p>
+            <p>Le congé indique le motif. Un congé délivré moins de trois mois avant la fin du bail, ou sans motif, n'est pas valable.</p>
           </div>
         </div>
 
@@ -767,9 +768,10 @@
             <ul>
               <li>non-paiement du loyer ou des charges, ou non-versement du dépôt de garantie : six semaines après un commandement de payer ;</li>
               <li>défaut d'assurance contre les risques locatifs : un mois après un commandement ;</li>
-              <li>troubles de voisinage constatés par une décision de justice définitive.</li>
+              <li>manquement à l'obligation d'user paisiblement des lieux, résultant de troubles de voisinage constatés par une décision de justice passée en force de chose jugée ;</li>
+              <li id="clause-rp-li" style="display:none">non-respect de l'usage exclusif de résidence principale (logement soumis à l'article L. 151-14-1 du Code de l'urbanisme) : à l'expiration du délai de mise en demeure fixé par le maire.</li>
             </ul>
-            <p>Le locataire peut demander au juge des délais de paiement.</p>
+            <p>Le locataire peut demander au juge des délais de paiement. Seule une décision de justice peut ordonner l'expulsion ; le bailleur ne peut y procéder lui-même.</p>
           </div>
         </div>
 
@@ -780,7 +782,7 @@
           <div class="article-title">Article 20 — Indemnité d'occupation</div>
           <div class="article-content">
             <p>En cas de maintien dans les lieux après l'expiration du contrat sans titre ni droit, et sans préjudice des voies de droit dont dispose le bailleur (notamment la procédure d'expulsion), le locataire sera redevable d'une <strong>indemnité d'occupation</strong> égale au montant du loyer et des charges qu'il aurait payés si le bail avait continué.</p>
-            <p>Cette indemnité est due jusqu'à la remise effective des clés et la libération complète des lieux. Elle ne constitue pas un nouveau loyer et n'emporte pas reconduction du bail.</p>
+            <p>Cette indemnité est due jusqu'à la remise effective des clés et la libération complète des lieux. Elle ne constitue pas un nouveau loyer et n'emporte pas reconduction du bail. En cas de désaccord, son montant est fixé par le juge, et seule une décision de justice permet l'expulsion.</p>
           </div>
         </div>
 
@@ -796,7 +798,7 @@
               <li><strong>Le locataire :</strong> dans les locaux présentement loués</li>
             </ul>
             <p>En application des règles légales de compétence territoriale impératives, les litiges relatifs à l'exécution du présent contrat relèvent du <strong>tribunal judiciaire</strong> du lieu de situation de l'immeuble loué, statuant selon les règles du juge des contentieux de la protection (art. L. 213-4-1 du Code de l'organisation judiciaire). Les parties ne peuvent déroger conventionnellement à ces règles de compétence d'ordre public.</p>
-            <p>Préalablement à tout recours judiciaire, les parties s'engagent à tenter de résoudre leur différend à l'amiable, notamment par l'intermédiaire de la <strong>Commission Départementale de Conciliation (CDC)</strong> territorialement compétente, dont la saisine est gratuite et suspensive du délai de prescription (art. 7-1 loi du 6 juillet 1989).</p>
+            <p>Pour les litiges relevant de sa compétence (loyer, charges, dépôt de garantie, état des lieux, réparations, décence…), les parties peuvent saisir gratuitement la commission départementale de conciliation avant de saisir le juge.</p>
           </div>
         </div>
 
@@ -806,9 +808,8 @@
         <div class="section">
           <div class="article-title">Article 22 — Protection des données personnelles (RGPD)</div>
           <div class="article-content">
-            <p>Les données personnelles communiquées dans le cadre du présent bail (identité, coordonnées, pièces justificatives) sont collectées et traitées par chaque partie aux seules fins d'exécution du contrat de location, conformément au Règlement (UE) 2016/679 (RGPD) et à la loi n° 78-17 du 6 janvier 1978 modifiée.</p>
-            <p>Ces données sont conservées pendant toute la durée de la relation locative et archivées jusqu'à l'expiration du délai de prescription applicable aux actions découlant du bail (trois ans pour les actions en paiement de loyers — art. 7-1 loi du 6 juillet 1989 ; cinq ans pour les autres actions de droit commun). Elles ne seront pas transmises à des tiers sans consentement, sauf obligation légale.</p>
-            <p>Chaque partie dispose, sur les données la concernant détenues par l'autre partie, d'un <strong>droit d'accès, de rectification et d'effacement</strong>, exerceable par courrier recommandé avec avis de réception à l'adresse figurant en tête des présentes. En cas de difficulté, toute personne peut adresser une réclamation à la Commission Nationale de l'Informatique et des Libertés (CNIL — www.cnil.fr).</p>
+            <p>Les données personnelles communiquées dans le cadre du présent bail sont utilisées uniquement pour sa conclusion et son exécution, et conservées pendant la durée de la location puis le temps des délais de prescription applicables. Elles ne sont communiquées qu'aux personnes qui en ont besoin pour ces finalités (mandataire, prestataires, administrations) ou en cas d'obligation légale. Les traitements réalisés par la plateforme Trouve Ton Toit relèvent de sa propre politique de confidentialité.</p>
+            <p>Chaque partie peut exercer ses droits d'accès, de rectification et d'effacement auprès de l'autre partie, par tout moyen écrit (courrier ou courriel). Elle peut aussi saisir la CNIL (www.cnil.fr).</p>
           </div>
         </div>
 
@@ -912,7 +913,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
-let TENANT_GARANTIE=null; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
+let TENANT_GARANTIE=null, TENANT_ETUDIANT=false; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
 let myRole=null; // 'landlord'|'tenant'|'garant'|null
 let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
 
@@ -970,6 +971,7 @@ const FIELD_LABELS={
   dernier_loyer:'Dernier loyer (précédent locataire)',
   dernier_locataire_depart:'Date de départ (précédent locataire)',
   dernier_loyer_revision:'Date dernière révision IRL',
+  dernier_loyer_versement:'Date de versement du dernier loyer',
   prop_address:'Adresse du logement',
   prop_type:'Type de logement',
   prop_pieces:'Nombre de pièces',
@@ -1006,7 +1008,11 @@ const FIELD_LABELS={
   dpe_annee_ref:'Année de référence des prix énergie',
   deposit_mode:'Mode de dépôt de garantie',
   garant_type:'Type de garantie',
+  complement_loyer:'Complément de loyer (€/mois)',
+  complement_justif:'Justification du complément de loyer',
   usage_locaux:'Destination du logement',
+  servitude_rp:'Servitude de résidence principale',
+  gli:'Assurance loyers impayés',
   colocation_type:'Colocation',
   visale_ref:'N° de visa Visale',
   garant_organisme:'Organisme / banque garant',
@@ -1040,6 +1046,8 @@ const FIELD_CONFIGS={
   diag_erp:{type:'select',options:[{v:'ok',l:'Fourni au locataire'},{v:'na',l:'Zone hors risque'}]},
   diag_bruit:{type:'select',options:[{v:'non',l:'Zone non concernée'},{v:'oui',l:'Zone de bruit (IAB annexé)'}]},
   loyer_ref:{type:'number',placeholder:'ex. 24.30',step:'0.01',min:0},
+  complement_loyer:{type:'number',placeholder:'Montant mensuel en €',step:1,min:0},
+  complement_justif:{type:'text',placeholder:'ex. terrasse de 40 m², vue exceptionnelle'},
   loyer_ref_majore:{type:'number',placeholder:'ex. 27.50',step:'0.01',min:0},
   garant_name:{type:'text',placeholder:'Prénom NOM'},
   garant_address:{type:'text',placeholder:'Rue, CP Ville'},
@@ -1065,6 +1073,7 @@ const FIELD_CONFIGS={
   dernier_loyer:{type:'number',placeholder:'ex. 820',step:1,min:0},
   dernier_locataire_depart:{type:'date'},
   dernier_loyer_revision:{type:'date'},
+  dernier_loyer_versement:{type:'date'},
   prop_address:{type:'text',placeholder:'ex. 10 Rue de la Paix, 75001 Paris'},
   prop_type:{type:'select',options:['Appartement','Maison','Studio','Loft','Chambre','Duplex','Villa']},
   prop_pieces:{type:'number',placeholder:'ex. 3',step:1,min:1,max:20},
@@ -1808,6 +1817,7 @@ async function loadBail(){
         const{data:tp}=await sb.from('profiles').select('dossier_data').eq('clerk_id',LEASE.tenant_id).maybeSingle();
         let dd=tp?.dossier_data;try{dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(e){dd=null;}
         const t=dd?.[5]?.type;
+        TENANT_ETUDIANT=['etudes','alternance','stage'].includes(dd?.[2]?.type);
         TENANT_GARANTIE=t==='garant_personne'?'physique':t==='garant_visale'?'visale':(t==='garant_organisme'||t==='garant_autre_organisme'||t==='garant_moral')?'organisme':t==='skipped_garant'?'aucune':null;
       }catch(e){}
     }
@@ -1965,6 +1975,12 @@ function renderGarantiesBlock(L){
         ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
         ${pill('garant_type','simple','Caution simple',g==='simple')}
       </div>
+      <div class="bc-row"><span class="bc-lbl">Assurance loyers impayés (GLI)</span>
+        ${pill('gli','non','Non',L.gli==='non')}
+        ${pill('gli','oui','Oui, j\'en ai une',L.gli==='oui')}
+        ${!L.gli?'<span style="font-size:.72rem;color:#C2410C">à préciser</span>':''}
+      </div>
+      ${L.gli==='oui'?(TENANT_ETUDIANT?'<div style="font-size:.74rem;color:var(--td);margin:-.2rem 0 .4rem">Locataire étudiant ou apprenti : la caution reste possible avec une GLI.</div>':'<div style="font-size:.74rem;color:#C2410C;margin:-.2rem 0 .4rem">Avec une assurance loyers impayés, la loi interdit de demander une caution (sauf locataire étudiant ou apprenti). Le bail ne pourra pas être finalisé avec ce garant.</div>'):''}
 `:''}
       ${coLocs.length?`<div class="bc-row"><span class="bc-lbl">Colocation</span>
         ${pill('colocation_type','commun_solidaire','Bail commun avec solidarité',c==='commun_solidaire')}
@@ -1985,6 +2001,13 @@ function renderUsage(L){
   const isCopro=!!(L.regime_copro||LISTING?.regime_copro);
   const ct=q('copro-text');
   if(ct){ct.style.display=isCopro?'':'none';ct.innerHTML=isCopro?'Le logement fait partie d\'une copropriété : le bailleur remet au locataire les extraits du règlement de copropriété relatifs à la destination de l\'immeuble, à l\'usage des parties communes et privatives et à la part des charges du logement.':'';}
+  // Servitude de résidence principale (décret n° 2026-596) : seulement si le logement y est soumis
+  const sv=L.servitude_rp;
+  const svt=q('servitude-text'),svl=q('clause-rp-li');
+  if(svt)svt.style.display=sv==='oui'?'':'none';
+  if(svl)svl.style.display=sv==='oui'?'':'none';
+  const spill=(v,l)=>`<button type="button" class="bc-pill${sv===v?' on':''}" onclick="saveField('servitude_rp','${v}')">${l}</button>`;
+  show('servitude-choice',_editMode?`<div class="bc-row bc-edit no-print" style="margin:.2rem 0 .4rem"><span class="bc-lbl">Servitude « résidence principale » (PLU)</span>${spill('non','Non')}${spill('oui','Oui')}${!sv?'<span style="font-size:.72rem;color:#C2410C">à préciser</span>':''}</div>`:'');
   show('usage-choice',_editMode?`<div class="bc-row bc-edit no-print" style="margin-bottom:.4rem"><span class="bc-lbl">Destination</span>${pill('habitation','Habitation uniquement')}${pill('mixte','Habitation + activité professionnelle')}</div>`:'');
 }
 
@@ -1992,7 +2015,8 @@ function renderReglesDroit(L,opts={}){
   const{g,c}=bailChoices(L);
   const R=[];
   const add=(k,t)=>R.push(`<li><span class="rg-k">${k} :</span> ${t}</li>`);
-  add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; décret n° 2015-587 du 29 mai 2015 (contrat type) ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
+  add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; contrat type du décret n° 2015-587 du 29 mai 2015, dans sa version issue du décret n° 2026-596 du 6 juillet 2026 pour les contrats conclus ou renouvelés depuis le 1er octobre 2026 ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
+  add('Décence','décret n° 2002-120 du 30 janvier 2002, y compris le niveau minimal de performance énergétique applicable à la date de signature (art. 6 loi 89-462).');
   add('Révision du loyer','une fois par an selon l\'indice de référence des loyers (IRL) publié par l\'INSEE (art. 17-1 loi 89-462).');
   if(opts.zoneTendue)add('Encadrement des loyers','le loyer de base ne peut excéder le loyer de référence majoré fixé par arrêté préfectoral ; un complément de loyer n\'est possible que pour des caractéristiques de localisation ou de confort exceptionnelles, et doit être mentionné et justifié au bail (art. 140 loi n° 2018-1021 ELAN ; art. 17 et 25-9 loi 89-462).');
   add('Destination',L.usage_locaux==='mixte'
@@ -2001,8 +2025,12 @@ function renderReglesDroit(L,opts={}){
   add('Assurance','obligation d\'assurance du locataire contre les risques locatifs et sanctions en cas de défaut (art. 7 g loi 89-462).');
   add('Clause résolutoire','art. 24 loi 89-462, modifié par la loi n° 2023-668 du 27 juillet 2023 (délai de six semaines pour les baux conclus depuis le 29 juillet 2023). Seuls ces motifs peuvent entraîner la résiliation de plein droit ; toute autre clause résolutoire est réputée non écrite (art. 4). Le commandement est délivré par commissaire de justice. Aucune expulsion ne peut être exécutée du 1er novembre au 31 mars (art. L. 412-6 du Code des procédures civiles d\'exécution).');
   if(L.regime_copro||LISTING?.regime_copro)add('Copropriété','communication au locataire des extraits du règlement de copropriété (art. 3 loi 89-462).');
+  add('Travaux du locataire','transformations soumises à l\'accord écrit du bailleur (art. 7 f loi 89-462) ; travaux d\'adaptation au handicap ou à la perte d\'autonomie : accord réputé acquis à défaut de réponse dans les deux mois (art. 7 f et décret n° 2016-1282 du 29 septembre 2016).');
+  add('Congé du bailleur','location meublée : préavis de trois mois, motif obligatoire (reprise, vente, motif légitime et sérieux) — art. 25-8 loi 89-462. Locataire : préavis d\'un mois.');
+  add('Données personnelles','règlement (UE) 2016/679 (RGPD) et loi n° 78-17 du 6 janvier 1978.');
   add('Mobilier','le logement meublé comporte au minimum les équipements fixés par le décret n° 2015-981 du 31 juillet 2015 ; un inventaire et état détaillé du mobilier est joint au bail (art. 25-4 et 25-5 loi 89-462).');
-  add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle (art. 23 loi 89-462).');
+  add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle et justificatifs tenus à disposition six mois (art. 23 loi 89-462).');
+  add('Prescription','les actions dérivant du bail se prescrivent par trois ans ; l\'action en révision du loyer par un an (art. 7-1 loi 89-462).');
   add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
   if(g==='solidaire'||g==='simple'){
     add('Cautionnement','art. 22-1 loi 89-462 et art. 2288 à 2320 du Code civil. En cas de défaillance du locataire, la caution est tenue des loyers, charges, réparations locatives et autres sommes dues au titre du bail, dans la limite du montant indiqué. Elle signe son engagement et reçoit un exemplaire du bail. Depuis l\'ordonnance n° 2021-1192 du 15 septembre 2021, la mention manuscrite mot pour mot n\'est plus exigée (art. 2297 C. civ.).'+(g==='solidaire'
@@ -2023,6 +2051,8 @@ function renderReglesDroit(L,opts={}){
   }else if(c==='individuel'){
     add('Bail individuel','art. 8-1 I loi 89-462 : le logement peut être loué par baux séparés. Chaque bail fixe son propre loyer et ses conditions ; le départ d\'un autre occupant ne modifie pas le présent bail.');
   }
+  add('Litiges','tribunal judiciaire du lieu du logement (juge des contentieux de la protection) ; commission départementale de conciliation pour les litiges de sa compétence (art. 20 loi 89-462).');
+  if(L.servitude_rp==='oui')add('Résidence principale','logement soumis à l\'article L. 151-14-1 du Code de l\'urbanisme ; clause résolutoire après mise en demeure du maire (art. L. 481-4).');
   add('Signature électronique','art. 1366 et 1367 du Code civil ; règlement (UE) n° 910/2014 (eIDAS).');
   show('regles-droit',R.join(''));
 }
@@ -2304,20 +2334,35 @@ function renderBail(){
   // Priorité : valeur manuelle du bail > auto-calculé > valeur listing
   const loyerRef=L.loyer_ref||loyerRefAuto||Li?.loyer_reference;
   const loyerRefMaj=L.loyer_ref_majore||loyerRefMajAuto||Li?.loyer_reference_majore;
+  // Bloquants liés à l'encadrement (montants auto non confirmés)
+  window._bailBloquants=[];
   if(isZoneTendue){
-    const isAuto=!L.loyer_ref&&!!loyerRefAuto;
+    const isAuto=!L.loyer_ref&&!Li?.loyer_reference&&!!loyerRefAuto;
+    if(isAuto||!loyerRef||!loyerRefMaj)window._bailBloquants.push('loyers de référence à confirmer (article 4)');
+    // Complément de loyer : montant + justification, ou "Aucun"
+    const cl=L.complement_loyer;
+    let complementHtml='';
+    if(cl&&cl!=='aucun'&&Number(cl)>0){
+      complementHtml=`Complément de loyer : <strong>${fmt(Number(cl))}</strong>${L.complement_justif?` — justifié par : ${L.complement_justif}`:''}${_editMode?` <span class="edit-btn" onclick="editField(event,'complement_loyer')"><i data-lucide=pencil class=ic></i></span> <span class="${L.complement_justif?'edit-btn':'missing-badge'}" style="font-size:.68rem" onclick="editField(event,'complement_justif')">${L.complement_justif?'<i data-lucide=pencil class=ic></i> justification':'<i data-lucide=alert-triangle class=ic></i> Justification obligatoire'}</span>`:''}`;
+      if(!L.complement_justif)window._bailBloquants.push('justification du complément de loyer (article 4)');
+    }else if(cl==='aucun'||Number(cl)===0&&cl!==null&&cl!==undefined&&cl!==''){
+      complementHtml=`Complément de loyer : aucun${_editMode?` <span class="edit-btn" onclick="saveField('complement_loyer','')"><i data-lucide=pencil class=ic></i></span>`:''}`;
+    }else if(_editMode){
+      complementHtml=`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'complement_loyer')"><i data-lucide=alert-triangle class=ic></i> Complément de loyer ?</span> <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('complement_loyer','aucun')">Aucun</button></span>`;
+    }
     const ref=loyerRef?loyerRef.toFixed(2):'—';
     const refMaj=loyerRefMaj?loyerRefMaj.toFixed(2):'—';
     const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
     const manquePieces=!nbPieces&&_editMode;
     const manqueAnnee=!anneeCons&&_editMode;
     show('zone-tendue-block',`<div class="info-blue" style="font-size:.84rem">
-      ${_editMode&&isAuto?`<span class="no-print" style="font-size:.7rem;color:var(--td);display:block;margin-bottom:.2rem"><i data-lucide=settings class=ic></i> Loyers de référence calculés automatiquement — vérifiez-les</span>`:''}
+      ${_editMode&&isAuto?`<span class="no-print" style="font-size:.72rem;color:#C2410C;display:block;margin-bottom:.3rem"><i data-lucide=alert-triangle class=ic></i> Loyers de référence estimés automatiquement : vérifiez-les sur l'arrêté préfectoral en vigueur, puis confirmez. <button type="button" class="bc-pill" onclick="confirmLoyersRef(${loyerRef||0},${loyerRefMaj||0})">Je confirme ces montants</button></span>`:''}
       <strong><i data-lucide=building class=ic></i> Zone tendue</strong> — Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')"><i data-lucide=pencil class=ic></i></span>`:''}
       &nbsp;·&nbsp;
       Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=pencil class=ic></i></span>`:''}<br>
       ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')"><i data-lucide=alert-triangle class=ic></i> Renseignez l'année de construction pour calcul auto</span>`:''}
       ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')"><i data-lucide=alert-triangle class=ic></i> Nombre de pièces manquant</span>`:''}
+      <br>${complementHtml}
 </div>`);
   } else if(_editMode){
     show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')"><i data-lucide=alert-triangle class=ic></i> Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
@@ -2340,28 +2385,46 @@ function renderBail(){
   const moisEcoules=departDate?Math.floor((Date.now()-departDate.getTime())/(1000*60*60*24*30.5)):null;
   const obligatoireMention=!isPremiere&&hasDepart&&moisEcoules!==null&&moisEcoules<18;
 
+  // Trimestre de référence de l'IRL : dernier indice publié à la date de prise d'effet du bail
+  // (INSEE : T1 publié mi-avril, T2 mi-juillet, T3 mi-octobre, T4 mi-janvier)
+  {
+    const d=L.start_date?new Date(L.start_date):new Date();
+    const y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate();
+    const after=(mm)=>m>mm||(m===mm&&day>=15);
+    let tq,ty;
+    if(after(10)){tq=3;ty=y;}else if(after(7)){tq=2;ty=y;}else if(after(4)){tq=1;ty=y;}else if(after(1)){tq=4;ty=y-1;}else{tq=3;ty=y-1;}
+    const ord=tq===1?'1er':tq+'e';
+    show('irl-ref-txt',`Indice de référence : IRL du <strong>${ord} trimestre ${ty}</strong> (dernier indice publié à la date de prise d'effet du bail).`);
+  }
+
+  // Situation du précédent locataire — demandée au bailleur, jamais supposée
+  const _yn=(key,label,on)=>`<button type="button" class="bc-pill${on?' on':''}" onclick="saveField('${key}','${label[1]}')">${label[0]}</button>`;
+  const premiereChoix=_editMode?`<div class="bc-row no-print" style="margin:.3rem 0"><span class="bc-lbl">Première mise en location ?</span>${_yn('premiere_mise_en_location',['Oui','oui'],L.premiere_mise_en_location==='oui')}${_yn('premiere_mise_en_location',['Non, déjà loué','non'],L.premiere_mise_en_location==='non')}</div>`:'';
+  const val=(key,label,txt)=>txt?`${label} : <strong>${txt}</strong>${_editMode?` <span class="edit-btn" onclick="editField(event,'${key}')"><i data-lucide=pencil class=ic></i></span>`:''}`
+    :(_editMode?`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'${key}')"><i data-lucide=alert-triangle class=ic></i> ${label}</span>`:'');
   if(isPremiere){
-    show('dernier-loyer-block',`<div class="info-blue" style="font-size:.82rem"><i data-lucide=home class=ic></i> <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.${_editMode?` <span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'premiere_mise_en_location')" title="Modifier"><i data-lucide=pencil class=ic></i> Modifier</span>`:''}</div>`);
-  }else if(L.dernier_loyer&&L.dernier_locataire_depart){
-    const alertClass=obligatoireMention?'alert-red':'info-blue';
-    show('dernier-loyer-block',`<div class="${alertClass}" style="font-size:.82rem">
-      <i data-lucide=clipboard-list class=ic></i> <strong>Précédent locataire</strong> — Dernier loyer : <strong>${fmt(L.dernier_loyer)}</strong>
-      · Départ : <strong>${fmtDate(L.dernier_locataire_depart)}</strong>
-      ${L.dernier_loyer_revision?'· Dernière révision IRL : <strong>'+fmtDate(L.dernier_loyer_revision)+'</strong>':''}
-      ${obligatoireMention?'<br><em style="font-size:.75rem"><i data-lucide=scale class=ic></i> Mention obligatoire : départ il y a '+moisEcoules+' mois (moins de 18 mois).</em>':''}
-      ${_editMode?`<span class="edit-btn" style="margin-left:.4rem" onclick="editField(event,'dernier_loyer')"><i data-lucide=pencil class=ic></i></span><span class="edit-btn" style="margin-left:.3rem" onclick="editField(event,'premiere_mise_en_location')">Première mise en location ?</span>`:''}
-    </div>`);
-  }else if(_editMode){
-    // Pas encore renseigné — inviter le bailleur à préciser
-    show('dernier-loyer-block',`<div class="alert-red" style="font-size:.82rem;padding:.75rem 1rem">
-      <i data-lucide=alert-triangle class=ic></i> <strong>Situation locative antérieure non renseignée</strong><br>
-      <span style="font-size:.78rem">Obligatoire si un précédent locataire a occupé le logement dans les 18 derniers mois.</span><br>
-      <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
-        <span class="missing-badge" onclick="editField(event,'premiere_mise_en_location')"><i data-lucide=alert-triangle class=ic></i> Première mise en location ?</span>
-        <span class="missing-badge" onclick="editField(event,'dernier_loyer')"><i data-lucide=alert-triangle class=ic></i> Dernier loyer</span>
-        <span class="missing-badge" onclick="editField(event,'dernier_locataire_depart')"><i data-lucide=alert-triangle class=ic></i> Date de départ</span>
-      </div>
-    </div>`);
+    show('dernier-loyer-block',`${premiereChoix}<div class="info-blue" style="font-size:.82rem"><i data-lucide=home class=ic></i> <strong>Première mise en location</strong> — aucun loyer antérieur à mentionner.</div>`);
+  }else if(L.premiere_mise_en_location==='non'){
+    const need=!hasDepart||obligatoireMention;
+    const parts=[
+      val('dernier_locataire_depart','Date de départ du précédent locataire',hasDepart?fmtDate(L.dernier_locataire_depart):''),
+      need||L.dernier_loyer?val('dernier_loyer','Dernier loyer acquitté',L.dernier_loyer?fmt(L.dernier_loyer):''):'',
+      need||L.dernier_loyer_versement?val('dernier_loyer_versement','Date de versement',L.dernier_loyer_versement?fmtDate(L.dernier_loyer_versement):''):'',
+      need||L.dernier_loyer_revision?(L.dernier_loyer_revision==='aucune'?'Dernière révision : <strong>aucune</strong>'+(_editMode?` <span class="edit-btn" onclick="saveField('dernier_loyer_revision','')"><i data-lucide=pencil class=ic></i></span>`:'')
+        :val('dernier_loyer_revision','Date de la dernière révision',L.dernier_loyer_revision?fmtDate(L.dernier_loyer_revision):'')+(!L.dernier_loyer_revision&&_editMode?` <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('dernier_loyer_revision','aucune')">Jamais révisé</button></span>`:'')):''
+    ].filter(Boolean);
+    if(_editMode||L.dernier_loyer){
+      show('dernier-loyer-block',`${premiereChoix}<div class="info-blue" style="font-size:.82rem;line-height:1.9"><i data-lucide=clipboard-list class=ic></i> <strong>Précédent locataire</strong><br>${parts.join('<br>')}
+        ${hasDepart&&!obligatoireMention?'<br><em style="font-size:.75rem">Départ il y a plus de 18 mois : mention du dernier loyer non obligatoire.</em>':''}</div>`);
+    }else show('dernier-loyer-block','');
+    if(!hasDepart)(window._bailBloquants=window._bailBloquants||[]).push('date de départ du précédent locataire (article 4)');
+    else if(obligatoireMention){
+      const miss=[];if(!L.dernier_loyer)miss.push('dernier loyer');if(!L.dernier_loyer_versement)miss.push('date de versement');if(!L.dernier_loyer_revision)miss.push('date de dernière révision');
+      if(miss.length)(window._bailBloquants=window._bailBloquants||[]).push('précédent locataire : '+miss.join(', ')+' (article 4)');
+    }
+  }else{
+    show('dernier-loyer-block',_editMode?`${premiereChoix}<div style="font-size:.76rem;color:#C2410C">À préciser : le logement a-t-il déjà été loué ? Si oui, le dernier loyer doit figurer au bail lorsque le précédent locataire est parti il y a moins de 18 mois.</div>`:'');
+    (window._bailBloquants=window._bailBloquants||[]).push('première mise en location : oui ou non (article 4)');
   }
 
   // Encadrement : pas de récapitulatif dans le bail (seuls les loyers de référence sont
@@ -2390,7 +2453,7 @@ function renderBail(){
   const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')"><i data-lucide=pencil class=ic></i> Mode</span>`:'';
   show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn+tenantFlag('Dépôt de garantie'));
   show('depot-mois-txt',depotMoisLabel);
-  show('depot-highlight',ev('deposit',fmt(depotEffectif))+' — à verser avant l\'entrée dans les lieux'+depotWarnHtml);
+  show('depot-highlight',ev('deposit',fmt(depotEffectif))+' — à verser à la signature du bail'+depotWarnHtml);
 
   // Charges / bills
   if(Li?.bills_included){
@@ -2440,8 +2503,14 @@ function renderBail(){
   // Diagnostics
   const getLabel=(v,map)=>map[v]||v||'—';
   // Diagnostics — bail en priorité (le bailleur peut corriger), fallback listing
-  const dAmiante=L.diag_amiante||Li?.diag_amiante;
-  const dPlomb=L.diag_plomb||Li?.diag_plomb;
+  // Applicabilité selon l'année de construction : un « non applicable » contradictoire est ignoré
+  const _annee=Number(L.annee_construction||Li?.annee_construction)||null;
+  const amianteRequis=_annee&&_annee<1997, plombRequis=_annee&&_annee<1949;
+  let dAmiante=L.diag_amiante||Li?.diag_amiante;
+  let dPlomb=L.diag_plomb||Li?.diag_plomb;
+  const diagIncoherences=[];
+  if(amianteRequis&&dAmiante==='na'){dAmiante=null;diagIncoherences.push('amiante (immeuble construit avant juillet 1997)');}
+  if(plombRequis&&dPlomb==='na'){dPlomb=null;diagIncoherences.push('plomb (immeuble construit avant 1949)');}
   const dElec=L.diag_elec||Li?.diag_elec;
   const dGaz=L.diag_gaz||Li?.diag_gaz;
   const dErp=L.diag_erp||Li?.diag_erp;
@@ -2456,8 +2525,19 @@ function renderBail(){
     {name:'État des risques (ERP)',oblig:'Zones à risques (inondation, sismicité…)',res:getLabel(dErp,{ok:'Fourni au locataire <i data-lucide=check-circle-2 class=ic></i>',na:'Zone hors risque'}),fk:'diag_erp'},
     {name:'Nuisances sonores',oblig:'Zones de bruit (arrêté préfectoral)',res:getLabel(dBruit,{non:'Zone non concernée',oui:'Zone de bruit — IAB annexé'}),fk:'diag_bruit'}
   ];
+  // Un résultat « conforme / absence » n'est validé que si le document est joint
+  const docOf={diag_amiante:'doc_amiante_url',diag_plomb:'doc_plomb_url',diag_elec:'doc_elec_url',diag_gaz:'doc_gaz_url',diag_erp:'doc_erp_url',diag_bruit:'doc_bruit_url'};
+  diagRows.forEach(r=>{
+    const dk=docOf[r.fk];
+    if(dk&&!L[dk]&&r.res.includes('check-circle-2')){
+      r.res=r.res.replace(/ ?<i data-lucide=check-circle-2 class=ic><\/i>/,'')+' — déclaré, document à joindre';
+    }
+  });
+  if(amianteRequis)diagRows[2].oblig='Applicable : construit avant juillet 1997';
+  if(plombRequis)diagRows[3].oblig='Applicable : construit avant 1949';
+  show('diag-incoherences',_editMode&&diagIncoherences.length?`<div class="alert-red no-print" style="font-size:.78rem;margin:.4rem 0"><i data-lucide=alert-triangle class=ic></i> Diagnostic indiqué « non applicable » alors qu'il est requis : ${diagIncoherences.join(', ')}. Renseignez-le.</div>`:'');
   show('diag-tbody',diagRows.map(r=>{
-    const cls=r.res.includes('<i data-lucide=check-circle-2 class=ic></i>')?'diag-ok':r.res.includes('<i data-lucide=alert-triangle class=ic></i>')?'diag-req':'diag-na';
+    const cls=r.res.includes('<i data-lucide=check-circle-2 class=ic></i>')?'diag-ok':r.res.includes('<i data-lucide=alert-triangle class=ic></i>')||r.res.includes('document à joindre')?'diag-req':'diag-na';
     const editBtn=(_editMode&&r.fk)
       ?(r.res==='Non renseigné'||r.res==='—'
         ?`<span class="missing-badge" style="font-size:.68rem;margin-left:.4rem" onclick="editField(event,'${r.fk}')"><i data-lucide=alert-triangle class=ic></i> Renseigner</span>`
@@ -2480,10 +2560,14 @@ function renderBail(){
     const tReal=L.travaux_realises;
     // Backward compat: travaux_desc='aucun' → pas de travaux; travaux_desc text → affiché
     const tLegacy=L.travaux_desc;
-    const noTravaux=tReal==='non'||tLegacy==='aucun'||(!tReal&&!tLegacy&&!_editMode);
+    // Inconnu ≠ « non » : sans réponse du bailleur, on n'affirme pas qu'il n'y a pas eu de travaux
+    const noTravaux=tReal==='non'||tLegacy==='aucun';
+    const unknownTravaux=!tReal&&!tLegacy&&!_editMode;
     const ouiTravaux=tReal==='oui'||(!tReal&&tLegacy&&tLegacy!=='aucun');
     if(noTravaux){
-      show('travaux-block',`<div class="info-blue">ℹ Aucun travaux déclarés par le bailleur depuis le dernier locataire ou au cours des 3 dernières années.${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_realises')"><i data-lucide=pencil class=ic></i> Modifier</span>`:''}</div>`);
+      show('travaux-block',`<div class="info-blue">Aucuns travaux réalisés sur la période considérée.${_editMode?` <span class="edit-btn" style="font-size:.7rem;margin-left:.4rem" onclick="editField(event,'travaux_realises')"><i data-lucide=pencil class=ic></i> Modifier</span>`:''}</div>`);
+    }else if(unknownTravaux){
+      show('travaux-block','<div class="info-blue">Information non renseignée par le bailleur.</div>');
     }else if(ouiTravaux){
       const rows=[];
       const tNat=L.travaux_nature||tLegacy||'';
@@ -2522,16 +2606,16 @@ function renderBail(){
 
   // Annexes
   const annexes=[
-    {n:1,txt:'État des lieux d\'entrée et inventaire du mobilier',edl:true},
-    {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe'},
-    {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp'},
-    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true},
-    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf',official:true},
-    ...(dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante'}]:[]),
-    ...(dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb'}]:[]),
-    ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec'}]:[]),
-    ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz'}]:[]),
-    ...(dBruit&&dBruit!=='non'&&dBruit!==''?[{n:12,txt:'Information sur les nuisances sonores (IAB)',url:L.doc_bruit_url,uploadKey:'bruit'}]:[]),
+    {n:1,txt:'État des lieux d\'entrée et inventaire du mobilier',edl:true,cat:'obligatoire'},
+    {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe',cat:'obligatoire'},
+    {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp',cat:'obligatoire'},
+    {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true,cat:'obligatoire'},
+    {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf',official:true,cat:'facultatif'},
+    ...(amianteRequis||dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante',cat:'si_applicable'}]:[]),
+    ...(plombRequis||dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb',cat:'si_applicable'}]:[]),
+    ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec',cat:'si_applicable'}]:[]),
+    ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz',cat:'si_applicable'}]:[]),
+    ...(dBruit&&dBruit!=='non'&&dBruit!==''?[{n:12,txt:'Information sur les nuisances sonores (IAB)',url:L.doc_bruit_url,uploadKey:'bruit',cat:'si_applicable'}]:[]),
     // La clause de caution est dans le bail lui-même (page 1) : ce n'est pas une annexe
   ];
   // Ajouter documents uploadés même si pas dans les conditions ci-dessus (cas upload manuel)
@@ -2556,9 +2640,16 @@ function renderBail(){
   if(erpIdx>=0&&L.doc_erp_url) annexes[erpIdx].url=L.doc_erp_url;
 
   annexes.forEach((a,i)=>a.n=i+1); // numérotation continue (sans trous)
+  // Pièces à joindre avant signature : obligatoires ou applicables, déposables, sans fichier
+  window._annexesManquantes=annexes.filter(a=>a.cat!=='facultatif'&&a.uploadKey&&!a.url).map(a=>a.txt.split(' — ')[0]);
+  const catTag=a=>{
+    const lbl={obligatoire:'Obligatoire',si_applicable:'Applicable à ce logement',facultatif:'Facultatif'}[a.cat]||'';
+    const miss=a.cat!=='facultatif'&&a.uploadKey&&!a.url;
+    return `<span style="display:block;font-size:.68rem;color:${miss?'#C2410C':'var(--td)'};margin-top:.1rem">${lbl}${miss?' — à joindre avant la signature':''}</span>`;
+  };
   show('annexes-list',annexes.map(a=>`<li>
     <span class="annexe-num">${a.n}</span>
-    <span style="flex:1">${a.txt}</span>
+    <span style="flex:1">${a.txt}${catTag(a)}</span>
     ${a.url
       ?(a.official
         ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC"><i data-lucide=file-text class=ic></i> PDF officiel</a>`
@@ -2899,7 +2990,24 @@ async function submitModifRequest(){
   renderNegocBar();
 }
 
+async function confirmLoyersRef(ref,maj){
+  if(!ref||!maj){toast('Renseignez les deux montants.');return;}
+  await saveField('loyer_ref',Number(ref));
+  await saveField('loyer_ref_majore',Number(maj));
+}
+// Bloque la finalisation tant qu'une annexe obligatoire ou applicable n'est pas jointe
+// ou qu'une information de loyer obligatoire n'est pas confirmée
+function annexesManquantesBloquent(){
+  const m=[...(window._annexesManquantes||[]),...(window._bailBloquants||[])];
+  const bc=bailChoices(LEASE);
+  if(bc.physique&&LEASE.gli==='oui'&&!TENANT_ETUDIANT)m.push('caution incompatible avec une assurance loyers impayés (locataire non étudiant ni apprenti)');
+  if(bc.physique&&!LEASE.gli)m.push('préciser si une assurance loyers impayés a été souscrite');
+  if(!m.length)return false;
+  toast('<i data-lucide=alert-triangle class=ic></i> À compléter avant de finaliser le bail : '+m.join(', ')+'.',7000);
+  return true;
+}
 async function landlordValidateModel(){
+  if(annexesManquantesBloquent())return;
   if(!confirm('Confirmer le modèle final ? Le locataire pourra ensuite signer.')) return;
   const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString(),tenant_notes:null}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
@@ -3023,6 +3131,7 @@ function prepareSign(who){
 
 async function submitSignature(){
   if(!U&&!ROLE_PARAM){alert('Vous devez être connecté pour signer.');return;}
+  if(annexesManquantesBloquent())return;
   const who=window._pendingSigWho,sigData=window._pendingSigData;
   if(!who||!sigData){
     const c=document.getElementById('sig-canvas-ll')||document.getElementById('sig-canvas-t')||document.getElementById('sig-canvas-g');
