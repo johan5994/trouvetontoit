@@ -91,9 +91,8 @@
     .partie-card.garant-card{background:#FFFBEB;border-color:#FDE68A}
     .garant-bloc{background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.9rem 1.15rem}
     .garant-bloc .partie-card{background:none;border:none;padding:0}
-    .garant-bloc .article-content{margin-top:.7rem;padding-top:.7rem;border-top:1px dashed #FDE68A}
+    .garant-bloc #c-garant-header:not(:empty){margin-top:.6rem}
     .garant-bloc .article-content p:last-child{margin-bottom:0}
-    .garant-bloc #c-garant-header:empty+.article-content{border-top:none;margin-top:0;padding-top:0}
     .partie-pill{font-size:.65rem;font-weight:800;color:#fff;background:var(--bleu);text-transform:uppercase;letter-spacing:.6px;padding:.25rem .65rem;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:.15rem}
     .garant-card .partie-pill{background:var(--gold)}
     .partie-body{flex:1;min-width:0}
@@ -369,7 +368,7 @@
 <div id="clause-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='clause-modal')closeClauseModal()">
   <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
     <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem" id="clause-modal-title"><i data-lucide=clipboard-list class=ic></i> Ajouter une clause particulière</div>
-    <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Cette clause sera ajoutée à l'Article 23 du bail.</div>
+    <div style="font-size:.78rem;color:var(--td);margin-bottom:1rem">Cette clause sera ajoutée à l'Article 10 du bail.</div>
     <div style="margin-bottom:.65rem">
       <label style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.3rem">Titre de la clause</label>
       <input id="clause-title-input" type="text" placeholder="ex. Interdiction de sous-location, Animaux autorisés…" style="width:100%;border:1px solid var(--border2);border-radius:8px;padding:.5rem .75rem;font-size:.85rem;font-family:'DM Sans',sans-serif;color:var(--tm);outline:none;box-sizing:border-box" onfocus="this.style.borderColor='var(--bleu)'" onblur="this.style.borderColor='var(--border2)'">
@@ -454,12 +453,11 @@
 
               <!-- Identification du garant + engagement : un seul bloc -->
               <div class="garant-bloc">
-              <div id="c-garant-header"></div>
-
               <div class="article-content">
                 <p>Je soussigné(e), <strong id="c-garant-name2">—</strong><span id="c-garant-birth-inline"></span><span id="c-garant-addr-inline"></span><span id="c-garant-contact-inline"></span>, déclare me porter caution <span id="c-nat-inline">solidaire</span> de <strong id="c-tenant-name">—</strong>, locataire du logement situé au <strong id="c-adresse">—</strong>, objet du bail meublé d'une durée d'un (1) an conclu le <span id="c-bail-date2">—</span> avec le bailleur <strong id="c-landlord-name2">—</strong>.</p>
                 <p>Le loyer mensuel s'élève à <strong id="c-loyer-chiffres">—</strong> (<span id="c-loyer-lettres">—</span> euros) hors charges<span id="c-charges-mention"></span>, révisable chaque année selon l'IRL.</p>
               </div>
+              <div id="c-garant-header"></div>
               </div>
 
               <div class="mention-manuscrite" id="c-mention" style="margin:.8rem 0"></div>
@@ -507,7 +505,7 @@
           <div class="article-title" id="art3-title">Article 3 — Durée du bail</div>
           <div class="article-content">
             <p>Le présent contrat est conclu pour une durée de <strong>1 (un) an</strong> à compter du <strong id="start-date-txt">—</strong>, pour se terminer le <strong id="end-date-txt">—</strong>.</p>
-            <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes d'un an, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 15 et 16 du présent contrat.</p>
+            <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes d'un an, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 17 et 18 du présent contrat.</p>
             <p><em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em></p>
           </div>
         </div>
@@ -634,9 +632,33 @@
 
         <hr class="divider">
 
+        <!-- ART 22 — ANNEXES -->
+        <div class="section">
+          <div class="article-title">Article 9 — Documents annexés</div>
+          <div class="article-content"><p>Les documents suivants sont annexés au présent bail et en font partie intégrante :</p></div>
+          <ul class="annexe-list" style="margin-top:.6rem" id="annexes-list">
+            <!-- rempli dynamiquement -->
+          </ul>
+        </div>
+
+        <hr class="divider">
+
+        <!-- ART 23 — CLAUSES PARTICULIÈRES -->
+        <div class="section" id="clauses-section">
+          <div class="article-title" id="art23-title">Article 10 — Clauses particulières</div>
+          <div class="article-content">
+            <p style="font-size:.82rem;color:var(--td);margin-bottom:.7rem">Les parties conviennent des clauses particulières suivantes, licites et non contraires à l'ordre public :</p>
+            <div class="clauses-wrap" id="clauses-particulieres-wrap">
+              <!-- rempli dynamiquement -->
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
         <!-- ART 9 — OBLIGATIONS BAILLEUR -->
         <div class="section">
-          <div class="article-title">Article 9 — Obligations du bailleur</div>
+          <div class="article-title">Article 11 — Obligations du bailleur</div>
           <div class="article-content">
             <p>Le bailleur est tenu de respecter les obligations prévues par l'article 6 de la loi du 6 juillet 1989, notamment : délivrer le logement en bon état d'usage et de réparation, assurer la jouissance paisible des lieux, entretenir le bien et effectuer les réparations autres que locatives, remettre le dossier de diagnostics techniques complet lors de la remise des clés, et garantir le logement contre les vices cachés (art. 1721 C.civ.).</p>
             <p style="font-size:.77rem;color:var(--td)"><em>Le détail des obligations légales du bailleur figure dans la notice d'information annexée au présent contrat, conformément au décret n° 2016-1023 du 26 juillet 2016.</em></p>
@@ -647,7 +669,7 @@
 
         <!-- ART 10 — OBLIGATIONS LOCATAIRE -->
         <div class="section">
-          <div class="article-title">Article 10 — Obligations du locataire</div>
+          <div class="article-title">Article 12 — Obligations du locataire</div>
           <div class="article-content">
             <p>Le locataire est tenu de respecter les obligations prévues par l'article 7 de la loi du 6 juillet 1989, notamment : payer le loyer et les charges récupérables aux échéances convenues, assurer l'entretien courant du logement et les menues réparations locatives (décret n° 87-712 du 26 août 1987), s'assurer contre les risques locatifs et en justifier chaque année, user paisiblement des lieux et répondre des dégradations imputables, et ne pas sous-louer ni céder le bail sans accord écrit du bailleur.</p>
             <p style="font-size:.77rem;color:var(--td)"><em>Le détail des obligations légales du locataire figure dans la notice d'information annexée au présent contrat, conformément au décret n° 2016-1023 du 26 juillet 2016.</em></p>
@@ -658,7 +680,7 @@
 
         <!-- ART 11 — ASSURANCE -->
         <div class="section">
-          <div class="article-title">Article 11 — Assurance obligatoire</div>
+          <div class="article-title">Article 13 — Assurance obligatoire</div>
           <div class="article-content">
             <p>Le locataire doit être assuré contre les risques locatifs (incendie, dégât des eaux, explosion…) et remettre une attestation d'assurance au bailleur à la remise des clés, puis chaque année.</p>
             <p>À défaut d'attestation un mois après une mise en demeure, le bailleur peut résilier le bail ou souscrire lui-même une assurance pour le compte du locataire et lui en refacturer le coût chaque mois avec le loyer.</p>
@@ -669,7 +691,7 @@
 
         <!-- ART 12 — ENTRETIEN ET RÉPARATIONS -->
         <div class="section">
-          <div class="article-title">Article 12 — Entretien et réparations</div>
+          <div class="article-title">Article 14 — Entretien et réparations</div>
           <div class="article-content">
             <p>Le locataire prend les lieux dans leur état actuel, tel qu'il ressort de l'état des lieux contradictoire établi lors de la remise des clés.</p>
             <p>Les <strong>réparations locatives</strong> sont celles définies par la réglementation en vigueur, notamment le décret n° 87-712 du 26 août 1987. Elles comprennent l'entretien courant des équipements et installations, les menues réparations et le maintien en état de propreté des parties privatives.</p>
@@ -682,7 +704,7 @@
 
         <!-- ART 13 — TRAVAUX PAR LE LOCATAIRE -->
         <div class="section">
-          <div class="article-title">Article 13 — Travaux et aménagements par le locataire</div>
+          <div class="article-title">Article 15 — Travaux et aménagements par le locataire</div>
           <div class="article-content">
             <p><strong>1 · Aménagements légers</strong> (fixation murale légère, pose de tringles, crochets, petits tableaux, déplacement de meubles…) : le locataire peut y procéder librement sans accord préalable. À son départ, il devra remettre les lieux en l'état initial à ses frais. Le bailleur peut toutefois accepter par écrit de conserver certaines améliorations sans indemnité, à sa discrétion.</p>
             <p><strong>2 · Travaux soumis à autorisation du bailleur</strong> (pose d'un nouveau revêtement de sol, peinture teintée, changement de luminaires fixés, installation de climatisation réversible…) : un accord <strong>écrit et préalable</strong> du bailleur est obligatoire. Sans cet accord, le bailleur peut exiger la remise en état aux frais du locataire lors de la restitution des lieux, ou choisir de conserver les travaux sans indemnité. L'accord doit préciser si le locataire sera tenu ou non à remise en état.</p>
@@ -695,7 +717,7 @@
 
         <!-- ART 14 — ANIMAUX DOMESTIQUES -->
         <div class="section">
-          <div class="article-title">Article 14 — Animaux domestiques</div>
+          <div class="article-title">Article 16 — Animaux domestiques</div>
           <div class="article-content">
             <p>Conformément à la loi n° 70-598 du 9 juillet 1970, <strong>toute clause interdisant la détention d'un animal domestique est réputée non écrite</strong>. Le locataire peut donc détenir un animal de compagnie dans le logement.</p>
             <p>Toutefois, le locataire reste responsable de tout dégât causé par son animal. Les animaux dangereux de 1ère et 2ème catégorie (loi n° 99-5 du 6 janvier 1999) sont soumis à des obligations légales spécifiques (déclaration, assurance, muselière…) que le locataire doit respecter.</p>
@@ -707,7 +729,7 @@
 
         <!-- ART 15 — CONGÉ LOCATAIRE -->
         <div class="section">
-          <div class="article-title">Article 15 — Congé donné par le locataire</div>
+          <div class="article-title">Article 17 — Congé donné par le locataire</div>
           <div class="article-content">
             <p>Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :</p>
             <ul>
@@ -723,7 +745,7 @@
 
         <!-- ART 16 — CONGÉ BAILLEUR -->
         <div class="section">
-          <div class="article-title" id="art16-title">Article 16 — Congé donné par le bailleur</div>
+          <div class="article-title" id="art16-title">Article 18 — Congé donné par le bailleur</div>
           <div class="article-content">
             <p>Le bailleur ne peut mettre fin au bail qu'à son <strong>expiration</strong>, sous réserve d'un préavis de <strong>trois (3) mois</strong> notifié par LRAR ou acte d'huissier, en justifiant impérativement de l'un des trois motifs limitatifs suivants (art. 15 de la loi du 6 juillet 1989) :</p>
             <ul>
@@ -739,7 +761,7 @@
 
         <!-- ART 17 — CLAUSE RÉSOLUTOIRE -->
         <div class="section">
-          <div class="article-title">Article 17 — Clause résolutoire</div>
+          <div class="article-title">Article 19 — Clause résolutoire</div>
           <div class="article-content">
             <p>Le présent bail sera résilié de plein droit, après un commandement resté sans effet, dans les cas suivants :</p>
             <ul>
@@ -755,7 +777,7 @@
 
         <!-- ART 18 — CLAUSE PÉNALE -->
         <div class="section">
-          <div class="article-title">Article 18 — Indemnité d'occupation</div>
+          <div class="article-title">Article 20 — Indemnité d'occupation</div>
           <div class="article-content">
             <p>En cas de maintien dans les lieux après l'expiration du contrat sans titre ni droit, et sans préjudice des voies de droit dont dispose le bailleur (notamment la procédure d'expulsion), le locataire sera redevable d'une <strong>indemnité d'occupation</strong> égale au montant du loyer et des charges qu'il aurait payés si le bail avait continué.</p>
             <p>Cette indemnité est due jusqu'à la remise effective des clés et la libération complète des lieux. Elle ne constitue pas un nouveau loyer et n'emporte pas reconduction du bail.</p>
@@ -766,7 +788,7 @@
 
         <!-- ART 19 — ÉLECTION DE DOMICILE -->
         <div class="section">
-          <div class="article-title">Article 19 — Élection de domicile et juridiction</div>
+          <div class="article-title">Article 21 — Élection de domicile et juridiction</div>
           <div class="article-content">
             <p>Pour l'exécution du présent contrat et de ses suites, les parties élisent domicile :</p>
             <ul>
@@ -782,7 +804,7 @@
 
         <!-- ART 20 — RGPD -->
         <div class="section">
-          <div class="article-title">Article 20 — Protection des données personnelles (RGPD)</div>
+          <div class="article-title">Article 22 — Protection des données personnelles (RGPD)</div>
           <div class="article-content">
             <p>Les données personnelles communiquées dans le cadre du présent bail (identité, coordonnées, pièces justificatives) sont collectées et traitées par chaque partie aux seules fins d'exécution du contrat de location, conformément au Règlement (UE) 2016/679 (RGPD) et à la loi n° 78-17 du 6 janvier 1978 modifiée.</p>
             <p>Ces données sont conservées pendant toute la durée de la relation locative et archivées jusqu'à l'expiration du délai de prescription applicable aux actions découlant du bail (trois ans pour les actions en paiement de loyers — art. 7-1 loi du 6 juillet 1989 ; cinq ans pour les autres actions de droit commun). Elles ne seront pas transmises à des tiers sans consentement, sauf obligation légale.</p>
@@ -794,33 +816,9 @@
 
         <!-- ART 21 — INVENTAIRE MOBILIER -->
         <div class="section">
-          <div class="article-title">Article 21 — Inventaire du mobilier (Annexe 1)</div>
+          <div class="article-title">Article 23 — Inventaire du mobilier (Annexe 1)</div>
           <div class="article-content">
             <p>L'état des lieux d'entrée et l'inventaire détaillé du mobilier sont établis ensemble, contradictoirement, lors de la remise des clés, et annexés au présent bail.</p>
-          </div>
-        </div>
-
-        <hr class="divider">
-
-        <!-- ART 22 — ANNEXES -->
-        <div class="section">
-          <div class="article-title">Article 22 — Documents annexés</div>
-          <div class="article-content"><p>Les documents suivants sont annexés au présent bail et en font partie intégrante :</p></div>
-          <ul class="annexe-list" style="margin-top:.6rem" id="annexes-list">
-            <!-- rempli dynamiquement -->
-          </ul>
-        </div>
-
-        <hr class="divider">
-
-        <!-- ART 23 — CLAUSES PARTICULIÈRES -->
-        <div class="section" id="clauses-section">
-          <div class="article-title" id="art23-title">Article 23 — Clauses particulières</div>
-          <div class="article-content">
-            <p style="font-size:.82rem;color:var(--td);margin-bottom:.7rem">Les parties conviennent des clauses particulières suivantes, licites et non contraires à l'ordre public :</p>
-            <div class="clauses-wrap" id="clauses-particulieres-wrap">
-              <!-- rempli dynamiquement -->
-            </div>
           </div>
         </div>
 
@@ -2011,9 +2009,7 @@ function renderReglesDroit(L,opts={}){
       ?' <strong>Caution solidaire</strong> : elle renonce au bénéfice de discussion et de division ; le bailleur peut lui réclamer directement les sommes couvertes et exigibles (art. 2305 et 2306 C. civ.).'
       :' <strong>Caution simple</strong> : elle bénéficie du bénéfice de discussion ; le bailleur doit d\'abord poursuivre le locataire (art. 2305 C. civ.).'));
     add('Caution et assurance loyers impayés','un bailleur ayant souscrit une assurance loyers impayés (GLI) ne peut pas exiger de caution, sauf si le locataire est étudiant ou apprenti (art. 22-1 al. 1 loi 89-462).');
-    add('Durée de l\'engagement',L.garant_duree_type==='determinee'
-      ?'engagement à durée déterminée : la caution reste tenue jusqu\'au terme indiqué dans son engagement (art. 22-1 loi 89-462).'
-      :'engagement sans durée déterminée : la caution peut le résilier ; la résiliation prend effet au terme du bail (initial, reconduit ou renouvelé) au cours duquel le bailleur la reçoit (art. 22-1 loi 89-462).');
+    add('Durée de l\'engagement','la caution s\'engage pour la durée du bail (un an) et, sauf résiliation de sa part, son engagement se renouvelle à chaque reconduction, dans la limite indiquée par période d\'un an. Elle peut le résilier ; la résiliation prend effet au terme de la période en cours (art. 22-1 loi 89-462).');
   }else if(g==='visale'){
     add('Garantie Visale','cautionnement gratuit d\'Action Logement, sous conditions d\'éligibilité. Le locataire obtient un visa ; le bailleur le vérifie et valide le contrat de cautionnement sur visale.fr. Les sommes avancées par Action Logement restent dues par le locataire. Selon les conditions Visale, elle n\'est pas cumulable avec une autre caution ni avec une assurance loyers impayés. Trouve Ton Toit enregistre la référence du visa sans la valider.');
   }else if(g==='organisme'){
@@ -2475,23 +2471,9 @@ function renderBail(){
     show('diag-erp-block','<p>L\'état des risques et pollutions (ERP) a été communiqué au locataire, qui reconnaît en avoir pris connaissance. Ce document est établi conformément à l\'arrêté préfectoral en vigueur.</p>');
   }
 
-  // Attestations installations < 15 ans
-  const attestBlocks=[];
-  if(!dElec||dElec==='na'||dElec===''){
-    attestBlocks.push('l\'installation électrique intérieure');
-  }
-  if(!dGaz||dGaz==='na'||dGaz===''){
-    attestBlocks.push('l\'installation de gaz intérieure');
-  }
-  const attestEl=document.getElementById('diag-attest-block');
-  if(attestEl){
-    if(attestBlocks.length){
-      attestEl.style.display='block';
-      attestEl.innerHTML=`<p style="font-size:.82rem;color:var(--tm)">Le bailleur déclare sur l'honneur que ${attestBlocks.join(' et ')} ${attestBlocks.length>1?'ont':'a'} moins de 15 ans et ${attestBlocks.length>1?'ne nécessitent':'ne nécessite'} pas de diagnostic réglementaire au titre de l'article 3-3 de la loi n° 89-462 du 6 juillet 1989.</p>`;
-    }else{
-      attestEl.style.display='none';
-    }
-  }
+  // Pas d'attestation sur l'honneur : elle s'affichait dès qu'un diagnostic n'était pas
+  // renseigné, ce qui faisait déclarer au bailleur une chose qu'il n'avait pas dite.
+  {const attestEl=document.getElementById('diag-attest-block');if(attestEl){attestEl.style.display='none';attestEl.innerHTML='';}}
 
   // Travaux
   {
@@ -2643,7 +2625,9 @@ function renderBail(){
     }
 
     // Montant cautionné
-    const montantCaution=L.garant_montant||deposit*3;
+    // Plafond de la caution : 12 mois de loyer charges comprises (durée d'un bail meublé),
+    // sauf montant saisi à la main dans le bail
+    const montantCaution=L.garant_montant||Math.round((loyerHC+chargesM)*12);
     show('c-montant',fmt(montantCaution));
 
     // Durée
@@ -2659,11 +2643,11 @@ function renderBail(){
     const loyerLetters=numEnLettres(loyerHC);
     show('c-mention',`<strong>Engagement du garant :</strong><br>
       « En me portant caution ${_bcc.g==='simple'?'simple':'solidaire'} de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
-      (<em>${numEnLettres(montantCaution)} euros</em>), couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em>,
+      (<em>${numEnLettres(montantCaution)} euros</em>) par période d'un an, couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em>,
       des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
-      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em>, et pendant toute la durée du bail
-      et de ses renouvellements ou reconductions, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
+      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em> pour une durée d'un an, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
       en cas de défaillance du locataire, ${_bcc.g==='simple'?'le bailleur devant poursuivre d\'abord le locataire (bénéfice de discussion)':'sans pouvoir bénéficier de discussion ni de division'}.
+      En cas de reconduction ou de renouvellement du bail, le présent engagement se renouvelle automatiquement, dans les mêmes conditions et la même limite, pour chaque nouvelle période d'un an.
       Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
       »`);
     // Caution type + duree
@@ -2808,8 +2792,8 @@ function addSectionTenantFlags(){
     {id:'art6-title',  label:'Article 6 — Dépôt de garantie'},
     {id:'art7-title',  label:'Article 7 — Diagnostics techniques'},
     {id:'art8-title',  label:'Article 8 — Travaux réalisés'},
-    {id:'art16-title', label:'Article 16 — Congé donné par le bailleur'},
-    {id:'art23-title', label:'Article 23 — Clauses particulières'},
+    {id:'art16-title', label:'Article 18 — Congé donné par le bailleur'},
+    {id:'art23-title', label:'Article 10 — Clauses particulières'},
   ];
   contestable.forEach(({id,label})=>{
     const el=document.getElementById(id);
