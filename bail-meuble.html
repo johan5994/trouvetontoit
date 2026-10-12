@@ -968,7 +968,7 @@ const FIELD_LABELS={
   start_date:'Date d\'entrée',
   end_date:'Date de fin',
   premiere_mise_en_location:'Première mise en location',
-  dernier_loyer:'Dernier loyer (précédent locataire)',
+  dernier_loyer:'Dernier loyer hors charges (précédent locataire)',
   dernier_locataire_depart:'Date de départ (précédent locataire)',
   dernier_loyer_revision:'Date dernière révision IRL',
   dernier_loyer_versement:'Date de versement du dernier loyer',
@@ -1975,12 +1975,7 @@ function renderGarantiesBlock(L){
         ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
         ${pill('garant_type','simple','Caution simple',g==='simple')}
       </div>
-      <div class="bc-row"><span class="bc-lbl">Assurance loyers impayés (GLI)</span>
-        ${pill('gli','non','Non',L.gli==='non')}
-        ${pill('gli','oui','Oui, j\'en ai une',L.gli==='oui')}
-        ${!L.gli?'<span style="font-size:.72rem;color:#C2410C">à préciser</span>':''}
-      </div>
-      ${L.gli==='oui'?(TENANT_ETUDIANT?'<div style="font-size:.74rem;color:var(--td);margin:-.2rem 0 .4rem">Locataire étudiant ou apprenti : la caution reste possible avec une GLI.</div>':'<div style="font-size:.74rem;color:#C2410C;margin:-.2rem 0 .4rem">Avec une assurance loyers impayés, la loi interdit de demander une caution (sauf locataire étudiant ou apprenti). Le bail ne pourra pas être finalisé avec ce garant.</div>'):''}
+
 `:''}
       ${coLocs.length?`<div class="bc-row"><span class="bc-lbl">Colocation</span>
         ${pill('colocation_type','commun_solidaire','Bail commun avec solidarité',c==='commun_solidaire')}
@@ -2007,7 +2002,7 @@ function renderUsage(L){
   if(svt)svt.style.display=sv==='oui'?'':'none';
   if(svl)svl.style.display=sv==='oui'?'':'none';
   const spill=(v,l)=>`<button type="button" class="bc-pill${sv===v?' on':''}" onclick="saveField('servitude_rp','${v}')">${l}</button>`;
-  show('servitude-choice',_editMode?`<div class="bc-row bc-edit no-print" style="margin:.2rem 0 .4rem"><span class="bc-lbl">Servitude « résidence principale » (PLU)</span>${spill('non','Non')}${spill('oui','Oui')}${!sv?'<span style="font-size:.72rem;color:#C2410C">à préciser</span>':''}</div>`:'');
+  show('servitude-choice','');
   show('usage-choice',_editMode?`<div class="bc-row bc-edit no-print" style="margin-bottom:.4rem"><span class="bc-lbl">Destination</span>${pill('habitation','Habitation uniquement')}${pill('mixte','Habitation + activité professionnelle')}</div>`:'');
 }
 
@@ -2339,17 +2334,7 @@ function renderBail(){
   if(isZoneTendue){
     const isAuto=!L.loyer_ref&&!Li?.loyer_reference&&!!loyerRefAuto;
     if(isAuto||!loyerRef||!loyerRefMaj)window._bailBloquants.push('loyers de référence à confirmer (article 4)');
-    // Complément de loyer : montant + justification, ou "Aucun"
-    const cl=L.complement_loyer;
-    let complementHtml='';
-    if(cl&&cl!=='aucun'&&Number(cl)>0){
-      complementHtml=`Complément de loyer : <strong>${fmt(Number(cl))}</strong>${L.complement_justif?` — justifié par : ${L.complement_justif}`:''}${_editMode?` <span class="edit-btn" onclick="editField(event,'complement_loyer')"><i data-lucide=pencil class=ic></i></span> <span class="${L.complement_justif?'edit-btn':'missing-badge'}" style="font-size:.68rem" onclick="editField(event,'complement_justif')">${L.complement_justif?'<i data-lucide=pencil class=ic></i> justification':'<i data-lucide=alert-triangle class=ic></i> Justification obligatoire'}</span>`:''}`;
-      if(!L.complement_justif)window._bailBloquants.push('justification du complément de loyer (article 4)');
-    }else if(cl==='aucun'||Number(cl)===0&&cl!==null&&cl!==undefined&&cl!==''){
-      complementHtml=`Complément de loyer : aucun${_editMode?` <span class="edit-btn" onclick="saveField('complement_loyer','')"><i data-lucide=pencil class=ic></i></span>`:''}`;
-    }else if(_editMode){
-      complementHtml=`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'complement_loyer')"><i data-lucide=alert-triangle class=ic></i> Complément de loyer ?</span> <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('complement_loyer','aucun')">Aucun</button></span>`;
-    }
+    const complementHtml='';
     const ref=loyerRef?loyerRef.toFixed(2):'—';
     const refMaj=loyerRefMaj?loyerRefMaj.toFixed(2):'—';
     const missing=(!loyerRef||!loyerRefMaj)&&_editMode;
@@ -2362,7 +2347,6 @@ function renderBail(){
       Loyer de référence majoré : <strong>${refMaj} €/m²</strong>${missing&&!loyerRefMaj?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRefMaj?` <span class="edit-btn" onclick="editField(event,'loyer_ref_majore')"><i data-lucide=pencil class=ic></i></span>`:''}<br>
       ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')"><i data-lucide=alert-triangle class=ic></i> Renseignez l'année de construction pour calcul auto</span>`:''}
       ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')"><i data-lucide=alert-triangle class=ic></i> Nombre de pièces manquant</span>`:''}
-      <br>${complementHtml}
 </div>`);
   } else if(_editMode){
     show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')"><i data-lucide=alert-triangle class=ic></i> Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
@@ -2408,7 +2392,7 @@ function renderBail(){
     const need=!hasDepart||obligatoireMention;
     const parts=[
       val('dernier_locataire_depart','Date de départ du précédent locataire',hasDepart?fmtDate(L.dernier_locataire_depart):''),
-      need||L.dernier_loyer?val('dernier_loyer','Dernier loyer acquitté',L.dernier_loyer?fmt(L.dernier_loyer):''):'',
+      need||L.dernier_loyer?val('dernier_loyer','Dernier loyer acquitté (hors charges)',L.dernier_loyer?fmt(L.dernier_loyer):''):'',
       need||L.dernier_loyer_versement?val('dernier_loyer_versement','Date de versement',L.dernier_loyer_versement?fmtDate(L.dernier_loyer_versement):''):'',
       need||L.dernier_loyer_revision?(L.dernier_loyer_revision==='aucune'?'Dernière révision : <strong>aucune</strong>'+(_editMode?` <span class="edit-btn" onclick="saveField('dernier_loyer_revision','')"><i data-lucide=pencil class=ic></i></span>`:'')
         :val('dernier_loyer_revision','Date de la dernière révision',L.dernier_loyer_revision?fmtDate(L.dernier_loyer_revision):'')+(!L.dernier_loyer_revision&&_editMode?` <span class="yn-btns"><button type="button" class="bc-pill" onclick="saveField('dernier_loyer_revision','aucune')">Jamais révisé</button></span>`:'')):''
@@ -2509,7 +2493,9 @@ function renderBail(){
   let dAmiante=L.diag_amiante||Li?.diag_amiante;
   let dPlomb=L.diag_plomb||Li?.diag_plomb;
   const diagIncoherences=[];
-  if(amianteRequis&&dAmiante==='na'){dAmiante=null;diagIncoherences.push('amiante (immeuble construit avant juillet 1997)');}
+  // Amiante : le dossier (DAPP) doit exister et être communiqué au locataire sur demande,
+  // mais il n'a pas à être annexé au bail → avertissement, sans blocage
+  if(amianteRequis&&dAmiante==='na'){dAmiante=null;diagIncoherences.push('amiante (immeuble construit avant juillet 1997 : le dossier amiante des parties privatives doit exister et être communiqué au locataire s\'il le demande)');}
   if(plombRequis&&dPlomb==='na'){dPlomb=null;diagIncoherences.push('plomb (immeuble construit avant 1949)');}
   const dElec=L.diag_elec||Li?.diag_elec;
   const dGaz=L.diag_gaz||Li?.diag_gaz;
@@ -2533,7 +2519,7 @@ function renderBail(){
       r.res=r.res.replace(/ ?<i data-lucide=check-circle-2 class=ic><\/i>/,'')+' — déclaré, document à joindre';
     }
   });
-  if(amianteRequis)diagRows[2].oblig='Applicable : construit avant juillet 1997';
+  if(amianteRequis)diagRows[2].oblig='Construit avant juillet 1997 : dossier amiante tenu à disposition du locataire';
   if(plombRequis)diagRows[3].oblig='Applicable : construit avant 1949';
   show('diag-incoherences',_editMode&&diagIncoherences.length?`<div class="alert-red no-print" style="font-size:.78rem;margin:.4rem 0"><i data-lucide=alert-triangle class=ic></i> Diagnostic indiqué « non applicable » alors qu'il est requis : ${diagIncoherences.join(', ')}. Renseignez-le.</div>`:'');
   show('diag-tbody',diagRows.map(r=>{
@@ -2611,7 +2597,7 @@ function renderBail(){
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp',cat:'obligatoire'},
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true,cat:'obligatoire'},
     {n:6,txt:'Grille de vétusté applicable aux réparations locatives',url:'https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf',official:true,cat:'facultatif'},
-    ...(amianteRequis||dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier technique amiante (DTA)',url:L.doc_amiante_url,uploadKey:'amiante',cat:'si_applicable'}]:[]),
+    ...(amianteRequis||dAmiante&&dAmiante!=='na'&&dAmiante!==''?[{n:8,txt:'Dossier amiante des parties privatives (DAPP) — tenu à disposition du locataire',url:L.doc_amiante_url,uploadKey:'amiante',cat:'facultatif'}]:[]),
     ...(plombRequis||dPlomb&&dPlomb!=='na'&&dPlomb!==''?[{n:9,txt:'Constat de risque d\'exposition au plomb (CREP)',url:L.doc_plomb_url,uploadKey:'plomb',cat:'si_applicable'}]:[]),
     ...(dElec&&dElec!=='na'&&dElec!==''?[{n:10,txt:'Diagnostic électricité',url:L.doc_elec_url,uploadKey:'elec',cat:'si_applicable'}]:[]),
     ...(dGaz&&dGaz!=='na'&&dGaz!==''?[{n:11,txt:'Diagnostic gaz',url:L.doc_gaz_url,uploadKey:'gaz',cat:'si_applicable'}]:[]),
@@ -2734,8 +2720,8 @@ function renderBail(){
     const loyerLetters=numEnLettres(loyerHC);
     show('c-mention',`<strong>Engagement du garant :</strong><br>
       « En me portant caution ${_bcc.g==='simple'?'simple':'solidaire'} de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
-      (<em>${numEnLettres(montantCaution)} euros</em>) par période d'un an, couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em>,
-      des charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
+      (<em>${numEnLettres(montantCaution)} euros</em>) par période d'un an, couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em> hors charges${chargesM>0?`, des provisions sur charges de <em>${fmt(chargesM)}</em> par mois, soit <em>${fmt(loyerHC+chargesM)}</em> charges comprises`:''},
+      des régularisations de charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
       pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em> pour une durée d'un an, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
       en cas de défaillance du locataire, ${_bcc.g==='simple'?'le bailleur devant poursuivre d\'abord le locataire (bénéfice de discussion)':'sans pouvoir bénéficier de discussion ni de division'}.
       En cas de reconduction ou de renouvellement du bail, le présent engagement se renouvelle automatiquement, dans les mêmes conditions et la même limite, pour chaque nouvelle période d'un an.
@@ -2999,9 +2985,6 @@ async function confirmLoyersRef(ref,maj){
 // ou qu'une information de loyer obligatoire n'est pas confirmée
 function annexesManquantesBloquent(){
   const m=[...(window._annexesManquantes||[]),...(window._bailBloquants||[])];
-  const bc=bailChoices(LEASE);
-  if(bc.physique&&LEASE.gli==='oui'&&!TENANT_ETUDIANT)m.push('caution incompatible avec une assurance loyers impayés (locataire non étudiant ni apprenti)');
-  if(bc.physique&&!LEASE.gli)m.push('préciser si une assurance loyers impayés a été souscrite');
   if(!m.length)return false;
   toast('<i data-lucide=alert-triangle class=ic></i> À compléter avant de finaliser le bail : '+m.join(', ')+'.',7000);
   return true;
