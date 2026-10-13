@@ -1,7 +1,8 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = 'Trouve Ton Toit <noreply@trouvetonoit.fr>';
+// Expéditeur : RESEND_FROM si défini (domaine vérifié dans Resend),
+// sinon l'adresse de test de Resend (n'envoie qu'à l'email du compte Resend).
+const FROM = process.env.RESEND_FROM || 'Trouve Ton Toit <onboarding@resend.dev>';
 
 // ─── Templates ───────────────────────────────────────────────────────────────
 
@@ -9,7 +10,7 @@ const templates = {
 
   // Invitation co-locataire à créer un compte
   co_locataire_invite: ({ mainLocataireNom, listingTitle, address, signupUrl }) => ({
-    subject: `🏠 Vous avez été ajouté(e) comme co-locataire — ${listingTitle}`,
+    subject: `Vous avez été ajouté(e) comme co-locataire — ${listingTitle}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#1B4FD8;padding:24px 32px;border-radius:12px 12px 0 0">
@@ -33,7 +34,7 @@ const templates = {
 
   // Refus date de visite
   visit_date_refusé: ({ locataireNom, listingTitle, dashboardUrl }) => ({
-    subject: `📅 Date de visite non disponible — ${listingTitle}`,
+    subject: `Date de visite non disponible — ${listingTitle}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#1B4FD8;padding:24px 32px;border-radius:12px 12px 0 0">
@@ -53,7 +54,7 @@ const templates = {
 
   // Invitation garant à signer l'acte de caution solidaire
   garant_invite: ({ garantNom, locataireNom, listingTitle, listingAddress, bailUrl }) => ({
-    subject: `📄 Acte de caution solidaire à signer — ${listingTitle}`,
+    subject: `Acte de caution solidaire à signer — ${listingTitle}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#0F2D7A;padding:24px 32px;border-radius:12px 12px 0 0">
@@ -69,7 +70,7 @@ const templates = {
           </div>
           <p>Le bail a été accepté par toutes les parties. Vous devez maintenant signer l'<strong>acte de caution solidaire</strong> joint au bail.</p>
           <p>Cliquez sur le bouton ci-dessous pour accéder au bail et apposer votre signature :</p>
-          <a href="${bailUrl}" style="display:inline-block;background:#B45309;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:800;font-size:1em;margin-top:8px">✍️ Signer l'acte de caution →</a>
+          <a href="${bailUrl}" style="display:inline-block;background:#B45309;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:800;font-size:1em;margin-top:8px">Signer l'acte de caution →</a>
           <p style="color:#6b7280;font-size:.85em;margin-top:20px">Ce lien vous donne accès au contrat de location en lecture seule, ainsi qu'au formulaire de signature de l'acte de caution solidaire en bas de page.</p>
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0">
           <p style="color:#9ca3af;font-size:.8em">Trouve Ton Toit — Location meublée en France · <a href="https://trouvetonoit.fr" style="color:#9ca3af">trouvetonoit.fr</a></p>
@@ -79,12 +80,12 @@ const templates = {
 
   // Confirmation au garant + notification bailleur/locataire que le garant a signé
   garant_signed: ({ garantNom, locataireNom, listingTitle, bailUrl, recipientRole }) => ({
-    subject: `✅ Acte de caution solidaire signé — ${listingTitle}`,
+    subject: `Acte de caution solidaire signé — ${listingTitle}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#16a34a;padding:24px 32px;border-radius:12px 12px 0 0">
           <p style="color:rgba(255,255,255,.8);font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 4px">Trouve Ton Toit</p>
-          <h1 style="color:#fff;font-size:22px;margin:0">Caution signée ✅</h1>
+          <h1 style="color:#fff;font-size:22px;margin:0">Caution signée </h1>
         </div>
         <div style="background:#fff;padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
           ${recipientRole === 'garant'
@@ -126,6 +127,12 @@ exports.handler = async (event) => {
     if (!to) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing "to" address' }) };
     }
+
+    // Sans clé, l'ancien code plantait au chargement (HTTP 502) : on renvoie une erreur claire
+    if (!process.env.RESEND_API_KEY) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'RESEND_API_KEY manquante dans les variables d\'environnement Netlify' }) };
+    }
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const { subject, html } = templates[template](data || {});
 
