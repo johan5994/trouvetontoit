@@ -6,7 +6,8 @@
   <title>Bail de location meublée — Trouve Ton Toit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
+  <script>window.__clerk_publishable_key='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';</script>
+  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F8F7F4;--card:#FFFFFF;--tm:#1A1D27;--td:#6B7280;--border:#E5E7EB;--border2:#D1D5DB;--green:#16A34A;--red:#DC2626;--gold:#B45309;--orange:#EA580C;--shadow:0 1px 4px rgba(0,0,0,.08)}
@@ -1723,7 +1724,8 @@ function renderModifsPanel(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 (async()=>{
   try{
-    const clerk=new window.Clerk(CLERK_KEY);
+    // Même init que les dashboards : le script crée déjà l'instance (window.Clerk)
+    const clerk=(typeof window.Clerk==='function')?new window.Clerk(CLERK_KEY):window.Clerk;
     await clerk.load();
     if(clerk.user){
       U={id:clerk.user.id,email:clerk.user.primaryEmailAddress?.emailAddress,clerk:clerk.user};
@@ -1818,8 +1820,14 @@ async function loadBail(){
     if(_gt&&LEASE.garant_token&&_gt===LEASE.garant_token){
       myRole='garant'; // lien personnel reçu par email
     }else if(U){
+      const _bkTenant=[BOOKING?.tenant_id,BOOKING?.locataire_id].filter(Boolean);
       if(U.id===LEASE.landlord_id) myRole='landlord';
       else if(U.id===LEASE.tenant_id) myRole='tenant';
+      // tenant_id manquant/différent sur le lease : on se fie au booking
+      else if(_bkTenant.includes(U.id)){
+        myRole='tenant';
+        if(!LEASE.tenant_id){try{await sb.from('leases').update({tenant_id:U.id}).eq('id',LEASE.id);LEASE.tenant_id=U.id;}catch(e){}}
+      }
       // landlord_id manquant sur le lease : seulement si c'est bien le propriétaire du booking
       else if(!LEASE.landlord_id&&BOOKING?.landlord_id&&BOOKING.landlord_id===U.id){
         myRole='landlord';
