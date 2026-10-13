@@ -3017,16 +3017,23 @@ async function inviteGarant(force){
   if(!tok){
     tok=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2))+Math.random().toString(36).slice(2,8);
   }
-  const now=new Date().toISOString();
-  const{error}=await sb.from('leases').update({garant_token:tok,garant_invited_at:now}).eq('id',LEASE.id);
-  if(error){toast('Erreur garant : '+error.message+' (migration garant-signature exécutée ?)',6000);return false;}
-  LEASE.garant_token=tok;LEASE.garant_invited_at=now;
+  // 1) enregistrer le lien personnel (sans encore marquer « envoyé »)
+  if(tok!==LEASE.garant_token){
+    const{error}=await sb.from('leases').update({garant_token:tok}).eq('id',LEASE.id);
+    if(error){toast('Erreur garant : '+error.message+' (migration garant-signature exécutée ?)',6000);return false;}
+    LEASE.garant_token=tok;
+  }
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=garant&gt='+encodeURIComponent(tok);
   const tNom=[T_PROFILE?.first_name,T_PROFILE?.last_name].filter(Boolean).join(' ')||T_PROFILE?.full_name||LEASE.tenant_name||'Le locataire';
+  // 2) envoyer l'email
   try{
     const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:tNom,listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||LISTING?.full_address||'',bailUrl:lien}})});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-  }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Email au garant non envoyé : '+e.message,6000);return false;}
+    if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();if(j?.error)m=j.error;}catch(e){}throw new Error(m);}
+  }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Email au garant non envoyé : '+e.message,8000);return false;}
+  // 3) marquer comme envoyé seulement si l'email est vraiment parti
+  const now=new Date().toISOString();
+  try{await sb.from('leases').update({garant_invited_at:now}).eq('id',LEASE.id);}catch(e){}
+  LEASE.garant_invited_at=now;
   toast('<i data-lucide=mail class=ic></i> Bail envoyé par email au garant ('+LEASE.garant_email+')',5000);
   return true;
 }
@@ -3229,6 +3236,7 @@ function renderStatusAndSigs(){
   else if(effectiveRole==='landlord'&&!llSigned){hint.textContent='Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='Signer en tant que bailleur';}
   else if(effectiveRole==='landlord'&&llSigned){hint.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous avez signé'+(tSigned?'.':' — en attente du locataire.')+' Lien locataire :<br><code style="font-size:.72rem;background:#f3f4f6;padding:.1rem .3rem;border-radius:3px">'+location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant</code>';btn.style.display='none';}
   else if(effectiveRole==='tenant'&&!tSigned){hint.textContent=llSigned?'Le bailleur a signé. Dessinez votre signature pour finaliser.':'Lisez le bail, dessinez votre signature dans la zone, puis validez.';btn.style.display='inline-flex';btn.textContent='Signer en tant que locataire';}
+  else if(effectiveRole==='tenant'&&tSigned){hint.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Vous avez signé'+(llSigned?'.':' — en attente de la signature du bailleur.');btn.style.display='none';}
   else if(effectiveRole==='garant'&&!gSigned){hint.textContent='Lisez le bail et l\'acte de caution, puis dessinez votre signature dans la zone « Garant » et validez.';btn.style.display='inline-flex';btn.textContent='Signer en tant que garant';}
   else if(effectiveRole==='garant'&&gSigned){hint.textContent='Vous avez signé l\'acte de caution. Merci !';btn.style.display='none';}
   else if(!effectiveRole){hint.textContent='Connectez-vous avec votre compte pour signer (ou utilisez le lien reçu par email si vous êtes garant).';btn.style.display='none';}
