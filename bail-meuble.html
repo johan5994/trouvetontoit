@@ -144,6 +144,14 @@
     .yn-btns .bc-pill{padding:.1rem .55rem;font-size:.72rem}
     .na-note{font-size:.76rem;color:var(--td);font-style:italic}
     @media print{.yn-btns,.na-note{display:none!important}}
+    .cs-choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.5rem}
+    .cs-opt{text-align:left;border:1.5px solid var(--border,#D8DCE6);background:#fff;border-radius:10px;padding:.6rem .75rem;cursor:pointer;font-family:inherit;font-size:.8rem;color:inherit;line-height:1.45}
+    .cs-opt span:not(.cs-reco){display:block;color:var(--td);font-size:.74rem;margin-top:.2rem}
+    .cs-opt.on{border-color:var(--bleu);background:rgba(27,79,216,.06)}
+    .cs-reco{font-size:.65rem;font-weight:700;background:var(--bleu);color:#fff;border-radius:20px;padding:.05rem .45rem;margin-left:.25rem;vertical-align:middle}
+    .annexe-act{position:relative;display:inline-flex;align-items:center;gap:.25rem;margin-left:.35rem;font-size:.72rem;font-weight:600;color:var(--bleu);background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:.2rem .5rem;cursor:pointer;font-family:inherit;overflow:hidden}
+    .annexe-del{color:#B91C1C;background:#FEF2F2;border-color:#FECACA}
+    @media print{.annexe-act{display:none!important}}
     .bc-pill.on{background:var(--bleu);border-color:var(--bleu);color:#fff}
     .bc-sum{margin:0;padding-left:1.1rem;font-size:.84rem;line-height:1.6}
     .bc-sum li{margin:.1rem 0}
@@ -1971,9 +1979,18 @@ function renderGarantiesBlock(L){
     <div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'} — à choisir</div>
     <div style="font-size:.76rem;color:var(--td);margin-bottom:.45rem">Garantie indiquée par le locataire : <strong>${physique?'garant personne physique':g==='visale'?'Visale':g==='organisme'?'organisme ou banque':'aucune'}</strong></div>
     <div class="bc-edit">
-      ${physique?`<div class="bc-row"><span class="bc-lbl">Engagement du garant</span>
-        ${pill('garant_type','solidaire','Caution solidaire',g==='solidaire')}
-        ${pill('garant_type','simple','Caution simple',g==='simple')}
+      ${physique?`<div style="margin-bottom:.6rem">
+        <div style="font-size:.8rem;font-weight:700;margin-bottom:.35rem">Quel type de caution acceptez-vous ?</div>
+        <div class="cs-choice">
+          <button type="button" class="cs-opt${g==='solidaire'?' on':''}" onclick="saveField('garant_type','solidaire')">
+            <strong>Caution solidaire uniquement</strong> <span class="cs-reco">recommandé</span>
+            <span>En cas d'impayé, vous pouvez demander directement au garant de payer, sans poursuivre d'abord le locataire.</span>
+          </button>
+          <button type="button" class="cs-opt${g==='simple'?' on':''}" onclick="saveField('garant_type','simple')">
+            <strong>J'accepte aussi une caution simple</strong>
+            <span>En cas d'impayé, vous devez d'abord poursuivre le locataire (relances, procédure) ; le garant ne paie que si le locataire ne peut pas payer.</span>
+          </button>
+        </div>
       </div>
 
 `:''}
@@ -2067,7 +2084,8 @@ function renderBail(){
   if(migrNavBtn)migrNavBtn.style.display=_editMode?'':'none';
 
   buildRecentChanges();   // construire les highlights
-  renderModifsPanel();    // afficher le panneau historique
+  // Historique des modifications retiré : les changements se voient directement dans le bail
+  {const mp=q('modifs-panel');if(mp)mp.remove();}
   renderLandlordGuide();  // guide bailleur
   renderTenantGuide();    // guide locataire
   addSectionTenantFlags(); // boutons Contester sur les articles
@@ -2220,29 +2238,22 @@ function renderBail(){
     {label:'Production ECS',value:(modeEcs&&modeEcs!=='Non renseigné')?ev('mode_ecs',hl('mode_ecs',modeEcs)):mf('mode_ecs')},
     {label:'Numéro fiscal',value:(numFiscal&&numFiscal!=='—')?ev('numero_fiscal',hl('numero_fiscal',numFiscal)):mf('numero_fiscal')},
   ];
-  if(L.regime_copro||Li?.regime_copro){
-    const lotVal=L.numero_lot?` — lot ${L.numero_lot}`:'';
-    items2.push({label:'Copropriété',value:'Oui'+lotVal+((!L.numero_lot&&_editMode)?` <span class="missing-badge" style="font-size:.7rem" onclick="editField(event,'numero_lot')"><i data-lucide=alert-triangle class=ic></i> N° de lot</span>`:'')});
-  } else if(_editMode){
-    items2.push({label:'Copropriété',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'regime_copro')"><i data-lucide=alert-triangle class=ic></i> Déclarer si copropriété</span>`});
+  // Copropriété : choix Oui / Non direct (plus de badge orange)
+  {
+    const isCop=!!(L.regime_copro||Li?.regime_copro);
+    const cp=(v,l,on)=>`<button type="button" class="bc-pill${on?' on':''}" style="padding:.1rem .6rem;font-size:.74rem" onclick="saveField('regime_copro',${v})">${l}</button>`;
+    const lot=isCop?(L.numero_lot?` — lot ${L.numero_lot}${_editMode?` <span class="edit-btn" onclick="editField(event,'numero_lot')"><i data-lucide=pencil class=ic></i></span>`:''}`:(_editMode?` <span class="edit-btn" onclick="editField(event,'numero_lot')">+ n° de lot</span>`:'')):'';
+    items2.push({label:'Copropriété',value:_editMode
+      ?`<span class="yn-btns" style="margin-left:0">${cp('true','Oui',isCop)}${cp('false','Non (monopropriété)',!isCop)}</span>${lot}`
+      :(isCop?'Oui'+lot:'Non (monopropriété)')});
   }
-  // Dépendances — n'apparaissent dans le bail QUE si le bailleur a explicitement renseigné les détails
+  // Stationnement / cave / box : gérés dans « Dépendances » (Oui / Non) ; ici seulement
+  // les précisions déjà saisies, sans badge orange
   if(L.parking_type||L.parking_details){
-    const parkLabel=[L.parking_type,L.parking_details].filter(Boolean).join(' — ');
-    items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',parkLabel))});
-  } else if(_editMode){
-    items2.push({label:'Stationnement',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'parking_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si inclus</span>`});
+    items2.push({label:'Stationnement',value:ev('parking_details',hl('parking_details',[L.parking_type,L.parking_details].filter(Boolean).join(' — ')))});
   }
-  if(L.cave_details){
-    items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
-  } else if(_editMode){
-    items2.push({label:'Cave',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'cave_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si incluse</span>`});
-  }
-  if(L.box_details){
-    items2.push({label:'Box / local',value:ev('box_details',hl('box_details',L.box_details))});
-  } else if(_editMode){
-    items2.push({label:'Box / local',value:`<span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'box_details')"><i data-lucide=alert-triangle class=ic></i> Ajouter si inclus</span>`});
-  }
+  if(L.cave_details)items2.push({label:'Cave',value:ev('cave_details',hl('cave_details',L.cave_details))});
+  if(L.box_details)items2.push({label:'Box / local',value:ev('box_details',hl('box_details',L.box_details))});
   const g2=document.getElementById('logement-grid2');if(g2)g2.style.cssText='display:block;margin:0';
   show('logement-grid2',`<div class="info-rows">${items2.map(i=>`<div class="info-row"><span class="ir-label">${i.label}</span><span class="ir-value">${i.value}</span></div>`).join('')}</div>`);
 
@@ -2446,17 +2457,19 @@ function renderBail(){
 
   // DPE — lecture depuis listing (colonnes réelles : dpe, ges)
   const epc=L.dpe_energy_rating||Li?.dpe||Li?.epc_rating;
-  const ges=Li?.ges||L.dpe_ges_rating;
+  const ges=L.dpe_ges_rating||Li?.ges;
+  const dpePen=(k)=>_editMode?`<div style="margin-top:.3rem"><span class="edit-btn" style="margin:0" onclick="editField(event,'${k}')" title="Changer la lettre"><i data-lucide=pencil class=ic></i> Changer</span></div>`:'';
   let dpeHtml='';
-  if(epc){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:${dpeColor(epc)}">${epc}</div><div class="dpe-sub">kWhEP/m²/an</div></div>`;}
-  else{dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:var(--td)">—</div><div class="dpe-sub">non renseigné</div></div>`;}
-  if(ges){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">GES (CO₂)</div><div class="dpe-class" style="color:${gesColor(ges)}">${ges}</div><div class="dpe-sub">kgeqCO₂/m²/an</div></div>`;}
-  else{dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">GES (CO₂)</div><div class="dpe-class" style="color:var(--td)">—</div><div class="dpe-sub">non renseigné</div></div>`;}
+  if(epc){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:${dpeColor(epc)}">${epc}</div><div class="dpe-sub">kWhEP/m²/an</div>${dpePen('dpe_energy_rating')}</div>`;}
+  else{dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">Énergie</div><div class="dpe-class" style="color:var(--td)">—</div><div class="dpe-sub">non renseigné</div>${dpePen('dpe_energy_rating')}</div>`;}
+  if(ges){dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">GES (CO₂)</div><div class="dpe-class" style="color:${gesColor(ges)}">${ges}</div><div class="dpe-sub">kgeqCO₂/m²/an</div>${dpePen('dpe_ges_rating')}</div>`;}
+  else{dpeHtml+=`<div class="dpe-badge"><div class="dpe-label">GES (CO₂)</div><div class="dpe-class" style="color:var(--td)">—</div><div class="dpe-sub">non renseigné</div>${dpePen('dpe_ges_rating')}</div>`;}
   show('dpe-grid',dpeHtml);
 
   let dpeWarn='';
-  if(epc==='F'){dpeWarn='<div class="warning"><i data-lucide=alert-triangle class=ic></i> Logement classé F — interdiction de louer à partir du 1ᵉʳ janvier 2034 (loi Climat et Résilience).</div>';}
-  else if(epc==='G'){dpeWarn='<div class="alert-red"><i data-lucide=ban class=ic></i> Logement classé G — interdiction de louer à partir du 1ᵉʳ janvier 2028 (loi Climat et Résilience).</div>';}
+  if(epc==='F'){dpeWarn='<div class="warning"><i data-lucide=alert-triangle class=ic></i> Logement classé F — ne pourra plus être loué à partir du 1ᵉʳ janvier 2028 (loi Climat et Résilience).</div>';}
+  else if(epc==='G'){dpeWarn='<div class="alert-red"><i data-lucide=ban class=ic></i> Logement classé G — considéré comme non décent depuis le 1ᵉʳ janvier 2025 : il ne peut plus faire l\'objet d\'un nouveau bail (loi Climat et Résilience).</div>';}
+  else if(epc==='E'){dpeWarn='<div class="warning"><i data-lucide=alert-triangle class=ic></i> Logement classé E — ne pourra plus être loué à partir du 1ᵉʳ janvier 2034 (loi Climat et Résilience).</div>';}
   show('dpe-warning-block',dpeWarn);
 
   // DPE — dépenses énergétiques estimées
@@ -2616,6 +2629,9 @@ function renderBail(){
   let nextN=annexes.length+1;
   for(const d of docEntries){
     // Ajouter seulement si doc déjà uploadé et pas encore dans la liste
+    // Déjà dans la liste (même type de document) : on lui attache juste le fichier, sans doublon
+    const ex=annexes.find(a=>a.uploadKey===d.uploadKey);
+    if(ex){if(L[d.key])ex.url=L[d.key];continue;}
     if(L[d.key]&&!annexes.some(a=>a.url===L[d.key])){
       annexes.push({n:nextN++,txt:d.txt,url:L[d.key],uploadKey:d.uploadKey});
     }
@@ -2640,7 +2656,9 @@ function renderBail(){
     ${a.url
       ?(a.official
         ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC"><i data-lucide=file-text class=ic></i> PDF officiel</a>`
-        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>`)
+        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>${_editMode&&a.uploadKey?`
+          <label class="annexe-act" title="Remplacer le document"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=refresh-cw class=ic></i> Changer</label>
+          <button type="button" class="annexe-act annexe-del" title="Supprimer le document" onclick="removeDoc('${a.uploadKey}')"><i data-lucide=trash-2 class=ic></i> Supprimer</button>`:''}`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
         :_editMode&&a.uploadKey
@@ -3227,6 +3245,20 @@ async function uploadDoc(key,inputEl){
   if(statusEl)statusEl.innerHTML=`<span class="cp-doc-ok"><i data-lucide=check-circle-2 class=ic></i> Déposé</span> <a href="${publicUrl}" target="_blank" class="cp-doc-link">Voir PDF</a>`;
   toast(`<i data-lucide=check-circle-2 class=ic></i> ${key.toUpperCase()} déposé avec succès`);
   renderBail(); // Mettre à jour la liste des annexes
+}
+
+async function removeDoc(key){
+  const col=DOC_COL[key];
+  if(!col||!LEASE?.[col])return;
+  if(!confirm('Supprimer ce document du bail ?'))return;
+  const url=LEASE[col];
+  const{error}=await sb.from('leases').update({[col]:null}).eq('id',LEASE.id);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> Suppression impossible : '+error.message,5000);return;}
+  // Retirer aussi le fichier du stockage (sans bloquer si ça échoue)
+  try{const path=decodeURIComponent(url.split('/object/public/'+DOC_BUCKET+'/')[1]||'');if(path)await sb.storage.from(DOC_BUCKET).remove([path]);}catch(e){}
+  LEASE[col]=null;
+  toast('<i data-lucide=check-circle-2 class=ic></i> Document supprimé');
+  renderBail();
 }
 
 function showError(msg){q('loader').innerHTML=`<div style="color:var(--red);font-size:.9rem;padding:2rem">${msg}</div>`;}
