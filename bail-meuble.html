@@ -1482,7 +1482,7 @@ function renderLandlordGuide(){
   let contextMsg='';
   if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=arrow-right class=ic></i> <strong>Étape actuelle :</strong> Complétez les champs manquants puis cliquez sur <strong><i data-lucide=send class=ic></i> Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
   else if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=hourglass class=ic></i> <strong>En attente :</strong> Le locataire doit relire et accepter le bail. Vous recevrez un message dès qu'il aura répondu.</p>`;
-  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=refresh-cw class=ic></i> <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong><i data-lucide=check-circle-2 class=ic></i> Valider le modèle final →</strong>.</p>`;
+  else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=refresh-cw class=ic></i> <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong><i data-lucide=send class=ic></i> Renvoyer au locataire →</strong>. Il devra relire et accepter la nouvelle version.</p>`;
   else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=check-circle-2 class=ic></i> <strong>Modèle accepté !</strong> Les signatures sont maintenant débloquées. Faites défiler vers le bas pour apposer votre signature.</p>`;
 
   guide.innerHTML=`<div class="ll-guide-title"><i data-lucide=clipboard-list class=ic></i> Guide — Comment signer votre bail</div><div class="ll-guide-steps">${stepsHtml}</div>${contextMsg}`;
@@ -2941,8 +2941,11 @@ function renderNegocBar(){
   if(effectiveRole==='landlord'){
     if(ns==='draft')                  btn('<i data-lucide=send class=ic></i> Envoyer au locataire →','btn-blue',sendToTenant);
     if(ns==='pending_tenant')         step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Rien à faire pour l'instant : le locataire doit accepter le bail ou demander des modifications. Les signatures s'ouvriront ensuite.</div>`;
-    if(ns==='pending_landlord')       btn('<i data-lucide=check-circle-2 class=ic></i> Valider le modèle final →','btn-green',landlordValidateModel);
-    if(ns==='pending_landlord')       btn('<i data-lucide=send class=ic></i> Renvoyer au locataire →','btn-outline',sendToTenant);
+    // Le locataire a fait des remarques → le bailleur ajuste puis RENVOIE obligatoirement (pas de validation directe)
+    if(ns==='pending_landlord'){
+      step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Faites les ajustements dans le bail, puis renvoyez-le au locataire pour qu'il le relise et l'accepte.</div>`;
+      btn('<i data-lucide=send class=ic></i> Renvoyer au locataire →','btn-blue',sendToTenant);
+    }
   }
   if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
@@ -2961,20 +2964,26 @@ function renderNegocBar(){
 }
 
 async function sendToTenant(){
+  const _resend=LEASE.negotiation_status==='pending_landlord';
   const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='pending_tenant';
   // Message au locataire
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant';
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:(_resend?`Le bailleur a pris en compte vos remarques et vous renvoie le bail modifié.\n\n`:'')+`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('<i data-lucide=check-circle-2 class=ic></i> Bail envoyé au locataire pour relecture !');
   renderNegocBar();renderLandlordGuide();renderTenantGuide();renderStatusAndSigs();
-  // Retour automatique sur le dashboard, sur la carte de la candidature
+  backToDashboard('landlord',_resend?'resent':'sent');
+}
+
+// Retour automatique sur le dashboard (proprio ou locataire), sur la carte de la candidature
+function backToDashboard(role,evt){
   const bkId=LEASE.booking_id||BOOKING_ID||'';
-  const dash='/landlord-dashboard.html?tab=applications&sent=1'+(bkId?'&booking='+encodeURIComponent(bkId):'');
+  const page=role==='landlord'?'/landlord-dashboard.html':'/tenant-dashboard.html';
+  const dash=page+'?tab=applications&evt='+evt+(bkId?'&booking='+encodeURIComponent(bkId):'');
   setTimeout(()=>{
     try{
-      // Bail ouvert depuis le dashboard dans un nouvel onglet → on recharge l'onglet d'origine et on ferme celui-ci
+      // Bail ouvert dans un nouvel onglet → on recharge l'onglet d'origine et on ferme celui-ci
       if(window.opener&&!window.opener.closed&&window.opener.location.origin===location.origin){
         window.opener.location.href=dash;window.opener.focus();window.close();
         return;
@@ -2998,6 +3007,7 @@ async function tenantAcceptsModel(){
   }
   toast('<i data-lucide=check-circle-2 class=ic></i> Modèle accepté ! Le bail est maintenant prêt pour signature.');
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
+  backToDashboard('tenant','accepte');
 }
 
 // ── Remarques du locataire : collectées pendant la relecture, envoyées en une fois ──
@@ -3064,6 +3074,7 @@ async function submitModifRequest(){
   toast('<i data-lucide=check-circle-2 class=ic></i> Remarques envoyées au bailleur !');
   renderNegocBar();renderRemarquesBar();
   try{renderBail();}catch(e){}
+  backToDashboard('tenant','remarques');
 }
 
 async function confirmLoyersRef(ref,maj){
