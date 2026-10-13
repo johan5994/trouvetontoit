@@ -1375,6 +1375,13 @@ let clerk,U=null,P=null,selectedRating=5;
   // Arrivée depuis une annonce avec un profil incomplet : ouvrir directement "Mon profil" avec un message
   try{
     const qp=new URLSearchParams(window.location.search);
+    if(qp.get('tab')==='applications'){
+      window._focusBooking=qp.get('booking')||null;
+      const _m={remarques:'<i data-lucide=send class=ic></i> Vos remarques ont été envoyées au propriétaire',accepte:'<i data-lucide=check-circle-2 class=ic></i> Bail accepté — vous pouvez maintenant le signer'}[qp.get('evt')||''];
+      if(_m)setTimeout(()=>toast(_m),600);
+      window.history.replaceState({},'',window.location.pathname);
+      sp('applications',document.querySelector('.ni[onclick*="applications"]'));
+    }
     if(qp.get('tab')==='profil'){
       const need=qp.get('need'),miss=(qp.get('missing')||'').split(',');
       const back=(qp.get('annonce')||'').replace(/[^a-zA-Z0-9-]/g,'');
@@ -2852,12 +2859,27 @@ function renderLocataireVisitCard(v){
     'declined':'<i data-lucide=x-circle class=ic></i> Refusée'
   };
   const dateStr=v.visit_date?new Date(v.visit_date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(v.visit_time?' at '+v.visit_time:''):'Date TBD';
-  const sc=statusColors[v.status]||'b-dim';
-  const sl=statusLabels[v.status]||v.status;
+  let sc=statusColors[v.status]||'b-dim';
+  let sl=statusLabels[v.status]||v.status;
+  if(v.status==='booking_pending'){sc='b-gold';sl='<i data-lucide=hourglass class=ic></i> Dossier envoyé — réponse du propriétaire attendue';}
+  // Badge précis selon l'avancement du bail
+  if(['accepted','lease_pending'].includes(v.status)){
+    const L=bk?._lease||null,ns=L?.negotiation_status||null;
+    const resent=(L?.modifs_log||[]).some(e=>e&&e.par==='tenant');
+    const b=!L||ns==='draft'?['b-dim','<i data-lucide=clock class=ic></i> Le propriétaire prépare le bail']
+      :ns==='pending_tenant'?['b-gold',resent?'<i data-lucide=file-pen class=ic></i> Bail modifié — à relire':'<i data-lucide=file-text class=ic></i> Bail reçu — à relire']
+      :ns==='pending_landlord'?['b-sea','<i data-lucide=send class=ic></i> Remarques envoyées au propriétaire']
+      :(ns==='agreed'||ns==='signed')?(
+        L.tenant_signed_at&&L.landlord_signed_at?['b-green','<i data-lucide=check-circle-2 class=ic></i> Bail signé']
+        :L.tenant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du propriétaire attendue']
+        :['b-gold','<i data-lucide=pen-line class=ic></i> Bail à signer'])
+      :null;
+    if(b){sc=b[0];sl=b[1];}
+  }
   const bgCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.05)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.05)':'var(--s2)';
   const borderCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.2)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.2)':'var(--b)';
 
-  let html=`<div style="padding:.85rem;background:${bgCol};border:1px solid ${borderCol};border-radius:12px;margin-bottom:.65rem">
+  let html=`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${bgCol};border:1px solid ${borderCol};border-radius:12px;margin-bottom:.65rem">
 
       <!-- Header -->
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
@@ -3009,9 +3031,11 @@ async function loadLocataireApplicationsPage(){
   try{
     const rawBkIds=allVisits.map(v=>v.booking?.id).filter(Boolean);
     if(rawBkIds.length){
-      const{data:leasesData}=await sb.from('leases').select('id,booking_id,negotiation_status,tenant_signed_at,landlord_signed_at,garant_signed_at,garant_name').in('booking_id',rawBkIds);
+      const{data:leasesData}=await sb.from('leases').select('id,booking_id,negotiation_status,tenant_signed_at,landlord_signed_at,garant_signed_at,garant_name,modifs_log').in('booking_id',rawBkIds);
       const leaseMap={};
-      (leasesData||[]).forEach(l=>{leaseMap[l.booking_id]=l;});
+      // Plusieurs leases possibles pour un booking → garder la plus avancée
+      const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
+      (leasesData||[]).forEach(l=>{const c=leaseMap[l.booking_id];if(!c||(_rk[l.negotiation_status||'draft']||0)>(_rk[c.negotiation_status||'draft']||0))leaseMap[l.booking_id]=l;});
       allVisits.forEach(v=>{if(v.booking?.id)v.booking._lease=leaseMap[v.booking.id]||null;});
     }
   }catch(e){console.warn('lease fetch:',e);}
@@ -3042,7 +3066,26 @@ async function loadLocataireApplicationsPage(){
   }
   html+=coLocataireHtml;
   wrap.innerHTML=html;
+  window.lucide&&lucide.createIcons();
+  focusAppCard();
 }
+
+// Mettre en évidence la carte d'un booking (retour depuis le bail)
+function focusAppCard(){
+  const id=window._focusBooking;if(!id)return;
+  const el=document.getElementById('appcard-'+id);if(!el)return;
+  window._focusBooking=null;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 3px var(--bleu)';
+  setTimeout(()=>{el.style.boxShadow='';},2500);
+}
+
+// Rafraîchir les candidatures au retour sur l'onglet
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  const act=document.querySelector('.page.act')?.id||'';
+  if(act==='page-applications')loadLocataireApplicationsPage();
+});
 
 function renderCoLocataireSignatureRowsLocataire(bk){
   if(!bk)return '';
@@ -3105,7 +3148,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
     const leaseUrl='/bail-meuble.html?lease_id='+lease.id+'&role=tenant';
     const leaseBtn=(label,primary)=>`<a href="${leaseUrl}" style="display:block;width:100%;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'white':'var(--txt)'};border:${primary?'none':'1px solid var(--b)'};border-radius:8px;padding:.45rem;font-size:.78rem;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.35rem"><i data-lucide=file-text class=ic></i> ${label}</a>`;
     if(ns==='pending_tenant'){
-      bailBlock=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.22);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--bleu)"><i data-lucide=mail class=ic></i> Le propriétaire vous a envoyé le bail — consultez-le et répondez</div>${leaseBtn('Voir et répondre au bail →',true)}`;
+      bailBlock=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.22);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--bleu)"><i data-lucide=mail class=ic></i> ${(lease.modifs_log||[]).some(e=>e&&e.par==='tenant')?'Le propriétaire a modifié le bail suite à vos remarques — relisez la nouvelle version':'Le propriétaire vous a envoyé le bail — relisez-le, puis acceptez-le ou envoyez vos remarques'}</div>${leaseBtn('Relire le bail →',true)}`;
     }else if(ns==='pending_landlord'){
       bailBlock=`<div style="background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--gold)"><i data-lucide=send class=ic></i> Vos remarques ont été envoyées — en attente du propriétaire</div>${leaseBtn('Voir le bail →',false)}`;
     }else if(ns==='agreed'||ns==='signed'){
