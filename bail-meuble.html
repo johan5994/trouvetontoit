@@ -359,17 +359,24 @@
   </div>
 </div>
 
-<!-- MODAL DEMANDE DE MODIFICATION -->
+<!-- MODAL REMARQUE (le locataire relit tout le bail, ajoute ses remarques, puis envoie tout à la fin) -->
 <div id="modif-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target.id==='modif-modal')closeModifModal()">
   <div style="background:var(--s,#fff);border-radius:16px;padding:1.5rem;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-    <div style="font-weight:700;font-size:1rem;margin-bottom:.75rem"><i data-lucide=file-pen class=ic></i> Demande de modification</div>
-    <div style="font-size:.82rem;color:var(--td);margin-bottom:.75rem">Indiquez au bailleur les points que vous souhaitez modifier ou discuter avant de signer.</div>
-    <textarea id="modif-notes" rows="5" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.65rem;font-size:.83rem;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="ex. Souhait de modifier la durée du bail, date d'entrée, montant des charges…"></textarea>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:.35rem"><i data-lucide=message-square-plus class=ic></i> Ajouter une remarque</div>
+    <div id="modif-section" style="font-size:.8rem;font-weight:600;color:var(--bleu);margin-bottom:.5rem"></div>
+    <div style="font-size:.78rem;color:var(--td);margin-bottom:.6rem">Votre remarque est mise de côté. Continuez à lire le bail, puis envoyez toutes vos remarques en une seule fois au bailleur.</div>
+    <textarea id="modif-notes" rows="4" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:.65rem;font-size:.83rem;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="ex. La surface indiquée ne correspond pas à l'annonce"></textarea>
     <div style="display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModifModal()">Annuler</button>
-      <button class="btn btn-orange" onclick="submitModifRequest()">Envoyer la demande →</button>
+      <button class="btn btn-orange" onclick="addRemarque()">Ajouter à mes remarques</button>
     </div>
   </div>
+</div>
+
+<!-- BARRE FLOTTANTE : remarques en attente d'envoi -->
+<div id="remarques-bar" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:9000;background:#111827;color:#fff;border-radius:12px;padding:.55rem .6rem .55rem .9rem;box-shadow:0 8px 28px rgba(0,0,0,.28);align-items:center;gap:.6rem;max-width:calc(100% - 32px);font-size:.8rem">
+  <span id="remarques-bar-txt"></span>
+  <button class="btn btn-orange" style="padding:.35rem .75rem;font-size:.76rem" onclick="document.getElementById('negoc-bar')?.scrollIntoView({behavior:'smooth',block:'start'})">Voir et envoyer</button>
 </div>
 
 <!-- MODAL CLAUSE PARTICULIÈRE -->
@@ -2909,6 +2916,7 @@ function renderNegocBar(){
   const ns=L.negotiation_status||'draft';
   const bar=q('negoc-bar'),step=q('negoc-step'),acts=q('negoc-actions');
   if(!bar)return;
+  setTimeout(renderRemarquesBar,0);
   // Résoudre le rôle effectif (ROLE_PARAM + BOOKING_ID comme fallback)
   const effectiveRole = myRole || (ROLE_PARAM==='landlord'?'landlord':ROLE_PARAM==='tenant'?'tenant':BOOKING_ID?'landlord':null);
   // Masquer si déjà signé des deux côtés
@@ -2925,7 +2933,7 @@ function renderNegocBar(){
   };
   const s=steps[ns]||steps.draft;
   step.innerHTML=`<span style="color:${s.color}">${s.label}</span>`
-    +(L.tenant_notes&&ns==='pending_landlord'?`<div style="font-size:.76rem;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.4rem .65rem;margin-top:.4rem;color:#92400e"><strong>Note du locataire :</strong> ${L.tenant_notes}</div>`:'');
+    +(L.tenant_notes&&ns==='pending_landlord'?`<div style="font-size:.76rem;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.4rem .65rem;margin-top:.4rem;color:#92400e"><strong>Remarques du locataire :</strong><div style="white-space:pre-line;margin-top:.2rem">${esc(L.tenant_notes)}</div></div>`:'');
 
   acts.innerHTML='';
   const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.innerHTML=label;b.onclick=fn;acts.appendChild(b);window.lucide&&lucide.createIcons();};
@@ -2938,9 +2946,15 @@ function renderNegocBar(){
   }
   if(effectiveRole==='tenant'){
     if(ns==='pending_tenant'){
-      step.innerHTML+=`<div style="font-size:.73rem;color:#1d4ed8;background:rgba(27,79,216,.06);border-radius:6px;padding:.35rem .55rem;margin-top:.35rem"><i data-lucide=lightbulb class=ic></i> Lisez le bail ci-dessous. Modifiez vos infos personnelles si nécessaire, utilisez les boutons <strong><i data-lucide=alert-triangle class=ic></i> Contester</strong> pour signaler un désaccord, puis acceptez ou demandez des modifications.</div>`;
-      btn('<i data-lucide=check-circle-2 class=ic></i> J\'accepte le bail','btn-green',tenantAcceptsModel);
-      btn('<i data-lucide=file-pen class=ic></i> Demander des modifications →','btn-orange',openModifModal);
+      const _nr=getRemarques().length;
+      step.innerHTML+=`<div style="font-size:.73rem;color:#1d4ed8;background:rgba(27,79,216,.06);border-radius:6px;padding:.35rem .55rem;margin-top:.35rem"><i data-lucide=lightbulb class=ic></i> Relisez tout le bail. Pour un point qui ne vous convient pas, cliquez sur « Contester » à côté de l'article : la remarque est mise de côté. À la fin, acceptez le bail ou envoyez toutes vos remarques en une fois.</div>`+renderRemarquesList();
+      if(_nr){
+        btn('<i data-lucide=send class=ic></i> Envoyer mes '+_nr+' remarque'+(_nr>1?'s':'')+' au bailleur →','btn-orange',submitModifRequest);
+        btn('<i data-lucide=message-square-plus class=ic></i> Ajouter une remarque générale','btn-outline',openModifModal);
+      }else{
+        btn('<i data-lucide=check-circle-2 class=ic></i> J\'accepte le bail','btn-green',tenantAcceptsModel);
+        btn('<i data-lucide=message-square-plus class=ic></i> Ajouter une remarque générale','btn-outline',openModifModal);
+      }
     }
     if(ns==='pending_landlord') step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Votre demande a été transmise au bailleur. En attente de sa réponse.</div>`;
   }
@@ -2986,29 +3000,70 @@ async function tenantAcceptsModel(){
   renderNegocBar();renderStatusAndSigs();renderLandlordGuide();renderTenantGuide();
 }
 
-function openModifModal(){const ta=q('modif-notes');if(ta)ta.value='';q('modif-modal').style.display='flex';}
+// ── Remarques du locataire : collectées pendant la relecture, envoyées en une fois ──
+let _modifSection='';
+function _remKey(){return 'ttt_remarques_'+(LEASE?.id||'');}
+function getRemarques(){
+  if(window._remarques)return window._remarques;
+  try{window._remarques=JSON.parse(localStorage.getItem(_remKey())||'[]')||[];}catch(e){window._remarques=[];}
+  return window._remarques;
+}
+function saveRemarques(){try{localStorage.setItem(_remKey(),JSON.stringify(window._remarques||[]));}catch(e){}}
+function openModifModal(){openModifModalWithContext('Remarque générale');}
 function openModifModalWithContext(section){
-  const ta=q('modif-notes');
-  if(ta){ta.value='Section contestée : '+section+'\n\nDemande / remarque : ';}
+  _modifSection=section;
+  const ta=q('modif-notes');if(ta)ta.value='';
+  const sec=q('modif-section');if(sec)sec.textContent=section;
   q('modif-modal').style.display='flex';
-  if(ta){ta.focus();const l=ta.value.length;ta.setSelectionRange(l,l);}
+  window.lucide&&lucide.createIcons();
+  if(ta)ta.focus();
 }
 function closeModifModal(){q('modif-modal').style.display='none';}
+function addRemarque(){
+  const txt=q('modif-notes')?.value?.trim();
+  if(!txt){toast('<i data-lucide=alert-triangle class=ic></i> Écrivez votre remarque');return;}
+  getRemarques().push({section:_modifSection||'Remarque générale',texte:txt});
+  saveRemarques();closeModifModal();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Remarque ajoutée ('+window._remarques.length+'). Continuez la relecture.');
+  renderNegocBar();renderRemarquesBar();
+}
+function removeRemarque(i){getRemarques().splice(i,1);saveRemarques();renderNegocBar();renderRemarquesBar();}
+function renderRemarquesBar(){
+  const bar=q('remarques-bar');if(!bar)return;
+  const n=(LEASE&&LEASE.negotiation_status==='pending_tenant'&&_tenantEditMode)?getRemarques().length:0;
+  bar.style.display=n?'flex':'none';
+  const t=q('remarques-bar-txt');if(t)t.textContent=n+(n>1?' remarques':' remarque')+' en attente d\'envoi';
+}
+function renderRemarquesList(){
+  const r=getRemarques();
+  if(!r.length)return`<div style="font-size:.76rem;color:#6b7280;margin-top:.4rem">Si quelque chose ne vous convient pas, cliquez sur « Contester » à côté de l'article concerné. Vos remarques s'ajoutent ici et vous les envoyez toutes ensemble à la fin.</div>`;
+  return`<div style="margin-top:.5rem;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;padding:.5rem .65rem">
+    <div style="font-size:.74rem;font-weight:700;color:#92400e;margin-bottom:.3rem">Vos remarques (${r.length}) — pas encore envoyées</div>
+    ${r.map((x,i)=>`<div style="display:flex;gap:.5rem;align-items:flex-start;font-size:.76rem;padding:.3rem 0;${i?'border-top:1px solid #fde68a':''}">
+      <div style="flex:1;min-width:0"><strong>${esc(x.section)}</strong><br><span style="white-space:pre-line">${esc(x.texte)}</span></div>
+      <button onclick="removeRemarque(${i})" title="Supprimer" style="background:none;border:none;color:#b45309;cursor:pointer;padding:.1rem"><i data-lucide=trash-2 class=ic></i></button>
+    </div>`).join('')}
+  </div>`;
+}
+function esc(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 async function submitModifRequest(){
-  const notes=q('modif-notes')?.value?.trim();
-  if(!notes){toast('<i data-lucide=alert-triangle class=ic></i> Décrivez votre demande');return;}
-  // Logger la demande du locataire dans le journal
-  const tenantEntry={par:'tenant',date:new Date().toISOString(),champs:[],note:notes};
+  const r=getRemarques();
+  if(!r.length){toast('<i data-lucide=alert-triangle class=ic></i> Aucune remarque à envoyer');return;}
+  if(!confirm('Envoyer vos '+r.length+' remarque(s) au bailleur ?'))return;
+  const notes=r.map((x,i)=>(i+1)+'. '+x.section+' : '+x.texte).join('\n');
+  const tenantEntry={par:'tenant',date:new Date().toISOString(),champs:[],note:notes,remarques:r};
   const newLog=[...(LEASE.modifs_log||[]),tenantEntry];
   const{error}=await sb.from('leases').update({negotiation_status:'pending_landlord',tenant_notes:notes,modifs_log:newLog}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='pending_landlord';LEASE.tenant_notes=notes;LEASE.modifs_log=newLog;
-  // Message au bailleur
+  window._remarques=[];saveRemarques();
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a demandé des modifications au bail :\n\n« ${notes} »\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
-  closeModifModal();toast('<i data-lucide=check-circle-2 class=ic></i> Demande envoyée au bailleur !');
-  renderNegocBar();
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a relu le bail et demande des modifications :\n\n${notes}\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
+  _tenantEditMode=false;
+  toast('<i data-lucide=check-circle-2 class=ic></i> Remarques envoyées au bailleur !');
+  renderNegocBar();renderRemarquesBar();
+  try{renderBail();}catch(e){}
 }
 
 async function confirmLoyersRef(ref,maj){
