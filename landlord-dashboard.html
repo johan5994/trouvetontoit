@@ -916,6 +916,12 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
 
   // Gérer le paramètre ?tab=profil (redirection depuis chkPost)
   const urlParams=new URLSearchParams(window.location.search);
+  if(urlParams.get('tab')==='applications'){
+    window._focusBooking=urlParams.get('booking')||null;
+    if(urlParams.get('sent')==='1')setTimeout(()=>toast('<i data-lucide=send class=ic></i> Bail envoyé au locataire pour relecture'),600);
+    sp('applications',document.querySelector('.ni[onclick*=applications]'));
+    history.replaceState(null,'',location.pathname);
+  }
   if(urlParams.get('tab')==='profil'){
     setTimeout(()=>{
       const profileBtn=document.querySelector('.ni[onclick*="profil"]');
@@ -950,6 +956,13 @@ function sp(id,btn){
   if(id==='applications')loadApplicationsPageLL();
   if(id==='biens')loadRentedProperties();
 }
+
+// Rafraîchir les candidatures au retour sur l'onglet (le bail s'ouvre dans un nouvel onglet)
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  const act=document.querySelector('.page.act')?.id||'';
+  if(act==='page-applications'||act==='page-visites')loadVisitsPage();
+});
 
 /* DASHBOARD */
 async function loadDash(){
@@ -1336,7 +1349,9 @@ async function fetchVisitAndApplicationGroups(){
   let leaseByBooking={};
   if(relevantBookingIds.length){
     const{data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email').in('booking_id',relevantBookingIds);
-    (leases||[]).forEach(l=>{if(l.booking_id)leaseByBooking[l.booking_id]=l;});
+    // Plusieurs leases possibles pour un même booking (anciens brouillons) → garder la plus avancée
+    const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
+    (leases||[]).forEach(l=>{if(!l.booking_id)return;const cur=leaseByBooking[l.booking_id];if(!cur||(_rk[l.negotiation_status||'draft']||0)>(_rk[cur.negotiation_status||'draft']||0))leaseByBooking[l.booking_id]=l;});
   }
 
   // Attacher la lease à chaque booking dans les groupes
@@ -1431,11 +1446,23 @@ async function loadApplicationsPageLL(){
       html+=pastGroups.map(g=>renderVisitGroup(g,true)).join('');
     }
     wrap.innerHTML=html;
+    window.lucide&&lucide.createIcons();
+    focusAppCard();
 
   }catch(e){
     console.error('loadApplicationsPageLL erreur:',e);
     wrap.innerHTML='<div style="color:var(--red);padding:1rem;text-align:center"><i data-lucide=x-circle class=ic></i> Erreur chargement applications: '+e.message+'</div>';
   }
+}
+
+// Mettre en évidence la carte d'un booking (retour depuis le bail)
+function focusAppCard(){
+  const id=window._focusBooking;if(!id)return;
+  const el=document.getElementById('appcard-'+id);if(!el)return;
+  window._focusBooking=null;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 3px var(--bleu)';
+  setTimeout(()=>{el.style.boxShadow='';},2500);
 }
 
 // ─── Helper : normalise dossier_data (objet ou array) → array ────────────────
@@ -4193,7 +4220,7 @@ function renderBailSection(g){
               <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
               ${llSigned
                 ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
-                :`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" target="_blank" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer le bail</a>`}
+                :`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer le bail</a>`}
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
@@ -4215,7 +4242,7 @@ function renderBailSection(g){
         const workflowMsgs={
           no_bail:{icon:'<i data-lucide=file-pen class=ic></i>',title:'Bail à compléter',msg:'Ouvrez le bail pour renseigner les champs manquants et l\'envoyer au locataire pour relecture.'},
           draft:{icon:'<i data-lucide=file-pen class=ic></i>',title:'Bail à envoyer',msg:'Le bail est en brouillon. Ouvrez-le pour le compléter et l\'envoyer au locataire.'},
-          pending_tenant:{icon:'<i data-lucide=hourglass class=ic></i>',title:'En attente du locataire',msg:'Le locataire doit relire et accepter le modèle avant de pouvoir signer.'},
+          pending_tenant:{icon:'<i data-lucide=hourglass class=ic></i>',title:'Bail envoyé — en attente du locataire',msg:'Le bail a été envoyé au locataire. Il doit le relire et l\'accepter (ou demander des modifications) avant la signature.'},
           pending_landlord:{icon:'<i data-lucide=refresh-cw class=ic></i>',title:'Modifications demandées',msg:'Le locataire a demandé des ajustements. Ouvrez le bail pour voir ses commentaires et valider le modèle final.'},
           unknown:{icon:'<i data-lucide=clipboard-list class=ic></i>',title:'Bail en cours',msg:'Ouvrez le bail pour voir l\'état actuel de la procédure.'},
         };
@@ -4225,7 +4252,7 @@ function renderBailSection(g){
           <div style="flex:1;min-width:0">
             <div style="font-size:.77rem;font-weight:700;color:var(--bleu);margin-bottom:.2rem">${wm.title}</div>
             <div style="font-size:.73rem;color:var(--td);line-height:1.45;margin-bottom:.45rem">${wm.msg}</div>
-            <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" target="_blank" style="display:inline-flex;align-items:center;gap:.3rem;background:var(--bleu);color:white;border-radius:7px;padding:.3rem .7rem;font-size:.74rem;font-weight:700;text-decoration:none">Ouvrir le bail →</a>
+            <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="display:inline-flex;align-items:center;gap:.3rem;background:var(--bleu);color:white;border-radius:7px;padding:.3rem .7rem;font-size:.74rem;font-weight:700;text-decoration:none">Ouvrir le bail →</a>
           </div>
         </div>`;
       })()}
@@ -4317,7 +4344,13 @@ function renderVisitGroup(g, isPast){
     'move_in_ready':{label:'<i data-lucide=home class=ic></i> Moved in',cls:'b-green'},
     'declined':{label:'<i data-lucide=x-circle class=ic></i> Dossier declined',cls:'b-dim'},
   };
-  const sc=statusConfig[g.statut]||{label:g.statut,cls:'b-dim'};
+  let sc=statusConfig[g.statut]||{label:g.statut,cls:'b-dim'};
+  // Badge précis selon l'avancement du bail
+  if(['bail_en attente','accepté'].includes(g.statut)){
+    const _ns=g.booking?._lease?.negotiation_status||(g.booking?._lease?'draft':null);
+    const _bl={draft:{label:'<i data-lucide=file-pen class=ic></i> Bail à envoyer',cls:'b-gold'},pending_tenant:{label:'<i data-lucide=send class=ic></i> Bail envoyé au locataire',cls:'b-sea'},pending_landlord:{label:'<i data-lucide=refresh-cw class=ic></i> Modifications demandées',cls:'b-gold'},agreed:{label:'<i data-lucide=pen-line class=ic></i> Bail en signature',cls:'b-sea'},signed:{label:'<i data-lucide=check-circle-2 class=ic></i> Bail signé',cls:'b-green'}};
+    if(_ns&&_bl[_ns])sc=_bl[_ns];else if(!_ns)sc={label:'<i data-lucide=file-pen class=ic></i> Bail à compléter',cls:'b-gold'};
+  }
   const visitDateStr=g.visit_date?new Date(g.visit_date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(g.visit_time?' à '+g.visit_time:''):'Date à confirmer';
   const borderColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.25)':sc.cls==='b-sea'?'rgba(58,143,181,.25)':'var(--b)';
   const bgColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.04)':sc.cls==='b-sea'?'rgba(58,143,181,.04)':'var(--s2)';
@@ -4329,7 +4362,7 @@ function renderVisitGroup(g, isPast){
     if(bk)setTimeout(()=>loadCoLocatairesLiveInfo(bk),50);
   }
 
-  return`<div style="padding:.85rem;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
+  return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
 
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
