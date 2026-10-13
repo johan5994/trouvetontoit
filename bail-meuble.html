@@ -1735,7 +1735,9 @@ async function loadBail(){
       const{data:bk,error:bkErr}=await sb.from('bookings').select('*').eq('id',BOOKING_ID).single();
       if(!bk||bkErr){showError('Réservation introuvable.');return;}
       BOOKING=bk;
-      const{data:existing}=await sb.from('leases').select('*').eq('booking_id',BOOKING_ID).maybeSingle();
+      const{data:_exList}=await sb.from('leases').select('*').eq('booking_id',BOOKING_ID);
+      const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
+      const existing=(_exList||[]).sort((a,b)=>(_rk[b.negotiation_status||'draft']||0)-(_rk[a.negotiation_status||'draft']||0))[0]||null;
       if(existing){LEASE=existing;}
       else{
         const{data:listing}=await sb.from('listings').select('*').eq('id',bk.listing_id).single();
@@ -2926,10 +2928,11 @@ function renderNegocBar(){
     +(L.tenant_notes&&ns==='pending_landlord'?`<div style="font-size:.76rem;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.4rem .65rem;margin-top:.4rem;color:#92400e"><strong>Note du locataire :</strong> ${L.tenant_notes}</div>`:'');
 
   acts.innerHTML='';
-  const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.textContent=label;b.onclick=fn;acts.appendChild(b);};
+  const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.innerHTML=label;b.onclick=fn;acts.appendChild(b);window.lucide&&lucide.createIcons();};
 
   if(effectiveRole==='landlord'){
     if(ns==='draft')                  btn('<i data-lucide=send class=ic></i> Envoyer au locataire →','btn-blue',sendToTenant);
+    if(ns==='pending_tenant')         step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Rien à faire pour l'instant : le locataire doit accepter le bail ou demander des modifications. Les signatures s'ouvriront ensuite.</div>`;
     if(ns==='pending_landlord')       btn('<i data-lucide=check-circle-2 class=ic></i> Valider le modèle final →','btn-green',landlordValidateModel);
     if(ns==='pending_landlord')       btn('<i data-lucide=send class=ic></i> Renvoyer au locataire →','btn-outline',sendToTenant);
   }
@@ -2952,6 +2955,19 @@ async function sendToTenant(){
   await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('<i data-lucide=check-circle-2 class=ic></i> Bail envoyé au locataire pour relecture !');
   renderNegocBar();renderLandlordGuide();renderTenantGuide();renderStatusAndSigs();
+  // Retour automatique sur le dashboard, sur la carte de la candidature
+  const bkId=LEASE.booking_id||BOOKING_ID||'';
+  const dash='/landlord-dashboard.html?tab=applications&sent=1'+(bkId?'&booking='+encodeURIComponent(bkId):'');
+  setTimeout(()=>{
+    try{
+      // Bail ouvert depuis le dashboard dans un nouvel onglet → on recharge l'onglet d'origine et on ferme celui-ci
+      if(window.opener&&!window.opener.closed&&window.opener.location.origin===location.origin){
+        window.opener.location.href=dash;window.opener.focus();window.close();
+        return;
+      }
+    }catch(e){}
+    location.href=dash;
+  },1200);
 }
 
 async function tenantAcceptsModel(){
@@ -3038,7 +3054,16 @@ function renderStatusAndSigs(){
   if(allSigned){sb2.className='sb-complete';sb2.innerHTML='<i data-lucide=check-circle-2 class=ic></i> Bail entièrement signé — '+fmtDate(L.tenant_signed_at);}
   else if(llSigned&&tSigned&&hasGarant&&!gSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='<i data-lucide=circle class=ic style=color:#2563EB;fill:currentColor></i> Bail signé par les deux parties — en attente de la signature du garant';}
   else if(llSigned){sb2.className='sb-landlord-signed';sb2.innerHTML='<i data-lucide=circle class=ic style=color:#2563EB;fill:currentColor></i> Bail signé par le bailleur — en attente de la signature du locataire';}
-  else{sb2.className='sb-pending';sb2.innerHTML='<i data-lucide=hourglass class=ic></i> Bail en attente de signatures';}
+  else{
+    // Personne n'a encore signé → le bandeau suit l'étape de relecture
+    const _nsB=L.negotiation_status||'agreed';
+    const _sbTxt={
+      draft:'<i data-lucide=file-pen class=ic></i> Bail en préparation — pas encore envoyé au locataire',
+      pending_tenant:'<i data-lucide=send class=ic></i> Bail envoyé — le locataire le relit',
+      pending_landlord:'<i data-lucide=refresh-cw class=ic></i> Le locataire a demandé des modifications',
+    }[_nsB]||'<i data-lucide=hourglass class=ic></i> Bail prêt — en attente des signatures';
+    sb2.className='sb-pending';sb2.innerHTML=_sbTxt;
+  }
 
   // Bloquer signatures si modèle pas encore accepté
   const ns=L.negotiation_status||'agreed'; // rétrocompat: pas de statut = signable direct
