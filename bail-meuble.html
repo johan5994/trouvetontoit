@@ -2489,7 +2489,8 @@ function renderBail(){
   // Diagnostics — bail en priorité (le bailleur peut corriger), fallback listing
   // Applicabilité selon l'année de construction : un « non applicable » contradictoire est ignoré
   const _annee=Number(L.annee_construction||Li?.annee_construction)||null;
-  const amianteRequis=_annee&&_annee<1997, plombRequis=_annee&&_annee<1949;
+  // Un choix fait explicitement dans le bail par le bailleur prime sur l'année de construction
+  const amianteRequis=_annee&&_annee<1997&&L.diag_amiante!=='na', plombRequis=_annee&&_annee<1949&&L.diag_plomb!=='na';
   let dAmiante=L.diag_amiante||Li?.diag_amiante;
   let dPlomb=L.diag_plomb||Li?.diag_plomb;
   const diagIncoherences=[];
