@@ -1,4 +1,5 @@
-const { Resend } = require('resend');
+// Envoi via l'API HTTP de Resend (fetch natif) : aucune dépendance npm à installer,
+// donc plus de plantage au chargement (502) si le module « resend » manque.
 
 // Expéditeur : RESEND_FROM si défini (domaine vérifié dans Resend),
 // sinon l'adresse de test de Resend (n'envoie qu'à l'email du compte Resend).
@@ -132,15 +133,18 @@ exports.handler = async (event) => {
     if (!process.env.RESEND_API_KEY) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'RESEND_API_KEY manquante dans les variables d\'environnement Netlify' }) };
     }
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
     const { subject, html } = templates[template](data || {});
 
-    const { error } = await resend.emails.send({ from: FROM, to, subject, html });
-
-    if (error) {
-      console.error('Resend error:', error);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject, html }),
+    });
+    if (!r.ok) {
+      let msg = 'Resend HTTP ' + r.status;
+      try { const j = await r.json(); if (j && j.message) msg = 'Resend : ' + j.message; } catch (e) {}
+      console.error(msg);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: msg }) };
     }
 
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
