@@ -2191,9 +2191,37 @@ async function loadMyLocation(){
   const noticeEl=document.getElementById('ml-no-tracking-notice');
   if(noticeEl)noticeEl.style.display=noTracking?'block':'none';
 
+  await ensureFirstPaymentRecordsTenant(bk);
   loadPaiementsData();
   showMlTab('bail');
   loadTickets();
+}
+
+
+// Paiement confirmé par le proprio mais aucun enregistrement (ancienne version) → créer
+// dépôt + 1er loyer (payés) + 12 loyers à venir, avec les montants du bail.
+async function ensureFirstPaymentRecordsTenant(bk){
+  try{
+    if(!bk?.first_payment_confirmed||!bk.tenant_id||!bk.listing_id)return;
+    const{data:have}=await sb.from('payments').select('id,type').eq('booking_id',bk.id);
+    const types=new Set((have||[]).map(x=>x.type));
+    if((types.has('deposit')||types.has('depot'))&&types.has('first_rent')&&types.has('rent'))return;
+    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC;
+    const L=bk._lease;
+    if(L){rentCC=(Number(L.rent)||0)+(Number(L.charges)||0)||rentCC;if(L.deposit!=null)deposit=Number(L.deposit);}
+    const now=new Date().toISOString(),today=now.split('T')[0];
+    const base={landlord_id:bk.landlord_id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:P?.full_name||bk.tenant_name||null,tenant_email:U?.email||bk.tenant_email||null};
+    const rows=[];
+    if(!types.has('deposit')&&!types.has('depot')&&deposit>0)rows.push({...base,amount:deposit,type:'deposit',status:'paid',paid_at:now,due_date:bk.move_in_date||today});
+    if(!types.has('first_rent'))rows.push({...base,amount:rentCC,type:'first_rent',status:'paid',paid_at:now,due_date:bk.move_in_date||today});
+    if(!types.has('rent')){
+      const start=new Date(bk.move_in_date||L?.start_date||Date.now());
+      for(let i=1;i<=12;i++){const d=new Date(start.getFullYear(),start.getMonth()+i,start.getDate());rows.push({...base,amount:rentCC,type:'rent',status:'pending',due_date:d.toISOString().split('T')[0]});}
+    }
+    if(!rows.length)return;
+    const{error}=await sb.from('payments').insert(rows);
+    if(error){console.warn('payments:',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message,9000);}
+  }catch(e){console.warn('ensureFirstPaymentRecordsTenant:',e);}
 }
 
 function renderBailDocCard(bk,annonce){
