@@ -918,7 +918,9 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
   const urlParams=new URLSearchParams(window.location.search);
   if(urlParams.get('tab')==='applications'){
     window._focusBooking=urlParams.get('booking')||null;
-    if(urlParams.get('sent')==='1')setTimeout(()=>toast('<i data-lucide=send class=ic></i> Bail envoyé au locataire pour relecture'),600);
+    const _evt=urlParams.get('evt')||(urlParams.get('sent')==='1'?'sent':'');
+    const _evtMsg={sent:'<i data-lucide=send class=ic></i> Bail envoyé au locataire pour relecture',resent:'<i data-lucide=send class=ic></i> Bail modifié renvoyé au locataire'}[_evt];
+    if(_evtMsg)setTimeout(()=>toast(_evtMsg),600);
     sp('applications',document.querySelector('.ni[onclick*=applications]'));
     history.replaceState(null,'',location.pathname);
   }
@@ -1348,7 +1350,8 @@ async function fetchVisitAndApplicationGroups(){
 
   let leaseByBooking={};
   if(relevantBookingIds.length){
-    const{data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email').in('booking_id',relevantBookingIds);
+    let{data:leases,error:_le}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email,modifs_log').in('booking_id',relevantBookingIds);
+    if(_le){({data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email').in('booking_id',relevantBookingIds));}
     // Plusieurs leases possibles pour un même booking (anciens brouillons) → garder la plus avancée
     const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
     (leases||[]).forEach(l=>{if(!l.booking_id)return;const cur=leaseByBooking[l.booking_id];if(!cur||(_rk[l.negotiation_status||'draft']||0)>(_rk[cur.negotiation_status||'draft']||0))leaseByBooking[l.booking_id]=l;});
@@ -4007,7 +4010,7 @@ async function confirmFirstPaiementReceived(bookingId,received){
     if(received){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
       if(!bk){alert('Booking not found');return;}
-      const{erreur:confirmErr}=await sb.from('bookings').update({first_paiement_confirmed:true}).eq('id',bookingId);
+      const{error:confirmErr}=await sb.from('bookings').update({first_paiement_confirmed:true}).eq('id',bookingId);
       if(confirmErr){toast('<i data-lucide=x-circle class=ic></i> Could not save paiement confirmation: '+confirmErr.message);return;}
 
       let annonce=null,locataireProfile=null;
@@ -4150,8 +4153,10 @@ async function propriétaireEdlSelfDecision(bookingId,wantsIt){
 
 function renderBailSection(g){
   const bk=g.booking||null;
-  const llSigned=bk?.bail_signed_propriétaire;
-  const tSigned=bk?.bail_signed_locataire;
+  // Signatures : la table leases fait foi (nouveau flux) ; booking = ancien flux DocuSeal
+  const _lz=bk?._lease||null;
+  const llSigned=_lz?!!_lz.landlord_signed_at:bk?.bail_signed_propriétaire;
+  const tSigned=_lz?!!_lz.tenant_signed_at:bk?.bail_signed_locataire;
   const payDeclared=bk?.first_paiement_sent;
   const payConfirmered=bk?.first_paiement_confirmed;
   if(payConfirmered&&bk?.id)checkPaiementRecordsExist(bk.id);
@@ -4196,11 +4201,11 @@ function renderBailSection(g){
           <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
-              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}
+              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
-              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}
+              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
             </div>
             ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
@@ -4209,7 +4214,8 @@ function renderBailSection(g){
                 :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente de signature</span>`}
             </div>`:''}
             ${renderCoLocataireSignatureRows(bk)}
-          </div>`;
+          </div>
+          <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);color:var(--txt);border-radius:8px;padding:.45rem;font-size:.76rem;font-weight:600;text-decoration:none;margin:-.35rem 0 .75rem"><i data-lucide=file-text class=ic></i> Voir le bail</a>`;
         }
 
         // Cas 2 — accord obtenu → afficher le statut de chaque signature
@@ -4219,13 +4225,13 @@ function renderBailSection(g){
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
               ${llSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_propriétaire_embed?` <a href="${bk.bail_propriétaire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>`
                 :`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer le bail</a>`}
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
               <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
               ${tSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk?.bail_locataire_embed?` <a href="${bk.bail_locataire_embed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}`
+                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>`
                 :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien envoyé)</span>`}
             </div>
             ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
@@ -4235,7 +4241,8 @@ function renderBailSection(g){
                 :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien bail envoyé)</span>`}
             </div>`:''}
             ${renderCoLocataireSignatureRows(bk)}
-          </div>`;
+          </div>
+          <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);color:var(--txt);border-radius:8px;padding:.45rem;font-size:.76rem;font-weight:600;text-decoration:none;margin:-.35rem 0 .75rem"><i data-lucide=file-text class=ic></i> Voir le bail</a>`;
         }
 
         // Cas 3 — modèle pas encore accepté → afficher l'état du workflow avec un CTA clair
@@ -4243,9 +4250,11 @@ function renderBailSection(g){
           no_bail:{icon:'<i data-lucide=file-pen class=ic></i>',title:'Bail à compléter',msg:'Ouvrez le bail pour renseigner les champs manquants et l\'envoyer au locataire pour relecture.'},
           draft:{icon:'<i data-lucide=file-pen class=ic></i>',title:'Bail à envoyer',msg:'Le bail est en brouillon. Ouvrez-le pour le compléter et l\'envoyer au locataire.'},
           pending_tenant:{icon:'<i data-lucide=hourglass class=ic></i>',title:'Bail envoyé — en attente du locataire',msg:'Le bail a été envoyé au locataire. Il doit le relire et l\'accepter (ou demander des modifications) avant la signature.'},
-          pending_landlord:{icon:'<i data-lucide=refresh-cw class=ic></i>',title:'Modifications demandées',msg:'Le locataire a demandé des ajustements. Ouvrez le bail pour voir ses commentaires et valider le modèle final.'},
+          pending_landlord:{icon:'<i data-lucide=refresh-cw class=ic></i>',title:'Modifications demandées',msg:'Le locataire a demandé des ajustements. Ouvrez le bail pour voir ses remarques, faire les ajustements et le renvoyer au locataire.'},
           unknown:{icon:'<i data-lucide=clipboard-list class=ic></i>',title:'Bail en cours',msg:'Ouvrez le bail pour voir l\'état actuel de la procédure.'},
         };
+        if(ns==='pending_tenant'&&(Array.isArray(lease?.modifs_log)?lease.modifs_log:[]).some(e=>e&&e.par==='tenant'))
+          workflowMsgs.pending_tenant={icon:'<i data-lucide=send class=ic></i>',title:'Bail modifié renvoyé — en attente du locataire',msg:'Vous avez renvoyé le bail après ses remarques. Le locataire relit la nouvelle version et doit l\'accepter ou faire de nouvelles remarques.'};
         const wm=workflowMsgs[ns]||workflowMsgs.unknown;
         return`<div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.18);border-radius:9px;padding:.65rem .8rem;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.6rem">
           <span style="font-size:1rem;flex-shrink:0;margin-top:.05rem">${wm.icon}</span>
@@ -4349,7 +4358,17 @@ function renderVisitGroup(g, isPast){
   if(['bail_en attente','accepté'].includes(g.statut)){
     const _ns=g.booking?._lease?.negotiation_status||(g.booking?._lease?'draft':null);
     const _bl={draft:{label:'<i data-lucide=file-pen class=ic></i> Bail à envoyer',cls:'b-gold'},pending_tenant:{label:'<i data-lucide=send class=ic></i> Bail envoyé au locataire',cls:'b-sea'},pending_landlord:{label:'<i data-lucide=refresh-cw class=ic></i> Modifications demandées',cls:'b-gold'},agreed:{label:'<i data-lucide=pen-line class=ic></i> Bail en signature',cls:'b-sea'},signed:{label:'<i data-lucide=check-circle-2 class=ic></i> Bail signé',cls:'b-green'}};
-    if(_ns&&_bl[_ns])sc=_bl[_ns];else if(!_ns)sc={label:'<i data-lucide=file-pen class=ic></i> Bail à compléter',cls:'b-gold'};
+    const _L=g.booking?._lease||{};
+    const _resent=(Array.isArray(_L.modifs_log)?_L.modifs_log:[]).some(e=>e&&e.par==='tenant');
+    if(_ns==='pending_tenant'&&_resent)sc={label:'<i data-lucide=send class=ic></i> Bail modifié renvoyé',cls:'b-sea'};
+    else if(_ns==='signed'&&_L.garant_name&&!_L.garant_signed_at)sc={label:'<i data-lucide=hourglass class=ic></i> Signature du garant attendue',cls:'b-sea'};
+    else if(_ns==='agreed'){
+      if(_L.tenant_signed_at&&!_L.landlord_signed_at)sc={label:'<i data-lucide=pen-line class=ic></i> À vous de signer',cls:'b-gold'};
+      else if(_L.landlord_signed_at&&!_L.tenant_signed_at)sc={label:'<i data-lucide=hourglass class=ic></i> Signature du locataire attendue',cls:'b-sea'};
+      else if(_L.landlord_signed_at&&_L.tenant_signed_at&&_L.garant_name&&!_L.garant_signed_at)sc={label:'<i data-lucide=hourglass class=ic></i> Signature du garant attendue',cls:'b-sea'};
+      else sc={label:'<i data-lucide=pen-line class=ic></i> Bail accepté — à signer',cls:'b-gold'};
+    }
+    else if(_ns&&_bl[_ns])sc=_bl[_ns];else if(!_ns)sc={label:'<i data-lucide=file-pen class=ic></i> Bail à compléter',cls:'b-gold'};
   }
   const visitDateStr=g.visit_date?new Date(g.visit_date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(g.visit_time?' à '+g.visit_time:''):'Date à confirmer';
   const borderColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.25)':sc.cls==='b-sea'?'rgba(58,143,181,.25)':'var(--b)';
@@ -5096,6 +5115,53 @@ function _coBailleursSaved(){
   try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}
   return (Array.isArray(v)?v:(v?[v]:[])).filter(c=>c&&c.name);
 }
+
+// ── Confirmation du compte de réception (IBAN) à l'acceptation ───────────────
+function ibanValide(iban){
+  const v=String(iban||'').replace(/\s+/g,'').toUpperCase();
+  if(!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(v))return false;
+  const r=(v.slice(4)+v.slice(0,4)).replace(/[A-Z]/g,c=>c.charCodeAt(0)-55);
+  let m=0;for(const ch of r)m=(m*10+Number(ch))%97;
+  return m===1;
+}
+function confirmIbanForBooking(){
+  return new Promise(resolve=>{
+    const esc=x=>String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    const fmt=v=>String(v||'').replace(/\s+/g,'').toUpperCase().replace(/(.{4})/g,'$1 ').trim();
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:18px;padding:1.4rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto">
+      <div style="font-size:1.05rem;font-weight:800;margin-bottom:.3rem"><i data-lucide=landmark class=ic></i> Où le locataire doit-il payer ?</div>
+      <div style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.5">Le locataire va virer le <strong>dépôt de garantie</strong> et le <strong>premier loyer</strong> sur ce compte. Vérifiez bien qu'il s'agit du vôtre.</div>
+      <div class="fg"><label class="fl">IBAN *</label><input class="fi" id="ib-iban" value="${esc(fmt(P?.iban))}" placeholder="FR76 1234 5678 9012 3456 7890 123" style="font-family:monospace;letter-spacing:.03em"></div>
+      <div class="fg"><label class="fl">Titulaire du compte</label><input class="fi" id="ib-holder" value="${esc(P?.full_name||'')}" disabled style="opacity:.75"></div>
+      <div class="fg"><label class="fl">Revolut (facultatif)</label><input class="fi" id="ib-rev" value="${esc(P?.revolut_tag||'')}" placeholder="@pseudo"></div>
+      <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;margin-top:.4rem;cursor:pointer"><input type="checkbox" id="ib-ok" style="margin-top:.2rem;accent-color:var(--bleu)"> <span>Je confirme que cet IBAN est bien <strong>mon compte</strong> et que le locataire peut y envoyer les paiements.</span></label>
+      <div id="ib-err" style="color:#C9553A;font-size:.8rem;margin-top:.6rem;display:none"></div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn bg" id="ib-cancel">Annuler</button>
+        <button class="btn bp" id="ib-go"><i data-lucide=check-circle-2 class=ic></i> Confirmer et accepter</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    if(window.lucide)lucide.createIcons();
+    ov.querySelector('#ib-cancel').onclick=()=>{ov.remove();resolve(null);};
+    ov.querySelector('#ib-go').onclick=async()=>{
+      const err=ov.querySelector('#ib-err');err.style.display='none';
+      const iban=ov.querySelector('#ib-iban').value.replace(/\s+/g,'').toUpperCase();
+      const revolut=ov.querySelector('#ib-rev').value.trim();
+      if(!iban){err.textContent='Indiquez votre IBAN.';err.style.display='block';return;}
+      if(!ibanValide(iban)){err.textContent='Cet IBAN n\'est pas valide. Vérifiez-le (une erreur de chiffre enverrait l\'argent au mauvais endroit).';err.style.display='block';return;}
+      if(!ov.querySelector('#ib-ok').checked){err.textContent='Cochez la case pour confirmer que c\'est bien votre compte.';err.style.display='block';return;}
+      // Mettre à jour le profil si l'IBAN a changé
+      if(iban!==String(P?.iban||'').replace(/\s+/g,'').toUpperCase()||revolut!==(P?.revolut_tag||'')){
+        try{const{error}=await sb.from('profiles').update({iban,revolut_tag:revolut||null}).eq('clerk_id',U.id);if(!error&&P){P.iban=iban;P.revolut_tag=revolut||null;}}catch(e){}
+      }
+      ov.remove();resolve({iban,revolut});
+    };
+  });
+}
+
 function chooseCoBailleursForLease(){
   return new Promise(resolve=>{
     const saved=_coBailleursSaved();
@@ -5188,6 +5254,13 @@ async function acceptDirectBooking(listingId, locataireId){
     try{
       const{error:cbErr}=await sb.from('bookings').update({co_bailleurs_data:coBailleursChoisis}).eq('id',booking.id);
       if(cbErr)console.warn('co_bailleurs_data (exécutez supabase-migration-co-bailleurs.sql) :',cbErr.message);
+    }catch(e){}
+    // Confirmer le compte sur lequel le locataire va virer le dépôt + 1er loyer
+    const compte=await confirmIbanForBooking();
+    if(compte===null){toast('Acceptation annulée');return;}
+    try{
+      const{error:ibErr}=await sb.from('bookings').update({landlord_iban:compte.iban||null,landlord_revolut:compte.revolut||null,landlord_iban_confirmed_at:new Date().toISOString()}).eq('id',booking.id);
+      if(ibErr)console.warn('landlord_iban (exécutez supabase-migration-premier-paiement.sql) :',ibErr.message);
     }catch(e){}
     toast('<i data-lucide=hourglass class=ic></i> Acceptation en cours…');
 
