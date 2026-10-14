@@ -3246,7 +3246,7 @@ async function loadSiblings(){
   SIBLINGS=[];
   const B=_bookingRef();if(!B)return;
   try{
-    let{data,error}=await sb.from('leases').select('id,tenant_id,tenant_name,negotiation_status,landlord_signed_at,tenant_signed_at,lot_label,booking_id,parent_booking_id,rent,charges').or(`booking_id.eq.${B},parent_booking_id.eq.${B}`);
+    let{data,error}=await sb.from('leases').select('*').or(`booking_id.eq.${B},parent_booking_id.eq.${B}`);
     if(error){SIB_ERR=error.message;return;} // colonne parent_booking_id absente : migration pas encore faite
     SIBLINGS=(data||[]).sort((a,b)=>(a.booking_id?0:1)-(b.booking_id?0:1)||String(a.lot_label||'').localeCompare(String(b.lot_label||''),'fr',{numeric:true}));
     // le bail principal (booking_id) : seulement le plus avancé s'il y en a plusieurs
@@ -3278,7 +3278,7 @@ function renderLotAndTabs(L){
     if(cols.length&&(SIB_ERR||manquants.length)){
       el.innerHTML=`<div style="max-width:880px;margin:0 auto 1rem;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:12px;padding:.8rem .9rem;font-size:.84rem">
         <strong><i data-lucide=alert-triangle class=ic></i> Un bail par locataire : ${SIB_ERR?'la base doit être mise à jour.':'il manque le bail de '+manquants.map(c=>_escB(c.name)).join(', ')+'.'}</strong>
-        <div style="margin-top:.35rem">${SIB_ERR?'Exécutez <code>supabase-migration-bail-individuel.sql</code> dans Supabase, puis rechargez la page.':`<button class="bc-pill on" onclick="recreateChildLeases()"><i data-lucide=file-plus class=ic></i> Créer ${manquants.length>1?'les baux':'le bail'} maintenant</button>`}</div>
+        <div style="margin-top:.35rem">${SIB_ERR?'Exécutez <code>supabase-migration-bail-individuel.sql</code> dans Supabase, puis rechargez la page.<div style="font-size:.72rem;color:var(--td);margin-top:.3rem">Détail : '+_escB(SIB_ERR)+'</div>':`<button class="bc-pill on" onclick="recreateChildLeases()"><i data-lucide=file-plus class=ic></i> Créer ${manquants.length>1?'les baux':'le bail'} maintenant</button>`}</div>
       </div>`;
       if(window.lucide)lucide.createIcons();
       return;
