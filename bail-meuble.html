@@ -439,6 +439,9 @@
       <span><i data-lucide=file-text class=ic></i> Document officiel</span>
     </div>
 
+    <!-- Baux individuels (colocation par chambre) : un onglet par locataire -->
+    <div id="lease-tabs" class="no-print"></div>
+
     <!-- ═══ DOCUMENT OFFICIEL ═══ -->
     <div class="bail-card">
 
@@ -499,6 +502,7 @@
         <div class="section">
           <div class="article-title" id="art1-title">Article 1 — Désignation du logement</div>
           <div class="article-content"><p>Le bailleur loue au locataire le logement ci-après désigné :</p></div>
+          <div class="article-content" id="lot-block" style="display:none"></div>
           <div class="info-grid" id="logement-grid"></div>
           <div class="info-grid" id="logement-grid2"></div>
           <div class="info-grid" id="logement-grid3"></div>
@@ -941,7 +945,8 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
 let EXTRA_SIGNERS=[],MY_EXTRA_KEY=null; // co-locataires + garants des co-locataires
-let TENANT_D5=null,COLOC_D5={}; // étape « garant » du dossier (Visale : n° de visa + certificat)
+let TENANT_D5=null,COLOC_D5={};
+let SIBLINGS=[]; // baux individuels d'une même candidature (location par chambre) // étape « garant » du dossier (Visale : n° de visa + certificat)
 let TENANT_GARANTIE=null, TENANT_ETUDIANT=false; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
 // ⚠️ PHASE DE TEST : le locataire peut signer la case du garant. Repasser à false avant le lancement.
 const TEST_GARANT_PAR_LOCATAIRE=true;
@@ -949,9 +954,12 @@ const TEST_GARANT_PAR_LOCATAIRE=true;
 let TYPE_BAIL='meuble';
 const isVide=()=>TYPE_BAIL==='vide';
 function detectTypeBail(){
-  if(LEASE?.type_bail==='vide'||LEASE?.type_bail==='meuble')return LEASE.type_bail;
+  // L'annonce fait foi (meublé / vide) ; le bail ne garde son propre type que si l'annonce ne le précise pas
   const m=LISTING?LISTING['meublé']??LISTING.furnished??LISTING.meuble:null;
-  return m===false?'vide':'meuble';
+  if(m===false)return 'vide';
+  if(m===true)return 'meuble';
+  if(LEASE?.type_bail==='vide'||LEASE?.type_bail==='meuble')return LEASE.type_bail;
+  return 'meuble';
 }
 // Durée légale : vide = 3 ans (bailleur personne physique ou SCI familiale), 6 ans (personne morale) ; meublé = 1 an
 function dureeAns(){
@@ -976,7 +984,7 @@ function applyTypeBail(){
   if(h)h.textContent=V?`Contrat de Location d'un Logement Vide (non meublé)`:`Contrat de Location d'un Logement Meublé`;
   document.title=(V?'Bail de location vide':'Bail de location meublée')+' — Trouve Ton Toit';
   const sw=document.getElementById('type-bail-switch');
-  if(sw)sw.innerHTML=_editMode?`<span style="font-size:.72rem;color:var(--td);margin-right:.35rem">Type de bail :</span><button class="bc-pill ${!V?'on':''}" onclick="setTypeBail('meuble')">Meublé</button> <button class="bc-pill ${V?'on':''}" onclick="setTypeBail('vide')">Vide</button>`:'';
+  if(sw)sw.innerHTML=''; // type détecté automatiquement depuis l'annonce (meublé / vide), pas de choix manuel
   const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
   set('duree-txt',V?(ans===6?'6 (six) ans':'3 (trois) ans'):'1 (un) an');
   set('reconduction-txt',V?(ans===6?'de six ans':'de trois ans'):`d'un an`);
@@ -1871,6 +1879,8 @@ async function loadBail(){
     }
     if(LEASE?.type_bail==='parking'||LISTING?.type==='parking'){location.replace('/bail-parking.html'+location.search);return;}
     TYPE_BAIL=detectTypeBail();
+    await loadSiblings();
+    if(LEASE&&LEASE.type_bail!==TYPE_BAIL&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){LEASE.type_bail=TYPE_BAIL;sb.from('leases').update({type_bail:TYPE_BAIL}).eq('id',LEASE.id).then(()=>{},()=>{});}
     if(LEASE?.booking_id&&!BOOKING){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
       if(bk)BOOKING=bk;
@@ -2124,7 +2134,7 @@ function renderGarantiesBlock(L){
       let gd=cl.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
       const names=(Array.isArray(gd)?gd:[]).map(x=>cleanPersonName([x.prenom,x.nom].filter(Boolean).join(' '))).filter(Boolean);
       const txt=names.length?`caution ${form} de <strong>${_escB(names.join(', '))}</strong> (garant personne physique) — voir son engagement ci-dessous.`
-        :cl.has_garant?(gType[cl.garant_type]||'garantie déclarée')+((cl.garant_type==='garant_visale'&&COLOC_D5[cl.locataire_id||cl.tenant_id]?.visa_ref)?` — visa n° <strong>${_escB(COLOC_D5[cl.locataire_id||cl.tenant_id].visa_ref)}</strong>`:'')+'.'
+        :cl.has_garant?(gType[cl.garant_type]||'garantie déclarée')+((()=>{const vv=cl.garant_type==='garant_visale'&&(visaleTenants().find(x=>x.name===cl.name)?.visa);return vv?` — visa n° <strong>${_escB(vv)}</strong>`:'';})())+'.'
         :cl.coloc_status?'aucune caution.':'non précisée.';
       rows.push(`<span class="partie-num">Locataire ${k+2}</span>${_escB(cl.name)} : ${txt}`);
     });
@@ -2178,17 +2188,17 @@ function renderGarantiesBlock(L){
         <div style="font-size:.8rem;font-weight:700;margin-bottom:.35rem">Comment louez-vous à vos ${coLocs.length+1} locataires ?</div>
         ${_colocConseil.txt?`<div style="font-size:.76rem;background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:.45rem .6rem;margin-bottom:.45rem"><i data-lucide=info class=ic></i> ${_colocConseil.txt}</div>`:''}
         <div class="cs-choice">
-          <button type="button" class="cs-opt${c==='commun_solidaire'?' on':''}" onclick="saveField('colocation_type','commun_solidaire')">
+          <button type="button" class="cs-opt${c==='commun_solidaire'?' on':''}" onclick="chooseColocType('commun_solidaire')">
             <strong>Un seul bail, avec solidarité</strong> ${_colocConseil.reco==='commun_solidaire'?'<span class="cs-reco">recommandé</span>':''}
             <span>Si un colocataire ne paie pas, vous pouvez réclamer la totalité du loyer aux autres. Un colocataire qui part reste tenu jusqu'à son remplaçant, au plus 6 mois après son préavis.</span>
           </button>
-          <button type="button" class="cs-opt${c==='commun_simple'?' on':''}" onclick="saveField('colocation_type','commun_simple')">
+          <button type="button" class="cs-opt${c==='commun_simple'?' on':''}" onclick="chooseColocType('commun_simple')">
             <strong>Un seul bail, sans solidarité</strong>
             <span>Chaque colocataire ne doit que sa part du loyer. Si l'un ne paie pas, vous ne pouvez pas le réclamer aux autres (seulement à son garant).</span>
           </button>
-          <button type="button" class="cs-opt${c==='individuel'?' on':''}" onclick="saveField('colocation_type','individuel')">
+          <button type="button" class="cs-opt${c==='individuel'?' on':''}" onclick="chooseColocType('individuel')">
             <strong>Un bail par locataire (location de chambre)</strong> ${_colocConseil.reco==='individuel'?'<span class="cs-reco">recommandé</span>':''}
-            <span>Ce bail ne concerne que le Locataire 1 et sa chambre. Les autres doivent avoir chacun leur propre bail.</span>
+            <span>Un bail séparé est créé pour chaque locataire, avec sa chambre et sa part du loyer. Vous les retrouvez dans les onglets en haut de la page et les envoyez un par un ou tous ensemble.</span>
           </button>
         </div>
       </div>`:''}
@@ -2392,6 +2402,7 @@ function renderBail(){
   show('parties-grid',partiesHtml);
   renderGarantiesBlock(L);
   renderVisaleBox(L);
+  renderLotAndTabs(L);
   renderUsage(L);
   renderReglesDroit(L);
   show('sig-ll-name',[llMorale?llNameFull:(LL_PROFILE?.full_name||'Bailleur'),...coBailleurs.map(c=>c.name)].join(' · '));
@@ -3182,7 +3193,7 @@ async function sendToTenant(){
 
 // Retour automatique sur le dashboard (proprio ou locataire), sur la carte de la candidature
 function backToDashboard(role,evt){
-  const bkId=LEASE.booking_id||BOOKING_ID||'';
+  const bkId=LEASE.booking_id||LEASE.parent_booking_id||BOOKING_ID||'';
   const page=role==='landlord'?'/landlord-dashboard.html':'/tenant-dashboard.html';
   const dash=page+'?tab=applications&evt='+evt+(bkId?'&booking='+encodeURIComponent(bkId):'');
   setTimeout(()=>{
@@ -3225,6 +3236,138 @@ function fmtDateFr(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''))
 function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';}
 
 // ── Garant : lien personnel de signature envoyé par email ─────────────────────
+
+// ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
+function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
+async function loadSiblings(){
+  SIBLINGS=[];
+  const B=_bookingRef();if(!B)return;
+  try{
+    let{data,error}=await sb.from('leases').select('id,tenant_id,tenant_name,negotiation_status,landlord_signed_at,tenant_signed_at,lot_label,booking_id,parent_booking_id,rent,charges').or(`booking_id.eq.${B},parent_booking_id.eq.${B}`);
+    if(error)return; // colonne parent_booking_id absente : migration pas encore faite
+    SIBLINGS=(data||[]).sort((a,b)=>(a.booking_id?0:1)-(b.booking_id?0:1)||String(a.lot_label||'').localeCompare(String(b.lot_label||''),'fr',{numeric:true}));
+    // le bail principal (booking_id) : seulement le plus avancé s'il y en a plusieurs
+    const mains=SIBLINGS.filter(x=>x.booking_id);
+    if(mains.length>1){const keep=mains.find(x=>x.id===LEASE.id)||mains[0];SIBLINGS=SIBLINGS.filter(x=>!x.booking_id||x.id===keep.id);}
+    // noms des locataires (profil) si pas d'override dans le bail
+    const ids=SIBLINGS.filter(x=>!x.tenant_name&&x.tenant_id).map(x=>x.tenant_id);
+    if(ids.length){const{data:ps}=await sb.from('profiles').select('clerk_id,full_name').in('clerk_id',ids);const m={};(ps||[]).forEach(p=>m[p.clerk_id]=p.full_name);SIBLINGS.forEach(x=>{if(!x.tenant_name)x.tenant_name=m[x.tenant_id]||'Locataire';});}
+  }catch(e){}
+}
+const _NS_LBL={draft:['Brouillon','#6b7280'],pending_tenant:['Envoyé au locataire','#2563EB'],pending_landlord:['Remarques du locataire','#b45309'],agreed:['Accepté — à signer','#047857'],signed:['Signé','#047857']};
+function _sibStatus(x){
+  if(x.landlord_signed_at&&x.tenant_signed_at)return['Signé ✓','#047857'];
+  return _NS_LBL[x.negotiation_status||'draft']||_NS_LBL.draft;
+}
+function renderLotAndTabs(L){
+  const lb=q('lot-block');
+  if(lb){
+    const indiv=L.colocation_type==='individuel'&&(L.lot_label||SIBLINGS.length>1);
+    lb.style.display=indiv?'':'none';
+    lb.innerHTML=indiv?`<p><strong>Partie louée :</strong> ${_escB(L.lot_label||'une chambre')} du logement désigné ci-dessous, à usage privatif, avec la jouissance des parties communes du logement (cuisine, salle d'eau, séjour…) partagées avec les autres occupants. Le présent bail est individuel : le locataire ne répond pas des obligations des autres occupants.${myRole==='landlord'&&!L.landlord_signed_at?` <span class="edit-btn no-print" style="font-size:.68rem" onclick="renameLot()"><i data-lucide=pencil class=ic></i> Nommer la chambre</span>`:''}</p>`:'';
+  }
+  const el=q('lease-tabs');if(!el)return;
+  if(SIBLINGS.length<2||myRole!=='landlord'){
+    el.innerHTML=(SIBLINGS.length>1&&L.lot_label)?`<div style="max-width:880px;margin:0 auto .8rem;font-size:.82rem;color:var(--td)">Votre bail individuel — <strong>${_escB(L.lot_label)}</strong></div>`:'';
+    return;
+  }
+  const aEnvoyer=SIBLINGS.filter(x=>['draft','pending_landlord'].includes(x.negotiation_status||'draft'));
+  el.innerHTML=`<div style="max-width:880px;margin:0 auto 1rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.75rem .85rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.55rem">
+      <div style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--bleu)">${SIBLINGS.length} baux individuels — un par locataire</div>
+      ${aEnvoyer.length?`<button class="bc-pill on" onclick="sendAllLeases()"><i data-lucide=send class=ic></i> Envoyer ${aEnvoyer.length>1?'les '+aEnvoyer.length+' baux':'le bail'} à relire</button>`:''}
+    </div>
+    <div style="display:flex;gap:.45rem;flex-wrap:wrap">${SIBLINGS.map((x,i)=>{
+      const cur=x.id===L.id,[st,col]=_sibStatus(x);
+      return `<a href="/bail-meuble.html?lease_id=${x.id}" style="flex:1 1 200px;text-decoration:none;color:inherit;border:${cur?'2px solid var(--bleu)':'1px solid #e5e7eb'};background:${cur?'rgba(27,79,216,.05)':'#fafafa'};border-radius:10px;padding:.5rem .65rem;display:block">
+        <div style="font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--bleu)">Locataire ${i+1}${cur?' · affiché':''}</div>
+        <div style="font-size:.88rem;font-weight:700">${_escB(x.tenant_name||'Locataire')}</div>
+        <div style="font-size:.74rem;color:var(--td)">${_escB(x.lot_label||'Chambre '+(i+1))} · ${fmt((Number(x.rent)||0)+(Number(x.charges)||0))}/mois CC</div>
+        <div style="font-size:.72rem;font-weight:700;color:${col};margin-top:.15rem">${st}</div>
+      </a>`;}).join('')}</div>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
+}
+async function renameLot(){
+  const v=prompt('Nom de la chambre / partie louée (ex. « Chambre 2 — 12 m², fenêtre sur cour ») :',LEASE.lot_label||'');
+  if(v===null)return;
+  const{error}=await sb.from('leases').update({lot_label:v.trim()||null}).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message+' (migration bail-individuel exécutée ?)',6000);return;}
+  LEASE.lot_label=v.trim()||null;const me=SIBLINGS.find(x=>x.id===LEASE.id);if(me)me.lot_label=LEASE.lot_label;
+  renderLotAndTabs(LEASE);
+}
+async function chooseColocType(val){
+  if(myRole!=='landlord'||LEASE.landlord_signed_at||LEASE.tenant_signed_at)return;
+  const cur=LEASE.colocation_type||'commun_solidaire';
+  if(val==='individuel'&&cur!=='individuel'){
+    const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
+    if(!cols.length){await saveField('colocation_type',val);return;}
+    if(!confirm(`Créer un bail séparé pour chacun des ${cols.length+1} locataires ?\n\nLe loyer, les charges et le dépôt sont répartis à parts égales (vous pourrez les modifier dans chaque bail). Chaque bail a ses propres signatures.`))return;
+    const ok=await createChildLeases(cols);
+    if(!ok)return;
+    await saveField('colocation_type',val);
+    location.reload();return;
+  }
+  if(val!=='individuel'&&cur==='individuel'){
+    const kids=SIBLINGS.filter(x=>x.parent_booking_id&&!x.booking_id);
+    if(kids.some(x=>x.landlord_signed_at||x.tenant_signed_at)){toast('Un bail individuel est déjà signé : impossible de revenir à un bail commun.',6000);return;}
+    if(kids.length&&!confirm(`Revenir à un seul bail commun ? Les ${kids.length} autre(s) bail(s) individuel(s) seront supprimés.`))return;
+    if(kids.length){const{error}=await sb.from('leases').delete().in('id',kids.map(x=>x.id));if(error){toast('Erreur : '+error.message,6000);return;}}
+    const upd={};
+    if(LEASE.rent_total!=null)upd.rent=LEASE.rent_total;
+    if(LEASE.charges_total!=null)upd.charges=LEASE.charges_total;
+    if(LEASE.deposit_total!=null)upd.deposit=LEASE.deposit_total;
+    if(Object.keys(upd).length){upd.rent_total=null;upd.charges_total=null;upd.deposit_total=null;upd.lot_label=null;await sb.from('leases').update(upd).eq('id',LEASE.id);Object.assign(LEASE,upd);}
+    await saveField('colocation_type',val);
+    if(kids.length)location.reload();
+    return;
+  }
+  await saveField('colocation_type',val);
+}
+async function createChildLeases(cols){
+  const B=_bookingRef(),n=cols.length+1,L=LEASE;
+  const tot={rent:L.rent_total??L.rent,charges:L.charges_total??L.charges,deposit:L.deposit_total??L.deposit};
+  const share=x=>Math.round((Number(x)||0)/n);
+  // bail principal = Locataire 1
+  const{error:e1}=await sb.from('leases').update({rent_total:tot.rent,charges_total:tot.charges,deposit_total:tot.deposit,rent:share(tot.rent),charges:share(tot.charges),deposit:share(tot.deposit),deposit_mode:'custom',lot_label:L.lot_label||'Chambre 1'}).eq('id',L.id);
+  if(e1){toast('Base à mettre à jour : exécutez supabase-migration-bail-individuel.sql ('+e1.message+')',8000);return false;}
+  const{data:ex}=await sb.from('leases').select('id,tenant_id').eq('parent_booking_id',B);
+  const deja=new Set((ex||[]).map(x=>x.tenant_id));
+  const base={listing_id:L.listing_id,listing_title:L.listing_title,landlord_id:L.landlord_id,start_date:L.start_date,end_date:L.end_date,type_bail:L.type_bail||TYPE_BAIL,
+    rent:share(tot.rent),charges:share(tot.charges),deposit:share(tot.deposit),deposit_mode:'custom',payment_due_day:L.payment_due_day||null,
+    colocation_type:'individuel',negotiation_status:'draft',status:'pending',parent_booking_id:B,garant_type:L.garant_type||null};
+  for(const [k,c] of cols.entries()){
+    const tid=c.locataire_id||c.tenant_id;
+    if(!tid||deja.has(tid))continue;
+    let gd=c.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
+    const g=Array.isArray(gd)&&gd[0]?gd[0]:null;
+    const row={...base,tenant_id:tid,lot_label:'Chambre '+(k+2),
+      ...(g?{garant_name:cleanPersonName([g.prenom,g.nom].filter(Boolean).join(' ')),garant_email:g.email||null}:{})};
+    let{error}=await sb.from('leases').insert(row);
+    if(error&&/payment_due_day|garant_type/.test(error.message)){delete row.payment_due_day;delete row.garant_type;({error}=await sb.from('leases').insert(row));}
+    if(error){toast('Bail de '+(c.name||'co-locataire')+' non créé : '+error.message,8000);return false;}
+  }
+  toast('<i data-lucide=check-circle-2 class=ic></i> '+n+' baux individuels créés.');
+  return true;
+}
+async function sendAllLeases(){
+  const todo=SIBLINGS.filter(x=>['draft','pending_landlord'].includes(x.negotiation_status||'draft'));
+  if(!todo.length)return;
+  if(!confirm('Envoyer à chaque locataire son bail pour relecture ?\n\n'+todo.map(x=>'• '+(x.tenant_name||'Locataire')+' — '+(x.lot_label||'')).join('\n')))return;
+  let ok=0;
+  for(const x of todo){
+    const resend=x.negotiation_status==='pending_landlord';
+    const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',x.id);
+    if(error){toast('Erreur pour '+(x.tenant_name||'')+' : '+error.message,6000);continue;}
+    x.negotiation_status='pending_tenant';ok++;
+    const lien=location.origin+'/bail-meuble.html?lease_id='+x.id+'&role=tenant';
+    if(x.tenant_id)try{await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:x.tenant_id,content:(resend?'Le bailleur a pris en compte vos remarques. ':'')+`Votre bail individuel (${x.lot_label||'votre chambre'}) est prêt pour relecture :\n${lien}`,type:'message'});}catch(e){}
+  }
+  if(SIBLINGS.find(x=>x.id===LEASE.id))LEASE.negotiation_status=SIBLINGS.find(x=>x.id===LEASE.id).negotiation_status;
+  toast('<i data-lucide=check-circle-2 class=ic></i> '+ok+' bail(s) envoyé(s) pour relecture.');
+  renderLotAndTabs(LEASE);renderNegocBar();renderStatusAndSigs();
+}
+
 // ═══ Garantie Visale : rien à signer dans le bail, le bailleur valide le visa sur visale.fr ═══
 function visaleTenants(){
   if(!LEASE)return [];
@@ -3236,7 +3379,7 @@ function visaleTenants(){
     out.push({key:'v:'+(id||c.email||k),num:k+2,name:c.name,visa:d5?.visa_ref||'',files:d5?.files||[],isMe:!!(U&&id===U.id)});
   });
   const st=_coSig();
-  out.forEach(v=>{v.done_at=st[v.key]?.done_at||null;});
+  out.forEach(v=>{v.done_at=st[v.key]?.done_at||null;if(v.key!=='v:1'&&st[v.key]?.visa_ref)v.visa=st[v.key].visa_ref;});
   return out;
 }
 function renderVisaleBox(L){
@@ -3256,7 +3399,7 @@ function renderVisaleBox(L){
       ?`<button type="button" class="bc-pill" onclick="setVisaleDone('${v.key}',false)">Annuler</button>`
       :`<a class="bc-pill on" href="https://www.visale.fr/" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir visale.fr ↗</a><button type="button" class="bc-pill" onclick="setVisaleDone('${v.key}',true)"><i data-lucide=check class=ic></i> J'ai signé le contrat Visale</button>`):'';
     return `<div style="background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:9px;padding:.65rem .8rem;display:flex;flex-direction:column;gap:.35rem">
-      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center"><div>${lbl(v)} · Visale ${v.visa?`n° <strong>${_escB(v.visa)}</strong>`:'<span style="color:var(--red)">n° de visa non renseigné</span>'}${ll&&!v.done_at&&v.visa?` <span class="edit-btn" style="font-size:.66rem" onclick="navigator.clipboard?.writeText('${_escB(v.visa)}').then(()=>toast('N° de visa copié'))">Copier</span>`:''}</div>${statut}</div>
+      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center"><div>${lbl(v)} · Visale ${v.visa?`n° <strong>${_escB(v.visa)}</strong>`:'<span style="color:var(--red)">n° de visa non renseigné</span>'}${(ll||v.isMe)&&!L.landlord_signed_at?` <span class="${v.visa?'edit-btn':'missing-badge'}" style="font-size:.68rem;cursor:pointer" onclick="editVisaRef('${v.key}')"><i data-lucide=pencil class=ic></i> ${v.visa?'Modifier':'Renseigner le n° de visa'}</span>`:''}${ll&&!v.done_at&&v.visa?` <span class="edit-btn" style="font-size:.66rem" onclick="navigator.clipboard?.writeText('${_escB(v.visa)}').then(()=>toast('N° de visa copié'))">Copier</span>`:''}</div>${statut}</div>
       ${fichiers(v)?`<div>${fichiers(v)}</div>`:''}
       ${actions?`<div style="display:flex;gap:.4rem;flex-wrap:wrap">${actions}</div>`:''}
     </div>`;
@@ -3276,6 +3419,26 @@ function renderVisaleBox(L){
     <div class="bc-title" style="margin-bottom:.4rem"><i data-lucide=shield-check class=ic></i> Garantie Visale${ll?' — à faire avant de signer':''}</div>
     ${aide}<div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
+}
+// N° de visa : modifiable par le bailleur ou par le locataire concerné, tant que le bailleur n'a pas signé
+async function editVisaRef(key){
+  const v=visaleTenants().find(x=>x.key===key);if(!v)return;
+  if(!(myRole==='landlord'||v.isMe)||LEASE.landlord_signed_at)return;
+  let val=prompt('N° de visa Visale de '+v.name+' (écrit sur le certificat Visale) :',v.visa||'');
+  if(val===null)return;
+  val=val.trim().toUpperCase();
+  if(key==='v:1'){
+    const{error}=await sb.from('leases').update({visale_ref:val||null}).eq('id',LEASE.id);
+    if(error){toast('Erreur : '+error.message,6000);return;}
+    LEASE.visale_ref=val||null;
+  }else{
+    const ok=await _saveCoSigners(cur=>{cur[key]={...(cur[key]||{}),visa_ref:val||null};});
+    if(!ok)return;
+  }
+  const autre=myRole==='landlord'?(key==='v:1'?LEASE.tenant_id:key.slice(2)):LEASE.landlord_id;
+  if(autre&&!String(autre).includes('@')&&val)try{await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:autre,content:`N° de visa Visale de ${v.name} renseigné dans le bail : ${val}.`,type:'message'});}catch(e){}
+  toast('<i data-lucide=check-circle-2 class=ic></i> N° de visa enregistré.');
+  renderGarantiesBlock(LEASE);renderVisaleBox(LEASE);
 }
 async function setVisaleDone(key,on){
   if(myRole!=='landlord')return;
