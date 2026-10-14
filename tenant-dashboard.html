@@ -401,8 +401,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="card">
             <div class="ch"><div class="ct"><i data-lucide=door-open class=ic></i> Quitter ce logement</div></div>
             <div class="cb">
-              <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Vous partez ? Cela met fin à votre location sur Trouve Ton Toit — votre propriétaire sera notifié, et ce logement sera retiré de votre location active pour que vous puissiez chercher et postuler pour un nouveau logement.</p>
-              <button class="btn bg" style="border-color:var(--red);color:var(--red)" onclick="leaveCurrentProperty()"><i data-lucide=door-open class=ic></i> Quitter ce logement</button>
+              <p style="font-size:.82rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">Vous n'habitez plus ici ? Indiquez-le pour pouvoir chercher et postuler à un nouveau logement. Trouve Ton Toit n'intervient pas dans la fin du bail : préavis, état des lieux de sortie et dépôt de garantie se règlent directement avec votre propriétaire, qui sera prévenu. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours, puis disparaissent de votre espace.</p>
+              <button class="btn bg" style="border-color:var(--red);color:var(--red)" onclick="leaveCurrentProperty()"><i data-lucide=door-open class=ic></i> Je n'habite plus ce logement</button>
             </div>
           </div>
         </div>
@@ -2301,9 +2301,11 @@ function renderEdlBlockT(bk){
   const done=(bk.status==='move_in_ready')||(bk.edl_signed_landlord&&bk.edl_signed_tenant);
   const url=`/edl-meuble.html?booking_id=${bk.id}`;
   const title='<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">État des lieux d\'entrée & inventaire</div>';
+  const row=(lbl,ok)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem">${lbl}</span>${ok?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> En attente</span>'}</div>`;
+  const sigs=`<div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.35rem">${row('<i data-lucide=home class=ic></i> Propriétaire',done||bk.edl_signed_landlord)}${row('<i data-lucide=user class=ic></i> Vous',done||bk.edl_signed_tenant)}</div>`;
   const btn=(lbl,primary)=>`<a href="${url}" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'#fff':'var(--txt)'};border:${primary?'none':'1px solid var(--b)'};border-radius:8px;padding:.5rem;font-size:.78rem;font-weight:700;text-decoration:none;margin-top:.35rem"><i data-lucide=clipboard-list class=ic></i> ${lbl}</a>`;
-  if(done)return title+`<div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — bienvenue chez vous ! Vous avez 10 jours pour signaler un défaut oublié.</div>`+btn('Voir l\'état des lieux',false);
-  if(st==='to_sign')return title+`<div style="font-size:.76rem;color:var(--txt)">${bk.edl_signed_tenant?'Vous avez signé — en attente du propriétaire.':'L\'état des lieux est prêt : relisez-le pièce par pièce, puis signez.'}</div>`+btn(bk.edl_signed_tenant?'Voir l\'état des lieux':'Relire et signer',!bk.edl_signed_tenant);
+  if(done)return title+sigs+`<div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — bienvenue chez vous ! Vous avez 10 jours pour signaler un défaut oublié.</div>`+btn('Voir l\'état des lieux',false);
+  if(st==='to_sign')return title+sigs+`<div style="font-size:.76rem;color:var(--txt)">${bk.edl_signed_tenant?'Vous avez signé — en attente du propriétaire.':'L\'état des lieux est prêt : relisez-le pièce par pièce, puis signez.'}</div>`+btn(bk.edl_signed_tenant?'Voir l\'état des lieux':'Relire et signer',!bk.edl_signed_tenant);
   return title+`<div style="font-size:.74rem;color:var(--td)">Le propriétaire fera l'état des lieux avec vous le jour de l'entrée${bk.move_in_date?' ('+new Date(bk.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+')':''}.</div>`;
 }
 
@@ -2314,7 +2316,7 @@ function renderBailDocCard(bk,annonce){
     const all=!!L.landlord_signed_at&&!!L.tenant_signed_at&&(!L.garant_name||!!L.garant_signed_at);
     const fmt=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
     return`<div class="card">
-      <div class="ch"><div class="ct"><i data-lucide=file-text class=ic></i> Bail de location meublée</div>${all?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> En cours</span>'}</div>
+      <div class="ch"><div class="ct"><i data-lucide=file-text class=ic></i> ${L.type_bail==='vide'||(L.type_bail!=='meuble'&&(annonce?.['meublé']??annonce?.furnished)===false)?'Bail de location vide':'Bail de location meublée'}</div>${all?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> En cours</span>'}</div>
       <div class="cb">
         <div style="font-size:.8rem;color:var(--tm);margin-bottom:.6rem">${annonce?.title||'Votre logement'} · ${annonce?.full_address||annonce?.zone||'France'}</div>
         <div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem">Du ${fmt(L.start_date)} au ${fmt(L.end_date)} · Loyer ${(Number(L.rent)||0)+(Number(L.charges)||0)} € charges comprises</div>
@@ -2905,7 +2907,7 @@ async function fetchLocataireVisitData(){
   let bookings=[];
   try{
     const{data:bData}=await sb.from('bookings').select('*').eq('tenant_id',U.id).order('created_at',{ascending:false});
-    bookings=bData||[];
+    bookings=(bData||[]).filter(b=>!locationQuitteeExpiree(b));
 
     // Enrichir TOUS les bookings avec agency_annonce — nécessaire pour savoir
     // si la question "qui gère l'État des lieux" (agence/propriétaire/locataire) doit s'afficher.
@@ -4172,12 +4174,20 @@ Visite was scheduled  pour : ${visitDateStr}${isLate?'\n\nNote: cancelled less t
 }
 
 let cardElement=null;
+// Location quittée depuis plus de 7 jours : plus rien n'est affiché au locataire
+// (bail, état des lieux, quittances, paiements). Le propriétaire garde ses archives.
+function locationQuitteeExpiree(b){
+  if(!b||b.status!=='tenancy_ended')return false;
+  if(!b.tenancy_ended_at)return true;
+  return (Date.now()-new Date(b.tenancy_ended_at).getTime())>7*24*3600*1000;
+}
 async function leaveCurrentProperty(){
-  if(!confirm("Quitter ce logement? Your propriétaire will be notified. ce logement will stay visible in My Location pour 7 more days so you can save anything you need (documents, quittances, messages) — after that it'll be removed pour good."))return;
+  if(!confirm("Vous n'habitez plus ce logement ?\n\nEn confirmant, vous indiquez que vous l'avez quitté. Trouve Ton Toit n'intervient pas dans la fin du bail (préavis, état des lieux de sortie, restitution du dépôt) : cela se règle directement avec votre propriétaire.\n\nVous pourrez tout de suite chercher et postuler à un nouveau logement. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours, puis ils disparaissent de votre espace : pensez à les télécharger."))return;
 
   let bk=null,annonce=null;
+  const actifs=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','completed','active'];
   try{
-    const{data:bookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('status',['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready']).order('created_at',{ascending:false}).limit(1);
+    const{data:bookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('status',actifs).order('created_at',{ascending:false}).limit(1);
     bk=bookings?.[0]||null;
     if(bk){
       const{data:l}=await sb.from('listings').select('*').eq('id',bk.listing_id).maybeSingle();
@@ -4187,24 +4197,34 @@ async function leaveCurrentProperty(){
 
   if(!bk){toast('<i data-lucide=alert-triangle class=ic></i> Aucun logement actif trouvé');return;}
 
-  const{error:updateErreur}=await sb.from('bookings').update({status:'tenancy_ended',tenancy_ended_at:new Date().toISOString()}).eq('id',bk.id);
-  if(updateErreur){
-    toast('<i data-lucide=x-circle class=ic></i> Une erreur est survenue — réessayez ou contactez le support.');
+  const now=new Date().toISOString();
+  let{error:updateError}=await sb.from('bookings').update({status:'tenancy_ended',tenancy_ended_at:now}).eq('id',bk.id);
+  if(updateError){
+    console.error('leaveCurrentProperty',updateError);
+    const msg=String(updateError.message||'');
+    const txt=/check constraint/i.test(msg)
+      ? "La base refuse le statut « logement quitté » : exécutez supabase-migration-quitter-logement.sql dans Supabase."
+      : /tenancy_ended_at/i.test(msg)
+        ? "Colonne tenancy_ended_at manquante : exécutez supabase-migration-quitter-logement.sql dans Supabase."
+        : 'Impossible d\'enregistrer votre départ : '+(msg||'erreur inconnue');
+    toast('<i data-lucide=x-circle class=ic></i> '+txt);
     return;
   }
 
   if(bk.landlord_id){
+    const nom=P?.full_name||bk.tenant_name||'Votre locataire';
+    const bien=annonce?.title||'votre bien';
     try{await sb.from('messages').insert({
       listing_id:bk.listing_id,
       sender_id:'system',
       receiver_id:bk.landlord_id,
-      content:`${P?.full_name||'Your locataire'} has ended their tenancy pour ${annonce?.title||'the bien'}. It'll sortie des lieux of Rented Biens in 7 days.`,
+      content:`${nom} indique ne plus habiter ${bien}. La location reste visible 7 jours dans « Biens loués », puis elle sera retirée. La fin du bail (préavis, état des lieux de sortie, dépôt de garantie) se règle directement entre vous.`,
       type:'tenancy_ended'
     });}catch(e){}
   }
 
-  toast('<i data-lucide=check-circle-2 class=ic></i> Vous avez quitté le logement. Il reste visible encore 7 jours.');
-  setTimeout(()=>{sp('dash',document.querySelectorAll('.ni')[0]);loadOverview();},1200);
+  toast('<i data-lucide=check-circle-2 class=ic></i> C\'est noté. Vous pouvez chercher un nouveau logement. Vos documents restent visibles 7 jours.');
+  setTimeout(()=>{sp('dash',document.querySelectorAll('.ni')[0]);loadOverview();},1500);
 }
 
 async function loadPaiementsData(){
@@ -4216,15 +4236,34 @@ async function loadPaiementsData(){
     const seen=new Set();
     data=[...(d1||[]),...(d2||[])].filter(p=>{if(seen.has(p.id))return false;seen.add(p.id);return true;});
   }catch(e){data=[];}
+  // Logement quitté : plus d'échéances à venir tout de suite, et plus rien
+  // (quittances comprises) après 7 jours.
+  try{
+    const bIds=[...new Set(data.map(p=>p.booking_id).filter(Boolean))];
+    if(bIds.length){
+      const{data:ended}=await sb.from('bookings').select('id,status,tenancy_ended_at').in('id',bIds).eq('status','tenancy_ended');
+      const endMap={};(ended||[]).forEach(b=>{endMap[b.id]=b;});
+      data=data.filter(p=>{
+        const b=endMap[p.booking_id];if(!b)return true;
+        if(locationQuitteeExpiree(b))return false;
+        return p.status==='paid'||p.status==='declared';
+      });
+    }
+  }catch(e){}
   const payments=data||[];
   // "En attente" — seulement ce qui est vraiment imminent (2 jours avant
   // l'échéance ou déjà en retard), pas les 12 mois d'échéances futures
   const soonThreshold=new Date();soonThreshold.setDate(soonThreshold.getDate()+2);
   const isSoonOrLate=p=>p.due_date&&new Date(p.due_date)<=soonThreshold;
   const pend=payments.filter(p=>(p.status==='pending'||p.status==='late')&&isSoonOrLate(p)).length;
-  const next=payments.find(p=>(p.status==='pending'||p.status==='late')&&p.due_date);
+  // Prochaine échéance = la plus proche date encore à payer (tri par date, pas par création)
+  const next=payments.filter(p=>(p.status==='pending'||p.status==='late')&&p.due_date).sort((a,b)=>String(a.due_date).localeCompare(String(b.due_date)))[0];
   if(document.getElementById('pay-pend'))document.getElementById('pay-pend').textContent=pend||'0';
-  if(document.getElementById('pay-next'))document.getElementById('pay-next').textContent=next?new Date(next.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+  if(document.getElementById('pay-next')){
+    const _m=next&&/^(\d{4})-(\d{2})-(\d{2})/.exec(next.due_date);
+    const _d=_m?new Date(+_m[1],+_m[2]-1,+_m[3]):null;
+    document.getElementById('pay-next').textContent=_d?_d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',...(_d.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})})+(next.amount?' · '+Math.round(next.amount*100)/100+' €':''):'—';
+  }
 
   // "Loyer due" — seulement la toute prochaine échéance, et seulement si
   // elle est vraiment imminente (2 jours avant ou déjà en retard)
@@ -7237,7 +7276,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
   // visite puis en redemander une autre avant de re-cliquer "louer" créait
   // deux dossiers séparés pour le même locataire chez le même propriétaire.
   try{
-    const{data:existingBooking}=await sb.from('bookings').select('id,status').eq('tenant_id',U.id).eq('listing_id',listingId).not('status','in','("declined","cancelled_by_locataire")').maybeSingle();
+    const{data:existingBooking}=await sb.from('bookings').select('id,status').eq('tenant_id',U.id).eq('listing_id',listingId).not('status','in','("declined","cancelled_by_locataire","tenancy_ended")').limit(1).maybeSingle();
     if(existingBooking){
       toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une candidature active pour ce logement — vérifiez Mes visites.');
       sp('visites',document.querySelector('.ni[onclick*="visites"]'));
