@@ -946,7 +946,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
 let EXTRA_SIGNERS=[],MY_EXTRA_KEY=null; // co-locataires + garants des co-locataires
 let TENANT_D5=null,COLOC_D5={};
-let SIBLINGS=[]; // baux individuels d'une même candidature (location par chambre) // étape « garant » du dossier (Visale : n° de visa + certificat)
+let SIBLINGS=[],SIB_ERR=null; // baux individuels d'une même candidature (location par chambre) // étape « garant » du dossier (Visale : n° de visa + certificat)
 let TENANT_GARANTIE=null, TENANT_ETUDIANT=false; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
 // ⚠️ PHASE DE TEST : le locataire peut signer la case du garant. Repasser à false avant le lancement.
 const TEST_GARANT_PAR_LOCATAIRE=true;
@@ -2537,7 +2537,9 @@ function renderBail(){
   const addrCheck=(propAddr||Li?.full_address||'').toLowerCase();
   const propCp=(propAddr||Li?.full_address||'').match(/\b(\d{5})\b/)?.[1]||'';
   const isLyonZone=/\b690(0[1-9]|7\b)/.test(propCp)||/\blyon\b/.test(addrCheck);
-  const isZoneTendue=!!(L.zone_tendue||Li?.zone_tendue||isLyonZone);
+  // « Non » choisi par le bailleur l'emporte sur la détection automatique
+  const isZoneTendue=L.zone_tendue===false?false:!!(L.zone_tendue||Li?.zone_tendue||isLyonZone);
+  const _ztChoix=_editMode&&!L.landlord_signed_at?`<div class="no-print" style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem"><span style="font-size:.78rem;font-weight:700">Logement en zone tendue (encadrement des loyers) ?</span><button type="button" class="bc-pill${isZoneTendue?' on':''}" onclick="saveField('zone_tendue',true)">Oui</button><button type="button" class="bc-pill${!isZoneTendue?' on':''}" onclick="saveField('zone_tendue',false)">Non</button></div>`:'';
   // Calcul auto loyer de référence si on a ville + pièces + année
   const villeEnc=detectVilleEncadrement(addrCheck,propCp);
   const epoque=getEpoque(anneeCons);
@@ -2559,6 +2561,7 @@ function renderBail(){
     const manquePieces=!nbPieces&&_editMode;
     const manqueAnnee=!anneeCons&&_editMode;
     show('zone-tendue-block',`<div class="info-blue" style="font-size:.84rem">
+      ${_ztChoix}
       ${_editMode&&isAuto?`<span class="no-print" style="font-size:.72rem;color:#C2410C;display:block;margin-bottom:.3rem"><i data-lucide=alert-triangle class=ic></i> Loyers de référence estimés automatiquement : vérifiez-les sur l'arrêté préfectoral en vigueur, puis confirmez. <button type="button" class="bc-pill" onclick="confirmLoyersRef(${loyerRef||0},${loyerRefMaj||0})">Je confirme ces montants</button></span>`:''}
       <strong><i data-lucide=building class=ic></i> Zone tendue</strong> — Loyer de référence : <strong>${ref} €/m²</strong>${missing&&!loyerRef?` <span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'loyer_ref')"><i data-lucide=alert-triangle class=ic></i> à renseigner</span>`:''}${_editMode&&loyerRef?` <span class="edit-btn" onclick="editField(event,'loyer_ref')"><i data-lucide=pencil class=ic></i></span>`:''}
       &nbsp;·&nbsp;
@@ -2566,8 +2569,8 @@ function renderBail(){
       ${manqueAnnee?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'annee_construction')"><i data-lucide=alert-triangle class=ic></i> Renseignez l'année de construction pour calcul auto</span>`:''}
       ${manquePieces?`<span class="missing-badge" style="font-size:.68rem" onclick="editField(event,'prop_pieces')"><i data-lucide=alert-triangle class=ic></i> Nombre de pièces manquant</span>`:''}
 </div>`);
-  } else if(_editMode){
-    show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem"><span class="missing-badge" style="font-size:.75rem" onclick="editField(event,'zone_tendue')"><i data-lucide=alert-triangle class=ic></i> Zone tendue ? — Cliquer pour activer l'encadrement des loyers</span></div>`);
+  } else {
+    show('zone-tendue-block',`<div class="info-blue" style="font-size:.82rem;padding:.6rem .8rem">${_ztChoix}<strong>Zone tendue :</strong> non — le loyer n'est pas soumis à l'encadrement des loyers.</div>`);
   }
 
   // Loyer
@@ -3244,7 +3247,7 @@ async function loadSiblings(){
   const B=_bookingRef();if(!B)return;
   try{
     let{data,error}=await sb.from('leases').select('id,tenant_id,tenant_name,negotiation_status,landlord_signed_at,tenant_signed_at,lot_label,booking_id,parent_booking_id,rent,charges').or(`booking_id.eq.${B},parent_booking_id.eq.${B}`);
-    if(error)return; // colonne parent_booking_id absente : migration pas encore faite
+    if(error){SIB_ERR=error.message;return;} // colonne parent_booking_id absente : migration pas encore faite
     SIBLINGS=(data||[]).sort((a,b)=>(a.booking_id?0:1)-(b.booking_id?0:1)||String(a.lot_label||'').localeCompare(String(b.lot_label||''),'fr',{numeric:true}));
     // le bail principal (booking_id) : seulement le plus avancé s'il y en a plusieurs
     const mains=SIBLINGS.filter(x=>x.booking_id);
@@ -3267,6 +3270,20 @@ function renderLotAndTabs(L){
     lb.innerHTML=indiv?`<p><strong>Partie louée :</strong> ${_escB(L.lot_label||'une chambre')} du logement désigné ci-dessous, à usage privatif, avec la jouissance des parties communes du logement (cuisine, salle d'eau, séjour…) partagées avec les autres occupants. Le présent bail est individuel : le locataire ne répond pas des obligations des autres occupants.${myRole==='landlord'&&!L.landlord_signed_at?` <span class="edit-btn no-print" style="font-size:.68rem" onclick="renameLot()"><i data-lucide=pencil class=ic></i> Nommer la chambre</span>`:''}</p>`:'';
   }
   const el=q('lease-tabs');if(!el)return;
+  // Bail par locataire choisi mais baux des co-locataires pas (encore) créés
+  if(myRole==='landlord'&&L.colocation_type==='individuel'&&L.booking_id){
+    const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
+    const kids=SIBLINGS.filter(x=>x.parent_booking_id&&!x.booking_id);
+    const manquants=cols.filter(c=>!kids.some(k=>k.tenant_id===(c.locataire_id||c.tenant_id)));
+    if(cols.length&&(SIB_ERR||manquants.length)){
+      el.innerHTML=`<div style="max-width:880px;margin:0 auto 1rem;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:12px;padding:.8rem .9rem;font-size:.84rem">
+        <strong><i data-lucide=alert-triangle class=ic></i> Un bail par locataire : ${SIB_ERR?'la base doit être mise à jour.':'il manque le bail de '+manquants.map(c=>_escB(c.name)).join(', ')+'.'}</strong>
+        <div style="margin-top:.35rem">${SIB_ERR?'Exécutez <code>supabase-migration-bail-individuel.sql</code> dans Supabase, puis rechargez la page.':`<button class="bc-pill on" onclick="recreateChildLeases()"><i data-lucide=file-plus class=ic></i> Créer ${manquants.length>1?'les baux':'le bail'} maintenant</button>`}</div>
+      </div>`;
+      if(window.lucide)lucide.createIcons();
+      return;
+    }
+  }
   if(SIBLINGS.length<2||myRole!=='landlord'){
     el.innerHTML=(SIBLINGS.length>1&&L.lot_label)?`<div style="max-width:880px;margin:0 auto .8rem;font-size:.82rem;color:var(--td)">Votre bail individuel — <strong>${_escB(L.lot_label)}</strong></div>`:'';
     return;
@@ -3287,6 +3304,11 @@ function renderLotAndTabs(L){
       </a>`;}).join('')}</div>
   </div>`;
   if(window.lucide)lucide.createIcons();
+}
+async function recreateChildLeases(){
+  const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
+  if(!cols.length)return;
+  if(await createChildLeases(cols))location.reload();
 }
 async function renameLot(){
   const v=prompt('Nom de la chambre / partie louée (ex. « Chambre 2 — 12 m², fenêtre sur cour ») :',LEASE.lot_label||'');
