@@ -1966,9 +1966,16 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
 
     // 2 — Pré-créer le bail dans la table leases (bail-meuble.html récupère ce record)
     const dueDay=startDate?new Date(startDate).getDate():1;
-    const rent=booking?.monthly_rent||annonce?.price||0;
-    const deposit=annonce?.deposit||annonce?.depot||(rent*2);
-    const charges=annonce?.bills_included?0:50;
+    // Prix de l'annonce = charges comprises → loyer HC = prix − provision sur charges
+    const charges=annonce?.bills_included?0:(Number(annonce?.charges_mensuelles)||0);
+    const rent=Math.max(0,Number(booking?.monthly_rent||annonce?.price||0)-charges);
+    // Dépôt en mois de loyer HC, plafonné : 1 mois en vide, 2 mois en meublé
+    const _vide=(annonce?.['meublé']??annonce?.furnished)===false;
+    const _max=_vide?1:2;
+    const _dep=annonce?.depot??annonce?.deposit;
+    let deposit=(_dep!==null&&_dep!==undefined&&_dep!=='')?Number(_dep):rent*_max;
+    if(rent>0&&deposit>rent*_max)deposit=rent*_max;
+    const deposit_mode=deposit===0?'0':(rent>0&&deposit===rent)?'1':(rent>0&&deposit===rent*2)?'2':'custom';
     try{
       // Vérifier si un bail existe déjà pour cette réservation
       const{data:existingLease}=await sb.from('leases').select('id').eq('booking_id',bookingId).maybeSingle();
@@ -1982,7 +1989,7 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
           landlord_id:U.id,
           start_date:startDate,
           end_date:leaseEndDate,
-          rent,deposit,charges,
+          rent,deposit,deposit_mode,charges,
           status:'pending',
           negotiation_status:'draft'
         });
@@ -2016,8 +2023,8 @@ async function generateBailFromBooking(bookingId, listingId, locataireId){
       content:'Votre candidature a été acceptée !\n\n'
         +'Le bailleur prépare votre bail de location — vous recevrez un lien pour le relire et le signer dès qu\'il sera prêt.\n\n'
         +'━━━━━━━━━━━━━━\nMONTANT À PRÉVOIR\n━━━━━━━━━━━━━━\n'
-        +'Dépôt de garantie : €'+deposit+'\n'
-        +'Premier mois : €'+rent+'\n'
+        +'Dépôt de garantie : '+deposit+' €\n'
+        +'Loyer mensuel : '+(rent+charges)+' € charges comprises ('+rent+' € + '+charges+' € de charges)\n'
         +(holdingPaid?'Holding déduit : €'+holdingPaid+'\n':'')
         +ibanInfo+revInfo
         +'\nL\'état des lieux se fera le jour de l\'entrée dans les lieux, une fois le bail signé.',
@@ -4558,9 +4565,9 @@ function renderVisitGroup(g, isPast){
 
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
-      <div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
-      <div style="border:1.5px solid ${_LL_COLORS[0]};border-radius:10px;padding:.6rem .65rem;margin-bottom:.6rem">
-      <div style="display:inline-block;background:${_LL_COLORS[0]};color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-radius:6px;padding:.2rem .55rem;margin-bottom:.5rem">Locataire 1${_colocsLL(bk).length?' — principal':''} · ${g.tenant_name||''}</div>
+      <div style="font-size:.85rem;font-weight:700;color:var(--txt);margin-bottom:.6rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
+      <div style="${_LL_CARD}">
+      ${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire principal':'Locataire')}
       <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.2rem">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nom complet</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
@@ -4568,7 +4575,7 @@ function renderVisitGroup(g, isPast){
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
-          ${bk?.move_in_date?`<div style="background:rgba(27,79,216,.12);border:1px solid var(--bleu);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--bleu);font-weight:700">Entrée souhaitée</div><div style="font-size:.78rem;font-weight:700">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>`:''}
+          ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée souhaitée</div><div style="font-size:.78rem;font-weight:700">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>`:''}
         </div>
         ${bk?.negotiation_note?`
         <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:7px;padding:.5rem .65rem;margin-bottom:.5rem">
@@ -4596,7 +4603,15 @@ function renderVisitGroup(g, isPast){
 }
 
 // ── Candidature à plusieurs : une fiche complète par locataire ──
-const _LL_COLORS=['#1B4FD8','#0F8A6B','#B4577A','#B7791F'];
+// Fiches locataires : même style sobre pour tous, numéro dans une pastille
+const _LL_CARD='background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:.7rem .75rem;margin-bottom:.6rem';
+function _llHead(num,name,role){
+  return `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem">
+    <span style="width:22px;height:22px;border-radius:50%;background:var(--bleu);color:#fff;font-size:.72rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${num}</span>
+    <span style="font-size:.85rem;font-weight:700;color:var(--txt)">${name||'—'}</span>
+    <span style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.4px">· ${role}</span>
+  </div>`;
+}
 function _nomsLL(g,bk){
   const n=[g?.tenant_name||bk?.locataire_name||'—',..._colocsLL(bk).map(c=>c.name||c.email).filter(Boolean)];
   return n.length>1?n.slice(0,-1).join(', ')+' et '+n[n.length-1]:n[0];
@@ -4607,7 +4622,6 @@ function _colocsLL(bk){
   return (Array.isArray(a)?a:[]).filter(c=>c&&c.coloc_status!=='declined').map(c=>({...c,id:c.tenant_id||c.locataire_id||null}));
 }
 function renderColocFicheLL(c,num){
-  const col=_LL_COLORS[(num-1)%_LL_COLORS.length];
   const cell=(lbl,id,val)=>`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">${lbl}</div><div ${id?`id="${id}"`:''} style="font-size:.73rem;font-weight:600">${val}</div></div>`;
   let gd=c.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
   const gType={garant_visale:'Visale',garant_organisme:'organisme de caution',garant_autre_organisme:'organisme de caution',garant_moral:'personne morale'};
@@ -4615,8 +4629,8 @@ function renderColocFicheLL(c,num){
     ?((Array.isArray(gd)&&gd.length)?'<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique : '+gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+'</span>':'<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+(c.garant_type==='garant_visale'?'Garantie Visale':'Garant '+(gType[c.garant_type]||'déclaré'))+'</span>')
     :'<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
   const hg='<i data-lucide=hourglass class=ic></i>';
-  return `<div style="border:1.5px solid ${col};border-radius:10px;padding:.6rem .65rem;margin-bottom:.6rem">
-    <div style="display:inline-block;background:${col};color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-radius:6px;padding:.2rem .55rem;margin-bottom:.5rem">Locataire ${num} — co-locataire · ${c.name||c.email||''}</div>
+  return `<div style="${_LL_CARD}">
+    ${_llHead(num,c.name||c.email||'','Co-locataire')}
     ${c.id?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
       ${cell('Nom complet','t-name-'+c.id,c.name||hg)}
       ${cell('Garantie',c.coloc_status?'':'t-ver-'+c.id,c.coloc_status?garant:hg)}
@@ -4637,7 +4651,7 @@ function garantieTxtLL(dd){
     return '<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique'+(gs.length?' : '+gs.join(', '):'')+'</span>';
   }
   const m={garant_visale:'Garantie Visale',garant_organisme:'Organisme de caution',garant_autre_organisme:'Organisme de caution',garant_moral:'Garant personne morale'};
-  if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+'</span>';
+  if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+(t==='garant_visale'&&st.visa_ref?' — visa n° '+String(st.visa_ref).replace(/</g,'&lt;'):'')+'</span>';
   return '<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
 }
 
