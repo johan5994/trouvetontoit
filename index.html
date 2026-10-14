@@ -1032,10 +1032,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="equip-chips">
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-ancienne"><i data-lucide=landmark class=ic></i> Construction ancienne</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-recente"><i data-lucide=hard-hat class=ic></i> Construction récente</label>
-              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this);document.getElementById('p-nb-lots-wrap').style.display=document.getElementById('p-copropriete').checked?'flex':'none'"><input type="checkbox" id="p-copropriete"><i data-lucide=building-2 class=ic></i> Copropriété</label>
-            </div>
-            <div id="p-nb-lots-wrap" style="display:none;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.83rem;color:var(--stone)">
-              <input type="number" id="p-nb-lots-copro" class="fi" placeholder="520" min="1" max="10000" style="width:6rem"> lots en copropriété
+              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this)"><input type="checkbox" id="p-copropriete"><i data-lucide=building-2 class=ic></i> Copropriété</label>
             </div>
           </div>
 
@@ -1056,7 +1053,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
           <div id="photo-upload-area" style="border:2px dashed var(--terra);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,85,58,.03)" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.07)'" ondragleave="this.style.borderColor='var(--terra)';this.style.background='rgba(201,85,58,.03)'" ondrop="handleDrop(event)">
             <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=camera class=ic></i></div>
             <div style="font-size:.85rem;color:var(--terra);font-weight:600">Cliquez ou déposez vos photos ici</div>
-            <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · Max 5 Mo chacune · Max 5 photos · Au moins 1 requise</div>
+            <div style="font-size:.72rem;color:var(--stone-l);margin-top:.3rem">JPG, PNG · photos lourdes réduites automatiquement · Max 5 photos · Au moins 1 requise</div>
             <div style="font-size:.72rem;color:var(--stone);margin-top:.3rem;font-weight:600">Conseil : prenez vos photos à l'horizontale, en pleine lumière — elles s'affichent bien mieux.</div>
             <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this.files)">
           </div>
@@ -4567,11 +4564,29 @@ function handleDrop(e) {
   handlePhotos(e.dataTransfer.files);
 }
 
-function handlePhotos(files) {
+
+// Réduit une photo avant l'envoi (max 2000 px, JPEG) : les photos de téléphone de 8-15 Mo passent sans problème
+async function reduirePhoto(file){
+  if(!file||!file.type.startsWith('image/'))return file;
+  if(file.size<=1.5*1024*1024)return file;
+  try{
+    const url=URL.createObjectURL(file);
+    const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url;});
+    const max=2000,k=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(url);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));
+    if(!blob)return file;
+    return new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg'});
+  }catch(e){return file;}
+}
+async function handlePhotos(files) {
   const pavis = document.getElementById('photo-pavis');
-  Array.from(files).slice(0, 5 - uploadedPhotos.length).forEach(file => {
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) { toast('<i data-lucide=x-circle class=ic></i> File too large — max 5MB'); return; }
+  for (const raw of Array.from(files).slice(0, 5 - uploadedPhotos.length)) {
+    if (!raw.type.startsWith('image/')) continue;
+    const file = await reduirePhoto(raw);
+    if (file.size > 5 * 1024 * 1024) { toast('<i data-lucide=x-circle class=ic></i> Photo trop lourde et impossible à réduire (format non pris en charge ?) — essayez en JPG'); continue; }
     uploadedPhotos.push(file);
     const reader = new FileReader();
     reader.onload = e => {
@@ -4582,7 +4597,7 @@ function handlePhotos(files) {
       updatePhotoArea();
     };
     reader.readAsDataURL(file);
-  });
+  }
   updatePhotoArea();
 }
 
@@ -6831,9 +6846,10 @@ function handlePkDrop(e){
 function handlePkPhotos(files){
   const preview=document.getElementById('pk-photo-preview');
   if(!preview)return;
-  Array.from(files).slice(0,10-_pkPhotos.length).forEach(file=>{
-    if(!file.type.startsWith('image/'))return;
-    if(file.size>5*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Image trop grande — max 5 Mo');return;}
+  (async()=>{for(const raw of Array.from(files).slice(0,10-_pkPhotos.length)){
+    if(!raw.type.startsWith('image/'))continue;
+    const file=await reduirePhoto(raw);
+    if(file.size>5*1024*1024){toast('<i data-lucide=x-circle class=ic></i> Photo trop lourde et impossible à réduire — essayez en JPG');continue;}
     _pkPhotos.push(file);
     const reader=new FileReader();
     reader.onload=ev=>{
@@ -6845,8 +6861,8 @@ function handlePkPhotos(files){
       _updatePkPhotoArea();
     };
     reader.readAsDataURL(file);
-  });
-  _updatePkPhotoArea();
+  }
+  _updatePkPhotoArea();})();
 }
 
 function removePkPhoto(btn,idx){
