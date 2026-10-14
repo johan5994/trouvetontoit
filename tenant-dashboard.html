@@ -2871,7 +2871,10 @@ function renderLocataireVisitCard(v){
       :ns==='pending_landlord'?['b-sea','<i data-lucide=send class=ic></i> Remarques envoyées au propriétaire']
       :(ns==='agreed'||ns==='signed')?(
         L.tenant_signed_at&&L.landlord_signed_at&&L.garant_name&&!L.garant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du garant attendue']
-        :L.tenant_signed_at&&L.landlord_signed_at?['b-green','<i data-lucide=check-circle-2 class=ic></i> Bail signé']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.edl_signed_propriétaire&&bk?.edl_signed_locataire?['b-green','<i data-lucide=check-circle-2 class=ic></i> État des lieux signé']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_paiement_confirmed?['b-green','<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé — état des lieux à venir']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_paiement_sent?['b-sea','<i data-lucide=hourglass class=ic></i> Paiement envoyé — confirmation du propriétaire attendue']
+        :L.tenant_signed_at&&L.landlord_signed_at?['b-gold','<i data-lucide=euro class=ic></i> Bail signé — premier paiement à faire']
         :L.tenant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du propriétaire attendue']
         :['b-gold','<i data-lucide=pen-line class=ic></i> Bail à signer'])
       :null;
