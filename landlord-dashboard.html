@@ -3719,6 +3719,8 @@ async function loadRentedProperties(){
   const{data:annonces}=await sb.from('listings').select('id,title,zone,photos,price').in('id',listingIds);
   const lMap={};(annonces||[]).forEach(l=>{lMap[l.id]=l;});
 
+  // Paiement confirmé mais enregistrements absents (ancienne version) → les créer
+  for(const b of bookings){if(b.first_payment_confirmed)await ensureFirstPaymentRecords(b.id);}
   const{data:allPaiements}=await sb.from('payments').select('*').eq('landlord_id',U.id).in('listing_id',listingIds).order('due_date',{ascending:true});
   const paysByAnnonce={};
   (allPaiements||[]).forEach(p=>{(paysByAnnonce[p.listing_id]=paysByAnnonce[p.listing_id]||[]).push(p);});
@@ -3803,7 +3805,8 @@ async function loadRentedProperties(){
         <div id="rp-colocataires-${bk.id}"></div>
         ${agencyActionHtml?`<div style="margin-bottom:.65rem">${agencyActionHtml}</div>`:''}
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
-          ${bk.bail_locataire_embed||bk.bail_propriétaire_embed?`<a href="${bk.bail_propriétaire_embed||bk.bail_locataire_embed}" target="_blank" class="btn bg bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> Bail</a>`:''}
+          <a href="/bail-meuble.html?booking_id=${bk.id}&role=landlord" class="btn bg bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> Voir le bail</a>
+          ${false?`<a href="" target="_blank" class="btn bg bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> Bail</a>`:''}
           ${bk.edl_propriétaire_embed?`<a href="${bk.edl_pdf_url||bk.edl_propriétaire_embed}" target="_blank" class="btn bg bsm" style="text-decoration:none"><i data-lucide=clipboard-list class=ic></i> État des lieux ${bk.edl_signed_propriétaire?'<i data-lucide=check-circle-2 class=ic></i>':'<i data-lucide=hourglass class=ic></i>'}</a>`:bk.edl_completed_at?`<button onclick="retryEdlGeneration('${bk.id}')" class="btn bp bsm"><i data-lucide=alert-triangle class=ic></i> Retry État des lieux signature</button>`:''}
           ${bk.edl_completed_at?`<button onclick="viewEdlDossier('${bk.id}')" class="btn bg bsm"><i data-lucide=camera class=ic></i> État des lieux + photos</button>`:''}
           <button onclick="openMsgChatById('${bk.tenant_id||''}','${bk.listing_id||''}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message locataire</button>
@@ -4026,21 +4029,13 @@ async function confirmFirstPaiementReceived(bookingId,received){
         nextDueLabel=nextDue.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
       }
 
-      if(!bk.tenant_id||!bk.listing_id||!bk.monthly_rent){
-        alert(`Paiements NOT created — missing data on this booking:\ntenant_id: ${bk.tenant_id?'✓':'MISSING'}\nlisting_id: ${bk.listing_id?'✓':'MISSING'}\nmonthly_rent: ${bk.monthly_rent?'✓ '+bk.monthly_rent:'MISSING'}`);
-      }else{
-        const today=new Date().toISOString().split('T')[0];
-        const{error:payErr}=await sb.from('payments').insert([
-          {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,amount:bk.monthly_rent,type:'deposit',status:'paid',paid_at:new Date().toISOString(),due_date:today},
-          {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,amount:bk.monthly_rent,type:'first_rent',status:'paid',paid_at:new Date().toISOString(),due_date:today}
-        ]);
-        if(payErr)console.warn('Enregistrement des paiements (non bloquant) :',payErr.message);
-      }
+      // Dépôt + 1er loyer + échéancier : créés par ensureFirstPaymentRecords (montants du bail)
 
       if(bk.tenant_id){
         await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.tenant_id,content:`Paiement confirmed by propriétaire!\n\nEverything is set pour votre entrée dans les lieux. Your agent will contact you pour the entry état des lieux.\n\nYour next loyer paiement is due on ${nextDueLabel} — loyer is paid monthly on votre entrée dans les lieux date, not the 1st of the month.`,type:'paiement_confirmed'});
       }
-      toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed! Locataire notified.');
+      await ensureFirstPaymentRecords(bookingId);
+      toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé ! Locataire prévenu.');
       if(bk)generateFirstPaiementQuittanceLL(bk,annonce?.title,locataireProfile?.full_name);
     }else{
       await sb.from('bookings').update({first_payment_sent:false}).eq('id',bookingId);
@@ -4297,25 +4292,39 @@ function renderBailSection(g){
 // que les paiements existent vraiment quand le statut dit "confirmé" —
 // un ancien clic fait avant certains correctifs a pu confirmer sans
 // jamais créer les lignes de paiement correspondantes.
+
+// Dépôt + 1er loyer payés + échéancier des loyers suivants (même mécanisme que RestMalta).
+// Idempotent : ne recrée rien si déjà présent.
+async function ensureFirstPaymentRecords(bookingId){
+  try{
+    const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
+    if(!bk||!bk.first_payment_confirmed||!bk.tenant_id||!bk.listing_id)return;
+    const{data:tp}=await sb.from('profiles').select('full_name,email').eq('clerk_id',bk.tenant_id).maybeSingle();
+    // Montants du bail signé (loyer charges comprises + dépôt) si disponibles
+    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC;
+    try{
+      const{data:ls}=await sb.from('leases').select('rent,charges,deposit,negotiation_status').eq('booking_id',bk.id);
+      const L=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0];
+      if(L){rentCC=(Number(L.rent)||0)+(Number(L.charges)||0)||rentCC;if(L.deposit!=null)deposit=Number(L.deposit);}
+    }catch(e){}
+    const{data:have}=await sb.from('payments').select('id,type').eq('booking_id',bk.id);
+    const types=new Set((have||[]).map(x=>x.type));
+    const now=new Date().toISOString(),today=now.split('T')[0];
+    const base={landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:tp?.full_name||bk.tenant_name||null,tenant_email:tp?.email||bk.tenant_email||null,status:'paid',paid_at:now,due_date:bk.move_in_date||today};
+    const rows=[];
+    if(!types.has('deposit')&&!types.has('depot')&&deposit>0)rows.push({...base,amount:deposit,type:'deposit'});
+    if(!types.has('first_rent'))rows.push({...base,amount:rentCC,type:'first_rent'});
+    if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error)console.warn('payments (dépôt/1er loyer) :',error.message);}
+    if(!types.has('rent')){
+      await generateRentScheduleLL({booking:{...bk,monthly_rent:rentCC,landlord_id:bk.landlord_id||U.id},locataire:tp});
+    }
+  }catch(e){console.warn('ensureFirstPaymentRecords:',e);}
+}
+
 function checkPaiementRecordsExist(bookingId){
   if(!bookingId)return;
-  setTimeout(async()=>{
-    const{data}=await sb.from('payments').select('id').eq('booking_id',bookingId).in('type',['deposit','depot']).limit(1);
-    if(!data||!data.length){
-      const el=document.getElementById('payrow-'+bookingId);
-      if(el){
-        const span=el.querySelector('span');
-        if(span)span.outerHTML='<span style="font-size:.78rem"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmed</span>';
-        const actionSlot=el.querySelectorAll('span,button')[1]||el.lastElementChild;
-        const btn=document.createElement('button');
-        btn.innerHTML='<i data-lucide=alert-triangle class=ic></i> Fix missing records';
-        btn.style.cssText='background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:700;cursor:pointer';
-        btn.onclick=()=>retryCreatePaiementRecords(bookingId);
-        if(actionSlot&&actionSlot.parentElement===el)el.replaceChild(btn,actionSlot);
-        else el.appendChild(btn);
-      }
-    }
-  },300);
+  // Crée automatiquement ce qui manque (dépôt, 1er loyer, échéancier)
+  setTimeout(()=>ensureFirstPaymentRecords(bookingId),300);
 }
 
 function renderBailPayStatut(bk){
@@ -5057,18 +5066,7 @@ async function confirmLocatairePaiement(bookingId){
   // Record the depot et first month's loyer as clearly labeled paiements —
   // 'first_rent' (not 'loyer') so it doesn't get counted twice by the
   // recurring monthly schedule generator, which only looks pour 'loyer'.
-  if(!bk?.tenant_id||!bk?.listing_id||!bk?.monthly_rent){
-    alert(`Paiements NOT created — missing data on this booking:\ntenant_id: ${bk?.tenant_id?'✓ '+bk.tenant_id:'MISSING'}\nlisting_id: ${bk?.listing_id?'✓ '+bk.listing_id:'MISSING'}\nmonthly_rent: ${bk?.monthly_rent?'✓ '+bk.monthly_rent:'MISSING'}`);
-  }else{
-    const today=new Date().toISOString().split('T')[0];
-    const{error:payErr}=await sb.from('payments').insert([
-      {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,amount:bk.monthly_rent,type:'deposit',status:'paid',paid_at:new Date().toISOString(),due_date:today},
-      {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,amount:bk.monthly_rent,type:'first_rent',status:'paid',paid_at:new Date().toISOString(),due_date:today}
-    ]);
-    if(payErr){
-      console.warn('Enregistrement des paiements (non bloquant) :',payErr.message);
-    }
-  }
+  // Dépôt + 1er loyer + échéancier : créés par ensureFirstPaymentRecords (montants du bail)
 
   // Informer le locataire (paiement confirmé + date du prochain loyer)
   try{
@@ -5079,7 +5077,8 @@ async function confirmLocatairePaiement(bookingId){
     });
   }catch(e){}
 
-  toast(`<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed! Suivant loyer due: ${nextDueLabel}`);
+  await ensureFirstPaymentRecords(bookingId);
+  toast(`<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé ! Prochain loyer : ${nextDueLabel}`);
   if(bk)generateFirstPaiementQuittanceLL(bk,annonce?.title,locataireProfile?.full_name);
 
   loadVisitsPage();
