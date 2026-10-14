@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>État des lieux & inventaire — Trouve Ton Toit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script>window.__clerk_publishable_key='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F8F7F4;--card:#fff;--tm:#1A1D27;--td:#6B7280;--border:#E5E7EB;--border2:#D1D5DB;--green:#16A34A;--red:#DC2626;--gold:#B45309;--orange:#EA580C;--soft:#F3F6FF}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tm);font-size:15px;line-height:1.55}
+.ic{width:1em;height:1em;vertical-align:-.14em;stroke-width:2}
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:.7rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:1rem}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--bleu);text-decoration:none}
+.nav-user{font-size:.78rem;color:var(--td)}
+.wrap{max-width:860px;margin:1.25rem auto;padding:0 1rem 7rem}
+h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.65rem;line-height:1.2;text-wrap:balance}
+.sub{color:var(--td);font-size:.85rem;margin-top:.2rem}
+.status{margin:1rem 0;padding:.65rem .9rem;border-radius:10px;font-size:.84rem;font-weight:600;display:flex;gap:.5rem;align-items:flex-start}
+.st-draft{background:#FEF3C7;color:#92400E}.st-sign{background:#DBEAFE;color:#1E40AF}.st-done{background:#D1FAE5;color:#065F46}
+.steps{display:flex;gap:.35rem;overflow-x:auto;padding:.2rem 0 .6rem;margin:.75rem 0 .5rem;scrollbar-width:none}
+.step{flex-shrink:0;border:1px solid var(--border2);background:#fff;color:var(--td);border-radius:999px;padding:.35rem .8rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;gap:.35rem;align-items:center}
+.step.on{background:var(--bleu);border-color:var(--bleu);color:#fff}
+.step .n{font-variant-numeric:tabular-nums;opacity:.8}
+.step.ok:not(.on){border-color:#86EFAC;color:var(--green)}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.card h2{font-size:1.02rem;font-weight:800;margin-bottom:.15rem;display:flex;align-items:center;gap:.45rem}
+.card .hint{font-size:.78rem;color:var(--td);margin-bottom:.8rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+label.f{display:block;font-size:.74rem;font-weight:700;color:var(--td);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.03em}
+input.i,select.i,textarea.i{width:100%;padding:.55rem .65rem;border:1px solid var(--border2);border-radius:9px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--tm)}
+textarea.i{resize:vertical;min-height:2.6rem}
+input.i:focus,select.i:focus,textarea.i:focus{outline:2px solid rgba(27,79,216,.25);border-color:var(--bleu)}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:9px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none}
+.btn:focus-visible{outline:3px solid rgba(27,79,216,.35)}
+.bp{background:var(--bleu);color:#fff}.bg{background:#fff;color:var(--tm);border:1px solid var(--border2)}.bgr{background:var(--green);color:#fff}.bsm{padding:.35rem .65rem;font-size:.76rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+/* Pièces */
+.room{border:1px solid var(--border);border-radius:12px;margin-bottom:.75rem;overflow:hidden;background:#fff}
+.room-h{display:flex;align-items:center;gap:.5rem;padding:.65rem .8rem;background:#FAFAF9;cursor:pointer}
+.room-h input{border:none;background:transparent;font-weight:800;font-size:.95rem;font-family:inherit;flex:1;min-width:0;color:var(--tm)}
+.room-h input:focus{outline:2px solid rgba(27,79,216,.25);border-radius:6px}
+.room-prog{font-size:.72rem;color:var(--td);font-variant-numeric:tabular-nums;white-space:nowrap}
+.room-b{padding:.6rem .8rem .8rem;display:none}
+.room.open .room-b{display:block}
+.el{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.35rem .6rem;padding:.5rem 0;border-top:1px solid #F1F1EF;align-items:center}
+.el:first-child{border-top:none}
+.el-name{font-size:.86rem;font-weight:600}
+.etats{display:flex;gap:.25rem;flex-wrap:wrap;justify-content:flex-end}
+.et{border:1px solid var(--border2);background:#fff;border-radius:7px;padding:.22rem .45rem;font-size:.7rem;font-weight:700;cursor:pointer;color:var(--td);font-family:inherit}
+.et.on[data-v="neuf"]{background:#DCFCE7;border-color:#22C55E;color:#166534}
+.et.on[data-v="tb"]{background:#E0F2FE;border-color:#38BDF8;color:#075985}
+.et.on[data-v="bon"]{background:#EEF2FF;border-color:#818CF8;color:#3730A3}
+.et.on[data-v="usage"]{background:#FEF3C7;border-color:#F59E0B;color:#92400E}
+.et.on[data-v="mauvais"]{background:#FEE2E2;border-color:#F87171;color:#991B1B}
+.el-note{grid-column:1/-1}
+@media(max-width:560px){.el{grid-template-columns:1fr}.etats{justify-content:flex-start}}
+.el-note input{width:100%;padding:.35rem .55rem;border:1px dashed var(--border2);border-radius:7px;font-size:.8rem;font-family:inherit;background:#FCFCFB}
+.photos{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.ph{position:relative;width:76px;height:76px;border-radius:9px;overflow:hidden;background:#eee;border:1px solid var(--border)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:.8rem}
+.ph-add{width:76px;height:76px;border-radius:9px;border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.68rem;color:var(--td);cursor:pointer;gap:.15rem;background:#FCFCFB}
+.ph-add input{display:none}
+.row-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+/* Inventaire */
+.inv{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:.35rem .5rem;align-items:center;padding:.45rem 0;border-top:1px solid #F1F1EF}
+.inv:first-child{border-top:none}
+.inv .lbl{font-size:.84rem;font-weight:600}
+.inv .lbl small{display:block;font-weight:500;color:var(--td);font-size:.7rem}
+.inv input.q{width:64px;padding:.35rem .4rem;border:1px solid var(--border2);border-radius:7px;font-size:.85rem;text-align:center;font-variant-numeric:tabular-nums}
+.oblig{display:inline-block;font-size:.6rem;font-weight:800;color:var(--gold);background:#FEF3C7;border-radius:4px;padding:0 .3rem;margin-left:.3rem;vertical-align:1px;text-transform:uppercase;letter-spacing:.03em}
+.inv-group{font-size:.72rem;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.05em;margin:.8rem 0 .2rem}
+/* Clés / compteurs */
+.kv{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:.4rem .6rem;align-items:center}
+/* Signatures */
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:620px){.sigs{grid-template-columns:1fr}}
+.sig{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.sig-h{padding:.55rem .75rem;background:#FAFAF9;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--td)}
+.sig-h strong{display:block;font-size:.9rem;text-transform:none;letter-spacing:0;color:var(--tm)}
+.sig-b{padding:.6rem;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.4rem;text-align:center;font-size:.8rem;color:var(--td)}
+canvas.pad{width:100%;height:120px;border:1px dashed var(--border2);border-radius:9px;touch-action:none;background:#fff}
+.sig-done img{max-height:80px;max-width:100%}
+.ok{color:var(--green);font-weight:700}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);padding:.6rem 1rem calc(.6rem + env(safe-area-inset-bottom,0px));display:flex;gap:.5rem;justify-content:center;align-items:center;z-index:40}
+.bar .save{font-size:.74rem;color:var(--td);margin-right:auto;max-width:860px}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem 1rem;border-radius:10px;font-size:.84rem;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+.legal{font-size:.74rem;color:var(--td);line-height:1.5}
+.ro .et:not(.on),.ro .ph button,.ro .ph-add,.ro .row-actions,.ro .room-del{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  .nav,.steps,.bar,.toast,.row-actions,.ph-add,.ph button,.no-print{display:none!important}
+  body{background:#fff;font-size:12px}.wrap{margin:0;max-width:none;padding:0}
+  .card,.room{break-inside:avoid;border-color:#ccc}.room-b{display:block!important}
+  .et:not(.on){display:none}.panel{display:block!important}
+}
+</style>
+</head>
+<body>
+<nav class="nav"><a class="nav-brand" href="/">★ Trouve Ton Toit</a><span class="nav-user" id="nav-user"></span></nav>
+<div class="wrap" id="app"><div class="card" style="text-align:center;color:var(--td)">Chargement…</div></div>
+<div class="bar no-print" id="bar" style="display:none"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CLERK_KEY='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+const SB_URL='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const BUCKET='lease-docs';
+const QP=new URLSearchParams(location.search);
+const BOOKING_ID=QP.get('booking_id');
+
+let U=null,BK=null,LISTING=null,LEASE=null,EDL=null,myRole=null,LL_P=null,T_P=null;
+let STEP=0,_saveT=null,_dirty=false;
+
+// ── Référentiels ────────────────────────────────────────────────────────────
+const ETATS=[['neuf','Neuf'],['tb','Très bon'],['bon','Bon'],['usage','Usagé'],['mauvais','Mauvais']];
+const ETAT_LBL=Object.fromEntries(ETATS);
+const BASE_EL=['Sol','Murs','Plafond','Plinthes','Porte(s) et serrure','Fenêtre(s) et vitrages','Volets / occultation','Prises et interrupteurs','Éclairage','Chauffage / radiateur'];
+const ROOM_TPL={
+  entree:{name:'Entrée',el:['Porte d\'entrée et serrure','Sol','Murs','Plafond','Interphone / sonnette','Placard','Prises et interrupteurs','Éclairage']},
+  sejour:{name:'Séjour',el:BASE_EL},
+  cuisine:{name:'Cuisine',el:['Sol','Murs','Plafond','Fenêtre(s) et vitrages','Évier et robinetterie','Plan de travail','Placards et rangements','Plaques de cuisson','Four / micro-ondes','Hotte','Réfrigérateur / congélateur','Prises et interrupteurs','Éclairage']},
+  chambre:{name:'Chambre',el:BASE_EL.concat(['Placard / penderie'])},
+  sdb:{name:'Salle de bain',el:['Sol','Murs et faïence','Plafond','Lavabo et robinetterie','Douche / baignoire','Joints','Miroir','Ventilation (VMC)','Prises et interrupteurs','Éclairage','Chauffage / sèche-serviettes']},
+  wc:{name:'WC',el:['Sol','Murs','Plafond','Cuvette et abattant','Chasse d\'eau','Lave-mains','Ventilation (VMC)','Éclairage']},
+  exterieur:{name:'Balcon / terrasse',el:['Sol','Garde-corps','Éclairage extérieur']},
+  autre:{name:'Pièce',el:BASE_EL}
+};
+// Décret n° 2015-981 du 31 juillet 2015 — mobilier minimum d'un logement meublé
+const INV_OBLIG=[
+  ['cuisine','Plaques de cuisson'],
+  ['cuisine','Four ou four à micro-ondes'],
+  ['cuisine','Réfrigérateur avec compartiment congélation (≤ -6 °C)'],
+  ['cuisine','Vaisselle pour la prise des repas'],
+  ['cuisine','Ustensiles de cuisine'],
+  ['sejour','Table'],
+  ['sejour','Sièges / chaises'],
+  ['chambre','Literie avec couette ou couverture'],
+  ['chambre','Rideaux / volets occultants (chambres)'],
+  ['general','Étagères de rangement'],
+  ['general','Luminaires'],
+  ['general','Matériel d\'entretien ménager']
+];
+const INV_SUGG=['Lit','Matelas','Oreillers','Canapé','Armoire / penderie','Commode','Bureau','Télévision','Lave-linge','Lave-vaisselle','Bouilloire','Cafetière','Grille-pain','Aspirateur','Fer à repasser','Poubelle','Miroir'];
+const INV_GROUP_LBL={cuisine:'Cuisine',sejour:'Séjour',chambre:'Chambre(s)',general:'Tout le logement',ajout:'Autres meubles et équipements'};
+
+// ── Utilitaires ─────────────────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const icons=()=>window.lucide&&lucide.createIcons();
+function toast(m,ms){const t=$('toast');t.innerHTML=m;t.classList.add('show');icons();clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms||3200);}
+function fmtD(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';}
+const editable=()=>myRole==='landlord'&&EDL&&!EDL.landlord_signed_at&&!EDL.tenant_signed_at;
+
+// ── Modèle initial ──────────────────────────────────────────────────────────
+function newRoom(type,name){
+  const t=ROOM_TPL[type]||ROOM_TPL.autre;
+  return{id:uid(),type,name:name||t.name,elements:t.el.map(l=>({label:l,etat:'',note:''})),photos:[],commentaire:''};
+}
+function defaultData(){
+  const pieces=Math.max(1,parseInt(LEASE?.prop_pieces||LISTING?.spots||1)||1);
+  const chambres=Math.max(pieces-1,LISTING?.type==='studio'?0:(pieces>1?pieces-1:0));
+  const rooms=[newRoom('entree'),newRoom('sejour'),newRoom('cuisine')];
+  for(let i=1;i<=chambres;i++)rooms.push(newRoom('chambre',chambres>1?'Chambre '+i:'Chambre'));
+  rooms.push(newRoom('sdb'),newRoom('wc'));
+  return{
+    date:BK?.move_in_date||new Date().toISOString().slice(0,10),
+    heure:'',
+    chauffage:'',eau_chaude:'',
+    rooms,
+    inventaire:INV_OBLIG.map(([g,l])=>({id:uid(),groupe:g,label:l,qte:1,etat:'',note:'',oblig:true})),
+    compteurs:{elec_num:'',elec_hp:'',elec_hc:'',gaz_num:'',gaz_index:'',eau_froide_num:'',eau_froide_index:'',eau_chaude_num:'',eau_chaude_index:'',photos:[]},
+    cles:[{id:uid(),label:'Clés de la porte d\'entrée',nb:2},{id:uid(),label:'Badge / bip immeuble',nb:0},{id:uid(),label:'Clé de boîte aux lettres',nb:1}],
+    observations:''
+  };
+}
+
+// ── Chargement ──────────────────────────────────────────────────────────────
+(async()=>{
+  try{
+    const clerk=(typeof window.Clerk==='function')?new window.Clerk(CLERK_KEY):window.Clerk;
+    await clerk.load();
+    if(clerk.user){U={id:clerk.user.id,email:clerk.user.primaryEmailAddress?.emailAddress||''};$('nav-user').textContent=U.email;}
+  }catch(e){console.warn('Clerk',e);}
+  await load();
+})();
+
+async function load(){
+  if(!BOOKING_ID)return fatal('Lien incomplet. Ouvrez l\'état des lieux depuis votre tableau de bord.');
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',BOOKING_ID).maybeSingle();
+  if(!bk)return fatal('Réservation introuvable.');
+  BK=bk;
+  const[{data:li},{data:ls},{data:ed}]=await Promise.all([
+    sb.from('listings').select('*').eq('id',bk.listing_id).maybeSingle(),
+    sb.from('leases').select('*').eq('booking_id',bk.id),
+    sb.from('etats_des_lieux').select('*').eq('booking_id',bk.id).eq('type','entree').order('created_at',{ascending:false}).limit(1)
+  ]);
+  LISTING=li;
+  LEASE=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0]||null;
+  const landlordId=LEASE?.landlord_id||bk.landlord_id,tenantId=LEASE?.tenant_id||bk.tenant_id;
+  if(U){if(U.id===landlordId)myRole='landlord';else if(U.id===tenantId||U.id===bk.locataire_id)myRole='tenant';}
+  if(!myRole)return fatal(U?'Cet état des lieux ne concerne pas votre compte.':'Connectez-vous pour accéder à l\'état des lieux.');
+  const[{data:lp},{data:tp}]=await Promise.all([
+    sb.from('profiles').select('full_name,email,home_address').eq('clerk_id',landlordId).maybeSingle(),
+    sb.from('profiles').select('full_name,email').eq('clerk_id',tenantId).maybeSingle()
+  ]);
+  LL_P=lp;T_P=tp;
+  EDL=(ed||[])[0]||null;
+  if(!EDL&&myRole==='landlord'){
+    const row={booking_id:bk.id,lease_id:LEASE?.id||null,listing_id:bk.listing_id,landlord_id:landlordId,tenant_id:tenantId,type:'entree',status:'draft',data:defaultData()};
+    const{data:created,error}=await sb.from('etats_des_lieux').insert(row).select().single();
+    if(error)return fatal('Impossible de créer l\'état des lieux : '+esc(error.message)+'<br><small>Exécutez la migration <strong>supabase-migration-edl.sql</strong> dans Supabase.</small>');
+    EDL=created;
+    syncBooking({edl_status:'draft'});
+  }
+  if(!EDL)return fatal('Le propriétaire n\'a pas encore commencé l\'état des lieux. Vous serez prévenu dès qu\'il sera prêt à signer.');
+  if(typeof EDL.data==='string'){try{EDL.data=JSON.parse(EDL.data);}catch(e){EDL.data=defaultData();}}
+  if(myRole==='tenant'||EDL.status!=='draft')STEP=5;
+  render();
+  setInterval(refreshSigs,15000);
+}
+function fatal(msg){$('app').innerHTML=`<div class="card" style="text-align:center"><p style="margin-bottom:.8rem">${msg}</p><a class="btn bg" href="/">Retour</a></div>`;}
+
+// ── Sauvegarde ──────────────────────────────────────────────────────────────
+function touch(){
+  if(!editable())return;
+  _dirty=true;setSaveState('Modifications non enregistrées…');
+  clearTimeout(_saveT);_saveT=setTimeout(save,900);
+}
+async function save(){
+  if(!_dirty||!editable())return;
+  _dirty=false;setSaveState('Enregistrement…');
+  const{error}=await sb.from('etats_des_lieux').update({data:EDL.data,updated_at:new Date().toISOString()}).eq('id',EDL.id);
+  setSaveState(error?'Erreur d\'enregistrement : '+error.message:'Enregistré ✓');
+  if(error)_dirty=true;
+}
+function setSaveState(t){const e=$('save-state');if(e)e.textContent=t;}
+window.addEventListener('beforeunload',e=>{if(_dirty){save();e.preventDefault();e.returnValue='';}});
+async function syncBooking(upd){try{await sb.from('bookings').update(upd).eq('id',BK.id);}catch(e){}}
+
+// ── Rendu ───────────────────────────────────────────────────────────────────
+const STEPS=[['info','Informations'],['rooms','Pièces'],['inv','Inventaire du mobilier'],['meters','Compteurs'],['keys','Clés'],['sign','Relecture & signatures']];
+function stepDone(i){
+  const d=EDL.data;
+  if(i===0)return !!d.date;
+  if(i===1)return d.rooms.length&&d.rooms.every(r=>r.elements.every(e=>e.etat));
+  if(i===2)return d.inventaire.filter(x=>x.oblig).every(x=>x.etat||Number(x.qte)===0);
+  if(i===3){const c=d.compteurs;return !!(c.elec_hp||c.elec_hc);}
+  if(i===4)return d.cles.some(k=>Number(k.nb)>0);
+  return !!(EDL.landlord_signed_at&&EDL.tenant_signed_at);
+}
+function render(){
+  const d=EDL.data,ro=!editable();
+  const adr=LISTING?.full_address||LEASE?.prop_adresse||LISTING?.zone||'';
+  const statusHtml=EDL.landlord_signed_at&&EDL.tenant_signed_at
+    ?`<div class="status st-done"><i data-lucide=check-circle-2 class=ic></i><span>État des lieux signé par les deux parties. Il est annexé au bail.</span></div>`
+    :EDL.status==='to_sign'
+      ?`<div class="status st-sign"><i data-lucide=pen-line class=ic></i><span>${myRole==='tenant'?'Relisez l\'état des lieux puis signez en bas de page.':'Prêt à signer — le locataire a été prévenu. Vous pouvez signer dès maintenant.'}</span></div>`
+      :`<div class="status st-draft"><i data-lucide=file-pen class=ic></i><span>${myRole==='tenant'?'Le propriétaire prépare l\'état des lieux.':'Brouillon — remplissez chaque étape (enregistrement automatique), puis passez à la signature.'}</span></div>`;
+  $('app').innerHTML=`
+    <h1>État des lieux d'entrée & inventaire</h1>
+    <div class="sub">${esc(LISTING?.title||'Logement meublé')}${adr?' · '+esc(adr):''}</div>
+    ${statusHtml}
+    <div class="steps no-print" role="tablist">${STEPS.map(([k,l],i)=>`<button class="step ${i===STEP?'on':''} ${stepDone(i)?'ok':''}" onclick="goStep(${i})"><span class="n">${stepDone(i)?'✓':i+1}</span>${l}</button>`).join('')}</div>
+    <div class="${ro?'ro':''}">
+      <div class="panel" ${STEP===0?'':'hidden'}>${renderInfo(d,ro)}</div>
+      <div class="panel" ${STEP===1?'':'hidden'}>${renderRooms(d,ro)}</div>
+      <div class="panel" ${STEP===2?'':'hidden'}>${renderInv(d,ro)}</div>
+      <div class="panel" ${STEP===3?'':'hidden'}>${renderMeters(d,ro)}</div>
+      <div class="panel" ${STEP===4?'':'hidden'}>${renderKeys(d,ro)}</div>
+      <div class="panel" ${STEP===5?'':'hidden'}>${renderSign(d)}</div>
+    </div>`;
+  renderBar();
+  icons();
+  if(STEP===5)setTimeout(initPads,30);
+}
+function goStep(i){STEP=i;render();window.scrollTo({top:0,behavior:'smooth'});}
+function renderBar(){
+  const b=$('bar');b.style.display='flex';
+  const prev=STEP>0?`<button class="btn bg" onclick="goStep(${STEP-1})">← Précédent</button>`:'';
+  let next='';
+  if(STEP<5)next=`<button class="btn bp" onclick="goStep(${STEP+1})">${STEP===4?'Relecture & signatures':'Suivant'} →</button>`;
+  else next=`<button class="btn bg" onclick="window.print()"><i data-lucide=printer class=ic></i> Imprimer / PDF</button>`;
+  b.innerHTML=`<span class="save" id="save-state">${editable()?'Enregistrement automatique':''}</span>${prev}${next}`;
+}
+
+// 1 — Informations
+function renderInfo(d,ro){
+  const dis=ro?'disabled':'';
+  return`<div class="card"><h2><i data-lucide=info class=ic></i> Informations générales</h2>
+    <div class="hint">Mentions obligatoires (décret n° 2016-382 du 30 mars 2016).</div>
+    <div class="grid2">
+      <div><label class="f" for="f-date">Date de l'état des lieux</label><input class="i" type="date" id="f-date" value="${esc(d.date)}" ${dis} onchange="EDL.data.date=this.value;touch()"></div>
+      <div><label class="f" for="f-heure">Heure</label><input class="i" type="time" id="f-heure" value="${esc(d.heure)}" ${dis} onchange="EDL.data.heure=this.value;touch()"></div>
+      <div><label class="f">Bailleur</label><input class="i" value="${esc(LL_P?.full_name||'')}" disabled></div>
+      <div><label class="f">Locataire</label><input class="i" value="${esc(T_P?.full_name||BK?.tenant_name||'')}" disabled></div>
+      <div><label class="f" for="f-ch">Chauffage</label><select class="i" id="f-ch" ${dis} onchange="EDL.data.chauffage=this.value;touch()">${['','Individuel électrique','Individuel gaz','Collectif','Pompe à chaleur','Autre'].map(o=>`<option ${d.chauffage===o?'selected':''} value="${o}">${o||'— Choisir —'}</option>`).join('')}</select></div>
+      <div><label class="f" for="f-ec">Eau chaude</label><select class="i" id="f-ec" ${dis} onchange="EDL.data.eau_chaude=this.value;touch()">${['','Ballon électrique','Chaudière gaz','Collective','Autre'].map(o=>`<option ${d.eau_chaude===o?'selected':''} value="${o}">${o||'— Choisir —'}</option>`).join('')}</select></div>
+    </div>
+    <p class="legal" style="margin-top:.8rem">Adresse du logement : <strong>${esc(LISTING?.full_address||LISTING?.zone||'—')}</strong>. Entrée dans les lieux prévue le <strong>${fmtD(BK?.move_in_date||LEASE?.start_date)}</strong>.</p>
+  </div>`;
+}
+
+// 2 — Pièces
+function renderRooms(d,ro){
+  const etBtns=(ri,ei,v)=>ETATS.map(([k,l])=>`<button class="et ${v===k?'on':''}" data-v="${k}" ${ro?'disabled':''} onclick="setEtat(${ri},${ei},'${k}')">${l}</button>`).join('');
+  const rooms=d.rooms.map((r,ri)=>{
+    const done=r.elements.filter(e=>e.etat).length;
+    return`<div class="room ${r._open||ro?'open':''}" id="room-${r.id}">
+      <div class="room-h" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON')toggleRoom(${ri})">
+        <i data-lucide=${r.type==='cuisine'?'cooking-pot':r.type==='chambre'?'bed-double':r.type==='sdb'?'bath':r.type==='wc'?'droplet':r.type==='entree'?'door-open':r.type==='exterieur'?'trees':'sofa'} class=ic></i>
+        <input value="${esc(r.name)}" ${ro?'disabled':''} aria-label="Nom de la pièce" onchange="EDL.data.rooms[${ri}].name=this.value;touch()">
+        <span class="room-prog">${done}/${r.elements.length}${r.photos.length?' · '+r.photos.length+' photo'+(r.photos.length>1?'s':''):''}</span>
+      </div>
+      <div class="room-b">
+        ${r.elements.map((e,ei)=>`<div class="el"><div class="el-name">${esc(e.label)}</div><div class="etats">${etBtns(ri,ei,e.etat)}</div>
+          <div class="el-note">${ro?(e.note?`<span style="font-size:.78rem;color:var(--td)">${esc(e.note)}</span>`:''):`<input placeholder="Remarque (rayure, tache, trou…)" value="${esc(e.note)}" onchange="EDL.data.rooms[${ri}].elements[${ei}].note=this.value;touch()">`}</div></div>`).join('')}
+        <label class="f" style="margin-top:.6rem">Photos de la pièce</label>
+        <div class="photos">${r.photos.map((p,pi)=>`<div class="ph"><a href="${esc(p)}" target="_blank" rel="noopener"><img src="${esc(p)}" alt="Photo ${pi+1} — ${esc(r.name)}" loading="lazy"></a><button aria-label="Supprimer" onclick="delPhoto('room',${ri},${pi})">×</button></div>`).join('')}
+          ${ro?'':`<label class="ph-add"><i data-lucide=camera class=ic></i>Ajouter<input type="file" accept="image/*" multiple onchange="addPhotos(this,'room',${ri})"></label>`}</div>
+        ${ro?(r.commentaire?`<p style="margin-top:.5rem;font-size:.82rem"><strong>Commentaire :</strong> ${esc(r.commentaire)}</p>`:''):`<textarea class="i" style="margin-top:.6rem" placeholder="Commentaire sur la pièce" onchange="EDL.data.rooms[${ri}].commentaire=this.value;touch()">${esc(r.commentaire)}</textarea>`}
+        <div class="row-actions">
+          <button class="btn bg bsm" onclick="allEtat(${ri},'bon')"><i data-lucide=check-check class=ic></i> Tout en bon état</button>
+          <button class="btn bg bsm" onclick="addElement(${ri})"><i data-lucide=plus class=ic></i> Ajouter un élément</button>
+          <button class="btn bg bsm" onclick="dupRoom(${ri})"><i data-lucide=copy class=ic></i> Dupliquer</button>
+          <button class="btn bg bsm room-del" style="color:var(--red)" onclick="delRoom(${ri})"><i data-lucide=trash-2 class=ic></i> Supprimer la pièce</button>
+        </div>
+      </div></div>`;}).join('');
+  return`<div class="card"><h2><i data-lucide=layout-grid class=ic></i> État de chaque pièce</h2>
+    <div class="hint">Pour chaque élément, choisissez l'état et notez les défauts visibles. Une photo par pièce suffit souvent à éviter les litiges sur le dépôt de garantie.</div>
+    ${rooms}
+    ${ro?'':`<div class="row-actions"><select class="i" id="new-room-type" style="max-width:220px">${Object.entries(ROOM_TPL).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}</select><button class="btn bp bsm" onclick="addRoom()"><i data-lucide=plus class=ic></i> Ajouter une pièce</button></div>`}
+  </div>`;
+}
+function toggleRoom(ri){const r=EDL.data.rooms[ri];r._open=!r._open;render();}
+function setEtat(ri,ei,v){if(!editable())return;const e=EDL.data.rooms[ri].elements[ei];e.etat=e.etat===v?'':v;touch();render();}
+function allEtat(ri,v){EDL.data.rooms[ri].elements.forEach(e=>{if(!e.etat)e.etat=v;});touch();render();}
+function addElement(ri){const l=prompt('Nom de l\'élément (ex. Baignoire, Placard…)');if(!l)return;EDL.data.rooms[ri].elements.push({label:l.trim(),etat:'',note:''});touch();render();}
+function addRoom(){const t=$('new-room-type').value;const r=newRoom(t);r._open=true;EDL.data.rooms.push(r);touch();render();}
+function dupRoom(ri){const s=EDL.data.rooms[ri];const r=JSON.parse(JSON.stringify(s));r.id=uid();r.name=s.name+' (2)';r.photos=[];r.elements.forEach(e=>{e.etat='';e.note='';});r._open=true;EDL.data.rooms.splice(ri+1,0,r);touch();render();}
+function delRoom(ri){if(!confirm('Supprimer « '+EDL.data.rooms[ri].name+' » ?'))return;EDL.data.rooms.splice(ri,1);touch();render();}
+
+// 3 — Inventaire
+function renderInv(d,ro){
+  const groups=['cuisine','sejour','chambre','general','ajout'];
+  const sel=(x,i)=>ro?`<span style="font-size:.78rem;font-weight:700">${ETAT_LBL[x.etat]||'—'}</span>`:`<select class="i" style="padding:.3rem .4rem;font-size:.78rem" onchange="EDL.data.inventaire[${i}].etat=this.value;touch();render()"><option value="">État…</option>${ETATS.map(([k,l])=>`<option value="${k}" ${x.etat===k?'selected':''}>${l}</option>`).join('')}</select>`;
+  const body=groups.map(g=>{
+    const items=d.inventaire.map((x,i)=>[x,i]).filter(([x])=>(x.groupe||'ajout')===g);
+    if(!items.length)return'';
+    return`<div class="inv-group">${INV_GROUP_LBL[g]}</div>`+items.map(([x,i])=>`<div class="inv">
+      <div class="lbl">${esc(x.label)}${x.oblig?'<span class="oblig">obligatoire</span>':''}${ro?(x.note?`<small>${esc(x.note)}</small>`:''):`<input style="display:block;width:100%;margin-top:.25rem;padding:.25rem .45rem;border:1px dashed var(--border2);border-radius:6px;font-size:.75rem;font-family:inherit" placeholder="Détail (marque, couleur, défaut…)" value="${esc(x.note)}" onchange="EDL.data.inventaire[${i}].note=this.value;touch()">`}</div>
+      <input class="q" type="number" min="0" aria-label="Quantité" value="${esc(x.qte)}" ${ro?'disabled':''} onchange="EDL.data.inventaire[${i}].qte=this.value;touch()">
+      <div style="display:flex;gap:.3rem;align-items:center">${sel(x,i)}${!ro&&!x.oblig?`<button class="btn bg bsm" aria-label="Retirer" onclick="EDL.data.inventaire.splice(${i},1);touch();render()">×</button>`:''}</div>
+    </div>`).join('');
+  }).join('');
+  const manque=d.inventaire.filter(x=>x.oblig&&Number(x.qte)===0);
+  return`<div class="card"><h2><i data-lucide=sofa class=ic></i> Inventaire et état du mobilier</h2>
+    <div class="hint">Obligatoire pour une location meublée (art. 25-5 de la loi du 6 juillet 1989). Les éléments marqués « obligatoire » sont la liste minimale du décret n° 2015-981 : s'il en manque un, le logement n'est pas considéré comme meublé.</div>
+    ${manque.length?`<div class="status st-draft" style="margin-top:0"><i data-lucide=alert-triangle class=ic></i><span>Quantité à 0 pour : ${manque.map(x=>esc(x.label)).join(', ')}. Ces éléments sont requis pour un meublé.</span></div>`:''}
+    ${body}
+    ${ro?'':`<div class="row-actions" style="margin-top:.8rem"><input class="i" list="inv-sugg" id="inv-new" placeholder="Ajouter un meuble ou équipement…" style="flex:1;min-width:180px"><datalist id="inv-sugg">${INV_SUGG.map(s=>`<option value="${s}">`).join('')}</datalist><button class="btn bp bsm" onclick="addInv()"><i data-lucide=plus class=ic></i> Ajouter</button></div>`}
+  </div>`;
+}
+function addInv(){const v=$('inv-new').value.trim();if(!v)return;EDL.data.inventaire.push({id:uid(),groupe:'ajout',label:v,qte:1,etat:'',note:'',oblig:false});touch();render();}
+
+// 4 — Compteurs
+function renderMeters(d,ro){
+  const c=d.compteurs,dis=ro?'disabled':'';
+  const f=(k,l,ph)=>`<div><label class="f" for="c-${k}">${l}</label><input class="i" id="c-${k}" inputmode="decimal" placeholder="${ph||''}" value="${esc(c[k])}" ${dis} onchange="EDL.data.compteurs['${k}']=this.value;touch()"></div>`;
+  return`<div class="card"><h2><i data-lucide=gauge class=ic></i> Relevés des compteurs</h2>
+    <div class="hint">Relevés le jour de l'entrée : ils servent à répartir les consommations. Laissez vide ce qui n'existe pas dans le logement.</div>
+    <label class="f" style="margin-top:.2rem">Électricité</label>
+    <div class="grid2">${f('elec_num','N° de compteur / PDL','14 chiffres')}${f('elec_hp','Index heures pleines (ou base)','kWh')}${f('elec_hc','Index heures creuses','kWh')}</div>
+    <label class="f" style="margin-top:.8rem">Gaz</label>
+    <div class="grid2">${f('gaz_num','N° de compteur / PCE','')}${f('gaz_index','Index','m³')}</div>
+    <label class="f" style="margin-top:.8rem">Eau</label>
+    <div class="grid2">${f('eau_froide_num','N° compteur eau froide','')}${f('eau_froide_index','Index eau froide','m³')}${f('eau_chaude_num','N° compteur eau chaude','')}${f('eau_chaude_index','Index eau chaude','m³')}</div>
+    <label class="f" style="margin-top:.8rem">Photos des compteurs</label>
+    <div class="photos">${(c.photos||[]).map((p,pi)=>`<div class="ph"><a href="${esc(p)}" target="_blank" rel="noopener"><img src="${esc(p)}" alt="Compteur ${pi+1}" loading="lazy"></a><button aria-label="Supprimer" onclick="delPhoto('meter',0,${pi})">×</button></div>`).join('')}
+      ${ro?'':`<label class="ph-add"><i data-lucide=camera class=ic></i>Ajouter<input type="file" accept="image/*" multiple onchange="addPhotos(this,'meter',0)"></label>`}</div>
+  </div>`;
+}
+
+// 5 — Clés
+function renderKeys(d,ro){
+  return`<div class="card"><h2><i data-lucide=key-round class=ic></i> Clés et badges remis</h2>
+    <div class="hint">Nombre de clés, badges et télécommandes remis au locataire.</div>
+    <div class="kv">${d.cles.map((k,i)=>`
+      ${ro?`<span>${esc(k.label)}</span>`:`<input class="i" value="${esc(k.label)}" aria-label="Type de clé" onchange="EDL.data.cles[${i}].label=this.value;touch()">`}
+      <input class="i" type="number" min="0" aria-label="Nombre" value="${esc(k.nb)}" ${ro?'disabled':''} onchange="EDL.data.cles[${i}].nb=this.value;touch()">`).join('')}</div>
+    ${ro?'':`<div class="row-actions"><button class="btn bg bsm" onclick="EDL.data.cles.push({id:uid(),label:'Autre (cave, garage, portail…)',nb:1});touch();render()"><i data-lucide=plus class=ic></i> Ajouter</button></div>`}
+    <label class="f" style="margin-top:1rem" for="f-obs">Observations générales</label>
+    ${ro?`<p style="font-size:.85rem">${esc(d.observations)||'—'}</p>`:`<textarea class="i" id="f-obs" rows="3" placeholder="Propreté générale, travaux prévus, éléments à revoir…" onchange="EDL.data.observations=this.value;touch()">${esc(d.observations)}</textarea>`}
+  </div>`;
+}
+
+// 6 — Relecture & signatures
+function renderSign(d){
+  const missing=[];
+  d.rooms.forEach(r=>{const n=r.elements.filter(e=>!e.etat).length;if(n)missing.push(`${r.name} : ${n} élément${n>1?'s':''} sans état`);});
+  d.inventaire.filter(x=>x.oblig&&!x.etat&&Number(x.qte)>0).forEach(x=>missing.push(`Inventaire : état de « ${x.label} »`));
+  const resume=d.rooms.map(r=>{
+    const bad=r.elements.filter(e=>e.etat==='mauvais'||e.etat==='usage'||e.note);
+    return`<div style="padding:.45rem 0;border-top:1px solid #F1F1EF"><strong style="font-size:.86rem">${esc(r.name)}</strong>
+      <div style="font-size:.78rem;color:var(--td)">${bad.length?bad.map(e=>`${esc(e.label)} : ${ETAT_LBL[e.etat]||'—'}${e.note?' — '+esc(e.note):''}`).join(' · '):'Tous les éléments en bon état ou mieux'}${r.photos.length?` · ${r.photos.length} photo(s)`:''}</div></div>`;}).join('');
+  const both=EDL.landlord_signed_at&&EDL.tenant_signed_at;
+  const canSign=EDL.status==='to_sign'||EDL.landlord_signed_at||EDL.tenant_signed_at;
+  const sigBox=(who,lbl,name,sig,at)=>{
+    let inner;
+    if(at&&sig)inner=`<div class="sig-done"><img src="${sig}" alt="Signature ${lbl}"><div class="ok"><i data-lucide=check-circle-2 class=ic></i> Signé le ${new Date(at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>`;
+    else if(!canSign)inner='En attente de la fin de la saisie';
+    else if(myRole===who)inner=`<canvas class="pad" id="pad-${who}" width="600" height="160" aria-label="Zone de signature"></canvas><div style="display:flex;gap:.4rem"><button class="btn bg bsm" onclick="clearPad('${who}')">Effacer</button><button class="btn bgr bsm" onclick="signer('${who}')"><i data-lucide=pen-line class=ic></i> Signer</button></div>`;
+    else inner=`<span><i data-lucide=hourglass class=ic></i> En attente de la signature ${who==='landlord'?'du bailleur':'du locataire'}</span>`;
+    return`<div class="sig"><div class="sig-h">${lbl}<strong>${esc(name||'—')}</strong></div><div class="sig-b">${inner}</div></div>`;
+  };
+  return`
+    ${myRole==='landlord'&&!canSign?`<div class="card"><h2><i data-lucide=list-checks class=ic></i> Avant de faire signer</h2>
+      ${missing.length?`<div class="hint">Il reste à compléter :</div><ul style="font-size:.82rem;margin:0 0 .8rem 1.1rem">${missing.slice(0,8).map(m=>`<li>${esc(m)}</li>`).join('')}${missing.length>8?`<li>… et ${missing.length-8} autre(s)</li>`:''}</ul>`:'<div class="hint">Tout est rempli.</div>'}
+      <button class="btn bp" onclick="finaliser()" ${missing.length?'':''}><i data-lucide=send class=ic></i> Terminer et faire signer</button>
+      <p class="legal" style="margin-top:.5rem">Le contenu ne pourra plus être modifié une fois qu'une des parties a signé.</p></div>`:''}
+    <div class="card"><h2><i data-lucide=clipboard-check class=ic></i> Récapitulatif</h2>
+      <div class="legal" style="margin-bottom:.4rem">Date : <strong>${fmtD(d.date)}${d.heure?' à '+esc(d.heure):''}</strong> · Chauffage : ${esc(d.chauffage||'—')} · Eau chaude : ${esc(d.eau_chaude||'—')}</div>
+      ${resume}
+      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>Compteurs :</strong> électricité ${esc(d.compteurs.elec_hp||'—')}${d.compteurs.elec_hc?' / HC '+esc(d.compteurs.elec_hc):''} kWh · gaz ${esc(d.compteurs.gaz_index||'—')} m³ · eau froide ${esc(d.compteurs.eau_froide_index||'—')} m³${d.compteurs.eau_chaude_index?' · eau chaude '+esc(d.compteurs.eau_chaude_index)+' m³':''}</div>
+      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>Clés :</strong> ${d.cles.filter(k=>Number(k.nb)>0).map(k=>`${esc(k.nb)} × ${esc(k.label)}`).join(' · ')||'—'}</div>
+      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>Inventaire :</strong> ${d.inventaire.filter(x=>Number(x.qte)>0).length} éléments listés</div>
+      <div class="no-print" style="margin-top:.5rem"><button class="btn bg bsm" onclick="goStep(1)">Voir le détail des pièces</button> <button class="btn bg bsm" onclick="goStep(2)">Voir l'inventaire</button></div>
+    </div>
+    <div class="card"><h2><i data-lucide=pen-line class=ic></i> Signatures</h2>
+      <div class="hint">Chacun signe depuis son propre compte, dans n'importe quel ordre — sur place, chacun sur son téléphone.</div>
+      <div class="sigs">
+        ${sigBox('landlord','Le bailleur',LL_P?.full_name,EDL.landlord_signature,EDL.landlord_signed_at)}
+        ${sigBox('tenant','Le locataire',T_P?.full_name||BK?.tenant_name,EDL.tenant_signature,EDL.tenant_signed_at)}
+      </div>
+      <p class="legal" style="margin-top:.8rem">Établi contradictoirement entre les parties (art. 3-2 de la loi n° 89-462 du 6 juillet 1989 ; décret n° 2016-382). Le locataire peut demander au bailleur de compléter cet état des lieux dans les <strong>10 jours</strong> suivant sa signature, et pendant le premier mois de la période de chauffe pour les éléments de chauffage.</p>
+    </div>
+    ${both?renderReserves():''}`;
+}
+function renderReserves(){
+  const until=new Date(new Date(EDL.tenant_signed_at).getTime()+10*864e5);
+  const open=myRole==='tenant'&&Date.now()<until.getTime();
+  return`<div class="card"><h2><i data-lucide=message-square-warning class=ic></i> Compléments du locataire (10 jours)</h2>
+    ${EDL.tenant_reserves?`<p style="font-size:.85rem;white-space:pre-line">${esc(EDL.tenant_reserves)}</p>`:'<div class="hint">Aucun complément signalé.</div>'}
+    ${open?`<div class="no-print"><textarea class="i" id="reserves" rows="3" placeholder="Défaut constaté après l'entrée (ex. radiateur de la chambre qui ne chauffe pas)…"></textarea>
+      <button class="btn bp bsm" style="margin-top:.5rem" onclick="envoyerReserves()"><i data-lucide=send class=ic></i> Envoyer au bailleur</button>
+      <p class="legal" style="margin-top:.3rem">Possible jusqu'au ${until.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}.</p></div>`:''}
+  </div>`;
+}
+
+// ── Photos (compressées avant envoi) ────────────────────────────────────────
+async function compress(file){
+  if(!file.type.startsWith('image/'))return file;
+  const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});
+  const max=1600,s=Math.min(1,max/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',.78));
+}
+async function addPhotos(input,kind,ri){
+  if(!editable())return;
+  const files=[...input.files];if(!files.length)return;
+  toast('<i data-lucide=upload class=ic></i> Envoi de '+files.length+' photo(s)…',8000);
+  for(const f of files){
+    try{
+      const blob=await compress(f);
+      const path=`edl/${EDL.id}/${Date.now()}-${uid()}.jpg`;
+      const{error}=await sb.storage.from(BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false});
+      if(error)throw error;
+      const url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      if(kind==='room')EDL.data.rooms[ri].photos.push(url);else (EDL.data.compteurs.photos=EDL.data.compteurs.photos||[]).push(url);
+    }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Photo non envoyée : '+(e.message||e),6000);}
+  }
+  touch();render();toast('<i data-lucide=check-circle-2 class=ic></i> Photos ajoutées');
+}
+function delPhoto(kind,ri,pi){
+  if(!editable()||!confirm('Supprimer cette photo ?'))return;
+  if(kind==='room')EDL.data.rooms[ri].photos.splice(pi,1);else EDL.data.compteurs.photos.splice(pi,1);
+  touch();render();
+}
+
+// ── Finalisation et signatures ──────────────────────────────────────────────
+async function finaliser(){
+  const d=EDL.data;
+  const vides=d.rooms.reduce((n,r)=>n+r.elements.filter(e=>!e.etat).length,0);
+  if(vides&&!confirm(vides+' élément(s) n\'ont pas d\'état. Faire signer quand même ?'))return;
+  _dirty=true;await save();
+  const{error}=await sb.from('etats_des_lieux').update({status:'to_sign',sent_at:new Date().toISOString()}).eq('id',EDL.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  EDL.status='to_sign';
+  await syncBooking({edl_status:'to_sign',edl_date:d.date});
+  try{await sb.from('messages').insert({listing_id:BK.listing_id,sender_id:'system',receiver_id:BK.tenant_id,content:`L'état des lieux d'entrée et l'inventaire du mobilier sont prêts.\n\nRelisez-les et signez :\n${location.origin}/edl-meuble.html?booking_id=${BK.id}`,type:'message'});}catch(e){}
+  toast('<i data-lucide=send class=ic></i> Prêt à signer — le locataire a été prévenu');
+  STEP=5;render();
+}
+let _pads={};
+function initPads(){
+  ['landlord','tenant'].forEach(w=>{
+    const c=$('pad-'+w);if(!c||c._init)return;c._init=true;
+    const ctx=c.getContext('2d');ctx.lineWidth=2.6;ctx.lineCap='round';ctx.strokeStyle='#1B4FD8';
+    let on=false,lx=0,ly=0;_pads[w]={c,used:false};
+    const pos=e=>{const r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return[(p.clientX-r.left)*c.width/r.width,(p.clientY-r.top)*c.height/r.height];};
+    const st=e=>{e.preventDefault();on=true;[lx,ly]=pos(e);};
+    const mv=e=>{if(!on)return;e.preventDefault();const[x,y]=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();lx=x;ly=y;_pads[w].used=true;};
+    const en=()=>{on=false;};
+    c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+    c.addEventListener('touchstart',st,{passive:false});c.addEventListener('touchmove',mv,{passive:false});c.addEventListener('touchend',en);
+  });
+}
+function clearPad(w){const p=_pads[w];if(!p)return;p.c.getContext('2d').clearRect(0,0,p.c.width,p.c.height);p.used=false;}
+async function signer(who){
+  if(myRole!==who)return toast('Vous ne pouvez signer que pour vous-même.');
+  const p=_pads[who];if(!p||!p.used)return toast('Dessinez votre signature dans la zone.');
+  if(!confirm('Je certifie avoir vérifié cet état des lieux et cet inventaire. Signer ?'))return;
+  const now=new Date().toISOString(),sig=p.c.toDataURL('image/png');
+  const upd=who==='landlord'?{landlord_signature:sig,landlord_signed_at:now}:{tenant_signature:sig,tenant_signed_at:now};
+  // relire l'état réel (l'autre partie a peut-être signé en même temps)
+  const{data:fresh}=await sb.from('etats_des_lieux').select('landlord_signed_at,tenant_signed_at,landlord_signature,tenant_signature').eq('id',EDL.id).single();
+  if(fresh)Object.assign(EDL,fresh);
+  const lDone=who==='landlord'||!!EDL.landlord_signed_at,tDone=who==='tenant'||!!EDL.tenant_signed_at;
+  if(lDone&&tDone)upd.status='signed';
+  const{error}=await sb.from('etats_des_lieux').update(upd).eq('id',EDL.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  Object.assign(EDL,upd);
+  await syncBooking(who==='landlord'?{edl_signed_landlord:true}:{edl_signed_tenant:true});
+  const other=who==='landlord'?BK.tenant_id:(LEASE?.landlord_id||BK.landlord_id);
+  if(lDone&&tDone){
+    await terminerEntree();
+  }else{
+    try{await sb.from('messages').insert({listing_id:BK.listing_id,sender_id:'system',receiver_id:other,content:`${who==='landlord'?'Le bailleur':'Le locataire'} a signé l'état des lieux d'entrée. À vous de signer :\n${location.origin}/edl-meuble.html?booking_id=${BK.id}`,type:'message'});}catch(e){}
+    toast('<i data-lucide=check-circle-2 class=ic></i> Signé — en attente de l\'autre partie');
+  }
+  render();
+}
+// Les deux ont signé → entrée terminée (même mécanisme que RestMalta)
+async function terminerEntree(){
+  const now=new Date().toISOString();
+  await syncBooking({status:'move_in_ready',edl_status:'signed',edl_signed_landlord:true,edl_signed_tenant:true,edl_completed_at:now});
+  try{await sb.from('listings').update({active:false,actif:false,status:'rented'}).eq('id',BK.listing_id);}
+  catch(e){}
+  // si la colonne « actif » n'existe pas, refaire sans elle
+  try{const{error}=await sb.from('listings').update({active:false,status:'rented'}).eq('id',BK.listing_id);}catch(e){}
+  const msg=`Entrée dans les lieux terminée !\n\n✓ Bail signé\n✓ État des lieux et inventaire signés par les deux parties\n✓ Clés remises\n\nRetrouvez tous les documents dans votre espace.`;
+  const ll=LEASE?.landlord_id||BK.landlord_id;
+  try{await sb.from('messages').insert([{listing_id:BK.listing_id,sender_id:'system',receiver_id:BK.tenant_id,content:msg,type:'move_in_complete'},{listing_id:BK.listing_id,sender_id:'system',receiver_id:ll,content:msg,type:'move_in_complete'}]);}catch(e){}
+  toast('<i data-lucide=party-popper class=ic></i> État des lieux signé par les deux parties — entrée terminée !',5000);
+}
+async function envoyerReserves(){
+  const t=$('reserves').value.trim();if(!t)return;
+  const all=(EDL.tenant_reserves?EDL.tenant_reserves+'\n\n':'')+new Date().toLocaleDateString('fr-FR')+' : '+t;
+  const{error}=await sb.from('etats_des_lieux').update({tenant_reserves:all}).eq('id',EDL.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  EDL.tenant_reserves=all;
+  try{await sb.from('messages').insert({listing_id:BK.listing_id,sender_id:'system',receiver_id:LEASE?.landlord_id||BK.landlord_id,content:`Le locataire complète l'état des lieux d'entrée :\n\n« ${t} »\n\n${location.origin}/edl-meuble.html?booking_id=${BK.id}`,type:'message'});}catch(e){}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Envoyé au bailleur');render();
+}
+async function refreshSigs(){
+  if(!EDL||document.hidden||(EDL.landlord_signed_at&&EDL.tenant_signed_at))return;
+  const drawing=Object.values(_pads).some(p=>p.used);
+  const{data:f}=await sb.from('etats_des_lieux').select('status,landlord_signed_at,tenant_signed_at,landlord_signature,tenant_signature').eq('id',EDL.id).single();
+  if(!f)return;
+  const changed=['status','landlord_signed_at','tenant_signed_at'].some(k=>(f[k]||null)!==(EDL[k]||null));
+  if(changed){Object.assign(EDL,f);if(!drawing){_pads={};render();}}
+}
+</script>
+</body>
+</html>
