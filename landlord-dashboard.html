@@ -1592,7 +1592,8 @@ function renderDossierHTML(dd){
           html+=_f(garantStep.files,'Certificat de garantie');
         }
       }
-      const garants=garantStep.garants||[];
+      // Visale / organisme / personne morale : pas de fiche « personne » (restes d'un ancien choix dans le dossier)
+      const garants=garantStep.type==='garant_personne'?(garantStep.garants||[]):[];
       garants.forEach((g,gi)=>{
         const gn=g.garant_name||{};
         const gs=g.garant_subs||{};
@@ -4464,8 +4465,8 @@ function renderVisitGroup(g, isPast){
     'no_show':{label:'<i data-lucide=ban class=ic></i> No-show',cls:'b-dim'},
     'locataire_declined':{label:'<i data-lucide=thumbs-down class=ic></i> Not interested',cls:'b-dim'},
     'date_refusé':{label:'<i data-lucide=calendar class=ic></i> Date refusé',cls:'b-dim'},
-    'booking_en attente':{label:'<i data-lucide=clipboard-list class=ic></i> Dossier received',cls:'b-gold'},
-    'en attente':{label:'<i data-lucide=clipboard-list class=ic></i> Dossier received',cls:'b-gold'},
+    'booking_en attente':{label:'<i data-lucide=clipboard-list class=ic></i> Dossier reçu',cls:'b-gold'},
+    'en attente':{label:'<i data-lucide=clipboard-list class=ic></i> Dossier reçu',cls:'b-gold'},
     'accepté':{label:'<i data-lucide=check-circle-2 class=ic></i> Accepté — bail in progress',cls:'b-green'},
     'bail_en attente':{label:'<i data-lucide=file-text class=ic></i> Bail being signed',cls:'b-sea'},
     'edl_scheduled':{label:'<i data-lucide=clipboard-list class=ic></i> État des lieux scheduled',cls:'b-green'},
@@ -4508,7 +4509,8 @@ function renderVisitGroup(g, isPast){
   // Charger les infos du locataire si dossier reçu
   if((g.statut==='booking_en attente'||g.statut==='en attente')&&g.tenant_id){
     setTimeout(()=>loadLocataireDossierForLL(g.tenant_id),50);
-    if(bk)setTimeout(()=>loadCoLocatairesLiveInfo(bk),50);
+    // Chaque co-locataire : même fiche complète (identité, documents, garant)
+    _colocsLL(bk).forEach(c=>setTimeout(()=>loadLocataireDossierForLL(c.id),60));
   }
 
   return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
@@ -4516,8 +4518,9 @@ function renderVisitGroup(g, isPast){
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
       <div>
-        <div style="font-size:.9rem;font-weight:700"><i data-lucide=user class=ic></i> ${g.tenant_name||'—'}</div>
-        <div style="font-size:.7rem;color:var(--td);margin-top:.1rem"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
+        <div style="font-size:.9rem;font-weight:700"><i data-lucide=${_colocsLL(bk).length?'users':'user'} class=ic></i> ${_nomsLL(g,bk)}</div>
+        ${g.visit_date||!bk?.move_in_date?`<div style="font-size:.7rem;color:var(--td);margin-top:.1rem"><i data-lucide=calendar class=ic></i> ${g.visit_date?'Visite : ':''}${visitDateStr}</div>`:''}
+        ${bk?.move_in_date?`<div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;background:var(--bleu);color:#fff;border-radius:8px;padding:.3rem .65rem;font-size:.8rem;font-weight:700"><i data-lucide=key-round class=ic></i> Entrée souhaitée : ${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`:''}
         ${g.listing_title?`<div style="font-size:.73rem;font-weight:600;color:var(--tf);margin-top:.2rem"><i data-lucide=home class=ic></i> ${g.listing_title}</div>`:''}
         ${g.full_address||g.zone?`<div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${g.full_address||g.zone}</div>`:''}
         ${g.agent_name?`<div style="font-size:.7rem;color:var(--td)"><i data-lucide=award class=ic></i> Agent: ${g.agent_name}</div>`:''}
@@ -4555,15 +4558,17 @@ function renderVisitGroup(g, isPast){
 
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
-      <div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> ${g.tenant_name||'Locataire'} wants to loyer!</div>
-      <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.5rem">
+      <div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
+      <div style="border:1.5px solid ${_LL_COLORS[0]};border-radius:10px;padding:.6rem .65rem;margin-bottom:.6rem">
+      <div style="display:inline-block;background:${_LL_COLORS[0]};color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-radius:6px;padding:.2rem .55rem;margin-bottom:.5rem">Locataire 1${_colocsLL(bk).length?' — principal':''} · ${g.tenant_name||''}</div>
+      <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.2rem">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Full name</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
-          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Vérifié</div><div id="t-ver-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nom complet</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
+          <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Garantie</div><div id="t-ver-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
-          ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée dans les lieux date</div><div style="font-size:.73rem;font-weight:600">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div>`:''}
+          ${bk?.move_in_date?`<div style="background:rgba(27,79,216,.12);border:1px solid var(--bleu);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--bleu);font-weight:700">Entrée souhaitée</div><div style="font-size:.78rem;font-weight:700">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>`:''}
         </div>
         ${bk?.negotiation_note?`
         <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:7px;padding:.5rem .65rem;margin-bottom:.5rem">
@@ -4576,17 +4581,64 @@ function renderVisitGroup(g, isPast){
             <div style="font-size:.72rem;color:var(--td)">Chargement...</div>
           </div>
         </div>
-        ${renderCoLocatairesSummary(bk)}
       </div>
+      </div>
+      ${_colocsLL(bk).map((c,k)=>renderColocFicheLL(c,k+2)).join('')}
       <div style="display:flex;gap:.4rem">
         <button onclick="acceptDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:2;background:var(--green);color:white;border:none;border-radius:7px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Accepter</button>
-        <button onclick="declineDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Decline</button>
+        <button onclick="declineDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Refuser</button>
       </div>
     </div>`:''} 
 
     ${['bail_en attente','accepté','edl_scheduled','signing_day','move_in_ready'].includes(g.statut)?renderBailSection(g):''}
 
   </div>`;
+}
+
+// ── Candidature à plusieurs : une fiche complète par locataire ──
+const _LL_COLORS=['#1B4FD8','#0F8A6B','#B4577A','#B7791F'];
+function _nomsLL(g,bk){
+  const n=[g?.tenant_name||bk?.locataire_name||'—',..._colocsLL(bk).map(c=>c.name||c.email).filter(Boolean)];
+  return n.length>1?n.slice(0,-1).join(', ')+' et '+n[n.length-1]:n[0];
+}
+function _colocsLL(bk){
+  if(!bk)return [];
+  let a=bk.co_locataires_data;try{a=typeof a==='string'?JSON.parse(a):a;}catch(e){a=[];}
+  return (Array.isArray(a)?a:[]).filter(c=>c&&c.coloc_status!=='declined').map(c=>({...c,id:c.tenant_id||c.locataire_id||null}));
+}
+function renderColocFicheLL(c,num){
+  const col=_LL_COLORS[(num-1)%_LL_COLORS.length];
+  const cell=(lbl,id,val)=>`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">${lbl}</div><div ${id?`id="${id}"`:''} style="font-size:.73rem;font-weight:600">${val}</div></div>`;
+  let gd=c.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
+  const gType={garant_visale:'Visale',garant_organisme:'organisme de caution',garant_autre_organisme:'organisme de caution',garant_moral:'personne morale'};
+  const garant=c.has_garant
+    ?((Array.isArray(gd)&&gd.length)?'<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique : '+gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+'</span>':'<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+(c.garant_type==='garant_visale'?'Garantie Visale':'Garant '+(gType[c.garant_type]||'déclaré'))+'</span>')
+    :'<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
+  const hg='<i data-lucide=hourglass class=ic></i>';
+  return `<div style="border:1.5px solid ${col};border-radius:10px;padding:.6rem .65rem;margin-bottom:.6rem">
+    <div style="display:inline-block;background:${col};color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-radius:6px;padding:.2rem .55rem;margin-bottom:.5rem">Locataire ${num} — co-locataire · ${c.name||c.email||''}</div>
+    ${c.id?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
+      ${cell('Nom complet','t-name-'+c.id,c.name||hg)}
+      ${cell('Garantie',c.coloc_status?'':'t-ver-'+c.id,c.coloc_status?garant:hg)}
+      ${cell('Nationalité','t-nat-'+c.id,c.nationality||hg)}
+      ${cell('Téléphone','t-phone-'+c.id,c.phone||hg)}
+    </div>
+    <div style="font-size:.65rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem"><i data-lucide=file-text class=ic></i> Documents de ${c.name||'ce locataire'}</div>
+    <div id="t-docs-chips-${c.id}" style="display:flex;flex-direction:column;gap:.25rem"><div style="font-size:.72rem;color:var(--td)">Chargement...</div></div>`
+    :`<div style="font-size:.75rem;color:var(--td)">Pas de compte Trouve Ton Toit : aucun document disponible.</div>`}
+  </div>`;
+}
+
+// Type de garantie déclaré dans le dossier (étape 5)
+function garantieTxtLL(dd){
+  const st=dd?.[5];const t=st?.type;
+  if(t==='garant_personne'){
+    const gs=(st.garants||[{garant_name:st.garant_name||{}}]).map(g=>[g?.garant_name?.prenom,g?.garant_name?.nom].filter(Boolean).join(' ')).filter(Boolean);
+    return '<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique'+(gs.length?' : '+gs.join(', '):'')+'</span>';
+  }
+  const m={garant_visale:'Garantie Visale',garant_organisme:'Organisme de caution',garant_autre_organisme:'Organisme de caution',garant_moral:'Garant personne morale'};
+  if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+'</span>';
+  return '<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
 }
 
 async function loadLocataireDossierForLL(locataireId){
@@ -4601,7 +4653,7 @@ async function loadLocataireDossierForLL(locataireId){
     const docs=document.getElementById('t-docs-chips-'+locataireId);
     if(name)name.textContent=p.full_name||'—';
     if(nat)nat.textContent=p.nationality||'—';
-    if(ver)ver.innerHTML=p.vérifié?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Vérifié</span>':p.id_submitted?'<span style="color:var(--gold)"><i data-lucide=hourglass class=ic></i> En attente</span>':'<span style="color:var(--td)"><i data-lucide=x-circle class=ic></i> Not vérifié</span>';
+    if(ver)ver.innerHTML=garantieTxtLL(normalizeDossier(p?.dossier_data));
     if(phone)phone.textContent=p.phone||'—';
     if(docs){
       const dd=normalizeDossier(p?.dossier_data);
