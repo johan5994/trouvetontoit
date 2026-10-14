@@ -1280,7 +1280,8 @@ async function fetchVisitAndApplicationGroups(){
     const{data:bks}=await sb.from('bookings').select('*').or(`landlord_id.eq.${U.id},listing_id.in.(${myListingIds.join(',')})`).order('created_at',{ascending:false});
     // Dédupliquer
     const seen=new Set();
-    allBookings=(bks||[]).filter(b=>{if(seen.has(b.id))return false;seen.add(b.id);return true;});
+    // 'awaiting_colocs' : les co-locataires n'ont pas encore tous confirmé → pas encore envoyée au propriétaire
+    allBookings=(bks||[]).filter(b=>{if(b.status==='awaiting_colocs'||seen.has(b.id))return false;seen.add(b.id);return true;});
   }
 
   // 3. Créer une map booking par listing_id+tenant_id
@@ -1678,8 +1679,14 @@ function renderCoLocatairesSummary(booking){
   if(!booking)return '';
   let coLocataires=[];
   try{coLocataires=booking.co_locataires_data?JSON.parse(booking.co_locataires_data):[];}catch(e){}
+  coLocataires=coLocataires.filter(ct=>ct.coloc_status!=='declined');
   if(!coLocataires.length)return '';
+  const _gType={garant_visale:'Visale',garant_organisme:'organisme de caution',garant_autre_organisme:'organisme de caution',garant_moral:'personne morale'};
   const cards=coLocataires.map((ct,i)=>{
+    let _gd=ct.garant_data;try{_gd=typeof _gd==='string'?JSON.parse(_gd):_gd;}catch(e){_gd=[];}
+    const garantTxt=ct.has_garant
+      ?((Array.isArray(_gd)&&_gd.length)?_gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+' (caution personne physique)':'Garantie '+(_gType[ct.garant_type]||'déclarée'))
+      :(ct.coloc_status?'Aucun garant':'—');
     const vérifiéCell=ct.hasAccount
       ?`<div id="ct-ver-${booking.id}-${i}" style="font-weight:600"><i data-lucide=hourglass class=ic></i></div>`
       :`<div style="font-weight:600;color:var(--td)">No compte</div>`;
@@ -1694,6 +1701,7 @@ function renderCoLocatairesSummary(booking){
         <div><div style="color:var(--td);font-size:.58rem">Vérifié</div>${vérifiéCell}</div>
         <div><div style="color:var(--td);font-size:.58rem">Nationalité</div><div style="font-weight:600">${ct.nationality||'—'}</div></div>
         <div><div style="color:var(--td);font-size:.58rem">Téléphone</div>${phoneCell}</div>
+        <div style="grid-column:1/-1"><div style="color:var(--td);font-size:.58rem">Garant</div><div style="font-weight:600">${garantTxt}</div></div>
       </div>
       ${ct.hasAccount?`<div>
         <div style="color:var(--td);font-size:.58rem;margin-bottom:.2rem"><i data-lucide=file-text class=ic></i> Documents</div>
@@ -1711,6 +1719,7 @@ async function loadCoLocatairesLiveInfo(booking){
   if(!booking)return;
   let coLocataires=[];
   try{coLocataires=booking.co_locataires_data?JSON.parse(booking.co_locataires_data):[];}catch(e){}
+  coLocataires=coLocataires.filter(ct=>ct.coloc_status!=='declined').map(ct=>({...ct,tenant_id:ct.tenant_id||ct.locataire_id}));
   const accountLocataireIds=coLocataires.map((ct,i)=>({ct,i})).filter(x=>x.ct.hasAccount&&x.ct.tenant_id);
   if(!accountLocataireIds.length)return;
   try{
@@ -4120,7 +4129,7 @@ function renderEdlBlockLL(bk){
   const row=(lbl,ok)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem">${lbl}</span>${ok?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente</span>'}</div>`;
   const title='<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">État des lieux d\'entrée & inventaire</div>';
   const btn=(lbl,primary)=>`<a href="${url}" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'#fff':'var(--txt)'};border:${primary?'none':'1px solid var(--b2)'};border-radius:8px;padding:.5rem;font-size:.78rem;font-weight:700;text-decoration:none;margin-top:.35rem"><i data-lucide=clipboard-list class=ic></i> ${lbl}</a>`;
-  if(done)return title+`<div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — état des lieux signé par les deux parties. L'annonce est retirée du site.</div>`+btn('Voir l\'état des lieux',false);
+  if(done)return title+`<div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.35rem">${row('<i data-lucide=home class=ic></i> Vous',true)}${row('<i data-lucide=user class=ic></i> Locataire',true)}</div><div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — état des lieux signé par les deux parties. L'annonce est retirée du site.</div>`+btn('Voir l\'état des lieux',false);
   if(st==='to_sign')return title+`<div style="display:flex;flex-direction:column;gap:.3rem">${row('<i data-lucide=home class=ic></i> Vous',bk.edl_signed_landlord)}${row('<i data-lucide=user class=ic></i> Locataire',bk.edl_signed_tenant)}</div>`+btn(bk.edl_signed_landlord?'Voir l\'état des lieux':'Signer l\'état des lieux',!bk.edl_signed_landlord);
   if(st==='draft')return title+`<div style="font-size:.74rem;color:var(--td)">Brouillon enregistré — terminez la saisie puis faites signer.</div>`+btn('Continuer l\'état des lieux',true);
   return title+`<div style="font-size:.74rem;color:var(--td)">Le jour de l'entrée, faites le tour du logement avec le locataire : pièces, mobilier, compteurs et clés, avec photos.</div>`+btn('Faire l\'état des lieux',true);
