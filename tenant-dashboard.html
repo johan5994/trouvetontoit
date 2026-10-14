@@ -3141,11 +3141,14 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
       const lIds=[...new Set(coLocataireBookings.map(b=>b.listing_id).filter(Boolean))];
       const{data:ls}=await sb.from('listings').select('id,title,zone,price').in('id',lIds);
       const lMap={};(ls||[]).forEach(l=>{lMap[l.id]=l;});
-      html+='<div style="font-size:.78rem;font-weight:700;color:var(--tm);margin:1rem 0 .5rem"><i data-lucide=handshake class=ic></i> Bails you\'re a co-locataire on</div>';
+      const leaseMap={};
+      try{const{data:lz}=await sb.from('leases').select('id,booking_id,negotiation_status').in('booking_id',coLocataireBookings.map(b=>b.id));(lz||[]).forEach(z=>{leaseMap[z.booking_id]=z;});}catch(e){}
+      html+='<div style="font-size:.78rem;font-weight:700;color:var(--tm);margin:1rem 0 .5rem"><i data-lucide=handshake class=ic></i> Logements où vous êtes co-locataire</div>';
       coLocataireBookings.forEach(b=>{
         const annonce=lMap[b.listing_id]||{};
         const entry=b._myCoLocataireEntry;
-        const isAccepted=['accepted','edl_scheduled','signing_day','move_in_ready'].includes(b.status);
+        const isAccepted=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready'].includes(b.status);
+        const _lz=leaseMap[b.id];
 
         html+=`<div style="padding:.85rem;background:${isAccepted?'var(--grdim)':'var(--s2)'};border:1px solid ${isAccepted?'var(--grdim)':'var(--b)'};border-radius:12px;margin-bottom:.6rem">
           <div style="font-size:.85rem;font-weight:700;margin-bottom:.2rem">${annonce.title||'Bien'}</div>
@@ -3155,6 +3158,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
           html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
         }else if(isAccepted){
           html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry);
+          if(_lz)html+=`<a class="btn bp bsm" style="margin-top:.5rem;display:inline-flex" href="/bail-meuble.html?lease_id=${_lz.id}"><i data-lucide=pen-line class=ic></i> ${['agreed','signed'].includes(_lz.negotiation_status)?'Voir et signer le bail':'Voir le bail'}</a>`;
         }else{
           html+=`<div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--td)">Statut: ${b.status}</div>`;
         }
@@ -5736,7 +5740,8 @@ function garOrgPick(type,keepFiles){
   st.pendingType=type;
   const r=document.querySelector('input[name="garant-org"][value="'+type+'"]');if(r)r.checked=true;
   const h=document.getElementById('garant-org-hint');
-  h.innerHTML='Assurez-vous de joindre <strong>votre justificatif'+(type==='garant_visale'?' Visale':'')+'</strong> :<ul style="margin:.3rem 0 0 1.2rem"><li><strong>à votre nom</strong></li><li><strong>en cours de validité</strong></li></ul>';
+  h.innerHTML='Assurez-vous de joindre <strong>votre justificatif'+(type==='garant_visale'?' Visale':'')+'</strong> :<ul style="margin:.3rem 0 0 1.2rem"><li><strong>à votre nom</strong></li><li><strong>en cours de validité</strong></li></ul>'
+    +(type==='garant_visale'?`<div style="margin-top:.7rem"><label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:.3rem">Numéro de visa <span style="font-weight:400;color:var(--td)">(écrit sur votre certificat Visale)</span></label><input id="visa-ref" class="fi" placeholder="ex. V123456789" value="${String(st.visa_ref||'').replace(/"/g,'&quot;')}" oninput="(dossierState[5]=dossierState[5]||{}).visa_ref=this.value.trim().toUpperCase()" style="max-width:260px"><div style="font-size:.74rem;color:var(--td);margin-top:.3rem">Le propriétaire en a besoin pour valider votre garantie sur visale.fr. Vous n'aurez rien à signer pour Visale.</div></div>`:'');
   h.style.display='block';
   const area=document.querySelector('#garant-simple-upload > .dossier-upload-area');if(area)area.style.display='';
 }
@@ -5866,6 +5871,11 @@ function handleDossierDrop(event,idx){
 async function confirmDossierStep(idx){
   const st=dossierState[idx];
   if(!st?.pendingType&&!st?.type){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez un type de document');return;}
+  if(idx===5&&(st.pendingType||st.type)==='garant_visale'){
+    const v=(document.getElementById('visa-ref')?.value||st.visa_ref||'').trim().toUpperCase();
+    if(!v){toast('<i data-lucide=alert-triangle class=ic></i> Indiquez votre numéro de visa Visale');document.getElementById('visa-ref')?.focus();return;}
+    st.visa_ref=v;
+  }
   if(idx===5&&(st.pendingType||st.type)==='garant_moral'){
     gmSave();
     const miss=[];
