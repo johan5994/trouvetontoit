@@ -2164,8 +2164,15 @@ async function loadMyLocation(){
     if(daysLeftToView)leftNoticeEl.innerHTML=`<i data-lucide=alert-triangle class=ic></i> You've left ce logement. It'll be removed  depuis  here in ${daysLeftToView} day${daysLeftToView>1?'s':''} — save anything you need now.`;
   }
 
+  // Bail en ligne (bail-meuble) : la table leases fait foi
+  try{
+    const{data:ls}=await sb.from('leases').select('*').eq('booking_id',bk.id);
+    const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
+    bk._lease=(ls||[]).sort((a,b)=>(_rk[b.negotiation_status||'draft']||0)-(_rk[a.negotiation_status||'draft']||0))[0]||null;
+  }catch(e){bk._lease=null;}
+
   const progressEl=document.getElementById('ml-bail-progress');
-  if(progressEl)progressEl.innerHTML=renderLocataireBailSection({},bk,myCoLocataireEntry);
+  if(progressEl)progressEl.innerHTML=renderLocataireBailSection({},bk,myCoLocataireEntry,bk._lease);
 
   const docEl=document.getElementById('ml-bail-doc');
   if(docEl)docEl.innerHTML=renderBailDocCard(bk,annonce)+renderEdlDocCard(bk);
@@ -2190,6 +2197,25 @@ async function loadMyLocation(){
 }
 
 function renderBailDocCard(bk,annonce){
+  const L=bk._lease;
+  if(L){
+    const sig=(ok,lbl)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem">${lbl}</span>${ok?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> En attente</span>'}</div>`;
+    const all=!!L.landlord_signed_at&&!!L.tenant_signed_at&&(!L.garant_name||!!L.garant_signed_at);
+    const fmt=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+    return`<div class="card">
+      <div class="ch"><div class="ct"><i data-lucide=file-text class=ic></i> Bail de location meublée</div>${all?'<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> En cours</span>'}</div>
+      <div class="cb">
+        <div style="font-size:.8rem;color:var(--tm);margin-bottom:.6rem">${annonce?.title||'Votre logement'} · ${annonce?.full_address||annonce?.zone||'France'}</div>
+        <div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem">Du ${fmt(L.start_date)} au ${fmt(L.end_date)} · Loyer ${(Number(L.rent)||0)+(Number(L.charges)||0)} € charges comprises</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
+          ${sig(!!L.landlord_signed_at,'<i data-lucide=home class=ic></i> Propriétaire')}
+          ${sig(!!L.tenant_signed_at,'<i data-lucide=user class=ic></i> Vous')}
+          ${L.garant_name?sig(!!L.garant_signed_at,'<i data-lucide=shield class=ic></i> Garant ('+L.garant_name+')'):''}
+        </div>
+        <a href="/bail-meuble.html?lease_id=${L.id}&role=tenant" class="btn ${all?'bg':'bp'} bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> ${all?'Voir mon bail':'Ouvrir le bail'}</a>
+      </div>
+    </div>`;
+  }
   if(!bk.bail_tenant_embed&&!bk.bail_landlord_embed){
     return`<div class="card"><div class="cb"><div class="empty"><div class="em"><i data-lucide=file-text class=ic></i></div><p>Your bail is being prepared.<br>It will appear here as soon as it's prêt à signer.</p></div></div></div>`;
   }
