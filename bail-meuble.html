@@ -3322,7 +3322,10 @@ async function submitSignature(){
   Object.assign(LEASE,upd);
   window._pendingSigWho=null;window._pendingSigData=null;
 
-  // (Le statut du booking n'est plus modifié ici : les dashboards lisent les signatures dans leases)
+  // Comme RestMalta : la réservation garde aussi l'état des signatures du bail
+  if(LEASE.booking_id&&(who==='ll'||who==='t')){
+    try{await sb.from('bookings').update(who==='ll'?{lease_signed_landlord:true}:{lease_signed_tenant:true}).eq('id',LEASE.booking_id);}catch(e){}
+  }
 
   if(who==='ll'&&LEASE.tenant_signed_at){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
