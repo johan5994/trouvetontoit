@@ -3142,7 +3142,13 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
       const{data:ls}=await sb.from('listings').select('id,title,zone,price').in('id',lIds);
       const lMap={};(ls||[]).forEach(l=>{lMap[l.id]=l;});
       const leaseMap={};
-      try{const{data:lz}=await sb.from('leases').select('id,booking_id,negotiation_status').in('booking_id',coLocataireBookings.map(b=>b.id));(lz||[]).forEach(z=>{leaseMap[z.booking_id]=z;});}catch(e){}
+      try{
+        const _ids=coLocataireBookings.map(b=>b.id);
+        let{data:lz,error:_le}=await sb.from('leases').select('id,booking_id,parent_booking_id,tenant_id,negotiation_status,lot_label').or(`booking_id.in.(${_ids.join(',')}),parent_booking_id.in.(${_ids.join(',')})`);
+        if(_le)({data:lz}=await sb.from('leases').select('id,booking_id,negotiation_status').in('booking_id',_ids));
+        // Bail individuel (location par chambre) : le mien passe avant le bail commun
+        (lz||[]).forEach(z=>{const k=z.booking_id||z.parent_booking_id;if(!leaseMap[k]||z.tenant_id===U.id)leaseMap[k]=z;});
+      }catch(e){}
       html+='<div style="font-size:.78rem;font-weight:700;color:var(--tm);margin:1rem 0 .5rem"><i data-lucide=handshake class=ic></i> Logements où vous êtes co-locataire</div>';
       coLocataireBookings.forEach(b=>{
         const annonce=lMap[b.listing_id]||{};
