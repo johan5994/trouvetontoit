@@ -638,6 +638,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
       <!-- Onglets -->
 
+      <div class="coloc-invites"></div>
       <div id="locataire-visites-list">
         <div class="empty"><div class="em"><i data-lucide=calendar class=ic></i></div><p>Chargement visites...</p></div>
       </div>
@@ -645,6 +646,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <div class="page" id="page-applications">
       <div style="margin-bottom:1rem;font-size:1rem;font-weight:700"><i data-lucide=clipboard-list class=ic></i> Applications</div>
+      <div class="coloc-invites"></div>
       <div id="locataire-applications-list">
         <div class="empty"><div class="em"><i data-lucide=clipboard-list class=ic></i></div><p>Chargement applications...</p></div>
       </div>
@@ -1425,7 +1427,7 @@ function initUI(){
   if(!P?.full_name&&!/[?&]tab=profil/.test(window.location.search))setTimeout(()=>toast('<i data-lucide=alert-triangle class=ic></i> Complétez votre profil pour débloquer la génération automatique du bail !'),1000);
 }
 
-async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);}
+async function loadAll(){await Promise.all([loadOverview(),loadPaiementsData(),loadMyReviews(),loadAlertState()]);try{loadColocInvites();}catch(e){}}
 
 function sp(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
@@ -2906,6 +2908,7 @@ async function fetchLocataireVisitData(){
       try{coLocatairesData=JSON.parse(b.co_locataires_data);}catch(e){}
       const isMe=coLocatairesData.find(ct=>ct.hasAccount&&ct.locataire_id===U.id);
       if(!isMe)return;
+      if(b.status==='awaiting_colocs'||isMe.coloc_status==='declined')return; // affiché comme invitation à part
       let coLocataires=[];
       try{coLocataires=b.co_locataires_embed_src?JSON.parse(b.co_locataires_embed_src):[];}catch(e){}
       const myEntry=coLocataires.find(cl=>cl.tenant_id===U.id)||{signed:false,embed_src:null,locataire_id:U.id};
@@ -2971,20 +2974,33 @@ async function fetchLocataireVisitData(){
       if(bk.status==='pending'||bk.status==='booking_pending') statusVal='booking_pending';
       else if(bk.status==='accepted') statusVal='accepted';
       else if(bk.status==='declined') statusVal='declined';
-      else if(['lease_pending','edl_scheduled','signing_day','move_in_ready'].includes(bk.status)) statusVal=bk.status;
+      else if(['lease_pending','edl_scheduled','signing_day','move_in_ready','awaiting_colocs'].includes(bk.status)) statusVal=bk.status;
     }
     return{...v,booking:bk,status:statusVal};
   });
 
-  const orphanBookings=bookings.filter(b=>!usedBookingIds.has(b.id)&&!['declined','cancelled_by_tenant'].includes(b.status)).map(b=>{
+  // Candidatures sans visite : récupérer titre + ville de l'annonce (sinon « Bien » / « France »)
+  const _orph=bookings.filter(b=>!usedBookingIds.has(b.id)&&!['declined','cancelled_by_tenant','cancelled_by_locataire','tenancy_ended'].includes(b.status));
+  const _oMap={};
+  try{
+    const oIds=[...new Set(_orph.map(b=>b.listing_id).filter(Boolean))];
+    if(oIds.length){
+      const{data:ol}=await sb.from('listings').select('*').in('id',oIds);
+      (ol||[]).forEach(l=>{_oMap[l.id]=l;});
+    }
+  }catch(e){}
+  const orphanBookings=_orph.map(b=>{
+    const L=_oMap[b.listing_id]||{};
     let statusVal='booking_pending';
     if(b.status==='pending'||b.status==='booking_pending')statusVal='booking_pending';
     else if(b.status==='accepted')statusVal='accepted';
     else if(b.status==='declined')statusVal='declined';
-    else if(['lease_pending','edl_scheduled','signing_day','move_in_ready'].includes(b.status))statusVal=b.status;
+    else if(['lease_pending','edl_scheduled','signing_day','move_in_ready','awaiting_colocs'].includes(b.status))statusVal=b.status;
     return{
       id:'bk_'+b.id,listing_id:b.listing_id,tenant_id:U.id,
-      listing_title:b.listing_title,listing_zone:b.zone||'France',
+      listing_title:b.listing_title||L.title||'Logement',
+      listing_zone:L.city||L.ville||L.zone||L.full_address||b.zone||'France',
+      listing_price:L.price||0,agency_annonce:!!L.agency_annonce,
       status:statusVal,booking:b,has_agent:false
     };
   });
@@ -2996,7 +3012,7 @@ async function fetchLocataireVisitData(){
 // Statuts de visite pure — avant toute candidature de location
 const TENANT_VISIT_ONLY_STATUSES=['pending','confirmed','declined','cancelled','completed','booking_pending'];
 // Statuts de candidature — dès que le locataire a dit "je veux louer"
-const TENANT_APPLICATION_STATUSES=['booking_pending','accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','declined'];
+const TENANT_APPLICATION_STATUSES=['awaiting_colocs','booking_pending','accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','declined'];
 
 function renderLocataireVisitCard(v){
   const bk=v.booking||null;
@@ -3012,10 +3028,13 @@ function renderLocataireVisitCard(v){
     'declined':'<i data-lucide=x-circle class=ic></i> Refusée',
     'move_in_ready':'<i data-lucide=party-popper class=ic></i> Entrée terminée'
   };
-  const dateStr=v.visit_date?new Date(v.visit_date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(v.visit_time?' at '+v.visit_time:''):'Date TBD';
+  const _fd=d=>new Date(d).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const _mi=bk?.move_in_date||v.booking?.move_in_date;
+  const dateStr=v.visit_date?'Visite le '+_fd(v.visit_date)+(v.visit_time?' à '+v.visit_time:''):_mi?'Entrée souhaitée le '+_fd(_mi):'Sans visite';
   let sc=statusColors[v.status]||'b-dim';
   let sl=statusLabels[v.status]||v.status;
   if(v.status==='booking_pending'){sc='b-gold';sl='<i data-lucide=hourglass class=ic></i> Dossier envoyé — réponse du propriétaire attendue';}
+  if(v.status==='awaiting_colocs'){sc='b-gold';sl='<i data-lucide=users class=ic></i> En attente de vos co-locataires';}
   // Badge précis selon l'avancement du bail
   if(['accepted','lease_pending'].includes(v.status)){
     const L=bk?._lease||null,ns=L?.negotiation_status||null;
@@ -3075,10 +3094,11 @@ function renderLocataireVisitCard(v){
         </div>
       </div>`:''} 
 
+      ${v.status==='awaiting_colocs'?renderAttenteColocs(bk):''}
       <!-- ÉTAPE 5 : En attente décision propriétaire -->
       ${v.status==='booking_pending'?`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
-        <i data-lucide=lock class=ic></i> Your location request has been sent to the propriétaire. Awaiting their decision.
+        <i data-lucide=lock class=ic></i> Votre candidature a été envoyée au propriétaire. En attente de sa décision.
       </div>
       ${bk?.quittance_locataire_embed?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-top:.4rem">
         <span style="font-size:.76rem"><i data-lucide=file-text class=ic></i> Reservation fee quittance</span>
@@ -3147,6 +3167,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
 async function loadLocataireVisits(){
   const wrap=document.getElementById('locataire-visites-list');
   if(!wrap)return;
+  loadColocInvites();
 
   const{visites:allVisits}=await fetchLocataireVisitData();
   const visites=allVisits.filter(v=>TENANT_VISIT_ONLY_STATUSES.includes(v.status));
@@ -3183,6 +3204,7 @@ async function loadLocataireVisits(){
 async function loadLocataireApplicationsPage(){
   const wrap=document.getElementById('locataire-applications-list');
   if(!wrap)return;
+  loadColocInvites();
 
   const{visites:allVisits,coLocataireBookings}=await fetchLocataireVisitData();
 
@@ -3203,7 +3225,8 @@ async function loadLocataireApplicationsPage(){
   const visites=allVisits.filter(v=>TENANT_APPLICATION_STATUSES.includes(v.status));
 
   const badge=document.getElementById('nb-applications-t');
-  const pendingCount=visites.filter(v=>v.status==='booking_pending').length;
+  window._nbApps=visites.filter(v=>v.status==='booking_pending').length;
+  const pendingCount=window._nbApps+(window._nbInvites||0);
   if(badge){badge.textContent=pendingCount||'';badge.style.display=pendingCount>0?'inline':'none';}
 
   const coLocataireHtml=await renderLocataireCoLocataireSection(coLocataireBookings);
@@ -6875,7 +6898,7 @@ function applicationGate(listingId,opts){
       <div class="gate-box">
         <div class="gate-h">4. Emménagez-vous avec quelqu'un ?</div>
         <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Ajoutez les autres personnes qui seront sur le bail avec vous (conjoint, colocataires…). Sinon, laissez vide.</div>
-        <div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.</div>
+        <div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.<br><br><strong style="color:var(--bleu)">Comment ça marche :</strong> chaque co-locataire reçoit votre candidature dans son espace. Il confirme la date d'entrée, indique s'il a un garant et, si vous partagez les frais, enregistre sa carte. La candidature part chez le propriétaire quand tout le monde a répondu.</div>
         <div id="colocataires-list"></div>
         <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:10px;padding:.55rem;font-size:.8rem;font-weight:700;cursor:pointer">+ Ajouter un co-locataire</button>
       </div>
@@ -6888,7 +6911,12 @@ function applicationGate(listingId,opts){
       <div class="gate-box">
         <div class="gate-h">6. Frais de service</div>
         ${opts.commission>0?`<div style="font-size:.82rem;line-height:1.55;margin:.25rem 0 .5rem">En envoyant votre candidature, vous autorisez Trouve Ton Toit à prélever <strong>${opts.commission} € (${opts.commissionLabel})</strong>, <strong>uniquement si le propriétaire accepte</strong> votre candidature.</div>
-        <div id="nego-card-statut">${opts.hasCard?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`:`<div style="font-size:.78rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Une carte est nécessaire. Rien n'est débité si vous n'êtes pas accepté.</div><button type="button" class="btn bp bsm" style="width:100%;justify-content:center" onclick="registerCardThenSend('${listingId}','${String(opts.title||'').replace(/['"\\]/g,'')}','${opts.contactId||''}',${opts.price||0})"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>`
+        <div id="nego-card-statut">${opts.hasCard?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`:`<div style="font-size:.78rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Une carte est nécessaire. Rien n'est débité si vous n'êtes pas accepté.</div><button type="button" class="btn bp bsm" style="width:100%;justify-content:center" onclick="registerCardThenSend('${listingId}','${String(opts.title||'').replace(/['"\\]/g,'')}','${opts.contactId||''}',${opts.price||0})"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>
+        <div id="gate-split" style="display:none;margin-top:.75rem;padding-top:.65rem;border-top:1px dashed var(--b)">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.35rem">Qui paie les frais ?</div>
+          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer;margin-bottom:.3rem"><input type="radio" name="gate-split" value="solo" checked style="accent-color:var(--bleu);margin-top:.15rem"><span>Je paie tout seul (${opts.commission} €)</span></label>
+          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="radio" name="gate-split" value="split" style="accent-color:var(--bleu);margin-top:.15rem"><span>On partage à parts égales : chacun paie sa part avec sa propre carte</span></label>
+        </div>`
         :`<div style="font-size:.82rem;color:var(--green);margin-top:.25rem"><i data-lucide=building-2 class=ic></i> Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</div>`}
       </div>`:''}
 
@@ -6920,6 +6948,9 @@ function applicationGate(listingId,opts){
       }else m.innerHTML='';
     };
     ov.querySelectorAll('input[name="gate-garant"]').forEach(r=>r.addEventListener('change',garMsg));
+    // « Qui paie les frais ? » seulement s'il y a au moins un co-locataire
+    const _cl=ov.querySelector('#colocataires-list'),_sp=ov.querySelector('#gate-split');
+    if(_cl&&_sp){const t=()=>{_sp.style.display=_cl.children.length?'block':'none';};new MutationObserver(t).observe(_cl,{childList:true});t();}
     ov.querySelector('#gate-cancel').onclick=()=>{ov.remove();resolve(false);};
     ov.querySelector('#gate-go').onclick=()=>{
       const err=ov.querySelector('#gate-err');
@@ -6949,6 +6980,7 @@ function applicationGate(listingId,opts){
       }
       if(msg){err.textContent=msg;err.style.display='block';return;}
       window._gateMoveIn=ov.querySelector('#neg-movein')?.value||null;
+      window._gateFeeSplit=coloc.length?(ov.querySelector('input[name="gate-split"]:checked')?.value||'solo'):'solo';
       window._gateColoc={listingId,list:coloc};
       window._gateGarants={listingId,idx:g==='non'?[]:(useList?picked:null)};
       window._applyGatePassed=listingId;
@@ -6960,30 +6992,10 @@ function applicationGate(listingId,opts){
 
 async function showNegotiationModal(listingId, listingTitle, contactId, price){
   // Une seule fenêtre : nom, dossier, garant, co-locataires, date d'entrée et frais
-  const hasCard=!!(P?.stripe_customer_id);
-  let commissionRate=0.10,commissionLabel='10%';
-  try{
-    const{data:listingInfo}=await sb.from('listings').select('agency_annonce,agency_name,agent_id,wants_agent,agent_service').eq('id',listingId).maybeSingle();
-    // Détection robuste — ne se fie pas qu'au seul champ agency_annonce, qui
-    // a pu ne pas être renseigné sur une annonce créée avant sa mise en place
-    let isAgence=!!listingInfo?.agency_annonce||!!listingInfo?.agency_name;
-    if(!isAgence&&listingInfo?.agent_id){
-      try{
-        const{data:agencyCheck}=await sb.from('agency_profiles').select('clerk_id').eq('clerk_id',listingInfo.agent_id).maybeSingle();
-        isAgence=!!agencyCheck;
-      }catch(e){}
-    }
-    const hasAgent=listingInfo?.wants_agent&&listingInfo?.agent_service==='full'&&!isAgence;
-    // Une agence paie déjà son propre abonnement fixe — le locataire ne doit
-    // rien à Trouve Ton Toit dans ce cas, contrairement à un agent individuel (40%)
-    // ou une location directe sans agent (10%)
-    commissionRate=isAgence?0:hasAgent?0.40:0.10;
-    commissionLabel=isAgence?'0%':hasAgent?'40%':'10%';
-  }catch(e){}
-  const commission=Math.round((price||0)*commissionRate);
-  const ok=await applicationGate(listingId,{withSend:true,title:listingTitle,price,contactId,commission,commissionLabel,hasCard});
+  const fi=await feeInfo(listingId,price);
+  const ok=await applicationGate(listingId,{withSend:true,title:listingTitle,price:fi.price,contactId,commission:fi.commission,commissionLabel:fi.label,hasCard:!!P?.stripe_customer_id});
   if(!ok)return;
-  submitNegotiationAndRent(listingId,listingTitle,contactId,price);
+  sendApplication(listingId,listingTitle,contactId,fi.price);
 }
 
 async function registerCardThenSend(listingId, listingTitle, contactId, price){
@@ -7051,7 +7063,7 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
           sendBtn.onclick=()=>submitNegotiationAndRent(listingId,listingTitle,contactId,price);
         }
       }
-      if(!document.getElementById('nego-modal-overlay')&&!document.getElementById('apply-gate-overlay')){
+      if(!document.getElementById('nego-modal-overlay')&&!document.getElementById('apply-gate-overlay')&&!statusEl){
         // Si la modal n'existe plus pour une raison quelconque, on la rouvre en dernier recours
         showNegotiationModal(listingId,listingTitle,contactId,price);
       }
@@ -7223,7 +7235,7 @@ async function lookupCoLocataire(slotId){
     manualEl.style.display='none';
     manualEl.innerHTML='';
     window._coLocatairesData[slotId]={
-      hasAccount:true,locataire_id:profil.clerk_id,
+      hasAccount:true,locataire_id:profil.clerk_id,tenant_id:profil.clerk_id,
       name:profil.full_name||'',email:profil.email||email,
       passport:profil.passport_number||'',nationality:profil.nationality||'',
       address:profil.home_address||'',
@@ -7510,6 +7522,366 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
       btn.innerHTML='<i data-lucide=lock class=ic></i> Pay & send application →';btn.disabled=false;
     }
   };
+}
+
+
+// ═══════════════ Candidature à plusieurs (co-locataires) ═══════════════
+// Le locataire principal postule ; chaque co-locataire confirme la date,
+// indique son garant et, si les frais sont partagés, enregistre sa carte.
+// La candidature (status 'awaiting_colocs') ne part chez le propriétaire
+// ('pending') que lorsque tout le monde a répondu.
+const _escC=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const _parseArr=v=>{try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return Array.isArray(v)?v:[];};
+const _frDate=d=>{if(!d)return '';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d);const x=m?new Date(+m[1],+m[2]-1,+m[3]):new Date(d);return x.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
+const _isMeC=c=>c&&(c.locataire_id===U.id||c.tenant_id===U.id);
+
+async function feeInfo(listingId,price){
+  let annonce=null,isAgence=false,hasAgent=false;
+  try{
+    const{data:l}=await sb.from('listings').select('*').eq('id',listingId).maybeSingle();
+    annonce=l;
+    isAgence=!!l?.agency_annonce||!!l?.agency_name;
+    if(!isAgence&&l?.agent_id){
+      try{const{data:ag}=await sb.from('agency_profiles').select('clerk_id').eq('clerk_id',l.agent_id).maybeSingle();isAgence=!!ag;}catch(e){}
+    }
+    hasAgent=!!(l?.wants_agent&&l?.agent_service==='full'&&!isAgence);
+  }catch(e){}
+  price=annonce?.price||price||0;
+  const free=isAgence||!!annonce?.agent_must_create;
+  const commission=free?0:Math.round(price*0.10);
+  return{annonce,price,isAgence,hasAgent,commission,label:free?'0%':'10%'};
+}
+
+// Garants du dossier du compte connecté (étape 5), filtrés par la sélection donnée
+function _garantsDuDossier(idxList){
+  let dd=dossierState;
+  try{if(P?.dossier_data&&!Object.keys(dd||{}).length)dd=typeof P.dossier_data==='string'?JSON.parse(P.dossier_data):P.dossier_data;}catch(e){}
+  const st=dd?.[5];
+  if(st?.type!=='garant_personne')return [];
+  const garants=st.garants||[{garant_name:st.garant_name||{}}];
+  const out=[];
+  garants.forEach((g,i)=>{
+    const gn=g?.garant_name||{};
+    if(!gn.nom&&!gn.prenom)return;
+    if(Array.isArray(idxList)&&!idxList.includes(i))return;
+    out.push({nom:gn.nom||null,prenom:gn.prenom||null,email:gn.email||null,telephone:gn.telephone||null});
+  });
+  return out;
+}
+
+async function sendApplication(listingId,listingTitle,landlordId,price){
+  if(window._submittingApplication)return;
+  window._submittingApplication=true;
+  try{
+    const fi=await feeInfo(listingId,price);
+    price=fi.price;
+    if(!price)throw new Error("Cette annonce n'a pas de prix défini.");
+    landlordId=landlordId||fi.annonce?.landlord_id||null;
+    if(fi.commission>0&&!P?.stripe_customer_id)throw new Error('Enregistrez votre carte avant d\'envoyer.');
+
+    const{data:dup}=await sb.from('bookings').select('id').eq('tenant_id',U.id).eq('listing_id',listingId).not('status','in','("declined","cancelled_by_locataire","tenancy_ended")').limit(1).maybeSingle();
+    if(dup){toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une candidature pour ce logement.');sp('applications',document.querySelector('.ni[onclick*="applications"]'));return;}
+
+    const moveIn=window._gateMoveIn||null;
+    const colocs=(window._gateColoc?.listingId===listingId?(window._gateColoc.list||[]):[])
+      .map(c=>({...c,tenant_id:c.locataire_id,coloc_status:'pending'}));
+    const split=colocs.length>0&&fi.commission>0&&window._gateFeeSplit==='split';
+    const gIdx=window._gateGarants?.listingId===listingId?window._gateGarants.idx:null;
+    const garants=gIdx&&!gIdx.length?[]:_garantsDuDossier(gIdx);
+    const me={tenant_id:U.id,name:P?.full_name||'',email:P?.email||U.email||'',customer_id:P?.stripe_customer_id||null};
+    const part=Math.round(fi.commission/(split?colocs.length+1:1)*100)/100;
+    const fee_payers=fi.commission>0
+      ?(split?[{...me,amount:part},...colocs.map(c=>({tenant_id:c.locataire_id,name:c.name||'',email:c.email||'',customer_id:null,amount:part}))]:[{...me,amount:fi.commission}])
+      :[];
+
+    const row={
+      listing_id:listingId,locataire_id:U.id,tenant_id:U.id,landlord_id:landlordId,
+      locataire_name:P?.full_name||'',locataire_email:P?.email||U.email||'',
+      stripe_customer_id:me.customer_id,
+      commission_amount:fi.commission,total_amount:fi.commission,
+      monthly_rent:price,status:colocs.length?'awaiting_colocs':'pending',has_agent:fi.hasAgent,
+      move_in_date:moveIn,
+      co_locataire_ids:colocs.length?JSON.stringify(colocs.map(c=>c.locataire_id)):null,
+      co_locataires_data:colocs.length?JSON.stringify(colocs):null,
+      garant_ids:garants.length?JSON.stringify(garants.map((_,i)=>i)):null,
+      garant_data:garants.length?JSON.stringify(garants):null,
+      fee_split:split?'split':'solo',
+      fee_payers
+    };
+    const{data:bk,error}=await sb.from('bookings').insert(row).select().single();
+    if(error){
+      if(/fee_|awaiting|check constraint/i.test(error.message))throw new Error('Base à mettre à jour : exécutez supabase-migration-candidature-colocs.sql dans Supabase.');
+      throw new Error(error.message);
+    }
+    document.getElementById('apply-gate-overlay')?.remove();
+
+    if(!colocs.length){
+      await finaliserCandidature(bk);
+      toast('<i data-lucide=check-circle-2 class=ic></i> Candidature envoyée au propriétaire !');
+    }else{
+      const titre=fi.annonce?.title||listingTitle||'un logement';
+      for(const c of colocs){
+        try{await sb.from('messages').insert({listing_id:listingId,sender_id:'system',receiver_id:c.locataire_id,
+          content:`${P?.full_name||'Un locataire'} vous ajoute à sa candidature pour « ${titre} »${moveIn?' (entrée souhaitée le '+_frDate(moveIn)+')':''}.\n\nOuvrez « Candidatures » pour confirmer la date, indiquer votre garant${split?' et enregistrer votre carte (votre part : '+part+' €)':''}. La candidature partira chez le propriétaire quand tout le monde aura répondu.`,
+          type:'coloc_invite'});}catch(e){}
+        if(c.email){
+          fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'coloc_candidature',to:c.email,data:{mainLocataireNom:P?.full_name||'Un locataire',listingTitle:titre,moveIn:moveIn?_frDate(moveIn):'',part:split?part+' €':'',dashboardUrl:location.origin+'/tenant-dashboard.html?tab=applications'}})}).catch(()=>{});
+        }
+      }
+      toast('<i data-lucide=users class=ic></i> Envoyée à vos co-locataires. Elle partira chez le propriétaire quand ils auront tous répondu.');
+    }
+    sp('applications',document.querySelector('.ni[onclick*="applications"]'));
+    loadLocataireApplicationsPage();
+  }catch(e){
+    toast('<i data-lucide=x-circle class=ic></i> '+e.message);
+  }finally{window._submittingApplication=false;}
+}
+
+// Envoi effectif au propriétaire
+async function finaliserCandidature(bk){
+  const{error}=await sb.from('bookings').update({status:'pending'}).eq('id',bk.id);
+  if(error)throw new Error(error.message);
+  try{await sb.from('listings').update({status:'reserved',reserved_by:bk.tenant_id}).eq('id',bk.listing_id);}catch(e){}
+  const colocs=_parseArr(bk.co_locataires_data);
+  const noms=[bk.locataire_name||'Un locataire',...colocs.map(c=>c.name).filter(Boolean)].join(', ');
+  let landlordId=bk.landlord_id;
+  if(!landlordId){try{const{data:l}=await sb.from('listings').select('landlord_id').eq('id',bk.listing_id).maybeSingle();landlordId=l?.landlord_id;}catch(e){}}
+  if(landlordId){
+    try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:landlordId,
+      content:`Nouvelle candidature de ${noms}${bk.move_in_date?' — entrée souhaitée le '+_frDate(bk.move_in_date):''}.\n\nOuvrez « Candidatures » pour consulter le dossier et accepter ou refuser.`,
+      type:'wants_to_rent'});}catch(e){}
+  }
+  if(bk.tenant_id&&bk.tenant_id!==U.id){
+    try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.tenant_id,
+      content:'Tous vos co-locataires ont répondu : votre candidature est partie chez le propriétaire.',type:'coloc_ready'});}catch(e){}
+  }
+}
+
+async function verifierColocsEtEnvoyer(bookingId){
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
+  if(!bk||bk.status!=='awaiting_colocs')return false;
+  const colocs=_parseArr(bk.co_locataires_data);
+  if(colocs.every(c=>c.coloc_status==='accepted')){await finaliserCandidature(bk);return true;}
+  return false;
+}
+
+// ── Côté co-locataire : invitations à répondre ──
+async function loadColocInvites(){
+  const boxes=document.querySelectorAll('.coloc-invites');
+  if(!boxes.length)return;
+  let invites=[];
+  try{
+    const{data}=await sb.from('bookings').select('*').eq('status','awaiting_colocs').neq('tenant_id',U.id).not('co_locataires_data','is',null);
+    for(const b of data||[]){
+      const arr=_parseArr(b.co_locataires_data);
+      const i=arr.findIndex(_isMeC);
+      if(i<0||arr[i].coloc_status==='declined')continue;
+      invites.push({b,arr,i});
+    }
+    if(invites.length){
+      const ids=[...new Set(invites.map(x=>x.b.listing_id))];
+      const{data:ls}=await sb.from('listings').select('id,title,price,city,zone').in('id',ids);
+      const m={};(ls||[]).forEach(l=>{m[l.id]=l;});
+      invites.forEach(x=>x.l=m[x.b.listing_id]||{});
+    }
+  }catch(e){}
+  if(invites.length)await _ensureDossierLoaded();
+  window._colocInvites=invites;
+  window._nbInvites=invites.filter(x=>(x.arr[x.i].coloc_status||'pending')==='pending').length;
+  const _bd=document.getElementById('nb-applications-t');
+  if(_bd){const n=(window._nbApps||0)+window._nbInvites;_bd.textContent=n||'';_bd.style.display=n>0?'inline':'none';}
+  const html=invites.map(renderColocInvite).join('');
+  boxes.forEach(el=>{el.innerHTML=html;});
+  window.lucide&&lucide.createIcons();
+}
+
+function renderColocInvite(x){
+  const{b,arr,i,l}=x,me=arr[i];
+  const part=(_parseArr(b.fee_payers).find(p=>p.tenant_id===U.id)||{}).amount;
+  const split=b.fee_split==='split'&&part>0;
+  const id=b.id;
+  if(me.coloc_status==='accepted'||me.coloc_status==='date_proposed'){
+    const att=arr.filter(c=>c.coloc_status!=='accepted').length;
+    return `<div class="card" style="padding:1rem;margin-bottom:.8rem;border:1px solid var(--grdim)">
+      <div style="font-weight:700">${_escC(l.title||'Logement')}</div>
+      <div style="font-size:.8rem;color:var(--tm);margin-top:.25rem">${me.coloc_status==='accepted'
+        ?`<i data-lucide=check-circle-2 class=ic></i> Vous avez confirmé. ${att?'En attente des autres co-locataires.':'La candidature part chez le propriétaire.'}`
+        :`<i data-lucide=calendar class=ic></i> Vous avez proposé le ${_frDate(me.date_proposee)}. En attente de ${_escC(b.locataire_name||'du locataire principal')}.`}</div>
+    </div>`;
+  }
+  const gl=_gateGarantList(),st=dossierState?.[5];
+  const autreGarantie=st?.type&&!['garant_personne','skipped_garant'].includes(st.type);
+  const gLabel={garant_visale:'Visale',garant_organisme:'organisme de caution',garant_autre_organisme:'organisme de caution',garant_moral:'personne morale'}[st?.type]||'garantie';
+  return `<div class="card" id="ci-${id}" style="padding:1.1rem;margin-bottom:.8rem;border:1.5px solid var(--bleu)">
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--bleu)"><i data-lucide=users class=ic></i> Candidature à plusieurs</div>
+    <div style="font-size:1rem;font-weight:800;margin:.25rem 0">${_escC(b.locataire_name||'Un locataire')} veut louer avec vous</div>
+    <div style="font-size:.82rem;color:var(--tm)">${_escC(l.title||'Logement')}${l.city||l.zone?' · '+_escC(l.city||l.zone):''}${b.monthly_rent?' · <strong style="color:var(--txt)">'+b.monthly_rent+' €/mois</strong>':''}</div>
+    <div style="font-size:.75rem;color:var(--td);margin-top:.2rem">Rien n'est envoyé au propriétaire tant que vous n'avez pas répondu.</div>
+
+    <div class="gate-box" style="margin-top:.8rem">
+      <div class="gate-h">1. Date d'entrée : ${b.move_in_date?_frDate(b.move_in_date):'non précisée'}</div>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer;margin:.3rem 0"><input type="radio" name="ci-date-${id}" value="oui" style="accent-color:var(--bleu)"> Elle me convient</label>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-date-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-d2-${id}').style.display='block'"> Je préfère une autre date</label>
+      <input type="date" id="ci-d2-${id}" min="${new Date().toISOString().slice(0,10)}" style="display:none;margin-top:.45rem;width:100%;padding:.5rem .7rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--txt);font-family:inherit">
+    </div>
+
+    <div class="gate-box">
+      <div class="gate-h">2. Avez-vous un garant ?</div>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer;margin:.3rem 0"><input type="radio" name="ci-g-${id}" value="oui" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').style.display='block'"> Oui, je l'ajoute à la candidature</label>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').style.display='none'"> Non</label>
+      <div id="ci-gl-${id}" style="display:none;margin-top:.5rem">${
+        gl.some(g=>g.ok)
+          ?gl.map(g=>`<label class="gate-g${g.ok?' on':' off'}"><input type="checkbox" class="ci-gchk-${id}" value="${g.i}" ${g.ok?'checked':'disabled'}><span style="flex:1"><strong>${_escC(g.name)}</strong><span style="display:block;font-size:.72rem;color:${g.ok?'var(--green)':'#C9553A'}">${g.ok?'✓ Dossier complet':'Dossier incomplet'}</span></span></label>`).join('')
+          :autreGarantie?`<div style="font-size:.82rem;color:var(--green)">✓ Garantie ${gLabel} déclarée dans votre dossier.</div>`
+          :`<div style="font-size:.82rem;color:#C9553A">Aucun garant complet dans votre dossier.</div><a href="#" onclick="_goDossierStep(5);return false" style="font-size:.78rem;color:var(--bleu)">Ajouter mon garant →</a>`
+      }</div>
+    </div>
+
+    ${split?`<div class="gate-box">
+      <div class="gate-h">3. Votre part des frais : ${part} €</div>
+      <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Prélevée uniquement si le propriétaire accepte la candidature.</div>
+      <div id="nego-card-statut">${P?.stripe_customer_id
+        ?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée</div>`
+        :`<button type="button" class="btn bp bsm" onclick="registerCardThenSend('${b.listing_id}','','',0)"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>
+    </div>`:''}
+
+    <div id="ci-err-${id}" style="color:#C9553A;font-size:.8rem;margin:.4rem 0;display:none"></div>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.6rem">
+      <button class="btn bg" onclick="repondreColoc('${id}',false)">Refuser</button>
+      <button class="btn bp" onclick="repondreColoc('${id}',true)"><i data-lucide=check class=ic></i> Confirmer</button>
+    </div>
+  </div>`;
+}
+
+async function repondreColoc(bookingId,accepte){
+  const err=document.getElementById('ci-err-'+bookingId);
+  const fail=m=>{if(err){err.textContent=m;err.style.display='block';}};
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
+  if(!bk||bk.status!=='awaiting_colocs'){toast('Cette candidature a déjà été envoyée ou annulée.');loadColocInvites();return;}
+  const arr=_parseArr(bk.co_locataires_data);
+  const i=arr.findIndex(_isMeC);
+  if(i<0)return;
+  const nom=arr[i].name||P?.full_name||'Votre co-locataire';
+  const notifier=txt=>sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.tenant_id,content:txt,type:'coloc_reponse'}).then(()=>{},()=>{});
+
+  if(!accepte){
+    if(!confirm('Refuser de rejoindre cette candidature ?'))return;
+    arr[i]={...arr[i],coloc_status:'declined',responded_at:new Date().toISOString()};
+    const{error}=await sb.from('bookings').update({co_locataires_data:JSON.stringify(arr)}).eq('id',bookingId);
+    if(error)return fail(error.message);
+    await notifier(`${nom} ne souhaite pas rejoindre votre candidature. Ouvrez « Candidatures » pour continuer sans lui/elle ou l'annuler.`);
+    toast('Réponse envoyée.');loadColocInvites();return;
+  }
+
+  const d=document.querySelector(`input[name="ci-date-${bookingId}"]:checked`)?.value;
+  const d2=document.getElementById('ci-d2-'+bookingId)?.value;
+  const g=document.querySelector(`input[name="ci-g-${bookingId}"]:checked`)?.value;
+  if(!d)return fail('Dites si la date d\'entrée vous convient.');
+  if(d==='non'&&!d2)return fail('Choisissez la date que vous préférez.');
+  if(!g)return fail('Indiquez si vous avez un garant.');
+  let garants=[],garantType=null;
+  if(g==='oui'){
+    const st=dossierState?.[5];
+    if(st?.type==='garant_personne'){
+      const idx=[...document.querySelectorAll('.ci-gchk-'+bookingId+':checked')].map(c=>+c.value);
+      if(!idx.length)return fail('Ajoutez un garant complet à votre dossier, ou répondez « Non ».');
+      garants=_garantsDuDossier(idx);garantType='physique';
+    }else if(st?.type&&st.type!=='skipped_garant'){garantType=st.type;}
+    else return fail('Ajoutez votre garant à votre dossier, ou répondez « Non ».');
+  }
+  let payers=_parseArr(bk.fee_payers);
+  const pIdx=payers.findIndex(p=>p.tenant_id===U.id);
+  if(bk.fee_split==='split'&&pIdx>=0&&payers[pIdx].amount>0){
+    if(!P?.stripe_customer_id)return fail('Enregistrez votre carte pour payer votre part.');
+    payers[pIdx]={...payers[pIdx],customer_id:P.stripe_customer_id};
+  }
+  arr[i]={...arr[i],
+    coloc_status:d==='oui'?'accepted':'date_proposed',
+    date_ok:d==='oui',date_proposee:d==='oui'?null:d2,
+    has_garant:g==='oui',garant_type:garantType,garant_data:garants,
+    responded_at:new Date().toISOString()};
+  const{error}=await sb.from('bookings').update({co_locataires_data:JSON.stringify(arr),fee_payers:payers}).eq('id',bookingId);
+  if(error)return fail(error.message);
+  if(d==='oui'){
+    const parti=await verifierColocsEtEnvoyer(bookingId);
+    if(!parti)await notifier(`${nom} a confirmé votre candidature commune${g==='oui'?' et ajouté son garant':''}.`);
+    toast(parti?'<i data-lucide=check-circle-2 class=ic></i> Confirmé : la candidature est partie chez le propriétaire.':'<i data-lucide=check-circle-2 class=ic></i> Confirmé. En attente des autres co-locataires.');
+  }else{
+    await notifier(`${nom} préfère entrer le ${_frDate(d2)}. Ouvrez « Candidatures » pour changer la date ou garder la vôtre.`);
+    toast('Proposition de date envoyée.');
+  }
+  loadColocInvites();
+}
+
+// ── Côté locataire principal : suivi des réponses ──
+function renderAttenteColocs(bk){
+  if(!bk)return '';
+  const arr=_parseArr(bk.co_locataires_data);
+  const lab={accepted:['var(--green)','check-circle-2','A confirmé'],pending:['var(--gold)','hourglass','Pas encore répondu'],declined:['#C9553A','x-circle','A refusé'],date_proposed:['var(--bleu)','calendar','Propose une autre date']};
+  const rows=arr.map(c=>{const[col,ic,t]=lab[c.coloc_status||'pending']||lab.pending;
+    return `<div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;background:var(--s2);border-radius:8px;padding:.45rem .65rem;font-size:.8rem">
+      <span><i data-lucide=user class=ic></i> ${_escC(c.name||c.email||'Co-locataire')}${c.has_garant?' <span style="font-size:.7rem;color:var(--td)">· avec garant</span>':''}</span>
+      <span style="color:${col};font-weight:600"><i data-lucide=${ic} class=ic></i> ${t}${c.coloc_status==='date_proposed'?' : '+_frDate(c.date_proposee):''}</span></div>`;}).join('');
+  const refus=arr.filter(c=>c.coloc_status==='declined');
+  const props=arr.filter(c=>c.coloc_status==='date_proposed');
+  const acts=[];
+  props.forEach(c=>acts.push(`<button class="btn bp bsm" onclick="changerDateCandidature('${bk.id}','${c.date_proposee}')"><i data-lucide=calendar class=ic></i> Passer au ${_frDate(c.date_proposee)}</button><button class="btn bg bsm" onclick="garderDateCandidature('${bk.id}','${c.locataire_id||c.tenant_id}')">Garder ma date</button>`));
+  if(refus.length)acts.push(`<button class="btn bp bsm" onclick="continuerSansRefus('${bk.id}')">Continuer sans ${_escC(refus.map(c=>c.name||'lui').join(', '))}</button>`);
+  acts.push(`<button class="btn bg bsm" style="color:var(--red)" onclick="annulerCandidatureColoc('${bk.id}')">Annuler la candidature</button>`);
+  return `<div style="margin-top:.5rem">
+    <div style="font-size:.75rem;color:var(--tm);margin-bottom:.4rem">La candidature partira chez le propriétaire quand tous vos co-locataires auront confirmé.${bk.fee_split==='split'?' Frais partagés à parts égales.':''}</div>
+    <div style="display:flex;flex-direction:column;gap:.3rem">${rows}</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem">${acts.join('')}</div>
+  </div>`;
+}
+
+async function _majCandidature(bookingId,fn){
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
+  if(!bk||bk.status!=='awaiting_colocs'){toast('Cette candidature a déjà changé.');loadLocataireApplicationsPage();return null;}
+  const r=fn(bk,_parseArr(bk.co_locataires_data));
+  const{error}=await sb.from('bookings').update(r.update).eq('id',bookingId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return null;}
+  for(const m of r.msgs||[])try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:m.to,content:m.txt,type:'coloc_reponse'});}catch(e){}
+  const parti=await verifierColocsEtEnvoyer(bookingId);
+  toast(parti?'<i data-lucide=check-circle-2 class=ic></i> Candidature envoyée au propriétaire !':'Mis à jour.');
+  loadLocataireApplicationsPage();
+  return bk;
+}
+function changerDateCandidature(bookingId,date){
+  if(!confirm('Passer la date d\'entrée au '+_frDate(date)+' ? Les co-locataires qui avaient déjà confirmé devront reconfirmer.'))return;
+  _majCandidature(bookingId,(bk,arr)=>{
+    const msgs=[];
+    arr=arr.map(c=>{
+      if(c.coloc_status==='date_proposed'&&c.date_proposee===date)return{...c,coloc_status:'accepted',date_ok:true,date_proposee:null};
+      if(c.coloc_status==='accepted'||c.coloc_status==='date_proposed'){msgs.push({to:c.locataire_id||c.tenant_id,txt:`La date d'entrée de la candidature commune passe au ${_frDate(date)}. Merci de reconfirmer dans « Candidatures ».`});return{...c,coloc_status:'pending',date_ok:null};}
+      return c;
+    });
+    return{update:{move_in_date:date,co_locataires_data:JSON.stringify(arr)},msgs};
+  });
+}
+function garderDateCandidature(bookingId,colocId){
+  _majCandidature(bookingId,(bk,arr)=>{
+    arr=arr.map(c=>(c.locataire_id===colocId||c.tenant_id===colocId)?{...c,coloc_status:'pending',date_proposee:null}:c);
+    return{update:{co_locataires_data:JSON.stringify(arr)},msgs:[{to:colocId,txt:`${bk.locataire_name||'Le locataire principal'} garde la date du ${_frDate(bk.move_in_date)}. Dites-lui dans « Candidatures » si vous la confirmez.`}]};
+  });
+}
+function continuerSansRefus(bookingId){
+  if(!confirm('Retirer les co-locataires qui ont refusé et continuer sans eux ?'))return;
+  _majCandidature(bookingId,(bk,arr)=>{
+    arr=arr.filter(c=>c.coloc_status!=='declined');
+    let payers=_parseArr(bk.fee_payers).filter(p=>p.tenant_id===bk.tenant_id||arr.some(c=>(c.locataire_id||c.tenant_id)===p.tenant_id));
+    const total=Number(bk.commission_amount||0);
+    if(total>0&&bk.fee_split==='split'&&payers.length){const part=Math.round(total/payers.length*100)/100;payers=payers.map(p=>({...p,amount:part}));}
+    return{update:{co_locataires_data:arr.length?JSON.stringify(arr):null,co_locataire_ids:arr.length?JSON.stringify(arr.map(c=>c.locataire_id||c.tenant_id)):null,fee_payers:payers,...(arr.length?{}:{fee_split:'solo'})}};
+  });
+}
+async function annulerCandidatureColoc(bookingId){
+  if(!confirm('Annuler cette candidature ?'))return;
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
+  const{error}=await sb.from('bookings').update({status:'cancelled_by_locataire',cancelled_at:new Date().toISOString()}).eq('id',bookingId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
+  for(const c of _parseArr(bk?.co_locataires_data))if(c.coloc_status!=='declined')try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:c.locataire_id||c.tenant_id,content:`${bk.locataire_name||'Le locataire principal'} a annulé la candidature commune.`,type:'coloc_reponse'});}catch(e){}
+  toast('Candidature annulée.');loadLocataireApplicationsPage();
 }
 
 
