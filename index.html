@@ -3281,6 +3281,50 @@ function goToListingsPage(n){
   document.getElementById('lg')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// Prorata du 1er loyer (même calcul partout : annonce, bail, dashboards).
+// Entrée le JJ → 1er loyer = loyer × jours jusqu'à la prochaine échéance / jours de la période.
+// Prochaine échéance = premier « jour de paiement » du bail strictement après la date d'entrée.
+function prorataLoyer(moveInStr,payDay,rentCC){
+  const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(moveInStr||''));
+  if(!m)return null;
+  const y=+m[1],mo=+m[2],d=+m[3];
+  const D=Math.min(Math.max(parseInt(payDay)||1,1),31);
+  const dim=(Y,M)=>new Date(Y,M,0).getDate();
+  let ny=y,nm=mo,nd=Math.min(D,dim(y,mo));
+  if(nd<=d){nm++;if(nm>12){nm=1;ny++;}nd=Math.min(D,dim(ny,nm));}
+  let py=ny,pm=nm-1;if(pm<1){pm=12;py--;}
+  const pd=Math.min(D,dim(py,pm));
+  const u=(Y,M,J)=>Date.UTC(Y,M-1,J);
+  const days=Math.round((u(ny,nm,nd)-u(y,mo,d))/864e5);
+  const period=Math.round((u(ny,nm,nd)-u(py,pm,pd))/864e5);
+  const rent=Number(rentCC)||0;
+  const amount=days>=period?rent:Math.round(rent*days/period*100)/100;
+  const iso=(Y,M,J)=>`${Y}-${String(M).padStart(2,'0')}-${String(J).padStart(2,'0')}`;
+  const endT=new Date(u(ny,nm,nd)-864e5);
+  return{days,period,amount,full:days>=period,start:iso(y,mo,d),end:iso(endT.getUTCFullYear(),endT.getUTCMonth()+1,endT.getUTCDate()),nextDue:iso(ny,nm,nd),payDay:D};
+}
+function fmtDateFr(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return'—';return new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';}
+
+function renderDcost(){
+  const c=window._dcostCtx;const el=document.getElementById('dcost-lines');if(!c||!el)return;
+  const dv=document.getElementById('dcost-date')?.value||'';
+  const pr=dv?prorataLoyer(dv,c.payDay,c.price):null;
+  const first=pr?pr.amount:c.price;
+  const sub=pr?(pr.full?`Mois complet — entrée le ${fmtDateFr(pr.start)}`:`Prorata : ${pr.days} jours sur ${pr.period} (du ${fmtDateFr(pr.start)} au ${fmtDateFr(pr.end)})`)
+             :'Mois complet — indiquez votre date d\'entrée ci-dessous pour voir le prorata';
+  const total=Math.round((first+c.depot+c.commission)*100)/100;
+  el.innerHTML=c.cline('Premier mois de loyer',(Math.round(first*100)/100).toLocaleString('fr-FR'),sub,'var(--stone)')
+    +c.cline('Dépôt de garantie',c.depot,'Remboursé en fin de bail','var(--stone)')
+    +c.cline(c.commissionLabel,c.commission,'','#C9553A')
+    +`<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .3rem;margin-top:.35rem">
+        <div style="font-size:1rem;font-weight:700;color:var(--stone)">Total à l'entrée${pr?'':' (mois complet)'}</div>
+        <div style="font-size:1.7rem;font-weight:900;color:#C9553A;font-variant-numeric:tabular-nums">€${total.toLocaleString('fr-FR')}</div>
+      </div>
+      ${pr&&!pr.full?`<div style="font-size:.75rem;color:var(--stone);margin-bottom:.2rem">Puis <strong>€${Number(c.price).toLocaleString('fr-FR')}</strong> par mois à partir du ${fmtDateFr(pr.nextDue)}.</div>`:''}
+      <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le premier loyer sont versés directement au propriétaire à l'entrée dans les lieux.</div>`;
+}
+
 async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('active',true);document.getElementById('sc').textContent=count??'0';}
 
 // Photo verticale (prise au téléphone en portrait) : on l'affiche en entier, centrée,
@@ -3762,7 +3806,7 @@ async function _openDetBody(l,id){
     if(_dw)_dw.innerHTML=_dh?'<div style="margin-bottom:1rem"><div style="font-size:1.05rem;font-weight:700;color:var(--stone);margin-bottom:.85rem;padding-bottom:.5rem;border-bottom:2px solid var(--b2)">DPE — Performance Énergétique</div>'+_dh+'</div>':'';
   }
 
-  // ─── Coût premier mois ──────────────────────────────────────────
+  // ─── Coût premier mois (avec simulation du prorata) ─────────────
   const dcostCard=document.getElementById('dcost');
   const isAgence=!!AL.agency_annonce;
   if(l.type==='for_sale'){
@@ -3780,15 +3824,15 @@ async function _openDetBody(l,id){
         </div>
         <div style="font-size:1.2rem;font-weight:800;color:${color||'var(--stone)'};font-variant-numeric:tabular-nums">€${amount}</div>
       </div>`;
-    document.getElementById('dcost-inner').innerHTML=
-      _cline('Premier mois de loyer',l.price,'','var(--stone)')
-      +_cline('Dépôt de garantie',l.depot||0,'Remboursé en fin de bail','var(--stone)')
-      +_cline(commissionLabel,commission,'','#C9553A')
-      +`<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .3rem;margin-top:.35rem">
-        <div style="font-size:1rem;font-weight:700;color:var(--stone)">Total à la signature</div>
-        <div style="font-size:1.7rem;font-weight:900;color:#C9553A;font-variant-numeric:tabular-nums">€${l.price+(l.depot||0)+commission}</div>
-      </div>
-      <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le loyer sont versés directement au propriétaire à la signature du bail.</div>`;
+    const payDay=l.payment_due_day||1;
+    window._dcostCtx={price:l.price,depot:l.depot||0,commission,commissionLabel,payDay,cline:_cline};
+    document.getElementById('dcost-inner').innerHTML=`<div id="dcost-lines"></div>
+      <div style="margin-top:.75rem;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.18);border-radius:10px;padding:.7rem .8rem">
+        <label for="dcost-date" style="display:block;font-size:.82rem;font-weight:700;color:var(--stone);margin-bottom:.35rem">Simulez votre date d'entrée</label>
+        <input type="date" id="dcost-date" style="width:100%;padding:.5rem .6rem;border:1px solid var(--b2);border-radius:8px;font-size:.9rem;box-sizing:border-box" oninput="renderDcost()">
+        <div style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem;line-height:1.45">Le loyer est payable le ${payDay===1?'1<sup>er</sup>':payDay} de chaque mois. Si vous entrez en cours de mois, le premier loyer est calculé au prorata des jours occupés.</div>
+      </div>`;
+    renderDcost();
   }
 
   // Masquer le bloc contact si c'est le propriétaire de l'annonce
