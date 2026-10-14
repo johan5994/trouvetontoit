@@ -1232,7 +1232,7 @@ async function deleteAnnonce(id,titleForConfirmer){
     // avoir lu. Il faut mainlocataire taper le vrai titre de l'annonce.
     const wantsForce=confirm("Cette annonce a un historique de messages et ne peut pas être supprimée en le conservant.\n\nCliquez sur OK pour la masquer des résultats de recherche (sécurisé, conserve l'historique — recommandé).\nCliquez sur Annuler si vous souhaitez la supprimer définitivement avec tous ses messages.");
     if(wantsForce){
-      const{erreur:deactivateErreur}=await sb.from('listings').update({active:false}).eq('id',id);
+      const{error:deactivateErreur}=await sb.from('listings').update({active:false}).eq('id',id);
       if(deactivateErreur){
         toast('<i data-lucide=x-circle class=ic></i> Could not hide this annonce — pbail contact support.');
         return;
@@ -1248,7 +1248,7 @@ async function deleteAnnonce(id,titleForConfirmer){
       return;
     }
     await sb.from('messages').delete().eq('listing_id',id);
-    const{erreur:retryErreur}=await sb.from('listings').delete().eq('id',id);
+    const{error:retryErreur}=await sb.from('listings').delete().eq('id',id);
     if(retryErreur){
       toast('<i data-lucide=x-circle class=ic></i> Still could not delete this annonce — pbail contact support.');
       return;
@@ -3907,7 +3907,7 @@ function openSigningDocLL(embedSrc,title,bookingId){
       let updateOk=false;
       if(bookingId){
         try{
-          const{erreur:updErr}=await sb.from('bookings').update({bail_signed_propriétaire:true}).eq('id',bookingId);
+          const{error:updErr}=await sb.from('bookings').update({bail_signed_propriétaire:true}).eq('id',bookingId);
           if(updErr){
             alert('Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message+'\n\nBooking ID: '+bookingId);
           }else{
@@ -3972,7 +3972,7 @@ function doOuvrirPropriétaireDoc(bk,bookingId,embedSrc,dbField,title){
     form.addEventListener('completed',async()=>{
       let updateOk=false;
       try{
-        const{erreur:updErr}=await sb.from('bookings').update({[dbField]:true}).eq('id',bookingId);
+        const{error:updErr}=await sb.from('bookings').update({[dbField]:true}).eq('id',bookingId);
         if(updErr){
           alert('Signed on DocuSeal, but could not update statut in Trouve Ton Toit:\n'+updErr.message+'\n\nField: '+dbField+'\nBooking ID: '+bookingId);
         }else{
@@ -4030,11 +4030,11 @@ async function confirmFirstPaiementReceived(bookingId,received){
         alert(`Paiements NOT created — missing data on this booking:\ntenant_id: ${bk.tenant_id?'✓':'MISSING'}\nlisting_id: ${bk.listing_id?'✓':'MISSING'}\nmonthly_rent: ${bk.monthly_rent?'✓ '+bk.monthly_rent:'MISSING'}`);
       }else{
         const today=new Date().toISOString().split('T')[0];
-        const{erreur:payErr}=await sb.from('paiements').insert([
+        const{error:payErr}=await sb.from('paiements').insert([
           {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,montant:bk.monthly_rent,type:'depot',statut:'paid',paid_at:new Date().toISOString(),due_date:today},
           {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,montant:bk.monthly_rent,type:'first_rent',statut:'paid',paid_at:new Date().toISOString(),due_date:today}
         ]);
-        if(payErr)alert('Paiements insert FAILED:\n'+payErr.message+'\n\nCode: '+(payErr.code||'—')+'\nDetails: '+(payErr.details||'—'));
+        if(payErr)console.warn('Enregistrement des paiements (non bloquant) :',payErr.message);
       }
 
       if(bk.tenant_id){
@@ -4094,7 +4094,7 @@ function renderPropriétaireEdlSection(bk,g){
     if(!bk?.edl_propriétaire_embed){
       // Formulaire pas encore rempli — rien à écraser, ouvrir l'assistant est correct.
       return`<div style="margin-top:.6rem">
-        <button onclick="openPropriétaireÉtat des lieux('${bk?.id||''}')" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux (État des lieux) & keys →</button>
+        <button onclick="openEtatDesLieux('${bk?.id||''}')" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux (État des lieux) & keys →</button>
       </div>`;
     }
     // Un État des lieux a déjà été généré — montrer le vrai statut plutôt que de
@@ -4362,6 +4362,14 @@ function renderVisitGroup(g, isPast){
     const _resent=(Array.isArray(_L.modifs_log)?_L.modifs_log:[]).some(e=>e&&e.par==='tenant');
     if(_ns==='pending_tenant'&&_resent)sc={label:'<i data-lucide=send class=ic></i> Bail modifié renvoyé',cls:'b-sea'};
     else if(_ns==='signed'&&_L.garant_name&&!_L.garant_signed_at)sc={label:'<i data-lucide=hourglass class=ic></i> Signature du garant attendue',cls:'b-sea'};
+    else if(_ns==='signed'){
+      // Bail signé par tous → on suit le premier paiement puis l'état des lieux
+      const _b=g.booking||{};
+      if(_b.edl_signed_propriétaire&&_b.edl_signed_locataire)sc={label:'<i data-lucide=check-circle-2 class=ic></i> État des lieux signé',cls:'b-green'};
+      else if(_b.first_paiement_confirmed)sc={label:'<i data-lucide=clipboard-list class=ic></i> Paiement reçu — état des lieux à faire',cls:'b-gold'};
+      else if(_b.first_paiement_sent)sc={label:'<i data-lucide=euro class=ic></i> Paiement à confirmer',cls:'b-gold'};
+      else sc={label:'<i data-lucide=hourglass class=ic></i> Bail signé — premier paiement attendu',cls:'b-sea'};
+    }
     else if(_ns==='agreed'){
       if(_L.tenant_signed_at&&!_L.landlord_signed_at)sc={label:'<i data-lucide=pen-line class=ic></i> À vous de signer',cls:'b-gold'};
       else if(_L.landlord_signed_at&&!_L.tenant_signed_at)sc={label:'<i data-lucide=hourglass class=ic></i> Signature du locataire attendue',cls:'b-sea'};
@@ -4977,7 +4985,7 @@ async function generateRentScheduleLL(ctx,monthsAhead=12){
   }
 
   // Avoid duplicating the schedule if this runs more than once pour the same booking
-  const{data:existing,erreur:checkErr}=await sb.from('paiements').select('id').eq('tenant_id',bk.tenant_id).eq('listing_id',bk.listing_id).eq('type','loyer').limit(1);
+  const{data:existing,error:checkErr}=await sb.from('paiements').select('id').eq('tenant_id',bk.tenant_id).eq('listing_id',bk.listing_id).eq('type','loyer').limit(1);
   if(checkErr)console.warn('[generateRentScheduleLL] dedup check failed:',checkErr);
   if(existing&&existing.length){console.log('[generateRentScheduleLL] schedule already exists, skipping');return;}
 
@@ -5014,7 +5022,7 @@ async function generateRentScheduleLL(ctx,monthsAhead=12){
       });
     });
   }
-  const{erreur:insErr}=await sb.from('paiements').insert(rows);
+  const{error:insErr}=await sb.from('paiements').insert(rows);
   if(insErr){
     console.error('[generateRentScheduleLL] insert FAILED:',insErr);
     toast('<i data-lucide=alert-triangle class=ic></i> Loyer schedule generation failed: '+insErr.message);
@@ -5029,7 +5037,7 @@ async function confirmLocatairePaiement(bookingId){
   if(!confirm('Confirmer la réception du paiement du locataire ?')) return;
 
   let bk=null,annonce=null,locataireProfile=null;
-  try{const{data:b,erreur:bErr}=await sb.from('bookings').select('*').eq('id',bookingId).single();bk=b;if(bErr)alert('Could not load booking: '+bErr.message);}catch(e){alert('Booking load erreur: '+e.message);}
+  try{const{data:b,error:bErr}=await sb.from('bookings').select('*').eq('id',bookingId).single();bk=b;if(bErr)alert('Could not load booking: '+bErr.message);}catch(e){alert('Booking load erreur: '+e.message);}
   if(!bk){alert('No booking found pour this ID — stopping.');return;}
   if(bk?.listing_id){try{const{data:l}=await sb.from('listings').select('title').eq('id',bk.listing_id).single();annonce=l;}catch(e){}}
   if(bk?.tenant_id){try{const{data:t}=await sb.from('profiles').select('full_name,email').eq('clerk_id',bk.tenant_id).maybeSingle();locataireProfile=t;}catch(e){}}
@@ -5053,12 +5061,12 @@ async function confirmLocatairePaiement(bookingId){
     alert(`Paiements NOT created — missing data on this booking:\ntenant_id: ${bk?.tenant_id?'✓ '+bk.tenant_id:'MISSING'}\nlisting_id: ${bk?.listing_id?'✓ '+bk.listing_id:'MISSING'}\nmonthly_rent: ${bk?.monthly_rent?'✓ '+bk.monthly_rent:'MISSING'}`);
   }else{
     const today=new Date().toISOString().split('T')[0];
-    const{erreur:payErr}=await sb.from('paiements').insert([
+    const{error:payErr}=await sb.from('paiements').insert([
       {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,montant:bk.monthly_rent,type:'depot',statut:'paid',paid_at:new Date().toISOString(),due_date:today},
       {landlord_id:U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:locataireProfile?.full_name||null,tenant_email:locataireProfile?.email||null,montant:bk.monthly_rent,type:'first_rent',statut:'paid',paid_at:new Date().toISOString(),due_date:today}
     ]);
     if(payErr){
-      alert('Paiements insert FAILED:\n'+payErr.message+'\n\nCode: '+(payErr.code||'—')+'\nDetails: '+(payErr.details||'—'));
+      console.warn('Enregistrement des paiements (non bloquant) :',payErr.message);
     }
   }
 
