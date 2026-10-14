@@ -1358,10 +1358,24 @@ async function fetchVisitAndApplicationGroups(){
     (leases||[]).forEach(l=>{if(!l.booking_id)return;const cur=leaseByBooking[l.booking_id];if(!cur||(_rk[l.negotiation_status||'draft']||0)>(_rk[cur.negotiation_status||'draft']||0))leaseByBooking[l.booking_id]=l;});
   }
 
+  // Baux individuels des co-locataires (location par chambre) + montants du bail principal
+  const childLeases={};
+  if(relevantBookingIds.length){
+    try{
+      const{data:kids,error:_ke}=await sb.from('leases').select('*').in('parent_booking_id',relevantBookingIds);
+      if(!_ke)(kids||[]).forEach(l=>{(childLeases[l.parent_booking_id]=childLeases[l.parent_booking_id]||[]).push(l);});
+      const mainIds=Object.values(leaseByBooking).map(l=>l.id);
+      if(Object.keys(childLeases).length&&mainIds.length){
+        const{data:full}=await sb.from('leases').select('*').in('id',mainIds);
+        (full||[]).forEach(l=>{if(leaseByBooking[l.booking_id]?.id===l.id)leaseByBooking[l.booking_id]={...leaseByBooking[l.booking_id],...l};});
+      }
+    }catch(e){}
+  }
+
   // Attacher la lease à chaque booking dans les groupes
   const attachLease=arr=>arr.map(g=>{
     if(g.booking?.id && leaseByBooking[g.booking.id]){
-      return{...g,booking:{...g.booking,_lease:leaseByBooking[g.booking.id]}};
+      return{...g,booking:{...g.booking,_lease:leaseByBooking[g.booking.id],_childLeases:childLeases[g.booking.id]||[]}};
     }
     return g;
   });
@@ -4207,6 +4221,74 @@ async function propriétaireEdlSelfDecision(bookingId,wantsIt){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
+// ═══ Location par chambre : un bail par locataire, suivi séparé (bail, signatures, 1er paiement) ═══
+function renderIndivLeasesLL(g,bk){
+  let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){}
+  const nameOf=id=>(cols.find(c=>(c.locataire_id||c.tenant_id)===id)||{}).name||'Co-locataire';
+  const main=bk._lease||{};
+  const all=[{...main,_name:g.tenant_name||'Locataire 1',_main:true},...(bk._childLeases||[]).map(k=>({...k,_name:nameOf(k.tenant_id)}))]
+    .sort((a,b)=>(a._main?0:1)-(b._main?0:1)||String(a.lot_label||'').localeCompare(String(b.lot_label||''),'fr',{numeric:true}));
+  const nsLbl={draft:['Bail à envoyer','var(--gold)'],pending_tenant:['Envoyé — relecture du locataire','var(--bleu)'],pending_landlord:['Remarques à traiter','var(--gold)'],agreed:['Accepté — à signer','var(--green)'],signed:['Signé','var(--green)']};
+  const chip=(ok,lbl)=>`<span style="font-size:.68rem;padding:.12rem .45rem;border-radius:20px;background:${ok?'var(--grdim)':'var(--s)'};color:${ok?'var(--green)':'var(--td)'};border:1px solid ${ok?'var(--grdim)':'var(--b2)'}">${ok?'✓':'…'} ${lbl}</span>`;
+  const rows=all.map((l,i)=>{
+    const signed=!!(l.landlord_signed_at&&l.tenant_signed_at);
+    const [st,col]=signed?['Bail signé','var(--green)']:(nsLbl[l.negotiation_status||'draft']||nsLbl.draft);
+    const cc=(Number(l.rent)||0)+(Number(l.charges)||0);
+    const pr=prorataLoyer(l.start_date||bk.move_in_date,l.payment_due_day||1,cc);
+    const du=(Number(l.deposit)||0)+(pr?pr.amount:cc);
+    let pay='';
+    if(signed){
+      const sent=l._main?bk.first_payment_sent:!!l.first_payment_sent_at;
+      const ok=l._main?bk.first_payment_confirmed:!!l.first_payment_confirmed_at;
+      const btn=l._main?`confirmLocatairePaiement('${bk.id}')`:`confirmChildPaymentLL('${l.id}')`;
+      pay=`<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;padding-top:.4rem;border-top:1px dashed var(--b2)">
+        <span style="font-size:.74rem">1er paiement : <strong>${fmtEur(du)}</strong> <span style="color:var(--td)">(dépôt ${fmtEur(l.deposit||0)} + 1er loyer)</span> — ${ok?'<span style="color:var(--green);font-weight:600">reçu ✓</span>':sent?'<span style="color:var(--gold);font-weight:600">déclaré par le locataire</span>':'<span style="color:var(--td)">en attente</span>'}</span>
+        ${ok?'':`<button onclick="${btn}" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> J'ai reçu le paiement</button>`}
+      </div>`;
+    }
+    return `<div style="background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:.6rem .7rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:.45rem">
+          <span style="width:20px;height:20px;border-radius:50%;background:var(--bleu);color:#fff;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center">${i+1}</span>
+          <div><div style="font-size:.84rem;font-weight:700">${l._name}</div><div style="font-size:.7rem;color:var(--td)">${l.lot_label||'Chambre '+(i+1)} · ${fmtEur(cc)}/mois CC</div></div>
+        </div>
+        <div style="text-align:right"><div style="font-size:.72rem;font-weight:700;color:${col}">${st}</div>
+          <a href="/bail-meuble.html?lease_id=${l.id}&role=landlord" style="font-size:.72rem;font-weight:700;color:var(--bleu);text-decoration:none">Ouvrir ce bail →</a></div>
+      </div>
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.4rem">${chip(!!l.landlord_signed_at,'Vous')}${chip(!!l.tenant_signed_at,l._name)}${l.garant_name?chip(!!l.garant_signed_at,'Garant '+l.garant_name):''}</div>
+      ${pay}
+    </div>`;
+  }).join('');
+  return `<div style="margin-bottom:.75rem">
+    <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">${all.length} baux individuels — un par locataire</div>
+    <div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div>
+  </div>`;
+}
+async function confirmChildPaymentLL(leaseId){
+  if(!confirm('Confirmer que vous avez reçu le premier paiement (dépôt + 1er loyer) de ce locataire ?'))return;
+  const{data:l}=await sb.from('leases').select('*').eq('id',leaseId).single();
+  if(!l)return;
+  const now=new Date().toISOString(),today=now.split('T')[0];
+  const{error}=await sb.from('leases').update({first_payment_confirmed_at:now}).eq('id',leaseId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message+' (migration bail-individuel exécutée ?)',8000);return;}
+  try{
+    const{data:tp}=await sb.from('profiles').select('full_name,email').eq('clerk_id',l.tenant_id).maybeSingle();
+    const{data:have}=await sb.from('payments').select('id,type').eq('lease_id',leaseId);
+    const types=new Set((have||[]).map(x=>x.type));
+    const cc=(Number(l.rent)||0)+(Number(l.charges)||0),payDay=l.payment_due_day||1;
+    const base={landlord_id:l.landlord_id||U.id,tenant_id:l.tenant_id,listing_id:l.listing_id,lease_id:l.id,tenant_name:tp?.full_name||null,tenant_email:tp?.email||null};
+    const rows=[];
+    if(!types.has('deposit')&&Number(l.deposit)>0)rows.push({...base,amount:Number(l.deposit),type:'deposit',status:'paid',paid_at:now,due_date:l.start_date||today});
+    const pr=prorataLoyer(l.start_date,payDay,cc);
+    if(!types.has('first_rent'))rows.push({...base,amount:pr?pr.amount:cc,type:'first_rent',status:'paid',paid_at:now,due_date:l.start_date||today});
+    if(!types.has('rent'))rentDueDates(l.start_date,payDay,12).forEach(d=>rows.push({...base,amount:cc,type:'rent',status:'pending',due_date:d}));
+    if(rows.length){const{error:pe}=await sb.from('payments').insert(rows);if(pe)toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+pe.message,8000);}
+    await sb.from('messages').insert({listing_id:l.listing_id,sender_id:'system',receiver_id:l.tenant_id,content:`Le propriétaire a confirmé la réception de votre premier paiement (${l.lot_label||'votre chambre'}). Vos quittances sont disponibles dans Paiements.`,type:'message'});
+  }catch(e){console.warn('confirmChildPaymentLL',e);}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé.');
+  try{loadApplicationsPageLL();}catch(e){}
+}
+
 function renderBailSection(g){
   const bk=g.booking||null;
   // Signatures : la table leases fait foi (nouveau flux) ; booking = ancien flux DocuSeal
@@ -4242,7 +4324,7 @@ function renderBailSection(g){
       </div>
 
       <!-- Signatures / État du workflow bail -->
-      ${(()=>{
+      ${bk?._childLeases?.length?renderIndivLeasesLL(g,bk):(()=>{
         const lease=bk?._lease||null;
         const ns=lease?.negotiation_status||(!bk?.bail_propriétaire_embed?'no_bail':'unknown');
         const agreed=ns==='agreed'||ns==='signed';
@@ -4322,13 +4404,13 @@ function renderBailSection(g){
         </div>`;
       })()}
 
-      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
+      ${bk?._childLeases?.length?'':`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
       <div id="payrow-${bk?.id||''}" style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:.78rem">${payConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed':payDeclared?'<i data-lucide=euro class=ic></i> Locataire declared paiement':'<i data-lucide=hourglass class=ic></i> Waiting pour paiement'}</span>
         ${payDeclared&&!payConfirmered
           ?`<button onclick="confirmLocatairePaiement('${bk?.id||''}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Confirmer received</button>`
           :payConfirmered?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i></span>':''}
-      </div>
+      </div>`}
 
       ${payConfirmered?renderEdlBlockLL(bk):''}
 
