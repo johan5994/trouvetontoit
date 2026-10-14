@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bail de parking / garage — Trouve Ton Toit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script>window.__clerk_publishable_key='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F8F7F4;--tm:#1A1D27;--td:#6B7280;--border:#E5E7EB;--border2:#D1D5DB;--green:#16A34A;--red:#DC2626;--gold:#B45309;--orange:#EA580C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tm);font-size:15px;line-height:1.6}
+.ic{width:1em;height:1em;vertical-align:-.14em;stroke-width:2}
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:.7rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--bleu);text-decoration:none}
+.nav-user{font-size:.78rem;color:var(--td)}
+.wrap{max-width:820px;margin:1.25rem auto;padding:0 1rem 7rem}
+.status{margin-bottom:1rem;padding:.65rem .9rem;border-radius:10px;font-size:.84rem;font-weight:600;display:flex;gap:.5rem;align-items:flex-start}
+.st-draft{background:#FEF3C7;color:#92400E}.st-sign{background:#DBEAFE;color:#1E40AF}.st-done{background:#D1FAE5;color:#065F46}.st-modif{background:#FFEDD5;color:#9A3412}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.card h2{font-size:1rem;font-weight:800;margin-bottom:.15rem;display:flex;align-items:center;gap:.45rem}
+.hint{font-size:.78rem;color:var(--td);margin-bottom:.8rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+label.f{display:block;font-size:.72rem;font-weight:700;color:var(--td);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.03em}
+.i{width:100%;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:9px;font-size:.88rem;font-family:inherit;background:#fff;color:var(--tm)}
+.i:focus{outline:2px solid rgba(27,79,216,.25);border-color:var(--bleu)}
+textarea.i{resize:vertical}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:9px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none}
+.btn:focus-visible{outline:3px solid rgba(27,79,216,.35)}
+.bp{background:var(--bleu);color:#fff}.bg{background:#fff;color:var(--tm);border:1px solid var(--border2)}.bgr{background:var(--green);color:#fff}.bor{background:var(--orange);color:#fff}.bsm{padding:.35rem .65rem;font-size:.76rem}
+/* Document */
+.doc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.7rem}
+@media(max-width:560px){.doc{padding:1.1rem}}
+.doc h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.55rem;text-align:center;line-height:1.25;text-wrap:balance}
+.doc .sub{text-align:center;font-size:.78rem;color:var(--td);margin:.3rem 0 1.2rem}
+.art{margin-top:1.1rem}
+.art h3{font-size:.95rem;font-weight:800;color:var(--marine);margin-bottom:.35rem}
+.art p,.art li{font-size:.88rem;margin-bottom:.35rem}
+.art ul{margin-left:1.1rem}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem 1rem;font-size:.86rem;background:#FAFAF9;border:1px solid #F1F1EF;border-radius:10px;padding:.6rem .8rem;margin:.4rem 0}
+.kv span:nth-child(even){font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.legal{font-size:.74rem;color:var(--td);line-height:1.5}
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.6rem}
+@media(max-width:620px){.sigs{grid-template-columns:1fr}}
+.sig{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.sig-h{padding:.55rem .75rem;background:#FAFAF9;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--td)}
+.sig-h strong{display:block;font-size:.9rem;text-transform:none;letter-spacing:0;color:var(--tm)}
+.sig-b{padding:.6rem;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.4rem;text-align:center;font-size:.8rem;color:var(--td)}
+canvas.pad{width:100%;height:120px;border:1px dashed var(--border2);border-radius:9px;touch-action:none;background:#fff}
+.sig-b img{max-height:80px;max-width:100%}
+.ok{color:var(--green);font-weight:700}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);padding:.6rem 1rem calc(.6rem + env(safe-area-inset-bottom,0px));display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;z-index:40}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem 1rem;border-radius:10px;font-size:.84rem;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+@media print{.nav,.bar,.toast,.no-print{display:none!important}body{background:#fff}.wrap{margin:0;max-width:none;padding:0}.doc{border:none;padding:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="nav"><a class="nav-brand" href="/">★ Trouve Ton Toit</a><span class="nav-user" id="nav-user"></span></nav>
+<div class="wrap" id="app"><div class="card" style="text-align:center;color:var(--td)">Chargement…</div></div>
+<div class="bar no-print" id="bar" style="display:none"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CLERK_KEY='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+const SB_URL='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const QP=new URLSearchParams(location.search);
+const BOOKING_ID=QP.get('booking_id'),LEASE_ID=QP.get('lease_id');
+let U=null,BK=null,LEASE=null,LI=null,LL_P=null,T_P=null,myRole=null,_pads={};
+
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons=()=>window.lucide&&lucide.createIcons();
+function toast(m,ms){const t=$('toast');t.innerHTML=m;t.classList.add('show');icons();clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms||3200);}
+const eur=n=>(Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR')+' €';
+function fmtD(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';}
+function pdata(){let v=LEASE?.parking_data;try{v=typeof v==='string'?JSON.parse(v):v;}catch(e){v=null;}return v||{};}
+
+// Prorata du 1er loyer (même calcul que le bail d'habitation)
+function prorataLoyer(moveInStr,payDay,rentCC){
+  const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(moveInStr||''));if(!m)return null;
+  const y=+m[1],mo=+m[2],d=+m[3],D=Math.min(Math.max(parseInt(payDay)||1,1),31);
+  const dim=(Y,M)=>new Date(Y,M,0).getDate();
+  let ny=y,nm=mo,nd=Math.min(D,dim(y,mo));if(nd<=d){nm++;if(nm>12){nm=1;ny++;}nd=Math.min(D,dim(ny,nm));}
+  let py=ny,pm=nm-1;if(pm<1){pm=12;py--;}const pd=Math.min(D,dim(py,pm));
+  const u=(Y,M,J)=>Date.UTC(Y,M-1,J);
+  const days=Math.round((u(ny,nm,nd)-u(y,mo,d))/864e5),period=Math.round((u(ny,nm,nd)-u(py,pm,pd))/864e5);
+  const iso=(Y,M,J)=>`${Y}-${String(M).padStart(2,'0')}-${String(J).padStart(2,'0')}`,endT=new Date(u(ny,nm,nd)-864e5);
+  return{days,period,full:days>=period,amount:days>=period?Number(rentCC)||0:Math.round((Number(rentCC)||0)*days/period*100)/100,start:iso(y,mo,d),end:iso(endT.getUTCFullYear(),endT.getUTCMonth()+1,endT.getUTCDate()),nextDue:iso(ny,nm,nd)};
+}
+
+// ── Chargement ──
+(async()=>{
+  try{const c=(typeof window.Clerk==='function')?new window.Clerk(CLERK_KEY):window.Clerk;await c.load();if(c.user){U={id:c.user.id,email:c.user.primaryEmailAddress?.emailAddress||''};$('nav-user').textContent=U.email;}}catch(e){}
+  await load();
+})();
+async function load(){
+  if(BOOKING_ID){
+    const{data:bk}=await sb.from('bookings').select('*').eq('id',BOOKING_ID).maybeSingle();
+    if(!bk)return fatal('Réservation introuvable.');
+    BK=bk;
+    const{data:ls}=await sb.from('leases').select('*').eq('booking_id',bk.id);
+    const rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
+    LEASE=(ls||[]).sort((a,b)=>(rk[b.negotiation_status||'draft']||0)-(rk[a.negotiation_status||'draft']||0))[0]||null;
+  }else if(LEASE_ID){
+    const{data:l}=await sb.from('leases').select('*').eq('id',LEASE_ID).maybeSingle();
+    if(!l)return fatal('Bail introuvable.');
+    LEASE=l;
+    if(l.booking_id){const{data:bk}=await sb.from('bookings').select('*').eq('id',l.booking_id).maybeSingle();BK=bk;}
+  }else return fatal('Lien incomplet. Ouvrez le bail depuis votre tableau de bord.');
+  const listingId=LEASE?.listing_id||BK?.listing_id;
+  if(listingId){const{data:li}=await sb.from('listings').select('*').eq('id',listingId).maybeSingle();LI=li;}
+  const landlordId=LEASE?.landlord_id||BK?.landlord_id,tenantId=LEASE?.tenant_id||BK?.tenant_id||BK?.locataire_id;
+  if(U){if(U.id===landlordId)myRole='landlord';else if(U.id===tenantId)myRole='tenant';}
+  if(!LEASE){
+    if(myRole!=='landlord')return fatal('Le propriétaire prépare le bail. Vous serez prévenu dès qu\'il sera prêt.');
+    const start=BK?.move_in_date||LI?.available_from||new Date().toISOString().slice(0,10);
+    const ch=LI?.pk_charges_type==='forfait'?Number(LI?.pk_charges_montant)||0:0;
+    const row={booking_id:BK?.id||null,listing_id:listingId,listing_title:LI?.title||'',landlord_id:landlordId,tenant_id:tenantId,start_date:start,end_date:null,rent:Number(BK?.monthly_rent||LI?.price||0),charges:ch,deposit:LI?.depot??LI?.deposit??Number(LI?.price||0),status:'pending',negotiation_status:'draft',type_bail:'parking',payment_due_day:1,
+      parking_data:{numero:'',niveau:LI?.pk_niveau||'',type:LI?.pk_subtype||'parking',duree:LI?.bail_duration==='1an'?'1an':'indeterminee',preavis_locataire:1,preavis_bailleur:1,indexation:'ilc',charges_type:LI?.pk_charges_type==='forfait'?'forfait':(ch>0?'provision':'aucune'),usage:'vehicule',acces:[LI?.pk_badge?'Badge / télécommande':'',LI?.pk_portail_auto?'Télécommande du portail':''].filter(Boolean).join(', '),sousloc:LI?.pk_sousloc==='autorisee'?'autorisee':'interdite'}};
+    const{data:nl,error}=await sb.from('leases').insert(row).select().single();
+    if(error)return fatal('Impossible de créer le bail : '+esc(error.message)+'<br><small>Exécutez la migration <strong>supabase-migration-bail-parking.sql</strong> dans Supabase.</small>');
+    LEASE=nl;
+  }
+  if(!myRole)return fatal(U?'Ce bail ne concerne pas votre compte.':'Connectez-vous pour accéder au bail.');
+  const[{data:lp},{data:tp}]=await Promise.all([
+    sb.from('profiles').select('*').eq('clerk_id',landlordId).maybeSingle(),
+    sb.from('profiles').select('*').eq('clerk_id',tenantId).maybeSingle()
+  ]);
+  LL_P=lp;T_P=tp;
+  render();
+  setInterval(refresh,15000);
+}
+function fatal(m){$('app').innerHTML=`<div class="card" style="text-align:center"><p style="margin-bottom:.8rem">${m}</p><a class="btn bg" href="/">Retour</a></div>`;}
+const ns=()=>LEASE.negotiation_status||'draft';
+const allSigned=()=>!!LEASE.landlord_signed_at&&!!LEASE.tenant_signed_at;
+const canEdit=()=>myRole==='landlord'&&['draft','pending_landlord'].includes(ns())&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at;
+const canSign=()=>['agreed','signed'].includes(ns());
+
+// ── Rendu ──
+function render(){
+  const P=pdata(),L=LEASE;
+  const typeLbl=P.type==='garage'||P.type==='box'?'garage / box fermé':'emplacement de stationnement';
+  const rentCC=(Number(L.rent)||0)+(Number(L.charges)||0);
+  const pr=prorataLoyer(L.start_date,L.payment_due_day||1,rentCC);
+  const idxLbl={ilc:'l\'indice des loyers commerciaux (ILC)',irl:'l\'indice de référence des loyers (IRL)',aucune:''}[P.indexation||'ilc'];
+  const dureeTxt=P.duree==='1an'?`d'un (1) an à compter du <strong>${fmtD(L.start_date)}</strong>, renouvelable par tacite reconduction pour la même durée`:`indéterminée, à compter du <strong>${fmtD(L.start_date)}</strong>`;
+  const st=allSigned()?['st-done','check-circle-2','Bail signé par les deux parties.']
+    :ns()==='agreed'?['st-sign','pen-line','Bail accepté — chacun peut signer en bas de page.']
+    :ns()==='pending_tenant'?['st-sign','send',myRole==='tenant'?'Relisez le bail, puis acceptez-le ou envoyez vos remarques.':'Envoyé au locataire — en attente de sa relecture.']
+    :ns()==='pending_landlord'?['st-modif','refresh-cw',myRole==='landlord'?'Le locataire a demandé des modifications : ajustez puis renvoyez.':'Vos remarques ont été envoyées au propriétaire.']
+    :['st-draft','file-pen',myRole==='landlord'?'Brouillon — complétez les informations puis envoyez au locataire.':'Le propriétaire prépare le bail.'];
+  const adr=LI?.full_address||LI?.zone||'—';
+  $('app').innerHTML=`
+    <div class="status ${st[0]}"><i data-lucide=${st[1]} class=ic></i><span>${st[2]}</span></div>
+    ${L.tenant_notes&&ns()==='pending_landlord'?`<div class="card" style="border-color:#FDBA74"><strong style="font-size:.85rem">Remarques du locataire :</strong><p style="white-space:pre-line;font-size:.85rem;margin-top:.2rem">${esc(L.tenant_notes)}</p></div>`:''}
+    ${canEdit()?renderForm(P):''}
+    <div class="doc">
+      <h1>Contrat de location d'un ${P.type==='garage'||P.type==='box'?'garage / box':'emplacement de stationnement'}</h1>
+      <div class="sub">Location soumise aux articles 1709 et suivants du Code civil — hors loi n° 89-462 du 6 juillet 1989</div>
+
+      <div class="art"><h3>Entre les soussignés</h3>
+        <p><strong>Le bailleur :</strong> ${esc(LL_P?.full_name||'—')}${LL_P?.home_address?', demeurant '+esc(LL_P.home_address):''}${LL_P?.email?' — '+esc(LL_P.email):''}</p>
+        <p><strong>Le locataire :</strong> ${esc(T_P?.full_name||BK?.tenant_name||'—')}${T_P?.home_address?', demeurant '+esc(T_P.home_address):''}${T_P?.email?' — '+esc(T_P.email):''}</p></div>
+
+      <div class="art"><h3>Article 1 — Objet et désignation</h3>
+        <p>Le bailleur donne en location au locataire, qui accepte, un ${typeLbl} situé :</p>
+        <div class="kv"><span>Adresse</span><span>${esc(adr)}</span>
+          <span>Numéro de l'emplacement</span><span>${esc(P.numero||'—')}</span>
+          <span>Niveau / étage</span><span>${esc(P.niveau||'—')}</span>
+          ${LI?.pk_longueur||LI?.pk_largeur?`<span>Dimensions</span><span>${LI.pk_longueur||'?'} × ${LI.pk_largeur||'?'} m${LI.pk_hauteur?' × '+LI.pk_hauteur+' m':''}</span>`:''}
+          <span>Moyens d'accès remis</span><span>${esc(P.acces||'—')}</span></div></div>
+
+      <div class="art"><h3>Article 2 — Destination</h3>
+        <p>Les lieux sont destinés exclusivement au <strong>stationnement d'un véhicule</strong>${P.usage==='vehicule_stockage'?' ainsi qu\'au rangement d\'objets personnels':''}, à l'exclusion de toute habitation, de toute activité commerciale ou artisanale et de toute réparation de véhicule autre que l'entretien courant.</p>
+        <p>Il est interdit d'y entreposer des matières dangereuses, inflammables ou explosives (carburant hors réservoir, bouteilles de gaz…), conformément au règlement de l'immeuble et aux règles de sécurité incendie.</p>
+        <p>La sous-location et la cession du bail sont ${P.sousloc==='autorisee'?'autorisées avec l\'accord écrit préalable du bailleur':'interdites'}.</p></div>
+
+      <div class="art"><h3>Article 3 — Durée</h3>
+        <p>Le présent bail est conclu pour une durée ${dureeTxt}.</p></div>
+
+      <div class="art"><h3>Article 4 — Loyer et charges</h3>
+        <div class="kv"><span>Loyer mensuel</span><span>${eur(L.rent)}</span>
+          ${P.charges_type!=='aucune'&&Number(L.charges)>0?`<span>Charges (${P.charges_type==='forfait'?'forfait':'provision, régularisée chaque année'})</span><span>${eur(L.charges)}</span><span>Total mensuel</span><span>${eur(rentCC)}</span>`:'<span>Charges</span><span>Comprises</span>'}
+          <span>Échéance</span><span>Le ${(L.payment_due_day||1)==1?'1er':L.payment_due_day} de chaque mois</span></div>
+        ${pr&&!pr.full?`<p>L'entrée dans les lieux ayant lieu le <strong>${fmtD(pr.start)}</strong>, le premier loyer est calculé au prorata : <strong>${pr.days} jours sur ${pr.period}</strong>, soit <strong>${eur(pr.amount)}</strong>, payable à l'entrée. Le loyer est ensuite dû en totalité à compter du ${fmtD(pr.nextDue)}.</p>`:''}
+        ${idxLbl?`<p>Le loyer sera révisé chaque année à la date anniversaire du bail selon la variation de ${idxLbl} publié par l'INSEE, l'indice de référence étant le dernier publié à la date de signature.</p>`:'<p>Le loyer n\'est pas indexé.</p>'}</div>
+
+      <div class="art"><h3>Article 5 — Dépôt de garantie</h3>
+        <p>Le locataire verse à la signature un dépôt de garantie de <strong>${eur(L.deposit)}</strong>, non productif d'intérêts. Il est restitué dans un délai maximal d'<strong>un mois</strong> après la remise des moyens d'accès, déduction faite des sommes dues au bailleur et dûment justifiées.</p></div>
+
+      <div class="art"><h3>Article 6 — Obligations du locataire</h3><ul>
+        <li>payer le loyer et les charges aux échéances convenues ;</li>
+        <li>utiliser les lieux conformément à leur destination et au règlement de l'immeuble ;</li>
+        <li>maintenir les lieux en bon état et ne procéder à aucune transformation sans accord écrit du bailleur ;</li>
+        <li>souscrire une <strong>assurance</strong> couvrant sa responsabilité civile pour l'emplacement et le véhicule, et en justifier sur demande ;</li>
+        <li>ne pas modifier ni dupliquer les moyens d'accès sans accord du bailleur, et les restituer en fin de bail.</li></ul></div>
+
+      <div class="art"><h3>Article 7 — Obligations du bailleur</h3>
+        <p>Le bailleur délivre les lieux en bon état d'usage, en assure la jouissance paisible et prend en charge les grosses réparations (art. 606 et 1720 du Code civil).</p></div>
+
+      <div class="art"><h3>Article 8 — Congé</h3>
+        <p>${P.duree==='1an'?'Chaque partie peut mettre fin au bail à son échéance':'Chaque partie peut mettre fin au bail à tout moment'} en respectant un préavis de <strong>${P.preavis_locataire||1} mois</strong> pour le locataire et de <strong>${P.preavis_bailleur||1} mois</strong> pour le bailleur, par lettre recommandée avec avis de réception, acte de commissaire de justice ou remise en main propre contre récépissé.</p></div>
+
+      <div class="art"><h3>Article 9 — Clause résolutoire</h3>
+        <p>À défaut de paiement d'un seul terme de loyer ou des charges à son échéance, ou de défaut d'assurance, et un mois après un commandement de payer ou une mise en demeure resté infructueux, le bail sera résilié de plein droit si bon semble au bailleur.</p></div>
+
+      <div class="art"><h3>Article 10 — État des lieux</h3>
+        <p>Un état des lieux contradictoire est établi à l'entrée et à la sortie, lors de la remise et de la restitution des moyens d'accès.</p></div>
+
+      ${P.clauses?`<div class="art"><h3>Article 11 — Clauses particulières</h3><p style="white-space:pre-line">${esc(P.clauses)}</p></div>`:''}
+
+      <div class="art"><h3>Annexes</h3><ul><li>État des lieux d'entrée</li><li>État des risques et pollutions (ERP), si l'immeuble est situé dans une zone concernée (art. L. 125-5 du Code de l'environnement)</li><li>Extraits du règlement de copropriété relatifs aux parkings, le cas échéant</li></ul></div>
+
+      <p class="legal" style="margin-top:1rem">Ce contrat est régi par les articles 1709 à 1762 du Code civil. Il n'est pas soumis à la loi n° 89-462 du 6 juillet 1989, sauf si l'emplacement est loué accessoirement à un logement par le même bailleur. Signature électronique : art. 1366 et 1367 du Code civil, règlement (UE) n° 910/2014 (eIDAS).</p>
+
+      <div class="art" id="sigs-wrap"><h3>Signatures</h3>${renderSigs()}</div>
+    </div>`;
+  renderBar();icons();setTimeout(initPads,30);
+}
+function renderForm(P){
+  const L=LEASE;
+  const sel=(id,val,opts)=>`<select class="i" id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${String(val)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`;
+  return`<div class="card no-print"><h2><i data-lucide=sliders-horizontal class=ic></i> Informations du bail</h2>
+    <div class="hint">Pré-remplies depuis votre annonce. Modifiez si besoin, puis enregistrez.</div>
+    <div class="grid2">
+      <div><label class="f" for="pf-numero">N° de l'emplacement</label><input class="i" id="pf-numero" value="${esc(P.numero)}" placeholder="ex. Box 24"></div>
+      <div><label class="f" for="pf-niveau">Niveau</label><input class="i" id="pf-niveau" value="${esc(P.niveau)}" placeholder="ex. -1"></div>
+      <div><label class="f" for="pf-type">Type</label>${sel('pf-type',P.type||'parking',[['parking','Place de parking'],['parking_couvert','Place couverte'],['box','Box fermé'],['garage','Garage']])}</div>
+      <div><label class="f" for="pf-acces">Moyens d'accès remis</label><input class="i" id="pf-acces" value="${esc(P.acces)}" placeholder="ex. 1 badge, 1 télécommande, 1 clé"></div>
+      <div><label class="f" for="pf-start">Date d'entrée</label><input class="i" type="date" id="pf-start" value="${esc(String(L.start_date||'').slice(0,10))}"></div>
+      <div><label class="f" for="pf-duree">Durée</label>${sel('pf-duree',P.duree||'indeterminee',[['indeterminee','Indéterminée'],['1an','1 an renouvelable']])}</div>
+      <div><label class="f" for="pf-rent">Loyer mensuel (€)</label><input class="i" type="number" min="0" step="0.01" id="pf-rent" value="${esc(L.rent)}"></div>
+      <div><label class="f" for="pf-chtype">Charges</label>${sel('pf-chtype',P.charges_type||'aucune',[['aucune','Comprises dans le loyer'],['forfait','Forfait mensuel'],['provision','Provision avec régularisation']])}</div>
+      <div><label class="f" for="pf-charges">Montant des charges (€)</label><input class="i" type="number" min="0" step="0.01" id="pf-charges" value="${esc(L.charges||0)}"></div>
+      <div><label class="f" for="pf-deposit">Dépôt de garantie (€)</label><input class="i" type="number" min="0" step="0.01" id="pf-deposit" value="${esc(L.deposit)}"></div>
+      <div><label class="f" for="pf-payday">Jour de paiement</label><input class="i" type="number" min="1" max="31" id="pf-payday" value="${esc(L.payment_due_day||1)}"></div>
+      <div><label class="f" for="pf-index">Indexation du loyer</label>${sel('pf-index',P.indexation||'ilc',[['ilc','ILC (indice des loyers commerciaux)'],['irl','IRL (indice de référence des loyers)'],['aucune','Pas d\'indexation']])}</div>
+      <div><label class="f" for="pf-pl">Préavis du locataire (mois)</label><input class="i" type="number" min="0" max="6" id="pf-pl" value="${esc(P.preavis_locataire||1)}"></div>
+      <div><label class="f" for="pf-pb">Préavis du bailleur (mois)</label><input class="i" type="number" min="0" max="12" id="pf-pb" value="${esc(P.preavis_bailleur||1)}"></div>
+      <div><label class="f" for="pf-usage">Usage autorisé</label>${sel('pf-usage',P.usage||'vehicule',[['vehicule','Stationnement uniquement'],['vehicule_stockage','Stationnement + rangement d\'objets']])}</div>
+      <div><label class="f" for="pf-sousloc">Sous-location</label>${sel('pf-sousloc',P.sousloc||'interdite',[['interdite','Interdite'],['autorisee','Autorisée avec accord écrit']])}</div>
+    </div>
+    <label class="f" for="pf-clauses" style="margin-top:.6rem">Clauses particulières (facultatif)</label>
+    <textarea class="i" id="pf-clauses" rows="2" placeholder="ex. Lavage de véhicule interdit dans le parking">${esc(P.clauses||'')}</textarea>
+    <div style="margin-top:.7rem"><button class="btn bp bsm" onclick="saveForm()"><i data-lucide=save class=ic></i> Enregistrer</button></div>
+  </div>`;
+}
+async function saveForm(){
+  const v=id=>$(id)?.value;
+  const P={...pdata(),numero:v('pf-numero'),niveau:v('pf-niveau'),type:v('pf-type'),acces:v('pf-acces'),duree:v('pf-duree'),charges_type:v('pf-chtype'),indexation:v('pf-index'),preavis_locataire:Number(v('pf-pl'))||1,preavis_bailleur:Number(v('pf-pb'))||1,usage:v('pf-usage'),sousloc:v('pf-sousloc'),clauses:v('pf-clauses')};
+  const start=v('pf-start');
+  let end=null;if(P.duree==='1an'&&start){const d=new Date(start);d.setFullYear(d.getFullYear()+1);d.setDate(d.getDate()-1);end=d.toISOString().slice(0,10);}
+  const upd={parking_data:P,start_date:start||LEASE.start_date,end_date:end,rent:Number(v('pf-rent'))||0,charges:P.charges_type==='aucune'?0:(Number(v('pf-charges'))||0),deposit:Number(v('pf-deposit'))||0,payment_due_day:Math.min(Math.max(parseInt(v('pf-payday'))||1,1),31)};
+  const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  Object.assign(LEASE,upd);toast('<i data-lucide=check-circle-2 class=ic></i> Enregistré');render();
+}
+function renderSigs(){
+  const box=(who,lbl,name,sig,at)=>{
+    let inner;
+    if(at&&sig)inner=`<img src="${sig}" alt="Signature ${lbl}"><div class="ok"><i data-lucide=check-circle-2 class=ic></i> Signé le ${new Date(at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>`;
+    else if(!canSign())inner='Signatures disponibles une fois le bail accepté par le locataire';
+    else if(myRole===who)inner=`<canvas class="pad" id="pad-${who}" width="600" height="160" aria-label="Zone de signature"></canvas><div style="display:flex;gap:.4rem" class="no-print"><button class="btn bg bsm" onclick="clearPad('${who}')">Effacer</button><button class="btn bgr bsm" onclick="signer('${who}')"><i data-lucide=pen-line class=ic></i> Signer</button></div>`;
+    else inner=`<span><i data-lucide=hourglass class=ic></i> En attente de la signature ${who==='landlord'?'du bailleur':'du locataire'}</span>`;
+    return`<div class="sig"><div class="sig-h">${lbl}<strong>${esc(name||'—')}</strong></div><div class="sig-b">${inner}</div></div>`;
+  };
+  return`<div class="sigs">${box('landlord','Le bailleur',LL_P?.full_name,LEASE.landlord_signature,LEASE.landlord_signed_at)}${box('tenant','Le locataire',T_P?.full_name||BK?.tenant_name,LEASE.tenant_signature,LEASE.tenant_signed_at)}</div>`;
+}
+function renderBar(){
+  const b=$('bar'),btns=[];
+  if(myRole==='landlord'&&ns()==='draft')btns.push(`<button class="btn bp" onclick="envoyer()"><i data-lucide=send class=ic></i> Envoyer au locataire</button>`);
+  if(myRole==='landlord'&&ns()==='pending_landlord')btns.push(`<button class="btn bp" onclick="envoyer()"><i data-lucide=send class=ic></i> Renvoyer au locataire</button>`);
+  if(myRole==='tenant'&&ns()==='pending_tenant'){btns.push(`<button class="btn bgr" onclick="accepter()"><i data-lucide=check-circle-2 class=ic></i> J'accepte le bail</button>`);btns.push(`<button class="btn bor" onclick="remarques()"><i data-lucide=message-square-plus class=ic></i> Demander des modifications</button>`);}
+  btns.push(`<button class="btn bg" onclick="window.print()"><i data-lucide=printer class=ic></i> Imprimer / PDF</button>`);
+  b.style.display='flex';b.innerHTML=btns.join('');
+}
+async function msg(to,content){try{await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:to,content,type:'message'});}catch(e){}}
+const lien=()=>location.origin+'/bail-parking.html?lease_id='+LEASE.id;
+function backToDash(role,evt){
+  const bk=LEASE.booking_id||'';
+  const dash=(role==='landlord'?'/landlord-dashboard.html':'/tenant-dashboard.html')+'?tab=applications&evt='+evt+(bk?'&booking='+encodeURIComponent(bk):'');
+  setTimeout(()=>{location.href=dash;},1200);
+}
+async function envoyer(){
+  if(!LEASE.start_date||!(Number(LEASE.rent)>0))return toast('Renseignez au moins la date d\'entrée et le loyer.');
+  const resend=ns()==='pending_landlord';
+  const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',LEASE.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  LEASE.negotiation_status='pending_tenant';
+  await msg(LEASE.tenant_id,(resend?'Le bailleur a pris en compte vos remarques et vous renvoie le bail modifié.\n\n':'')+'Votre bail de location de parking est prêt pour relecture :\n'+lien());
+  toast('<i data-lucide=send class=ic></i> Bail envoyé au locataire');render();backToDash('landlord',resend?'resent':'sent');
+}
+async function accepter(){
+  if(!confirm('Accepter le bail tel quel ? Les signatures seront ensuite ouvertes.'))return;
+  const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString()}).eq('id',LEASE.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  LEASE.negotiation_status='agreed';
+  await msg(LEASE.landlord_id,'Le locataire a accepté le bail de parking. Vous pouvez signer :\n'+lien());
+  toast('<i data-lucide=check-circle-2 class=ic></i> Bail accepté — vous pouvez signer');render();
+}
+async function remarques(){
+  const t=prompt('Vos remarques sur le bail (toutes en une fois) :');
+  if(!t||!t.trim())return;
+  const log=[...(Array.isArray(LEASE.modifs_log)?LEASE.modifs_log:[]),{par:'tenant',date:new Date().toISOString(),note:t.trim()}];
+  const{error}=await sb.from('leases').update({negotiation_status:'pending_landlord',tenant_notes:t.trim(),modifs_log:log}).eq('id',LEASE.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  Object.assign(LEASE,{negotiation_status:'pending_landlord',tenant_notes:t.trim(),modifs_log:log});
+  await msg(LEASE.landlord_id,'Le locataire demande des modifications au bail de parking :\n\n'+t.trim()+'\n\n'+lien());
+  toast('<i data-lucide=send class=ic></i> Remarques envoyées');render();backToDash('tenant','remarques');
+}
+// Signatures (chacun pour soi, dans n'importe quel ordre)
+function initPads(){
+  ['landlord','tenant'].forEach(w=>{
+    const c=$('pad-'+w);if(!c||c._i)return;c._i=true;
+    const ctx=c.getContext('2d');ctx.lineWidth=2.6;ctx.lineCap='round';ctx.strokeStyle='#1B4FD8';
+    let on=false,lx=0,ly=0;_pads[w]={c,used:false};
+    const pos=e=>{const r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return[(p.clientX-r.left)*c.width/r.width,(p.clientY-r.top)*c.height/r.height];};
+    const st=e=>{e.preventDefault();on=true;[lx,ly]=pos(e);},mv=e=>{if(!on)return;e.preventDefault();const[x,y]=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();lx=x;ly=y;_pads[w].used=true;},en=()=>{on=false;};
+    c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+    c.addEventListener('touchstart',st,{passive:false});c.addEventListener('touchmove',mv,{passive:false});c.addEventListener('touchend',en);
+  });
+}
+function clearPad(w){const p=_pads[w];if(p){p.c.getContext('2d').clearRect(0,0,p.c.width,p.c.height);p.used=false;}}
+async function signer(who){
+  if(myRole!==who)return toast('Vous ne pouvez signer que pour vous-même.');
+  const p=_pads[who];if(!p||!p.used)return toast('Dessinez votre signature dans la zone.');
+  if(!confirm('Signer le bail ?'))return;
+  const{data:f}=await sb.from('leases').select('landlord_signed_at,tenant_signed_at,landlord_signature,tenant_signature').eq('id',LEASE.id).single();
+  if(f)Object.assign(LEASE,f);
+  const now=new Date().toISOString(),sig=p.c.toDataURL('image/png');
+  const upd=who==='landlord'?{landlord_signature:sig,landlord_signed_at:now}:{tenant_signature:sig,tenant_signed_at:now};
+  const done=(who==='landlord'||LEASE.landlord_signed_at)&&(who==='tenant'||LEASE.tenant_signed_at);
+  if(done){upd.negotiation_status='signed';upd.status='active';}
+  const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
+  if(error)return toast('Erreur : '+esc(error.message),6000);
+  Object.assign(LEASE,upd);_pads={};
+  if(LEASE.booking_id){try{await sb.from('bookings').update(who==='landlord'?{lease_signed_landlord:true}:{lease_signed_tenant:true}).eq('id',LEASE.booking_id);}catch(e){}}
+  await msg(who==='landlord'?LEASE.tenant_id:LEASE.landlord_id,done?'Le bail de parking est signé par les deux parties.\n'+lien():(who==='landlord'?'Le bailleur':'Le locataire')+' a signé le bail de parking. À vous de signer :\n'+lien());
+  toast(done?'<i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties !':'<i data-lucide=check-circle-2 class=ic></i> Signé — en attente de l\'autre partie');
+  render();
+}
+async function refresh(){
+  if(!LEASE||document.hidden||allSigned()||Object.values(_pads).some(p=>p.used))return;
+  const{data:f}=await sb.from('leases').select('negotiation_status,landlord_signed_at,tenant_signed_at,landlord_signature,tenant_signature,tenant_notes').eq('id',LEASE.id).single();
+  if(!f)return;
+  if(['negotiation_status','landlord_signed_at','tenant_signed_at'].some(k=>(f[k]||null)!==(LEASE[k]||null))){Object.assign(LEASE,f);_pads={};render();}
+}
+</script>
+</body>
+</html>
