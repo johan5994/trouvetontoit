@@ -2995,7 +2995,7 @@ async function sendToTenant(){
   LEASE.negotiation_status='pending_tenant';
   // Message au locataire
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=tenant';
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:(_resend?`Le bailleur a pris en compte vos remarques et vous renvoie le bail modifié.\n\n`:'')+`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.tenant_id,content:(_resend?`Le bailleur a pris en compte vos remarques et vous renvoie le bail modifié.\n\n`:'')+`Votre bail de location est prêt pour relecture.\n\nLisez-le attentivement et indiquez vos éventuelles demandes de modification, ou acceptez directement le modèle :\n${lien}`,type:'message'});
   toast('<i data-lucide=check-circle-2 class=ic></i> Bail envoyé au locataire pour relecture !');
   renderNegocBar();renderLandlordGuide();renderTenantGuide();renderStatusAndSigs();
   backToDashboard('landlord',_resend?'resent':'sent');
@@ -3083,7 +3083,7 @@ async function tenantAcceptsModel(){
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
   // Message au bailleur
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.landlord_id,content:`Le locataire a accepté le modèle du bail. Les deux parties peuvent maintenant le signer :\n${lien}`,type:'message'});
   // Email au garant avec son lien personnel de signature
   await inviteGarant(false);
   toast('<i data-lucide=check-circle-2 class=ic></i> Modèle accepté ! Le bail est maintenant prêt pour signature.');
@@ -3150,7 +3150,7 @@ async function submitModifRequest(){
   LEASE.negotiation_status='pending_landlord';LEASE.tenant_notes=notes;LEASE.modifs_log=newLog;
   window._remarques=[];saveRemarques();
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id,receiver_id:LEASE.landlord_id,content:`Le locataire a relu le bail et demande des modifications :\n\n${notes}\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.landlord_id,content:`Le locataire a relu le bail et demande des modifications :\n\n${notes}\n\nConsultez et ajustez le bail :\n${lien}`,type:'message'});
   _tenantEditMode=false;
   toast('<i data-lucide=check-circle-2 class=ic></i> Remarques envoyées au bailleur !');
   renderNegocBar();renderRemarquesBar();
@@ -3178,7 +3178,7 @@ async function landlordValidateModel(){
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
   const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id,receiver_id:LEASE.tenant_id,content:`Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
+  await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.tenant_id,content:`Le bailleur a validé le modèle final du bail. Vous pouvez maintenant le signer :\n${lien}`,type:'message'});
   // Email au garant avec son lien personnel de signature
   await inviteGarant(false);
   toast('<i data-lucide=check-circle-2 class=ic></i> Modèle validé ! Signatures ouvertes.');
@@ -3364,15 +3364,15 @@ async function submitSignature(){
 
   if(who==='ll'&&LEASE.tenant_signed_at){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id||'system',receiver_id:LEASE.tenant_id,content:`Le bailleur a signé à son tour : votre bail est signé par les deux parties.\n${lien}`,type:'message'});
+    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.tenant_id,content:`Le bailleur a signé à son tour : votre bail est signé par les deux parties.\n${lien}`,type:'message'});
     toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties !');
   }else if(who==='ll'){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.landlord_id||'system',receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
+    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.tenant_id,content:`Votre bail de location est prêt et a été signé par le bailleur. Veuillez le lire attentivement et le signer à votre tour :\n${lien}`,type:'message'});
     toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé — lien envoyé au locataire par messagerie');
   }else if(who==='t'&&!LEASE.landlord_signed_at){
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id;
-    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U?.id||LEASE.tenant_id||'system',receiver_id:LEASE.landlord_id,content:`Le locataire a signé le bail. À vous de signer :\n${lien}`,type:'message'});
+    await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.landlord_id,content:`Le locataire a signé le bail. À vous de signer :\n${lien}`,type:'message'});
     toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé — en attente de la signature du bailleur');
   }else if(who==='t'){
     toast('<i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties !');
@@ -3387,10 +3387,10 @@ async function submitSignature(){
     const locataireNom=LEASE.tenant_name||'Le locataire';
     const listingTitle=LEASE.listing_title||'le logement';
     if(LEASE.landlord_id){
-      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.landlord_id,content:`${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.landlord_id,content:`${garantNom} a signé l'acte de caution solidaire pour le bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
     if(LEASE.tenant_id){
-      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:U.id,receiver_id:LEASE.tenant_id,content:`${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
+      await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:LEASE.tenant_id,content:`${garantNom} a signé l'acte de caution solidaire pour votre bail.\nConsultez le bail : ${lien}`,type:'message'});
     }
     // Emails — garant (confirmation) + bailleur + locataire
     const emailData={garantNom,locataireNom,listingTitle,bailUrl:lien};
