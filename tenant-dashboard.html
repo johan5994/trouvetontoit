@@ -2294,6 +2294,19 @@ async function ensureFirstPaymentRecordsTenant(bk){
   }catch(e){console.warn('ensureFirstPaymentRecordsTenant:',e);}
 }
 
+// Bloc « État des lieux d'entrée » côté locataire (edl-meuble.html)
+function renderEdlBlockT(bk){
+  if(!bk?.id)return'';
+  const st=bk.edl_status||'';
+  const done=(bk.status==='move_in_ready')||(bk.edl_signed_landlord&&bk.edl_signed_tenant);
+  const url=`/edl-meuble.html?booking_id=${bk.id}`;
+  const title='<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">État des lieux d\'entrée & inventaire</div>';
+  const btn=(lbl,primary)=>`<a href="${url}" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'#fff':'var(--txt)'};border:${primary?'none':'1px solid var(--b)'};border-radius:8px;padding:.5rem;font-size:.78rem;font-weight:700;text-decoration:none;margin-top:.35rem"><i data-lucide=clipboard-list class=ic></i> ${lbl}</a>`;
+  if(done)return title+`<div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — bienvenue chez vous ! Vous avez 10 jours pour signaler un défaut oublié.</div>`+btn('Voir l\'état des lieux',false);
+  if(st==='to_sign')return title+`<div style="font-size:.76rem;color:var(--txt)">${bk.edl_signed_tenant?'Vous avez signé — en attente du propriétaire.':'L\'état des lieux est prêt : relisez-le pièce par pièce, puis signez.'}</div>`+btn(bk.edl_signed_tenant?'Voir l\'état des lieux':'Relire et signer',!bk.edl_signed_tenant);
+  return title+`<div style="font-size:.74rem;color:var(--td)">Le propriétaire fera l'état des lieux avec vous le jour de l'entrée${bk.move_in_date?' ('+new Date(bk.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+')':''}.</div>`;
+}
+
 function renderBailDocCard(bk,annonce){
   const L=bk._lease;
   if(L){
@@ -2331,6 +2344,7 @@ function renderBailDocCard(bk,annonce){
 }
 
 function renderEdlDocCard(bk){
+  if(bk.edl_status||bk.first_payment_confirmed)return`<div class="card"><div class="cb">${renderEdlBlockT(bk)}</div></div>`;
   const myEdlEmbed=bk.edl_tenant_embed;
   const myEdlSigned=bk.edl_signed_tenant;
   if(!myEdlEmbed&&bk.status!=='move_in_ready'){
@@ -2972,7 +2986,7 @@ const TENANT_APPLICATION_STATUSES=['booking_pending','accepted','lease_pending',
 function renderLocataireVisitCard(v){
   const bk=v.booking||null;
   const statusColors={
-    'pending':'b-gold','confirmed':'b-green','completed':'b-sea',
+    'pending':'b-gold','confirmed':'b-green','completed':'b-sea','move_in_ready':'b-green',
     'cancelled':'b-dim','declined':'b-dim'
   };
   const statusLabels={
@@ -2980,7 +2994,8 @@ function renderLocataireVisitCard(v){
     'confirmed':'<i data-lucide=check-circle-2 class=ic></i> Visite confirmée',
     'completed':'<i data-lucide=flag class=ic></i> Visite effectuée',
     'cancelled':'<i data-lucide=x-circle class=ic></i> Annulée',
-    'declined':'<i data-lucide=x-circle class=ic></i> Refusée'
+    'declined':'<i data-lucide=x-circle class=ic></i> Refusée',
+    'move_in_ready':'<i data-lucide=party-popper class=ic></i> Entrée terminée'
   };
   const dateStr=v.visit_date?new Date(v.visit_date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(v.visit_time?' at '+v.visit_time:''):'Date TBD';
   let sc=statusColors[v.status]||'b-dim';
@@ -2995,7 +3010,8 @@ function renderLocataireVisitCard(v){
       :ns==='pending_landlord'?['b-sea','<i data-lucide=send class=ic></i> Remarques envoyées au propriétaire']
       :(ns==='agreed'||ns==='signed')?(
         L.tenant_signed_at&&L.landlord_signed_at&&L.garant_name&&!L.garant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du garant attendue']
-        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.edl_signed_propriétaire&&bk?.edl_signed_locataire?['b-green','<i data-lucide=check-circle-2 class=ic></i> État des lieux signé']
+        :L.tenant_signed_at&&L.landlord_signed_at&&((bk?.edl_signed_landlord&&bk?.edl_signed_tenant)||bk?.status==='move_in_ready')?['b-green','<i data-lucide=party-popper class=ic></i> Entrée terminée']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.edl_status==='to_sign'&&!bk?.edl_signed_tenant?['b-gold','<i data-lucide=pen-line class=ic></i> État des lieux à signer']
         :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_payment_confirmed?['b-green','<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé — état des lieux à venir']
         :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_payment_sent?['b-sea','<i data-lucide=hourglass class=ic></i> Paiement envoyé — confirmation du propriétaire attendue']
         :L.tenant_signed_at&&L.landlord_signed_at?['b-gold','<i data-lucide=euro class=ic></i> Bail signé — premier paiement à faire']
@@ -3355,59 +3371,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       </div>
       ${bk.status==='edl_scheduled'?`
       <div style="margin-top:.6rem;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--marine);font-weight:600"><i data-lucide=clipboard-list class=ic></i> ${bk.edl_handler==='agence'?'Your agence is':'Your propriétaire is'} completing the entrée dans les lieux état des lieux (État des lieux) — vous serez notifié once it's prêt à signer.</div>`:''}
-      ${(()=>{
-        // Co-locataire : son propre lien d'État des lieux vit dans edl_co_locataires_embed_src,
-        // jamais dans bk.edl_tenant_embed (qui ne concerne que le locataire
-        // principal) — même logique que pour le bail juste au-dessus.
-        const myEdlEmbed=coLocataireEntry?bk._myEdlCoLocataireEntry?.embed_src:bk.edl_tenant_embed;
-        const myEdlSigned=coLocataireEntry?bk._myEdlCoLocataireEntry?.signed:bk.edl_signed_tenant;
-        const myEdlSignFn=coLocataireEntry?`openCoLocataireEdlDoc('${bk.id}')`:`openLocataireEdlDoc('${bk.id}')`;
-        if(!myEdlEmbed&&bk.status!=='move_in_ready')return'';
-        if(!myEdlEmbed&&bk.status==='move_in_ready'){
-          // Le statut confirme que tout le monde a signé, mais le lien
-          // précis manque ici — ne jamais rester muet sur un État des lieux réellement terminé.
-          return`
-      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">Entrée dans les lieux État des lieux (État des lieux) — Signatures</div>
-      <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=home class=ic></i> Propriétaire</span>
-          <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
-        </div>
-        ${coLocataireEntry?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${bk.locataire_name||'Main locataire'}</span>
-          <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
-        </div>`:''}
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${coLocataireEntry?'You (co-locataire)':'You'}</span>
-          <div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>${bk.edl_pdf_url?`<a href="${bk.edl_pdf_url}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a>`:''}</div>
-        </div>
-        ${!coLocataireEntry?renderEdlCoLocataireSignatureRowsLocataire(bk):''}
-      </div>
-      ${!coLocataireEntry?`<button onclick="viewEdlDossierLocataire('${bk.id}')" style="width:100%;background:var(--s2);color:var(--txt);border:1px solid var(--b);border-radius:8px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> View full état des lieux dossier ( avec  photos) →</button>`:''}
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.7rem;color:var(--gold);margin-bottom:.75rem"><i data-lucide=file-edit class=ic></i> Reminder: submit ARMS Form H (change of occupants) within 30 days — <a href="https://www.arms.com.fr" target="_blank" style="color:var(--gold);text-decoration:underline">arms.com.fr</a>. This is separate  depuis  votre Trouve Ton Toit bail/État des lieux.</div>`;
-        }
-        return`
-      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">Entrée dans les lieux État des lieux (État des lieux) — Signatures</div>
-      <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=home class=ic></i> Propriétaire</span>
-          ${bk.edl_signed_landlord?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
-        </div>
-        ${coLocataireEntry?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${bk.locataire_name||'Main locataire'}</span>
-          ${bk.edl_signed_tenant?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>':'<span style="font-size:.72rem;color:var(--gold)"><i data-lucide=hourglass class=ic></i> Not yet</span>'}
-        </div>`:''}
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-          <span style="font-size:.78rem"><i data-lucide=user class=ic></i> ${coLocataireEntry?'You (co-locataire)':'You'}</span>
-          ${myEdlSigned
-            ?`<div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span><a href="${bk.edl_pdf_url||myEdlEmbed}" target="_blank" style="font-size:.68rem;color:var(--td);text-decoration:none"><i data-lucide=file-text class=ic></i> View</a></div>`
-            :`<button onclick="${myEdlSignFn}" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=pen-line class=ic></i> Sign now</button>`}
-        </div>
-        ${!coLocataireEntry?renderEdlCoLocataireSignatureRowsLocataire(bk):''}
-      </div>
-      ${!coLocataireEntry?`<button onclick="viewEdlDossierLocataire('${bk.id}')" style="width:100%;background:var(--s2);color:var(--txt);border:1px solid var(--b);border-radius:8px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i> View full état des lieux dossier ( avec  photos) →</button>`:''}
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.7rem;color:var(--gold);margin-bottom:.75rem"><i data-lucide=file-edit class=ic></i> Reminder: submit ARMS Form H (change of occupants) within 30 days — <a href="https://www.arms.com.fr" target="_blank" style="color:var(--gold);text-decoration:underline">arms.com.fr</a>. This is separate  depuis  votre Trouve Ton Toit bail/État des lieux.</div>`;
-      })()}
+      ${payConfirmered?renderEdlBlockT(bk):''}
 
       <!-- Paiement -->
       ${!payConfirmered?`
