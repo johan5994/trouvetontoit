@@ -2870,7 +2870,8 @@ function renderLocataireVisitCard(v){
       :ns==='pending_tenant'?['b-gold',resent?'<i data-lucide=file-pen class=ic></i> Bail modifié — à relire':'<i data-lucide=file-text class=ic></i> Bail reçu — à relire']
       :ns==='pending_landlord'?['b-sea','<i data-lucide=send class=ic></i> Remarques envoyées au propriétaire']
       :(ns==='agreed'||ns==='signed')?(
-        L.tenant_signed_at&&L.landlord_signed_at?['b-green','<i data-lucide=check-circle-2 class=ic></i> Bail signé']
+        L.tenant_signed_at&&L.landlord_signed_at&&L.garant_name&&!L.garant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du garant attendue']
+        :L.tenant_signed_at&&L.landlord_signed_at?['b-green','<i data-lucide=check-circle-2 class=ic></i> Bail signé']
         :L.tenant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du propriétaire attendue']
         :['b-gold','<i data-lucide=pen-line class=ic></i> Bail à signer'])
       :null;
@@ -3128,7 +3129,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
   const tSigned=lease ? !!lease.tenant_signed_at : (coLocataireEntry?coLocataireEntry.signed:bk.bail_signed_tenant);
   const mySignEmbed=coLocataireEntry?coLocataireEntry.embed_src:bk.bail_tenant_embed;
   const mySignFn=coLocataireEntry?`openCoLocataireBailDoc('${bk.id}')`:`openLocataireBailDoc('${bk.id}')`;
-  const payDeclared=bk.first_payment_sent;
+  const payDeclared=bk.first_paiement_sent;
   const payConfirmered=bk.first_paiement_confirmed;
   const moveIn=bk.move_in_date||v.move_in_date||null;
   const edlDate=bk.edl_date||moveIn||null;
@@ -3821,7 +3822,7 @@ async function locataireNotInterested(visitId){
 
 async function declareLocatairePaiement(bookingId){
   if(!confirm('Confirmez-vous avoir effectué le virement au propriétaire ?')) return;
-  const{error}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
+  const{error}=await sb.from('bookings').update({first_paiement_sent:true}).eq('id',bookingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
   toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré ! Le propriétaire va confirmer.');
   loadLocataireVisits();
@@ -4827,7 +4828,7 @@ function openSigningDoc(embedSrc, title, bookingId){
 async function confirmLocatairePaiement(bookingId){
   if(!confirm('Confirmer that you have transferred the paiement to the propriétaire?'))return;
   try{
-    const{error:payErr}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
+    const{error:payErr}=await sb.from('bookings').update({first_paiement_sent:true}).eq('id',bookingId);
     if(payErr){toast('<i data-lucide=x-circle class=ic></i> Impossible d\'enregistrer — réessayez : '+payErr.message);return;}
     // Notifier le propriétaire
     const{data:b}=await sb.from('bookings').select('listing_id,landlord_id').eq('id',bookingId).single();
