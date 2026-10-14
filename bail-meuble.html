@@ -930,6 +930,8 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE=null;
 let TENANT_GARANTIE=null, TENANT_ETUDIANT=false; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
+// ⚠️ PHASE DE TEST : le locataire peut signer la case du garant. Repasser à false avant le lancement.
+const TEST_GARANT_PAR_LOCATAIRE=true;
 let myRole=null; // 'landlord'|'tenant'|'garant'|null
 let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
 
@@ -3219,7 +3221,7 @@ function renderStatusAndSigs(){
   if(L.garant_name){
     if(gSigned&&L.garant_signature){
       show('sig-g-pad-area',`<div class="sig-done"><img src="${L.garant_signature}" style="height:80px;max-width:100%;object-fit:contain" alt="Signature garant"><div class="ts"><i data-lucide=check-circle-2 class=ic></i> Signé le ${fmtDate(L.garant_signed_at)}</div></div>`);
-    }else if(!gSigned&&canSign&&effectiveRole==='garant'){
+    }else if(!gSigned&&canSign&&(effectiveRole==='garant'||(TEST_GARANT_PAR_LOCATAIRE&&effectiveRole==='tenant'))){
       show('sig-g-pad-area',`<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-canvas-g" width="400" height="100"></canvas></div><div class="sig-cta"><button class="clear" onclick="clearCanvas('g')">Effacer</button><button class="sign" onclick="prepareSign('g')">Valider →</button></div>`);
       setTimeout(()=>initCanvas('g'),50);
     }else if(!gSigned&&canSign){
@@ -3295,7 +3297,7 @@ async function submitSignature(){
   const who=window._pendingSigWho,sigData=window._pendingSigData;
   // Personne ne signe pour quelqu'un d'autre
   const need={ll:'landlord',t:'tenant',g:'garant'}[who];
-  if(who&&myRole!==need){alert('Vous ne pouvez signer que pour vous-même. Connectez-vous avec le bon compte (ou utilisez le lien reçu par email pour le garant).');window._pendingSigWho=null;window._pendingSigData=null;return;}
+  if(who&&myRole!==need&&!(TEST_GARANT_PAR_LOCATAIRE&&who==='g'&&myRole==='tenant')){alert('Vous ne pouvez signer que pour vous-même. Connectez-vous avec le bon compte (ou utilisez le lien reçu par email pour le garant).');window._pendingSigWho=null;window._pendingSigData=null;return;}
   if(who==='ll'&&annexesManquantesBloquent())return;
   if(!who||!sigData){
     const c=document.getElementById('sig-canvas-ll')||document.getElementById('sig-canvas-t')||document.getElementById('sig-canvas-g');
