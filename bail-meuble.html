@@ -147,6 +147,9 @@
     .yn-btns .bc-pill{padding:.1rem .55rem;font-size:.72rem}
     .na-note{font-size:.76rem;color:var(--td);font-style:italic}
     @media print{.yn-btns,.na-note{display:none!important}}
+    /* Export PDF : on retire tout ce qui sert à l'édition */
+    body.pdf-export .no-print,body.pdf-export .edit-btn,body.pdf-export .missing-badge,body.pdf-export .partie-edit-row,body.pdf-export .bc-edit,body.pdf-export .yn-btns,body.pdf-export .annexe-act,body.pdf-export .sig-cta,body.pdf-export .sig-pad-wrap{display:none!important}
+    body.pdf-export .bail-card{box-shadow:none!important}
     .cs-choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.5rem}
     .cs-opt{text-align:left;border:1.5px solid var(--border,#D8DCE6);background:#fff;border-radius:10px;padding:.6rem .75rem;cursor:pointer;font-family:inherit;font-size:.8rem;color:inherit;line-height:1.45}
     .cs-opt span:not(.cs-reco){display:block;color:var(--td);font-size:.74rem;margin-top:.2rem}
@@ -339,6 +342,7 @@
     }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" defer></script>
 <style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
 </head>
 <body>
@@ -347,6 +351,7 @@
 <nav class="nav">
   <a href="/" class="nav-brand">★ Trouve Ton Toit</a>
   <div class="nav-actions">
+    <button type="button" class="btn" id="pdf-btn" onclick="exportBailPDF()" style="display:inline-flex;align-items:center;gap:.35rem;background:var(--bleu);color:#fff;border:none;border-radius:8px;padding:.4rem .8rem;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:.6rem"><i data-lucide=download class=ic></i> PDF</button>
     <span id="nav-user" style="font-size:.78rem;color:var(--td)"></span>
   </div>
 </nav>
@@ -929,7 +934,10 @@
 <div class="submit-bar" id="submit-bar" style="display:none">
   <div class="submit-bar-inner">
     <div id="submit-hint">—</div>
-    <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()"><i data-lucide=pen-tool class=ic></i> Signer le bail</button>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="btn" type="button" onclick="exportBailPDF()" style="background:#fff;border:1.5px solid var(--bleu);color:var(--bleu);border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem"><i data-lucide=download class=ic></i> Exporter en PDF</button>
+      <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()"><i data-lucide=pen-tool class=ic></i> Signer le bail</button>
+    </div>
   </div>
 </div>
 
@@ -2118,7 +2126,7 @@ function renderGarantiesBlock(L){
     const t=g==='simple'?'simple':'solidaire';
     lines.push(L.garant_name?`<strong>Garantie :</strong> caution ${t} de <strong>${_escB(L.garant_name)}</strong> (garant personne physique) — voir l'engagement ci-dessous.`:(_editMode?`<strong>Garantie :</strong> caution ${t} d'une personne physique — garant à désigner.`:`<strong>Garantie :</strong> aucun garant désigné à ce jour.`));
   }else if(g==='visale'){
-    lines.push(`<strong>Garantie :</strong> Visale (Action Logement)${L.visale_ref?` — visa n° <strong>${_escB(L.visale_ref)}</strong>`:''}. Le bailleur valide le contrat de cautionnement sur visale.fr.`);
+    lines.push(`<strong>Garantie :</strong> Visale (Action Logement)${L.visale_ref?` — visa n° <strong>${_escB(L.visale_ref)}</strong>`:''}${_visaEditBtn('v:1',!!L.visale_ref)}. Le bailleur valide le contrat de cautionnement sur visale.fr.`);
   }else if(g==='organisme'){
     lines.push(`<strong>Garantie :</strong> organisme privé ou caution bancaire${L.garant_organisme?` — <strong>${_escB(L.garant_organisme)}</strong>`:''}, selon le contrat conclu avec cet organisme.`);
   }else{
@@ -2134,7 +2142,7 @@ function renderGarantiesBlock(L){
       let gd=cl.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
       const names=(Array.isArray(gd)?gd:[]).map(x=>cleanPersonName([x.prenom,x.nom].filter(Boolean).join(' '))).filter(Boolean);
       const txt=names.length?`caution ${form} de <strong>${_escB(names.join(', '))}</strong> (garant personne physique) — voir son engagement ci-dessous.`
-        :cl.has_garant?(gType[cl.garant_type]||'garantie déclarée')+((()=>{const vv=cl.garant_type==='garant_visale'&&(visaleTenants().find(x=>x.name===cl.name)?.visa);return vv?` — visa n° <strong>${_escB(vv)}</strong>`:'';})())+'.'
+        :cl.has_garant?(gType[cl.garant_type]||'garantie déclarée')+((()=>{const vv=cl.garant_type==='garant_visale'&&(visaleTenants().find(x=>x.name===cl.name)?.visa);const vk=visaleTenants().find(x=>x.name===cl.name)?.key;return (vv?` — visa n° <strong>${_escB(vv)}</strong>`:'')+(cl.garant_type==='garant_visale'&&vk?_visaEditBtn(vk,!!vv):'');})())+'.'
         :cl.coloc_status?'aucune caution.':'non précisée.';
       rows.push(`<span class="partie-num">Locataire ${k+2}</span>${_escB(cl.name)} : ${txt}`);
     });
@@ -2158,7 +2166,7 @@ function renderGarantiesBlock(L){
     const autres=(physique||g==='organisme'?1:0)+coLocs.filter(x=>x.has_garant&&x.garant_type!=='garant_visale').length;
     if(vis.length&&autres)return{reco:'individuel',txt:`Garanties différentes (Visale pour ${vis.map(v=>_escB(v.name)).join(', ')}, garant personne ou organisme pour les autres) : un bail par locataire évite tout mélange, chaque garantie couvre alors son propre bail. Visale peut refuser un bail commun où un autre colocataire a déjà une caution : vérifiez sur visale.fr.`};
     if(vis.length&&nbT>=3)return{reco:'individuel',txt:'Avec Visale à 3 locataires ou plus, Action Logement conseille un bail et un visa par locataire.'};
-    if(vis.length)return{reco:null,txt:'Avec Visale à 2 locataires : vérifiez sur visale.fr les conditions de colocation avant de choisir avec ou sans solidarité. Visale paie la part de son titulaire ; le bailleur ne peut jamais être payé deux fois pour la même dette.'};
+    if(vis.length)return{reco:null,txt:''};
     return{reco:'commun_solidaire',txt:''};
   })();
   const _form=g==='simple'||(!physique&&L.garant_type==='simple')?'simple':'solidaire';
@@ -3240,6 +3248,52 @@ function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('f
 
 // ── Garant : lien personnel de signature envoyé par email ─────────────────────
 
+// ═══ Export PDF du bail (fichier téléchargé directement) ═══
+async function exportBailPDF(){
+  const el=document.querySelector('.bail-card');
+  if(!el||!LEASE){toast('Bail pas encore chargé.');return;}
+  const nom=(T_PROFILE?.full_name||LEASE.tenant_name||'locataire').replace(/[^\p{L}\p{N}]+/gu,'-');
+  // Bail pas encore signé par tout le monde → PDF marqué « projet »
+  buildExtraSigners();
+  const complet=!!(LEASE.landlord_signed_at&&LEASE.tenant_signed_at&&(!LEASE.garant_name||LEASE.garant_signed_at)&&EXTRA_SIGNERS.every(x=>x.signed_at));
+  const etape={draft:'en préparation',pending_tenant:'en relecture par le locataire',pending_landlord:'en cours de modification',agreed:'accepté, en attente des signatures',signed:'en attente des dernières signatures'}[LEASE.negotiation_status||'draft']||'non finalisé';
+  const file=`${complet?'':'Projet-'}Bail-${isVide()?'vide':'meuble'}-${nom}${LEASE.lot_label?'-'+LEASE.lot_label.replace(/[^\p{L}\p{N}]+/gu,'-'):''}.pdf`;
+  if(typeof html2pdf==='undefined'){window.print();return;}
+  const btns=document.querySelectorAll('#pdf-btn');btns.forEach(b=>{b.disabled=true;b.dataset.t=b.innerHTML;b.textContent='Création du PDF…';});
+  let bandeau=null;
+  if(!complet){
+    bandeau=document.createElement('div');
+    bandeau.style.cssText='border:2px solid #B45309;background:#FFFBEB;color:#92400E;border-radius:8px;padding:10px 14px;margin:0 0 14px;font:600 13px/1.45 sans-serif;text-align:center';
+    bandeau.innerHTML=`PROJET DE BAIL — ${etape}<br><span style="font-weight:400;font-size:11.5px">Document de travail du ${new Date().toLocaleDateString('fr-FR')}, non signé par toutes les parties : il n'a pas de valeur contractuelle et peut encore être modifié.</span>`;
+    el.prepend(bandeau);
+  }
+  document.body.classList.add('pdf-export');
+  try{
+    await html2pdf().set({
+      margin:[10,10,12,10],filename:file,
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',scrollY:0},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy'],avoid:['.sig-block','.partie-card','.mention-manuscrite','.garant-bloc','tr']}
+    }).from(el).toPdf().get('pdf').then(pdf=>{
+      const n=pdf.internal.getNumberOfPages(),W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+      for(let i=1;i<=n;i++){
+        pdf.setPage(i);
+        pdf.setFontSize(8);pdf.setTextColor(140);
+        pdf.text(`${complet?'Bail signé':'PROJET — non signé'} · page ${i}/${n}`,W/2,H-5,{align:'center'});
+        if(!complet){
+          try{if(pdf.GState)pdf.setGState(new pdf.GState({opacity:0.18}));}catch(e){}
+          pdf.setFontSize(72);pdf.setTextColor(180,83,9);
+          pdf.text('PROJET',W/2-38,H/2+28,{angle:35});
+          try{if(pdf.GState)pdf.setGState(new pdf.GState({opacity:1}));}catch(e){}
+        }
+      }
+    }).save();
+    toast('<i data-lucide=check-circle-2 class=ic></i> PDF téléchargé : '+file);
+  }catch(e){console.warn('PDF',e);toast('Export impossible ('+e.message+'), ouverture de l\'impression…',5000);window.print();}
+  finally{bandeau?.remove();document.body.classList.remove('pdf-export');btns.forEach(b=>{b.disabled=false;if(b.dataset.t)b.innerHTML=b.dataset.t;});}
+}
+
 // ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
 function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
 async function loadSiblings(){
@@ -3441,6 +3495,13 @@ function renderVisaleBox(L){
     <div class="bc-title" style="margin-bottom:.4rem"><i data-lucide=shield-check class=ic></i> Garantie Visale${ll?' — à faire avant de signer':''}</div>
     ${aide}<div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
+}
+// Petit bouton « modifier le n° de visa » (hors impression / PDF)
+function _visaEditBtn(key,has){
+  if(!LEASE||LEASE.landlord_signed_at)return '';
+  const v=visaleTenants().find(x=>x.key===key);
+  if(!v||!(myRole==='landlord'||v.isMe))return '';
+  return ` <span class="${has?'edit-btn':'missing-badge'} no-print" style="font-size:.66rem;cursor:pointer" onclick="editVisaRef('${key}')"><i data-lucide=pencil class=ic></i>${has?'':' n° de visa'}</span>`;
 }
 // N° de visa : modifiable par le bailleur ou par le locataire concerné, tant que le bailleur n'a pas signé
 async function editVisaRef(key){
