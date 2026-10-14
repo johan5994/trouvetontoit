@@ -3134,6 +3134,16 @@ function renderLocataireDoneCard(item,isBooking){
       </div>`;
 }
 
+async function declareChildPayment(leaseId){
+  if(!confirm('Confirmez-vous avoir payé le dépôt de garantie et le premier loyer au propriétaire ?'))return;
+  const{data:l}=await sb.from('leases').select('id,landlord_id,listing_id,lot_label').eq('id',leaseId).single();
+  const{error}=await sb.from('leases').update({first_payment_sent_at:new Date().toISOString()}).eq('id',leaseId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
+  if(l?.landlord_id)try{await sb.from('messages').insert({listing_id:l.listing_id,sender_id:'system',receiver_id:l.landlord_id,content:`${P?.full_name||'Votre locataire'} indique avoir effectué son premier paiement (${l.lot_label||'bail individuel'}). Confirmez la réception dans « Candidatures ».`,type:'message'});}catch(e){}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré au propriétaire.');
+  loadLocataireApplicationsPage();
+}
+
 async function renderLocataireCoLocataireSection(coLocataireBookings){
   let html='';
   if(!coLocataireBookings.length)return html;
@@ -3144,7 +3154,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
       const leaseMap={};
       try{
         const _ids=coLocataireBookings.map(b=>b.id);
-        let{data:lz,error:_le}=await sb.from('leases').select('id,booking_id,parent_booking_id,tenant_id,negotiation_status,lot_label').or(`booking_id.in.(${_ids.join(',')}),parent_booking_id.in.(${_ids.join(',')})`);
+        let{data:lz,error:_le}=await sb.from('leases').select('*').or(`booking_id.in.(${_ids.join(',')}),parent_booking_id.in.(${_ids.join(',')})`);
         if(_le)({data:lz}=await sb.from('leases').select('id,booking_id,negotiation_status').in('booking_id',_ids));
         // Bail individuel (location par chambre) : le mien passe avant le bail commun
         (lz||[]).forEach(z=>{const k=z.booking_id||z.parent_booking_id;if(!leaseMap[k]||z.tenant_id===U.id)leaseMap[k]=z;});
@@ -3164,7 +3174,19 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
           html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
         }else if(isAccepted){
           html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry);
-          if(_lz)html+=`<a class="btn bp bsm" style="margin-top:.5rem;display:inline-flex" href="/bail-meuble.html?lease_id=${_lz.id}"><i data-lucide=pen-line class=ic></i> ${['agreed','signed'].includes(_lz.negotiation_status)?'Voir et signer le bail':'Voir le bail'}</a>`;
+          if(_lz)html+=`<a class="btn bp bsm" style="margin-top:.5rem;display:inline-flex" href="/bail-meuble.html?lease_id=${_lz.id}"><i data-lucide=pen-line class=ic></i> ${['agreed','signed'].includes(_lz.negotiation_status)?'Voir et signer le bail':'Voir le bail'}${_lz.lot_label&&_lz.tenant_id===U.id?' — '+_lz.lot_label:''}</a>`;
+          // Bail individuel signé : mon premier paiement (dépôt + 1er loyer) au propriétaire
+          if(_lz&&_lz.tenant_id===U.id&&_lz.parent_booking_id&&_lz.landlord_signed_at&&_lz.tenant_signed_at){
+            const _cc=(Number(_lz.rent)||0)+(Number(_lz.charges)||0);
+            const _pr=prorataLoyer(_lz.start_date,_lz.payment_due_day||1,_cc);
+            const _du=(Number(_lz.deposit)||0)+(_pr?_pr.amount:_cc);
+            html+=`<div style="margin-top:.6rem;background:var(--s);border:1px solid var(--b2);border-radius:9px;padding:.6rem .7rem;font-size:.8rem">
+              <strong>Premier paiement :</strong> ${fmtEur(_du)} (dépôt ${fmtEur(_lz.deposit||0)} + 1er loyer)<br>
+              ${_lz.first_payment_confirmed_at?'<span style="color:var(--green);font-weight:600">✓ Reçu par le propriétaire</span>'
+                :_lz.first_payment_sent_at?'<span style="color:var(--gold);font-weight:600">Déclaré — en attente de confirmation du propriétaire</span>'
+                :`<button class="btn bp bsm" style="margin-top:.4rem" onclick="declareChildPayment('${_lz.id}')"><i data-lucide=send class=ic></i> J'ai effectué le paiement</button>`}
+            </div>`;
+          }
         }else{
           html+=`<div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--td)">Statut: ${b.status}</div>`;
         }
