@@ -6825,7 +6825,8 @@ function _goDossierStep(i){
   sp('profil',document.querySelector('.ni[onclick*="profil"]'));
   setTimeout(()=>{initDossierPage().then(()=>{showDossierStep(i);document.querySelector('.dossier-layout')?.scrollIntoView({behavior:'smooth',block:'start'});});},400);
 }
-function applicationGate(listingId){
+function applicationGate(listingId,opts){
+  opts=opts||{};
   return new Promise(async resolve=>{
     const missing=profileMissingForVisit();
     if(missing.length){
@@ -6879,10 +6880,22 @@ function applicationGate(listingId){
         <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:10px;padding:.55rem;font-size:.8rem;font-weight:700;cursor:pointer">+ Ajouter un co-locataire</button>
       </div>
 
+      ${opts.withSend?`<div class="gate-box">
+        <div class="gate-h">5. Date d'entrée souhaitée</div>
+        <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">${esc(opts.title||'')}${opts.price?' · <strong style="color:var(--txt)">'+opts.price+' €/mois</strong>':''}</div>
+        <input type="date" id="neg-movein" min="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:.55rem .8rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--txt);font-size:.85rem;font-family:inherit">
+      </div>
+      <div class="gate-box">
+        <div class="gate-h">6. Frais de service</div>
+        ${opts.commission>0?`<div style="font-size:.82rem;line-height:1.55;margin:.25rem 0 .5rem">En envoyant votre candidature, vous autorisez Trouve Ton Toit à prélever <strong>${opts.commission} € (${opts.commissionLabel})</strong>, <strong>uniquement si le propriétaire accepte</strong> votre candidature.</div>
+        <div id="nego-card-statut">${opts.hasCard?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`:`<div style="font-size:.78rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Une carte est nécessaire. Rien n'est débité si vous n'êtes pas accepté.</div><button type="button" class="btn bp bsm" style="width:100%;justify-content:center" onclick="registerCardThenSend('${listingId}','${String(opts.title||'').replace(/['"\\]/g,'')}','${opts.contactId||''}',${opts.price||0})"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>`
+        :`<div style="font-size:.82rem;color:var(--green);margin-top:.25rem"><i data-lucide=building-2 class=ic></i> Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</div>`}
+      </div>`:''}
+
       <div id="gate-err" style="color:#C9553A;font-size:.8rem;margin:.5rem 0;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem;flex-wrap:wrap">
         <button class="btn bg" id="gate-cancel">Annuler</button>
-        <button class="btn bp" id="gate-go">Continuer ma candidature →</button>
+        <button class="btn bp" id="gate-go">${opts.withSend?'<i data-lucide=send class=ic></i> Envoyer ma candidature':'Continuer ma candidature →'}</button>
       </div>
     </div>`;
     document.body.appendChild(ov);
@@ -6930,7 +6943,12 @@ function applicationGate(listingId){
           coloc.push(d);
         }
       }
+      if(!msg&&opts.withSend){
+        if(!ov.querySelector('#neg-movein')?.value)msg='Choisissez votre date d\'entrée souhaitée.';
+        else if(opts.commission>0&&!P?.stripe_customer_id)msg='Enregistrez votre carte (étape 6) avant d\'envoyer.';
+      }
       if(msg){err.textContent=msg;err.style.display='block';return;}
+      window._gateMoveIn=ov.querySelector('#neg-movein')?.value||null;
       window._gateColoc={listingId,list:coloc};
       window._gateGarants={listingId,idx:g==='non'?[]:(useList?picked:null)};
       window._applyGatePassed=listingId;
@@ -6941,9 +6959,7 @@ function applicationGate(listingId){
 }
 
 async function showNegotiationModal(listingId, listingTitle, contactId, price){
-  if(window._applyGatePassed!==listingId){
-    if(!(await applicationGate(listingId)))return;
-  }
+  // Une seule fenêtre : nom, dossier, garant, co-locataires, date d'entrée et frais
   const hasCard=!!(P?.stripe_customer_id);
   let commissionRate=0.10,commissionLabel='10%';
   try{
@@ -6965,38 +6981,9 @@ async function showNegotiationModal(listingId, listingTitle, contactId, price){
     commissionLabel=isAgence?'0%':hasAgent?'40%':'10%';
   }catch(e){}
   const commission=Math.round((price||0)*commissionRate);
-  const modal=document.createElement('div');
-  modal.id='nego-modal-overlay';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  modal.innerHTML=`
-    <div style="background:#1A1D27;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:1.5rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto">
-      <div style="font-size:1rem;font-weight:800;color:#F0EDE8;margin-bottom:.3rem"><i data-lucide=clipboard-list class=ic></i> Envoyer votre application</div>
-      <div style="font-size:.78rem;color:rgba(240,237,232,.4);margin-bottom:1.2rem"><strong style="color:#F0EDE8">€${price||'—'}/mois</strong> · ${listingTitle||''}</div>
-
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem;margin-bottom:1rem">
-        <div style="font-size:.8rem;font-weight:600;color:#F0EDE8;margin-bottom:.6rem"><i data-lucide=calendar class=ic></i> Your entrée dans les lieux details</div>
-        <div>
-          <label style="font-size:.72rem;font-weight:600;color:rgba(240,237,232,.5);display:block;margin-bottom:.3rem">Desired entrée dans les lieux date *</label>
-          <input type="date" id="neg-movein" min="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:.55rem .8rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#F0EDE8;font-size:.8rem;outline:none;font-family:'DM Sans',sans-serif">
-        </div>
-      </div>
-      ${commission>0?`
-        <div style="font-size:.78rem;font-weight:700;color:var(--green);margin-bottom:.4rem"><i data-lucide=credit-card class=ic></i> Platform fee authorization</div>
-        <div style="font-size:.72rem;color:rgba(240,237,232,.5);line-height:1.6;margin-bottom:.5rem">By proceeding, you authorize Trouve Ton Toit to charge <strong style="color:#F0EDE8">€${commission} (${commissionLabel})</strong> only if votre application is accepté by the propriétaire.</div>
-        <div id="nego-card-statut">${hasCard?`<div style="font-size:.72rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Card on file — will be charged only if accepté</div>`:`<div style="font-size:.72rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> A card is required. You won't be charged unless accepté.</div><button onclick="registerCardThenSend('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="width:100%;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=credit-card class=ic></i> Register my card first →</button>`}</div>
-      </div>
-      <div style="display:flex;gap:.5rem" id="nego-action-buttons">
-        ${hasCard?`<button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`:`<button disabled style="flex:1;background:rgba(255,255,255,.1);color:rgba(240,237,232,.3);border:none;border-radius:10px;padding:.7rem;font-size:.88rem;cursor:not-allowed"><i data-lucide=rocket class=ic></i> Envoyer application →</button>`}
-      `:`
-        <div style="font-size:.72rem;color:rgba(240,237,232,.5);line-height:1.6;margin-bottom:.5rem"><i data-lucide=building-2 class=ic></i> ce logement is managed by an agence — vous pay nothing to Trouve Ton Toit to apply.</div>
-      </div>
-      <div style="display:flex;gap:.5rem" id="nego-action-buttons">
-        <button id="nego-submit-btn" onclick="this.disabled=true;this.innerHTML='Sending...';submitNegotiationAndRent('${listingId}','${(listingTitle||'').replace(/'/g,"\\'")}','${contactId||''}',${price||0})" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.88rem;font-weight:700;cursor:pointer"><i data-lucide=rocket class=ic></i> Envoyer application →</button>
-      `}
-        <button onclick="document.getElementById('nego-modal-overlay').remove()" style="background:rgba(255,255,255,.06);color:rgba(240,237,232,.5);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;cursor:pointer">Annuler</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
+  const ok=await applicationGate(listingId,{withSend:true,title:listingTitle,price,contactId,commission,commissionLabel,hasCard});
+  if(!ok)return;
+  submitNegotiationAndRent(listingId,listingTitle,contactId,price);
 }
 
 async function registerCardThenSend(listingId, listingTitle, contactId, price){
@@ -7005,12 +6992,12 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div style="background:#1A1D27;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:1.5rem;width:100%;max-width:380px">
-      <div style="font-size:.95rem;font-weight:800;color:#F0EDE8;margin-bottom:.3rem"><i data-lucide=credit-card class=ic></i> Register votre card</div>
-      <div style="font-size:.75rem;color:rgba(240,237,232,.45);margin-bottom:1rem">Required to send an application — vous won't be charged unless the propriétaire accepts.</div>
+      <div style="font-size:.95rem;font-weight:800;color:#F0EDE8;margin-bottom:.3rem"><i data-lucide=credit-card class=ic></i> Enregistrer votre carte</div>
+      <div style="font-size:.75rem;color:rgba(240,237,232,.45);margin-bottom:1rem">Nécessaire pour envoyer une candidature — rien n'est débité si le propriétaire n'accepte pas.</div>
       <div id="inline-card-element" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.85rem;margin-bottom:.75rem"></div>
       <div id="inline-card-erreur" style="color:var(--red);font-size:.76rem;margin-bottom:.5rem;display:none"></div>
       <div style="display:flex;gap:.5rem">
-        <button id="inline-card-save-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Enregistrer card →</button>
+        <button id="inline-card-save-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Enregistrer la carte →</button>
         <button onclick="document.getElementById('inline-card-modal').remove()" style="background:rgba(255,255,255,.06);color:rgba(240,237,232,.5);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
       </div>
     </div>`;
@@ -7050,7 +7037,8 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
       // (et le prix négocié, le message, la date d'emménagement...) puisque
       // showNegotiationModal() réinitialise tout à chaque appel.
       const statusEl=document.getElementById('nego-card-statut');
-      if(statusEl)statusEl.innerHTML=`<div style="font-size:.72rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Card on file — will be charged only if accepté</div>`;
+      if(statusEl)statusEl.innerHTML=`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`;
+      if(window.lucide)lucide.createIcons();
       const btnsEl=document.getElementById('nego-action-buttons');
       if(btnsEl){
         const sendBtn=btnsEl.querySelector('button:first-child');
@@ -7063,14 +7051,14 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
           sendBtn.onclick=()=>submitNegotiationAndRent(listingId,listingTitle,contactId,price);
         }
       }
-      if(!document.getElementById('nego-modal-overlay')){
+      if(!document.getElementById('nego-modal-overlay')&&!document.getElementById('apply-gate-overlay')){
         // Si la modal n'existe plus pour une raison quelconque, on la rouvre en dernier recours
         showNegotiationModal(listingId,listingTitle,contactId,price);
       }
     }catch(e){
       errEl.innerHTML='<i data-lucide=x-circle class=ic></i> '+e.message;
       errEl.style.display='block';
-      btn.textContent='Enregistrer card →';btn.disabled=false;
+      btn.textContent='Enregistrer la carte →';btn.disabled=false;
     }
   };
 }
@@ -7079,7 +7067,7 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
 async function submitNegotiationAndRent(listingId, listingTitle, contactId, originalPrix){
   if(window._submittingApplication)return; // double-clic protégé même hors du bouton
   window._submittingApplication=true;
-  const moveIn=document.getElementById('neg-movein')?.value;
+  const moveIn=document.getElementById('neg-movein')?.value||window._gateMoveIn;
   if(!moveIn){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner votre date d\'entrée souhaitée');window._submittingApplication=false;return;}
   // Collecter les co-locataires MAINTENANT — leurs champs DOM disparaissent
   // avec cette modal, donc on résout tout avant de la fermer.
