@@ -482,6 +482,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
   gtag('config', 'G-NGD9YC7TNK');
   gtag('config', 'GT-K466VC2J');
 </script>
+<style>
+.depot-mois-btn{border:1.5px solid var(--b2,#D8DCE6);background:var(--s,#fff);color:inherit;border-radius:20px;padding:.35rem .9rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
+.depot-mois-btn.on{background:var(--bleu,#1B4FD8);border-color:var(--bleu,#1B4FD8);color:#fff}
+</style>
 </head>
 <body>
 
@@ -944,8 +948,14 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
           </div>
           <div class="fg2" id="pt-depot-wrap">
-            <label id="pt-depot-label">Dépôt de garantie (€)</label>
-            <input class="fi" type="number" id="pdep" placeholder="850">
+            <label id="pt-depot-label">Dépôt de garantie <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">— en mois de loyer hors charges</span></label>
+            <div id="depot-mois-btns" style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <button type="button" class="depot-mois-btn" data-m="0" onclick="setDepotMois(0)">Aucun</button>
+              <button type="button" class="depot-mois-btn" data-m="1" onclick="setDepotMois(1)">1 mois</button>
+              <button type="button" class="depot-mois-btn" data-m="2" onclick="setDepotMois(2)">2 mois</button>
+            </div>
+            <input type="hidden" id="pdep" value="">
+            <div id="depot-montant" style="margin-top:.4rem;font-size:.82rem;color:var(--stone)"></div>
             <div id="depot-hint" style="font-size:.7rem;color:var(--stone-l);margin-top:.25rem;line-height:1.4"></div>
           </div>
         </div>
@@ -3190,7 +3200,7 @@ async function loadHeroAnnonces(){
   const wrap=document.getElementById('hero-live-annonces');
   if(!wrap)return;
   try{
-    const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('actif',true).not('statut','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
+    const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('active',true).not('status','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
     if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Aucune annonce en ligne</div><div class="ps">Soyez le premier à publier!</div></div></div>';return;}
     const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
     const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
@@ -3209,7 +3219,7 @@ let currentListingsPage=1;
 async function loadL(){
   const g=document.getElementById('lg');g.innerHTML='<div class="chargement"><div class="sp"></div> Chargement…</div>';
   const z=document.getElementById('fz')?.value,t=document.getElementById('ft')?.value,p=document.getElementById('fp')?.value,att=document.getElementById('fa')?.value,src=document.getElementById('fsrc')?.value;
-  let q=sb.from('listings').select('*').eq('actif',true).not('statut','in','("reserved","rented")').order('created_at',{ascending:false});
+  let q=sb.from('listings').select('*').eq('active',true).not('status','in','("reserved","rented")').order('created_at',{ascending:false});
   if(z)q=q.eq('zone',z);
   if(t)q=q.eq('type',t);
   if(p&&t!=='for_sale')q=q.lte('price',parseInt(p)); // le filtre budget est pensé pour un loyer, n'a pas de sens pour un prix de vente
@@ -3271,7 +3281,7 @@ function goToListingsPage(n){
   document.getElementById('lg')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('actif',true);document.getElementById('sc').textContent=count??'0';}
+async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('active',true);document.getElementById('sc').textContent=count??'0';}
 
 // Photo verticale (prise au téléphone en portrait) : on l'affiche en entier, centrée,
 // sur une copie floutée d'elle-même, au lieu de n'en montrer qu'une bande rognée.
@@ -4115,10 +4125,16 @@ function setT(el,t){
   // Dépôt plafonné : hint légal selon le type de bail
   const depotHint=document.getElementById('depot-hint');
   if(depotHint){
-    if(t==='bail_vide') depotHint.textContent='Plafonné à 1 mois de loyer hors charges (logement non meublé).';
-    else if(t==='bail_meuble') depotHint.textContent='Plafonné à 2 mois de loyer hors charges (logement meublé).';
+    if(t==='bail_vide') depotHint.textContent='Maximum 1 mois de loyer hors charges (logement vide).';
+    else if(t==='bail_meuble') depotHint.textContent='Maximum 2 mois de loyer hors charges (logement meublé).';
     else depotHint.textContent='';
   }
+  // Choix du dépôt : 2 mois possible seulement en meublé ; valeur par défaut = le maximum
+  const b2=document.querySelector('.depot-mois-btn[data-m="2"]');
+  if(b2)b2.style.display=t==='bail_vide'?'none':'';
+  if(t==='bail_vide'&&_depotMois===2)_depotMois=1;
+  if(_depotMois==null&&(t==='bail_meuble'||t==='bail_vide'))_depotMois=t==='bail_meuble'?2:1;
+  updateDepotMontant();
 
   // "À vendre" et "Chambre/Coloc" : pas de bail généré, pas de caution
   const isSale=t==='for_sale';
@@ -4397,6 +4413,21 @@ function updateLoyerHC(){
   const hc=cc-ch;
   const el=document.getElementById('loyer-hc-val');
   if(el)el.textContent=cc>0?(hc>=0?hc+' € / mois':'—'):'—';
+  updateDepotMontant();
+}
+// Dépôt de garantie : choisi en mois de loyer HORS CHARGES (max 2 en meublé, 1 en vide)
+var _depotMois; // null/undefined = pas encore choisi
+function setDepotMois(m){_depotMois=m;updateDepotMontant();}
+function updateDepotMontant(){
+  const cc=parseInt(document.getElementById('ppr')?.value)||0;
+  const ch=parseInt(document.getElementById('p-charges')?.value)||0;
+  const hc=Math.max(0,cc-ch);
+  document.querySelectorAll('.depot-mois-btn').forEach(b=>b.classList.toggle('on',_depotMois!=null&&+b.dataset.m===_depotMois));
+  const inp=document.getElementById('pdep'),out=document.getElementById('depot-montant');
+  if(_depotMois==null){if(inp)inp.value='';if(out)out.textContent='';return;}
+  const montant=hc*_depotMois;
+  if(inp)inp.value=String(montant);
+  if(out)out.innerHTML=_depotMois===0?'Pas de dépôt de garantie.':(hc?`= <strong>${montant} €</strong> (${_depotMois} × ${hc} € hors charges)`:'Indiquez le loyer et les charges pour calculer le montant.');
 }
 
 // Pièces annexes — checkboxes, stored as comma-separated
@@ -4690,7 +4721,7 @@ async function doPost(){
     type:document.getElementById('pt').value,
     zone:document.getElementById('pz').value,
     price:parseInt(pr),
-    depot:parseInt(document.getElementById('pdep').value)||null,
+    depot:document.getElementById('pdep').value===''?null:(parseInt(document.getElementById('pdep').value)||0),
     spots:parseInt(document.getElementById('psp').value)||1,
     baths:parseInt(document.getElementById('p-baths')?.value)||1,
     sqm:parseInt(document.getElementById('p-sqm')?.value)||null,
@@ -4703,7 +4734,7 @@ async function doPost(){
     bills_included:document.getElementById('pbi')?.checked||false,
     landlord_id:U.id,
     // mandat_exclusif retiré — fonctionnalité jamais utile, supprimée
-    actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // vente et coloc restent cachées jusqu'au paiement
+    actif:!['for_sale','room_rental'].includes(document.getElementById('pt').value),active:!['for_sale','room_rental'].includes(document.getElementById('pt').value), // vente et coloc restent cachées jusqu'au paiement
     sale_price:document.getElementById('pt').value==='for_sale'?parseInt(pr):null,
     sale_subscription_status:document.getElementById('pt').value==='for_sale'?'en attente':null,
     tenure:document.getElementById('pt').value==='for_sale'?(document.getElementById('p-tenure')?.value||null):null,
@@ -4882,17 +4913,17 @@ async function loadML(){
   w.innerHTML=data.map(l=>{
     const isSale=l.type==='for_sale';
     const pendingSale=isSale&&l.sale_subscription_status!=='actif';
-    const statusLabel=pendingSale?'Not activated — €2/week to go live':l.actif?'Actif':'Paused';
-    const dotClass=pendingSale?'dg':l.actif?'dg':'dr';
+    const statusLabel=pendingSale?'Not activated — €2/week to go live':(l.actif??l.active)?'Actif':'Paused';
+    const dotClass=pendingSale?'dg':(l.actif??l.active)?'dg':'dr';
     const priceLabel=isSale?`€${l.sale_price||l.price}`:`€${l.price}/mois`;
     const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
     const boostLabel=isBoosted?`<i data-lucide=flame class=ic></i> Boosted until ${new Date(l.boosted_until).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`:'';
-    const boostBtn=!pendingSale?(l.actif?`<button class="btn btn-s btn-sm" style="${isBoosted?'':'background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;border:none'}" onclick="startBoostPaiement('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend boost':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — a paused annonce doesn't show in search, so boosting it does nothing"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
+    const boostBtn=!pendingSale?((l.actif??l.active)?`<button class="btn btn-s btn-sm" style="${isBoosted?'':'background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;border:none'}" onclick="startBoostPaiement('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend boost':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — a paused annonce doesn't show in search, so boosting it does nothing"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
     const actionBtn=isSale
-      ?(l.actif
+      ?((l.actif??l.active)
         ?`<button class="btn btn-s btn-sm" onclick="togL('${l.id}',true)">Pause</button>`
         :`<button class="btn btn-p btn-sm" onclick="retrySaleActivation('${l.id}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer</button>`)
-      :`<button class="btn ${l.actif?'btn-s':'btn-p'} btn-sm" onclick="togL('${l.id}',${l.actif})">${l.actif?'Pause':'Activer'}</button>`;
+      :`<button class="btn ${(l.actif??l.active)?'btn-s':'btn-p'} btn-sm" onclick="togL('${l.id}',${(l.actif??l.active)})">${(l.actif??l.active)?'Pause':'Activer'}</button>`;
     const hasPhotos=l.photos&&l.photos.length>0;
     const photoBtn=`<button class="btn btn-s btn-sm" onclick="editPhotos('${l.id}')" title="${hasPhotos?l.photos.length+' photo(s)':'Aucune photo !'}"><i data-lucide=camera class=ic></i>${hasPhotos?'':'<i data-lucide=alert-triangle class=ic></i>'}</button>`;
     return`<div class="mlcard"><div class="mlico">${ic[l.type]||'<i data-lucide=home class=ic></i>'}</div><div class="mli"><div class="mlt">${l.title}</div><div class="mls">${priceLabel} · ${l.zone} · <span class="dot ${dotClass}"></span>${statusLabel}${boostLabel?' · '+boostLabel:''}</div></div><div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-s btn-sm" onclick="openDet('${l.id}')">Voir</button>${photoBtn}${actionBtn}${boostBtn}</div></div>`;
@@ -4994,7 +5025,7 @@ async function retrySaleActivation(listingId,listingTitle){
   }
 }
 
-async function togL(id,a){await sb.from('listings').update({actif:!a}).eq('id',id);toast(a?'<i data-lucide=pause class=ic></i> Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
+async function togL(id,a){await sb.from('listings').update({actif:!a,active:!a}).eq('id',id);toast(a?'<i data-lucide=pause class=ic></i> Annonce paused':'<i data-lucide=check-circle-2 class=ic></i> Annonce activated');loadML();updC();}
 
 async function loadMM(){
   const w=document.getElementById('mym'),field=P?.role==='bailleur'?'receiver_id':'sender_id';
@@ -5779,7 +5810,7 @@ async function doPostVente(){
       honoraires_montant:null,
       honoraires_charge:null,
       // status
-      actif:false,
+      actif:false,active:false,
       sale_subscription_status:'en attente',
       created_at:new Date().toISOString()
     };
@@ -5804,7 +5835,7 @@ async function doPostVente(){
   } catch(e){
     console.error('doPostVente error:',e);
     if(errEl){errEl.textContent='Erreur lors de la publication : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.innerHTML='<i data-lucide=send class=ic></i> Publier mon annonce';window.lucide&&lucide.createIcons();}
   }
 }
 
@@ -6145,7 +6176,7 @@ async function doPostVenteGarage(){
       honoraires_montant:null,
       honoraires_charge:null,
       description:g('vg-description'),
-      actif:false,
+      actif:false,active:false,
       sale_subscription_status:'en attente',
       created_at:new Date().toISOString()
     };
@@ -6165,7 +6196,7 @@ async function doPostVenteGarage(){
   }catch(e){
     console.error('doPostVenteGarage error:',e);
     if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.innerHTML='<i data-lucide=send class=ic></i> Publier mon annonce';window.lucide&&lucide.createIcons();}
   }
 }
 
@@ -6575,7 +6606,7 @@ async function doPostVenteMaison(){
       honoraires_inclus:false,
       honoraires_montant:null,
       honoraires_charge:null,
-      actif:false,
+      actif:false,active:false,
       sale_subscription_status:'en attente',
       created_at:new Date().toISOString()
     };
@@ -6595,7 +6626,7 @@ async function doPostVenteMaison(){
   }catch(e){
     console.error('doPostVenteMaison error:',e);
     if(errEl){errEl.textContent='Erreur : '+(e.message||'Veuillez réessayer.');errEl.style.display='block';}
-    if(pubBtn){pubBtn.disabled=false;pubBtn.textContent='<i data-lucide=send class=ic></i> Publier mon annonce';}
+    if(pubBtn){pubBtn.disabled=false;pubBtn.innerHTML='<i data-lucide=send class=ic></i> Publier mon annonce';window.lucide&&lucide.createIcons();}
   }
 }
 
@@ -6852,7 +6883,7 @@ async function doPostParking(){
     description:document.getElementById('p-pk-description')?.value||null,
     full_address:fullAddress,
     landlord_id:U.id,
-    actif:true,
+    actif:true,active:true,
   };
 
   const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
