@@ -548,7 +548,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <div class="sf"><label><i data-lucide=calendar class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
         <option value="">Tous les types</option>
         <option value="long">Bail vide ou meublé</option>
-        <option value="room_rental">Chambre / Coloc</option>
+        <option value="parking">Parking / garage</option>
         <option value="for_sale">À vendre</option>
       </select></div>
       <div class="sf" id="fp-wrap"><label><i data-lucide=euro class=ic></i> Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
@@ -681,14 +681,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="tloc-row-body">
               <div class="tloc-title">Location vide</div>
               <div class="tloc-sub">Bail 3 ans · dépôt 1 mois</div>
-            </div>
-            <i data-lucide=chevron-right class="ic tloc-arrow"></i>
-          </button>
-          <button type="button" class="tloc-card tloc-card-row" id="tloc-coloc" onclick="selectTypeLocation('room_rental')">
-            <div class="tloc-row-icon"><i data-lucide=users class=ic></i></div>
-            <div class="tloc-row-body">
-              <div class="tloc-title">Location Chambre / Coloc</div>
-              <div class="tloc-sub">Mise en relation</div>
             </div>
             <i data-lucide=chevron-right class="ic tloc-arrow"></i>
           </button>
