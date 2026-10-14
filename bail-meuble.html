@@ -536,6 +536,7 @@
           <div class="article-content">
             <p><strong>4.1 Montant du loyer</strong></p>
             <p>Le loyer mensuel est fixé à <strong id="loyer-txt">—</strong> euros hors charges, payable le <strong id="paydate-txt">1<sup>er</sup></strong> de chaque mois.</p>
+            <p id="prorata-txt"></p>
           </div>
           <div class="info-rows">
             <div class="info-row">
@@ -2396,6 +2397,14 @@ function renderBail(){
   show('total-val',fmt(rent+(charges||0)));
   show('paydate-txt',payDay+(_editMode?`<sup>er</sup> <span class="edit-btn" onclick="editField(event,'payment_due_day')"><i data-lucide=pencil class=ic></i></span>`:'<sup>er</sup>'));
   show('echeance-val',ev('payment_due_day',payDay+'ᵉʳ du mois')+tenantFlag('Échéance du loyer'));
+  // 1er loyer au prorata de la date d'entrée dans les lieux
+  {
+    const _entree=L.start_date||BOOKING?.move_in_date;
+    const _pr=prorataLoyer(_entree,payDay,rent+(charges||0));
+    if(!_pr)show('prorata-txt','');
+    else if(_pr.full)show('prorata-txt',`L'entrée dans les lieux ayant lieu le <strong>${fmtDateFr(_pr.start)}</strong>, jour d'échéance, le premier loyer est dû en totalité, soit <strong>${fmtEur(_pr.amount)}</strong> charges comprises.`);
+    else show('prorata-txt',`L'entrée dans les lieux ayant lieu le <strong>${fmtDateFr(_pr.start)}</strong>, le premier loyer est calculé au prorata des jours d'occupation : <strong>${_pr.days} jours sur ${_pr.period}</strong> (du ${fmtDateFr(_pr.start)} au ${fmtDateFr(_pr.end)}), soit <strong>${fmtEur(_pr.amount)}</strong> charges comprises, payable à l'entrée dans les lieux. Le loyer est ensuite dû en totalité à chaque échéance, à compter du <strong>${fmtDateFr(_pr.nextDue)}</strong>.`);
+  }
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
 
   // Dernier loyer — mention obligatoire si précédent locataire parti < 18 mois
@@ -3009,6 +3018,32 @@ function backToDashboard(role,evt){
   },1200);
 }
 
+
+// ── Prorata du 1er loyer ──
+// Prorata du 1er loyer (même calcul partout : annonce, bail, dashboards).
+// Entrée le JJ → 1er loyer = loyer × jours jusqu'à la prochaine échéance / jours de la période.
+// Prochaine échéance = premier « jour de paiement » du bail strictement après la date d'entrée.
+function prorataLoyer(moveInStr,payDay,rentCC){
+  const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(moveInStr||''));
+  if(!m)return null;
+  const y=+m[1],mo=+m[2],d=+m[3];
+  const D=Math.min(Math.max(parseInt(payDay)||1,1),31);
+  const dim=(Y,M)=>new Date(Y,M,0).getDate();
+  let ny=y,nm=mo,nd=Math.min(D,dim(y,mo));
+  if(nd<=d){nm++;if(nm>12){nm=1;ny++;}nd=Math.min(D,dim(ny,nm));}
+  let py=ny,pm=nm-1;if(pm<1){pm=12;py--;}
+  const pd=Math.min(D,dim(py,pm));
+  const u=(Y,M,J)=>Date.UTC(Y,M-1,J);
+  const days=Math.round((u(ny,nm,nd)-u(y,mo,d))/864e5);
+  const period=Math.round((u(ny,nm,nd)-u(py,pm,pd))/864e5);
+  const rent=Number(rentCC)||0;
+  const amount=days>=period?rent:Math.round(rent*days/period*100)/100;
+  const iso=(Y,M,J)=>`${Y}-${String(M).padStart(2,'0')}-${String(J).padStart(2,'0')}`;
+  const endT=new Date(u(ny,nm,nd)-864e5);
+  return{days,period,amount,full:days>=period,start:iso(y,mo,d),end:iso(endT.getUTCFullYear(),endT.getUTCMonth()+1,endT.getUTCDate()),nextDue:iso(ny,nm,nd),payDay:D};
+}
+function fmtDateFr(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return'—';return new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';}
 
 // ── Garant : lien personnel de signature envoyé par email ─────────────────────
 async function inviteGarant(force){
