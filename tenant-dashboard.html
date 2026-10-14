@@ -2108,11 +2108,11 @@ async function loadMyLocation(){
   let bk=null,annonce=null,daysLeftToView=null,myCoLocataireEntry=null;
   try{
     // Réservations où JE suis le locataire principal
-    const{data:ownBookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('statut',[...activeStatutes,'tenancy_ended']);
+    const{data:ownBookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('status',[...activeStatutes,'tenancy_ended']);
 
     // Réservations où JE suis co-locataire (compte relié) chez quelqu'un
     // d'autre — même motif que celui déjà utilisé pour Visites/Applications.
-    const{data:allWithCoLocataires}=await sb.from('bookings').select('*').not('co_locataires_data','is',null).neq('tenant_id',U.id).in('statut',[...activeStatutes,'tenancy_ended']);
+    const{data:allWithCoLocataires}=await sb.from('bookings').select('*').not('co_locataires_data','is',null).neq('tenant_id',U.id).in('status',[...activeStatutes,'tenancy_ended']);
     const coLocataireBookings=[];
     (allWithCoLocataires||[]).forEach(b=>{
       let coLocatairesData=[];
@@ -2613,7 +2613,7 @@ async function loadTickets(){
   let hasBail=false;
   try{
     const activeStatutes=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready'];
-    const{data:bks}=await sb.from('bookings').select('id').eq('tenant_id',U.id).in('statut',activeStatutes).limit(1);
+    const{data:bks}=await sb.from('bookings').select('id').eq('tenant_id',U.id).in('status',activeStatutes).limit(1);
     hasBail=(bks&&bks.length>0);
   }catch(e){}
 
@@ -2637,7 +2637,7 @@ async function openTicketModal(){
   const activeStatutes=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready'];
   let bk=null;
   try{
-    const{data:d}=await sb.from('bookings').select('listing_id,landlord_id').eq('tenant_id',U.id).in('statut',activeStatutes).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const{data:d}=await sb.from('bookings').select('listing_id,landlord_id').eq('tenant_id',U.id).in('status',activeStatutes).order('created_at',{ascending:false}).limit(1).maybeSingle();
     bk=d;
   }catch(e){bk=null;}
   if(!bk){
@@ -2747,7 +2747,7 @@ async function fetchLocataireVisitData(){
   // — dès l'envoi de la demande, pas seulement une fois le bail généré.
   let coLocataireBookings=[];
   try{
-    const{data:allWithCoLocataires}=await sb.from('bookings').select('*').not('co_locataires_data','is',null).neq('tenant_id',U.id).not('statut','in','("declined","cancelled_by_locataire")');
+    const{data:allWithCoLocataires}=await sb.from('bookings').select('*').not('co_locataires_data','is',null).neq('tenant_id',U.id).not('status','in','("declined","cancelled_by_locataire")');
     (allWithCoLocataires||[]).forEach(b=>{
       let coLocatairesData=[];
       try{coLocatairesData=JSON.parse(b.co_locataires_data);}catch(e){}
@@ -2872,8 +2872,8 @@ function renderLocataireVisitCard(v){
       :(ns==='agreed'||ns==='signed')?(
         L.tenant_signed_at&&L.landlord_signed_at&&L.garant_name&&!L.garant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du garant attendue']
         :L.tenant_signed_at&&L.landlord_signed_at&&bk?.edl_signed_propriétaire&&bk?.edl_signed_locataire?['b-green','<i data-lucide=check-circle-2 class=ic></i> État des lieux signé']
-        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_paiement_confirmed?['b-green','<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé — état des lieux à venir']
-        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_paiement_sent?['b-sea','<i data-lucide=hourglass class=ic></i> Paiement envoyé — confirmation du propriétaire attendue']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_payment_confirmed?['b-green','<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé — état des lieux à venir']
+        :L.tenant_signed_at&&L.landlord_signed_at&&bk?.first_payment_sent?['b-sea','<i data-lucide=hourglass class=ic></i> Paiement envoyé — confirmation du propriétaire attendue']
         :L.tenant_signed_at&&L.landlord_signed_at?['b-gold','<i data-lucide=euro class=ic></i> Bail signé — premier paiement à faire']
         :L.tenant_signed_at?['b-sea','<i data-lucide=hourglass class=ic></i> Signature du propriétaire attendue']
         :['b-gold','<i data-lucide=pen-line class=ic></i> Bail à signer'])
@@ -3132,8 +3132,8 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
   const tSigned=lease ? !!lease.tenant_signed_at : (coLocataireEntry?coLocataireEntry.signed:bk.bail_signed_tenant);
   const mySignEmbed=coLocataireEntry?coLocataireEntry.embed_src:bk.bail_tenant_embed;
   const mySignFn=coLocataireEntry?`openCoLocataireBailDoc('${bk.id}')`:`openLocataireBailDoc('${bk.id}')`;
-  const payDeclared=bk.first_paiement_sent;
-  const payConfirmered=bk.first_paiement_confirmed;
+  const payDeclared=bk.first_payment_sent;
+  const payConfirmered=bk.first_payment_confirmed;
   const moveIn=bk.move_in_date||v.move_in_date||null;
   const edlDate=bk.edl_date||moveIn||null;
   const loyer=bk.monthly_rent||0;
@@ -3825,7 +3825,7 @@ async function locataireNotInterested(visitId){
 
 async function declareLocatairePaiement(bookingId){
   if(!confirm('Confirmez-vous avoir effectué le virement au propriétaire ?')) return;
-  const{error}=await sb.from('bookings').update({first_paiement_sent:true}).eq('id',bookingId);
+  const{error}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
   toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré ! Le propriétaire va confirmer.');
   loadLocataireVisits();
@@ -4087,7 +4087,7 @@ async function leaveCurrentProperty(){
 
   let bk=null,annonce=null;
   try{
-    const{data:bookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('statut',['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready']).order('created_at',{ascending:false}).limit(1);
+    const{data:bookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('status',['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready']).order('created_at',{ascending:false}).limit(1);
     bk=bookings?.[0]||null;
     if(bk){
       const{data:l}=await sb.from('listings').select('*').eq('id',bk.listing_id).maybeSingle();
@@ -4146,7 +4146,7 @@ async function loadPaiementsData(){
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.25);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
         <div style="font-size:2rem"><i data-lucide=euro class=ic></i></div>
         <div style="flex:1">
-          <div style="font-weight:700;font-size:.95rem;margin-bottom:.2rem">Loyer due — €${(p.montant||0).toLocaleString()}</div>
+          <div style="font-weight:700;font-size:.95rem;margin-bottom:.2rem">Loyer due — €${(p.amount||0).toLocaleString()}</div>
           <div style="font-size:.78rem;color:var(--tm)">Due ${p.due_date?new Date(p.due_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'now'} · Pay via bank transfer or Revolut to votre propriétaire</div>
         </div>
         ${p.status==='declared'
@@ -4165,12 +4165,12 @@ async function loadPaiementsData(){
     ?'<div style="padding:0 1.2rem">'+confirmedPaiements.map(p=>`
       <div style="display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)">
         <div style="flex:1">
-          <div style="font-size:.85rem;font-weight:600">€${(p.montant||0).toLocaleString()} ${p.type==='depot'?'(dépôt)':p.type==='first_rent'?'(1er mois de loyer)':p.type==='loyer'?'(loyer)':p.type==='commission'?'(commission Trouve Ton Toit)':''}</div>
+          <div style="font-size:.85rem;font-weight:600">€${(p.amount||0).toLocaleString()} ${(p.type==='deposit'||p.type==='depot')?'(dépôt)':p.type==='first_rent'?'(1er mois de loyer)':(p.type==='rent'||p.type==='loyer')?'(loyer)':p.type==='commission'?'(commission Trouve Ton Toit)':''}</div>
           <div style="font-size:.72rem;color:var(--tm);margin-top:.15rem">Échéance : ${p.due_date?new Date(p.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—'}</div>
           ${p.paid_at?`<div style="font-size:.68rem;color:var(--green);margin-top:.1rem"><i data-lucide=check-circle-2 class=ic></i> Confirmered le ${new Date(p.paid_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}</div>`:''}
         </div>
         <span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span>
-        <button class="btn bg bsm" onclick="downloadLocataireQuittance('${p.id}','${(p.montant||0)}','${p.paid_at||p.created_at}')"><i data-lucide=file-text class=ic></i> Quittance</button>
+        <button class="btn bg bsm" onclick="downloadLocataireQuittance('${p.id}','${(p.amount||0)}','${p.paid_at||p.created_at}')"><i data-lucide=file-text class=ic></i> Quittance</button>
       </div>`).join('')+'</div>'
     :'<div class="empty"><div class="em"><i data-lucide=euro class=ic></i></div><p>No confirmed paiements yet.</p></div>';
 }
@@ -4247,7 +4247,7 @@ async function loadReviewableLandlords(){
   if(!sel)return;
   try{
     // Seuls les baux réellement conclus (au moins emménagé) donnent le droit de laisser un avis
-    const{data:bookings}=await sb.from('bookings').select('landlord_id').eq('tenant_id',U.id).in('statut',['move_in_ready','completed','actif']);
+    const{data:bookings}=await sb.from('bookings').select('landlord_id').eq('tenant_id',U.id).in('status',['move_in_ready','completed','active']);
     const landlordIds=[...new Set((bookings||[]).map(b=>b.landlord_id).filter(Boolean))];
     if(!landlordIds.length){
       sel.innerHTML='';sel.style.display='none';
@@ -4289,7 +4289,7 @@ async function loadReviewableAgencies(){
     // agent_id est toujours l'agence elle-même sur un bien géré en agence —
     // fiable contrairement à landlord_id, qui peut aussi bien pointer vers
     // l'agence (pas de vrai propriétaire relié) que vers le vrai propriétaire.
-    const{data:bookings}=await sb.from('bookings').select('listing_id').eq('tenant_id',U.id).in('statut',['move_in_ready','completed','actif']);
+    const{data:bookings}=await sb.from('bookings').select('listing_id').eq('tenant_id',U.id).in('status',['move_in_ready','completed','active']);
     const listingIds=[...new Set((bookings||[]).map(b=>b.listing_id).filter(Boolean))];
     if(!listingIds.length){sel.innerHTML='';sel.style.display='none';if(noneEl)noneEl.style.display='block';if(formEl)formEl.style.display='none';return;}
     const{data:annonces}=await sb.from('listings').select('id,agent_id').eq('agency_annonce',true).in('id',listingIds).not('agent_id','is',null);
@@ -4331,7 +4331,7 @@ async function submitAgenceAvis(){
   if(!selectedAgenceRating){toast('<i data-lucide=alert-triangle class=ic></i> Sélectionnez une note');return;}
 
   const{data:realAnnonce}=await sb.from('listings').select('id').eq('agent_id',agencyId).eq('agency_annonce',true).in('id',
-    (await sb.from('bookings').select('listing_id').eq('tenant_id',U.id).in('statut',['move_in_ready','completed','actif'])).data?.map(b=>b.listing_id)||[]
+    (await sb.from('bookings').select('listing_id').eq('tenant_id',U.id).in('status',['move_in_ready','completed','active'])).data?.map(b=>b.listing_id)||[]
   ).limit(1).maybeSingle();
   if(!realAnnonce){toast('<i data-lucide=x-circle class=ic></i> Vous ne pouvez évaluer qu\'une agence via laquelle vous avez réellement loué');return;}
   const{data:existingAvis}=await sb.from('reviews').select('id').eq('reviewer_id',U.id).eq('target_id',agencyId).eq('type','locataire_to_agency').maybeSingle();
@@ -4359,7 +4359,7 @@ async function submitAvis(){
   // Double vérification — s'assurer qu'un bail réel existe bien avec ce
   // propriétaire, et qu'aucun avis n'a déjà été laissé (protège même contre
   // un id manipulé directement, en plus du filtre déjà appliqué côté select)
-  const{data:realBooking}=await sb.from('bookings').select('id').eq('tenant_id',U.id).eq('landlord_id',landlordId).in('statut',['move_in_ready','completed','actif']).limit(1).maybeSingle();
+  const{data:realBooking}=await sb.from('bookings').select('id').eq('tenant_id',U.id).eq('landlord_id',landlordId).in('status',['move_in_ready','completed','active']).limit(1).maybeSingle();
   if(!realBooking){toast('<i data-lucide=x-circle class=ic></i> Vous ne pouvez évaluer qu\'un propriétaire chez qui vous avez réellement loué');return;}
   const{data:existingAvis}=await sb.from('reviews').select('id').eq('reviewer_id',U.id).eq('target_id',landlordId).eq('type','locataire_to_propriétaire').maybeSingle();
   if(existingAvis){toast('<i data-lucide=x-circle class=ic></i> Vous avez déjà évalué ce propriétaire');return;}
@@ -4831,7 +4831,7 @@ function openSigningDoc(embedSrc, title, bookingId){
 async function confirmLocatairePaiement(bookingId){
   if(!confirm('Confirmer that you have transferred the paiement to the propriétaire?'))return;
   try{
-    const{error:payErr}=await sb.from('bookings').update({first_paiement_sent:true}).eq('id',bookingId);
+    const{error:payErr}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
     if(payErr){toast('<i data-lucide=x-circle class=ic></i> Impossible d\'enregistrer — réessayez : '+payErr.message);return;}
     // Notifier le propriétaire
     const{data:b}=await sb.from('bookings').select('listing_id,landlord_id').eq('id',bookingId).single();
@@ -6915,7 +6915,7 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
   document.querySelector('#nego-modal-overlay')?.remove();
 
   // Vérifier qu'il n'y a pas déjà une demande pour ce annonce
-  const{data:existing}=await sb.from('bookings').select('id,statut').eq('tenant_id',U.id).eq('listing_id',listingId).maybeSingle();
+  const{data:existing}=await sb.from('bookings').select('id,status').eq('tenant_id',U.id).eq('listing_id',listingId).maybeSingle();
   if(existing){
     toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une demande pour cette annonce.');
     sp('visites',document.querySelector('.ni[onclick*="visites"]'));
@@ -7117,7 +7117,7 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
   // visite puis en redemander une autre avant de re-cliquer "louer" créait
   // deux dossiers séparés pour le même locataire chez le même propriétaire.
   try{
-    const{data:existingBooking}=await sb.from('bookings').select('id,statut').eq('tenant_id',U.id).eq('listing_id',listingId).not('statut','in','("declined","cancelled_by_locataire")').maybeSingle();
+    const{data:existingBooking}=await sb.from('bookings').select('id,status').eq('tenant_id',U.id).eq('listing_id',listingId).not('status','in','("declined","cancelled_by_locataire")').maybeSingle();
     if(existingBooking){
       toast('<i data-lucide=alert-triangle class=ic></i> Vous avez déjà une candidature active pour ce logement — vérifiez Mes visites.');
       sp('visites',document.querySelector('.ni[onclick*="visites"]'));
