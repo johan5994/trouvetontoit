@@ -2105,7 +2105,7 @@ async function loadMyLocation(){
   const emptyEl=document.getElementById('ml-empty');
   const contentEl=document.getElementById('ml-content');
   const activeStatutes=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready'];
-  let bk=null,annonce=null,daysLeftToView=null,myCoLocataireEntry=null;
+  let bk=null,annonce=null,daysLeftToView=null,myCoLocataireEntry=null,ancien=null,ancienJours=null;
   try{
     // Réservations où JE suis le locataire principal
     const{data:ownBookings}=await sb.from('bookings').select('*').eq('tenant_id',U.id).in('status',[...activeStatutes,'tenancy_ended']);
@@ -2126,14 +2126,14 @@ async function loadMyLocation(){
 
     // Une location quittée reste visible 7 jours (le temps de sauvegarder
     // documents/reçus/messages) avant de vraiment disparaître d'ici.
-    bk=allCandidates.find(b=>{
-      if(activeStatutes.includes(b.status))return true;
-      if(b.status==='tenancy_ended'&&b.tenancy_ended_at){
-        const daysSince=(Date.now()-new Date(b.tenancy_ended_at).getTime())/(1000*60*60*24);
-        if(daysSince<7){daysLeftToView=Math.max(1,Math.ceil(7-daysSince));return true;}
-      }
-      return false;
-    })||null;
+    // Le logement actuel passe toujours en premier. Un logement quitté depuis
+    // moins de 7 jours reste consultable à part (bouton « ancien logement »).
+    const actuel=allCandidates.find(b=>activeStatutes.includes(b.status))||null;
+    ancien=allCandidates.find(b=>b.status==='tenancy_ended'&&!locationQuitteeExpiree(b))||null;
+    if(ancien)ancienJours=Math.max(1,Math.ceil(7-(Date.now()-new Date(ancien.tenancy_ended_at).getTime())/(1000*60*60*24)));
+    if(actuel&&!(window._mlVoirAncien&&ancien))bk=actuel;
+    else if(ancien){bk=ancien;daysLeftToView=ancienJours;}
+    if(!ancien)window._mlVoirAncien=false;
 
     // Si la réservation trouvée est celle où je suis co-locataire, retrouver
     // ma propre entrée pour que la section bail/État des lieux affiche mon vrai statut
@@ -2158,10 +2158,20 @@ async function loadMyLocation(){
   const nameEl=document.getElementById('ml-bien-name');
   if(nameEl)nameEl.textContent=annonce?.title?`${annonce.title} · ${annonce.full_address||annonce.zone||'France'}`:'—';
 
+  const estQuitte=bk.status==='tenancy_ended';
   const leftNoticeEl=document.getElementById('ml-tenancy-ended-notice');
   if(leftNoticeEl){
-    leftNoticeEl.style.display=daysLeftToView?'block':'none';
-    if(daysLeftToView)leftNoticeEl.innerHTML=`<i data-lucide=alert-triangle class=ic></i> You've left ce logement. It'll be removed  depuis  here in ${daysLeftToView} day${daysLeftToView>1?'s':''} — save anything you need now.`;
+    const j=n=>n+' jour'+(n>1?'s':'');
+    let html='';
+    if(estQuitte){
+      const dt=bk.tenancy_ended_at?new Date(bk.tenancy_ended_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'';
+      html=`<i data-lucide=alert-triangle class=ic></i> Vous avez quitté ce logement${dt?' le '+dt:''}. Bail, état des lieux et quittances restent consultables encore ${j(daysLeftToView)} : téléchargez ce dont vous avez besoin.`;
+      if(window._mlVoirAncien)html+=` <button class="btn bg" style="margin-top:.5rem;font-size:.75rem" onclick="window._mlVoirAncien=false;loadMyLocation()">← Revenir à mon logement actuel</button>`;
+    }else if(ancien){
+      html=`<i data-lucide=archive class=ic></i> Documents de votre ancien logement encore consultables ${j(ancienJours)}. <button class="btn bg" style="margin-top:.5rem;font-size:.75rem" onclick="window._mlVoirAncien=true;loadMyLocation()">Voir mon ancien logement</button>`;
+    }
+    leftNoticeEl.style.display=html?'block':'none';
+    leftNoticeEl.innerHTML=html;
   }
 
   // Bail en ligne (bail-meuble) : la table leases fait foi
@@ -2186,14 +2196,17 @@ async function loadMyLocation(){
   const noTracking=!!bk.no_landlord_tracking&&!bk.landlord_id;
   ['ml-tabbtn-paiements','ml-tabbtn-maintenance','ml-tabbtn-manage'].forEach(id=>{
     const btn=document.getElementById(id);
-    if(btn)btn.style.display=noTracking?'none':'inline-block';
+    // Logement déjà quitté : plus de maintenance ni de bouton « Quitter »
+    const cache=noTracking||(estQuitte&&id!=='ml-tabbtn-paiements');
+    if(btn)btn.style.display=cache?'none':'inline-block';
   });
   const noticeEl=document.getElementById('ml-no-tracking-notice');
   if(noticeEl)noticeEl.style.display=noTracking?'block':'none';
 
-  await ensureFirstPaymentRecordsTenant(bk);
+  if(!estQuitte)await ensureFirstPaymentRecordsTenant(bk);
   loadPaiementsData();
   showMlTab('bail');
+  if(window.lucide)lucide.createIcons();
   loadTickets();
 }
 
@@ -4224,7 +4237,9 @@ async function leaveCurrentProperty(){
   }
 
   toast('<i data-lucide=check-circle-2 class=ic></i> C\'est noté. Vous pouvez chercher un nouveau logement. Vos documents restent visibles 7 jours.');
-  setTimeout(()=>{sp('dash',document.querySelectorAll('.ni')[0]);loadOverview();},1500);
+  window._mlVoirAncien=false;
+  const _btn=document.querySelector('#ml-tab-manage button');if(_btn)_btn.disabled=true;
+  setTimeout(()=>{loadMyLocation();try{loadOverview();}catch(e){}},800);
 }
 
 async function loadPaiementsData(){
