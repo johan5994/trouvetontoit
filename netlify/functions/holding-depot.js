@@ -139,6 +139,53 @@ exports.handler = async (event) => {
         }
       }
 
+      // Nouveau parcours : carte enregistrée à la candidature (SetupIntent), débit
+      // seulement maintenant. Frais payés par un seul locataire ou partagés.
+      const payRows = [];
+      if (!booking.commission_paiement_intent_id) {
+        let payers = booking.fee_payers;
+        try { payers = typeof payers === 'string' ? JSON.parse(payers) : payers; } catch (e) { payers = null; }
+        if (!Array.isArray(payers) || !payers.length) {
+          payers = (booking.commission_amount > 0 && booking.stripe_customer_id)
+            ? [{ tenant_id: booking.tenant_id || booking.locataire_id, name: booking.locataire_name, email: booking.locataire_email, customer_id: booking.stripe_customer_id, amount: booking.commission_amount }]
+            : [];
+        }
+        const results = [];
+        for (const p of payers) {
+          const amount = Math.round(Number(p.amount || 0) * 100);
+          if (!amount || !p.customer_id) { results.push({ ...p, status: 'skipped' }); continue; }
+          try {
+            const pms = await stripe.paymentMethods.list({ customer: p.customer_id, type: 'card', limit: 1 });
+            const pm = pms.data[0];
+            if (!pm) throw new Error('Aucune carte enregistrée');
+            const pi = await stripe.paymentIntents.create({
+              amount, currency: 'eur', customer: p.customer_id, payment_method: pm.id,
+              off_session: true, confirm: true,
+              description: 'Trouve Ton Toit — frais de dossier',
+              metadata: { type: 'locataire_commission', booking_id: booking.id, tenant_id: p.tenant_id || '' }
+            });
+            results.push({ ...p, status: 'paid', payment_intent: pi.id });
+            payRows.push({ tenant_id: p.tenant_id, tenant_name: p.name || null, tenant_email: p.email || null, amount: amount / 100 });
+          } catch (e) {
+            results.push({ ...p, status: 'failed', error: e.message });
+          }
+        }
+        if (results.length) {
+          captureResult = results.map(r => (r.name || r.tenant_id) + ':' + r.status).join(', ');
+          try { await sb.from('bookings').update({ fee_payers: results }).eq('id', booking.id); } catch (e) {}
+        }
+      }
+      for (const r of payRows) {
+        try {
+          await sb.from('payments').insert({
+            tenant_id: r.tenant_id, listing_id: booking.listing_id || null, booking_id: booking.id,
+            tenant_name: r.tenant_name, tenant_email: r.tenant_email,
+            amount: r.amount, type: 'commission', status: 'paid',
+            paid_at: new Date().toISOString(), due_date: new Date().toISOString().split('T')[0]
+          });
+        } catch (e) { console.warn('Enregistrement frais (non-bloquant):', e.message); }
+      }
+
       if (commissionAmountEur > 0 && booking.locataire_id) {
         try {
           await sb.from('payments').insert({
