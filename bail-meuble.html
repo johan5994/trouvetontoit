@@ -443,7 +443,8 @@
       <!-- HEADER -->
       <div class="bail-header">
         <div class="brand">Trouve Ton Toit</div>
-        <h1>Contrat de Location d'un Logement Meublé</h1>
+        <h1 id="bail-h1">Contrat de Location d'un Logement Meublé</h1>
+        <div id="type-bail-switch" class="no-print" style="margin:.4rem 0 .2rem"></div>
         <div class="subtitle">Résidence principale — Loi n° 89-462 du 6 juillet 1989 modifiée par la loi ALUR n° 2014-366 du 24 mars 2014<br>et au décret n° 2015-587 du 29 mai 2015 relatif aux contrats types</div>
         <div class="ref" id="bail-ref">TTT---------</div>
         <div class="gen-date" id="bail-gen-date"></div>
@@ -522,9 +523,9 @@
         <div class="section">
           <div class="article-title" id="art3-title">Article 3 — Durée du bail</div>
           <div class="article-content">
-            <p>Le présent contrat est conclu pour une durée de <strong>1 (un) an</strong> à compter du <strong id="start-date-txt">—</strong>, pour se terminer le <strong id="end-date-txt">—</strong>.</p>
-            <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes d'un an, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 17 et 18 du présent contrat.</p>
-            <p><em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em></p>
+            <p>Le présent contrat est conclu pour une durée de <strong id="duree-txt">1 (un) an</strong> à compter du <strong id="start-date-txt">—</strong>, pour se terminer le <strong id="end-date-txt">—</strong>.</p>
+            <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes <span id="reconduction-txt">d'un an</span>, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 17 et 18 du présent contrat.</p>
+            <p id="duree-remarque"><em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em></p>
           </div>
         </div>
 
@@ -749,7 +750,7 @@
         <div class="section">
           <div class="article-title">Article 17 — Congé donné par le locataire</div>
           <div class="article-content">
-            <p>Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :</p>
+            <p id="preavis-locataire-txt">Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :</p>
             <ul>
               <li>Lettre recommandée avec avis de réception (LRAR)</li>
               <li>Acte de commissaire de justice</li>
@@ -765,13 +766,13 @@
         <div class="section">
           <div class="article-title" id="art16-title">Article 18 — Congé donné par le bailleur</div>
           <div class="article-content">
-            <p>Le bailleur peut donner congé pour la fin du bail, avec un préavis de <strong>trois mois</strong>, par lettre recommandée avec avis de réception, acte de commissaire de justice ou remise en main propre contre récépissé, pour l'un des motifs suivants :</p>
+            <p>Le bailleur peut donner congé pour la fin du bail, avec un préavis de <strong id="preavis-bailleur-txt">trois mois</strong>, par lettre recommandée avec avis de réception, acte de commissaire de justice ou remise en main propre contre récépissé, pour l'un des motifs suivants :</p>
             <ul>
               <li>reprise du logement pour y habiter lui-même ou y loger un proche (conjoint, partenaire de PACS, concubin notoire, ascendant ou descendant, ou ceux de son conjoint) ;</li>
               <li>vente du logement ;</li>
               <li>motif légitime et sérieux, notamment l'inexécution par le locataire de l'une de ses obligations.</li>
             </ul>
-            <p>Le congé indique le motif. Un congé délivré moins de trois mois avant la fin du bail, ou sans motif, n'est pas valable.</p>
+            <p id="conge-bailleur-fin">Le congé indique le motif. Un congé délivré moins de trois mois avant la fin du bail, ou sans motif, n'est pas valable.</p>
           </div>
         </div>
 
@@ -834,9 +835,9 @@
 
         <!-- ART 21 — INVENTAIRE MOBILIER -->
         <div class="section">
-          <div class="article-title">Article 23 — Inventaire du mobilier (Annexe 1)</div>
+          <div class="article-title" id="art23-title">Article 23 — Inventaire du mobilier (Annexe 1)</div>
           <div class="article-content">
-            <p>L'état des lieux d'entrée et l'inventaire détaillé du mobilier sont établis ensemble, contradictoirement, lors de la remise des clés, et annexés au présent bail.</p>
+            <p id="art23-txt">L'état des lieux d'entrée et l'inventaire détaillé du mobilier sont établis ensemble, contradictoirement, lors de la remise des clés, et annexés au présent bail.</p>
           </div>
         </div>
 
@@ -933,6 +934,62 @@ let U=null,P=null,LEASE=null,BOOKING=null,LISTING=null,LL_PROFILE=null,T_PROFILE
 let TENANT_GARANTIE=null, TENANT_ETUDIANT=false; // garantie déclarée par le locataire dans son dossier : physique | visale | organisme | aucune
 // ⚠️ PHASE DE TEST : le locataire peut signer la case du garant. Repasser à false avant le lancement.
 const TEST_GARANT_PAR_LOCATAIRE=true;
+// Type de bail : 'meuble' (loi 89-462 titre Ier bis) ou 'vide' (titre Ier)
+let TYPE_BAIL='meuble';
+const isVide=()=>TYPE_BAIL==='vide';
+function detectTypeBail(){
+  if(LEASE?.type_bail==='vide'||LEASE?.type_bail==='meuble')return LEASE.type_bail;
+  const m=LISTING?LISTING['meublé']??LISTING.furnished??LISTING.meuble:null;
+  return m===false?'vide':'meuble';
+}
+// Durée légale : vide = 3 ans (bailleur personne physique ou SCI familiale), 6 ans (personne morale) ; meublé = 1 an
+function dureeAns(){
+  if(!isVide())return 1;
+  return (LL_PROFILE?.statut_juridique==='morale'&&!LL_PROFILE?.sci_familiale)?6:3;
+}
+async function setTypeBail(t){
+  if(!_editMode||!LEASE)return;
+  TYPE_BAIL=t;
+  const upd={type_bail:t};
+  if(LEASE.start_date){const d=new Date(LEASE.start_date);d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);upd.end_date=d.toISOString().slice(0,10);}
+  // dépôt plafonné à 1 mois en vide
+  if(t==='vide'&&Number(LEASE.deposit)>Number(LEASE.rent||0)&&Number(LEASE.rent)>0)upd.deposit=Number(LEASE.rent);
+  const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
+  if(error){toast('Erreur : '+error.message+' (migration bail-vide exécutée ?)',6000);return;}
+  Object.assign(LEASE,upd);renderBail();
+}
+function applyTypeBail(){
+  const V=isVide(),ans=dureeAns();
+  const h=document.getElementById('bail-h1');
+  if(h)h.textContent=V?`Contrat de Location d'un Logement Vide (non meublé)`:`Contrat de Location d'un Logement Meublé`;
+  document.title=(V?'Bail de location vide':'Bail de location meublée')+' — Trouve Ton Toit';
+  const sw=document.getElementById('type-bail-switch');
+  if(sw)sw.innerHTML=_editMode?`<span style="font-size:.72rem;color:var(--td);margin-right:.35rem">Type de bail :</span><button class="bc-pill ${!V?'on':''}" onclick="setTypeBail('meuble')">Meublé</button> <button class="bc-pill ${V?'on':''}" onclick="setTypeBail('vide')">Vide</button>`:'';
+  const set=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  set('duree-txt',V?(ans===6?'6 (six) ans':'3 (trois) ans'):'1 (un) an');
+  set('reconduction-txt',V?(ans===6?'de six ans':'de trois ans'):`d'un an`);
+  set('duree-remarque',V
+    ?`<em>Durée minimale légale : trois ans lorsque le bailleur est une personne physique ou une SCI familiale, six ans lorsqu'il est une personne morale (art. 10 de la loi du 6 juillet 1989).</em>`
+    :`<em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em>`);
+  set('preavis-locataire-txt',V
+    ?`Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis de trois (3) mois</strong>, réduit à <strong>un (1) mois</strong> si le logement est situé en zone tendue, ou en cas d'obtention d'un premier emploi, de mutation, de perte d'emploi ou de nouvel emploi consécutif à une perte d'emploi, d'état de santé justifiant un changement de domicile, ou de bénéfice du RSA ou de l'AAH (art. 15 I de la loi du 6 juillet 1989). Le motif de réduction est précisé et justifié dans la lettre de congé, notifiée par :`
+    :`Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :`);
+  set('preavis-bailleur-txt',V?'six mois':'trois mois');
+  set('conge-bailleur-fin',V
+    ?`Le congé indique le motif. Un congé délivré moins de six mois avant la fin du bail, ou sans motif, n'est pas valable. En cas de congé pour vente, le congé vaut offre de vente au profit du locataire, qui dispose d'un droit de préemption (art. 15 II). Le bailleur ne peut s'opposer au renouvellement du bail d'un locataire âgé de plus de 65 ans aux ressources modestes sans lui proposer un relogement, sauf exceptions prévues par la loi (art. 15 III).`
+    :`Le congé indique le motif. Un congé délivré moins de trois mois avant la fin du bail, ou sans motif, n'est pas valable.`);
+  const a23=document.getElementById('art23-title');
+  if(a23)a23.textContent=V?'Article 23 — État des lieux (Annexe 1)':'Article 23 — Inventaire du mobilier (Annexe 1)';
+  set('art23-txt',V
+    ?`Un état des lieux d'entrée est établi contradictoirement lors de la remise des clés et annexé au présent bail (art. 3-2 de la loi du 6 juillet 1989).`
+    :`L'état des lieux d'entrée et l'inventaire détaillé du mobilier sont établis ensemble, contradictoirement, lors de la remise des clés, et annexés au présent bail.`);
+  // options de dépôt : 2 mois réservé au meublé
+  if(typeof FIELD_CONFIGS!=='undefined'&&FIELD_CONFIGS.deposit_mode){
+    FIELD_CONFIGS.deposit_mode.options=V
+      ?[{v:'0',l:'Aucun dépôt de garantie'},{v:'1',l:'1 mois de loyer HC (max. location vide)'},{v:'custom',l:'Montant personnalisé'}]
+      :[{v:'0',l:'Aucun dépôt de garantie'},{v:'1',l:'1 mois de loyer HC'},{v:'2',l:'2 mois de loyer HC (max. meublé)'},{v:'custom',l:'Montant personnalisé'}];
+  }
+}
 let myRole=null; // 'landlord'|'tenant'|'garant'|null
 let RECENT_SET=new Map(); // fieldKey → 'landlord'|'tenant' (pour highlights)
 
@@ -1754,6 +1811,8 @@ async function loadBail(){
       else{
         const{data:listing}=await sb.from('listings').select('*').eq('id',bk.listing_id).single();
         LISTING=listing;
+        // Parking / garage : bail dédié (Code civil)
+        if(listing?.type==='parking'){location.replace('/bail-parking.html'+location.search);return;}
         // Le prix de l'annonce est un loyer CHARGES COMPRISES : le bail fixe le loyer
         // hors charges = prix − provision sur charges
         const loyerCC=Number(bk.monthly_rent||listing?.price||0);
@@ -1763,7 +1822,8 @@ async function loadBail(){
         const depAnnonce=listing?.depot??listing?.deposit;
         const deposit=(depAnnonce!==null&&depAnnonce!==undefined&&depAnnonce!=='')?Number(depAnnonce):(rent*2);
         const start=bk.move_in_date||new Date().toISOString().slice(0,10);
-        const endDate=new Date(start);endDate.setFullYear(endDate.getFullYear()+1);
+        const _vide=(listing?.['meublé']??listing?.furnished)===false;
+        const endDate=new Date(start);endDate.setFullYear(endDate.getFullYear()+(_vide?3:1));endDate.setDate(endDate.getDate()-1);
         const newLeaseData={listing_id:bk.listing_id,listing_title:listing?.title||'',tenant_id:bk.tenant_id,landlord_id:bk.landlord_id,start_date:start,end_date:endDate.toISOString().slice(0,10),rent,deposit,status:'pending',booking_id:BOOKING_ID,charges:listing?.bills_included?0:(listing?.charges_mensuelles||0)};
         const{data:nl,error:le}=await sb.from('leases').insert(newLeaseData).select().single();
         if(le){
@@ -1792,6 +1852,8 @@ async function loadBail(){
         try{await sb.from('leases').update({charges:real}).eq('id',LEASE.id);}catch(e){}
       }
     }
+    if(LEASE?.type_bail==='parking'||LISTING?.type==='parking'){location.replace('/bail-parking.html'+location.search);return;}
+    TYPE_BAIL=detectTypeBail();
     if(LEASE?.booking_id&&!BOOKING){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
       if(bk)BOOKING=bk;
@@ -1816,6 +1878,14 @@ async function loadBail(){
       sb.from('profiles').select('*').eq('clerk_id',LEASE.tenant_id).maybeSingle()
     ]);
     LL_PROFILE=llP; T_PROFILE=tP;
+    // Bail non signé : date de fin = début + durée légale (1 an meublé, 3 ou 6 ans vide)
+    if(LEASE&&LEASE.start_date&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){
+      const _d=new Date(LEASE.start_date);_d.setFullYear(_d.getFullYear()+dureeAns());_d.setDate(_d.getDate()-1);
+      const _end=_d.toISOString().slice(0,10);
+      const _cur=String(LEASE.end_date||'').slice(0,10);
+      // corrige seulement si la durée ne correspond pas (écart > 31 jours)
+      if(!_cur||Math.abs(new Date(_cur)-new Date(_end))>31*864e5){LEASE.end_date=_end;try{await sb.from('leases').update({end_date:_end}).eq('id',LEASE.id);}catch(e){}}
+    }
 
     // Rôle STRICT : on est bailleur / locataire / garant seulement si c'est vraiment nous
     // (personne ne peut signer à la place de quelqu'un d'autre — le ?role= de l'URL ne suffit pas)
@@ -1952,6 +2022,14 @@ function detectVilleEncadrement(addrCheck,cp){
   return null;
 }
 function calcLoyerRef(ville,epoque,pieces){
+  const _r=calcLoyerRefMeuble(ville,epoque,pieces);
+  if(!_r||!isVide())return _r;
+  // Arrêtés préfectoraux : loyers de référence « non meublé » ≈ meublé / 1,13 — à vérifier par le bailleur
+  const f=v=>typeof v==='number'?Math.round(v/1.13*10)/10:v;
+  if(typeof _r==='object'){const o={};for(const k in _r)o[k]=f(_r[k]);return o;}
+  return f(_r);
+}
+function calcLoyerRefMeuble(ville,epoque,pieces){
   if(!ville||!epoque||!pieces) return null;
   const t=LOYERS_REF_EPOQUE[ville]?.[epoque];
   if(!t) return null;
@@ -2053,29 +2131,31 @@ function renderReglesDroit(L,opts={}){
   const{g,c}=bailChoices(L);
   const R=[];
   const add=(k,t)=>R.push(`<li><span class="rg-k">${k} :</span> ${t}</li>`);
-  add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; contrat type du décret n° 2015-587 du 29 mai 2015, dans sa version issue du décret n° 2026-596 du 6 juillet 2026 pour les contrats conclus ou renouvelés depuis le 1er octobre 2026 ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
+  if(isVide())add('Bail vide','loi n° 89-462 du 6 juillet 1989, titre Ier (art. 1 à 25-2) ; contrat type du décret n° 2015-587 du 29 mai 2015 (annexe 1), dans sa version issue du décret n° 2026-596 du 6 juillet 2026 pour les contrats conclus ou renouvelés depuis le 1er octobre 2026. Durée minimale de trois ans (personne physique ou SCI familiale) ou six ans (personne morale) — art. 10.');
+  else add('Bail meublé','loi n° 89-462 du 6 juillet 1989, notamment titre Ier bis (art. 25-3 à 25-11) ; contrat type du décret n° 2015-587 du 29 mai 2015, dans sa version issue du décret n° 2026-596 du 6 juillet 2026 pour les contrats conclus ou renouvelés depuis le 1er octobre 2026 ; décret n° 2015-981 du 31 juillet 2015 (mobilier minimum).');
   add('Décence','décret n° 2002-120 du 30 janvier 2002, y compris le niveau minimal de performance énergétique applicable à la date de signature (art. 6 loi 89-462).');
   add('Révision du loyer','une fois par an selon l\'indice de référence des loyers (IRL) publié par l\'INSEE (art. 17-1 loi 89-462).');
   if(opts.zoneTendue)add('Encadrement des loyers','le loyer de base ne peut excéder le loyer de référence majoré fixé par arrêté préfectoral ; un complément de loyer n\'est possible que pour des caractéristiques de localisation ou de confort exceptionnelles, et doit être mentionné et justifié au bail (art. 140 loi n° 2018-1021 ELAN ; art. 17 et 25-9 loi 89-462).');
   add('Destination',L.usage_locaux==='mixte'
-    ?'usage mixte professionnel et d\'habitation ; le logement reste la résidence principale du locataire, occupée au moins 8 mois par an (art. 2 et 25-3 loi 89-462).'
-    :'usage d\'habitation, à titre de résidence principale du locataire, occupée au moins 8 mois par an (art. 2 et 25-3 loi 89-462).');
+    ?'usage mixte professionnel et d\'habitation ; le logement reste la résidence principale du locataire, occupée au moins 8 mois par an (art. 2'+(isVide()?'':' et 25-3')+' loi 89-462).'
+    :'usage d\'habitation, à titre de résidence principale du locataire, occupée au moins 8 mois par an (art. 2'+(isVide()?'':' et 25-3')+' loi 89-462).');
   add('Assurance','obligation d\'assurance du locataire contre les risques locatifs et sanctions en cas de défaut (art. 7 g loi 89-462).');
   add('Clause résolutoire','art. 24 loi 89-462, modifié par la loi n° 2023-668 du 27 juillet 2023 (délai de six semaines pour les baux conclus depuis le 29 juillet 2023). Seuls ces motifs peuvent entraîner la résiliation de plein droit ; toute autre clause résolutoire est réputée non écrite (art. 4). Le commandement est délivré par commissaire de justice. Aucune expulsion ne peut être exécutée du 1er novembre au 31 mars (art. L. 412-6 du Code des procédures civiles d\'exécution).');
   if(L.regime_copro||LISTING?.regime_copro)add('Copropriété','communication au locataire des extraits du règlement de copropriété (art. 3 loi 89-462).');
   add('Travaux du locataire','transformations soumises à l\'accord écrit du bailleur (art. 7 f loi 89-462) ; travaux d\'adaptation au handicap ou à la perte d\'autonomie : accord réputé acquis à défaut de réponse dans les deux mois (art. 7 f et décret n° 2016-1282 du 29 septembre 2016).');
-  add('Congé du bailleur','location meublée : préavis de trois mois, motif obligatoire (reprise, vente, motif légitime et sérieux) — art. 25-8 loi 89-462. Locataire : préavis d\'un mois.');
+  if(isVide())add('Congé','bailleur : préavis de six mois avant la fin du bail, motif obligatoire (reprise, vente avec droit de préemption du locataire, motif légitime et sérieux) et protection des locataires âgés aux ressources modestes — art. 15 loi 89-462. Locataire : préavis de trois mois, réduit à un mois en zone tendue ou dans les cas prévus à l\'art. 15 I.');
+  else add('Congé du bailleur','location meublée : préavis de trois mois, motif obligatoire (reprise, vente, motif légitime et sérieux) — art. 25-8 loi 89-462. Locataire : préavis d\'un mois.');
   add('Données personnelles','règlement (UE) 2016/679 (RGPD) et loi n° 78-17 du 6 janvier 1978.');
-  add('Mobilier','le logement meublé comporte au minimum les équipements fixés par le décret n° 2015-981 du 31 juillet 2015 ; un inventaire et état détaillé du mobilier est joint au bail (art. 25-4 et 25-5 loi 89-462).');
+  if(!isVide())add('Mobilier','le logement meublé comporte au minimum les équipements fixés par le décret n° 2015-981 du 31 juillet 2015 ; un inventaire et état détaillé du mobilier est joint au bail (art. 25-4 et 25-5 loi 89-462).');
   add('Charges','décret n° 87-713 du 26 août 1987 (charges récupérables) ; régularisation annuelle et justificatifs tenus à disposition six mois (art. 23 loi 89-462).');
   add('Prescription','les actions dérivant du bail se prescrivent par trois ans ; l\'action en révision du loyer par un an (art. 7-1 loi 89-462).');
-  add('Dépôt de garantie','2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
+  add('Dépôt de garantie',isVide()?'1 mois de loyer hors charges maximum en location vide (art. 22 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.':'2 mois de loyer hors charges maximum en meublé (art. 25-6 loi 89-462). Il ne constitue ni une caution, ni une aide au logement.');
   if(g==='solidaire'||g==='simple'){
     add('Cautionnement','art. 22-1 loi 89-462 et art. 2288 à 2320 du Code civil. En cas de défaillance du locataire, la caution est tenue des loyers, charges, réparations locatives et autres sommes dues au titre du bail, dans la limite du montant indiqué. Elle signe son engagement et reçoit un exemplaire du bail. Depuis l\'ordonnance n° 2021-1192 du 15 septembre 2021, la mention manuscrite mot pour mot n\'est plus exigée (art. 2297 C. civ.).'+(g==='solidaire'
       ?' <strong>Caution solidaire</strong> : elle renonce au bénéfice de discussion et de division ; le bailleur peut lui réclamer directement les sommes couvertes et exigibles (art. 2305 et 2306 C. civ.).'
       :' <strong>Caution simple</strong> : elle bénéficie du bénéfice de discussion ; le bailleur doit d\'abord poursuivre le locataire (art. 2305 C. civ.).'));
     add('Caution et assurance loyers impayés','un bailleur ayant souscrit une assurance loyers impayés (GLI) ne peut pas exiger de caution, sauf si le locataire est étudiant ou apprenti (art. 22-1 al. 1 loi 89-462).');
-    add('Durée de l\'engagement','la caution s\'engage pour la durée du bail (un an) et, sauf résiliation de sa part, son engagement se renouvelle à chaque reconduction, dans la limite indiquée par période d\'un an. Elle peut le résilier ; la résiliation prend effet au terme de la période en cours (art. 22-1 loi 89-462).');
+    add('Durée de l\'engagement','la caution s\'engage pour la durée du bail ('+(isVide()?(dureeAns()===6?'six ans':'trois ans'):'un an')+') et, sauf résiliation de sa part, son engagement se renouvelle à chaque reconduction, dans la limite indiquée par période d\'un an. Elle peut le résilier ; la résiliation prend effet au terme de la période en cours (art. 22-1 loi 89-462).');
   }else if(g==='visale'){
     add('Garantie Visale','cautionnement gratuit d\'Action Logement, sous conditions d\'éligibilité. Le locataire obtient un visa ; le bailleur le vérifie et valide le contrat de cautionnement sur visale.fr. Les sommes avancées par Action Logement restent dues par le locataire. Selon les conditions Visale, elle n\'est pas cumulable avec une autre caution ni avec une assurance loyers impayés. Trouve Ton Toit enregistre la référence du visa sans la valider.');
   }else if(g==='organisme'){
@@ -2467,18 +2547,19 @@ function renderBail(){
     renderReglesDroit(L,{zoneTendue:isZoneTendue});
   }
 
+  applyTypeBail();
   // Dépôt
   const depotMode=L.deposit_mode||'custom';
   let depotEffectif=deposit;
   if(depotMode==='0') depotEffectif=0;
   else if(depotMode==='1') depotEffectif=rent;
   else if(depotMode==='2') depotEffectif=rent*2;
-  // Validation ≤ 2 mois loyer HC (art. 22 loi 89 — meublé)
-  const depotMax=rent*2;
+  // Plafond légal : 2 mois HC en meublé (art. 25-6), 1 mois HC en vide (art. 22)
+  const depotMax=rent*(isVide()?1:2);
   const depotDepasse=depotEffectif>depotMax&&depotMax>0;
   const depotMois=rent>0&&depotEffectif>0?Math.round((depotEffectif/rent)*10)/10:0;
   const depotMoisLabel=depotMois===0?'aucun dépôt':depotMois===1?'un (1) mois':depotMois===2?'deux (2) mois':(depotMois.toFixed(1)+' mois');
-  const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem"><i data-lucide=alert-triangle class=ic></i> Dépasse le plafond légal (2 mois — meublé)</span>`:'';
+  const depotWarnHtml=depotDepasse?`<span style="color:var(--red);font-size:.72rem;margin-left:.4rem"><i data-lucide=alert-triangle class=ic></i> Dépasse le plafond légal (${isVide()?'1 mois — location vide':'2 mois — meublé'})</span>`:'';
   const modeEditBtn=_editMode?` <span class="edit-btn" style="font-size:.68rem" onclick="editField(event,'deposit_mode')"><i data-lucide=pencil class=ic></i> Mode</span>`:'';
   show('depot-txt',ev('deposit',fmt(depotEffectif))+depotWarnHtml+modeEditBtn+tenantFlag('Dépôt de garantie'));
   show('depot-mois-txt',depotMoisLabel);
@@ -2640,7 +2721,7 @@ function renderBail(){
 
   // Annexes
   const annexes=[
-    {n:1,txt:'État des lieux d\'entrée et inventaire du mobilier',edl:true,cat:'obligatoire'},
+    {n:1,txt:isVide()?'État des lieux d\'entrée':'État des lieux d\'entrée et inventaire du mobilier',edl:true,cat:'obligatoire'},
     {n:3,txt:'Diagnostic de Performance Énergétique (DPE) — étiquette énergie et GES',uploadKey:'dpe',cat:'obligatoire'},
     {n:4,txt:'État des risques et pollutions (ERP / ERRIAL)',uploadKey:'erp',cat:'obligatoire'},
     {n:5,txt:'Notice d\'information sur les droits et obligations des locataires et bailleurs (arrêté du 29 mai 2015)',url:'https://www.pap.fr/download/notice_contrat.pdf',official:true,cat:'obligatoire'},
@@ -2775,9 +2856,9 @@ function renderBail(){
       « En me portant caution ${_bcc.g==='simple'?'simple':'solidaire'} de <em>${tenantName}</em>, dans la limite de la somme de <em>${fmt(montantCaution)}</em>
       (<em>${numEnLettres(montantCaution)} euros</em>) par période d'un an, couvrant le paiement du loyer mensuel de <em>${fmt(loyerHC)} (${loyerLetters} euros)</em> hors charges${chargesM>0?`, des provisions sur charges de <em>${fmt(chargesM)}</em> par mois, soit <em>${fmt(loyerHC+chargesM)}</em> charges comprises`:''},
       des régularisations de charges, des intérêts, ainsi que le cas échéant des frais de procédure judiciaire,
-      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em> pour une durée d'un an, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
+      pour le logement situé au <em>${adresse}</em>, loué par bail du <em>${bailDate}</em> pour une durée ${isVide()?(dureeAns()===6?'de six ans':'de trois ans'):"d'un an"}, je m'engage à rembourser le bailleur sur mes revenus et mes biens,
       en cas de défaillance du locataire, ${_bcc.g==='simple'?'le bailleur devant poursuivre d\'abord le locataire (bénéfice de discussion)':'sans pouvoir bénéficier de discussion ni de division'}.
-      En cas de reconduction ou de renouvellement du bail, le présent engagement se renouvelle automatiquement, dans les mêmes conditions et la même limite, pour chaque nouvelle période d'un an.
+      En cas de reconduction ou de renouvellement du bail, le présent engagement se renouvelle automatiquement, dans les mêmes conditions et la même limite${isVide()?'':", pour chaque nouvelle période d'un an"}.
       Ce loyer est révisable annuellement par référence à l'Indice de Référence des Loyers (IRL) publié par l'INSEE.
       »`);
     // Caution type + duree
