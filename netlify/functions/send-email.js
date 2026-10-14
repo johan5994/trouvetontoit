@@ -105,6 +105,28 @@ const templates = {
       </div>`
   }),
 
+
+  // Candidature à plusieurs : le co-locataire doit valider avant l'envoi au propriétaire
+  coloc_candidature: ({ mainLocataireNom, listingTitle, moveIn, part, dashboardUrl }) => ({
+    subject: `${mainLocataireNom} vous ajoute à sa candidature — ${listingTitle}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#1B4FD8;padding:24px 32px;border-radius:12px 12px 0 0">
+          <p style="color:#fff;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 4px">Trouve Ton Toit</p>
+          <h1 style="color:#fff;font-size:22px;margin:0">Candidature à plusieurs</h1>
+        </div>
+        <div style="background:#fff;padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
+          <p>Bonjour,</p>
+          <p><strong>${mainLocataireNom}</strong> veut louer avec vous :</p>
+          <div style="background:#f8f7f4;border-radius:8px;padding:14px 18px;margin:16px 0">
+            <strong>${listingTitle}</strong><br>
+            <span style="color:#6b7280;font-size:.9em">Entrée souhaitée : ${moveIn || 'à définir'}${part ? ' · Votre part des frais : ' + part : ''}</span>
+          </div>
+          <p>La candidature ne partira chez le propriétaire qu'une fois que vous aurez confirmé la date, indiqué si vous avez un garant${part ? ' et enregistré votre carte' : ''}.</p>
+          <a href="${dashboardUrl}" style="display:inline-block;background:#1B4FD8;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;margin-top:8px">Répondre →</a>
+        </div>
+      </div>`
+  })
 };
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
