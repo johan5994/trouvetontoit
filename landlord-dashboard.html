@@ -456,8 +456,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           </div>
         </div>
         <div class="card">
-          <div class="ch"><div class="ct"><i data-lucide=credit-card class=ic></i> Dépôt de garantie Escrow</div></div>
-          <div class="cb" id="dépôt de garanties-list"><div class="ld"><div class="sp"></div></div></div>
+          <div class="ch"><div class="ct"><i data-lucide=credit-card class=ic></i> Dépôts de garantie</div></div>
+          <div class="cb" id="depots-list"><div class="ld"><div class="sp"></div></div></div>
         </div>
       </div>
     </div>
@@ -2365,9 +2365,9 @@ async function confirmPaiementReceived(id){
   loadDash();
 }
 
-function generateQuittance(pay){
-  const today=new Date();
-  const month=today.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+function generateQuittance(pay,per){
+  const today=pay?.paid_at?new Date(pay.paid_at):new Date();
+  const month=per?fmtDateFr(per.start).replace(/^\d+\s/,''):today.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   const build=()=>{
     const{jsPDF}=window.jspdf;
     const doc=new jsPDF();
@@ -2396,8 +2396,10 @@ function generateQuittance(pay){
     y+=8;
 
     doc.setFontSize(11);doc.setTextColor(40,40,40);
-    doc.text(`Je confirme quittance de la somme de €${(pay.amount||0).toLocaleString()}`,20,y);y+=7;
-    doc.text(` pour  loyer paiement pour the period of ${month}.`,20,y);y+=14;
+    doc.text(`Je confirme avoir reçu la somme de ${fmtEur(pay.amount)} au titre du loyer et des charges`,20,y);y+=7;
+    doc.text(per?`pour la période du ${fmtDateFr(per.start)} au ${fmtDateFr(per.end)}.`:`pour la période de ${month}.`,20,y);y+=7;
+    if(per?.prorata){doc.setFontSize(9.5);doc.setTextColor(90,90,90);doc.text(`Premier loyer calculé au prorata de la date d'entrée : ${per.days} jours sur ${per.period}.`,20,y);y+=7;doc.setFontSize(11);doc.setTextColor(40,40,40);}
+    y+=7;
 
     doc.setFontSize(10);doc.setTextColor(80,80,80);
     doc.text('Paiement method: Bank transfer / Revolut',20,y);y+=6;
@@ -2410,7 +2412,7 @@ function generateQuittance(pay){
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(60,60,60);
     doc.text(`Propriétaire signature: ${P?.full_name||''}`,20,y);
 
-    doc.save(`Quittance_rent_${month.replace(' ','_')}.pdf`);
+    doc.save(`Quittance_loyer_${month.replace(/ /g,'_')}.pdf`);
     toast('<i data-lucide=file-text class=ic></i> Quittance downloaded!');
   };
   if(window.jspdf){build();return;}
@@ -2515,10 +2517,10 @@ async function loadPaiements(filter){
 }
 
 function loadDepotGaranties(pays){
-  const deps=pays.filter(p=>p.type==='depot');
-  const wrap=document.getElementById('dépôt de garanties-list');
+  const deps=(pays||[]).filter(p=>p.type==='deposit'||p.type==='depot');
+  const wrap=document.getElementById('depots-list');
   if(!wrap)return;
-  wrap.innerHTML=deps.map(d=>`<div class="prow"><div class="pinf"><div class="pname">Dépôt de garantie — ${d.tenant_name||d.tenant_id?.substring(0,8)||'Locataire'}</div><div class="psub">Détenu depuis le ${new Date(d.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div><span style="font-weight:700;color:var(--marine);flex-shrink:0">€${(d.amount||0).toLocaleString()}</span></div>`).join('')||'<div style="font-size:.82rem;color:var(--td);text-align:center;padding:1rem">Aucun dépôt de garantie détenu</div>';
+  wrap.innerHTML=deps.map(d=>`<div class="prow"><div class="pinf"><div class="pname">Dépôt de garantie — ${d.tenant_name||d.tenant_id?.substring(0,8)||'Locataire'}</div><div class="psub">Détenu depuis le ${new Date(d.paid_at||d.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div></div><span style="font-weight:700;color:var(--marine);flex-shrink:0">€${(d.amount||0).toLocaleString()}</span></div>`).join('')||'<div style="font-size:.82rem;color:var(--td);text-align:center;padding:1rem">Aucun dépôt de garantie détenu</div>';
 }
 
 async function sendReminder(id){
@@ -2536,10 +2538,36 @@ async function sendReminder(id){
     toast('<i data-lucide=mail class=ic></i> Reminder sent to locataire!');
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
+
+// Période couverte par un paiement de loyer (pour la quittance) :
+// 1er loyer → du jour d'entrée à la veille de la prochaine échéance (prorata) ;
+// loyer mensuel → de l'échéance à la veille de l'échéance suivante.
+async function periodeQuittance(pay){
+  try{
+    if(!pay||!['first_rent','rent','loyer'].includes(pay.type))return null;
+    let L=null,bk=null;
+    if(pay.booking_id){
+      const[{data:ls},{data:b}]=await Promise.all([
+        sb.from('leases').select('payment_due_day,start_date,negotiation_status').eq('booking_id',pay.booking_id),
+        sb.from('bookings').select('move_in_date').eq('id',pay.booking_id).maybeSingle()
+      ]);
+      L=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0]||null;bk=b;
+    }
+    const payDay=L?.payment_due_day||1;
+    if(pay.type==='first_rent'){
+      const pr=prorataLoyer(bk?.move_in_date||L?.start_date,payDay,0);
+      return pr?{start:pr.start,end:pr.end,prorata:!pr.full,days:pr.days,period:pr.period}:null;
+    }
+    // échéance mensuelle : du jour d'échéance à la veille de la suivante
+    const pr=prorataLoyer(pay.due_date,payDay,0);
+    if(!pr||!pay.due_date)return null;
+    return{start:pay.due_date.slice(0,10),end:pr.end,prorata:false};
+  }catch(e){return null;}
+}
 async function downloadQuittance(id){
   const{data:pay}=await sb.from('payments').select('*').eq('id',id).single();
   if(!pay){toast('<i data-lucide=x-circle class=ic></i> Paiement introuvable');return;}
-  generateQuittance(pay);
+  generateQuittance(pay,await periodeQuittance(pay));
 }
 async function sendAllReminders(){
   try{
@@ -4293,8 +4321,71 @@ function renderBailSection(g){
 // un ancien clic fait avant certains correctifs a pu confirmer sans
 // jamais créer les lignes de paiement correspondantes.
 
+// Échéances du loyer : le jour de paiement fixé dans le bail (« payable le X de chaque mois »),
+// à partir du mois qui suit l'entrée (le 1er loyer, payé à l'entrée, couvre le mois d'entrée).
+// Dates calculées en texte AAAA-MM-JJ pour éviter les décalages de fuseau horaire.
+// Prorata du 1er loyer (même calcul partout : annonce, bail, dashboards).
+// Entrée le JJ → 1er loyer = loyer × jours jusqu'à la prochaine échéance / jours de la période.
+// Prochaine échéance = premier « jour de paiement » du bail strictement après la date d'entrée.
+function prorataLoyer(moveInStr,payDay,rentCC){
+  const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(moveInStr||''));
+  if(!m)return null;
+  const y=+m[1],mo=+m[2],d=+m[3];
+  const D=Math.min(Math.max(parseInt(payDay)||1,1),31);
+  const dim=(Y,M)=>new Date(Y,M,0).getDate();
+  let ny=y,nm=mo,nd=Math.min(D,dim(y,mo));
+  if(nd<=d){nm++;if(nm>12){nm=1;ny++;}nd=Math.min(D,dim(ny,nm));}
+  let py=ny,pm=nm-1;if(pm<1){pm=12;py--;}
+  const pd=Math.min(D,dim(py,pm));
+  const u=(Y,M,J)=>Date.UTC(Y,M-1,J);
+  const days=Math.round((u(ny,nm,nd)-u(y,mo,d))/864e5);
+  const period=Math.round((u(ny,nm,nd)-u(py,pm,pd))/864e5);
+  const rent=Number(rentCC)||0;
+  const amount=days>=period?rent:Math.round(rent*days/period*100)/100;
+  const iso=(Y,M,J)=>`${Y}-${String(M).padStart(2,'0')}-${String(J).padStart(2,'0')}`;
+  const endT=new Date(u(ny,nm,nd)-864e5);
+  return{days,period,amount,full:days>=period,start:iso(y,mo,d),end:iso(endT.getUTCFullYear(),endT.getUTCMonth()+1,endT.getUTCDate()),nextDue:iso(ny,nm,nd),payDay:D};
+}
+function fmtDateFr(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return'—';return new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';}
+function rentDueDates(moveInStr,payDay,n){
+  const pr=prorataLoyer(moveInStr,payDay,0);
+  const t=new Date();
+  const start=pr?pr.nextDue:`${t.getFullYear()}-${String(t.getMonth()+2>12?1:t.getMonth()+2).padStart(2,'0')}-01`;
+  const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(start);
+  let y=+m[1],mo=+m[2];
+  const day=Math.min(Math.max(parseInt(payDay)||1,1),31);
+  const out=[];
+  for(let i=0;i<n;i++){
+    let mm=mo+i,yy=y;while(mm>12){mm-=12;yy++;}
+    const last=new Date(yy,mm,0).getDate();
+    out.push(`${yy}-${String(mm).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`);
+  }
+  return out;
+}
+// Remet les échéances « à payer » existantes sur les bonnes dates du bail
+async function fixRentDueDates(bookingId,moveIn,payDay){
+  try{
+    const{data:rows}=await sb.from('payments').select('id,due_date,status').eq('booking_id',bookingId).eq('type','rent').order('due_date',{ascending:true});
+    const pend=(rows||[]).filter(r=>r.status!=='paid');
+    if(!pend.length)return;
+    const paidCount=(rows||[]).length-pend.length;
+    const dates=rentDueDates(moveIn,payDay,(rows||[]).length).slice(paidCount);
+    for(let i=0;i<pend.length;i++){
+      if(dates[i]&&pend[i].due_date!==dates[i])await sb.from('payments').update({due_date:dates[i]}).eq('id',pend[i].id);
+    }
+  }catch(e){console.warn('fixRentDueDates:',e);}
+}
+
 // Dépôt + 1er loyer payés + échéancier des loyers suivants (même mécanisme que RestMalta).
 // Idempotent : ne recrée rien si déjà présent.
+async function fixFirstRentAmount(bookingId,amount){
+  try{
+    if(amount==null)return;
+    const{data:r}=await sb.from('payments').select('id,amount').eq('booking_id',bookingId).eq('type','first_rent').limit(1);
+    if(r&&r[0]&&Math.abs(Number(r[0].amount)-amount)>0.009)await sb.from('payments').update({amount}).eq('id',r[0].id);
+  }catch(e){}
+}
 async function ensureFirstPaymentRecords(bookingId){
   try{
     const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
@@ -4302,22 +4393,29 @@ async function ensureFirstPaymentRecords(bookingId){
     if(!bk.first_payment_confirmed||!bk.tenant_id||!bk.listing_id){console.warn('ensureFirstPaymentRecords: booking incomplet',bk);return;}
     const{data:tp}=await sb.from('profiles').select('full_name,email').eq('clerk_id',bk.tenant_id).maybeSingle();
     // Montants du bail signé (loyer charges comprises + dépôt) si disponibles
-    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC;
+    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC,payDay=1,startDate=null;
     try{
-      const{data:ls}=await sb.from('leases').select('rent,charges,deposit,negotiation_status').eq('booking_id',bk.id);
+      const{data:ls}=await sb.from('leases').select('rent,charges,deposit,negotiation_status,payment_due_day,start_date').eq('booking_id',bk.id);
       const L=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0];
-      if(L){rentCC=(Number(L.rent)||0)+(Number(L.charges)||0)||rentCC;if(L.deposit!=null)deposit=Number(L.deposit);}
+      if(L){rentCC=(Number(L.rent)||0)+(Number(L.charges)||0)||rentCC;if(L.deposit!=null)deposit=Number(L.deposit);payDay=L.payment_due_day||1;startDate=L.start_date;}
     }catch(e){}
+    const moveIn=bk.move_in_date||startDate;
     const{data:have}=await sb.from('payments').select('id,type').eq('booking_id',bk.id);
     const types=new Set((have||[]).map(x=>x.type));
     const now=new Date().toISOString(),today=now.split('T')[0];
     const base={landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:tp?.full_name||bk.tenant_name||null,tenant_email:tp?.email||bk.tenant_email||null,status:'paid',paid_at:now,due_date:bk.move_in_date||today};
     const rows=[];
     if(!types.has('deposit')&&!types.has('depot')&&deposit>0)rows.push({...base,amount:deposit,type:'deposit'});
-    if(!types.has('first_rent'))rows.push({...base,amount:rentCC,type:'first_rent'});
+    const _pr=prorataLoyer(moveIn,payDay,rentCC);
+    if(!types.has('first_rent'))rows.push({...base,amount:_pr?_pr.amount:rentCC,type:'first_rent'});
+    else if(_pr)await fixFirstRentAmount(bk.id,_pr.amount);
     if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error){console.warn('payments (dépôt/1er loyer) :',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message+' — migration restmalta-flow exécutée ?',9000);}}
     if(!types.has('rent')){
-      await generateRentScheduleLL({booking:{...bk,monthly_rent:rentCC,landlord_id:bk.landlord_id||U.id},locataire:tp});
+      const sched=rentDueDates(moveIn,payDay,12).map(d=>({landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:base.tenant_name,tenant_email:base.tenant_email,amount:rentCC,type:'rent',status:'pending',due_date:d}));
+      const{error:se}=await sb.from('payments').insert(sched);
+      if(se)toast('<i data-lucide=alert-triangle class=ic></i> Échéancier non créé : '+se.message,8000);
+    }else{
+      await fixRentDueDates(bk.id,moveIn,payDay);
     }
   }catch(e){console.warn('ensureFirstPaymentRecords:',e);}
 }
@@ -5086,34 +5184,13 @@ async function confirmLocatairePaiement(bookingId){
 }
 
 function generateFirstPaiementQuittanceLL(bk,listingTitle,locataireNom){
-  const today=new Date();
-  const loyer=bk.monthly_rent||0;
-  const holding=bk.holding_amount||0;
-  const total=loyer*2-holding;
-  const text=`PAYMENT RECEIPT — REÇU DE PAIEMENT
-Trouve Ton Toit Platform
-
-Date: ${today.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}
-
-Propriétaire: ${P?.full_name||'Propriétaire'}
-Locataire: ${locataireNom||'Locataire'}
-Bien: ${listingTitle||''}
-
-Je confirme quittance de ce qui suit, payé en totalité :
-  Security depot ............... €${loyer.toLocaleString()}
-  First month loyer ................ €${loyer.toLocaleString()}
-  ${holding?`Holding depot (already paid) . -€${holding.toLocaleString()}\n  `:''}Total received today ............ €${total.toLocaleString()}
-
-This quittance serves as proof of paiement.
-Generated automatically by Trouve Ton Toit — trouvetonoit.fr`;
-  const blob=new Blob([text],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`Quittance_first_paiement_${(locataireNom||'locataire').replace(/\s+/g,'_')}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-  setTimeout(()=>toast('<i data-lucide=file-text class=ic></i> Quittance downloaded automatically!'),1200);
+  // Quittance du 1er loyer (période et prorata inclus), une fois les paiements enregistrés
+  setTimeout(async()=>{
+    try{
+      const{data:r}=await sb.from('payments').select('id').eq('booking_id',bk.id).eq('type','first_rent').limit(1);
+      if(r&&r[0])downloadQuittance(r[0].id);
+    }catch(e){}
+  },1500);
 }
 
 // ── Choix du co-bailleur au moment d'accepter une candidature ──────────────
