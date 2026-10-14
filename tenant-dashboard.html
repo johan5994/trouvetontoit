@@ -3173,7 +3173,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
         if(b.status==='pending'||b.status==='booking_pending'){
           html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
         }else if(isAccepted){
-          html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry);
+          html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry,_lz||null);
           if(_lz)html+=`<a class="btn bp bsm" style="margin-top:.5rem;display:inline-flex" href="/bail-meuble.html?lease_id=${_lz.id}"><i data-lucide=pen-line class=ic></i> ${['agreed','signed'].includes(_lz.negotiation_status)?'Voir et signer le bail':'Voir le bail'}${_lz.lot_label&&_lz.tenant_id===U.id?' — '+_lz.lot_label:''}</a>`;
           // Bail individuel signé : mon premier paiement (dépôt + 1er loyer) au propriétaire
           if(_lz&&_lz.tenant_id===U.id&&_lz.parent_booking_id&&_lz.landlord_signed_at&&_lz.tenant_signed_at){
@@ -3349,14 +3349,16 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
   const _rentCC=lease&&lease.rent!=null?((Number(lease.rent)||0)+(Number(lease.charges)||0)):(bk.monthly_rent||0);
   const _pr=prorataLoyer(moveIn||lease?.start_date,lease?.payment_due_day||1,_rentCC);
   const loyer=_pr?_pr.amount:_rentCC;
-  const depot=lease&&lease.deposit!=null?Number(lease.deposit):(bk.monthly_rent||0);
+  // Dépôt = celui du bail (en mois de loyer HORS charges) ; tant qu'il n'y a pas de bail, on ne l'invente pas
+  const depot=lease&&lease.deposit!=null?Number(lease.deposit):null;
   const holding=bk.holding_amount||0;
 
   // Nombre total de locataires (principal + co-locataires) pour le partage du paiement
   let coLocatairesCount=0;
   try{const ct=bk.co_locataires_data?JSON.parse(bk.co_locataires_data):[];coLocatairesCount=Array.isArray(ct)?ct.length:0;}catch(e){}
-  const totalLocataires=1+coLocatairesCount;
-  const totalDue=Math.round((depot+loyer-holding)*100)/100;
+  // Bail individuel (location par chambre) : les montants sont déjà ceux de ce locataire
+  const totalLocataires=lease?.colocation_type==='individuel'?1:1+coLocatairesCount;
+  const totalDue=Math.round(((depot||0)+loyer-holding)*100)/100;
   const perPersonShare=Math.round((totalDue/totalLocataires)*100)/100;
 
   // Bail negotiation status block
@@ -3445,27 +3447,28 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
 
       <!-- Paiement -->
       ${!payConfirmered?`
-      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
+      <div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Premier paiement</div>
+      ${depot===null?`<div style="background:var(--s2);border-radius:8px;padding:.55rem .65rem;margin-bottom:.5rem;font-size:.75rem;color:var(--td)"><i data-lucide=hourglass class=ic></i> Les montants (dépôt de garantie et premier loyer) s'afficheront quand le bail sera prêt.</div>`:`
       <div style="background:var(--s2);border-radius:8px;padding:.55rem .65rem;margin-bottom:.5rem">
-        <div style="font-size:.75rem;font-weight:600;margin-bottom:.35rem"><i data-lucide=euro class=ic></i> Montant due to propriétaire</div>
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--tm);margin-bottom:.15rem"><span><i data-lucide=lock class=ic></i> Dépôt de garantie</span><span>€${depot}</span></div>
+        <div style="font-size:.75rem;font-weight:600;margin-bottom:.35rem"><i data-lucide=euro class=ic></i> Montant dû au propriétaire${totalLocataires>1?' (total pour tous les locataires)':''}</div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--tm);margin-bottom:.15rem"><span><i data-lucide=lock class=ic></i> Dépôt de garantie <span style="font-size:.66rem">(hors charges)</span></span><span>${fmtEur(depot)}${totalLocataires>1?` <span style="font-size:.66rem">· ${fmtEur(Math.round(depot/totalLocataires*100)/100)} chacun</span>`:''}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--tm);margin-bottom:.15rem"><span><i data-lucide=home class=ic></i> Premier loyer${_pr&&!_pr.full?` (prorata ${_pr.days}/${_pr.period} j)`:''}</span><span>€${loyer}</span></div>
         ${holding?`<div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--green);margin-bottom:.15rem"><span><i data-lucide=check-circle-2 class=ic></i> Holding depot deducted</span><span>-€${holding}</span></div>`:''}
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;border-top:1px solid var(--b);padding-top:.3rem;margin-top:.3rem"><span>Total à payer</span><span>€${Math.round((depot+loyer-holding)*100)/100}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;border-top:1px solid var(--b);padding-top:.3rem;margin-top:.3rem"><span>Total${totalLocataires>1?' (tous)':''} à payer</span><span>${fmtEur(totalDue)}</span></div>
       </div>
       ${totalLocataires>1?`<div style="background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.4rem">
-        <div style="font-size:.73rem;font-weight:700;color:var(--marine);margin-bottom:.2rem"><i data-lucide=users class=ic></i> Split ${totalLocataires} ways</div>
-        <div style="font-size:.72rem;color:var(--tm)">€${totalDue} ÷ ${totalLocataires} locataires = <strong>€${perPersonShare} each</strong></div>
-        <div style="font-size:.66rem;color:var(--td);margin-top:.25rem"><i data-lucide=lightbulb class=ic></i> Coordinate avec ${bk.locataire_name||'the main locataire'} — usually one of you sends the full total et marks it as paid below.</div>
-      </div>`:''}
+        <div style="font-size:.78rem;font-weight:700;color:var(--marine);margin-bottom:.2rem"><i data-lucide=users class=ic></i> Votre part : ${fmtEur(perPersonShare)}</div>
+        <div style="font-size:.72rem;color:var(--tm)">${fmtEur(totalDue)} ÷ ${totalLocataires} locataires (dépôt ${fmtEur(Math.round(depot/totalLocataires*100)/100)} + 1er loyer ${fmtEur(Math.round(loyer/totalLocataires*100)/100)} chacun)</div>
+        <div style="font-size:.66rem;color:var(--td);margin-top:.25rem"><i data-lucide=lightbulb class=ic></i> Mettez-vous d'accord avec ${coLocataireEntry?(bk.locataire_name||'le locataire principal'):'vos co-locataires'} : en général, l'un de vous envoie le total puis le déclare payé ci-dessous.</div>
+      </div>`:''}`}
       ${bk.landlord_iban||bk.landlord_revolut?`
       <div style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-bottom:.4rem;font-size:.73rem;color:var(--tm)">
         ${bk.landlord_iban?`<i data-lucide=landmark class=ic></i> IBAN: <strong>${bk.landlord_iban}</strong><br>`:''}
         ${bk.landlord_revolut?`<i data-lucide=heart class=ic></i> Revolut: <strong>${bk.landlord_revolut}</strong>`:''}
       </div>`:''}
-      ${!payDeclared&&!payConfirmered
-        ?`<button onclick="declareLocatairePaiement('${bk.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> I have transferred the paiement →</button>`
-        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=hourglass class=ic></i> Paiement declared — awaiting propriétaire confirmation</div>`}
+      ${depot===null?'':!payDeclared&&!payConfirmered
+        ?`<button onclick="declareLocatairePaiement('${bk.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> J'ai effectué le paiement →</button>`
+        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=hourglass class=ic></i> Paiement déclaré — en attente de la confirmation du propriétaire</div>`}
       `:`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmed by propriétaire</div>
       ${!coLocataireEntry?renderLocataireEdlSection(bk):''}`}
       `}
