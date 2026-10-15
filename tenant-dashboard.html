@@ -3459,16 +3459,17 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       ${totalLocataires>1?`<div style="background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.4rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--marine);margin-bottom:.2rem"><i data-lucide=users class=ic></i> Votre part : ${fmtEur(perPersonShare)}</div>
         <div style="font-size:.72rem;color:var(--tm)">${fmtEur(totalDue)} ÷ ${totalLocataires} locataires (dépôt ${fmtEur(Math.round(depot/totalLocataires*100)/100)} + 1er loyer ${fmtEur(Math.round(loyer/totalLocataires*100)/100)} chacun)</div>
-        <div style="font-size:.66rem;color:var(--td);margin-top:.25rem"><i data-lucide=lightbulb class=ic></i> Mettez-vous d'accord avec ${coLocataireEntry?(bk.locataire_name||'le locataire principal'):'vos co-locataires'} : en général, l'un de vous envoie le total puis le déclare payé ci-dessous.</div>
+        <div style="font-size:.7rem;color:var(--td);margin-top:.3rem">Chaque locataire paie sa part et confirme ci-dessous. Le paiement n'est transmis au propriétaire que lorsque tout le monde a confirmé.</div>
+        <div style="display:flex;flex-direction:column;gap:.2rem;margin-top:.4rem">${_payPeople(bk).map(p=>{const d=_payDecl(bk)[p.id];return `<div style="display:flex;justify-content:space-between;font-size:.73rem"><span><i data-lucide=user class=ic></i> ${p.id===U.id?'Vous':p.name}</span><span style="font-weight:600;color:${d||payDeclared?'var(--green)':'var(--gold)'}">${d||payDeclared?'✓ part payée':'en attente'}</span></div>`;}).join('')}</div>
       </div>`:''}`}
       ${bk.landlord_iban||bk.landlord_revolut?`
       <div style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-bottom:.4rem;font-size:.73rem;color:var(--tm)">
         ${bk.landlord_iban?`<i data-lucide=landmark class=ic></i> IBAN: <strong>${bk.landlord_iban}</strong><br>`:''}
         ${bk.landlord_revolut?`<i data-lucide=heart class=ic></i> Revolut: <strong>${bk.landlord_revolut}</strong>`:''}
       </div>`:''}
-      ${depot===null?'':!payDeclared&&!payConfirmered
-        ?`<button onclick="declareLocatairePaiement('${bk.id}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> J'ai effectué le paiement →</button>`
-        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=hourglass class=ic></i> Paiement déclaré — en attente de la confirmation du propriétaire</div>`}
+      ${depot===null?'':!payDeclared&&!payConfirmered&&!(totalLocataires>1&&_payDecl(bk)[U.id])
+        ?`<button onclick="declareLocatairePaiement('${bk.id}','${totalLocataires>1?fmtEur(perPersonShare):''}')" style="width:100%;background:var(--green);color:white;border:none;border-radius:8px;padding:.55rem;font-size:.8rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> ${totalLocataires>1?`J'ai payé ma part (${fmtEur(perPersonShare)}) →`:`J'ai effectué le paiement →`}</button>`
+        :`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=hourglass class=ic></i> ${payDeclared?'Paiement déclaré — en attente de la confirmation du propriétaire':'Votre part est déclarée — en attente des autres locataires'}</div>`}
       `:`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.4rem .65rem;font-size:.75rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmed by propriétaire</div>
       ${!coLocataireEntry?renderLocataireEdlSection(bk):''}`}
       `}
@@ -3986,12 +3987,35 @@ async function locataireNotInterested(visitId){
   loadLocataireVisits();
 }
 
-async function declareLocatairePaiement(bookingId){
-  if(!confirm('Confirmez-vous avoir effectué le virement au propriétaire ?')) return;
-  const{error}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
-  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  toast('<i data-lucide=check-circle-2 class=ic></i> Paiement déclaré ! Le propriétaire va confirmer.');
-  loadLocataireVisits();
+// Bail commun à plusieurs : chaque locataire déclare SA part ; le paiement n'est
+// « déclaré » au propriétaire que lorsque tout le monde a confirmé.
+function _payDecl(bk){let d=bk?.first_payment_declarations;try{d=typeof d==='string'?JSON.parse(d):d;}catch(e){d=null;}return (d&&typeof d==='object')?d:{};}
+function _payPeople(bk){
+  let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){}
+  return [{id:bk.tenant_id,name:bk.locataire_name||'Locataire 1'},...(cols||[]).filter(c=>c&&c.coloc_status!=='declined'&&(c.locataire_id||c.tenant_id)).map(c=>({id:c.locataire_id||c.tenant_id,name:c.name||'Co-locataire'}))];
+}
+async function declareLocatairePaiement(bookingId,part){
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
+  if(!bk)return;
+  const people=_payPeople(bk);
+  const multi=people.length>1;
+  if(!confirm(multi?`Confirmez-vous avoir payé VOTRE part${part?' ('+part+')':''} au propriétaire ?`:'Confirmez-vous avoir effectué le virement au propriétaire ?'))return;
+  let upd={first_payment_sent:true};
+  if(multi){
+    const d={..._payDecl(bk),[U.id]:new Date().toISOString()};
+    const tous=people.every(p=>d[p.id]);
+    upd={first_payment_declarations:d,first_payment_sent:tous};
+  }
+  const{error}=await sb.from('bookings').update(upd).eq('id',bookingId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+(/first_payment_declarations/.test(error.message)?'Base à mettre à jour : exécutez supabase-migration-paiement-parts.sql':error.message),7000);return;}
+  if(bk.landlord_id){
+    const manque=multi?people.filter(p=>!upd.first_payment_declarations[p.id]).map(p=>p.name):[];
+    try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.landlord_id,
+      content:multi?`${P?.full_name||'Un locataire'} indique avoir payé sa part du premier paiement.${manque.length?' En attente : '+manque.join(', ')+'.':' Tous les locataires ont payé leur part : confirmez la réception dans « Candidatures ».'}`
+        :`${P?.full_name||'Votre locataire'} indique avoir effectué le premier paiement. Confirmez la réception dans « Candidatures ».`,type:'message'});}catch(e){}
+  }
+  toast('<i data-lucide=check-circle-2 class=ic></i> '+(multi&&!upd.first_payment_sent?'Votre part est déclarée. En attente des autres locataires.':'Paiement déclaré ! Le propriétaire va confirmer.'));
+  loadLocataireVisits();try{loadLocataireApplicationsPage();}catch(e){}
 }
 
 async function openLocataireBailDoc(bookingId){
