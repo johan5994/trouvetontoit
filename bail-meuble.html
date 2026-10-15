@@ -445,6 +445,7 @@
     </div>
 
     <!-- Baux individuels (colocation par chambre) : un onglet par locataire -->
+    <div id="model-bar" class="no-print"></div>
     <div id="lease-tabs" class="no-print"></div>
 
     <!-- ═══ DOCUMENT OFFICIEL ═══ -->
@@ -2192,8 +2193,13 @@ function renderGarantiesBlock(L){
       </div>
 
 `:''}
-      ${coLocs.length?`<div style="margin-bottom:.6rem">
-        <div style="font-size:.8rem;font-weight:700;margin-bottom:.35rem">Comment louez-vous à vos ${coLocs.length+1} locataires ?</div>
+      ${coLocs.length&&L.colocation_type?`<div style="margin-bottom:.6rem;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:9px;padding:.55rem .7rem;font-size:.8rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+        <span><i data-lucide=lock class=ic></i> Modèle de bail choisi : <strong>${_COLOC_LBL[L.colocation_type]||L.colocation_type}</strong> — verrouillé</span>
+        <button type="button" class="bc-pill" onclick="resetColocType()">Changer de modèle (tout recommencer)</button>
+      </div>`:''}
+      ${coLocs.length&&!L.colocation_type?`<div style="margin-bottom:.6rem">
+        <div style="font-size:.85rem;font-weight:800;margin-bottom:.2rem;color:var(--bleu)">Étape 1 — Comment louez-vous à vos ${coLocs.length+1} locataires ?</div>
+        <div style="font-size:.74rem;color:var(--td);margin-bottom:.4rem">À choisir avant tout le reste. Une fois choisi, le modèle est verrouillé (vous pourrez seulement tout recommencer).</div>
         ${_colocConseil.txt?`<div style="font-size:.76rem;background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:.45rem .6rem;margin-bottom:.45rem"><i data-lucide=info class=ic></i> ${_colocConseil.txt}</div>`:''}
         <div class="cs-choice">
           <button type="button" class="cs-opt${c==='commun_solidaire'?' on':''}" onclick="chooseColocType('commun_solidaire')">
@@ -2411,6 +2417,7 @@ function renderBail(){
   renderGarantiesBlock(L);
   renderVisaleBox(L);
   renderLotAndTabs(L);
+  renderModelBar(L);
   renderUsage(L);
   renderReglesDroit(L);
   show('sig-ll-name',[llMorale?llNameFull:(LL_PROFILE?.full_name||'Bailleur'),...coBailleurs.map(c=>c.name)].join(' · '));
@@ -3190,6 +3197,7 @@ function renderNegocBar(){
 }
 
 async function sendToTenant(){
+  if(needsColocChoice()){toast('Choisissez d\'abord le modèle de bail (Étape 1, bloc « Garantie et colocation »).',6000);document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const _resend=LEASE.negotiation_status==='pending_landlord';
   const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
@@ -3372,13 +3380,18 @@ async function renameLot(){
   LEASE.lot_label=v.trim()||null;const me=SIBLINGS.find(x=>x.id===LEASE.id);if(me)me.lot_label=LEASE.lot_label;
   renderLotAndTabs(LEASE);
 }
+const _COLOC_LBL={commun_solidaire:'un seul bail, avec solidarité',commun_simple:'un seul bail, sans solidarité',individuel:'un bail par locataire (chambre)'};
+function needsColocChoice(){
+  return !!(LEASE&&LEASE.booking_id&&!LEASE.colocation_type&&_bailArr(BOOKING?.co_locataires_data).some(c=>c.coloc_status!=='declined'));
+}
 async function chooseColocType(val){
   if(myRole!=='landlord'||LEASE.landlord_signed_at||LEASE.tenant_signed_at)return;
-  const cur=LEASE.colocation_type||'commun_solidaire';
+  if(LEASE.colocation_type){toast('Le modèle est verrouillé. Utilisez « Changer de modèle (tout recommencer) ».',5000);return;}
+  if(!confirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
+  const cur='commun_solidaire';
   if(val==='individuel'&&cur!=='individuel'){
     const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
     if(!cols.length){await saveField('colocation_type',val);return;}
-    if(!confirm(`Créer un bail séparé pour chacun des ${cols.length+1} locataires ?\n\nLe loyer, les charges et le dépôt sont répartis à parts égales (vous pourrez les modifier dans chaque bail). Chaque bail a ses propres signatures.`))return;
     const ok=await createChildLeases(cols);
     if(!ok)return;
     await saveField('colocation_type',val);
@@ -3399,6 +3412,45 @@ async function chooseColocType(val){
     return;
   }
   await saveField('colocation_type',val);
+}
+// Bandeau propriétaire : modèle de bail (à choisir en premier, puis verrouillé)
+function renderModelBar(L){
+  const el=q('model-bar');if(!el)return;
+  const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
+  if(myRole!=='landlord'||!L.booking_id||!cols.length){el.innerHTML='';return;}
+  const signe=!!(L.landlord_signed_at||L.tenant_signed_at||SIBLINGS.some(x=>x.landlord_signed_at||x.tenant_signed_at));
+  el.innerHTML=!L.colocation_type
+    ?`<div style="max-width:880px;margin:0 auto .8rem;background:#EFF6FF;border:1.5px solid var(--bleu);border-radius:12px;padding:.75rem .9rem;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <span><strong>Étape 1 :</strong> choisissez le modèle de bail pour vos ${cols.length+1} locataires avant de compléter et d'envoyer le bail.</span>
+        ${_editMode?`<button class="bc-pill on" onclick="document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'})">Choisir le modèle ↓</button>`:signe?'':`<button class="bc-pill on" onclick="resetColocType()">Repasser le bail en brouillon pour choisir</button>`}</div>`
+    :`<div style="max-width:880px;margin:0 auto .8rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.55rem .9rem;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <span><i data-lucide=lock class=ic></i> Modèle de bail : <strong>${_COLOC_LBL[L.colocation_type]||L.colocation_type}</strong></span>
+        ${signe?'<span style="font-size:.74rem;color:var(--td)">Bail signé : modèle définitif</span>':'<button class="bc-pill" onclick="resetColocType()">Changer de modèle (tout recommencer)</button>'}</div>`;
+  if(window.lucide)lucide.createIcons();
+}
+// Changer de modèle : tout recommence (baux individuels supprimés, bail repassé en brouillon)
+async function resetColocType(){
+  if(myRole!=='landlord')return;
+  const B=_bookingRef();
+  const all=SIBLINGS.length?SIBLINGS:[LEASE];
+  if(all.some(x=>x.landlord_signed_at||x.tenant_signed_at)||LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast('Un bail est déjà signé : impossible de changer de modèle.',6000);return;}
+  if(!confirm('Changer de modèle de bail ?\n\nTout recommence :\n• les baux individuels éventuels sont supprimés,\n• le loyer, les charges et le dépôt reprennent les montants totaux,\n• le bail repasse en brouillon et les locataires sont prévenus qu\'il a été retiré.\n\nContinuer ?'))return;
+  const kids=SIBLINGS.filter(x=>x.parent_booking_id&&!x.booking_id);
+  if(kids.length){const{error}=await sb.from('leases').delete().in('id',kids.map(x=>x.id));if(error){toast('Erreur : '+error.message,6000);return;}}
+  const upd={colocation_type:null,negotiation_status:'draft',sent_to_tenant_at:null,lot_label:null};
+  if(LEASE.rent_total!=null){upd.rent=LEASE.rent_total;upd.rent_total=null;}
+  if(LEASE.charges_total!=null){upd.charges=LEASE.charges_total;upd.charges_total=null;}
+  if(LEASE.deposit_total!=null){upd.deposit=LEASE.deposit_total;upd.deposit_total=null;}
+  let{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
+  if(error&&/lot_label|_total/.test(error.message)){['lot_label','rent_total','charges_total','deposit_total'].forEach(k=>delete upd[k]);({error}=await sb.from('leases').update(upd).eq('id',LEASE.id));}
+  if(error){toast('Erreur : '+error.message,6000);return;}
+  // prévenir les locataires à qui un bail avait été envoyé
+  const dest=new Set();
+  [LEASE,...kids].forEach(x=>{if(x.tenant_id&&x.negotiation_status&&x.negotiation_status!=='draft')dest.add(x.tenant_id);});
+  _bailArr(BOOKING?.co_locataires_data).forEach(c=>{const id=c.locataire_id||c.tenant_id;if(id&&dest.size)dest.add(id);});
+  for(const to of dest)try{await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:to,content:'Le propriétaire a changé le modèle du bail : le bail envoyé précédemment est retiré. Vous recevrez la nouvelle version à relire.',type:'message'});}catch(e){}
+  toast('Modèle réinitialisé : choisissez le nouveau modèle.');
+  setTimeout(()=>location.href='/bail-meuble.html?lease_id='+LEASE.id,600);
 }
 async function createChildLeases(cols){
   const B=_bookingRef(),n=cols.length+1,L=LEASE;
@@ -3427,6 +3479,7 @@ async function createChildLeases(cols){
   return true;
 }
 async function sendAllLeases(){
+  if(needsColocChoice()){toast('Choisissez d\'abord le modèle de bail.',5000);return;}
   const todo=SIBLINGS.filter(x=>['draft','pending_landlord'].includes(x.negotiation_status||'draft'));
   if(!todo.length)return;
   if(!confirm('Envoyer à chaque locataire son bail pour relecture ?\n\n'+todo.map(x=>'• '+(x.tenant_name||'Locataire')+' — '+(x.lot_label||'')).join('\n')))return;
