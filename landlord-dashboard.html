@@ -4405,6 +4405,11 @@ function renderBailSection(g){
       })()}
 
       ${bk?._childLeases?.length?'':`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
+      ${(()=>{let d=bk?.first_payment_declarations;try{d=typeof d==='string'?JSON.parse(d):d;}catch(e){d=null;}
+        let cols=[];try{cols=typeof bk?.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk?.co_locataires_data||[]);}catch(e){}
+        const ppl=[{id:bk?.tenant_id,name:g.tenant_name||'Locataire 1'},...(cols||[]).filter(c=>c&&c.coloc_status!=='declined'&&(c.locataire_id||c.tenant_id)).map(c=>({id:c.locataire_id||c.tenant_id,name:c.name||'Co-locataire'}))];
+        if(ppl.length<2||payConfirmered)return '';
+        return `<div style="font-size:.72rem;color:var(--td);margin-bottom:.3rem">Chaque locataire confirme sa part : ${ppl.map(p=>`<strong style="color:${(d&&d[p.id])||payDeclared?'var(--green)':'var(--gold)'}">${p.name} ${(d&&d[p.id])||payDeclared?'✓':'…'}</strong>`).join(' · ')}</div>`;})()}
       <div id="payrow-${bk?.id||''}" style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:.78rem">${payConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed':payDeclared?'<i data-lucide=euro class=ic></i> Locataire declared paiement':'<i data-lucide=hourglass class=ic></i> Waiting pour paiement'}</span>
         ${payDeclared&&!payConfirmered
