@@ -3086,7 +3086,7 @@ async function setRoleAndContinue(role) {
   if(modal) modal.remove();
 
   // Normalise — accepte aussi bien 'locataire'/'bailleur' que 'tenant'/'landlord'
-  const ROLE_MAP={'locataire':'locataire','tenant':'locataire','bailleur':'bailleur','landlord':'bailleur','agency':'agency','admin':'admin','agent':'agent'};
+  const ROLE_MAP={'locataire':'locataire','tenant':'locataire','bailleur':'bailleur','landlord':'bailleur','agency':'agent','agence':'agent','admin':'admin','agent':'agent'};
   role=ROLE_MAP[role]||role;
 
   try {
@@ -3135,7 +3135,7 @@ async function setRoleAndContinue(role) {
       }
       window.location.href = '/landlord-dashboard.html';
     }
-    else if(role === 'agent') window.location.href = '/agency-dashboard.html';
+    else if(['agent','agence','agency'].includes(role)) window.location.href = '/agency-dashboard.html';
     else { loadL(); updC(); go('home'); }
 
   } catch(e) {
@@ -3173,7 +3173,7 @@ async function signInWithFacebook(){
 
 function goToDash(){
   if(P?.role==='bailleur') window.location.href='/landlord-dashboard.html';
-  else if(P?.role==='agent') window.location.href='/agency-dashboard.html';
+  else if(['agent','agence','agency'].includes(P?.role)) window.location.href='/agency-dashboard.html';
   else window.location.href='/tenant-dashboard.html';
 }
 
@@ -3935,7 +3935,7 @@ function goCompleteProfile(need,missingKeys){
     const d=document.getElementById('dmsg')?.value.trim();
     if(lid&&d)sessionStorage.setItem('ttt_draft_'+lid,d);
   }catch(e){}
-  if(P?.role==='agent'){
+  if(['agent','agence','agency'].includes(P?.role)){
     toast('<i data-lucide=alert-triangle class=ic></i> Complétez votre profil avant de continuer.');
     return;
   }
