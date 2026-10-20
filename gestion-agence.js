@@ -120,10 +120,13 @@ async function gaEnsureSchedule(){
     const t=gaTen(m);if(!t||!(t.hc+t.ch))continue;
     const exist=new Set(gaPays(m).map(p=>String(p.due_date||'').slice(0,7)));
     const debutYm=t.debut?String(t.debut).slice(0,7):cur;
+    // Pas de loyer appelé avant la prise en gestion (mandat) ni avant le début du bail
+    const cutoff=[t.debut,m.date_signature||String(m.created_at||'').slice(0,10)].filter(Boolean).sort().pop()||'';
     for(let k=0;k<3;k++){
       const ym=gaAddM(cur+'-15',k).slice(0,7);
       if(ym<debutYm||exist.has(ym))continue;
       if(m.fin_bail?.date_fin&&ym>String(m.fin_bail.date_fin).slice(0,7))continue;
+      if(gaDue(ym,t.jour)<cutoff)continue;
       rows.push({landlord_id:U.id,tenant_id:t.tenant_id,listing_id:m.listing_id||t.lease?.listing_id||null,lease_id:t.lease?.id||null,booking_id:t.lease?.booking_id||null,
         mandat_id:m.id,tenant_name:t.nom,tenant_email:t.email,amount:gaR(t.hc+t.ch),type:'rent',status:'pending',due_date:gaDue(ym,t.jour)});
     }
@@ -256,18 +259,6 @@ async function loadGestionAgence(force){
 const GA_TABS=[['pilotage','Pilotage','gauge'],['mandats','Mandats','file-signature'],['encaissements','Encaissements','wallet'],['recouvrement','Impayés','alert-triangle'],
   ['reversements','Reversements & CRG','send'],['interventions','Interventions','wrench'],['conformite','Conformité','shield-check'],['fins','Fins de bail','door-open'],
   ['irl','Révision IRL','trending-up'],['fiscal','Fiscalité','landmark'],['outils','Charges & outils','sliders-horizontal']];
-function gaTab(t){GA.tab=t;gaRender();}
-function gaRender(){
-  const nav=document.getElementById('ga-tabs');
-  if(nav)nav.innerHTML=GA_TABS.map(([k,l,i])=>`<button class="tab ${GA.tab===k?'act':''}" onclick="gaTab('${k}')"><i data-lucide=${i} class=ic></i> ${l}${k==='pilotage'?` <span class="nbadge" id="ga-nb" style="display:none"></span>`:''}</button>`).join('');
-  const body=document.getElementById('ga-body');
-  const f={pilotage:gaRenderPilotage,mandats:gaRenderMandats,encaissements:gaRenderEnc,recouvrement:gaRenderRecouv,reversements:gaRenderRev,
-    interventions:gaRenderInter,conformite:gaRenderConf,fins:gaRenderFins,irl:gaRenderIRL,fiscal:gaRenderFiscal,outils:gaRenderOutils}[GA.tab];
-  try{body.innerHTML=f();}catch(e){console.error(e);body.innerHTML=`<div style="color:var(--red);padding:1rem">Erreur d’affichage : ${gaE(e.message)}</div>`;}
-  const n=gaTasks().filter(x=>x.p<=2).length;const nb=document.getElementById('ga-nb');if(nb){nb.textContent=n;nb.style.display=n?'inline':'none';}
-  const sbNb=document.getElementById('nb-gestion');if(sbNb){sbNb.textContent=n;sbNb.style.display=n?'inline':'none';}
-  if(window.lucide)lucide.createIcons();
-}
 // Fenêtre modale générique
 function gaModal(html,wide){
   gaCloseModal();
@@ -452,12 +443,6 @@ function gaRenderMandats(){
   <div style="font-size:.72rem;color:var(--td);margin-top:.8rem;line-height:1.5">Loi Hoguet : chaque mandat est inscrit au registre des mandats avec un numéro d’ordre continu, reporté sur l’exemplaire remis au propriétaire. Les fonds encaissés pour le compte des propriétaires doivent transiter par un compte couvert par votre garantie financière.</div>`;
 }
 function gaNextNumero(){return Math.max(0,...GA.mandats.map(m=>+m.numero||0))+1;}
-function gaNewMandatFromLease(leaseId){
-  const L=gaLease(leaseId);const li=gaListing(L?.listing_id);
-  gaEditMandat(null,{lease_id:leaseId,listing_id:L?.listing_id,owner_name:li?.manual_landlord_name||L?.landlord_name||'',owner_email:li?.manual_landlord_email||L?.landlord_email||'',
-    owner_phone:li?.manual_landlord_phone||'',owner_address:li?.manual_landlord_address||'',bien_label:li?.title||L?.listing_title||'',bien_adresse:li?.full_address||'',
-    bien_meuble:L?.type_bail?L.type_bail!=='vide':(li?.['meublé']??li?.furnished??true),bien_surface:li?.sqm||null,date_signature:gaToday()});
-}
 function gaEditMandat(id,pre){
   const m=id?gaMandat(id):{numero:gaNextNumero(),date_signature:gaToday(),duree_mois:12,tacite:true,taux_honoraires:7,base_honoraires:'cc',frais_fixes:0,gli:false,gli_taux:2.5,gli_delai_jours:30,
     seuil_travaux:300,reversement_jour:10,depot_detenu_par:'agence',auto_avis:true,auto_relances:true,auto_quittance:false,auto_crg:true,auto_conformite:true,loc_jour:1,bien_meuble:true,...(pre||{})};
@@ -758,13 +743,14 @@ function gaRenderRecouv(){
 }
 async function gaMarkPay(id,col){const v=new Date().toISOString();const upd={[col]:v};if(col!=='gli_declare_at'&&col!=='commandement_at')upd.status='late';
   const{error}=await sb.from('payments').update(upd).eq('id',id);if(error){toast(error.message);return false;}Object.assign(GA.pays.find(p=>p.id===id)||{},upd);return true;}
-async function gaRelance(id,n){
+async function gaRelance(id,n,silent){
   const{p,m,t}=gaPayCtx(id);if(!p)return;
   const html=n===1?`<p>Bonjour ${gaE(t?.nom||'')},</p><p>Sauf erreur de notre part, le loyer de <strong>${gaEur(gaReste(p))}</strong> dû le <strong>${gaFr(p.due_date)}</strong> pour ${gaE(gaBien(m))} ne nous est pas parvenu.</p><p>Si le règlement est en cours, merci de ne pas tenir compte de ce message. En cas de difficulté, contactez-nous rapidement : des solutions existent (échelonnement, aides au logement, FSL).</p>`
     :`<p>Bonjour ${gaE(t?.nom||'')},</p><p>Malgré notre premier rappel, le loyer de <strong>${gaEur(gaReste(p))}</strong> dû le <strong>${gaFr(p.due_date)}</strong> reste impayé.</p><p>Nous vous remercions de régulariser sous 8 jours. À défaut, nous serons contraints d’engager la procédure de recouvrement (mise en demeure${t?.garant_nom?', information de votre garant':''}).</p>`;
   const ok=await gaMail(t?.email||p.tenant_email,`${n===1?'Rappel':'Deuxième rappel'} : loyer du ${gaFrC(p.due_date)} — ${gaBien(m)}`,n===1?'Rappel de loyer':'Deuxième rappel de loyer',html);
   if(t?.tenant_id)await gaMsg(t.tenant_id,m.listing_id,`${n===1?'Rappel':'Deuxième rappel'} : le loyer de ${gaEur(gaReste(p))} dû le ${gaFrC(p.due_date)} n’a pas été reçu. Merci de régulariser rapidement ou de nous contacter.`);
   await gaMarkPay(id,n===1?'relance_at':'relance2_at');
+  if(silent)return ok;
   toast(ok?'<i data-lucide=send class=ic></i> Relance envoyée':'Relance enregistrée — e-mail non envoyé (adresse manquante ?). Téléchargez la lettre.');gaRender();
 }
 function gaLettreRelance(id,n){
@@ -1316,3 +1302,375 @@ function gaRenderOutils(){
   return`<div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem">Régularisation annuelle des charges, TEOM, lettres types et récapitulatifs par bail (baux signés sur Trouve Ton Toit).</div>
   <iframe id="ga-llf" class="llf" title="Charges et outils"></iframe>`;
 }
+
+// ════════════════════════════════════════════════════════════════════
+// Interface « par bien » : une carte par logement, une fiche par bien,
+// et en haut quelques actions groupées en un clic.
+// (Remplace l'ancien affichage en 11 onglets ; les fonctions métier restent.)
+// ════════════════════════════════════════════════════════════════════
+GA.view={t:'home'};
+function gaGo(v){GA.view=v;gaRender();const mn=document.getElementById('main');if(mn)mn.scrollTop=0;window.scrollTo(0,0);}
+function gaTab(t){gaGo({t:{reversements:'owners',fiscal:'fiscal',outils:'outils',encaissements:'enc',fins:'home',conformite:'home',irl:'home',interventions:'home',recouvrement:'home',mandats:'home'}[t]||'home'});}
+function gaRender(){
+  const nav=document.getElementById('ga-tabs');if(nav)nav.style.display='none';
+  const body=document.getElementById('ga-body');if(!body)return;
+  const v=GA.view||{t:'home'};
+  const back=(lbl)=>`<button class="btn bg bsm" onclick="gaGo({t:'home'})" style="margin-bottom:1rem"><i data-lucide=arrow-left class=ic></i> ${lbl||'Mes biens gérés'}</button>`;
+  try{
+    body.innerHTML=v.t==='bien'?gaRenderFiche(v.id,v.s||'loc')
+      :v.t==='owners'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Propriétaires & reversements</div>`+gaRenderRev()
+      :v.t==='fiscal'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Récapitulatifs fiscaux des propriétaires</div>`+gaRenderFiscal()
+      :v.t==='enc'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Tous les loyers du mois</div>`+gaRenderEnc()
+      :v.t==='outils'?back()+gaRenderOutils()
+      :gaRenderHome();
+  }catch(e){console.error(e);body.innerHTML=`<div style="color:var(--red);padding:1rem">Erreur d’affichage : ${gaE(e.message)}</div>`;}
+  const n=gaBulkCount();const sbNb=document.getElementById('nb-gestion');if(sbNb){sbNb.textContent=n;sbNb.style.display=n?'inline':'none';}
+  if(window.lucide)lucide.createIcons();
+}
+
+// ── Ce qu'il y a à faire, regroupé par type d'action ────────────────
+function gaBulk(){
+  const today=gaToday();const B={relances:[],med:[],garanties:[],quitt:[],avis:[],irl:[],docs:[],rev:[],devis:[],factures:[],tickets:[],sansMandat:[],depots:[]};
+  if(!GA.loaded)return B;
+  for(const m of gaActifs()){
+    const t=gaTen(m);const f=m.fin_bail||{};
+    for(const p of gaPays(m).filter(gaUnpaid)){
+      if(gaDays(p.due_date,today)<1)continue;
+      for(const s of gaStage(m,p)){
+        if(s.k==='r1'||s.k==='r2')B.relances.push({p,m,n:s.k==='r1'?1:2});
+        else if(s.k==='med')B.med.push({p,m,s});
+        else B.garanties.push({p,m,s});
+      }
+    }
+    if(!m.auto_quittance)gaPays(m).filter(x=>x.status==='paid'&&!x.quittance_sent_at&&gaDays(x.paid_at,today)<=45).forEach(p=>B.quitt.push({p,m}));
+    if(!m.auto_avis)gaPays(m).filter(x=>gaUnpaid(x)&&!x.avis_sent_at).forEach(p=>{const d=gaDays(today,p.due_date);if(d>=0&&d<=7)B.avis.push({p,m});});
+    if(t){const i=gaIrlInfo(m);if(i?.due)B.irl.push({m,i});}
+    if(t)for(const k of ['assurance_habitation','entretien_chaudiere']){
+      if(!gaDocApplies(m,k))continue;const e=GA.ech.find(x=>x.mandat_id===m.id&&x.type===k);
+      if(e?.relance_at&&gaDays(e.relance_at,today)<30)continue;
+      if(!e?.date_expiration||gaDays(today,e.date_expiration)<=15)B.docs.push({m,k});
+    }
+    if(f.edl_sortie&&!f.depot_restitue)B.depots.push({m});
+  }
+  const day=new Date().getDate();
+  for(const o of gaOwners()){const s=gaSolde(o.key);const jr=Math.min(...o.ms.map(m=>+m.reversement_jour||10));if(s>0.5&&day>=jr)B.rev.push({o,s});}
+  for(const i of GA.inter){const m=gaMandat(i.mandat_id);
+    if(i.statut==='devis'&&m&&Number(i.devis_montant)>Number(m.seuil_travaux??300))B.devis.push({i,m});
+    if(i.statut==='termine')B.factures.push({i,m});}
+  const tk=new Set(GA.inter.map(i=>i.ticket_id).filter(Boolean));
+  GA.tickets.filter(x=>!tk.has(x.id)&&!['resolved','closed'].includes(x.status||x.statut)).forEach(k=>B.tickets.push({k}));
+  const linked=new Set(GA.mandats.map(m=>m.lease_id).filter(Boolean));
+  GA.leases.filter(l=>!linked.has(l.id)&&!l.parent_booking_id&&['signed','agreed'].includes(l.negotiation_status)).forEach(L=>B.sansMandat.push({L}));
+  return B;
+}
+function gaBulkCount(){const B=gaBulk();return Object.values(B).reduce((s,a)=>s+a.length,0);}
+
+// ── Accueil : actions groupées + cartes des biens ───────────────────
+function gaRenderHome(){
+  const B=gaBulk();const act=gaActifs();
+  const pl=(n,a,b)=>n>1?b:a;
+  const btn=(n,label,fn,ic,tone)=>n?`<button class="btn ${tone==='r'?'bp':'bg'} bsm" onclick="${fn}" style="${tone==='r'?'background:var(--red);border-color:var(--red)':''}"><i data-lucide=${ic} class=ic></i> ${label}</button>`:'';
+  const revTot=B.rev.reduce((s,x)=>s+x.s,0);
+  const actions=[
+    btn(B.relances.length,`Envoyer ${B.relances.length} relance${pl(B.relances.length,'','s')}`,'gaBulkRelances()','send'),
+    btn(B.med.length,`${B.med.length} mise${pl(B.med.length,'','s')} en demeure`,'gaBulkMed()','mail-warning','r'),
+    btn(B.garanties.length,`${B.garanties.length} démarche${pl(B.garanties.length,'','s')} garant / assurance`,'gaBulkGaranties()','shield-alert','r'),
+    btn(B.rev.length,`Reverser ${B.rev.length} propriétaire${pl(B.rev.length,'','s')} (${gaEur(revTot)})`,'gaBulkRev()','send'),
+    btn(B.quitt.length,`Envoyer ${B.quitt.length} quittance${pl(B.quitt.length,'','s')}`,'gaBulkQuitt()','receipt'),
+    btn(B.avis.length,`Envoyer ${B.avis.length} avis d’échéance`,'gaBulkAvis()','file-text'),
+    btn(B.irl.length,`Réviser ${B.irl.length} loyer${pl(B.irl.length,'','s')} (IRL)`,'gaBulkIrl()','trending-up'),
+    btn(B.docs.length,`Demander ${B.docs.length} attestation${pl(B.docs.length,'','s')}`,'gaBulkDocs()','file-check'),
+    btn(B.tickets.length,`${B.tickets.length} signalement${pl(B.tickets.length,'','s')} locataire${pl(B.tickets.length,'','s')}`,'gaBulkTickets()','message-square-warning','r'),
+    btn(B.devis.length,`${B.devis.length} devis à faire valider`,'gaBulkDevis()','hand'),
+    btn(B.factures.length,`${B.factures.length} facture${pl(B.factures.length,'','s')} de travaux à imputer`,'gaBulkFactures()','wrench'),
+    btn(B.depots.length,`${B.depots.length} dépôt${pl(B.depots.length,'','s')} de garantie à restituer`,'gaBulkDepots()','piggy-bank','r'),
+    btn(B.sansMandat.length,`${B.sansMandat.length} bail${pl(B.sansMandat.length,'','s')} à mettre en gestion`,'gaBulkSansMandat()','file-plus'),
+  ].filter(Boolean);
+  const cur=gaYm(new Date());
+  const dus=act.flatMap(m=>gaPays(m).filter(p=>String(p.due_date).slice(0,7)===cur));
+  const att=dus.reduce((s,p)=>s+(+p.amount||0),0),enc=dus.reduce((s,p)=>s+gaPaid(p),0);
+  return`<div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem">
+    <div><div style="font-size:1.15rem;font-weight:700">Mes biens gérés</div>
+      <div style="font-size:.76rem;color:var(--td)">${act.length} bien${pl(act.length,'','s')}${att?` · loyers de ${gaMoisLbl(cur)} : ${gaEur(enc)} reçus sur ${gaEur(att)}`:''}</div></div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+      <button class="btn bg bsm" onclick="gaGo({t:'owners'})"><i data-lucide=users class=ic></i> Propriétaires</button>
+      <button class="btn bg bsm" onclick="gaRapprochement()"><i data-lucide=landmark class=ic></i> Relevé bancaire</button>
+      <button class="btn bg bsm" onclick="gaPlusMenu(event)"><i data-lucide=more-horizontal class=ic></i></button>
+      <button class="btn bp bsm" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien</button>
+    </div>
+  </div>
+  ${actions.length?`<div class="card" style="margin-bottom:1.1rem"><div class="cb">
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td);margin-bottom:.55rem">À faire aujourd’hui</div>
+    <div style="display:flex;gap:.45rem;flex-wrap:wrap">${actions.join('')}</div></div></div>`
+    :act.length?`<div style="font-size:.8rem;color:var(--green);margin-bottom:1rem"><i data-lucide=check-circle-2 class=ic></i> Tout est à jour. Les envois automatiques tournent chaque jour.</div>`:''}
+  ${act.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem">${act.map(gaCard).join('')}</div>`
+    :`<div class="card"><div class="cb" style="text-align:center;padding:2rem 1rem">
+      <div style="font-size:1rem;font-weight:700;margin-bottom:.4rem">Ajoutez votre premier bien en gestion</div>
+      <div style="font-size:.8rem;color:var(--td);max-width:460px;margin:0 auto 1rem;line-height:1.55">Propriétaire, bien, locataire : c’est tout. Ensuite, les avis d’échéance, quittances, relances et comptes rendus partent tout seuls.</div>
+      <button class="btn bp" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien</button></div></div>`}`;
+}
+function gaPlusMenu(ev){
+  ev.stopPropagation();document.getElementById('ga-plus')?.remove();
+  const r=ev.currentTarget.getBoundingClientRect();const d=document.createElement('div');d.id='ga-plus';
+  d.style.cssText=`position:fixed;top:${r.bottom+6}px;left:${Math.max(8,Math.min(r.left,innerWidth-250))}px;width:240px;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9998;overflow:hidden`;
+  const it=(ic,l,f)=>`<button onclick="document.getElementById('ga-plus').remove();${f}" style="display:flex;gap:.55rem;align-items:center;width:100%;padding:.65rem .85rem;background:none;border:none;border-bottom:1px solid var(--b);color:var(--txt);font-size:.8rem;cursor:pointer;text-align:left"><i data-lucide=${ic} class=ic></i> ${l}</button>`;
+  d.innerHTML=it('wallet','Tous les loyers du mois',"gaGo({t:'enc'})")+it('landmark','Récapitulatifs fiscaux',"gaGo({t:'fiscal'})")+it('calculator','Régularisation des charges',"gaGo({t:'outils'})")+it('download','Registre des mandats (CSV)','gaRegistreCsv()')+it('refresh-cw','Actualiser','loadGestionAgence(true)');
+  document.body.appendChild(d);if(window.lucide)lucide.createIcons();
+  setTimeout(()=>document.addEventListener('click',()=>d.remove(),{once:true}),0);
+}
+
+// ── Carte d'un bien ─────────────────────────────────────────────────
+function gaMoisStatut(m){
+  const t=gaTen(m);if(!t)return{c:'var(--td)',ic:'home',l:'Vacant'};
+  const cur=gaYm(new Date());const ML=(x=>x.charAt(0).toUpperCase()+x.slice(1))(gaMoisLbl(cur).split(' ')[0]);const p=gaPays(m).find(x=>String(x.due_date).slice(0,7)===cur&&x.status!=='cancelled');
+  if(!p){const nx=gaPays(m).filter(gaUnpaid).sort((a,b)=>a.due_date.localeCompare(b.due_date))[0];return{c:'var(--td)',ic:'clock',l:nx?`Prochain loyer le ${gaFrC(nx.due_date)}`:'Aucune échéance programmée'};}
+  if(p.status==='paid')return{c:'var(--green)',ic:'check-circle-2',l:`${ML} : reçu le ${new Date(p.paid_at).getDate()}`};
+  const d=gaDays(p.due_date,gaToday());
+  if(+p.amount_paid>0)return{c:'var(--gold)',ic:'circle-dashed',l:`Partiel : ${gaEur(p.amount_paid)} / ${gaEur(p.amount)}`};
+  if(d>0)return{c:'var(--red)',ic:'x-circle',l:`${ML} : retard J+${d}`};
+  return{c:'var(--td)',ic:'clock',l:`Échéance le ${gaFrC(p.due_date)}`};
+}
+function gaAlerts(m){
+  const A=[];const t=gaTen(m);const f=m.fin_bail||{};const today=gaToday();
+  const imp=gaPays(m).filter(p=>gaUnpaid(p)&&gaDays(p.due_date,today)>0);const it=imp.reduce((s,p)=>s+gaReste(p),0);
+  if(imp.length>1||(imp.length&&gaDays(imp[0].due_date,today)>=30))A.push({r:1,ic:'alert-triangle',l:`Impayé ${gaEur(it)}`});
+  if(f.edl_sortie&&!f.depot_restitue){const lim=gaAddM(f.edl_sortie,f.edl_conforme===false?2:1);A.push({r:gaDays(today,lim)<7?1:0,ic:'piggy-bank',l:`Dépôt à restituer avant le ${gaFrC(lim)}`});}
+  else if(f.preavis_recu&&!f.edl_sortie)A.push({r:0,ic:'door-open',l:`Départ le ${gaFrC(f.date_fin)}`});
+  const dpe=GA.ech.find(x=>x.mandat_id===m.id&&x.type==='dpe');if(['F','G'].includes(String(dpe?.resultat||'').toUpperCase()))A.push({r:1,ic:'thermometer',l:`DPE ${dpe.resultat.toUpperCase()}`});
+  if(t){const e=GA.ech.find(x=>x.mandat_id===m.id&&x.type==='assurance_habitation');
+    if(!e)A.push({r:0,ic:'shield-alert',l:'Attestation d’assurance manquante'});
+    else if(e.date_expiration&&gaDays(today,e.date_expiration)<0)A.push({r:1,ic:'shield-x',l:'Assurance habitation expirée'});}
+  for(const i of GA.inter.filter(i=>i.mandat_id===m.id&&!['facture','annule'].includes(i.statut)))A.push({r:i.urgence==='urgente'?1:0,ic:'wrench',l:`${i.titre} (${(GA_IST[i.statut]||[i.statut])[0].toLowerCase()})`});
+  if(t){const i=gaIrlInfo(m);if(i?.due)A.push({r:0,ic:'trending-up',l:`Révision IRL : ${gaEur(i.nouveau)}`});}
+  return A.sort((a,b)=>b.r-a.r);
+}
+function gaCard(m){
+  const t=gaTen(m);const st=gaMoisStatut(m);const al=gaAlerts(m);
+  return`<div class="card" onclick="gaGo({t:'bien',id:'${m.id}'})" style="cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--agencybright)'" onmouseout="this.style.borderColor=''">
+    <div class="cb" style="display:flex;flex-direction:column;gap:.35rem;height:100%">
+      <div style="font-weight:700;font-size:.92rem;line-height:1.3">${gaE(gaBien(m))}</div>
+      <div style="font-size:.78rem;color:var(--tm)">${t?`${gaE(t.nom)} · ${gaEur(t.hc+t.ch)}`:'<span style="color:var(--gold)">Sans locataire</span>'}</div>
+      <div style="font-size:.8rem;font-weight:600;color:${st.c};display:flex;align-items:center;gap:.35rem"><i data-lucide=${st.ic} class=ic></i> ${st.l}</div>
+      ${al.slice(0,3).map(a=>`<div style="font-size:.74rem;color:${a.r?'var(--red)':'var(--gold)'};display:flex;align-items:center;gap:.35rem"><i data-lucide=${a.ic} class=ic></i> ${gaE(a.l)}</div>`).join('')}
+      ${al.length>3?`<div style="font-size:.7rem;color:var(--td)">+ ${al.length-3} autre${al.length>4?'s':''}</div>`:''}
+      <div style="font-size:.72rem;color:var(--td);margin-top:auto;padding-top:.35rem;border-top:1px solid var(--b)">Propriétaire : ${gaE(m.owner_name||'—')}</div>
+    </div></div>`;
+}
+
+// ── Fiche d'un bien ─────────────────────────────────────────────────
+function gaFicheTab(id,s){GA.view={t:'bien',id,s};gaRender();}
+function gaRenderFiche(id,sub){
+  const m=gaMandat(id);if(!m){GA.view={t:'home'};return gaRenderHome();}
+  const t=gaTen(m);const st=gaMoisStatut(m);
+  const cur=gaPays(m).filter(p=>p.status!=='cancelled').sort((a,b)=>a.due_date.localeCompare(b.due_date));
+  const next=cur.find(p=>gaUnpaid(p));const lastPaid=[...cur].reverse().find(p=>p.status==='paid');
+  const tabs=[['loc','Locataire','user'],['loyers','Loyers','wallet'],['docs','Documents','folder'],['travaux','Travaux','wrench'],['proprio','Propriétaire','briefcase']];
+  const body={loc:gaFLoc,loyers:gaFLoyers,docs:gaFDocs,travaux:gaFTravaux,proprio:gaFProprio}[sub]||gaFLoc;
+  return`<button class="btn bg bsm" onclick="gaGo({t:'home'})" style="margin-bottom:.9rem"><i data-lucide=arrow-left class=ic></i> Mes biens gérés</button>
+  <div class="card" style="margin-bottom:.9rem"><div class="cb">
+    <div style="display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap">
+      <div><div style="font-size:1.1rem;font-weight:700">${gaE(gaBien(m))}</div>
+        <div style="font-size:.76rem;color:var(--td)">${gaE(gaAdresse(m))} · mandat n° ${m.numero||'—'} · ${gaE(m.owner_name||'')}</div>
+        <div style="font-size:.84rem;font-weight:600;color:${st.c};margin-top:.4rem;display:flex;align-items:center;gap:.35rem"><i data-lucide=${st.ic} class=ic></i> ${st.l}</div></div>
+      <div style="display:flex;gap:.35rem;flex-wrap:wrap;align-items:flex-start">
+        ${next?`<button class="btn bp bsm" onclick="gaEncaisser('${next.id}')"><i data-lucide=wallet class=ic></i> Loyer reçu</button>`:''}
+        ${lastPaid?`<button class="btn bg bsm" onclick="gaQuittance('${lastPaid.id}',true)"><i data-lucide=receipt class=ic></i> Quittance</button>`:''}
+        <button class="btn bg bsm" onclick="gaNewInter('${m.id}')"><i data-lucide=wrench class=ic></i> Travaux</button>
+        <button class="btn bg bsm" onclick="gaEditMandat('${m.id}')" title="Réglages"><i data-lucide=settings class=ic></i></button>
+      </div>
+    </div></div></div>
+  <div class="tabs" style="flex-wrap:wrap">${tabs.map(([k,l,i])=>`<button class="tab ${sub===k?'act':''}" onclick="gaFicheTab('${m.id}','${k}')"><i data-lucide=${i} class=ic></i> ${l}</button>`).join('')}</div>
+  ${body(m,t)}`;
+}
+const gaRow=(l,v)=>`<div style="display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid var(--b);font-size:.82rem"><span style="color:var(--td)">${l}</span><span style="text-align:right">${v}</span></div>`;
+function gaFLoc(m,t){
+  const f=m.fin_bail||{};
+  if(!t)return`<div class="card"><div class="cb" style="text-align:center;padding:1.5rem">
+    <div style="font-size:.9rem;font-weight:600;margin-bottom:.3rem">Pas de locataire en ce moment</div>
+    <div style="font-size:.78rem;color:var(--td);margin-bottom:.9rem">Mettez l’annonce en ligne : la candidature, le bail et l’état des lieux se font sur Trouve Ton Toit, puis le bail se rattache ici.</div>
+    <div style="display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap"><button class="btn bp bsm" onclick="sp('new-listing')">Créer l’annonce</button><button class="btn bg bsm" onclick="gaEditMandat('${m.id}')">Ajouter un locataire déjà en place</button></div>
+    ${f.edl_sortie&&!f.depot_restitue?`<div style="margin-top:1rem"><button class="btn bp bsm" onclick="gaDepotModal('${m.id}')">Restituer le dépôt de ${gaE(f.locataire||'l’ancien locataire')}</button></div>`:''}
+  </div></div>`;
+  const irl=gaIrlInfo(m);
+  const gar=t.visale?'Visale':t.garant_nom?`Caution : ${gaE(t.garant_nom)}`:m.gli?'Assurance loyers impayés':'Aucune';
+  return`<div class="card" style="margin-bottom:.8rem"><div class="cb">
+    ${gaRow('Locataire',`<strong>${gaE(t.nom)}</strong>${t.src==='ttt'?' '+gaBadge('Bail Trouve Ton Toit','b-sea'):''}`)}
+    ${gaRow('Contact',[t.email,t.tel].filter(Boolean).map(gaE).join(' · ')||'—')}
+    ${gaRow('Loyer',`${gaEur(t.hc)} + ${gaEur(t.ch)} de charges = <strong>${gaEur(t.hc+t.ch)}</strong>, le ${t.jour} du mois`)}
+    ${gaRow('Dépôt de garantie',gaEur(t.depot))}
+    ${gaRow('Bail',`${t.meuble?'Meublé':'Vide'} · depuis le ${gaFrC(t.debut)}${t.fin?' · échéance '+gaFrC(t.fin):''}`)}
+    ${gaRow('Garantie',gar)}
+    ${gaRow('Révision IRL',irl?.gel?'Gelée (DPE F/G)':irl?.due?`${gaEur(irl.ancien)} → <strong>${gaEur(irl.nouveau)}</strong> <button class="btn bp bsm" onclick="gaApplyIrl('${m.id}')">Appliquer</button>`:'À jour')}
+    ${t.src==='ttt'&&t.lease?gaRow('Documents du bail',`<a href="/bail-meuble.html?lease_id=${t.lease.id}&role=landlord" target="_blank" style="color:var(--agencybright)">Bail</a>${t.lease.booking_id?` · <a href="/edl-meuble.html?booking_id=${t.lease.booking_id}" target="_blank" style="color:var(--agencybright)">État des lieux</a>`:''}`):''}
+  </div></div>
+  <div class="card"><div class="cb">
+    <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem"><i data-lucide=door-open class=ic></i> Départ du locataire</div>
+    ${f.preavis_recu?`<div style="font-size:.8rem;margin-bottom:.6rem">Préavis reçu le ${gaFrC(f.preavis_recu)} — départ le <strong>${gaFrC(f.date_fin)}</strong>${f.edl_sortie?` · état des lieux de sortie le ${gaFrC(f.edl_sortie)}`:''}${f.depot_restitue?` · dépôt restitué le ${gaFrC(f.depot_restitue)}`:''}</div>`:`<div style="font-size:.78rem;color:var(--td);margin-bottom:.6rem">Le locataire part ? Indiquez la date de réception du préavis : la date de départ, l’arrêt des loyers et le délai de restitution du dépôt sont calculés pour vous.</div>`}
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="gaEditFin('${m.id}')">${f.preavis_recu?'Modifier':'Enregistrer un préavis'}</button>${f.edl_sortie&&!f.depot_restitue?`<button class="btn bp bsm" onclick="gaDepotModal('${m.id}')">Restituer le dépôt</button>`:''}${t.fin?`<button class="btn bg bsm" onclick="gaInfoEcheanceBail('${m.id}')">Prévenir le propriétaire de l’échéance</button>`:''}</div>
+  </div></div>`;
+}
+function gaFLoyers(m,t){
+  const today=gaToday();
+  const ps=gaPays(m).filter(p=>p.status!=='cancelled').sort((a,b)=>b.due_date.localeCompare(a.due_date)).slice(0,15);
+  const imp=gaPays(m).filter(p=>gaUnpaid(p)&&gaDays(p.due_date,today)>0);
+  const auto=[m.auto_avis&&'avis d’échéance',m.auto_relances&&'relances',m.auto_quittance&&'quittances'].filter(Boolean);
+  return`${imp.length?`<div class="card" style="margin-bottom:.8rem;border-color:rgba(224,90,90,.35)"><div class="cb">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center"><div style="font-weight:700;color:var(--red)">Impayé : ${gaEur(imp.reduce((s,p)=>s+gaReste(p),0))}</div>
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="gaApurement('${m.id}')">Plan d’apurement</button><button class="btn bg bsm" onclick="gaInfoProprioImpaye('${m.id}')">Prévenir le propriétaire</button></div></div>
+      ${imp.map(p=>{const st=gaStage(m,p);return`<div style="margin-top:.55rem;font-size:.8rem"><strong>${gaMoisLbl(String(p.due_date).slice(0,7))}</strong> — ${gaEur(gaReste(p))} (J+${gaDays(p.due_date,today)})
+        <span style="color:var(--td)">${[p.relance_at&&'relancé',p.relance2_at&&'2ᵉ relance',p.garant_informe_at&&'garant informé',p.mise_en_demeure_at&&'mise en demeure',p.gli_declare_at&&'garantie déclarée',p.commandement_at&&'commandement'].filter(Boolean).join(' · ')}</span>
+        ${st.length?`<div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.35rem">${st.map(s=>`<button class="btn bp bsm" onclick="${s.a}">${gaE(s.l)}</button>`).join('')}</div>`:''}</div>`;}).join('')}
+    </div></div>`:''}
+  <div class="card"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Mois</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+  ${ps.length?ps.map(p=>{const d=gaDays(p.due_date,today);const s=p.status==='paid'?gaBadge('Reçu le '+gaFrC(p.paid_at),'b-green'):+p.amount_paid>0?gaBadge('Partiel '+gaEur(p.amount_paid),'b-gold'):d>0?gaBadge('Retard J+'+d,'b-red'):gaBadge('Le '+gaFrC(p.due_date),'b-dim');
+    return`<tr><td style="text-transform:capitalize">${gaMoisLbl(String(p.due_date).slice(0,7))}</td><td>${gaEur(p.amount)}</td><td>${s}</td><td style="text-align:right;white-space:nowrap">${p.status==='paid'
+      ?`<button class="btn bg bsm" onclick="gaQuittance('${p.id}')" title="Quittance PDF"><i data-lucide=download class=ic></i></button> <button class="btn bg bsm" onclick="gaQuittance('${p.id}',true)" title="Envoyer la quittance"><i data-lucide=send class=ic></i></button>`
+      :`<button class="btn bp bsm" onclick="gaEncaisser('${p.id}')">Reçu</button> <button class="btn bg bsm" onclick="gaAvis('${p.id}')" title="Avis d’échéance PDF"><i data-lucide=file-text class=ic></i></button>`}</td></tr>`;}).join(''):`<tr><td colspan="4" style="color:var(--td)">Aucun loyer pour l’instant.</td></tr>`}
+  </tbody></table></div></div>
+  <div style="font-size:.72rem;color:var(--td);margin-top:.6rem">${auto.length?`Envoyé automatiquement : ${auto.join(', ')}.`:'Aucun envoi automatique sur ce bien.'} <a href="#" onclick="gaEditMandat('${m.id}');return false" style="color:var(--agencybright)">Modifier</a></div>`;
+}
+function gaFDocs(m,t){
+  const keys=Object.keys(GA_DOCS).filter(k=>gaDocApplies(m,k)&&(GA_DOCS[k].qui!=='locataire'||t));
+  return`<div class="card"><div class="cb" style="padding:.4rem 1rem">
+  ${keys.map(k=>{const s=gaDocState(m,k);const def=GA_DOCS[k];return`<div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--b)">
+    <div style="min-width:0"><div style="font-size:.82rem;font-weight:600">${def.l}</div><div style="font-size:.72rem;color:var(--td)">${s.e?.date_document?'du '+gaFrC(s.e.date_document):''}${s.e?.resultat?' · '+gaE(s.e.resultat):''}${s.e?.fichier_url?` · <a href="${gaE(s.e.fichier_url)}" target="_blank" style="color:var(--agencybright)">voir</a>`:''}</div></div>
+    <div style="display:flex;gap:.3rem;align-items:center;flex-shrink:0">${gaBadge(s.l==='ok'?'à jour':s.l,s.c)}
+      ${def.qui==='locataire'&&s.c!=='b-green'?`<button class="btn bg bsm" onclick="gaDemandeDoc('${m.id}','${k}')">Demander</button>`:''}
+      <button class="btn bg bsm" onclick="gaEditEch('${m.id}','${k}')"><i data-lucide=pencil class=ic></i></button></div></div>`;}).join('')}
+  </div></div>`;
+}
+function gaFTravaux(m){
+  const list=GA.inter.filter(i=>i.mandat_id===m.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+  const tk=new Set(GA.inter.map(i=>i.ticket_id).filter(Boolean));
+  const tickets=GA.tickets.filter(x=>x.listing_id&&x.listing_id===m.listing_id&&!tk.has(x.id)&&!['resolved','closed'].includes(x.status||x.statut));
+  return`<div style="margin-bottom:.7rem"><button class="btn bp bsm" onclick="gaNewInter('${m.id}')"><i data-lucide=plus class=ic></i> Nouvelle intervention</button></div>
+  ${tickets.map(k=>`<div class="card" style="margin-bottom:.5rem;border-color:rgba(224,90,90,.35)"><div class="cb" style="display:flex;justify-content:space-between;gap:.5rem"><div style="font-size:.8rem"><strong>Signalé par le locataire : ${gaE(k.title||'')}</strong><div style="font-size:.72rem;color:var(--td)">${gaFrC(k.created_at)} · ${gaE(String(k.description||'').slice(0,140))}</div></div><button class="btn bp bsm" onclick="gaInterFromTicket('${k.id}')">Traiter</button></div></div>`).join('')}
+  ${list.length?list.map(i=>{const[l,c]=GA_IST[i.statut]||[i.statut,'b-dim'];return`<div class="card" style="margin-bottom:.5rem;cursor:pointer" onclick="gaEditInter('${i.id}')"><div class="cb" style="display:flex;justify-content:space-between;gap:.5rem;align-items:center">
+    <div><div style="font-size:.84rem;font-weight:600">${gaE(i.titre)}</div><div style="font-size:.72rem;color:var(--td)">${gaFrC(i.created_at)}${i.prestataire_nom?' · '+gaE(i.prestataire_nom):''}${i.devis_montant?' · devis '+gaEur(i.devis_montant):''}${i.montant_final?' · facturé '+gaEur(i.montant_final):''}</div></div>${gaBadge(l,c)}</div></div>`;}).join('')
+    :tickets.length?'':gaEmpty('wrench','Aucuns travaux sur ce bien.')}`;
+}
+function gaFProprio(m){
+  const k=gaOwnerKey(m);const s=gaSolde(k);const prev=gaAddM(gaYm(new Date())+'-01',-1).slice(0,7);const crg=GA.crg.find(x=>x.owner_key===k&&x.periode===prev);
+  const autres=GA.mandats.filter(x=>x.id!==m.id&&gaOwnerKey(x)===k);
+  return`<div class="card" style="margin-bottom:.8rem"><div class="cb">
+    ${gaRow('Propriétaire',`<strong>${gaE(m.owner_name||'—')}</strong>`)}
+    ${gaRow('Contact',[m.owner_email,m.owner_phone].filter(Boolean).map(gaE).join(' · ')||'—')}
+    ${gaRow('IBAN',gaE(m.owner_iban||'à compléter'))}
+    ${gaRow('Honoraires de gestion',`${m.taux_honoraires||0} % TTC des encaissements${Number(m.frais_fixes)?' + '+gaEur(m.frais_fixes)+'/mois':''}${m.gli?` · GLI ${m.gli_taux} %`:''}`)}
+    ${gaRow('Solde à lui reverser',`<strong style="color:${s>0?'var(--green)':'var(--txt)'}">${gaEur(s)}</strong>`)}
+    ${autres.length?gaRow('Ses autres biens',autres.map(x=>`<a href="#" onclick="gaGo({t:'bien',id:'${x.id}'});return false" style="color:var(--agencybright)">${gaE(gaBien(x))}</a>`).join(', ')):''}
+    <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.8rem">
+      <button class="btn bp bsm" onclick="gaReverser('${gaQ(k)}')" ${s>0.009?'':'disabled'}><i data-lucide=send class=ic></i> Reverser</button>
+      <button class="btn bg bsm" onclick="gaEnvoyerCrg('${gaQ(k)}','${prev}')"><i data-lucide=mail class=ic></i> ${crg?.envoye_at?'Renvoyer':'Envoyer'} le compte rendu de ${gaMoisLbl(prev).split(' ')[0]}</button>
+      <button class="btn bg bsm" onclick="gaCrgPdf('${gaQ(k)}','${prev}')"><i data-lucide=download class=ic></i> PDF</button>
+      <button class="btn bg bsm" onclick="gaOpModal('${m.id}')"><i data-lucide=plus class=ic></i> Dépense / écriture</button>
+      <button class="btn bg bsm" onclick="GA.annee=new Date().getFullYear()-(new Date().getMonth()<6?1:0);gaFiscalPdf('${gaQ(k)}')"><i data-lucide=landmark class=ic></i> Récap fiscal</button>
+    </div>
+    ${crg?.envoye_at?`<div style="font-size:.7rem;color:var(--td);margin-top:.4rem">Compte rendu de ${gaMoisLbl(prev)} envoyé le ${gaFrC(crg.envoye_at)}.</div>`:''}
+  </div></div>`;
+}
+
+// ── Ajout rapide d'un bien ──────────────────────────────────────────
+function gaQuickAdd(pre){
+  pre=pre||{};
+  const linked=new Set(GA.mandats.map(m=>m.lease_id).filter(Boolean));
+  const leases=GA.leases.filter(l=>!l.parent_booking_id&&!linked.has(l.id)&&['signed','agreed'].includes(l.negotiation_status));
+  gaModal(`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.2rem"><i data-lucide=home class=ic></i> Ajouter un bien en gestion</div>
+  <div style="font-size:.76rem;color:var(--td);margin-bottom:.9rem">Le reste se règle par défaut (honoraires, envois automatiques…) et se modifie plus tard dans la fiche du bien.</div>
+  <div class="fgrid2">
+    <div class="fg" style="grid-column:1/-1"><label class="fl">Logement</label><select class="fsel" id="gq-bien" onchange="gaQAToggle()">
+      ${GA.listings.map(l=>`<option value="${l.id}" ${pre.listing_id===l.id?'selected':''}>${gaE(l.title||l.full_address)}</option>`).join('')}
+      <option value="" ${!GA.listings.length||pre.listing_id===''?'selected':''}>Autre logement (saisir l’adresse)</option></select></div>
+    <div class="fg" id="gq-adr-w" style="grid-column:1/-1;display:none"><label class="fl">Adresse du logement</label><input class="fi" id="gq-adr" placeholder="12 rue de la Paix, 69002 Lyon"></div>
+    <div class="fg"><label class="fl">Propriétaire *</label><input class="fi" id="gq-on" value="${gaE(pre.owner_name||'')}" placeholder="Prénom Nom"></div>
+    <div class="fg"><label class="fl">Son e-mail</label><input class="fi" id="gq-oe" type="email" value="${gaE(pre.owner_email||'')}" placeholder="pour les comptes rendus"></div>
+    <div class="fg" style="grid-column:1/-1"><label class="fl">Locataire</label><select class="fsel" id="gq-loc" onchange="gaQAToggle()">
+      ${leases.map(l=>`<option value="${l.id}" ${pre.lease_id===l.id?'selected':''}>${gaE((GA.profiles[l.tenant_id]?.full_name||'Locataire')+' — bail signé sur Trouve Ton Toit ('+(l.listing_title||'')+')')}</option>`).join('')}
+      <option value="ext">Locataire déjà en place (bail signé ailleurs)</option>
+      <option value="" ${!leases.length?'selected':''}>Aucun pour l’instant</option></select></div>
+    <div id="gq-ext" class="fgrid2" style="grid-column:1/-1;display:none">
+      <div class="fg"><label class="fl">Nom du locataire</label><input class="fi" id="gq-ln"></div>
+      <div class="fg"><label class="fl">Son e-mail</label><input class="fi" id="gq-le" type="email"></div>
+      <div class="fg"><label class="fl">Loyer hors charges (€)</label><input class="fi" id="gq-hc" type="number" step="0.01"></div>
+      <div class="fg"><label class="fl">Charges (€/mois)</label><input class="fi" id="gq-ch" type="number" step="0.01" value="0"></div>
+      <div class="fg"><label class="fl">Payé le … du mois</label><input class="fi" id="gq-j" type="number" value="1" min="1" max="28"></div>
+      <div class="fg"><label class="fl">Dépôt de garantie (€)</label><input class="fi" id="gq-dep" type="number" step="0.01"></div>
+    </div>
+    <div class="fg"><label class="fl">Honoraires de gestion (% TTC)</label><input class="fi" id="gq-hon" type="number" step="0.1" value="7"></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem"><button class="btn bg" onclick="gaCloseModal()">Annuler</button><button class="btn bp" onclick="gaQuickSave()">Ajouter</button></div>`);
+  gaQAToggle();
+}
+function gaQAToggle(){
+  const b=gaV('gq-bien'),l=gaV('gq-loc');
+  const w=document.getElementById('gq-adr-w');if(w)w.style.display=b?'none':'block';
+  const e=document.getElementById('gq-ext');if(e)e.style.display=l==='ext'?'grid':'none';
+  // Pré-remplir le propriétaire depuis l'annonce
+  const li=gaListing(b);if(li&&!gaV('gq-on')&&li.manual_landlord_name){document.getElementById('gq-on').value=li.manual_landlord_name;if(li.manual_landlord_email)document.getElementById('gq-oe').value=li.manual_landlord_email;}
+}
+async function gaQuickSave(){
+  const b=gaV('gq-bien'),l=gaV('gq-loc');const li=gaListing(b);const L=l&&l!=='ext'?gaLease(l):null;
+  const row={agency_id:U.id,numero:gaNextNumero(),date_signature:gaToday(),duree_mois:12,tacite:true,statut:'actif',
+    owner_name:gaV('gq-on'),owner_email:gaV('gq-oe').toLowerCase()||null,owner_phone:li?.manual_landlord_phone||null,owner_address:li?.manual_landlord_address||null,
+    listing_id:b||L?.listing_id||null,bien_label:li?.title||L?.listing_title||null,bien_adresse:li?.full_address||gaV('gq-adr')||null,bien_surface:li?.sqm||null,
+    bien_meuble:L?.type_bail?L.type_bail!=='vide':(li?.['meublé']??li?.furnished??true),
+    taux_honoraires:gaN('gq-hon')??7,base_honoraires:'cc',frais_fixes:0,seuil_travaux:300,reversement_jour:10,gli:false,gli_taux:2.5,gli_delai_jours:30,depot_detenu_par:'agence',
+    auto_avis:true,auto_relances:true,auto_quittance:false,auto_crg:true,auto_conformite:true,
+    lease_id:L?.id||null};
+  if(l==='ext')Object.assign(row,{loc_nom:gaV('gq-ln')||null,loc_email:gaV('gq-le').toLowerCase()||null,loc_loyer_hc:gaN('gq-hc'),loc_charges:gaN('gq-ch')??0,loc_jour:gaN('gq-j')||1,loc_depot:gaN('gq-dep'),loc_debut:gaToday()});
+  if(!row.owner_name){toast('Indiquez le propriétaire');return;}
+  if(!row.listing_id&&!row.bien_adresse){toast('Indiquez le logement');return;}
+  if(l==='ext'&&(!row.loc_nom||!row.loc_loyer_hc)){toast('Indiquez le nom du locataire et le loyer');return;}
+  if(!row.bien_label)row.bien_label=(row.bien_adresse||'').split(',')[0]||null;
+  if(row.owner_email){try{const{data:p}=await sb.from('profiles').select('clerk_id').ilike('email',row.owner_email).maybeSingle();if(p?.clerk_id)row.owner_clerk_id=p.clerk_id;}catch(e){}}
+  const{data,error}=await sb.from('gestion_mandats').insert(row).select().single();
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
+  GA.mandats.push(data);gaCloseModal();await gaAttachPayments();await gaEnsureSchedule();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Bien ajouté — les loyers sont programmés');gaGo({t:'bien',id:data.id});
+}
+// Raccourcis existants → nouvel ajout rapide
+function gaNewMandatFromLease(leaseId){const L=gaLease(leaseId);const li=gaListing(L?.listing_id);gaQuickAdd({lease_id:leaseId,listing_id:L?.listing_id||'',owner_name:li?.manual_landlord_name||L?.landlord_name||'',owner_email:li?.manual_landlord_email||L?.landlord_email||''});}
+
+// ── Actions groupées ────────────────────────────────────────────────
+function gaListModal(title,intro,rows,foot){
+  gaModal(`<div style="font-size:1rem;font-weight:700;margin-bottom:.3rem">${title}</div>${intro?`<div style="font-size:.76rem;color:var(--td);margin-bottom:.7rem;line-height:1.5">${intro}</div>`:''}
+  <div>${rows.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--b)">
+    <div style="min-width:0;font-size:.82rem"><strong>${r.t}</strong>${r.d?`<div style="font-size:.72rem;color:var(--td)">${r.d}</div>`:''}</div>
+    <div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end">${(r.b||[]).map(([l,f],k)=>`<button class="btn ${k?'bg':'bp'} bsm" onclick="${f}">${l}</button>`).join('')}</div></div>`).join('')}</div>${foot||''}`,true);
+}
+async function gaRunAll(label,items,fn){
+  gaCloseModal();let n=0;for(const x of items){try{await fn(x);n++;}catch(e){console.error(e);}}
+  toast(`<i data-lucide=check-circle-2 class=ic></i> ${n} ${label}`);gaRender();
+}
+async function gaBulkRelances(){const B=gaBulk();if(!confirm(`Envoyer ${B.relances.length} relance(s) par e-mail et messagerie ?\n\n`+B.relances.map(x=>`• ${gaTen(x.m)?.nom||''} — ${gaEur(gaReste(x.p))} (${gaBien(x.m)})`).join('\n')))return;
+  await gaRunAll('relance(s) envoyée(s)',B.relances,x=>gaRelance(x.p.id,x.n,true));}
+function gaBulkMed(){const B=gaBulk();gaListModal('Mises en demeure à envoyer','Retard de plus de 30 jours. Téléchargez la lettre et envoyez-la en recommandé avec accusé de réception : l’étape est alors notée comme faite.',
+  B.med.map(x=>({t:`${gaE(gaTen(x.m)?.nom||'')} — ${gaEur(gaReste(x.p))}`,d:`${gaE(gaBien(x.m))} · échéance du ${gaFrC(x.p.due_date)}`,b:[['Lettre + noter envoyée',`gaMiseEnDemeure('${x.p.id}');this.closest('div[style*=border-bottom]').style.opacity=.4`],['Voir le bien',`gaCloseModal();gaGo({t:'bien',id:'${x.m.id}',s:'loyers'})`]]})));}
+function gaBulkGaranties(){const B=gaBulk();gaListModal('Démarches garant / assurance','Information du garant, déclaration à l’assurance loyers impayés ou à Visale, commandement de payer.',
+  B.garanties.map(x=>({t:gaE(x.s.l),d:`${gaE(gaTen(x.m)?.nom||'')} · ${gaE(gaBien(x.m))} · ${gaEur(gaReste(x.p))}`,b:[['Faire',`gaCloseModal();${x.s.a}`]]})));}
+function gaBulkRev(){
+  const B=gaBulk();
+  gaModal(`<div style="font-size:1rem;font-weight:700;margin-bottom:.3rem"><i data-lucide=send class=ic></i> Reversements aux propriétaires</div>
+  <div style="font-size:.76rem;color:var(--td);margin-bottom:.7rem">Faites les virements depuis votre banque (fichier CSV ci-dessous), puis validez : les reversements sont enregistrés et chaque propriétaire reçoit son compte rendu.</div>
+  ${B.rev.map((x,i)=>`<label style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--b);font-size:.82rem;cursor:pointer">
+    <span><input type="checkbox" id="gbr-${i}" checked> <strong>${gaE(x.o.name)}</strong><span style="display:block;font-size:.72rem;color:var(--td);margin-left:1.3rem">${gaE(x.o.iban||'IBAN manquant')}</span></span><strong>${gaEur(x.s)}</strong></label>`).join('')}
+  <div style="display:flex;justify-content:space-between;gap:.5rem;margin-top:1rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="gaVirementsCsv()"><i data-lucide=download class=ic></i> Fichier des virements</button>
+  <button class="btn bp" onclick="gaBulkRevSave()">Valider les reversements cochés</button></div>`);
+}
+async function gaBulkRevSave(){
+  const B=gaBulk();const sel=B.rev.filter((x,i)=>document.getElementById('gbr-'+i)?.checked);
+  await gaRunAll('reversement(s) enregistré(s)',sel,async x=>{
+    const{data}=await sb.from('gestion_operations').insert({agency_id:U.id,mandat_id:x.o.ms[0].id,date:gaToday(),type:'reversement',libelle:`Reversement au propriétaire${x.o.iban?' — '+x.o.iban:''}`,montant:-gaR(x.s)}).select().single();
+    if(data)GA.ops.push(data);await gaEnvoyerCrg(x.o.key,gaYm(new Date()),true);});
+}
+async function gaBulkQuitt(){const B=gaBulk();if(!confirm(`Envoyer ${B.quitt.length} quittance(s) par e-mail ?`))return;await gaRunAll('quittance(s) envoyée(s)',B.quitt,x=>gaQuittance(x.p.id,true,true));}
+async function gaBulkAvis(){const B=gaBulk();if(!confirm(`Envoyer ${B.avis.length} avis d’échéance par e-mail ?`))return;await gaRunAll('avis envoyé(s)',B.avis,x=>gaAvis(x.p.id,true));}
+function gaBulkIrl(){const B=gaBulk();gaListModal('Révisions de loyer (IRL)','Le nouveau loyer s’applique à partir de la prochaine échéance ; le locataire est prévenu automatiquement.',
+  B.irl.map(x=>({t:`${gaE(gaTen(x.m)?.nom||'')} : ${gaEur(x.i.ancien)} → ${gaEur(x.i.nouveau)}`,d:`${gaE(gaBien(x.m))} · ${gaE(x.i.ref)}`,b:[['Appliquer',`gaCloseModal();gaApplyIrl('${x.m.id}')`]]})));}
+async function gaBulkDocs(){const B=gaBulk();if(!confirm(`Demander ${B.docs.length} attestation(s) aux locataires ?\n\n`+B.docs.map(x=>`• ${GA_DOCS[x.k].l} — ${gaTen(x.m)?.nom||''}`).join('\n')))return;
+  await gaRunAll('demande(s) envoyée(s)',B.docs,x=>gaDemandeDoc(x.m.id,x.k));}
+function gaBulkTickets(){const B=gaBulk();gaListModal('Signalements des locataires','',B.tickets.map(x=>({t:gaE(x.k.title||'Problème'),d:`${gaE(gaListing(x.k.listing_id)?.title||'')} · ${gaFrC(x.k.created_at)} · ${gaE(String(x.k.description||'').slice(0,100))}`,b:[['Traiter',`gaCloseModal();gaInterFromTicket('${x.k.id}')`]]})));}
+function gaBulkDevis(){const B=gaBulk();gaListModal('Devis à faire valider par le propriétaire','Au-dessus du seuil prévu au mandat, l’accord du propriétaire est nécessaire.',B.devis.map(x=>({t:`${gaE(x.i.titre)} — ${gaEur(x.i.devis_montant)}`,d:`${gaE(gaBien(x.m))} · ${gaE(x.m.owner_name||'')}`,b:[['Demander l’accord',`gaDemandeAccord('${x.i.id}')`],['Ouvrir',`gaCloseModal();gaEditInter('${x.i.id}')`]]})));}
+function gaBulkFactures(){const B=gaBulk();gaListModal('Factures de travaux à imputer','Saisissez le montant facturé : il est déduit du prochain reversement au propriétaire.',B.factures.map(x=>({t:gaE(x.i.titre),d:x.m?gaE(gaBien(x.m)):'',b:[['Saisir la facture',`gaCloseModal();gaEditInter('${x.i.id}')`]]})));}
+function gaBulkDepots(){const B=gaBulk();gaListModal('Dépôts de garantie à restituer','1 mois après la sortie si l’état des lieux est conforme, 2 mois sinon. Au-delà : pénalité de 10 % du loyer par mois de retard.',B.depots.map(x=>({t:gaE(x.m.fin_bail?.locataire||''),d:gaE(gaBien(x.m)),b:[['Calculer',`gaCloseModal();gaDepotModal('${x.m.id}')`]]})));}
+function gaBulkSansMandat(){const B=gaBulk();gaListModal('Baux signés à mettre en gestion','',B.sansMandat.map(x=>({t:gaE(GA.profiles[x.L.tenant_id]?.full_name||'Locataire'),d:gaE(x.L.listing_title||''),b:[['Ajouter',`gaCloseModal();gaNewMandatFromLease('${x.L.id}')`]]})));}
