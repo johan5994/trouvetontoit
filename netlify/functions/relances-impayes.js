@@ -6,7 +6,7 @@
 //
 // • J+5 après l'échéance sans paiement : relance amiable au locataire (message + e-mail), une seule fois.
 // • J+15 : rappel au propriétaire qu'une mise en demeure (LRAR) est à envoyer (une seule fois).
-const SUPABASE_URL = 'https://dcpozxklyxhypwyjbwph.supabase.co';
+const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
 const FROM = process.env.RESEND_FROM || 'Trouve Ton Toit <onboarding@resend.dev>';
 const SITE = process.env.URL || 'https://trouvetontoi.netlify.app';
