@@ -3,6 +3,9 @@
   functions = "netlify/functions"
   command = "cd netlify/functions && npm install"
 
+[functions."relances-impayes"]
+  schedule = "@daily"
+
 [[redirects]]
   from = "/app/*"
   to = "/index.html"
