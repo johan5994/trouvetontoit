@@ -9,6 +9,24 @@ const FROM = process.env.RESEND_FROM || 'Trouve Ton Toit <onboarding@resend.dev>
 
 const templates = {
 
+  // Gestion locative (portail agence) : e-mail générique, contenu HTML préparé par l'agence
+  gestion_generic: ({ subject, title, html, agence, cta_url, cta_label }) => ({
+    subject: subject || title || 'Information de votre agence',
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#4F46E5;padding:20px 28px;border-radius:12px 12px 0 0">
+          <p style="color:#E0E7FF;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 4px">${agence || 'Votre agence'} · Gestion locative</p>
+          <h1 style="color:#fff;font-size:20px;margin:0">${title || subject || ''}</h1>
+        </div>
+        <div style="background:#fff;padding:24px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;font-size:15px;line-height:1.55">
+          ${html || ''}
+          ${cta_url ? `<p><a href="${cta_url}" style="display:inline-block;background:#4F46E5;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-weight:700">${cta_label || 'Ouvrir'}</a></p>` : ''}
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 12px">
+          <p style="font-size:12px;color:#6b7280;margin:0">${agence || ''} — envoyé via Trouve Ton Toit</p>
+        </div>
+      </div>`,
+  }),
+
   // Invitation co-locataire à créer un compte
   co_locataire_invite: ({ mainLocataireNom, listingTitle, address, signupUrl }) => ({
     subject: `Vous avez été ajouté(e) comme co-locataire — ${listingTitle}`,
