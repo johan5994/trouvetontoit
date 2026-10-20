@@ -1,0 +1,205 @@
+// Gestion locative des agences — automatisation quotidienne (fonction planifiée Netlify).
+// À déclarer dans netlify.toml :
+//   [functions."gestion-auto"]
+//     schedule = "@daily"
+// Variables : SUPABASE_SERVICE_KEY, RESEND_API_KEY (+ RESEND_FROM).
+//
+// Pour chaque mandat de gestion actif (table gestion_mandats), selon ses réglages :
+//  • échéancier des loyers (mois en cours + 2) et passage en retard ;
+//  • avis d'échéance par e-mail 7 jours avant (auto_avis) ;
+//  • relances J+5 et J+15 (auto_relances) ;
+//  • quittance par e-mail après encaissement (auto_quittance) ;
+//  • rappels assurance habitation / entretien chaudière avant échéance (auto_conformite) ;
+//  • compte rendu de gestion du mois précédent au propriétaire, à partir du 5 (auto_crg) ;
+//  • résumé quotidien envoyé à l'agence dans sa messagerie.
+const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const KEY = process.env.SUPABASE_SERVICE_KEY;
+const FROM = process.env.RESEND_FROM || 'Trouve Ton Toit <onboarding@resend.dev>';
+const SITE = process.env.URL || 'https://trouvetontoi.netlify.app';
+
+const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+  ...opts,
+  headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', Prefer: 'return=representation', ...(opts.headers || {}) },
+}).then(async r => { const t = await r.text(); if (!r.ok) throw new Error(path + ' → ' + r.status + ' ' + t); return t ? JSON.parse(t) : null; });
+const patch = (path, body) => api(path, { method: 'PATCH', body: JSON.stringify(body) });
+const post = (path, body) => api(path, { method: 'POST', body: JSON.stringify(body) });
+
+const R = n => Math.round((Number(n) || 0) * 100) / 100;
+const eur = n => R(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const iso = d => new Date(d).toISOString().slice(0, 10);
+const fr = d => new Date(String(d).length === 10 ? d + 'T12:00:00Z' : d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const days = (a, b) => Math.floor((new Date(iso(b) + 'T12:00:00Z') - new Date(iso(a) + 'T12:00:00Z')) / 864e5);
+const addM = (ym, n) => { const [y, m] = ym.split('-').map(Number); const d = new Date(Date.UTC(y, m - 1 + n, 15)); return d.toISOString().slice(0, 7); };
+const due = (ym, j) => { const [y, m] = ym.split('-').map(Number); const dim = new Date(Date.UTC(y, m, 0)).getUTCDate(); return `${ym}-${String(Math.min(Math.max(+j || 1, 1), dim)).padStart(2, '0')}`; };
+const moisLbl = ym => { const [y, m] = ym.split('-'); return new Date(Date.UTC(+y, +m - 1, 15)).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }); };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const inList = a => `(${a.map(x => `"${x}"`).join(',')})`;
+
+function mailHtml(agence, title, body) {
+  return `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a1a"><div style="background:#4F46E5;padding:20px 28px;border-radius:12px 12px 0 0"><p style="color:#E0E7FF;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 4px">${esc(agence)} · Gestion locative</p><h1 style="color:#fff;font-size:20px;margin:0">${esc(title)}</h1></div><div style="background:#fff;padding:24px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;font-size:15px;line-height:1.55">${body}<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 12px"><p style="font-size:12px;color:#6b7280;margin:0">${esc(agence)} — envoyé via Trouve Ton Toit</p></div></div>`;
+}
+async function mail(to, subject, agence, title, body) {
+  if (!to || !process.env.RESEND_API_KEY) return false;
+  const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: FROM, to, subject, html: mailHtml(agence, title, body) }) });
+  return r.ok;
+}
+async function msg(to, listing_id, content, sender = 'system') {
+  if (!to) return;
+  try { await post('messages', { listing_id: listing_id || null, sender_id: sender, receiver_id: to, content, type: 'message' }); } catch (e) {}
+}
+
+exports.handler = async () => {
+  if (!KEY) return { statusCode: 500, body: 'SUPABASE_SERVICE_KEY manquante' };
+  const today = iso(new Date()); const cur = today.slice(0, 7); const prev = addM(cur, -1);
+  const stats = {};
+  const S = (ag, k) => { (stats[ag] = stats[ag] || {})[k] = (stats[ag][k] || 0) + 1; };
+
+  let mandats = [];
+  try { mandats = await api('gestion_mandats?select=*&statut=neq.resilie') || []; }
+  catch (e) { return { statusCode: 200, body: 'Table gestion_mandats absente : ' + e.message }; }
+  if (!mandats.length) return { statusCode: 200, body: 'Aucun mandat' };
+
+  const agIds = [...new Set(mandats.map(m => m.agency_id))];
+  const agences = {}; (await api(`agency_profiles?select=clerk_id,agency_name&clerk_id=in.${inList(agIds)}`) || []).forEach(a => agences[a.clerk_id] = a.agency_name);
+  const leaseIds = mandats.map(m => m.lease_id).filter(Boolean);
+  const leases = {}; if (leaseIds.length) (await api(`leases?select=*&id=in.${inList(leaseIds)}`) || []).forEach(l => leases[l.id] = l);
+  const tIds = [...new Set(Object.values(leases).map(l => l.tenant_id).filter(Boolean))];
+  const profs = {}; if (tIds.length) (await api(`profiles?select=clerk_id,full_name,email&clerk_id=in.${inList(tIds)}`) || []).forEach(p => profs[p.clerk_id] = p);
+
+  // Rattacher les loyers des baux de la plateforme à leur mandat
+  for (const m of mandats) {
+    const L = leases[m.lease_id]; if (!L) continue;
+    try {
+      await patch(`payments?lease_id=eq.${L.id}&mandat_id=is.null`, { mandat_id: m.id });
+      if (L.booking_id) await patch(`payments?booking_id=eq.${L.booking_id}&lease_id=is.null&mandat_id=is.null`, { mandat_id: m.id });
+    } catch (e) { console.error('attach', m.id, e.message); }
+  }
+  const mIds = mandats.map(m => m.id);
+  const pays = await api(`payments?select=*&mandat_id=in.${inList(mIds)}&type=in.(rent,first_rent,loyer)`) || [];
+  const ops = await api(`gestion_operations?select=*&mandat_id=in.${inList(mIds)}`) || [];
+  const echs = await api(`gestion_echeances?select=*&mandat_id=in.${inList(mIds)}`) || [];
+
+  const ten = m => {
+    const f = m.fin_bail || {};
+    if (f.sortie_effective && days(f.sortie_effective, today) > 0) return null;
+    const L = leases[m.lease_id];
+    if (L) { const p = profs[L.tenant_id] || {}; return { nom: p.full_name || 'Locataire', email: p.email || '', tenant_id: L.tenant_id, hc: +L.rent || 0, ch: +L.charges || 0, debut: L.start_date, jour: +(L.payment_due_day || 1) || 1, lease: L }; }
+    if (m.loc_nom) return { nom: m.loc_nom, email: m.loc_email || '', tenant_id: null, hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0, debut: m.loc_debut, jour: +m.loc_jour || 1, lease: null };
+    return null;
+  };
+  const paid = p => p.status === 'paid' ? Number(p.amount_paid ?? p.amount) || 0 : Number(p.amount_paid) || 0;
+  const reste = p => p.status === 'paid' ? 0 : Math.max(0, (+p.amount || 0) - (+p.amount_paid || 0));
+  const bien = m => m.bien_label || m.bien_adresse || 'votre logement';
+
+  for (const m of mandats) {
+    const ag = agences[m.agency_id] || 'Votre agence';
+    const t = ten(m);
+    const mp = pays.filter(p => p.mandat_id === m.id);
+    try {
+      // 1) Échéancier
+      if (t && (t.hc + t.ch) > 0) {
+        const have = new Set(mp.map(p => String(p.due_date || '').slice(0, 7)));
+        const debutYm = t.debut ? String(t.debut).slice(0, 7) : cur;
+        const rows = [];
+        for (let k = 0; k < 3; k++) {
+          const ym = addM(cur, k);
+          if (ym < debutYm || have.has(ym)) continue;
+          if (m.fin_bail?.date_fin && ym > String(m.fin_bail.date_fin).slice(0, 7)) continue;
+          rows.push({ landlord_id: m.agency_id, tenant_id: t.tenant_id, listing_id: m.listing_id || t.lease?.listing_id || null, lease_id: t.lease?.id || null, booking_id: t.lease?.booking_id || null,
+            mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R(t.hc + t.ch), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
+        }
+        if (rows.length) { const ins = await post('payments', rows); mp.push(...(ins || [])); S(m.agency_id, 'echeances'); }
+      }
+      for (const p of mp) {
+        const unpaid = p.status !== 'paid' && p.status !== 'cancelled' && reste(p) > 0.009;
+        const d = days(p.due_date, today);
+        const email = t?.email || p.tenant_email; const nom = t?.nom || p.tenant_name || '';
+        // 2) Retard
+        if (unpaid && d > 0 && p.status === 'pending') { await patch(`payments?id=eq.${p.id}`, { status: 'late' }); p.status = 'late'; }
+        // 3) Avis d'échéance J-7
+        if (m.auto_avis && unpaid && !p.avis_sent_at && d >= -7 && d <= 0) {
+          const ok = await mail(email, `Avis d’échéance ${moisLbl(String(p.due_date).slice(0, 7))} — ${bien(m)}`, ag, `Avis d’échéance — ${moisLbl(String(p.due_date).slice(0, 7))}`,
+            `<p>Bonjour ${esc(nom)},</p><p>Votre loyer de <strong>${eur(reste(p))}</strong> pour <strong>${esc(bien(m))}</strong> est à régler au plus tard le <strong>${fr(p.due_date)}</strong>.</p><p>Merci de votre règlement.</p>`);
+          await msg(t?.tenant_id, p.listing_id, `Avis d’échéance : ${eur(reste(p))} à régler avant le ${fr(p.due_date)}.`, m.agency_id);
+          if (ok || t?.tenant_id) { await patch(`payments?id=eq.${p.id}`, { avis_sent_at: new Date().toISOString() }); S(m.agency_id, 'avis'); }
+        }
+        // 4) Relances
+        if (m.auto_relances && unpaid && d >= 5 && !p.relance_at) {
+          await mail(email, `Rappel : loyer du ${fr(p.due_date)} — ${bien(m)}`, ag, 'Rappel de loyer',
+            `<p>Bonjour ${esc(nom)},</p><p>Sauf erreur de notre part, le loyer de <strong>${eur(reste(p))}</strong> dû le <strong>${fr(p.due_date)}</strong> ne nous est pas parvenu.</p><p>Si le règlement est en cours, merci de ne pas tenir compte de ce message. En cas de difficulté, contactez-nous rapidement : des solutions existent.</p>`);
+          await msg(t?.tenant_id, p.listing_id, `Rappel : le loyer de ${eur(reste(p))} dû le ${fr(p.due_date)} n’a pas été reçu.`, m.agency_id);
+          await patch(`payments?id=eq.${p.id}`, { relance_at: new Date().toISOString(), status: 'late' }); S(m.agency_id, 'relances');
+        } else if (m.auto_relances && unpaid && d >= 15 && p.relance_at && !p.relance2_at) {
+          await mail(email, `Deuxième rappel : loyer du ${fr(p.due_date)} — ${bien(m)}`, ag, 'Deuxième rappel de loyer',
+            `<p>Bonjour ${esc(nom)},</p><p>Malgré notre premier rappel, le loyer de <strong>${eur(reste(p))}</strong> dû le <strong>${fr(p.due_date)}</strong> reste impayé. Merci de régulariser sous 8 jours ; à défaut, la procédure de recouvrement sera engagée.</p>`);
+          await msg(t?.tenant_id, p.listing_id, `Deuxième rappel : loyer de ${eur(reste(p))} du ${fr(p.due_date)} toujours impayé. Merci de régulariser sous 8 jours.`, m.agency_id);
+          await patch(`payments?id=eq.${p.id}`, { relance2_at: new Date().toISOString() }); S(m.agency_id, 'relances');
+        }
+        // 5) Quittance
+        if (m.auto_quittance && p.status === 'paid' && !p.quittance_sent_at && p.paid_at && days(p.paid_at, today) <= 60) {
+          const ym = String(p.due_date).slice(0, 7);
+          const ok = await mail(email, `Quittance de loyer ${moisLbl(ym)} — ${bien(m)}`, ag, `Quittance de loyer — ${moisLbl(ym)}`,
+            `<p>Bonjour ${esc(nom)},</p><p>${esc(ag)}, mandataire de ${esc(m.owner_name || 'votre bailleur')}, déclare avoir reçu la somme de <strong>${eur(paid(p))}</strong> le ${fr(p.paid_at)} au titre du loyer et des charges de <strong>${moisLbl(ym)}</strong> pour le logement ${esc(m.bien_adresse || bien(m))}, et en donne quittance, sous réserve de tous droits.</p>`);
+          if (ok) { await patch(`payments?id=eq.${p.id}`, { quittance_sent_at: new Date().toISOString() }); S(m.agency_id, 'quittances'); }
+        }
+      }
+      // 6) Conformité : assurance habitation, entretien chaudière
+      if (m.auto_conformite && t) {
+        for (const e of echs.filter(x => x.mandat_id === m.id && ['assurance_habitation', 'entretien_chaudiere'].includes(x.type) && x.date_expiration)) {
+          const r = days(today, e.date_expiration);
+          if (r > 15) continue;
+          if (e.relance_at && days(e.relance_at, today) < 30) continue;
+          const lbl = e.type === 'assurance_habitation' ? 'attestation d’assurance habitation' : 'attestation d’entretien de la chaudière';
+          await mail(t.email, `Votre ${lbl} — ${bien(m)}`, ag, 'Justificatif à transmettre',
+            `<p>Bonjour ${esc(t.nom)},</p><p>Votre ${lbl} ${r < 0 ? 'a expiré le' : 'expire le'} <strong>${fr(e.date_expiration)}</strong>. Merci de nous transmettre la nouvelle attestation en répondant à cet e-mail.</p>`);
+          await msg(t.tenant_id, m.listing_id, `Merci de nous transmettre votre ${lbl} (échéance ${fr(e.date_expiration)}).`, m.agency_id);
+          await patch(`gestion_echeances?id=eq.${e.id}`, { relance_at: new Date().toISOString() }); S(m.agency_id, 'conformite');
+        }
+      }
+    } catch (e) { console.error('mandat', m.id, e.message); }
+  }
+
+  // 7) Comptes rendus de gestion du mois précédent (à partir du 5)
+  if (+today.slice(8, 10) >= 5) {
+    const owners = {};
+    for (const m of mandats) { const k = `${m.agency_id}|${String(m.owner_email || m.owner_name || 'sans-proprietaire').trim().toLowerCase()}`; (owners[k] = owners[k] || []).push(m); }
+    const from = prev + '-01', to = cur + '-01';
+    for (const [k, ms] of Object.entries(owners)) {
+      const [agId, okey] = k.split('|');
+      if (!ms.every(m => m.auto_crg) || !ms[0].owner_email) continue;
+      try {
+        const done = await api(`gestion_crg?select=id,envoye_at&agency_id=eq.${encodeURIComponent(agId)}&owner_key=eq.${encodeURIComponent(okey)}&periode=eq.${prev}`) || [];
+        if (done.some(c => c.envoye_at)) continue;
+        const calc = (f, tt) => {
+          let enc = 0, hon = 0, gli = 0, frais = 0, op = 0, rev = 0;
+          for (const m of ms) {
+            const t = ten(m) || { hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0 }; const tot = t.hc + t.ch;
+            for (const p of pays.filter(x => x.mandat_id === m.id)) { const v = paid(p); if (!v || !p.paid_at) continue; const d = iso(p.paid_at); if ((f && d < f) || d >= tt) continue;
+              enc += v; const base = m.base_honoraires === 'hc' && tot ? v * t.hc / tot : v; hon += base * (+m.taux_honoraires || 0) / 100; if (m.gli) gli += v * (+m.gli_taux || 0) / 100; }
+            if (+m.frais_fixes > 0) { const st = String(m.date_signature || m.created_at || '').slice(0, 7); for (let ym = (f || '2015-01-01').slice(0, 7); ym < tt.slice(0, 7); ym = addM(ym, 1)) if (!st || ym >= st) frais += +m.frais_fixes; }
+            for (const o of ops.filter(x => x.mandat_id === m.id && !String(x.type || '').startsWith('depot_'))) { const d = iso(o.date); if ((f && d < f) || d >= tt) continue; if (o.type === 'reversement') rev += -(+o.montant || 0); else op += +o.montant || 0; }
+          }
+          return { enc: R(enc), hon: R(hon), gli: R(gli), frais: R(frais), ops: R(op), rev: R(rev), solde: R(enc - hon - gli - frais + op - rev) };
+        };
+        const c = calc(from, to); const sd = calc('2015-01-01', from).solde; const sf = calc('2015-01-01', to).solde;
+        if (!c.enc && !c.ops && !c.rev) continue; // pas de CRG « frais seuls »
+        const ag = agences[agId] || 'Votre agence'; const o = ms[0];
+        const ok = await mail(o.owner_email, `Compte rendu de gestion — ${moisLbl(prev)}`, ag, `Compte rendu de gestion — ${moisLbl(prev)}`,
+          `<p>Bonjour ${esc(o.owner_name || '')},</p><p>Voici votre compte rendu de gestion pour <strong>${moisLbl(prev)}</strong> :</p>
+          <table style="border-collapse:collapse;font-size:14px;min-width:320px"><tr><td style="padding:3px 14px 3px 0">Solde reporté</td><td style="text-align:right">${eur(sd)}</td></tr><tr><td style="padding:3px 14px 3px 0">Loyers encaissés</td><td style="text-align:right">${eur(c.enc)}</td></tr><tr><td style="padding:3px 14px 3px 0">Honoraires de gestion et frais</td><td style="text-align:right">− ${eur(c.hon + c.frais)}</td></tr>${c.gli ? `<tr><td style="padding:3px 14px 3px 0">Assurance loyers impayés</td><td style="text-align:right">− ${eur(c.gli)}</td></tr>` : ''}${c.ops ? `<tr><td style="padding:3px 14px 3px 0">Travaux et opérations diverses</td><td style="text-align:right">${eur(c.ops)}</td></tr>` : ''}${c.rev ? `<tr><td style="padding:3px 14px 3px 0">Reversé</td><td style="text-align:right">− ${eur(c.rev)}</td></tr>` : ''}<tr><td style="padding:6px 14px 3px 0"><strong>Solde en votre faveur</strong></td><td style="text-align:right"><strong>${eur(sf)}</strong></td></tr></table>
+          <ul style="font-size:13px">${ms.map(m => `<li>${esc(bien(m))} : ${ten(m) ? 'loué — ' + esc(ten(m).nom) : 'vacant'}</li>`).join('')}</ul>`);
+        if (ok) { await api('gestion_crg?on_conflict=agency_id,owner_key,periode', { method: 'POST', headers: { Prefer: 'return=representation,resolution=merge-duplicates' }, body: JSON.stringify({ agency_id: agId, owner_key: okey, periode: prev, detail: { ...c, sd, sf }, net: sf, envoye_at: new Date().toISOString() }) }).catch(() => {});
+          await msg(o.owner_clerk_id, o.listing_id, `Compte rendu de gestion ${moisLbl(prev)} : ${eur(c.enc)} encaissés, solde en votre faveur ${eur(sf)}.`, agId); S(agId, 'crg'); }
+      } catch (e) { console.error('crg', k, e.message); }
+    }
+  }
+
+  // 8) Résumé à l'agence
+  const L = { echeances: 'échéanciers complétés', avis: 'avis d’échéance', relances: 'relances', quittances: 'quittances', conformite: 'rappels assurance/chaudière', crg: 'comptes rendus de gestion' };
+  for (const [ag, s] of Object.entries(stats)) {
+    const txt = Object.entries(s).map(([k, v]) => `${v} ${L[k] || k}`).join(', ');
+    await msg(ag, null, `Gestion locative — envoyé automatiquement aujourd’hui : ${txt}. Le détail et les tâches restantes sont dans « Gestion locative ».`);
+  }
+  return { statusCode: 200, body: JSON.stringify(stats) };
+};
