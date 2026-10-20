@@ -1,7 +1,7 @@
 const Stripe = require('stripe');
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = 'https://dcpozxklyxhypwyjbwph.supabase.co';
+const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
 // Commission Trouve Ton Toit côté LOCATAIRE : 10% d'un mois de loyer.
