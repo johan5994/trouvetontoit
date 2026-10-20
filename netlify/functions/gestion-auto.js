@@ -101,11 +101,13 @@ exports.handler = async () => {
       if (t && (t.hc + t.ch) > 0) {
         const have = new Set(mp.map(p => String(p.due_date || '').slice(0, 7)));
         const debutYm = t.debut ? String(t.debut).slice(0, 7) : cur;
+        const cutoff = [t.debut, m.date_signature || String(m.created_at || '').slice(0, 10)].filter(Boolean).sort().pop() || '';
         const rows = [];
         for (let k = 0; k < 3; k++) {
           const ym = addM(cur, k);
           if (ym < debutYm || have.has(ym)) continue;
           if (m.fin_bail?.date_fin && ym > String(m.fin_bail.date_fin).slice(0, 7)) continue;
+          if (due(ym, t.jour) < cutoff) continue;
           rows.push({ landlord_id: m.agency_id, tenant_id: t.tenant_id, listing_id: m.listing_id || t.lease?.listing_id || null, lease_id: t.lease?.id || null, booking_id: t.lease?.booking_id || null,
             mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R(t.hc + t.ch), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
         }
