@@ -235,6 +235,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <div class="nl">Finance</div>
     <button class="ni" onclick="sp('paiements',this)"><span class="nico"><i data-lucide=euro class=ic></i></span>Paiements<span class="nbadge" id="nb-pay" style="display:none">0</span></button>
+    <button class="ni" onclick="sp('gestion',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Gestion locative<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
     <div class="nl">Communication</div>
     <button class="ni" onclick="sp('messages',this)"><span class="nico"><i data-lucide=message-circle class=ic></i></span>Messages<span class="nbadge" id="nb-msg" style="display:none">0</span></button>
     <button class="ni" onclick="sp('maintenance',this)"><span class="nico"><i data-lucide=wrench class=ic></i></span>Maintenance<span class="nbadge g" id="nb-tick" style="display:none">0</span></button>
@@ -397,6 +398,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       </div>
       <div id="applications-page-list"><div class="ld"><div class="sp"></div></div></div>
     </div>
+    <div class="page" id="page-gestion">
+      <div style="font-size:1rem;font-weight:700;margin-bottom:.3rem">Gestion locative</div>
+      <div style="font-size:.8rem;color:var(--td);margin-bottom:1rem">Tout ce qu'une agence ferait pour vous : impayés, révision du loyer, charges et récap fiscal.</div>
+      <div id="gestion-content"></div>
+    </div>
+
     <div class="page" id="page-paiements">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.6rem">
         <div style="font-size:1rem;font-weight:700">Paiements & Loyer</div>
@@ -950,13 +957,14 @@ function sp(id,btn){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   document.getElementById('page-'+id).classList.add('act');
   if(btn)btn.classList.add('act');
-  const titles={dash:'Mon compte',biens:'Rented Biens',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Reviews',profil:'Profil & Paramètres'};
+  const titles={gestion:'Gestion locative',dash:'Mon compte',biens:'Rented Biens',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Reviews',profil:'Profil & Paramètres'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
   if(id==='maintenance')loadMaintenance();
   if(id==='visites')loadVisitsPage();
   if(id==='applications')loadApplicationsPageLL();
   if(id==='biens')loadRentedProperties();
+  if(id==='gestion')loadGestion();
 }
 
 // Rafraîchir les candidatures au retour sur l'onglet (le bail s'ouvre dans un nouvel onglet)
@@ -4289,6 +4297,356 @@ async function confirmChildPaymentLL(leaseId){
   try{loadApplicationsPageLL();}catch(e){}
 }
 
+// ═══════════════ GESTION LOCATIVE (propriétaire en direct) ═══════════════
+// Impayés & relances · Révision IRL · Régularisation des charges · Récap fiscal
+// ⚠️ Aide à la gestion : délais et règles à vérifier (service-public.fr, ADIL, visale.fr).
+
+// IRL publiés par l'INSEE (base 100 au T4 1998). À compléter à chaque publication (mi-janv., mi-avril, mi-juillet, mi-oct.).
+const IRL={'2023-1':138.61,'2023-2':140.59,'2023-3':141.03,'2023-4':142.06,'2024-1':143.46,'2024-2':145.17,'2024-3':144.51,'2024-4':144.64,'2025-1':145.47,'2025-2':146.68,'2025-3':145.77,'2025-4':145.78,'2026-1':146.60,'2026-2':148.37};
+// Régimes fiscaux simplifiés (revenus de l'année, location à l'année — hors meublé de tourisme). À vérifier chaque année.
+const FISC={micro_foncier:{plafond:15000,abatt:0.30,case:'4BE (déclaration 2042)'},micro_bic:{plafond:77700,abatt:0.50,case:'5ND (déclaration 2042-C-PRO, location meublée non professionnelle)'}};
+
+let GEST={leases:[],pays:[],names:{},listings:{},regs:{}};
+const _g$=n=>(Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';
+const _gD=d=>{if(!d)return '—';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(d));const x=m?new Date(+m[1],+m[2]-1,+m[3]):new Date(d);return x.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});};
+const _gIso=d=>{const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;};
+const _gAdd=(d,days)=>{const x=new Date(d);x.setDate(x.getDate()+days);return x;};
+const _gDays=(a,b)=>Math.floor((new Date(_gIso(b))-new Date(_gIso(a)))/864e5);
+const _gEsc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+async function loadGestion(){
+  const box=document.getElementById('gestion-content');if(!box)return;
+  box.innerHTML='<div style="color:var(--td);font-size:.85rem">Chargement…</div>';
+  try{
+    const{data:ls}=await sb.from('leases').select('*').eq('landlord_id',U.id);
+    GEST.leases=(ls||[]).filter(l=>l.landlord_signed_at&&l.tenant_signed_at);
+    const{data:ps}=await sb.from('payments').select('*').eq('landlord_id',U.id);
+    GEST.pays=ps||[];
+    const tids=[...new Set([...GEST.leases.map(l=>l.tenant_id),...GEST.pays.map(p=>p.tenant_id)].filter(Boolean))];
+    if(tids.length){const{data:pr}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',tids);(pr||[]).forEach(p=>GEST.names[p.clerk_id]=p);}
+    const lids=[...new Set(GEST.leases.map(l=>l.listing_id).filter(Boolean))];
+    if(lids.length){const{data:li}=await sb.from('listings').select('*').in('id',lids);(li||[]).forEach(x=>GEST.listings[x.id]=x);}
+    try{const{data:rg}=await sb.from('charges_regularisations').select('*').eq('landlord_id',U.id);(rg||[]).forEach(r=>GEST.regs[r.lease_id+':'+r.annee]=r);}catch(e){}
+  }catch(e){box.innerHTML='<div style="color:var(--red)">Erreur : '+_gEsc(e.message)+'</div>';return;}
+  renderGestion();
+}
+function _gLeaseOf(p){return GEST.leases.find(l=>l.id===p.lease_id)||GEST.leases.find(l=>l.booking_id&&l.booking_id===p.booking_id)||GEST.leases.find(l=>l.tenant_id===p.tenant_id&&l.listing_id===p.listing_id)||null;}
+function _gName(id){return GEST.names[id]?.full_name||'Locataire';}
+function _gTitle(l){return (GEST.listings[l?.listing_id]?.title||l?.listing_title||'Logement')+(l?.lot_label?' — '+l.lot_label:'');}
+function _gVide(l){const li=GEST.listings[l?.listing_id];if(l?.type_bail==='vide')return true;if(l?.type_bail==='meuble')return false;return (li?.['meublé']??li?.furnished)===false;}
+function _gDpe(l){return String(l?.dpe_energy_rating||GEST.listings[l?.listing_id]?.dpe||GEST.listings[l?.listing_id]?.epc_rating||'').toUpperCase().trim();}
+
+function renderGestion(){
+  const tab=window._gTab||'impayes';
+  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark']];
+  document.getElementById('gestion-content').innerHTML=`
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${tabs.map(([k,l,ic])=>`<button class="btn bsm ${tab===k?'bp':'bg'}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}</button>`).join('')}</div>
+    <div id="gestion-tab"></div>
+    <div style="font-size:.7rem;color:var(--td);margin-top:1rem;line-height:1.5">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
+  ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
+  if(window.lucide)lucide.createIcons();
+}
+
+// ─────────────── 1. IMPAYÉS & RELANCES ───────────────
+function _gGarantie(l){
+  // Visale (n° de visa dans le bail) / garant personne / aucune
+  if(l?.visale_ref||l?.garant_type==='visale')return 'visale';
+  if(l?.garant_name)return 'personne';
+  return null;
+}
+function renderImpayes(){
+  const today=new Date();
+  const late=GEST.pays.filter(p=>['rent','first_rent'].includes(p.type)&&['pending','late'].includes(p.status)&&p.due_date&&_gDays(p.due_date,today)>=1)
+    .sort((a,b)=>String(a.due_date).localeCompare(String(b.due_date)));
+  const el=document.getElementById('gestion-tab');
+  if(!late.length){el.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem"><i data-lucide=check-circle-2 class=ic style="color:var(--green)"></i> Aucun loyer en retard. Les relances partent automatiquement (J+5) si un loyer n'est pas payé.</div></div>`;return;}
+  // regrouper par bail
+  const byLease={};late.forEach(p=>{const l=_gLeaseOf(p);const k=l?.id||p.tenant_id;(byLease[k]=byLease[k]||{l,ps:[]}).ps.push(p);});
+  el.innerHTML=Object.values(byLease).map(({l,ps})=>{
+    const tid=ps[0].tenant_id,nom=_gName(tid),tot=ps.reduce((a,p)=>a+Number(p.amount||0),0);
+    const first=ps[0],second=ps[1]||null,j=_gDays(first.due_date,today);
+    const rentCC=(Number(l?.rent)||0)+(Number(l?.charges)||0);
+    const gar=_gGarantie(l);
+    // Étapes
+    const etapes=[];
+    etapes.push({t:'Relance amiable (message + e-mail)',d:_gAdd(first.due_date,5),done:first.relance_at,act:`gRelance('${first.id}')`,btn:'Envoyer la relance'});
+    etapes.push({t:'Mise en demeure (lettre recommandée AR)',d:_gAdd(first.due_date,15),done:first.mise_en_demeure_at,act:`gMiseEnDemeure('${first.id}')`,btn:'Générer la lettre (PDF)'});
+    let alerte='';
+    if(gar==='visale'){
+      // Visale : impayé constitué à la 2e échéance impayée (ou cumul > 1 mois de loyer CC en partiel)
+      const constitue=second?second.due_date:(tot>rentCC&&rentCC?ps[ps.length-1].due_date:null);
+      alerte=constitue
+        ?`<strong>Visale :</strong> impayé constitué le ${_gD(constitue)}. Mise en demeure LRAR au plus tard le <strong>${_gD(_gAdd(constitue,15))}</strong>, puis déclaration sur visale.fr au plus tard le <strong>${_gD(_gAdd(constitue,45))}</strong> (30 jours après). Délai dépassé = risque de perdre la garantie.`
+        :`<strong>Visale :</strong> l'impayé sera « constitué » à la 2e échéance impayée (ou quand le retard dépasse 1 mois de loyer). Envoyez déjà la relance amiable.`;
+    }else if(gar==='personne'){
+      alerte=`<strong>Garant (${_gEsc(l.garant_name)}) :</strong> informez-le du premier incident de paiement au plus tard le <strong>${_gD(_gAdd(first.due_date,30))}</strong> (art. 2303 du Code civil), sinon les pénalités et intérêts de retard ne lui sont pas dus. Si un commissaire de justice délivre un commandement de payer, il doit être dénoncé au garant sous 15 jours.
+        <div style="margin-top:.35rem">${first.garant_informe_at?`<span style="color:var(--green)">✓ Garant informé le ${_gD(first.garant_informe_at)}</span>`:`<button class="btn bg bsm" onclick="gInformerGarant('${first.id}')">Générer le courrier au garant (PDF)</button>`}</div>`;
+    }
+    return `<div class="card"><div class="ch"><div class="ct">${_gEsc(nom)} — ${_gEsc(_gTitle(l))}</div><span style="font-weight:800;color:var(--red)">${_g$(tot)} dus</span></div><div class="cb" style="font-size:.8rem">
+      <div style="margin-bottom:.5rem">${ps.map(p=>`<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.25rem 0;border-bottom:1px dashed var(--b)"><span>Échéance du ${_gD(p.due_date)} · <span style="color:var(--red)">${_gDays(p.due_date,today)} j de retard</span></span><span>${_g$(p.amount)} <button class="btn bg bsm" style="margin-left:.4rem" onclick="gMarquerPaye('${p.id}')">Payé</button></span></div>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.5rem">${etapes.map(e=>{const due=new Date()>=e.d;return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;background:var(--s2);border-radius:8px;padding:.4rem .6rem">
+        <span>${e.done?'✅':due?'⏰':'🕒'} <strong>${e.t}</strong> <span style="color:var(--td)">${e.done?'fait le '+_gD(e.done):'à partir du '+_gD(e.d)}</span></span>
+        ${e.done?'':`<button class="btn ${due?'bp':'bg'} bsm" onclick="${e.act}">${e.btn}</button>`}</div>`;}).join('')}</div>
+      ${alerte?`<div style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;border-radius:8px;padding:.5rem .65rem;line-height:1.5">${alerte}</div>`:''}
+      <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Si rien ne bouge après la mise en demeure : commandement de payer par un commissaire de justice (ex-huissier), puis procédure devant le juge. Le locataire peut aussi être orienté vers la CAF ou le FSL.</div>
+    </div></div>`;
+  }).join('');
+}
+async function _gMsg(to,listing,txt){if(!to)return;try{await sb.from('messages').insert({listing_id:listing||null,sender_id:'system',receiver_id:to,content:txt,type:'message'});}catch(e){}}
+async function gRelance(pid){
+  const p=GEST.pays.find(x=>x.id===pid);if(!p)return;const l=_gLeaseOf(p);
+  if(!confirm('Envoyer une relance amiable à '+_gName(p.tenant_id)+' ?'))return;
+  await _gMsg(p.tenant_id,p.listing_id,`Rappel : le loyer de ${_g$(p.amount)} dû le ${_gD(p.due_date)} pour « ${_gTitle(l)} » n'a pas encore été reçu. Merci de régulariser rapidement ou de contacter votre propriétaire en cas de difficulté.`);
+  const em=GEST.names[p.tenant_id]?.email;
+  if(em)fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'relance_loyer',to:em,data:{locataireNom:_gName(p.tenant_id),montant:_g$(p.amount),echeance:_gD(p.due_date),logement:_gTitle(l)}})}).catch(()=>{});
+  const now=new Date().toISOString();
+  const{error}=await sb.from('payments').update({relance_at:now,status:'late'}).eq('id',pid);
+  if(error){toast('Relance envoyée, mais non enregistrée : '+error.message+' (migration gestion exécutée ?)',7000);}else{p.relance_at=now;p.status='late';toast('Relance envoyée.');}
+  renderGestion();
+}
+function _gPdf(cb){if(window.jspdf)return cb(window.jspdf.jsPDF);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>cb(window.jspdf.jsPDF);document.head.appendChild(s);}
+function _gLettre(titre,dest,corps,fichier){
+  _gPdf(jsPDF=>{
+    const doc=new jsPDF();let y=20;const W=170;
+    const P=(t,o={})=>{doc.setFont('helvetica',o.b?'bold':'normal');doc.setFontSize(o.s||10.5);doc.splitTextToSize(t,W).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,20,y);y+=o.lh||5.6;});y+=o.after??3;};
+    const ll=P_LL();
+    P(ll.nom,{b:true,after:0});if(ll.adr)P(ll.adr,{after:0});if(ll.email)P(ll.email,{after:8});
+    dest.forEach((d,i)=>P(d,{after:i===dest.length-1?8:0}));
+    P('Le '+_gD(new Date()),{after:6});
+    P(titre,{b:true,s:12,after:6});
+    corps.forEach(c=>P(c,{after:4}));
+    P(ll.nom,{b:true,after:0});
+    doc.save(fichier);
+  });
+}
+function P_LL(){return{nom:(typeof P!=='undefined'&&P?.full_name)||'Le bailleur',adr:(typeof P!=='undefined'&&(P?.home_address||P?.address))||'',email:(typeof P!=='undefined'&&P?.email)||''};}
+async function gMiseEnDemeure(pid){
+  const p=GEST.pays.find(x=>x.id===pid);if(!p)return;const l=_gLeaseOf(p);
+  const dus=GEST.pays.filter(x=>x.tenant_id===p.tenant_id&&['rent','first_rent'].includes(x.type)&&['pending','late'].includes(x.status)&&x.due_date&&_gDays(x.due_date,new Date())>=1);
+  const tot=dus.reduce((a,x)=>a+Number(x.amount||0),0);
+  const adr=GEST.listings[l?.listing_id]?.full_address||_gTitle(l);
+  _gLettre('Objet : mise en demeure de payer — lettre recommandée avec accusé de réception',
+    [_gName(p.tenant_id),adr],
+    [`Madame, Monsieur,`,
+     `Malgré ma relance, je constate que les sommes suivantes, dues au titre du bail du ${_gD(l?.start_date)} portant sur le logement situé ${adr}, restent impayées :`,
+     dus.map(x=>`• échéance du ${_gD(x.due_date)} : ${_g$(x.amount)}`).join('\n'),
+     `soit un total de ${_g$(tot)}.`,
+     `Je vous mets en demeure de régler cette somme dans un délai de 8 jours à compter de la réception de la présente. À défaut, je me verrai contraint(e) d'engager les procédures prévues par la loi, notamment la délivrance d'un commandement de payer par commissaire de justice et la mise en œuvre de la clause résolutoire du bail, ainsi que l'appel ${_gGarantie(l)==='personne'?'de la caution':_gGarantie(l)==='visale'?'à la garantie Visale':'aux garanties'}.`,
+     `Si vous rencontrez des difficultés, je vous invite à me contacter rapidement pour convenir d'un échéancier, et à vous rapprocher de votre CAF ou du Fonds de solidarité pour le logement (FSL) de votre département.`,
+     `Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`],
+    `Mise-en-demeure-${_gName(p.tenant_id).replace(/\s+/g,'-')}.pdf`);
+  const now=new Date().toISOString();
+  const{error}=await sb.from('payments').update({mise_en_demeure_at:now}).eq('id',pid);
+  if(!error)p.mise_en_demeure_at=now;
+  await _gMsg(p.tenant_id,p.listing_id,`Votre propriétaire vous adresse une mise en demeure de payer ${_g$(tot)} (loyers impayés). Elle vous sera envoyée par lettre recommandée. Contactez-le rapidement en cas de difficulté.`);
+  toast('Lettre générée : imprimez-la et envoyez-la en recommandé avec AR (ou par LRE).',7000);
+  renderGestion();
+}
+async function gInformerGarant(pid){
+  const p=GEST.pays.find(x=>x.id===pid);if(!p)return;const l=_gLeaseOf(p);
+  _gLettre('Objet : information de la caution — premier incident de paiement',
+    [l?.garant_name||'Le garant',l?.garant_address||''].filter(Boolean),
+    [`Madame, Monsieur,`,
+     `En votre qualité de caution de ${_gName(p.tenant_id)} pour le bail du ${_gD(l?.start_date)} (${_gTitle(l)}), je vous informe, conformément à l'article 2303 du Code civil, du premier incident de paiement : l'échéance du ${_gD(p.due_date)}, d'un montant de ${_g$(p.amount)}, n'a pas été réglée à ce jour.`,
+     `Je vous remercie de bien vouloir en prendre note. Je reste à votre disposition pour tout renseignement.`,
+     `Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`],
+    `Information-caution-${String(l?.garant_name||'garant').replace(/\s+/g,'-')}.pdf`);
+  const now=new Date().toISOString();
+  const{error}=await sb.from('payments').update({garant_informe_at:now}).eq('id',pid);
+  if(!error)p.garant_informe_at=now;
+  renderGestion();
+}
+async function gMarquerPaye(pid){
+  if(!confirm('Marquer ce loyer comme payé ?'))return;
+  const now=new Date().toISOString();
+  const{error}=await sb.from('payments').update({status:'paid',paid_at:now}).eq('id',pid);
+  if(error){toast('Erreur : '+error.message);return;}
+  const p=GEST.pays.find(x=>x.id===pid);if(p){p.status='paid';p.paid_at=now;}
+  toast('Loyer marqué payé.');renderGestion();
+}
+
+// ─────────────── 2. RÉVISION IRL ───────────────
+function _gRefQuarter(start){
+  // Même règle que le bail : dernier IRL publié à la date de prise d'effet
+  const d=new Date(start),y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate();
+  const after=mm=>m>mm||(m===mm&&day>=15);
+  if(after(10))return[y,3];if(after(7))return[y,2];if(after(4))return[y,1];if(after(1))return[y-1,4];return[y-1,3];
+}
+function _gRevision(l){
+  if(!l.start_date)return null;
+  const [ry,rq]=l.irl_ref_annee&&l.irl_ref_trimestre?[+l.irl_ref_annee,+l.irl_ref_trimestre]:_gRefQuarter(l.start_date);
+  const last=l.irl_last_revision?(()=>{try{return typeof l.irl_last_revision==='string'?JSON.parse(l.irl_last_revision):l.irl_last_revision;}catch(e){return null;}})():null;
+  // prochaine date anniversaire
+  const s=new Date(l.start_date);let n=1;let anniv=new Date(s);anniv.setFullYear(s.getFullYear()+1);
+  const lastY=last?.annee_indice||ry;
+  const targetY=lastY+1;
+  anniv=new Date(s);anniv.setFullYear(s.getFullYear()+(targetY-ry));
+  const oldI=IRL[`${lastY}-${rq}`],newI=IRL[`${targetY}-${rq}`];
+  const rent=Number(l.rent)||0;
+  const nouveau=oldI&&newI?Math.round(rent*newI/oldI*100)/100:null;
+  return{rq,ry,lastY,targetY,anniv,oldI,newI,rent,nouveau,last};
+}
+function renderIRL(){
+  const el=document.getElementById('gestion-tab');
+  if(!GEST.leases.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail signé pour l\'instant.</div></div>';return;}
+  const derniers=Object.keys(IRL).sort((a,b)=>{const[ya,qa]=a.split('-').map(Number),[yb,qb]=b.split('-').map(Number);return ya-yb||qa-qb;});
+  const dernier=derniers[derniers.length-1];
+  el.innerHTML=`<div style="font-size:.78rem;color:var(--td);margin-bottom:.6rem">Nouveau loyer hors charges = loyer actuel × IRL du même trimestre de l'année / IRL de référence. Dernier indice connu : T${dernier.split('-')[1]} ${dernier.split('-')[0]} = ${IRL[dernier]}.</div>`+GEST.leases.map(l=>{
+    const r=_gRevision(l);const dpe=_gDpe(l);
+    if(!r)return '';
+    const gel=['F','G'].includes(dpe);
+    const echu=new Date()>=r.anniv;
+    const ok=r.nouveau!=null;
+    const etat=gel?`<span style="color:var(--red);font-weight:700">Révision interdite : DPE ${dpe} (gel des loyers des passoires thermiques)</span>`
+      :!ok?`<span style="color:var(--td)">IRL du T${r.rq} ${r.targetY} pas encore publié — révision possible à sa publication.</span>`
+      :`Loyer HC : <strong>${_g$(r.rent)}</strong> → <strong style="color:var(--green)">${_g$(r.nouveau)}</strong> (+${_g$(r.nouveau-r.rent)}/mois) · IRL T${r.rq} ${r.lastY} = ${r.oldI} → T${r.rq} ${r.targetY} = ${r.newI}`;
+    return `<div class="card"><div class="ch"><div class="ct">${_gEsc(_gName(l.tenant_id))} — ${_gEsc(_gTitle(l))}</div><span style="font-size:.74rem;color:var(--td)">Date anniversaire : ${_gD(r.anniv)}</span></div><div class="cb" style="font-size:.8rem;line-height:1.55">
+      ${etat}
+      ${r.last?`<div style="font-size:.72rem;color:var(--td)">Dernière révision : ${_gD(r.last.date)} (${_g$(r.last.ancien)} → ${_g$(r.last.nouveau)})</div>`:''}
+      ${!gel&&ok?`<div style="margin-top:.45rem;display:flex;gap:.4rem;flex-wrap:wrap">${echu?`<button class="btn bp bsm" onclick="gAppliquerIRL('${l.id}')">Appliquer la révision et prévenir le locataire</button>`:`<span style="font-size:.74rem;color:var(--td)">Applicable à partir du ${_gD(r.anniv)}.</span>`}</div>`:''}
+      <div style="font-size:.7rem;color:var(--td);margin-top:.35rem">La révision n'est possible que si le bail la prévoit. Elle ne joue que pour l'avenir : passé un an après la date anniversaire, la hausse non demandée est perdue pour cette année.</div>
+    </div></div>`;}).join('');
+}
+async function gAppliquerIRL(lid){
+  const l=GEST.leases.find(x=>x.id===lid);const r=_gRevision(l);if(!r?.nouveau)return;
+  if(!confirm(`Réviser le loyer hors charges de ${_g$(r.rent)} à ${_g$(r.nouveau)} à partir du ${_gD(r.anniv)} ?\n\nLes échéances à venir sont mises à jour et le locataire reçoit un courrier.`))return;
+  const rev={date:new Date().toISOString(),effet:_gIso(r.anniv),ancien:r.rent,nouveau:r.nouveau,annee_indice:r.targetY,trimestre:r.rq,irl_ancien:r.oldI,irl_nouveau:r.newI};
+  let{error}=await sb.from('leases').update({rent:r.nouveau,irl_last_revision:rev}).eq('id',lid);
+  if(error){toast('Erreur : '+error.message+' (migration gestion exécutée ?)',8000);return;}
+  l.rent=r.nouveau;l.irl_last_revision=rev;
+  const cc=r.nouveau+(Number(l.charges)||0);
+  const futures=GEST.pays.filter(p=>p.type==='rent'&&p.status==='pending'&&p.due_date>=_gIso(r.anniv)&&(p.lease_id===lid||(l.booking_id&&p.booking_id===l.booking_id)));
+  if(futures.length)await sb.from('payments').update({amount:cc}).in('id',futures.map(p=>p.id));
+  futures.forEach(p=>p.amount=cc);
+  const adr=GEST.listings[l.listing_id]?.full_address||_gTitle(l);
+  _gLettre('Objet : révision annuelle du loyer',[_gName(l.tenant_id),adr],
+    [`Madame, Monsieur,`,
+     `Conformément à la clause de révision de votre bail du ${_gD(l.start_date)} et à l'article 17-1 de la loi du 6 juillet 1989, votre loyer hors charges est révisé selon l'indice de référence des loyers (IRL) publié par l'INSEE.`,
+     `IRL de référence (T${r.rq} ${r.lastY}) : ${r.oldI} — nouvel IRL (T${r.rq} ${r.targetY}) : ${r.newI}.`,
+     `Calcul : ${_g$(r.rent)} × ${r.newI} / ${r.oldI} = ${_g$(r.nouveau)}.`,
+     `À compter du ${_gD(r.anniv)}, votre loyer s'élève donc à ${_g$(r.nouveau)} hors charges, soit ${_g$(cc)} charges comprises.`,
+     `Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`],
+    `Revision-loyer-${_gName(l.tenant_id).replace(/\s+/g,'-')}.pdf`);
+  await _gMsg(l.tenant_id,l.listing_id,`Révision annuelle de votre loyer (IRL) : à partir du ${_gD(r.anniv)}, loyer hors charges ${_g$(r.nouveau)} (au lieu de ${_g$(r.rent)}), soit ${_g$(cc)} charges comprises. Calcul : ${_g$(r.rent)} × ${r.newI} / ${r.oldI}.`);
+  toast('Loyer révisé, échéancier mis à jour, locataire prévenu.');renderGestion();
+}
+
+// ─────────────── 3. RÉGULARISATION DES CHARGES ───────────────
+const CH_POSTES=[['eau','Eau froide / eau chaude'],['chauffage','Chauffage collectif'],['entretien','Entretien et électricité des parties communes'],['ascenseur','Ascenseur'],['gardien','Gardien / concierge (part récupérable)'],['teom','Taxe d\'enlèvement des ordures ménagères (TEOM — avis de taxe foncière)'],['autres','Autres charges récupérables']];
+function _gProvisions(l,annee){
+  // charges encaissées dans l'année = part « charges » des loyers payés
+  const cc=(Number(l.rent)||0)+(Number(l.charges)||0),ch=Number(l.charges)||0;if(!cc||!ch)return 0;
+  return GEST.pays.filter(p=>['rent','first_rent'].includes(p.type)&&p.status==='paid'&&(p.lease_id===l.id||(l.booking_id&&p.booking_id===l.booking_id)||(!p.lease_id&&!p.booking_id&&p.tenant_id===l.tenant_id))&&String(p.due_date||p.paid_at||'').startsWith(String(annee)))
+    .reduce((a,p)=>a+Number(p.amount||0)*ch/cc,0);
+}
+function renderCharges(){
+  const el=document.getElementById('gestion-tab');
+  const annee=window._gChY||new Date().getFullYear()-1;
+  const ls=GEST.leases.filter(l=>Number(l.charges)>0);
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;font-size:.8rem">Année : <select class="fi" style="width:auto" onchange="window._gChY=+this.value;renderGestion()">${[0,1,2].map(i=>new Date().getFullYear()-i).map(y=>`<option ${y===annee?'selected':''}>${y}</option>`).join('')}</select></div>
+    <div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem;line-height:1.5">Chaque année, comparez les provisions versées par le locataire aux dépenses réelles récupérables (décret 87-713). Le décompte détaillé doit lui être envoyé un mois avant la régularisation, et les justificatifs tenus à sa disposition pendant 6 mois. La taxe foncière n'est pas récupérable, seule la TEOM l'est. En meublé avec charges au forfait, pas de régularisation.</div>`+
+    (ls.length?ls.map(l=>{
+      const k=l.id+':'+annee,rg=GEST.regs[k]||{};let dep=rg.depenses||{};try{dep=typeof dep==='string'?JSON.parse(dep):dep;}catch(e){dep={};}
+      const prov=Math.round(_gProvisions(l,annee)*100)/100;
+      const tot=CH_POSTES.reduce((a,[c])=>a+(Number(dep[c])||0),0);
+      const solde=Math.round((tot-prov)*100)/100;
+      return `<div class="card"><div class="ch"><div class="ct">${_gEsc(_gName(l.tenant_id))} — ${_gEsc(_gTitle(l))}</div>${rg.envoye_at?`<span style="font-size:.72rem;color:var(--green)">✓ Décompte envoyé le ${_gD(rg.envoye_at)}</span>`:''}</div><div class="cb" style="font-size:.8rem">
+        <div style="display:grid;grid-template-columns:1fr 130px;gap:.3rem .6rem;align-items:center">
+          ${CH_POSTES.map(([c,lab])=>`<label for="ch-${l.id}-${c}">${lab}</label><input class="fi" id="ch-${l.id}-${c}" type="number" step="0.01" min="0" value="${dep[c]??''}" placeholder="0" oninput="gChRecalc('${l.id}',${annee})">`).join('')}
+        </div>
+        <div id="ch-res-${l.id}" style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.5rem .65rem">${_gChRes(tot,prov,Number(l.charges))}</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem">
+          <button class="btn bg bsm" onclick="gChSave('${l.id}',${annee},false)">Enregistrer</button>
+          <button class="btn bp bsm" onclick="gChSave('${l.id}',${annee},true)">Envoyer le décompte au locataire (PDF + message)</button>
+          <button class="btn bg bsm" onclick="gChProvision('${l.id}',${annee})">Ajuster la provision mensuelle</button>
+        </div>
+      </div></div>`;}).join(''):'<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail signé avec provision sur charges.</div></div>');
+}
+function _gChRes(tot,prov,chMois){
+  const solde=Math.round((tot-prov)*100)/100;
+  return `Dépenses réelles : <strong>${_g$(tot)}</strong> · Provisions encaissées : <strong>${_g$(prov)}</strong><br>${solde>0?`<span style="color:var(--red)">Le locataire doit un complément de <strong>${_g$(solde)}</strong></span>`:solde<0?`<span style="color:var(--green)">Vous devez rembourser <strong>${_g$(-solde)}</strong> au locataire</span>`:'Équilibré'} · provision conseillée : ${_g$(Math.ceil(tot/12))}/mois (actuelle ${_g$(chMois)})`;
+}
+function _gChRead(lid){const d={};CH_POSTES.forEach(([c])=>{const v=document.getElementById(`ch-${lid}-${c}`)?.value;if(v!==''&&v!=null)d[c]=Number(v);});return d;}
+function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);document.getElementById('ch-res-'+lid).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
+async function gChSave(lid,annee,envoyer){
+  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);
+  const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0),prov=Math.round(_gProvisions(l,annee)*100)/100,solde=Math.round((tot-prov)*100)/100;
+  if(envoyer&&!tot){toast('Saisissez les dépenses réelles avant d\'envoyer.');return;}
+  if(envoyer&&!confirm(`Envoyer le décompte ${annee} à ${_gName(l.tenant_id)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
+  const row={lease_id:lid,landlord_id:U.id,tenant_id:l.tenant_id,annee,depenses:dep,provisions:prov,total_depenses:tot,solde,...(envoyer?{envoye_at:new Date().toISOString()}:{})};
+  const{data,error}=await sb.from('charges_regularisations').upsert(row,{onConflict:'lease_id,annee'}).select().single();
+  if(error){toast('Erreur : '+error.message+' (exécutez supabase-migration-gestion.sql)',8000);return;}
+  GEST.regs[lid+':'+annee]=data;
+  if(envoyer){
+    const adr=GEST.listings[l.listing_id]?.full_address||_gTitle(l);
+    _gLettre(`Objet : régularisation annuelle des charges — année ${annee}`,[_gName(l.tenant_id),adr],
+      [`Madame, Monsieur,`,`Conformément à l'article 23 de la loi du 6 juillet 1989, voici le décompte des charges récupérables de l'année ${annee} pour le logement situé ${adr} :`,
+       CH_POSTES.filter(([c])=>dep[c]).map(([c,lab])=>`• ${lab} : ${_g$(dep[c])}`).join('\n'),
+       `Total des dépenses récupérables : ${_g$(tot)}.`,`Provisions sur charges versées sur la période : ${_g$(prov)}.`,
+       solde>0?`Il reste à votre charge un complément de ${_g$(solde)}, qui sera exigible dans un mois à compter de la réception de ce décompte. Un paiement échelonné sur 12 mois est possible à votre demande si la régularisation n'a pas été faite dans l'année suivant l'exigibilité.`
+         :solde<0?`Le trop-perçu de ${_g$(-solde)} vous sera remboursé (ou déduit d'une prochaine échéance).`:`Les provisions couvrent exactement les dépenses : aucun solde.`,
+       `Les justificatifs (factures, avis de taxe foncière pour la TEOM, décompte de copropriété) sont tenus à votre disposition pendant six mois.`,
+       `Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`],
+      `Regularisation-charges-${annee}-${_gName(l.tenant_id).replace(/\s+/g,'-')}.pdf`);
+    await _gMsg(l.tenant_id,l.listing_id,`Régularisation des charges ${annee} : dépenses ${_g$(tot)}, provisions versées ${_g$(prov)}. ${solde>0?'Complément à régler : '+_g$(solde)+' (exigible dans un mois). ':solde<0?'Trop-perçu à vous rembourser : '+_g$(-solde)+'. ':''}Les justificatifs sont à votre disposition pendant 6 mois.`);
+    if(solde>0){const due=_gIso(_gAdd(new Date(),30));await sb.from('payments').insert({landlord_id:U.id,tenant_id:l.tenant_id,listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:solde,type:'charges_regul',status:'pending',due_date:due});}
+  }
+  toast(envoyer?'Décompte envoyé.':'Enregistré.');renderGestion();
+}
+async function gChProvision(lid,annee){
+  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0);
+  if(!tot){toast('Saisissez d\'abord les dépenses réelles.');return;}
+  const nv=Math.ceil(tot/12);
+  if(!confirm(`Passer la provision sur charges de ${_g$(l.charges)} à ${_g$(nv)} par mois pour les prochaines échéances ?`))return;
+  const{error}=await sb.from('leases').update({charges:nv}).eq('id',lid);if(error){toast('Erreur : '+error.message);return;}
+  const cc=(Number(l.rent)||0)+nv;l.charges=nv;
+  const fut=GEST.pays.filter(p=>p.type==='rent'&&p.status==='pending'&&p.due_date>=_gIso(new Date())&&(p.lease_id===lid||(l.booking_id&&p.booking_id===l.booking_id)));
+  if(fut.length)await sb.from('payments').update({amount:cc}).in('id',fut.map(p=>p.id));
+  await _gMsg(l.tenant_id,l.listing_id,`Votre provision mensuelle sur charges passe à ${_g$(nv)} (selon les dépenses réelles de ${annee}), soit un loyer de ${_g$(cc)} charges comprises pour les prochaines échéances.`);
+  toast('Provision ajustée et locataire prévenu.');renderGestion();
+}
+
+// ─────────────── 4. RÉCAP FISCAL ───────────────
+function renderFiscal(){
+  const el=document.getElementById('gestion-tab');
+  const annee=window._gFiY||new Date().getFullYear()-1;
+  const rows=GEST.leases.map(l=>{
+    const ps=GEST.pays.filter(p=>['rent','first_rent'].includes(p.type)&&p.status==='paid'&&String(p.paid_at||p.due_date||'').startsWith(String(annee))&&(p.lease_id===l.id||(l.booking_id&&p.booking_id===l.booking_id)));
+    const cc=(Number(l.rent)||0)+(Number(l.charges)||0),ch=Number(l.charges)||0;
+    const brut=ps.reduce((a,p)=>a+Number(p.amount||0),0);
+    const chargesRec=cc&&ch?ps.reduce((a,p)=>a+Number(p.amount||0)*ch/cc,0):0;
+    const regul=GEST.regs[l.id+':'+annee];
+    return{l,brut,loyersHC:brut-chargesRec,chargesRec,vide:_gVide(l),teom:Number((()=>{try{const d=typeof regul?.depenses==='string'?JSON.parse(regul.depenses):regul?.depenses;return d?.teom||0;}catch(e){return 0;}})())};
+  });
+  const sum=(arr,k)=>arr.reduce((a,r)=>a+r[k],0);
+  const vides=rows.filter(r=>r.vide),meub=rows.filter(r=>!r.vide);
+  const bloc=(titre,arr,reg,base,note)=>{
+    if(!arr.length)return '';
+    const recettes=sum(arr,base);const cfg=FISC[reg];const ok=recettes<=cfg.plafond;
+    return `<div class="card"><div class="ch"><div class="ct">${titre}</div></div><div class="cb" style="font-size:.8rem;line-height:1.6">
+      ${arr.map(r=>`<div style="display:flex;justify-content:space-between;border-bottom:1px dashed var(--b);padding:.2rem 0"><span>${_gEsc(_gTitle(r.l))} — ${_gEsc(_gName(r.l.tenant_id))}</span><span>loyers HC ${_g$(r.loyersHC)} · charges ${_g$(r.chargesRec)}</span></div>`).join('')}
+      <div style="margin-top:.5rem">Recettes ${reg==='micro_foncier'?'(loyers hors charges)':'(loyers charges comprises)'} ${annee} : <strong>${_g$(recettes)}</strong></div>
+      ${ok?`<div>Régime ${reg==='micro_foncier'?'micro-foncier':'micro-BIC (LMNP)'} possible (plafond ${_g$(cfg.plafond)}) : abattement forfaitaire de ${cfg.abatt*100} % → revenu imposable estimé <strong>${_g$(recettes*(1-cfg.abatt))}</strong>.<br>À reporter : <strong>${_g$(recettes)}</strong> en case ${cfg.case}.</div>`
+        :`<div style="color:var(--gold)">Recettes au-dessus du plafond du régime micro (${_g$(cfg.plafond)}) : régime réel obligatoire (${reg==='micro_foncier'?'déclaration 2044':'liasse 2031 + 2033, souvent avec un expert-comptable'}).</div>`}
+      <div style="font-size:.72rem;color:var(--td);margin-top:.3rem">${note}</div>
+    </div></div>`;
+  };
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;font-size:.8rem;flex-wrap:wrap">Revenus de l'année : <select class="fi" style="width:auto" onchange="window._gFiY=+this.value;renderGestion()">${[1,2,3].map(i=>new Date().getFullYear()-i).concat([new Date().getFullYear()]).sort().reverse().map(y=>`<option ${y===annee?'selected':''}>${y}</option>`).join('')}</select>
+      <button class="btn bg bsm" onclick="gFiscalCSV(${annee})"><i data-lucide=download class=ic></i> Export CSV</button></div>
+    <div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem">Basé sur les loyers marqués « payés » dans l'appli. Les dépôts de garantie ne sont pas des revenus (sauf s'ils sont conservés). Seuils et cases indicatifs : vérifiez la notice de l'année sur impots.gouv.fr.</div>`+
+    (rows.length?bloc('Location vide — revenus fonciers',vides,'micro_foncier','loyersHC','En micro-foncier, les charges récupérées sur le locataire ne sont pas des recettes. Au réel, vous déduisez les charges réelles (intérêts d\'emprunt, travaux, taxe foncière hors TEOM, assurance PNO…).')
+     +bloc('Location meublée — LMNP (BIC)',meub,'micro_bic','brut','En micro-BIC, les recettes incluent les charges facturées. Au réel, l\'amortissement du bien et des meubles réduit fortement l\'impôt : souvent plus intéressant, à étudier avec un comptable.')
+     :'<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail signé.</div></div>');
+}
+function gFiscalCSV(annee){
+  const lines=[['Logement','Locataire','Type','Loyers payés (CC)','Dont charges','Loyers HC']];
+  GEST.leases.forEach(l=>{const ps=GEST.pays.filter(p=>['rent','first_rent'].includes(p.type)&&p.status==='paid'&&String(p.paid_at||p.due_date||'').startsWith(String(annee))&&(p.lease_id===l.id||(l.booking_id&&p.booking_id===l.booking_id)));
+    const cc=(Number(l.rent)||0)+(Number(l.charges)||0),ch=Number(l.charges)||0,b=ps.reduce((a,p)=>a+Number(p.amount||0),0),c=cc&&ch?b*ch/cc:0;
+    lines.push([_gTitle(l),_gName(l.tenant_id),_gVide(l)?'vide':'meublé',b.toFixed(2),c.toFixed(2),(b-c).toFixed(2)]);});
+  const csv=lines.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download=`recap-fiscal-${annee}.csv`;a.click();
+}
+
 function renderBailSection(g){
   const bk=g.booking||null;
   // Signatures : la table leases fait foi (nouveau flux) ; booking = ancien flux DocuSeal
@@ -4605,6 +4963,7 @@ function renderVisitGroup(g, isPast){
     setTimeout(()=>loadLocataireDossierForLL(g.tenant_id),50);
     // Chaque co-locataire : même fiche complète (identité, documents, garant)
     _colocsLL(bk).forEach(c=>setTimeout(()=>loadLocataireDossierForLL(c.id),60));
+    if(bk)setTimeout(()=>loadEffortLL(g,bk),80);
   }
 
   return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
@@ -4653,6 +5012,7 @@ function renderVisitGroup(g, isPast){
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
       <div style="font-size:.85rem;font-weight:700;color:var(--txt);margin-bottom:.6rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
+      <div id="effort-${bk?.id||g.id}" style="margin-bottom:.6rem"></div>
       <div style="${_LL_CARD}">
       ${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire principal':'Locataire')}
       <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.2rem">
@@ -4740,6 +5100,61 @@ function garantieTxtLL(dd){
   const m={garant_visale:'Garantie Visale',garant_organisme:'Organisme de caution',garant_autre_organisme:'Organisme de caution',garant_moral:'Garant personne morale'};
   if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+(t==='garant_visale'&&st.visa_ref?' — visa n° '+String(st.visa_ref).replace(/</g,'&lt;'):'')+'</span>';
   return '<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
+}
+
+// ═══ Taux d'effort : loyer charges comprises ÷ revenus nets mensuels déclarés ═══
+// Aide à la décision : montants déclarés dans le dossier, à vérifier sur les justificatifs.
+function _ddLL(raw){try{raw=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){raw=null;}return normalizeDossier(raw);}
+function _revLocataireLL(dd){
+  const st=dd?.[3];if(!st?.type)return null;           // étape « Ressources » non remplie
+  if(st.type==='sans_revenus')return 0;
+  const n=Number(st.amount);return n>0?n:null;
+}
+function _garantsLL(dd){
+  const st=dd?.[5];if(!st?.type)return {type:null,list:[]};
+  if(st.type!=='garant_personne')return {type:st.type,list:[]};
+  const list=(st.garants||[]).map((g,i)=>{
+    const n=g?.garant_name||{};
+    const revs=g?.garant_subs?.[3]?.revenues||[];
+    const tot=revs.reduce((a,r)=>a+(Number(r?.montant)||0),0);
+    return {name:[n.prenom,n.nom].filter(Boolean).join(' ')||('Garant '+(i+1)),rev:tot>0?tot:null};
+  });
+  return {type:st.type,list};
+}
+function _effortBadge(pct){
+  if(pct==null)return '<span style="color:var(--td)">—</span>';
+  const [col,ic]=pct<=33?['var(--green)','🟢']:pct<=40?['var(--gold)','🟠']:['var(--red)','🔴'];
+  return `<strong style="color:${col}">${pct} % ${ic}</strong>`;
+}
+const _eur=n=>Math.round(n).toLocaleString('fr-FR')+' €';
+async function loadEffortLL(g,bk){
+  const el=document.getElementById('effort-'+(bk?.id||g.id));if(!el)return;
+  const loyer=Number(bk?.monthly_rent||g.listing_price||0);
+  if(!loyer){el.innerHTML='';return;}
+  const people=[{id:g.tenant_id,name:g.tenant_name||'Locataire 1'},..._colocsLL(bk).filter(c=>c.id).map(c=>({id:c.id,name:c.name||'Co-locataire'}))];
+  let profs={};
+  try{const{data}=await sb.from('profiles').select('clerk_id,dossier_data').in('clerk_id',people.map(p=>p.id).filter(Boolean));(data||[]).forEach(p=>{profs[p.clerk_id]=_ddLL(p.dossier_data);});}catch(e){}
+  const n=people.length,part=loyer/n;
+  let somme=0,manque=false;
+  const lignes=people.map(p=>{
+    const dd=profs[p.id];
+    const rev=_revLocataireLL(dd);
+    const gar=_garantsLL(dd);
+    if(rev==null)manque=true;else somme+=rev;
+    const pct=rev>0?Math.round(part/rev*100):null;
+    const revTxt=rev==null?'revenus non déclarés':rev===0?'pas de revenus déclarés':`revenus ${_eur(rev)}/mois${n>1?` · sa part ${_eur(part)}`:''}`;
+    const garTxt=gar.type==='garant_visale'?'<div style="margin-left:1rem;color:var(--td)">↳ Garantie Visale : le visa fixe le loyer maximum garanti, pas de calcul.</div>'
+      :gar.type&&gar.type!=='garant_personne'&&gar.type!=='skipped_garant'?'<div style="margin-left:1rem;color:var(--td)">↳ Garantie par un organisme : pas de calcul.</div>'
+      :gar.list.map(x=>`<div style="margin-left:1rem">↳ Garant ${x.name} : ${x.rev?`${_effortBadge(Math.round(part/x.rev*100))} <span style="color:var(--td)">(revenus ${_eur(x.rev)}/mois)</span>`:'<span style="color:var(--td)">revenus non déclarés</span>'}</div>`).join('');
+    return `<div style="margin-top:.3rem"><div>${n>1?`<strong>${p.name}</strong> : `:''}${_effortBadge(pct)} <span style="color:var(--td)">(${revTxt})</span></div>${garTxt}</div>`;
+  }).join('');
+  const groupe=n>1?`<div style="margin-bottom:.15rem">Groupe : ${somme>0&&!manque?_effortBadge(Math.round(loyer/somme*100))+` <span style="color:var(--td)">(revenus cumulés ${_eur(somme)}/mois)</span>`:'<span style="color:var(--td)">incomplet — tous les revenus ne sont pas déclarés</span>'}</div>`:'';
+  el.innerHTML=`<div style="background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:.55rem .7rem;font-size:.74rem;line-height:1.5">
+    <div style="font-weight:700;font-size:.78rem;margin-bottom:.2rem"><i data-lucide=calculator class=ic></i> Taux d'effort <span style="font-weight:400;color:var(--td)">— loyer ${_eur(loyer)} CC ÷ revenus nets mensuels</span></div>
+    ${groupe}${lignes}
+    <div style="font-size:.66rem;color:var(--td);margin-top:.4rem">🟢 ≤ 33 % (revenus ≥ 3 × le loyer) · 🟠 33–40 % · 🔴 > 40 %. Aide à la décision : montants déclarés par les candidats, à vérifier sur les justificatifs.</div>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
 }
 
 async function loadLocataireDossierForLL(locataireId){
