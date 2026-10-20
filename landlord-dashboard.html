@@ -3740,6 +3740,49 @@ function refreshCurrentBookingView(){
   }
 }
 
+// Le propriétaire indique que le locataire a quitté le logement (même effet que côté locataire :
+// location visible encore 7 jours, échéances futures annulées, locataire libre de postuler ailleurs)
+async function landlordEndTenancy(bookingId){
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
+  if(!bk)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  const today=new Date().toISOString().slice(0,10);
+  ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:16px;padding:1.3rem;width:100%;max-width:440px">
+    <div style="font-size:1rem;font-weight:800;margin-bottom:.4rem"><i data-lucide=door-open class=ic></i> ${bk.tenant_name||'Le locataire'} a quitté le logement</div>
+    <div style="font-size:.8rem;color:var(--td);line-height:1.5;margin-bottom:.8rem">Fin de la location dans l'appli : les loyers à venir sont annulés, le locataire est prévenu et peut chercher un nouveau logement. Bail, quittances et état des lieux restent visibles 7 jours. Pensez à l'état des lieux de sortie et à la restitution du dépôt de garantie (1 mois si conforme, 2 mois sinon).</div>
+    <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem" for="end-date">Date de départ</label>
+    <input type="date" id="end-date" class="fi" value="${today}" max="${today}" style="margin-bottom:.6rem">
+    <label style="display:flex;gap:.45rem;align-items:center;font-size:.8rem;margin-bottom:.9rem;cursor:pointer"><input type="checkbox" id="end-relist" style="accent-color:var(--bleu)"> Remettre l'annonce en ligne pour trouver un nouveau locataire</label>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end"><button class="btn bg bsm" id="end-cancel">Annuler</button><button class="btn bp bsm" id="end-ok" style="background:var(--red)">Confirmer le départ</button></div>
+  </div>`;
+  document.body.appendChild(ov);if(window.lucide)lucide.createIcons();
+  ov.querySelector('#end-cancel').onclick=()=>ov.remove();
+  ov.querySelector('#end-ok').onclick=async()=>{
+    const d=ov.querySelector('#end-date').value||today;
+    const relist=ov.querySelector('#end-relist').checked;
+    const btn=ov.querySelector('#end-ok');btn.disabled=true;btn.textContent='Enregistrement…';
+    const{error}=await sb.from('bookings').update({status:'tenancy_ended',tenancy_ended_at:new Date(d+'T12:00:00').toISOString()}).eq('id',bookingId);
+    if(error){toast('<i data-lucide=x-circle class=ic></i> '+(/check constraint|tenancy_ended_at/.test(error.message)?'Exécutez supabase-migration-quitter-logement.sql dans Supabase.':error.message),7000);btn.disabled=false;btn.textContent='Confirmer le départ';return;}
+    // Échéances de loyer postérieures au départ : annulées
+    try{await sb.from('payments').update({status:'cancelled'}).eq('booking_id',bookingId).eq('status','pending').gt('due_date',d);}catch(e){}
+    try{
+      const{data:kids}=await sb.from('leases').select('id').eq('parent_booking_id',bookingId);
+      const ids=(kids||[]).map(k=>k.id);
+      if(ids.length)await sb.from('payments').update({status:'cancelled'}).in('lease_id',ids).eq('status','pending').gt('due_date',d);
+    }catch(e){}
+    if(relist){try{await sb.from('listings').update({active:true,actif:true,status:'active',reserved_by:null}).eq('id',bk.listing_id);}catch(e){try{await sb.from('listings').update({active:true,status:'active',reserved_by:null}).eq('id',bk.listing_id);}catch(_){}}}
+    // Prévenir le locataire et les co-locataires
+    let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){}
+    const dest=[bk.tenant_id,...(cols||[]).filter(c=>c&&c.coloc_status!=='declined').map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
+    const dFr=new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    for(const to of dest){try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:to,content:`Votre propriétaire a indiqué la fin de votre location au ${dFr}. Les loyers à venir sont annulés. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours dans « Mon logement » : pensez à les télécharger. Le dépôt de garantie doit vous être restitué sous 1 mois (2 mois en cas de dégradations constatées à l'état des lieux de sortie).`,type:'tenancy_ended'});}catch(e){}}
+    ov.remove();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Départ enregistré.'+(relist?' Annonce remise en ligne.':''));
+    loadRentedProperties();
+  };
+}
+
 async function loadRentedProperties(){
   const wrap=document.getElementById('rp-list');
   const countBadge=document.getElementById('rp-count');
@@ -3881,6 +3924,7 @@ async function loadRentedProperties(){
           ${agentId?`<button onclick="messageAgenceÀProposProperty('${agentId}','${bk.listing_id||''}','${(annonce.title||'Bien').replace(/'/g,"\\'")}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message agence</button>`:''}
           <button onclick="sp('maintenance',document.querySelector('.ni[onclick*=maintenance]'))" class="btn bg bsm" ${openTickets.length?'style="border-color:var(--red);color:var(--red)"':''}><i data-lucide=wrench class=ic></i> Maintenance${openTickets.length?` (${openTickets.length})`:''}</button>
           <button onclick="sp('paiements',document.querySelector('.ni[onclick*=paiements]'))" class="btn bg bsm"><i data-lucide=euro class=ic></i> Full paiement history</button>
+          ${bk.status!=='tenancy_ended'?`<button onclick="landlordEndTenancy('${bk.id}')" class="btn bg bsm" style="border-color:var(--red);color:var(--red)"><i data-lucide=door-open class=ic></i> Le locataire est parti</button>`:''}
         </div>
         <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Recent quittances</div>
         ${quittancesHtml}
@@ -4564,7 +4608,7 @@ function renderCharges(){
 }
 function _gChRes(tot,prov,chMois){
   const solde=Math.round((tot-prov)*100)/100;
-  return `Dépenses réelles : <strong>${_g$(tot)}</strong> · Provisions encaissées : <strong>${_g$(prov)}</strong><br>${solde>0?`<span style="color:var(--red)">Le locataire doit un complément de <strong>${_g$(solde)}</strong></span>`:solde<0?`<span style="color:var(--green)">Vous devez rembourser <strong>${_g$(-solde)}</strong> au locataire</span>`:'Équilibré'} · provision conseillée : ${_g$(Math.ceil(tot/12))}/mois (actuelle ${_g$(chMois)})`;
+  return `Dépenses réelles : <strong>${_g$(tot)}</strong> · Provisions encaissées : <strong>${_g$(prov)}</strong><br>${solde>0?`<span style="color:var(--red)">Le locataire doit un complément de <strong>${_g$(solde)}</strong></span>`:solde<0?`<span style="color:var(--green)">Vous devez rembourser <strong>${_g$(-solde)}</strong> au locataire</span>`:'Équilibré'}`;
 }
 function _gChRead(lid){const d={};CH_POSTES.forEach(([c])=>{const v=document.getElementById(`ch-${lid}-${c}`)?.value;if(v!==''&&v!=null)d[c]=Number(v);});return d;}
 function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);document.getElementById('ch-res-'+lid).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
