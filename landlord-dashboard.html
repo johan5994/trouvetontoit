@@ -13,7 +13,13 @@
 <script>
   // Appliqué avant le premier rendu — évite un flash du mauvais thème
   if(localStorage.getItem('rm_theme')==='light')document.documentElement.classList.add('light');
+  // Mode intégré au portail agence (iframe) : pas de menu ni d'en-tête, l'agence garde le sien
+  window.EMBED_AGENCE=new URLSearchParams(location.search).get('embed')==='agence';
+  if(window.EMBED_AGENCE)document.documentElement.classList.add('embed');
+  // Les liens (bail, état des lieux…) s'ouvrent en pleine page, pas dans le cadre
+  if(window.EMBED_AGENCE)document.write('<base target="_top">');
 </script>
+<style>html.embed .sb,html.embed .topbar,html.embed #mob-menu{display:none!important}html.embed .main{margin-left:0!important}</style>
 <style>
 :root{--bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--bleu:#1B4FD8;--tdim:rgba(224,90,58,.15);--gold:#E8A020;--gdim:rgba(212,168,71,.12);--sea:#3A8FB5;--sdim:rgba(58,143,181,.12);--green:#4CAF7D;--grdim:rgba(76,175,125,.12);--red:#E05A5A;--rdim:rgba(224,90,90,.12);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)}
 html.light{--bg:#F7F5F1;--s:#FFFFFF;--s2:#F0EDE6;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);--bleu:#1B4FD8;--tdim:rgba(201,85,58,.1);--gold:#B8862F;--gdim:rgba(184,134,47,.1);--marine:#0F2D7A;--sdim:rgba(46,107,138,.1);--green:#3D8F63;--grdim:rgba(61,143,99,.1);--red:#1B4FD8;--rdim:rgba(201,85,58,.1);--txt:#1A1410;--tm:rgba(26,20,16,.59);--td:rgba(26,20,16,.56)}
@@ -901,7 +907,9 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
     await new Promise(r=>setTimeout(r,800));
   }
   P=P_data;
-  if(!P||!['propriétaire','bailleur'].includes(P.role)){window.location.href='/tenant-dashboard.html';return;}
+  const _isAgence=['agent','agence','agency'].includes(P?.role);
+  if(_isAgence&&!window.EMBED_AGENCE){window.location.href='/agency-dashboard.html';return;}
+  if(!P||!(['propriétaire','bailleur'].includes(P.role)||(_isAgence&&window.EMBED_AGENCE))){window.location.href='/tenant-dashboard.html';return;}
 
   // Relier automatiquement les biens/réservations saisis manuellement
   // (sans compte) par une agence, si l'email correspond au sien — sinon un
@@ -929,8 +937,11 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
     const _evtMsg={sent:'<i data-lucide=send class=ic></i> Bail envoyé au locataire pour relecture',resent:'<i data-lucide=send class=ic></i> Bail modifié renvoyé au locataire'}[_evt];
     if(_evtMsg)setTimeout(()=>toast(_evtMsg),600);
     sp('applications',document.querySelector('.ni[onclick*=applications]'));
-    history.replaceState(null,'',location.pathname);
+    history.replaceState(null,'',location.pathname+(window.EMBED_AGENCE?'?embed=agence&page=applications':''));
   }
+  // Portail agence : ouvrir directement la page demandée
+  const _pg=urlParams.get('page');
+  if(window.EMBED_AGENCE&&_pg&&!urlParams.get('tab')&&document.getElementById('page-'+_pg))sp(_pg,document.querySelector('.ni[onclick*="\''+_pg+'\'"]'));
   if(urlParams.get('tab')==='profil'){
     setTimeout(()=>{
       const profileBtn=document.querySelector('.ni[onclick*="profil"]');
@@ -4346,7 +4357,7 @@ async function confirmChildPaymentLL(leaseId){
 // ⚠️ Aide à la gestion : délais et règles à vérifier (service-public.fr, ADIL, visale.fr).
 
 // IRL publiés par l'INSEE (base 100 au T4 1998). À compléter à chaque publication (mi-janv., mi-avril, mi-juillet, mi-oct.).
-const IRL={'2023-1':138.61,'2023-2':140.59,'2023-3':141.03,'2023-4':142.06,'2024-1':143.46,'2024-2':145.17,'2024-3':144.51,'2024-4':144.64,'2025-1':145.47,'2025-2':146.68,'2025-3':145.77,'2025-4':145.78,'2026-1':146.60,'2026-2':148.37};
+const IRL={'2023-1':138.61,'2023-2':140.59,'2023-3':141.03,'2023-4':142.06,'2024-1':143.46,'2024-2':145.17,'2024-3':144.51,'2024-4':144.64,'2025-1':145.47,'2025-2':146.68,'2025-3':145.77,'2025-4':145.78,'2026-1':146.60,'2026-2':148.37,'2026-3':148.06};
 // Régimes fiscaux simplifiés (revenus de l'année, location à l'année — hors meublé de tourisme). À vérifier chaque année.
 const FISC={micro_foncier:{plafond:15000,abatt:0.30,case:'4BE (déclaration 2042)'},micro_bic:{plafond:77700,abatt:0.50,case:'5ND (déclaration 2042-C-PRO, location meublée non professionnelle)'}};
 
@@ -5960,7 +5971,8 @@ async function acceptDirectBooking(listingId, locataireId){
     if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
 
     // Co-bailleur(s) sur ce bail : choisir un co-bailleur enregistré, en créer un, ou aucun
-    const coBailleursChoisis=await chooseCoBailleursForLease();
+    // Portail agence : le bailleur est le propriétaire du bien (fiche de l'annonce), pas l'agence
+    const coBailleursChoisis=window.EMBED_AGENCE?[]:await chooseCoBailleursForLease();
     if(coBailleursChoisis===null){toast('Acceptation annulée');return;}
     try{
       const{error:cbErr}=await sb.from('bookings').update({co_bailleurs_data:coBailleursChoisis}).eq('id',booking.id);
