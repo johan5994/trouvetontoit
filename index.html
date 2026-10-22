@@ -2768,7 +2768,12 @@ async function sU(clerkUser, showPicker=true) {
   } else {
     const full_name = clerkUser.fullName || clerkUser.firstName || '';
     P = data || { clerk_id: U.id, full_name, email: U.email, role: null };
-    if(showPicker) showRolePicker(full_name);
+    if(showPicker){
+      // Locataire invité par son gestionnaire : rôle déjà connu, pas de question
+      let inv=null;try{inv=localStorage.getItem('ttt_signup_role');}catch(e){}
+      if(inv==='locataire'){try{localStorage.removeItem('ttt_signup_role');}catch(e){}setRoleAndContinue('locataire');}
+      else showRolePicker(full_name);
+    }
   }
 }
 let addressMapInstance=null;
@@ -4645,6 +4650,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Propriétaire arrivant depuis l'email d'activation d'une annonce "À vendre"
   // — aucun compte requis, juste confirmer son email et payer.
   const urlParams=new URLSearchParams(window.location.search);
+  // Invitation d'un gestionnaire : « Créer mon espace locataire »
+  if(urlParams.get('signup')==='locataire'){
+    try{localStorage.setItem('ttt_signup_role','locataire');}catch(e){}
+    window.history.replaceState({},'',window.location.pathname);
+    setTimeout(()=>{if(typeof U!=='undefined'&&U)window.location.href='/tenant-dashboard.html';else{try{clerk.openSignUp({});}catch(e){go('auth');}}},900);
+  }
   const activateId=urlParams.get('activate_sale');
   if(activateId)setTimeout(()=>openSaleActivation(activateId),600);
   if(urlParams.get('sale_activated')){
