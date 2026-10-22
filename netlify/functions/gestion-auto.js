@@ -101,7 +101,7 @@ exports.handler = async () => {
       if (t && (t.hc + t.ch) > 0) {
         const have = new Set(mp.map(p => String(p.due_date || '').slice(0, 7)));
         const debutYm = t.debut ? String(t.debut).slice(0, 7) : cur;
-        const cutoff = [t.debut, m.date_signature || String(m.created_at || '').slice(0, 10)].filter(Boolean).sort().pop() || '';
+        const cutoff = [t.debut, m.date_signature || String(m.created_at || '').slice(0, 10), m.fin_bail?.reprise ? m.fin_bail.reprise + '-01' : null].filter(Boolean).sort().pop() || '';
         const rows = [];
         for (let k = 0; k < 3; k++) {
           const ym = addM(cur, k);
