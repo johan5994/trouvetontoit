@@ -233,8 +233,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <button class="ni" onclick="sp('visits',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Visites<span class="nbadge" id="nb-visits" style="display:none">0</span></button>
     <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Candidatures<span class="nbadge" id="nb-applications" style="display:none">0</span></button>
     <button class="ni" onclick="sp('rented',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Biens loués<span class="nbadge" id="nb-rented" style="display:none">0</span></button>
-    <button class="ni" onclick="sp('gestion',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Gestion locative<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
     <button class="ni" onclick="sp('honoraires',this)"><span class="nico"><i data-lucide=receipt class=ic></i></span>Honoraires</button>
+
+    <div class="nl">Gestion locative</div>
+    <button class="ni" onclick="spG('jour',this)"><span class="nico"><i data-lucide=sun class=ic></i></span>Ma journée<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
+    <button class="ni" onclick="spG('home',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Mes biens gérés</button>
+    <button class="ni" onclick="spG('agenda',this)"><span class="nico"><i data-lucide=calendar-days class=ic></i></span>Agenda</button>
+    <button class="ni" onclick="spG('owners',this)"><span class="nico"><i data-lucide=users-round class=ic></i></span>Propriétaires</button>
 
     <div class="nl">Clients</div>
     <button class="ni" onclick="sp('crm',this)"><span class="nico"><i data-lucide=users class=ic></i></span>CRM clients<span class="nbadge" id="nb-leads" style="display:none">0</span></button>
@@ -1072,7 +1077,7 @@ function getTeamMembers(){
 
 function checkTeamMemberIdentity(){
   const current=localStorage.getItem('rm_team_member');
-  if(current){updateTeamMemberBadge(current);applyRoleNav();if(metierLanding()!=='overview')sp(metierLanding());return;}
+  if(current){updateTeamMemberBadge(current);applyRoleNav();if(metierLanding()!=='overview')goLanding();return;}
   showWhoAreYouModal();
 }
 
@@ -1207,7 +1212,7 @@ function selectTeamMember(name){
   document.getElementById('whoareyou-modal')?.remove();
   updateTeamMemberBadge(name);
   applyRoleNav();try{loadOverview();}catch(e){}
-  if(!getMemberMetiers()||getMemberMetiers().length===1&&getMemberMetiers()[0]==='gestion')sp(metierLanding());
+  goLanding();
   toast(`<i data-lucide=check-circle-2 class=ic></i> Connecté en tant que ${name==='__AGENCY_ADMIN__'?'Agence (vue complète)':name}`);
   // Rafraîchir la page courante pour que le filtre "Mine/Everyone" s'applique
   // immédiatement avec la bonne identité
@@ -1288,9 +1293,9 @@ const METIERS={
   gestion:{l:'Gestionnaire locatif',court:'Gestion',ic:'briefcase',c:'#818CF8'},
 };
 // Pages visibles par métier ('*' = tout le monde, 'admin' = agence uniquement)
-const NAV_METIER={overview:'*',analytics:'*',crm:'*',messages:'*',
+const NAV_METIER={overview:['vente','location'],analytics:['vente','location'],crm:['vente','location'],messages:'*',
   import:['vente','location'],'new-listing':['vente','location'],listings:['vente','location'],visits:['vente','location'],
-  applications:['location'],honoraires:['location'],rented:['location','gestion'],gestion:['gestion'],estimations:['vente','gestion'],
+  applications:['location'],honoraires:['location'],rented:['location'],gestion:['gestion'],estimations:['vente'],
   subscription:'admin',profile:'admin'};
 function getMemberMetiers(){
   if(isAgencyAdmin())return null;
@@ -1303,11 +1308,14 @@ function canSeePage(id){
   const r=NAV_METIER[id];if(!r||r==='*')return true;if(r==='admin')return false;
   return r.some(x=>ms.includes(x));
 }
-function metierLanding(){const ms=getMemberMetiers();if(ms&&ms.length===1&&ms[0]==='gestion')return'gestion';return'overview';}
+// Navigation vers une vue de la gestion locative (le module peut ne pas être encore chargé)
+function spG(v,btn){if(typeof GA!=='undefined')GA.view={t:v};else window.__gaView={t:v};sp('gestion',btn||document.querySelector(`#sidebar .ni[onclick*="spG('${v}'"]`));}
+function goLanding(){const l=metierLanding();if(l==='gestion')spG('jour');else sp(l);}
+function metierLanding(){const ms=getMemberMetiers();if(ms&&!ms.includes('vente')&&!ms.includes('location'))return'gestion';return'overview';}
 function metierBadges(ms,small){return(ms||[]).map(k=>METIERS[k]?`<span style="display:inline-flex;align-items:center;gap:.2rem;font-size:${small?'.6rem':'.66rem'};font-weight:700;padding:.08rem .45rem;border-radius:100px;background:${METIERS[k].c}22;color:${METIERS[k].c};border:1px solid ${METIERS[k].c}55"><i data-lucide=${METIERS[k].ic} class=ic></i> ${METIERS[k].court}</span>`:'').join(' ');}
 function applyRoleNav(){
   const ms=getMemberMetiers();
-  document.querySelectorAll('#sidebar .ni[onclick*="sp(\'"]').forEach(b=>{const id=(b.getAttribute('onclick').match(/sp\('([^']+)'/)||[])[1];if(id)b.style.display=canSeePage(id)?'':'none';});
+  document.querySelectorAll('#sidebar .ni').forEach(b=>{const oc=b.getAttribute('onclick')||'';const id=/spG\(/.test(oc)?'gestion':(oc.match(/sp\('([^']+)'/)||[])[1];if(id)b.style.display=canSeePage(id)?'':'none';});
   // Masquer les intitulés de section vides
   document.querySelectorAll('#sidebar .nl').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&!n.classList.contains('nl')){if(n.classList.contains('ni')&&n.style.display!=='none')vis=true;n=n.nextElementSibling;}h.style.display=vis?'':'none';});
   document.querySelectorAll('.topbar button[onclick*="sp(\'import\'"],.topbar button[onclick*="sp(\'new-listing\'"]').forEach(b=>b.style.display=canSeePage('import')?'':'none');
@@ -1321,7 +1329,7 @@ function applyRoleNav(){
   document.querySelectorAll('[onclick^="setImportMode("]').forEach(el=>{const v=(el.getAttribute('onclick').match(/setImportMode\('([^']+)'/)||[])[1];if(v)(el.closest('label')||el).style.display=only&&v!==only?'none':'';});
   // Page courante interdite → page d'accueil du métier
   const cur=(document.querySelector('.page.act')?.id||'').replace('page-','');
-  if(cur&&!canSeePage(cur))sp(metierLanding());
+  if(cur&&!canSeePage(cur))goLanding();
   if(window.lucide)lucide.createIcons();
 }
 // Filtre des annonces selon le métier (vente / location)
@@ -1398,7 +1406,7 @@ async function setMemberMetiers(name,metiers){
 
 // ── Navigation ────────────────────────────────────────────────
 function sp(id, btn){
-  if(typeof canSeePage==='function'&&!canSeePage(id))id=metierLanding();
+  if(typeof canSeePage==='function'&&!canSeePage(id)){id=metierLanding();if(id==='gestion'){if(typeof GA!=='undefined')GA.view={t:'jour'};else window.__gaView={t:'jour'};}}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   const pg=document.getElementById('page-'+id);
@@ -2396,7 +2404,9 @@ async function loadAgencyMessages(){
 
     // Filtré côté JS plutôt qu'avec .not() en base — .not() exclut aussi
     // par erreur les messages sans type du tout, très courants ici
-    const filtered=all.filter(m=>m.type!=='visit_request');
+    // Les échanges avec les locataires en gestion (type 'gestion') ont leur propre fil, affiché en tête
+    const filtered=all.filter(m=>m.type!=='visit_request'&&m.type!=='gestion');
+    try{if(typeof GA!=='undefined'&&(typeof canSeePage!=='function'||canSeePage('gestion'))){if(!GA.loaded)await gaLoad();else await gaLoadMsgs();}}catch(e){console.warn('gestion msgs',e);}
 
     // Trouver le vrai interlocuteur (non-system) pour chaque annonce, pour
     // pouvoir y rattacher les messages système auto-envoyés (sender='system',
@@ -2451,7 +2461,7 @@ async function loadAgencyMessages(){
 
     renderAgencyMessages();
 
-    try{await sb.from('messages').update({read:true}).eq('receiver_id',U.id).eq('read',false);}catch(e){}
+    try{await sb.from('messages').update({read:true}).eq('receiver_id',U.id).eq('read',false).or('type.is.null,type.neq.gestion');}catch(e){}
   }catch(e){
     if(wrap)wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=message-circle class=ic></i></div><p>Erreur de chargement des messages</p></div>';
     console.error('loadAgencyMessages:',e);
@@ -2474,12 +2484,14 @@ function renderAgencyMessages(){
     return isLandlordTab?isLandlordConvo:!isLandlordConvo;
   });
 
+  const gest=(!isLandlordTab&&typeof GA!=='undefined'&&GA.loaded&&typeof gaMsgThreadsHtml==='function')?gaMsgThreadsHtml():'';
   if(!shown.length){
-    wrap.innerHTML=`<div class="empty"><div class="em"><i data-lucide=message-circle class=ic></i></div><p>Non ${isLandlordTab?'lessor':'lessee'} conversation pour l’instant</p></div>`;
+    wrap.innerHTML=gest+(gest?'':`<div class="empty"><div class="em"><i data-lucide=message-circle class=ic></i></div><p>Aucune conversation avec un ${isLandlordTab?'propriétaire':'locataire'} pour l’instant</p></div>`);
+    if(window.lucide)lucide.createIcons();
     return;
   }
 
-  wrap.innerHTML=shown.map(m=>{
+  wrap.innerHTML=gest+(gest?'<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.05em;margin:.2rem 0 .5rem">Candidats et autres contacts</div>':'')+shown.map(m=>{
     const date=new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     const listing=listingMap[m.listing_id];
     const displayName=nameMap[m._other_id]||listing?.title||'Conversation';
@@ -2493,6 +2505,7 @@ function renderAgencyMessages(){
       <div style="font-size:.78rem;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.sender_id===U.id?'Vous : ':''}${preview}</div>
     </div>`;
   }).join('');
+  if(gest&&window.lucide)lucide.createIcons();
 }
 
 let agencyChatListingId=null,agencyChatOtherId=null;
