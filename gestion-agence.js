@@ -121,7 +121,7 @@ async function gaEnsureSchedule(){
     const exist=new Set(gaPays(m).map(p=>String(p.due_date||'').slice(0,7)));
     const debutYm=t.debut?String(t.debut).slice(0,7):cur;
     // Pas de loyer appelé avant la prise en gestion (mandat) ni avant le début du bail
-    const cutoff=[t.debut,m.date_signature||String(m.created_at||'').slice(0,10)].filter(Boolean).sort().pop()||'';
+    const cutoff=[t.debut,m.date_signature||String(m.created_at||'').slice(0,10),m.fin_bail?.reprise?m.fin_bail.reprise+'-01':null].filter(Boolean).sort().pop()||'';
     for(let k=0;k<3;k++){
       const ym=gaAddM(cur+'-15',k).slice(0,7);
       if(ym<debutYm||exist.has(ym))continue;
@@ -1385,13 +1385,14 @@ function gaRenderHome(){
   return`<div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem">
     <div><div style="font-size:1.15rem;font-weight:700">Mes biens gérés</div>
       <div style="font-size:.76rem;color:var(--td)">${act.length} bien${pl(act.length,'','s')} en gestion${att?` · loyers de ${gaMoisLbl(cur)} : ${gaEur(enc)} reçus sur ${gaEur(att)}`:''}</div></div>
-    <button class="btn bp bsm" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien</button>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="gaImportModal()"><i data-lucide=upload class=ic></i> Importer depuis mon ancien logiciel</button><button class="btn bp bsm" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien</button></div>
   </div>
   ${act.length||libres.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem">${sorted.map(m=>gaCard(m,tk(m))).join('')}${libres.map(gaCardLibre).join('')}</div>`
     :`<div class="card"><div class="cb" style="text-align:center;padding:2rem 1rem">
       <div style="font-size:1rem;font-weight:700;margin-bottom:.4rem">Ajoutez votre premier bien en gestion</div>
       <div style="font-size:.8rem;color:var(--td);max-width:460px;margin:0 auto 1rem;line-height:1.55">Propriétaire, bien, locataire : c’est tout. Ensuite, les avis d’échéance, quittances, relances et comptes rendus partent tout seuls.</div>
-      <button class="btn bp" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien</button></div></div>`}`;
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><button class="btn bp" onclick="gaImportModal()"><i data-lucide=upload class=ic></i> Importer depuis mon ancien logiciel</button><button class="btn bg" onclick="gaQuickAdd()"><i data-lucide=plus class=ic></i> Ajouter un bien à la main</button></div>
+      <div style="font-size:.72rem;color:var(--td);margin-top:.7rem">Crypto, ICS, Apimo, Hektor, Gercop, Immofacile, Rentila, Excel… : un export Excel ou CSV suffit.</div></div></div>`}`;
 }
 // Annonce de l'agence pas encore en gestion
 function gaCardLibre(l){
@@ -1881,4 +1882,198 @@ function gaProchaineEcheance(t){
   if(!fin)return null;let k=0;
   while(fin<gaToday()&&k++<30)fin=gaAddM(fin,t.meuble?12:36);
   return fin;
+}
+
+// ════════════════════ Import depuis l'ancien logiciel de gestion ════════════════════
+// Les logiciels de gestion (Crypto, ICS, Apimo, Hektor, Gercop, Immofacile, Rentila, Excel…)
+// exportent tous un « état locatif » en Excel ou CSV : une ligne par lot avec propriétaire,
+// adresse, locataire, loyer… On reconnaît les colonnes automatiquement, l'agence vérifie, on importe.
+const GA_IMP_FIELDS=[
+  ['numero','N° de mandat',/^(n|no|num|numero)?\s*(de\s*)?mandat|^mandat\s*(n|no|num)/],
+  ['date_signature','Date du mandat',/date.*mandat|mandat.*date|debut.*mandat/],
+  ['owner_first','Prénom du propriétaire',/prenom.*(proprietaire|bailleur|mandant)|(proprietaire|bailleur|mandant).*prenom/],
+  ['owner_name','Propriétaire',/proprietaire|bailleur|mandant|coproprietaire|owner|landlord/],
+  ['owner_email','E-mail du propriétaire',/(mail|courriel).*(proprietaire|bailleur|mandant)|(proprietaire|bailleur|mandant).*(mail|courriel)/],
+  ['owner_phone','Téléphone du propriétaire',/(tel|telephone|portable|mobile).*(proprietaire|bailleur|mandant)|(proprietaire|bailleur|mandant).*(tel|telephone|portable|mobile)/],
+  ['owner_address','Adresse du propriétaire',/adresse.*(proprietaire|bailleur|mandant)|(proprietaire|bailleur|mandant).*adresse/],
+  ['owner_iban','IBAN du propriétaire',/iban|rib/],
+  ['taux_honoraires','Honoraires de gestion (%)',/honoraire|taux.*gestion|commission|frais.*gestion/],
+  ['bien_label','Désignation du bien',/designation|libelle|lot|reference|ref\b|nom.*bien|bien$|^bien|immeuble|residence|programme/],
+  ['bien_adresse','Adresse du bien',/adresse|rue|voie|address/],
+  ['cp','Code postal',/code\s*postal|^cp$|postal|zip/],
+  ['ville','Ville',/ville|commune|localite|city/],
+  ['bien_surface','Surface (m²)',/surface|m2|superficie|habitable/],
+  ['meuble','Meublé / vide',/meuble|nature.*bail|type.*bail|type.*location|^type$/],
+  ['annee_construction','Année de construction',/annee.*constr|construction/],
+  ['loc_first','Prénom du locataire',/prenom.*(locataire|occupant)|(locataire|occupant).*prenom/],
+  ['loc_nom','Locataire',/locataire|occupant|preneur|tenant/],
+  ['loc_email','E-mail du locataire',/(mail|courriel).*(locataire|occupant)|(locataire|occupant).*(mail|courriel)/],
+  ['loc_phone','Téléphone du locataire',/(tel|telephone|portable|mobile).*(locataire|occupant)|(locataire|occupant).*(tel|telephone|portable|mobile)/],
+  ['loc_loyer_cc','Loyer charges comprises',/loyer.*(cc|charges comprises|ttc|total)|total.*(mensuel|quittance)|quittancement/],
+  ['loc_loyer_hc','Loyer hors charges',/loyer.*(hc|hors|nu|principal)|^loyer$|^loyer mensuel$|loyer/],
+  ['loc_charges','Provision sur charges',/charges|provision/],
+  ['loc_depot','Dépôt de garantie',/depot|garantie\s*\(|caution.*(montant|eur|€)|^dg$/],
+  ['loc_debut','Début du bail',/(date|debut).*(entree|bail|effet|location)|entree.*lieux|date d.?entree|prise d.?effet/],
+  ['loc_jour','Jour de paiement',/jour.*(paiement|echeance|quittance)|echeance$|terme/],
+  ['loc_garant_nom','Garant',/garant|caution(?!.*montant)|cautionnaire/],
+  ['loc_garantie','Type de garantie',/visale|gli|type.*garantie|assurance.*impaye/],
+  ['arriere','Solde dû par le locataire',/solde|arriere|impaye|reste a payer|restant du|montant du|debiteur/],
+  ['assurance_fin','Fin de l’assurance habitation',/assurance.*(habitation|locataire|fin|echeance|valid)|attestation.*assurance/],
+  ['dpe','Classe DPE',/dpe|classe.*energ|etiquette.*energ/],
+];
+const gaNorm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[_\-./]+/g,' ').replace(/\s+/g,' ').trim();
+let GA_IMP={rows:[],head:[],map:[],sheets:null};
+
+function gaImportModal(){
+  gaModal(`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.25rem"><i data-lucide=upload class=ic></i> Importer mes biens depuis mon ancien logiciel</div>
+  <div style="font-size:.78rem;color:var(--td);line-height:1.55;margin-bottom:.9rem">Dans votre logiciel actuel (Crypto, ICS, Apimo, Hektor, Gercop, Immofacile, Rentila, un tableau Excel…), exportez l’<strong>état locatif</strong> ou la <strong>liste des lots / baux</strong> en Excel ou CSV : une ligne par logement. Déposez le fichier ici : les colonnes sont reconnues automatiquement, vous vérifiez, puis tout est créé d’un coup (propriétaires, biens, locataires, loyers).</div>
+  <label style="display:block;border:2px dashed var(--b2);border-radius:12px;padding:1.4rem;text-align:center;cursor:pointer;background:var(--s2)">
+    <input type="file" id="ga-imp-file" accept=".csv,.txt,.xlsx,.xls,.ods" style="display:none" onchange="gaImpRead(this.files[0])">
+    <i data-lucide=file-spreadsheet class=ic style="width:28px;height:28px"></i>
+    <div style="font-weight:600;font-size:.88rem;margin-top:.4rem">Choisir le fichier Excel ou CSV</div>
+    <div style="font-size:.72rem;color:var(--td);margin-top:.2rem">.xlsx, .xls, .ods ou .csv</div>
+  </label>
+  <div style="font-size:.74rem;color:var(--td);margin-top:.7rem">Pas d’export sous la main ? <a href="#" onclick="gaImpModele();return false" style="color:var(--agencybright)">Téléchargez notre modèle</a>, remplissez-le et déposez-le.</div>
+  <div id="ga-imp-zone" style="margin-top:1rem"></div>`,true);
+}
+function gaImpModele(){
+  gaCsv('modele-import-biens',['N° mandat','Propriétaire','E-mail propriétaire','Téléphone propriétaire','Adresse propriétaire','IBAN','Honoraires %','Désignation du bien','Adresse du bien','Code postal','Ville','Surface','Meublé (oui/non)','Locataire','E-mail locataire','Téléphone locataire','Loyer HC','Charges','Dépôt de garantie','Date d’entrée','Jour de paiement','Garant','Solde dû','Fin assurance habitation','DPE'],
+    [['12','Marie Dupont','marie@exemple.fr','06 12 34 56 78','2 place Bellecour, 69002 Lyon','FR76 3000 1000 0100 0000 0000 000','7','T2 Paul Bert','5 rue Paul Bert','69003','Lyon','45','oui','Rene Lafarge','rene@exemple.fr','06 98 76 54 32','790','60','1580','01/09/2025','1','Paul Lafarge','0','15/09/2027','D']]);
+}
+function gaImpLoadXlsx(cb){
+  if(window.XLSX)return cb();
+  const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;s.onerror=()=>toast('Impossible de lire les fichiers Excel ici — enregistrez-le en CSV et réessayez');document.head.appendChild(s);
+}
+async function gaImpRead(file){
+  if(!file)return;const z=document.getElementById('ga-imp-zone');z.innerHTML='<div class="sp"></div>';
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(['xlsx','xls','ods'].includes(ext)){
+    const buf=await file.arrayBuffer();
+    gaImpLoadXlsx(()=>{
+      const wb=XLSX.read(buf,{type:'array',cellDates:true});
+      GA_IMP.sheets={};wb.SheetNames.forEach(n=>{GA_IMP.sheets[n]=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''});});
+      const best=wb.SheetNames.slice().sort((a,b)=>GA_IMP.sheets[b].length-GA_IMP.sheets[a].length)[0];
+      gaImpUseSheet(best);
+    });
+  }else{
+    let txt=await file.text();if(/Ã©|Ã¨/.test(txt)){const b=await file.arrayBuffer();txt=new TextDecoder('windows-1252').decode(b);}
+    if(!/[éèàç]/.test(txt)&&/�/.test(txt)){const b=await file.arrayBuffer();txt=new TextDecoder('windows-1252').decode(b);}
+    GA_IMP.sheets=null;gaImpSetGrid(gaCsvParse(txt));
+  }
+}
+function gaImpUseSheet(n){GA_IMP.sheet=n;gaImpSetGrid(GA_IMP.sheets[n]);}
+function gaImpSetGrid(grid){
+  grid=(grid||[]).filter(r=>r.some(c=>String(c??'').trim()!==''));
+  // Ligne d'en-tête : la première qui contient au moins 3 intitulés reconnus
+  let hi=0,bs=-1;
+  grid.slice(0,15).forEach((r,i)=>{const sc=r.filter(c=>GA_IMP_FIELDS.some(f=>f[2].test(gaNorm(c)))).length;if(sc>bs){bs=sc;hi=i;}});
+  GA_IMP.head=grid[hi].map(c=>String(c??'').trim());GA_IMP.rows=grid.slice(hi+1);
+  // Correspondance automatique colonne → champ (chaque champ une seule fois, dans l'ordre de priorité)
+  const used=new Set();GA_IMP.map=GA_IMP.head.map(()=>'');
+  const ORDER=['owner_first','loc_first','owner_email','owner_phone','owner_address','loc_email','loc_phone','numero','date_signature','loc_debut','assurance_fin','loc_loyer_cc','loc_loyer_hc','loc_charges','loc_depot','loc_jour','bien_adresse','cp','ville','bien_surface','meuble','annee_construction','owner_iban','taux_honoraires','dpe','loc_garantie','loc_garant_nom','arriere','owner_name','loc_nom','bien_label'];
+  for(const[k,,re]of ORDER.map(k=>GA_IMP_FIELDS.find(f=>f[0]===k))){
+    const i=GA_IMP.head.findIndex((h,j)=>!GA_IMP.map[j]&&re.test(gaNorm(h)));
+    if(i>=0&&!used.has(k)){GA_IMP.map[i]=k;used.add(k);}
+  }
+  gaImpPreview();
+}
+function gaImpPreview(){
+  const z=document.getElementById('ga-imp-zone');const H=GA_IMP.head;const R=GA_IMP.rows;
+  const opts=v=>`<option value="">— ignorer —</option>${GA_IMP_FIELDS.map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('')}`;
+  const objs=gaImpObjects();const ok=objs.filter(o=>!o._err&&!o._dup);
+  z.innerHTML=`${GA_IMP.sheets&&Object.keys(GA_IMP.sheets).length>1?`<div class="fg" style="margin-bottom:.6rem"><label class="fl">Onglet du fichier</label><select class="fsel" onchange="gaImpUseSheet(this.value)">${Object.keys(GA_IMP.sheets).map(n=>`<option ${n===GA_IMP.sheet?'selected':''}>${gaE(n)}</option>`).join('')}</select></div>`:''}
+  <div style="font-size:.82rem;margin-bottom:.5rem"><strong>${R.length}</strong> ligne${R.length>1?'s':''} · <strong>${GA_IMP.map.filter(Boolean).length}</strong> colonnes reconnues sur ${H.length}. Vérifiez la correspondance (première ligne en exemple) :</div>
+  <div style="max-height:32vh;overflow:auto;border:1px solid var(--b);border-radius:10px;margin-bottom:.8rem"><table class="tbl"><thead><tr><th>Colonne du fichier</th><th>Exemple</th><th>Correspond à</th></tr></thead><tbody>
+    ${H.map((h,i)=>`<tr><td style="font-size:.76rem">${gaE(h||'(sans titre)')}</td><td style="font-size:.72rem;color:var(--td);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${gaE(gaImpCellTxt(R[0]?.[i]))}</td>
+      <td><select class="fsel" style="font-size:.74rem;padding:.25rem .4rem" onchange="GA_IMP.map[${i}]=this.value;gaImpPreview()">${opts(GA_IMP.map[i])}</select></td></tr>`).join('')}
+  </tbody></table></div>
+  <div style="font-size:.82rem;font-weight:700;margin-bottom:.35rem">Aperçu de ce qui sera créé</div>
+  <div style="max-height:30vh;overflow:auto;border:1px solid var(--b);border-radius:10px"><table class="tbl"><thead><tr><th></th><th>Bien</th><th>Propriétaire</th><th>Locataire</th><th>Loyer</th></tr></thead><tbody>
+    ${objs.slice(0,200).map((o,i)=>`<tr style="${o._err||o._dup?'opacity:.5':''}"><td>${o._err||o._dup?'':`<input type="checkbox" class="ga-imp-cb" data-i="${i}" checked>`}</td>
+      <td style="font-size:.75rem">${gaE(o.bien_label||o.bien_adresse||'—')}<div style="color:var(--td)">${gaE(o.bien_adresse||'')}</div></td>
+      <td style="font-size:.75rem">${gaE(o.owner_name||'—')}</td>
+      <td style="font-size:.75rem">${gaE(o.loc_nom||'vacant')}</td>
+      <td style="font-size:.75rem">${o.loc_loyer_hc?gaEur(o.loc_loyer_hc)+(o.loc_charges?' + '+gaEur(o.loc_charges):''):'—'}${o._arriere?`<div style="color:var(--red)">dû ${gaEur(o._arriere)}</div>`:''}${o._err?`<div style="color:var(--red)">${o._err}</div>`:''}${o._dup?'<div style="color:var(--gold)">déjà dans vos biens</div>':''}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.9rem">
+    <div style="font-size:.72rem;color:var(--td);max-width:430px">Les loyers sont programmés à partir du mois prochain. Les soldes dus apparaissent en impayé sur le bien. Tout reste modifiable ensuite dans la fiche de chaque bien.</div>
+    <button class="btn bp" onclick="gaImpGo()" ${ok.length?'':'disabled'}><i data-lucide=upload class=ic></i> Importer ${ok.length} bien${ok.length>1?'s':''}</button>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
+}
+function gaImpCellTxt(v){if(v instanceof Date)return gaFrC(gaIso(v));return String(v??'');}
+function gaImpDate(v){
+  if(!v&&v!==0)return null;
+  if(v instanceof Date&&!isNaN(v))return gaIso(v);
+  if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+v*864e5);return d.toISOString().slice(0,10);}
+  return gaDateFr(v);
+}
+const gaImpNum=v=>typeof v==='number'?v:gaNum(String(v??'').replace(/[^\d,.\-\s]/g,''));
+function gaImpObjects(){
+  const existing=new Set(GA.mandats.map(m=>gaNorm((m.bien_adresse||'')+'|'+(m.owner_name||''))));
+  const seen=new Set();
+  return GA_IMP.rows.map(r=>{
+    const g=k=>{const i=GA_IMP.map.indexOf(k);return i<0?'':r[i];};const s=k=>String(gaImpCellTxt(g(k))).trim();
+    const o={};
+    o.owner_name=[s('owner_first'),s('owner_name')].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+    o.owner_email=s('owner_email').toLowerCase()||null;o.owner_phone=s('owner_phone')||null;o.owner_address=s('owner_address')||null;o.owner_iban=s('owner_iban')||null;
+    const num=parseInt(s('numero').replace(/\D/g,''));o.numero=num||null;
+    o.date_signature=gaImpDate(g('date_signature'));
+    const hon=gaImpNum(g('taux_honoraires'));o.taux_honoraires=hon!=null&&hon>0&&hon<30?hon:null;
+    const adr=[s('bien_adresse'),[s('cp'),s('ville')].filter(Boolean).join(' ')].filter(Boolean);
+    o.bien_adresse=adr.join(', ')||null;o.bien_label=s('bien_label')||(s('bien_adresse')?s('bien_adresse').split(',')[0]:null);
+    o.bien_surface=gaImpNum(g('bien_surface'))||null;
+    const mb=gaNorm(s('meuble'));o.bien_meuble=mb?!(/vide|non|nu\b|0|false|habitation principale vide/.test(mb)&&!/^meuble/.test(mb)):true;
+    o.annee_construction=parseInt(s('annee_construction'))||null;
+    o.loc_nom=[s('loc_first'),s('loc_nom')].filter(Boolean).join(' ').replace(/\s+/g,' ').trim()||null;
+    o.loc_email=s('loc_email').toLowerCase()||null;o.loc_phone=s('loc_phone')||null;
+    o.loc_charges=gaImpNum(g('loc_charges'))||0;
+    let hc=gaImpNum(g('loc_loyer_hc'));const cc=gaImpNum(g('loc_loyer_cc'));
+    if(!hc&&cc)hc=gaR(cc-(o.loc_charges||0));
+    o.loc_loyer_hc=hc||null;o.loc_depot=gaImpNum(g('loc_depot'))||null;o.loc_debut=gaImpDate(g('loc_debut'));
+    const j=parseInt(s('loc_jour'));o.loc_jour=j>=1&&j<=28?j:1;
+    o.loc_garant_nom=s('loc_garant_nom')||null;
+    const gt=gaNorm(s('loc_garantie')+' '+s('loc_garant_nom'));o.loc_garantie=/visale/.test(gt)?'Visale':/gli|assurance/.test(gt)?'GLI':o.loc_garant_nom?'Caution personne physique':null;
+    o._arriere=Math.max(0,gaImpNum(g('arriere'))||0);
+    o._assur=gaImpDate(g('assurance_fin'));
+    const dpe=s('dpe').toUpperCase().match(/\b[A-G]\b/);o._dpe=dpe?dpe[0]:null;
+    if(!o.owner_name&&!o.bien_adresse&&!o.loc_nom)o._err='Ligne vide';
+    else if(!o.owner_name)o._err='Propriétaire manquant';
+    else if(!o.bien_adresse&&!o.bien_label)o._err='Adresse manquante';
+    else if(o.loc_nom&&!o.loc_loyer_hc)o._err='Loyer manquant';
+    const key=gaNorm((o.bien_adresse||'')+'|'+(o.owner_name||''));
+    if(!o._err&&(existing.has(key)||seen.has(key)))o._dup=true;seen.add(key);
+    return o;
+  });
+}
+async function gaImpGo(){
+  const objs=gaImpObjects();const sel=[...document.querySelectorAll('.ga-imp-cb:checked')].map(c=>objs[+c.dataset.i]).filter(o=>o&&!o._err&&!o._dup);
+  if(!sel.length)return;
+  const z=document.getElementById('ga-imp-zone');let n=0,num=gaNextNumero();const usedNum=new Set(GA.mandats.map(m=>+m.numero));
+  const nextMonth=gaAddM(gaYm(new Date())+'-01',1).slice(0,7);
+  for(const o of sel){
+    z.innerHTML=`<div style="display:flex;gap:.6rem;align-items:center"><div class="sp"></div> Import ${n+1} / ${sel.length}…</div>`;
+    let numero=o.numero&&!usedNum.has(o.numero)?o.numero:null;if(!numero){while(usedNum.has(num))num++;numero=num;}usedNum.add(numero);
+    const row={agency_id:U.id,numero,statut:'actif',date_signature:o.date_signature||gaToday(),duree_mois:12,tacite:true,
+      owner_name:o.owner_name,owner_email:o.owner_email,owner_phone:o.owner_phone,owner_address:o.owner_address,owner_iban:o.owner_iban,
+      bien_label:o.bien_label,bien_adresse:o.bien_adresse,bien_surface:o.bien_surface,bien_meuble:o.bien_meuble,annee_construction:o.annee_construction,
+      taux_honoraires:o.taux_honoraires??7,base_honoraires:'cc',frais_fixes:0,seuil_travaux:300,reversement_jour:10,gli:o.loc_garantie==='GLI',gli_taux:2.5,gli_delai_jours:30,depot_detenu_par:'agence',
+      auto_avis:true,auto_relances:true,auto_quittance:false,auto_crg:true,auto_conformite:true,
+      loc_nom:o.loc_nom,loc_email:o.loc_email,loc_phone:o.loc_phone,loc_loyer_hc:o.loc_loyer_hc,loc_charges:o.loc_charges,loc_depot:o.loc_depot,
+      loc_debut:o.loc_debut||(o.loc_nom?gaToday():null),loc_jour:o.loc_jour,loc_garant_nom:o.loc_garant_nom,loc_garantie:o.loc_garantie,
+      notes:'Importé depuis l’ancien logiciel le '+gaFrC(gaToday())};
+    // L'agence reprend la gestion : pas de loyer appelé avant le mois prochain (le mois en cours a été géré par l'ancien logiciel)
+    row.created_at=new Date().toISOString();
+    const{data,error}=await sb.from('gestion_mandats').insert(row).select().single();
+    if(error){toast('Erreur sur « '+(o.bien_label||o.bien_adresse)+' » : '+error.message);continue;}
+    GA.mandats.push(data);n++;
+    const fin={...(data.fin_bail||{}),reprise:nextMonth};
+    await sb.from('gestion_mandats').update({fin_bail:fin}).eq('id',data.id);data.fin_bail=fin;
+    if(o._arriere>0){const{data:p}=await sb.from('payments').insert({landlord_id:U.id,mandat_id:data.id,tenant_name:o.loc_nom,tenant_email:o.loc_email,amount:gaR(o._arriere),type:'loyer',status:'late',due_date:gaAddDays(gaYm(new Date())+'-01',-1)}).select().single();if(p)GA.pays.push(p);}
+    if(o._assur){const{data:e}=await sb.from('gestion_echeances').upsert({agency_id:U.id,mandat_id:data.id,type:'assurance_habitation',date_expiration:o._assur,date_document:gaAddM(o._assur,-12)},{onConflict:'mandat_id,type'}).select().single();if(e)GA.ech.push(e);}
+    if(o._dpe){const{data:e}=await sb.from('gestion_echeances').upsert({agency_id:U.id,mandat_id:data.id,type:'dpe',resultat:o._dpe},{onConflict:'mandat_id,type'}).select().single();if(e)GA.ech.push(e);}
+  }
+  await gaEnsureSchedule();
+  gaCloseModal();toast(`<i data-lucide=check-circle-2 class=ic></i> ${n} bien${n>1?'s':''} importé${n>1?'s':''}`);gaGo({t:'home'});
 }
