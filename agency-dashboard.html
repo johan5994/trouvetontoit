@@ -885,6 +885,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
             <input id="tm-settings-new-name" placeholder="Nom d’un membre de l’équipe…" style="flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem .65rem;color:var(--txt);font-size:.82rem">
             <button onclick="addTeamMemberFromSettings()" style="background:var(--terra);color:white;border:none;border-radius:8px;padding:.5rem .8rem;font-size:.8rem;font-weight:600;cursor:pointer">+ Ajouter</button>
           </div>
+          <div style="margin-top:.5rem" id="tm-metier-pick"></div>
+          <div style="font-size:.72rem;color:var(--td);margin-top:.6rem;line-height:1.5">Chaque membre ne voit que ce qui concerne son métier : <strong>vente</strong> (biens à vendre, visites, estimations), <strong>location</strong> (annonces, candidatures, baux, honoraires), <strong>gestion</strong> (biens gérés, loyers, propriétaires). Le PIN agence donne la vue complète.</div>
         </div>
       </div>
     </div>
@@ -1070,7 +1072,7 @@ function getTeamMembers(){
 
 function checkTeamMemberIdentity(){
   const current=localStorage.getItem('rm_team_member');
-  if(current){updateTeamMemberBadge(current);return;}
+  if(current){updateTeamMemberBadge(current);applyRoleNav();if(metierLanding()!=='overview')sp(metierLanding());return;}
   showWhoAreYouModal();
 }
 
@@ -1092,12 +1094,13 @@ function showWhoAreYouModal(){
       <button onclick="promptAgencyAdminPin()" style="width:100%;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.35);border-radius:10px;padding:.6rem .8rem;text-align:left;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--agencybright);display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem"><i data-lucide=building-2 class=ic></i> Agence (vue complète — voit tout le monde)<span style="font-size:.68rem;font-weight:400"><i data-lucide=lock class=ic></i></span></button>
       <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem">Ou se connecter en tant que membre de l’équipe</div>
       <div id="wau-list" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.85rem">
-        ${members.map(m=>`<button onclick="promptTeamMemberPin('${m.name.replace(/'/g,"\\'")}')" style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:.6rem .8rem;text-align:left;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--txt);display:flex;justify-content:space-between;align-items:center">${m.name}<span style="font-size:.68rem;color:var(--td);font-weight:400"><i data-lucide=lock class=ic></i></span></button>`).join('')||'<div style="font-size:.78rem;color:var(--td);text-align:center;padding:.5rem 0">Aucun membre d’équipe — ajoutez-en un ci-dessous.</div>'}
+        ${members.map(m=>`<button onclick="promptTeamMemberPin('${m.name.replace(/'/g,"\\'")}')" style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:.6rem .8rem;text-align:left;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--txt);display:flex;justify-content:space-between;align-items:center"><span>${m.name}<span style="display:block;margin-top:.25rem">${metierBadges(m.metiers,true)}</span></span><span style="font-size:.68rem;color:var(--td);font-weight:400"><i data-lucide=lock class=ic></i></span></button>`).join('')||'<div style="font-size:.78rem;color:var(--td);text-align:center;padding:.5rem 0">Aucun membre d’équipe — ajoutez-en un ci-dessous.</div>'}
       </div>
       <div style="display:flex;gap:.4rem">
         <input id="wau-new-name" placeholder="Ajouter un nom…" style="flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:.5rem .65rem;color:var(--txt);font-size:.82rem">
         <button onclick="addAndSelectTeamMember()" style="background:var(--terra);color:white;border:none;border-radius:8px;padding:.5rem .8rem;font-size:.8rem;font-weight:600;cursor:pointer">Ajouter</button>
       </div>
+      <div style="margin-top:.5rem"><div style="font-size:.68rem;color:var(--td);margin-bottom:.3rem">Son métier (un ou plusieurs) :</div>${metierPicker('wau-m',[])}</div>
     </div>`;
   document.body.appendChild(modal);
 }
@@ -1203,6 +1206,8 @@ function selectTeamMember(name){
   document.getElementById('pin-modal')?.remove();
   document.getElementById('whoareyou-modal')?.remove();
   updateTeamMemberBadge(name);
+  applyRoleNav();try{loadOverview();}catch(e){}
+  if(!getMemberMetiers()||getMemberMetiers().length===1&&getMemberMetiers()[0]==='gestion')sp(metierLanding());
   toast(`<i data-lucide=check-circle-2 class=ic></i> Connecté en tant que ${name==='__AGENCY_ADMIN__'?'Agence (vue complète)':name}`);
   // Rafraîchir la page courante pour que le filtre "Mine/Everyone" s'applique
   // immédiatement avec la bonne identité
@@ -1219,7 +1224,9 @@ async function addAndSelectTeamMember(){
   if(!name){toast('Saisissez un nom');return;}
   const members=getTeamMembers();
   if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i> Ce nom est déjà dans la liste — sélectionnez-le et saisissez son PIN.');return;}
-  members.push({name,pin:null});
+  const metiers=readMetiers('wau-m');
+  if(!metiers.length){toast('Choisissez au moins un métier : vente, location ou gestion');return;}
+  members.push({name,pin:null,metiers});
   try{
     const{data:updated,error}=await sb.from('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id).select();
     if(error){toast('<i data-lucide=x-circle class=ic></i> Enregistrement impossible : '+error.message);return;}
@@ -1243,10 +1250,12 @@ async function removeTeamMember(name){
 function renderTeamMembersSettings(){
   const wrap=document.getElementById('team-members-settings');
   if(!wrap)return;
+  const pk=document.getElementById('tm-metier-pick');if(pk&&!pk.innerHTML)pk.innerHTML='<div style="font-size:.68rem;color:var(--td);margin-bottom:.3rem">Métier du nouveau membre :</div>'+metierPicker('tm-m',[]);
   const members=getTeamMembers();
   wrap.innerHTML=(members.map(m=>`
     <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-bottom:.3rem">
-      <span style="font-size:.82rem"><i data-lucide=user class=ic></i> ${m.name} ${m.pin?'<i data-lucide=lock class=ic></i>':'<span style="color:var(--gold);font-size:.68rem">(aucun PIN défini)</span>'}</span>
+      <span style="font-size:.82rem;display:flex;flex-direction:column;gap:.3rem"><span><i data-lucide=user class=ic></i> ${m.name} ${m.pin?'<i data-lucide=lock class=ic></i>':'<span style="color:var(--gold);font-size:.68rem">(aucun PIN défini)</span>'}</span>
+        <span style="display:flex;gap:.3rem;flex-wrap:wrap">${Object.entries(METIERS).map(([k,v])=>{const on=(m.metiers||[]).includes(k);return`<button onclick="setMemberMetiers('${m.name.replace(/'/g,"\\'")}',${JSON.stringify(Object.keys(METIERS)).replace(/"/g,"'")}.filter(x=>x==='${k}'?${!on}:${JSON.stringify(m.metiers||[]).replace(/"/g,"'")}.includes(x)))" style="font-size:.66rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;cursor:pointer;border:1px solid ${v.c}66;background:${on?v.c+'33':'transparent'};color:${on?v.c:'var(--td)'}">${on?'✓ ':''}${v.court}</button>`;}).join('')}${!(m.metiers||[]).length?'<span style="font-size:.66rem;color:var(--td)">accès complet</span>':''}</span></span>
       <button onclick="removeTeamMember('${m.name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:var(--red);font-size:.75rem;cursor:pointer"><i data-lucide=x class=ic></i> Retirer</button>
     </div>`).join(''))||'<div style="font-size:.78rem;color:var(--td)">Aucun membre d’équipe.</div>';
 }
@@ -1257,7 +1266,9 @@ async function addTeamMemberFromSettings(){
   if(!name){toast('Saisissez un nom');return;}
   const members=getTeamMembers();
   if(members.some(m=>m.name===name)){toast('<i data-lucide=alert-triangle class=ic></i> Déjà ajouté');return;}
-  members.push({name,pin:null});
+  const metiers=readMetiers('tm-m');
+  if(!metiers.length){toast('Choisissez au moins un métier');return;}
+  members.push({name,pin:null,metiers});
   try{
     const{error}=await sb.from('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id);
     if(error){toast('<i data-lucide=x-circle class=ic></i> Enregistrement impossible : '+error.message);return;}
@@ -1268,8 +1279,126 @@ async function addTeamMemberFromSettings(){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
+// ── Métiers de l'équipe : vente, location, gestion ──────────────
+// Chaque membre a un ou plusieurs métiers : son menu, son tableau de bord
+// et ses annonces sont limités à ce qui le concerne. L'agence (PIN agence) voit tout.
+const METIERS={
+  vente:{l:'Agent de vente',court:'Vente',ic:'tag',c:'#E8A020'},
+  location:{l:'Agent de location',court:'Location',ic:'key-round',c:'#4CAF7D'},
+  gestion:{l:'Gestionnaire locatif',court:'Gestion',ic:'briefcase',c:'#818CF8'},
+};
+// Pages visibles par métier ('*' = tout le monde, 'admin' = agence uniquement)
+const NAV_METIER={overview:'*',analytics:'*',crm:'*',messages:'*',
+  import:['vente','location'],'new-listing':['vente','location'],listings:['vente','location'],visits:['vente','location'],
+  applications:['location'],honoraires:['location'],rented:['location','gestion'],gestion:['gestion'],estimations:['vente','gestion'],
+  subscription:'admin',profile:'admin'};
+function getMemberMetiers(){
+  if(isAgencyAdmin())return null;
+  const me=getCurrentTeamMember();if(!me)return null;
+  const m=getTeamMembers().find(x=>x.name===me);
+  return m&&Array.isArray(m.metiers)&&m.metiers.length?m.metiers:null; // null = accès complet (anciens membres)
+}
+function canSeePage(id){
+  const ms=getMemberMetiers();if(!ms)return true;
+  const r=NAV_METIER[id];if(!r||r==='*')return true;if(r==='admin')return false;
+  return r.some(x=>ms.includes(x));
+}
+function metierLanding(){const ms=getMemberMetiers();if(ms&&ms.length===1&&ms[0]==='gestion')return'gestion';return'overview';}
+function metierBadges(ms,small){return(ms||[]).map(k=>METIERS[k]?`<span style="display:inline-flex;align-items:center;gap:.2rem;font-size:${small?'.6rem':'.66rem'};font-weight:700;padding:.08rem .45rem;border-radius:100px;background:${METIERS[k].c}22;color:${METIERS[k].c};border:1px solid ${METIERS[k].c}55"><i data-lucide=${METIERS[k].ic} class=ic></i> ${METIERS[k].court}</span>`:'').join(' ');}
+function applyRoleNav(){
+  const ms=getMemberMetiers();
+  document.querySelectorAll('#sidebar .ni[onclick*="sp(\'"]').forEach(b=>{const id=(b.getAttribute('onclick').match(/sp\('([^']+)'/)||[])[1];if(id)b.style.display=canSeePage(id)?'':'none';});
+  // Masquer les intitulés de section vides
+  document.querySelectorAll('#sidebar .nl').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&!n.classList.contains('nl')){if(n.classList.contains('ni')&&n.style.display!=='none')vis=true;n=n.nextElementSibling;}h.style.display=vis?'':'none';});
+  document.querySelectorAll('.topbar button[onclick*="sp(\'import\'"],.topbar button[onclick*="sp(\'new-listing\'"]').forEach(b=>b.style.display=canSeePage('import')?'':'none');
+  const ur=document.querySelector('#sidebar .ur');
+  if(ur)ur.innerHTML=isAgencyAdmin()?'Admin agence':ms?ms.map(k=>METIERS[k]?.l).filter(Boolean).join(' · '):'Équipe';
+  // Annonce : type imposé par le métier
+  const only=ms&&ms.includes('vente')!==ms.includes('location')?(ms.includes('vente')?'for_sale':'long'):null;
+  const sel=document.getElementById('nl-mode');
+  if(sel){[...sel.options].forEach(o=>{o.hidden=!!only&&o.value!==only;});if(only&&sel.value!==only){sel.value=only;try{toggleListingMode('nl');}catch(e){}}}
+  if(only)try{setImportMode(only);}catch(e){}
+  document.querySelectorAll('[onclick^="setImportMode("]').forEach(el=>{const v=(el.getAttribute('onclick').match(/setImportMode\('([^']+)'/)||[])[1];if(v)(el.closest('label')||el).style.display=only&&v!==only?'none':'';});
+  // Page courante interdite → page d'accueil du métier
+  const cur=(document.querySelector('.page.act')?.id||'').replace('page-','');
+  if(cur&&!canSeePage(cur))sp(metierLanding());
+  if(window.lucide)lucide.createIcons();
+}
+// Filtre des annonces selon le métier (vente / location)
+function filterListingsByMetier(list){
+  const ms=getMemberMetiers();if(!ms)return list;
+  if(!ms.includes('vente'))list=list.filter(l=>l.type!=='for_sale');
+  if(!ms.includes('location'))list=list.filter(l=>l.type==='for_sale');
+  return list;
+}
+// Tableau de bord propre au métier
+async function renderRoleOverview(){
+  const pg=document.getElementById('page-overview');if(!pg)return;
+  let box=document.getElementById('role-overview');
+  if(!box){box=document.createElement('div');box.id='role-overview';pg.prepend(box);}
+  const def=pg.querySelector('.kgrid:not(#role-overview .kgrid)');
+  const ms=getMemberMetiers();
+  if(!ms){box.innerHTML='';[...pg.children].forEach(c=>{if(c!==box)c.style.display='';});return;}
+  [...pg.children].forEach(c=>{if(c!==box)c.style.display='none';});
+  const me=getCurrentTeamMember();
+  box.innerHTML=`<div style="margin-bottom:1rem"><div style="font-size:1.15rem;font-weight:700">Bonjour ${me}</div><div style="margin-top:.35rem">${metierBadges(ms)}</div></div><div id="role-ov-body"><div class="sp"></div></div>`;
+  const{data:ls}=await sb.from('listings').select('id,type,status,active,created_by,title').eq('agent_id',U.id);
+  const mine=(ls||[]).filter(l=>!l.created_by||l.created_by===me);
+  const ids=mine.map(l=>l.id);const today=new Date().toISOString().slice(0,10);
+  const[vis,bks,est]=await Promise.all([
+    ids.length?sb.from('visits').select('id,listing_id,status,visit_date').in('listing_id',ids):{data:[]},
+    ids.length?sb.from('bookings').select('id,listing_id,status').in('listing_id',ids):{data:[]},
+    sb.from('estimation_requests').select('id,status,type').eq('agency_id',U.id)]);
+  const V=vis.data||[],B=bks.data||[],E=est.data||[];
+  const tile=(l,v,s,c,act)=>`<div class="kcard ${c}" ${act?`onclick="${act}" style="cursor:pointer"`:''}><div class="klabel">${l}</div><div class="kval">${v}</div><div class="ksub">${s}</div></div>`;
+  const btn=(l,ic,f)=>`<button class="btn bg bsm" onclick="${f}"><i data-lucide=${ic} class=ic></i> ${l}</button>`;
+  let html='';
+  if(ms.includes('vente')){
+    const ven=mine.filter(l=>l.type==='for_sale');const vid=new Set(ven.map(l=>l.id));
+    html+=`<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${METIERS.vente.c};margin:.4rem 0 .5rem">${METIERS.vente.l}</div>
+    <div class="kgrid" style="margin-bottom:.7rem">${tile('Biens à vendre',ven.filter(l=>l.active!==false).length,'en ligne','gold',"sp('listings')")}${tile('Visites à venir',V.filter(v=>vid.has(v.listing_id)&&String(v.visit_date||'')>=today).length,'acquéreurs','blue',"sp('visits')")}${tile('Estimations à traiter',E.filter(e=>e.status==='pending').length,'demandes de propriétaires','terra',"sp('estimations')")}</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.2rem">${btn('Nouvelle annonce de vente','plus',"sp('new-listing')")}${btn('Mes biens à vendre','home',"sp('listings')")}${btn('Estimations','ruler',"sp('estimations')")}</div>`;
+  }
+  if(ms.includes('location')){
+    const loc=mine.filter(l=>l.type!=='for_sale');const lid=new Set(loc.map(l=>l.id));
+    const cand=B.filter(b=>lid.has(b.listing_id)&&['pending','booking_pending'].includes(b.status)).length;
+    const enc=B.filter(b=>lid.has(b.listing_id)&&['accepted','lease_pending','edl_scheduled','signing_day'].includes(b.status)).length;
+    html+=`<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${METIERS.location.c};margin:.4rem 0 .5rem">${METIERS.location.l}</div>
+    <div class="kgrid" style="margin-bottom:.7rem">${tile('Annonces en location',loc.filter(l=>l.active!==false).length,'en ligne','green',"sp('listings')")}${tile('Candidatures à traiter',cand,'en attente de réponse',cand?'terra':'blue',"sp('applications')")}${tile('Visites à venir',V.filter(v=>lid.has(v.listing_id)&&String(v.visit_date||'')>=today).length,'locataires','blue',"sp('visits')")}${tile('Baux en cours de signature',enc,'bail / état des lieux','gold',"sp('applications')")}</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.2rem">${btn('Nouvelle annonce de location','plus',"sp('new-listing')")}${btn('Candidatures','clipboard-list',"sp('applications')")}${btn('Visites','calendar',"sp('visits')")}${btn('Honoraires','receipt',"sp('honoraires')")}</div>`;
+  }
+  if(ms.includes('gestion')){
+    let g='<div class="sp"></div>';
+    try{if(typeof GA==='undefined')await new Promise(r=>window.addEventListener('load',r,{once:true}));if(!GA.loaded)await gaLoad();
+      const act=gaActifs();const imp=act.reduce((s,m)=>s+gaImpayes(m).reduce((a,p)=>a+gaReste(p),0),0);const nImp=act.filter(m=>gaImpayes(m).length).length;const T=gaTasks();
+      g=`${tile('Biens gérés',act.length,`${act.filter(m=>gaTen(m)).length} loués`,'blue',"sp('gestion')")}${tile('Impayés',gaEur(imp),`${nImp} bien${nImp>1?'s':''}`,imp?'terra':'green',"sp('gestion')")}${tile('À faire',T.filter(x=>x.p<=2).length,'urgent ou important','gold',"sp('gestion')")}`;
+    }catch(e){g=tile('Gestion locative','→','ouvrir','blue',"sp('gestion')");}
+    html+=`<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${METIERS.gestion.c};margin:.4rem 0 .5rem">${METIERS.gestion.l}</div>
+    <div class="kgrid" style="margin-bottom:.7rem">${g}</div><div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.2rem">${btn('Mes biens gérés','briefcase',"sp('gestion')")}${btn('Importer des biens',"upload","sp('gestion');setTimeout(()=>gaImportModal(),400)")}</div>`;
+  }
+  const b=document.getElementById('role-ov-body');if(b)b.innerHTML=html;
+  if(window.lucide)lucide.createIcons();
+}
+// Choix des métiers (cases à cocher réutilisables)
+function metierPicker(prefix,sel){
+  sel=sel||[];
+  return`<div style="display:flex;gap:.35rem;flex-wrap:wrap">${Object.entries(METIERS).map(([k,v])=>`<label style="display:inline-flex;align-items:center;gap:.3rem;font-size:.76rem;padding:.3rem .55rem;border-radius:8px;border:1px solid ${v.c}66;background:${v.c}14;cursor:pointer;color:var(--txt)"><input type="checkbox" id="${prefix}-${k}" ${sel.includes(k)?'checked':''} style="accent-color:${v.c}"> ${v.court}</label>`).join('')}</div>`;
+}
+const readMetiers=prefix=>Object.keys(METIERS).filter(k=>document.getElementById(`${prefix}-${k}`)?.checked);
+async function saveTeamMembers(members){
+  const{data,error}=await sb.from('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id).select();
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return false;}
+  if(!data||!data.length){toast('<i data-lucide=alert-triangle class=ic></i> Enregistrement bloqué — problème de droits dans la base');return false;}
+  agencyData={...agencyData,team_members:JSON.stringify(members)};return true;
+}
+async function setMemberMetiers(name,metiers){
+  const members=getTeamMembers();const m=members.find(x=>x.name===name);if(!m)return;
+  m.metiers=metiers;if(await saveTeamMembers(members)){renderTeamMembersSettings();toast('Métier mis à jour');}
+}
+
 // ── Navigation ────────────────────────────────────────────────
 function sp(id, btn){
+  if(typeof canSeePage==='function'&&!canSeePage(id))id=metierLanding();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   const pg=document.getElementById('page-'+id);
@@ -1291,7 +1420,7 @@ function sp(id, btn){
   if(id==='crm')loadCRM();
   if(LL_FRAME_PAGES[id])loadLLFrame(id);
   if(id==='honoraires')loadHonoraires();
-  if(id==='gestion')loadGestionAgence();
+  if(id==='gestion'){if(typeof loadGestionAgence==='function')loadGestionAgence();else window.addEventListener('load',()=>loadGestionAgence(),{once:true});}
   if(id==='visits')loadVisits();
   if(id==='messages')loadAgencyMessages();
   if(id==='estimations')loadEstimations();
@@ -1311,6 +1440,7 @@ function getPageSub(id){
 
 // ── Overview ──────────────────────────────────────────────────
 async function loadOverview(){
+  try{renderRoleOverview();}catch(e){console.warn(e);}
   loadTeamOverview();
   try{
     const{data:listings}=await sb.from('listings').select('id,title,zone,price,photos,created_at').eq('agent_id',U.id).order('created_at',{ascending:false}).limit(5);
@@ -1385,6 +1515,7 @@ async function loadListings(){
     if(me&&getTeamFilterMode('listings')==='mine'){
       listings=listings.filter(l=>!l.created_by||l.created_by===me);
     }
+    listings=filterListingsByMetier(listings);
 
     const toggleEl=document.getElementById('listings-team-toggle');
     if(toggleEl)toggleEl.innerHTML=renderTeamFilterToggle('listings','loadListings');
