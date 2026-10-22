@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Régularisation des charges — Trouve Ton Toit</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F6F7FB;--s:#fff;--txt:#161A26;--td:#5E6475;--b:rgba(22,26,38,.1);--green:#2F8F5B;--gold:#B7791F;--red:#C2410C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;-webkit-font-smoothing:antialiased}
+.nav{padding:1rem 1.25rem;border-bottom:1px solid var(--b);background:var(--s)}
+.logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.2rem;color:var(--bleu);text-decoration:none}
+.wrap{max-width:640px;margin:0 auto;padding:2rem 1rem 4rem}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+h1{font-family:'Playfair Display',serif;font-size:1.75rem;line-height:1.2;margin:.3rem 0 .4rem;text-wrap:balance}
+.sub{color:var(--td);font-size:.95rem;margin-bottom:1.6rem}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.1rem 1.15rem;margin-bottom:.8rem}
+.card h2{font-size:1rem;margin-bottom:.15rem;display:flex;gap:.5rem;align-items:baseline}
+.num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--bleu);color:#fff;font-size:.72rem;align-items:center;justify-content:center;flex-shrink:0;transform:translateY(-1px)}
+.opt{font-size:.72rem;color:var(--td);font-weight:500}
+.hint{font-size:.82rem;color:var(--td);margin-bottom:.7rem}
+.drop{display:flex;align-items:center;justify-content:center;gap:.5rem;border:1.5px dashed rgba(27,79,216,.35);border-radius:10px;padding:.85rem;cursor:pointer;color:var(--bleu);font-weight:600;font-size:.88rem;background:rgba(27,79,216,.03);transition:background .15s}
+.drop:hover,.drop:focus-within{background:rgba(27,79,216,.08)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.files{margin-top:.55rem;display:flex;flex-direction:column;gap:.3rem}
+.file{display:flex;justify-content:space-between;gap:.6rem;font-size:.82rem;background:var(--bg);border-radius:8px;padding:.4rem .6rem}
+.file span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ok{color:var(--green);font-weight:600;flex-shrink:0}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.82rem;color:var(--td);margin-top:.6rem;cursor:pointer}
+.btn{display:block;width:100%;border:none;border-radius:12px;background:var(--bleu);color:#fff;font:600 1rem 'DM Sans',sans-serif;padding:.9rem;cursor:pointer;margin-top:1.1rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.drop:focus-within{outline:2px solid var(--marine);outline-offset:2px}
+.note{font-size:.76rem;color:var(--td);margin-top:.8rem;text-align:center}
+.done{text-align:center;padding:2rem 1.2rem}
+.done .big{font-size:2.2rem;color:var(--green)}
+.err{color:var(--red);font-size:.85rem;margin-top:.6rem}
+.sp{width:22px;height:22px;border:3px solid rgba(27,79,216,.2);border-top-color:var(--bleu);border-radius:50%;animation:r 1s linear infinite;margin:2rem auto}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sp{animation:none}}
+</style>
+</head>
+<body>
+<div class="nav"><a class="logo" href="/">Trouve Ton Toit</a></div>
+<main class="wrap" id="app"><div class="sp" role="status" aria-label="Chargement"></div></main>
+<script>
+const SU='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const app=document.getElementById('app');
+const TYPES=[
+  {k:'syndic',t:'Décompte annuel de charges du syndic',h:y=>`Le relevé de l’année ${y} envoyé par le syndic après l’assemblée générale (« décompte individuel des charges » ou « répartition des charges »). Pas les appels de fonds trimestriels.`},
+  {k:'taxe_fonciere',t:'Avis de taxe foncière',h:y=>`L’avis ${y} (reçu à l’automne) : il contient la taxe d’enlèvement des ordures ménagères, que le locataire rembourse.`},
+  {k:'facture',t:'Autres factures',opt:true,h:()=>'Eau, entretien de la chaudière, contrat d’entretien… si vous les avez payés vous-même.'}];
+let R=null,M=null,A=null,busy=false;
+function render(){
+  const docs=R.docs||[];
+  const sent=['envoye','applique'].includes(R.statut);
+  app.innerHTML=`<div class="eyebrow">${E(A?.agency_name||'Votre agence')}</div>
+  <h1>Régularisation des charges ${R.annee}</h1>
+  <p class="sub">${E(M?.bien_label||M?.bien_adresse||'Votre logement')}${M?.bien_adresse&&M?.bien_label?' · '+E(M.bien_adresse):''}<br>Déposez vos documents : nous calculons ce que le locataire doit (ou ce qu’on lui rembourse) et nous le prévenons.</p>
+  ${sent?`<div class="card" style="border-color:rgba(47,143,91,.35)"><strong>La régularisation ${R.annee} a déjà été envoyée au locataire.</strong><div class="hint" style="margin:.2rem 0 0">Vous pouvez encore déposer un document : votre gestionnaire en sera informé.</div></div>`:''}
+  ${TYPES.map((t,i)=>{const fs=docs.filter(d=>d.type===t.k);const sansSyndic=t.k==='syndic'&&R._sansSyndic;
+    return`<section class="card" aria-labelledby="h-${t.k}">
+    <h2 id="h-${t.k}"><span class="num">${i+1}</span><span>${t.t} ${t.opt?'<span class="opt">facultatif</span>':''}</span></h2>
+    <p class="hint">${t.h(R.annee)}</p>
+    ${sansSyndic?'':`<label class="drop"><input type="file" id="f-${t.k}" accept="application/pdf,image/*" multiple onchange="up('${t.k}',this.files)"><span>${fs.length?'Ajouter un autre fichier':'Choisir un PDF ou prendre une photo'}</span></label>`}
+    <div class="files">${fs.map(d=>`<div class="file"><span>${E(d.name)}</span><span class="ok">Reçu</span></div>`).join('')}</div>
+    ${t.k==='syndic'?`<label class="chk"><input type="checkbox" id="sans-syndic" ${R._sansSyndic?'checked':''} onchange="R._sansSyndic=this.checked;render()"> Pas de syndic (maison ou immeuble à un seul propriétaire)</label>`:''}
+  </section>`;}).join('')}
+  <div id="err" class="err" role="alert"></div>
+  <button class="btn" id="go" ${docs.length&&!busy?'':'disabled'} onclick="envoyer()">${busy?'Envoi…':'Envoyer à mon gestionnaire'}</button>
+  <p class="note">Vos documents ne sont visibles que par votre agence. ${A?.phone?`Une question : ${E(A.phone)}.`:''}</p>`;
+}
+async function up(type,files){
+  if(!files?.length||busy)return;busy=true;render();
+  try{
+    for(const f of files){
+      if(f.size>20*1024*1024)throw new Error(`« ${f.name} » dépasse 20 Mo`);
+      const ext=(f.name.split('.').pop()||'pdf').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const path=`docs/charges-${R.id}/${Date.now()}-${type}.${ext}`;
+      const{error}=await sb.storage.from('documents-dossiers').upload(path,f,{upsert:true,contentType:f.type||undefined});
+      if(error)throw new Error(error.message);
+      R.docs=[...(R.docs||[]),{type,path,name:f.name,at:new Date().toISOString()}];
+      const{error:e2}=await sb.from('gestion_regul').update({docs:R.docs}).eq('id',R.id);
+      if(e2)throw new Error(e2.message);
+    }
+  }catch(e){busy=false;render();document.getElementById('err').textContent='Envoi impossible : '+e.message+'. Réessayez ou écrivez à votre agence.';return;}
+  busy=false;render();
+}
+async function envoyer(){
+  if(busy||!(R.docs||[]).length)return;busy=true;render();
+  const upd={docs_recus_at:new Date().toISOString(),extraction:null,extraction_err:null};
+  if(R.statut==='attente_docs')upd.statut='a_verifier';
+  const{error}=await sb.from('gestion_regul').update(upd).eq('id',R.id);
+  if(error){busy=false;render();document.getElementById('err').textContent='Envoi impossible : '+error.message;return;}
+  try{fetch('/.netlify/functions/regul-extract-background',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:R.id})});}catch(e){}
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:R.agency_id,type:'message',read:false,content:`Régularisation des charges ${R.annee} — ${M?.bien_label||M?.bien_adresse||'un bien'} : ${M?.owner_name||'le propriétaire'} a déposé ${(R.docs||[]).length} document(s).`});}catch(e){}
+  app.innerHTML=`<div class="card done"><div class="big" aria-hidden="true">✓</div><h1 style="font-size:1.4rem">Merci, c’est reçu</h1>
+    <p class="sub" style="margin:0">${E(A?.agency_name||'Votre agence')} vérifie les montants et envoie le décompte à votre locataire. Le résultat apparaîtra sur votre prochain compte rendu de gestion.</p></div>`;
+}
+(async()=>{
+  const t=new URLSearchParams(location.search).get('t');
+  if(!t){app.innerHTML='<div class="card">Lien incomplet. Utilisez le lien reçu par e-mail.</div>';return;}
+  const{data:r}=await sb.from('gestion_regul').select('*').eq('token',t).maybeSingle();
+  if(!r){app.innerHTML='<div class="card">Ce lien n’est plus valable. Demandez-en un nouveau à votre agence.</div>';return;}
+  R=r;
+  const[{data:m},{data:a}]=await Promise.all([
+    sb.from('gestion_mandats').select('bien_label,bien_adresse,owner_name').eq('id',r.mandat_id).maybeSingle(),
+    sb.from('agency_profiles').select('agency_name,phone').eq('clerk_id',r.agency_id).maybeSingle()]);
+  M=m;A=a;render();
+})();
+</script>
+</body>
+</html>
