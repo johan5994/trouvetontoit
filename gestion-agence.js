@@ -61,6 +61,7 @@ async function gaLoad(){
   GA.profiles={};
   if(ids.length){const{data}=await sb.from('profiles').select('clerk_id,full_name,email,phone,dossier_data').in('clerk_id',ids);(data||[]).forEach(x=>GA.profiles[x.clerk_id]=x);}
   GA.loaded=true;
+  try{await gaLinkTenants();await gaLoadMsgs();}catch(e){GA.msgs=GA.msgs||[];}
   await gaAttachPayments();
   await gaEnsureSchedule();
 }
@@ -89,7 +90,7 @@ function gaTen(m){
       garantie:gar?.type||'',garant_nom:[g0.prenom,g0.nom].filter(Boolean).join(' '),garant_email:g0.email||'',visale:gar?.type==='garant_visale',
       zone_tendue:L.zone_tendue===true};
   }
-  if(m.loc_nom)return{src:'ext',lease:null,nom:m.loc_nom,email:m.loc_email||'',tel:m.loc_phone||'',tenant_id:null,
+  if(m.loc_nom)return{src:'ext',lease:null,nom:m.loc_nom,email:m.loc_email||'',tel:m.loc_phone||'',tenant_id:m.loc_clerk_id||null,
     hc:+m.loc_loyer_hc||0,ch:+m.loc_charges||0,depot:+m.loc_depot||0,debut:m.loc_debut,fin:null,jour:+m.loc_jour||1,
     meuble:m.bien_meuble!==false,garantie:m.loc_garantie||'',garant_nom:m.loc_garant_nom||'',garant_email:m.loc_garant_email||'',visale:/visale/i.test(m.loc_garantie||''),zone_tendue:false};
   return null;
@@ -193,7 +194,8 @@ async function gaMail(to,subject,title,html,cta){
 }
 async function gaMsg(to,listingId,content){
   if(!to)return;
-  try{await sb.from('messages').insert({listing_id:listingId||null,sender_id:U.id,receiver_id:to,content,type:'message'});}catch(e){}
+  // Messages automatiques au locataire : dans le même fil que la messagerie avec le gestionnaire
+  try{const{data}=await sb.from('messages').insert({listing_id:listingId||null,sender_id:U.id,receiver_id:to,content,type:'gestion',read:false}).select().single();if(data&&GA.msgs)GA.msgs.push(data);}catch(e){}
 }
 const gaAgence=()=>({nom:agencyData?.agency_name||'Agence',adresse:agencyData?.address||'',tel:agencyData?.phone||'',carte:agencyData?.license_number||'',cci:agencyData?.cci_delivrance||'',garantie:agencyData?.garantie_financiere||'',web:agencyData?.website||''});
 
@@ -307,6 +309,8 @@ function gaTasks(){
       if(!st.length&&d<5)add({p:3,cat:'Encaissements',ic:'clock',t:`Loyer en attente — ${t?.nom||p.tenant_name||''}`,d:`${bien} · ${gaEur(gaReste(p))} dû le ${gaFrC(p.due_date)} (J+${d})`,a:[['Encaissé',`gaEncaisser('${p.id}')`]]});
       st.forEach(s=>add({p:s.p,cat:'Impayés',ic:'alert-triangle',t:`${s.l} — ${t?.nom||p.tenant_name||''}`,d:`${bien} · ${gaEur(gaReste(p))} dû le ${gaFrC(p.due_date)} (J+${d})`,a:[[s.k==='r1'||s.k==='r2'?'Envoyer':'Faire',s.a],['Encaissé',`gaEncaisser('${p.id}')`]]}));
     }
+    // Messages du locataire non lus
+    {const u=gaUnreadMsgs(m);if(u.length){const l=u[u.length-1];add({p:2,cat:'Messages',ic:'message-circle',t:`Message de ${t?.nom||'votre locataire'}${u.length>1?' (+'+(u.length-1)+')':''}`,d:`${bien} · « ${String(l.content).slice(0,90)}${String(l.content).length>90?'…':''} »`,a:[['Répondre',`gaGo({t:'bien',id:'${m.id}',s:'msg'})`]]});}}
     // Avis d'échéance (si l'envoi automatique est coupé)
     if(!m.auto_avis)for(const p of gaPays(m).filter(x=>gaUnpaid(x)&&!x.avis_sent_at)){const d=gaDays(today,p.due_date);if(d>=0&&d<=7)add({p:3,cat:'Encaissements',ic:'file-text',t:`Avis d’échéance à envoyer — ${t?.nom||''}`,d:`${bien} · ${gaEur(p.amount)} au ${gaFrC(p.due_date)}`,a:[['Envoyer',`gaAvis('${p.id}',true)`]]});}
     // Quittances
@@ -1312,8 +1316,8 @@ function gaRenderOutils(){
 // et en haut quelques actions groupées en un clic.
 // (Remplace l'ancien affichage en 11 onglets ; les fonctions métier restent.)
 // ════════════════════════════════════════════════════════════════════
-GA.view={t:'home'};
-function gaGo(v){GA.view=v;gaRender();const mn=document.getElementById('main');if(mn)mn.scrollTop=0;window.scrollTo(0,0);}
+GA.view=window.__gaView||{t:'home'};
+function gaGo(v){GA.view=v;gaRender();try{const k={jour:'jour',agenda:'agenda',owners:'owners'}[v.t]||'home';document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));(document.querySelector(`.ni[onclick*="spG('${k}'"]`)||document.querySelector(`.ni[onclick*="sp('gestion'"]`))?.classList.add('act');}catch(e){}const mn=document.getElementById('main');if(mn)mn.scrollTop=0;window.scrollTo(0,0);}
 function gaTab(t){gaGo({t:{reversements:'owners',fiscal:'fiscal',outils:'outils',encaissements:'enc',fins:'home',conformite:'home',irl:'home',interventions:'home',recouvrement:'home',mandats:'home'}[t]||'home'});}
 function gaRender(){
   const nav=document.getElementById('ga-tabs');if(nav)nav.style.display='none';
@@ -1321,8 +1325,8 @@ function gaRender(){
   const v=GA.view||{t:'home'};
   const back=(lbl)=>`<button class="btn bg bsm" onclick="gaGo({t:'home'})" style="margin-bottom:1rem"><i data-lucide=arrow-left class=ic></i> ${lbl||'Mes biens gérés'}</button>`;
   try{
-    body.innerHTML=v.t==='bien'?gaRenderFiche(v.id,v.s||'suivi')
-      :v.t==='owners'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Propriétaires & reversements</div>`+gaRenderRev()
+    body.innerHTML=v.t==='jour'?gaRenderJour():v.t==='agenda'?gaRenderAgenda():v.t==='bien'?gaRenderFiche(v.id,v.s||'suivi')
+      :v.t==='owners'?`<div style="font-size:1.2rem;font-weight:700;margin-bottom:.8rem">Propriétaires & reversements</div>`+gaRenderRev()
       :v.t==='fiscal'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Récapitulatifs fiscaux des propriétaires</div>`+gaRenderFiscal()
       :v.t==='enc'?back()+`<div style="font-size:1.05rem;font-weight:700;margin-bottom:.8rem">Tous les loyers du mois</div>`+gaRenderEnc()
       :v.t==='outils'?back()+gaRenderOutils()
@@ -1428,6 +1432,7 @@ function gaAlerts(m){
     else if(e.date_expiration&&gaDays(today,e.date_expiration)<0)A.push({r:1,ic:'shield-x',l:'Assurance habitation expirée'});}
   for(const i of GA.inter.filter(i=>i.mandat_id===m.id&&!['facture','annule'].includes(i.statut)))A.push({r:i.urgence==='urgente'?1:0,ic:'wrench',l:`${i.titre} (${(GA_IST[i.statut]||[i.statut])[0].toLowerCase()})`});
   if(t){const i=gaIrlInfo(m);if(i?.due)A.push({r:0,ic:'trending-up',l:`Révision IRL : ${gaEur(i.nouveau)}`});}
+  {const u=gaUnreadMsgs(m);if(u.length)A.push({r:1,ic:'message-circle',l:u.length>1?`${u.length} nouveaux messages`:'Nouveau message du locataire'});}
   return A.sort((a,b)=>b.r-a.r);
 }
 function gaCard(m,tasks){
@@ -1453,8 +1458,8 @@ function gaRenderFiche(id,sub){
   const t=gaTen(m);const st=gaMoisStatut(m);
   const cur=gaPays(m).filter(p=>p.status!=='cancelled').sort((a,b)=>a.due_date.localeCompare(b.due_date));
   const next=cur.find(p=>gaUnpaid(p));const lastPaid=[...cur].reverse().find(p=>p.status==='paid');
-  const tabs=[['suivi','Suivi','activity'],['loc','Locataire','user'],['loyers','Loyers','wallet'],['docs','Documents','folder'],['travaux','Travaux','wrench'],['proprio','Propriétaire','briefcase']];
-  const body={suivi:gaFSuivi,loc:gaFLoc,loyers:gaFLoyers,docs:gaFDocs,travaux:gaFTravaux,proprio:gaFProprio}[sub]||gaFSuivi;
+  const tabs=[['suivi','Suivi','activity'],['loc','Locataire','user'],['loyers','Loyers','wallet'],['docs','Documents','folder'],['travaux','Travaux','wrench'],['msg','Messages'+(gaUnreadMsgs(m).length?' ('+gaUnreadMsgs(m).length+')':''),'message-circle'],['proprio','Propriétaire','briefcase']];
+  const body={suivi:gaFSuivi,loc:gaFLoc,loyers:gaFLoyers,docs:gaFDocs,travaux:gaFTravaux,msg:gaFMessages,proprio:gaFProprio}[sub]||gaFSuivi;
   return`<button class="btn bg bsm" onclick="gaGo({t:'home'})" style="margin-bottom:.9rem"><i data-lucide=arrow-left class=ic></i> Mes biens gérés</button>
   <div class="card" style="margin-bottom:.9rem"><div class="cb">
     <div style="display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap">
@@ -2050,7 +2055,7 @@ function gaImpObjects(){
 async function gaImpGo(){
   const objs=gaImpObjects();const sel=[...document.querySelectorAll('.ga-imp-cb:checked')].map(c=>objs[+c.dataset.i]).filter(o=>o&&!o._err&&!o._dup);
   if(!sel.length)return;
-  const z=document.getElementById('ga-imp-zone');let n=0,num=gaNextNumero();const usedNum=new Set(GA.mandats.map(m=>+m.numero));
+  const z=document.getElementById('ga-imp-zone');let n=0,num=gaNextNumero();const errs=[];const usedNum=new Set(GA.mandats.map(m=>+m.numero));
   const nextMonth=gaAddM(gaYm(new Date())+'-01',1).slice(0,7);
   for(const o of sel){
     z.innerHTML=`<div style="display:flex;gap:.6rem;align-items:center"><div class="sp"></div> Import ${n+1} / ${sel.length}…</div>`;
@@ -2066,7 +2071,7 @@ async function gaImpGo(){
     // L'agence reprend la gestion : pas de loyer appelé avant le mois prochain (le mois en cours a été géré par l'ancien logiciel)
     row.created_at=new Date().toISOString();
     const{data,error}=await sb.from('gestion_mandats').insert(row).select().single();
-    if(error){toast('Erreur sur « '+(o.bien_label||o.bien_adresse)+' » : '+error.message);continue;}
+    if(error){console.error('Import',o,error);errs.push({bien:o.bien_label||o.bien_adresse,msg:error.message,code:error.code});continue;}
     GA.mandats.push(data);n++;
     const fin={...(data.fin_bail||{}),reprise:nextMonth};
     await sb.from('gestion_mandats').update({fin_bail:fin}).eq('id',data.id);data.fin_bail=fin;
@@ -2075,5 +2080,183 @@ async function gaImpGo(){
     if(o._dpe){const{data:e}=await sb.from('gestion_echeances').upsert({agency_id:U.id,mandat_id:data.id,type:'dpe',resultat:o._dpe},{onConflict:'mandat_id,type'}).select().single();if(e)GA.ech.push(e);}
   }
   await gaEnsureSchedule();
+  if(errs.length){
+    const rls=errs.some(e=>/row-level security|permission denied|42501/i.test(e.msg+' '+e.code));
+    const col=errs.find(e=>/column|schema cache/i.test(e.msg));
+    z.innerHTML=`<div style="background:rgba(224,90,90,.1);border:1px solid rgba(224,90,90,.4);border-radius:10px;padding:.9rem;font-size:.8rem;line-height:1.55">
+      <div style="font-weight:700;color:var(--red);margin-bottom:.3rem">${n} bien${n>1?'s':''} importé${n>1?'s':''} · ${errs.length} refusé${errs.length>1?'s':''} par la base</div>
+      ${rls?'La base refuse l’écriture (sécurité RLS active sur la table des mandats). Exécutez <strong>supabase-migration-gestion-agence.sql</strong> dans Supabase → SQL Editor, puis réessayez.'
+        :col?'Une colonne manque dans la base. Exécutez <strong>supabase-migration-gestion-agence.sql</strong> dans Supabase → SQL Editor, puis réessayez.':''}
+      <div style="margin-top:.5rem;font-family:monospace;font-size:.72rem;color:var(--td)">${errs.slice(0,3).map(e=>gaE(e.bien+' : '+e.msg)).join('<br>')}</div></div>`;
+    gaRender();return;
+  }
   gaCloseModal();toast(`<i data-lucide=check-circle-2 class=ic></i> ${n} bien${n>1?'s':''} importé${n>1?'s':''}`);gaGo({t:'home'});
+}
+
+// ════════════════════ Espace du gestionnaire : Ma journée, Agenda ════════════════════
+function gaHello(){const h=new Date().getHours();return h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir';}
+function gaMe(){try{const m=getCurrentTeamMember();return m&&m!=='__AGENCY_ADMIN__'?m:'';}catch(e){return'';}}
+function gaRenderJour(){
+  const today=gaToday();const T=gaTasks().filter(x=>x.mid||x.lid);const act=gaActifs();
+  const bienOf=x=>gaMandat(x.mid)||GA.mandats.find(m=>m.listing_id&&m.listing_id===x.lid);
+  // Fait aujourd'hui (automatique ou à la main) : événements datés d'aujourd'hui dans l'historique
+  const done=[];const autoSoon=[];
+  for(const m of act){const{F,P}=gaTimeline(m);
+    P.filter(e=>String(e.date).slice(0,10)===today).forEach(e=>done.push({...e,m}));
+    F.filter(e=>e.auto&&gaDays(today,e.date)<=7).forEach(e=>autoSoon.push({...e,m}));}
+  autoSoon.sort((a,b)=>a.date.localeCompare(b.date));
+  const urg=T.filter(x=>x.p===1),imp=T.filter(x=>x.p===2),low=T.filter(x=>x.p===3);
+  const nImp=act.filter(m=>gaImpayes(m).length).length;
+  const cur=gaYm(new Date());const dus=act.flatMap(m=>gaPays(m).filter(p=>String(p.due_date).slice(0,7)===cur));
+  const att=dus.reduce((s,p)=>s+(+p.amount||0),0),enc=dus.reduce((s,p)=>s+gaPaid(p),0);const pct=att?Math.round(enc/att*100):0;
+  const row=x=>{const m=bienOf(x);const bn=m?gaBien(m):'';const d=String(x.d||'').split(bn+' · ').join('').split(bn+' — ').join('').split(bn).join('').replace(/^\s*[·—]\s*/,'');
+    return`<div style="display:flex;gap:.75rem;align-items:center;padding:.7rem .2rem;border-top:1px solid var(--b);flex-wrap:wrap">
+      <div style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${x.p===1?'rgba(224,90,90,.14)':x.p===2?'rgba(232,160,32,.14)':'var(--s2)'};color:${x.p===1?'var(--red)':x.p===2?'var(--gold)':'var(--td)'}"><i data-lucide=${x.ic} class=ic></i></div>
+      <div style="flex:1;min-width:200px"><div style="font-size:.86rem;font-weight:600">${gaE(x.t)}</div>
+        <div style="font-size:.72rem;color:var(--td);margin-top:.1rem">${m?`<a href="#" onclick="gaGo({t:'bien',id:'${m.id}'});return false" style="color:var(--agencybright);text-decoration:none;font-weight:600">${gaE(bn)}</a> · `:''}${gaE(d)}</div></div>
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap">${x.a.map(([l,f],k)=>`<button class="btn ${k?'bg':'bp'} bsm" ${!k&&x.p===1?'style="background:var(--red)"':''} onclick="${f}">${gaE(l)}</button>`).join('')}</div></div>`;};
+  const sec=(titre,ic,col,list,open)=>list.length?`<div class="card" style="margin-bottom:.9rem"><div class="cb" style="padding:.8rem 1rem">
+    <details ${open?'open':''}><summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.9rem"><i data-lucide=${ic} class=ic style="color:${col}"></i> ${titre} <span class="badge" style="font-size:.66rem;background:${col}22;color:${col}">${list.length}</span></summary>
+    <div style="margin-top:.4rem">${list.map(row).join('')}</div></details></div></div>`:'';
+  const me=gaMe();
+  return`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem">
+    <div><div style="font-size:1.35rem;font-weight:700">${gaHello()}${me?' '+gaE(me):''}</div>
+      <div style="font-size:.82rem;color:var(--td);margin-top:.15rem;text-transform:capitalize">${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
+      <div style="font-size:.85rem;margin-top:.5rem">${urg.length||imp.length?`<strong>${urg.length+imp.length}</strong> chose${urg.length+imp.length>1?'s':''} à traiter${urg.length?` dont <strong style="color:var(--red)">${urg.length} urgente${urg.length>1?'s':''}</strong>`:''}.`:'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Rien d’urgent aujourd’hui.</span>'} ${done.length?`· ${done.length} action${done.length>1?'s':''} faite${done.length>1?'s':''} aujourd’hui.`:''}</div></div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn bg bsm" onclick="gaRapprochement()"><i data-lucide=landmark class=ic></i> Relevé bancaire</button><button class="btn bg bsm" onclick="gaNewInter()"><i data-lucide=wrench class=ic></i> Travaux</button><button class="btn bp bsm" onclick="gaGo({t:'home'})"><i data-lucide=home class=ic></i> Mes biens</button></div>
+  </div>
+  <div class="kgrid" style="margin-bottom:1rem">
+    <div class="kcard green" style="cursor:pointer" onclick="gaGo({t:'enc'})"><div class="klabel">Loyers de ${gaMoisLbl(cur).split(' ')[0]}</div><div class="kval" style="font-size:1.3rem">${pct} %</div><div style="height:6px;background:var(--s2);border-radius:3px;margin:.4rem 0 .3rem;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--green);border-radius:3px"></div></div><div class="ksub">${gaEur(enc)} reçus sur ${gaEur(att)}</div></div>
+    <div class="kcard ${nImp?'terra':''}" style="cursor:pointer" onclick="gaGo({t:'home'})"><div class="klabel">Impayés</div><div class="kval" style="font-size:1.3rem">${nImp}</div><div class="ksub">bien${nImp>1?'s':''} en retard</div></div>
+    <div class="kcard blue" style="cursor:pointer" onclick="gaGo({t:'agenda'})"><div class="klabel">Automatique cette semaine</div><div class="kval" style="font-size:1.3rem">${autoSoon.length}</div><div class="ksub">envois sans rien faire</div></div>
+    <div class="kcard gold" style="cursor:pointer" onclick="gaGo({t:'owners'})"><div class="klabel">À reverser</div><div class="kval" style="font-size:1.3rem">${gaEur(gaOwners().reduce((s,o)=>s+Math.max(0,gaSolde(o.key)),0))}</div><div class="ksub">${gaOwners().length} propriétaire${gaOwners().length>1?'s':''}</div></div>
+  </div>
+  ${sec('Urgent','alert-triangle','var(--red)',urg,true)}${sec('Important','flag','var(--gold)',imp,true)}${sec('Quand vous aurez le temps','coffee','var(--td)',low,false)}
+  ${!T.length?`<div class="card" style="margin-bottom:.9rem"><div class="cb" style="text-align:center;padding:1.6rem"><i data-lucide=sparkles class=ic style="width:26px;height:26px;color:var(--green)"></i><div style="font-weight:700;margin-top:.4rem">Tout est à jour</div><div style="font-size:.78rem;color:var(--td)">Les envois automatiques continuent de tourner chaque jour.</div></div></div>`:''}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.9rem">
+    <div class="card"><div class="cb"><div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td);margin-bottom:.6rem"><i data-lucide=bot class=ic></i> Ça part tout seul (7 jours)</div>
+      ${autoSoon.length?autoSoon.slice(0,8).map(e=>`<div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;padding:.4rem 0;border-top:1px solid var(--b)"><span>${gaE(e.t)} · <a href="#" onclick="gaGo({t:'bien',id:'${e.m.id}'});return false" style="color:var(--agencybright);text-decoration:none">${gaE(gaBien(e.m))}</a></span><span style="color:var(--td);white-space:nowrap">${gaDays(today,e.date)===0?'aujourd’hui':gaDays(today,e.date)===1?'demain':gaFrC(e.date)}</span></div>`).join(''):'<div style="font-size:.78rem;color:var(--td)">Rien de prévu cette semaine.</div>'}</div></div>
+    <div class="card"><div class="cb"><div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td);margin-bottom:.6rem"><i data-lucide=check-check class=ic></i> Fait aujourd’hui</div>
+      ${done.length?done.slice(0,8).map(e=>`<div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;padding:.4rem 0;border-top:1px solid var(--b)"><span><i data-lucide=check class=ic style="color:var(--green)"></i> ${gaE(e.t)}</span><a href="#" onclick="gaGo({t:'bien',id:'${e.m.id}'});return false" style="color:var(--agencybright);text-decoration:none;white-space:nowrap">${gaE(gaBien(e.m))}</a></div>`).join(''):'<div style="font-size:.78rem;color:var(--td)">Rien pour l’instant.</div>'}</div></div>
+  </div>`;
+}
+// Agenda : tout ce qui arrive sur l'ensemble des biens, par période
+function gaRenderAgenda(){
+  const today=gaToday();const f=GA.agendaFiltre||'tout';
+  const all=[];for(const m of gaActifs()){gaTimeline(m).F.filter(e=>e.date>today).forEach(e=>all.push({...e,m}));}
+  const cat=e=>/loyer|avis/i.test(e.t)?'loyers':/assurance|chaudi|dpe|diagnostic|pno|justificatif|attestation/i.test(e.t)?'docs':/bail|congé|irl|départ|dépôt|échéance/i.test(e.t)?'bail':'autre';
+  const list=all.filter(e=>f==='tout'||(f==='auto'?e.auto:cat(e)===f)).sort((a,b)=>a.date.localeCompare(b.date));
+  const grp=d=>{const n=gaDays(today,d);if(n<=1)return'Demain';if(n<=7)return'Cette semaine';if(n<=14)return'Semaine prochaine';const s=gaMoisLbl(d.slice(0,7));return s.charAt(0).toUpperCase()+s.slice(1);};
+  const G=[];list.forEach(e=>{const g=grp(e.date);let x=G.find(y=>y.g===g);if(!x)G.push(x={g,items:[]});x.items.push(e);});
+  const col={r:'var(--red)',o:'var(--gold)',g:'var(--green)',a:'var(--agencybright)',n:'var(--td)'};
+  const chip=(k,l)=>`<button class="btn ${f===k?'bp':'bg'} bsm" onclick="GA.agendaFiltre='${k}';gaRender()">${l}</button>`;
+  return`<div style="font-size:1.2rem;font-weight:700;margin-bottom:.25rem">Agenda</div><div style="font-size:.8rem;color:var(--td);margin-bottom:.9rem">Tout ce qui arrive sur vos biens, dans l’ordre. Les éléments <span class="badge b-agence" style="font-size:.58rem">AUTO</span> partent sans que vous ayez rien à faire.</div>
+  <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem">${chip('tout','Tout')}${chip('loyers','Loyers')}${chip('bail','Bail & loyer')}${chip('docs','Documents')}${chip('auto','Automatique')}</div>
+  ${G.length?G.map(x=>`<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td);margin:1rem 0 .4rem">${x.g}</div>
+    <div class="card"><div class="cb" style="padding:.3rem 1rem">${x.items.slice(0,60).map(e=>`<div style="display:flex;gap:.7rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--b)">
+      <div style="width:44px;text-align:center;flex-shrink:0"><div style="font-size:1rem;font-weight:700;line-height:1">${new Date(e.date+'T12:00:00').getDate()}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase">${new Date(e.date+'T12:00:00').toLocaleDateString('fr-FR',{month:'short'})}</div></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:${col[e.tone]};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0"><div style="font-size:.84rem;font-weight:600">${gaE(e.t)}${e.auto?' <span class="badge b-agence" style="font-size:.56rem">AUTO</span>':''}</div><div style="font-size:.72rem;color:var(--td)"><a href="#" onclick="gaGo({t:'bien',id:'${e.m.id}'});return false" style="color:var(--agencybright);text-decoration:none">${gaE(gaBien(e.m))}</a>${e.d?' · '+gaE(e.d):''}</div></div>
+      ${e.act?`<button class="btn bg bsm" onclick="${e.act}">${gaE(e.actl||'Ouvrir')}</button>`:''}</div>`).join('')}</div></div>`).join(''):gaEmpty('calendar','Rien à venir.')}`;
+}
+
+// ════════════════════ Messagerie locataire ↔ gestionnaire ════════════════════
+// Messages de type 'gestion' entre le compte agence et le locataire (compte Trouve Ton Toit).
+// Locataire déjà en place sans compte : invitation par e-mail, le lien se fait tout seul
+// dès qu'il crée son compte avec la même adresse.
+const gaTenantId=m=>{const t=gaTen(m);return t?.tenant_id||m.loc_clerk_id||null;};
+async function gaLoadMsgs(){
+  try{
+    const[a,b]=await Promise.all([
+      sb.from('messages').select('*').eq('type','gestion').eq('receiver_id',U.id).order('created_at',{ascending:true}).limit(1000),
+      sb.from('messages').select('*').eq('type','gestion').eq('sender_id',U.id).order('created_at',{ascending:true}).limit(1000)]);
+    const seen=new Set();GA.msgs=[...(a.data||[]),...(b.data||[])].filter(x=>!seen.has(x.id)&&seen.add(x.id)).sort((x,y)=>String(x.created_at).localeCompare(String(y.created_at)));
+  }catch(e){GA.msgs=[];}
+}
+// Relier automatiquement les locataires déjà en place qui ont un compte (même e-mail)
+async function gaLinkTenants(){
+  const todo=GA.mandats.filter(m=>!m.lease_id&&m.loc_email&&!m.loc_clerk_id);
+  for(const m of todo){
+    try{const{data:p}=await sb.from('profiles').select('clerk_id').ilike('email',m.loc_email).limit(1).maybeSingle();
+      if(p?.clerk_id){const{data}=await sb.from('gestion_mandats').update({loc_clerk_id:p.clerk_id}).eq('id',m.id).select().single();if(data)Object.assign(m,data);}}catch(e){}
+  }
+}
+const gaThread=m=>{const tid=gaTenantId(m);if(!tid)return[];return(GA.msgs||[]).filter(x=>(x.sender_id===tid&&x.receiver_id===U.id)||(x.sender_id===U.id&&x.receiver_id===tid));};
+const gaUnreadMsgs=m=>{const tid=gaTenantId(m);return tid?(GA.msgs||[]).filter(x=>x.sender_id===tid&&x.receiver_id===U.id&&!x.read):[];};
+let GA_MSG_POLL=null;
+function gaFMessages(m,t){
+  const tid=gaTenantId(m);
+  if(!t)return gaEmpty('message-circle','Pas de locataire sur ce bien.');
+  if(!tid)return`<div class="card"><div class="cb" style="text-align:center;padding:1.6rem">
+    <i data-lucide=user-plus class=ic style="width:26px;height:26px;color:var(--agencybright)"></i>
+    <div style="font-weight:700;margin-top:.4rem">${gaE(t.nom)} n’a pas encore de compte Trouve Ton Toit</div>
+    <div style="font-size:.8rem;color:var(--td);max-width:440px;margin:.3rem auto .9rem;line-height:1.55">Invitez-le : il pourra vous écrire, envoyer ses attestations, signaler un problème et retrouver ses quittances. Dès qu’il crée son compte avec ${t.email?`<strong>${gaE(t.email)}</strong>`:'son adresse e-mail'}, la conversation s’ouvre ici automatiquement.</div>
+    ${t.email?`<button class="btn bp" onclick="gaInviteTenant('${m.id}')"><i data-lucide=send class=ic></i> Inviter ${gaE(t.nom.split(' ')[0])} par e-mail</button>`:`<button class="btn bg" onclick="gaEditMandat('${m.id}')">Ajouter son e-mail</button>`}
+    ${m.fin_bail?.invite_at?`<div style="font-size:.72rem;color:var(--td);margin-top:.5rem">Invitation envoyée le ${gaFrC(m.fin_bail.invite_at)}</div>`:''}
+  </div></div>`;
+  const th=gaThread(m);const me=gaMe();
+  setTimeout(()=>{gaMarkRead(m);const box=document.getElementById('ga-chat');if(box)box.scrollTop=box.scrollHeight;
+    clearInterval(GA_MSG_POLL);GA_MSG_POLL=setInterval(async()=>{if(GA.view?.t!=='bien'||GA.view?.s!=='msg'||!document.getElementById('ga-chat')){clearInterval(GA_MSG_POLL);return;}
+      const n=(GA.msgs||[]).length;await gaLoadMsgs();if((GA.msgs||[]).length!==n){const keep=document.getElementById('ga-msg-in')?.value||'';gaRender();const i=document.getElementById('ga-msg-in');if(i){i.value=keep;}}},12000);},50);
+  const QR=['Bien reçu, je m’en occupe.','Un artisan va vous contacter pour fixer un rendez-vous.','Pouvez-vous m’envoyer une photo du problème ?','Votre quittance est disponible, je vous l’envoie.','Merci, c’est noté !'];
+  let lastDay='';
+  return`<div class="card" style="display:flex;flex-direction:column;height:min(68vh,640px)">
+    <div style="padding:.75rem 1rem;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+      <div><div style="font-weight:700;font-size:.9rem">${gaE(t.nom)}</div><div style="font-size:.7rem;color:var(--td)">Locataire · ${gaE(gaBien(m))}</div></div>
+      <div style="font-size:.7rem;color:var(--td)">Vous répondez au nom de ${gaE(gaAgence().nom)}${me?' ('+gaE(me)+')':''}</div></div>
+    <div id="ga-chat" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.45rem">
+      ${th.length?th.map(x=>{const mine=x.sender_id===U.id;const d=gaIso(x.created_at);const sep=d!==lastDay?`<div style="text-align:center;font-size:.66rem;color:var(--td);margin:.5rem 0">${gaFr(d)}</div>`:'';lastDay=d;
+        return sep+`<div style="align-self:${mine?'flex-end':'flex-start'};max-width:78%"><div style="padding:.55rem .8rem;border-radius:${mine?'14px 14px 4px 14px':'14px 14px 14px 4px'};background:${mine?'var(--agence)':'var(--s2)'};color:${mine?'#fff':'var(--txt)'};font-size:.84rem;line-height:1.45;white-space:pre-wrap;word-break:break-word">${gaE(x.content)}</div>
+        <div style="font-size:.62rem;color:var(--td);margin-top:.15rem;text-align:${mine?'right':'left'}">${new Date(x.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}${mine&&x.read?' · lu':''}</div></div>`;}).join('')
+        :`<div style="margin:auto;text-align:center;color:var(--td);font-size:.8rem"><i data-lucide=messages-square class=ic style="width:24px;height:24px"></i><div style="margin-top:.4rem">Aucun message pour l’instant.<br>Écrivez à ${gaE(t.nom.split(' ')[0])} : il le recevra dans son espace et par notification.</div></div>`}
+    </div>
+    <div style="padding:.6rem .8rem;border-top:1px solid var(--b)">
+      <div style="display:flex;gap:.3rem;overflow-x:auto;padding-bottom:.45rem">${QR.map(q=>`<button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="document.getElementById('ga-msg-in').value=this.textContent;document.getElementById('ga-msg-in').focus()">${gaE(q)}</button>`).join('')}</div>
+      <div style="display:flex;gap:.4rem;align-items:flex-end"><textarea id="ga-msg-in" class="fi" rows="2" placeholder="Écrire à ${gaE(t.nom.split(' ')[0])}…" style="flex:1;resize:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();gaSendMsg('${m.id}')}"></textarea>
+      <button class="btn bp" onclick="gaSendMsg('${m.id}')"><i data-lucide=send class=ic></i></button></div>
+    </div></div>`;
+}
+async function gaSendMsg(mid){
+  const m=gaMandat(mid);const tid=gaTenantId(m);const el=document.getElementById('ga-msg-in');const txt=(el?.value||'').trim();
+  if(!txt||!tid)return;el.value='';
+  const row={sender_id:U.id,receiver_id:tid,listing_id:m.listing_id||gaTen(m)?.lease?.listing_id||null,content:txt,type:'gestion',read:false};
+  const{data,error}=await sb.from('messages').insert(row).select().single();
+  if(error){toast('Envoi impossible : '+error.message);el.value=txt;return;}
+  // Prévenir le locataire par e-mail (au plus une fois par heure, pour ne pas inonder sa boîte)
+  const prev=gaThread(m).filter(x=>x.sender_id===U.id).pop();const t=gaTen(m);
+  if(t?.email&&(!prev||Date.now()-new Date(prev.created_at).getTime()>3600e3))
+    gaMail(t.email,`Nouveau message de ${gaAgence().nom}`,'Votre gestionnaire vous a écrit',
+      `<p>Bonjour ${gaE(t.nom)},</p><p>Vous avez un nouveau message au sujet de votre logement <strong>${gaE(gaAdresse(m))}</strong> :</p><blockquote style="border-left:3px solid #ccc;margin:0;padding:.3rem .8rem;color:#444">${gaE(txt.slice(0,400))}</blockquote>`,
+      {url:location.origin+'/tenant-dashboard.html#gestionnaire',label:'Répondre'});
+  (GA.msgs=GA.msgs||[]).push(data);gaRender();
+}
+async function gaMarkRead(m){
+  const un=gaUnreadMsgs(m);if(!un.length)return;
+  const ids=un.map(x=>x.id);await sb.from('messages').update({read:true}).in('id',ids);
+  un.forEach(x=>x.read=true);
+  const n=gaTasks().filter(x=>x.p<=2).length;const sbNb=document.getElementById('nb-gestion');if(sbNb){sbNb.textContent=n;sbNb.style.display=n?'inline':'none';}
+}
+async function gaInviteTenant(mid){
+  const m=gaMandat(mid);const t=gaTen(m);if(!t?.email)return;
+  const site=location.origin;
+  const ok=await gaMail(t.email,`${gaAgence().nom} vous invite sur Trouve Ton Toit`,'Votre espace locataire',
+    `<p>Bonjour ${gaE(t.nom)},</p><p><strong>${gaE(gaAgence().nom)}</strong> gère votre logement <strong>${gaE(gaAdresse(m))}</strong> sur Trouve Ton Toit.</p>
+     <p>Créez votre espace locataire gratuit avec cette adresse e-mail (<strong>${gaE(t.email)}</strong>) pour :</p>
+     <ul><li>écrire directement à votre gestionnaire</li><li>retrouver vos quittances et avis d’échéance</li><li>envoyer votre attestation d’assurance</li><li>signaler un problème dans le logement</li></ul>`,
+    {url:site+'/?signup=locataire',label:'Créer mon espace locataire'});
+  const f={...(m.fin_bail||{}),invite_at:new Date().toISOString()};
+  const{data}=await sb.from('gestion_mandats').update({fin_bail:f}).eq('id',mid).select().single();if(data)Object.assign(m,data);
+  toast(ok?'Invitation envoyée':'E-mail non envoyé (service e-mail non configuré)');gaRender();
+}
+// Fils de discussion des locataires, pour la page Messages de l'agence
+function gaMsgThreadsHtml(){
+  const rows=gaActifs().map(m=>({m,t:gaTen(m),th:gaThread(m),un:gaUnreadMsgs(m)})).filter(x=>x.th.length).sort((a,b)=>String(b.th[b.th.length-1].created_at).localeCompare(String(a.th[a.th.length-1].created_at)));
+  if(!rows.length)return'';
+  return`<div class="card" style="margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=briefcase class=ic></i> Locataires en gestion</div></div><div class="cb" style="padding:.3rem 1rem">
+    ${rows.map(x=>{const l=x.th[x.th.length-1];return`<div onclick="spG('home');setTimeout(()=>gaGo({t:'bien',id:'${x.m.id}',s:'msg'}),200)" style="display:flex;gap:.7rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--b);cursor:pointer">
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--agencydim);color:var(--agencybright);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${gaE((x.t?.nom||'?')[0])}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:.84rem;font-weight:${x.un.length?700:600}">${gaE(x.t?.nom||'Locataire')} <span style="font-weight:400;color:var(--td);font-size:.72rem">· ${gaE(gaBien(x.m))}</span></div>
+      <div style="font-size:.74rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.sender_id===U.id?'Vous : ':''}${gaE(l.content)}</div></div>
+      ${x.un.length?`<span class="nbadge" style="margin-left:0">${x.un.length}</span>`:`<span style="font-size:.66rem;color:var(--td)">${gaFrC(l.created_at)}</span>`}</div>`;}).join('')}
+  </div></div>`;
 }
