@@ -11,6 +11,8 @@
 //  • quittance par e-mail après encaissement (auto_quittance) ;
 //  • rappels assurance habitation / entretien chaudière avant échéance (auto_conformite) ;
 //  • compte rendu de gestion du mois précédent au propriétaire, à partir du 5 (auto_crg) ;
+//  • régularisation des charges : demande du décompte au propriétaire (1er mars), relances,
+//    application du solde un mois après l'envoi du décompte au locataire ;
 //  • résumé quotidien envoyé à l'agence dans sa messagerie.
 const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -79,6 +81,12 @@ exports.handler = async () => {
   const pays = await api(`payments?select=*&mandat_id=in.${inList(mIds)}&type=in.(rent,first_rent,loyer)`) || [];
   const ops = await api(`gestion_operations?select=*&mandat_id=in.${inList(mIds)}`) || [];
   const echs = await api(`gestion_echeances?select=*&mandat_id=in.${inList(mIds)}`) || [];
+  let reguls = []; try { reguls = await api(`gestion_regul?select=*&mandat_id=in.${inList(mIds)}`) || []; } catch (e) { reguls = null; }
+  // Régularisation étalée sur 12 mois : part ajoutée à chaque échéance du mois ym
+  const mDiff = (a, b) => { const [ya, ma] = a.split('-').map(Number), [yb, mb] = b.split('-').map(Number); return (yb - ya) * 12 + (mb - ma); };
+  const extra = (mid, ym) => (reguls || []).filter(r => r.mandat_id === mid && r.etalement && r.applique_at).reduce((s, r) => {
+    const e = r.etalement; const k = mDiff(e.debut, ym); if (k < 0 || k >= e.mois) return s;
+    return s + (k === e.mois - 1 ? R(e.total - e.mensualite * (e.mois - 1)) : e.mensualite); }, 0);
 
   const ten = m => {
     const f = m.fin_bail || {};
@@ -109,7 +117,7 @@ exports.handler = async () => {
           if (m.fin_bail?.date_fin && ym > String(m.fin_bail.date_fin).slice(0, 7)) continue;
           if (due(ym, t.jour) < cutoff) continue;
           rows.push({ landlord_id: m.agency_id, tenant_id: t.tenant_id, listing_id: m.listing_id || t.lease?.listing_id || null, lease_id: t.lease?.id || null, booking_id: t.lease?.booking_id || null,
-            mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R(t.hc + t.ch), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
+            mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R(t.hc + t.ch + extra(m.id, ym)), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
         }
         if (rows.length) { const ins = await post('payments', rows); mp.push(...(ins || [])); S(m.agency_id, 'echeances'); }
       }
@@ -159,7 +167,72 @@ exports.handler = async () => {
           await patch(`gestion_echeances?id=eq.${e.id}`, { relance_at: new Date().toISOString() }); S(m.agency_id, 'conformite');
         }
       }
+      // 7) Régularisation des charges
+      if (reguls) await regulAuto(m, t, ag, mp);
     } catch (e) { console.error('mandat', m.id, e.message); }
+  }
+
+  async function regulDemande(r, m, ag) {
+    const lien = `${SITE}/charges.html?t=${r.token}`;
+    if (!m.owner_email) {
+      if (!r.demande_at) await msg(m.agency_id, null, `Régularisation des charges ${r.annee} — ${bien(m)} : pas d’e-mail pour ${m.owner_name || 'le propriétaire'}. Envoyez-lui ce lien pour déposer le décompte du syndic et l’avis de taxe foncière : ${lien}`);
+      await patch(`gestion_regul?id=eq.${r.id}`, { demande_at: new Date().toISOString(), relances: 99 }); return;
+    }
+    const n = +r.relances || 0;
+    const ok = await mail(m.owner_email, `${n ? 'Rappel — ' : ''}Régularisation des charges ${r.annee} — ${bien(m)}`, ag, `Régularisation des charges ${r.annee}`,
+      `<p>Bonjour ${esc(m.owner_name || '')},</p><p>Pour faire la régularisation annuelle des charges ${r.annee} de votre locataire (${esc(bien(m))}), nous avons besoin de :</p>
+       <ul><li>le <strong>décompte annuel de charges ${r.annee}</strong> envoyé par votre syndic après l’assemblée générale (pas les appels de fonds) ;</li>
+       <li>votre <strong>avis de taxe foncière ${r.annee}</strong>, pour la taxe d’ordures ménagères ;</li>
+       <li>le cas échéant, les factures d’eau ou d’entretien que vous avez payées.</li></ul>
+       <p>Une photo ou un PDF suffit : nous calculons le reste et prévenons le locataire.</p>
+       <p style="margin:22px 0"><a href="${lien}" style="background:#4F46E5;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">Déposer mes documents</a></p>`);
+    if (m.owner_clerk_id) await msg(m.owner_clerk_id, m.listing_id, `Régularisation des charges ${r.annee} : déposez le décompte du syndic et l’avis de taxe foncière ici : ${lien}`, m.agency_id);
+    await patch(`gestion_regul?id=eq.${r.id}`, { demande_at: new Date().toISOString(), relances: n + 1 });
+    if (ok) S(m.agency_id, 'regul_demandes');
+  }
+  async function regulApplique(r, m, t, mp) {
+    const solde = R(r.solde); const from = [String(r.applicable_le), today].sort().pop(); // jamais sur une échéance déjà passée
+    const futurs = mp.filter(p => p.status !== 'paid' && p.status !== 'cancelled' && !(+p.amount_paid) && String(p.due_date) >= from).sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)));
+    const setAmt = async (p, a) => { a = R(Math.max(0, a)); await patch(`payments?id=eq.${p.id}`, { amount: a }); p.amount = a; };
+    // Nouvelle provision sur charges pour les échéances à venir
+    if (t && r.nouvelle_provision != null && R(r.nouvelle_provision) !== R(t.ch)) {
+      if (t.lease) await patch(`leases?id=eq.${t.lease.id}`, { charges: R(r.nouvelle_provision) });
+      else await patch(`gestion_mandats?id=eq.${m.id}`, { loc_charges: R(r.nouvelle_provision) });
+      for (const p of futurs) await setAmt(p, +p.amount - t.ch + R(r.nouvelle_provision));
+      t.ch = R(r.nouvelle_provision);
+    }
+    let et = null, reste = 0;
+    if (solde > 0 && r.mode === 'etalement') {
+      const mens = R(solde / 12); et = { debut: String(futurs[0]?.due_date || from).slice(0, 7), mois: 12, mensualite: mens, total: solde };
+      for (const p of futurs) { const k = mDiff(et.debut, String(p.due_date).slice(0, 7)); if (k >= 0 && k < 12) await setAmt(p, +p.amount + (k === 11 ? R(solde - mens * 11) : mens)); }
+    } else if (solde > 0) {
+      if (futurs[0]) await setAmt(futurs[0], +futurs[0].amount + solde);
+      else await post('payments', { landlord_id: m.agency_id, tenant_id: t?.tenant_id || null, listing_id: m.listing_id || null, mandat_id: m.id, tenant_name: t?.nom || null, tenant_email: t?.email || null, amount: solde, type: 'loyer', status: 'pending', due_date: from });
+    } else if (solde < 0) {
+      reste = -solde;
+      for (const p of futurs) { if (reste <= 0) break; const d = Math.min(reste, +p.amount); await setAmt(p, +p.amount - d); reste = R(reste - d); }
+    }
+    const upd = { statut: 'applique', applique_at: new Date().toISOString(), etalement: et };
+    await patch(`gestion_regul?id=eq.${r.id}`, upd); Object.assign(r, upd);
+    await post('gestion_operations', { agency_id: m.agency_id, mandat_id: m.id, date: today, type: 'regul_charges', montant: 0,
+      libelle: `Régularisation des charges ${r.annee} : ${solde >= 0 ? '+' : ''}${eur(solde)} (réel ${eur(r.reel)} / provisions ${eur(r.provisions)})${et ? ' en 12 mensualités' : ''}` });
+    if (t) await msg(t.tenant_id, m.listing_id, `Régularisation des charges ${r.annee} appliquée : ${solde > 0 ? (et ? `${eur(et.mensualite)} ajoutés à chacune de vos 12 prochaines échéances` : `${eur(solde)} ajoutés à votre prochaine échéance`) : solde < 0 ? `${eur(-solde)} déduits de vos prochaines échéances` : 'aucun solde'}.`, m.agency_id);
+    if (reste > 0) await msg(m.agency_id, null, `Régularisation ${r.annee} — ${bien(m)} : il reste ${eur(reste)} à rembourser au locataire (plus d’échéance à venir pour les déduire).`);
+    S(m.agency_id, 'regul_appliquees');
+  }
+  async function regulAuto(m, t, ag, mp) {
+    if (m.charges_mode === 'forfait') return;
+    const N = +today.slice(0, 4), Y = N - 1;
+    const mine = reguls.filter(r => r.mandat_id === m.id);
+    // Demande au propriétaire à partir du 1er mars pour l'année écoulée (locataire en place avec provisions)
+    if (t && t.ch > 0 && today >= `${N}-03-01` && (!t.debut || String(t.debut) <= `${Y}-12-31`) && !mine.some(r => +r.annee === Y)) {
+      const ins = await post('gestion_regul', { agency_id: m.agency_id, mandat_id: m.id, annee: Y, statut: 'attente_docs' });
+      if (ins?.[0]) { reguls.push(ins[0]); mine.push(ins[0]); }
+    }
+    for (const r of mine) {
+      if (r.statut === 'attente_docs' && !(r.docs || []).length && (+r.relances || 0) < 4 && (!r.demande_at || days(r.demande_at, today) >= 21)) await regulDemande(r, m, ag);
+      if (r.statut === 'envoye' && r.applicable_le && String(r.applicable_le) <= today && !r.applique_at) await regulApplique(r, m, t, mp);
+    }
   }
 
   // 7) Comptes rendus de gestion du mois précédent (à partir du 5)
@@ -198,7 +271,7 @@ exports.handler = async () => {
   }
 
   // 8) Résumé à l'agence
-  const L = { echeances: 'échéanciers complétés', avis: 'avis d’échéance', relances: 'relances', quittances: 'quittances', conformite: 'rappels assurance/chaudière', crg: 'comptes rendus de gestion' };
+  const L = { echeances: 'échéanciers complétés', avis: 'avis d’échéance', relances: 'relances', quittances: 'quittances', conformite: 'rappels assurance/chaudière', regul_demandes: 'demandes de décompte de charges', regul_appliquees: 'régularisations de charges appliquées', crg: 'comptes rendus de gestion' };
   for (const [ag, s] of Object.entries(stats)) {
     const txt = Object.entries(s).map(([k, v]) => `${v} ${L[k] || k}`).join(', ');
     await msg(ag, null, `Gestion locative — envoyé automatiquement aujourd’hui : ${txt}. Le détail et les tâches restantes sont dans « Gestion locative ».`);
