@@ -46,7 +46,7 @@ async function mail(to, subject, agence, title, body) {
 }
 async function msg(to, listing_id, content, sender = 'system') {
   if (!to) return;
-  try { await post('messages', { listing_id: listing_id || null, sender_id: sender, receiver_id: to, content, type: 'message' }); } catch (e) {}
+  try { await post('messages', { listing_id: listing_id || null, sender_id: sender, receiver_id: to, content, type: sender === 'system' ? 'message' : 'gestion', read: false }); } catch (e) {}
 }
 
 exports.handler = async () => {
@@ -85,7 +85,7 @@ exports.handler = async () => {
     if (f.sortie_effective && days(f.sortie_effective, today) > 0) return null;
     const L = leases[m.lease_id];
     if (L) { const p = profs[L.tenant_id] || {}; return { nom: p.full_name || 'Locataire', email: p.email || '', tenant_id: L.tenant_id, hc: +L.rent || 0, ch: +L.charges || 0, debut: L.start_date, jour: +(L.payment_due_day || 1) || 1, lease: L }; }
-    if (m.loc_nom) return { nom: m.loc_nom, email: m.loc_email || '', tenant_id: null, hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0, debut: m.loc_debut, jour: +m.loc_jour || 1, lease: null };
+    if (m.loc_nom) return { nom: m.loc_nom, email: m.loc_email || '', tenant_id: m.loc_clerk_id || null, hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0, debut: m.loc_debut, jour: +m.loc_jour || 1, lease: null };
     return null;
   };
   const paid = p => p.status === 'paid' ? Number(p.amount_paid ?? p.amount) || 0 : Number(p.amount_paid) || 0;
