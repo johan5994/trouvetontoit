@@ -118,6 +118,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 /* ── DossierFacile styles ── */
 .dossier-layout{display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:start}
 @media(max-width:900px){.dossier-layout{grid-template-columns:1fr}}
+@media(max-width:700px){[id^=gest-grid-]{grid-template-columns:1fr!important}}
 .dossier-sidebar{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.2rem;position:sticky;top:80px}
 .dossier-step{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:9px;cursor:pointer;transition:background .15s;font-size:.85rem;font-weight:500;color:var(--tm);position:relative}
 .dossier-step:hover{background:var(--s2)}
@@ -288,6 +289,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <!-- OVERVIEW -->
     <div class="page act" id="page-overview">
+      <div id="gest-card"></div>
       <div class="kgrid">
         <div class="kcard"><div class="klabel">Contacts actifs</div><div class="kval" id="k-contacts" style="color:var(--bleu)">—</div><div class="ksub">Annonces contactées</div><div class="kico"><i data-lucide=home class=ic></i></div></div>
         <div class="kcard"><div class="klabel">Messages non lus</div><div class="kval" id="k-msgs" style="color:var(--marine)">—</div><div class="ksub">De vos propriétaires</div><div class="kico"><i data-lucide=message-circle class=ic></i></div></div>
@@ -314,6 +316,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- MESSAGES -->
     <div class="page" id="page-messages">
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Messages des propriétaires</div>
+      <div id="gest-threads"></div>
       <div id="messages-list"><div class="ld"><div class="sp"></div></div></div>
     </div>
 
@@ -1248,6 +1251,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   </div>
 </div>
 
+<!-- Messagerie avec le gestionnaire -->
+<div class="mover" id="gest-modal" onclick="if(event.target.id==='gest-modal')closeGestChat()">
+  <div class="modal" style="max-width:560px;display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
+    <button class="mclose" onclick="closeGestChat()" aria-label="Fermer"><i data-lucide=x class=ic></i></button>
+    <div class="mt" id="gm-title">Votre gestionnaire</div><div class="ms" id="gm-sub"></div>
+    <div id="gm-thread" style="flex:1;min-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;padding:.4rem .1rem;margin-bottom:.6rem"></div>
+    <div style="display:flex;gap:.3rem;overflow-x:auto;padding-bottom:.45rem">
+      <button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="gmChip('Bonjour, j’ai un problème dans le logement : ')">Problème dans le logement</button>
+      <button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="gmChip('Bonjour, pourriez-vous m’envoyer ma dernière quittance de loyer ? Merci.')">Quittance</button>
+      <button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="gmChip('Bonjour, j’ai une question sur mon loyer : ')">Loyer</button>
+      <button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="gmChip('Bonjour, je souhaite vous envoyer mon attestation d’assurance habitation.')">Attestation d’assurance</button>
+      <button class="btn bg bsm" style="white-space:nowrap;font-size:.7rem" onclick="gmChip('Bonjour, je souhaite donner mon préavis de départ. Date de départ souhaitée : ')">Préavis de départ</button>
+    </div>
+    <div style="display:flex;gap:.4rem;align-items:flex-end">
+      <textarea class="fta" id="gm-reply" rows="2" style="flex:1;resize:none" placeholder="Écrire à votre gestionnaire…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGestMsg()}"></textarea>
+      <button class="btn bp" onclick="sendGestMsg()" aria-label="Envoyer"><i data-lucide=send class=ic></i></button>
+    </div>
+    <div style="font-size:.66rem;color:var(--td);margin-top:.4rem">Un préavis doit être envoyé par lettre recommandée, acte d’huissier ou remise en main propre : ce message prévient votre gestionnaire mais ne remplace pas cet envoi.</div>
+  </div>
+</div>
+<script>function gmChip(t){const i=document.getElementById('gm-reply');i.value=t;i.focus();i.setSelectionRange(t.length,t.length);}</script>
+
 <!-- TICKET MODAL — Point 23: Full maintenance flow -->
 <div class="mover" id="tick-modal" onclick="if(event.target.id==='tick-modal')this.classList.remove('open')">
   <div class="modal" style="max-height:90vh;overflow-y:auto">
@@ -1372,7 +1397,7 @@ let clerk,U=null,P=null,selectedRating=5;
   if(P&&P['vérifié']!==undefined)P.verified=!!P['vérifié'];
   if(P&&P['vérifié_at']!==undefined)P.verified_at=P['vérifié_at'];
   if(P?.role==='bailleur'||P?.role==='propriétaire'){window.location.href='/landlord-dashboard.html'+window.location.search;return;}
-  initUI();loadAll();
+  initUI();loadAll();loadGestionnaire();
 
   // Arrivée depuis une annonce avec un profil incomplet : ouvrir directement "Mon profil" avec un message
   try{
@@ -2422,6 +2447,7 @@ let locataireChatThreadId=null;
 let locataireChatReceiverId=null;
 
 async function loadMessages(){
+  try{if(typeof loadGestionnaire==='function')loadGestionnaire();}catch(e){}
   const wrap=document.getElementById('messages-list');
   try{
     const[{data:sent},{data:received}]=await Promise.all([
@@ -2431,7 +2457,7 @@ async function loadMessages(){
     // Filtré côté JS (pas .neq() en base) : ça exclurait aussi par erreur les
     // messages sans type du tout. Exclut les demandes de visite (gérées
     // ailleurs) et les DM du canal "Find a roommate" (page séparée).
-    const all=[...(sent||[]),...(received||[])].filter(m=>m.type!=='visit_request'&&m.type!=='roommate_dm').sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    const all=[...(sent||[]),...(received||[])].filter(m=>m.type!=='visit_request'&&m.type!=='roommate_dm'&&m.type!=='gestion').sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
     // Trouver le vrai interlocuteur (non-system) pour chaque annonce, pour
     // rattacher les messages système (sender='system') au bon thread au lieu
@@ -2594,7 +2620,7 @@ async function openMsg(threadKey, title, subtitle, listingId, receiverId, thread
     thread.appendChild(div);
   });
   thread.scrollTop=thread.scrollHeight;
-  try{await sb.from('messages').update({read:true}).eq('listing_id',listingId).eq('receiver_id',U.id);}catch(e){}
+  try{await sb.from('messages').update({read:true}).eq('listing_id',listingId).eq('receiver_id',U.id).or('type.is.null,type.neq.gestion');}catch(e){}
   let stillUnread=[];
   try{const{data:u}=await sb.from('messages').select('id').eq('receiver_id',U.id).eq('read',false).neq('type','roommate_dm');stillUnread=u||[];}catch(e){}
   const count=(stillUnread||[]).length;
@@ -8038,6 +8064,124 @@ function toggleTheme(){
 })();
 
 async function doLogout(){await clerk.signOut();window.location.href='/';}
+
+// ════════════ Mon gestionnaire (agence qui gère mon logement) ════════════
+// Retrouve les mandats de gestion où je suis le locataire : bail Trouve Ton Toit,
+// compte déjà relié, ou locataire déjà en place invité avec la même adresse e-mail.
+let GEST=[],GEST_CUR=null,GEST_POLL=null;
+const gEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gEur=n=>(Math.round((+n||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:2})+' €';
+async function loadGestionnaire(){
+  try{
+    const email=String(U.email||'').trim().toLowerCase();
+    const{data:leases}=await sb.from('leases').select('id').eq('tenant_id',U.id);
+    const lids=(leases||[]).map(l=>l.id);
+    const qs=[sb.from('gestion_mandats').select('*').eq('loc_clerk_id',U.id)];
+    if(email)qs.push(sb.from('gestion_mandats').select('*').ilike('loc_email',email));
+    if(lids.length)qs.push(sb.from('gestion_mandats').select('*').in('lease_id',lids));
+    const rs=await Promise.all(qs);
+    const seen=new Set();
+    const ms=rs.flatMap(r=>r.data||[]).filter(m=>m.statut!=='resilie'&&!seen.has(m.id)&&seen.add(m.id))
+      .filter(m=>{const s=m.fin_bail?.sortie_effective;return!s||(Date.now()-new Date(s).getTime())<60*864e5;});
+    // Relier mon compte au mandat (le gestionnaire me retrouve tout de suite)
+    ms.filter(m=>!m.lease_id&&m.loc_clerk_id!==U.id).forEach(m=>{sb.from('gestion_mandats').update({loc_clerk_id:U.id}).eq('id',m.id).then(()=>{});});
+    if(!ms.length){GEST=[];renderGestionnaire();return;}
+    const aids=[...new Set(ms.map(m=>m.agency_id))];
+    const[ag,msgs,pays]=await Promise.all([
+      sb.from('agency_profiles').select('*').in('clerk_id',aids),
+      sb.from('messages').select('*').eq('type','gestion').or(`sender_id.eq.${U.id},receiver_id.eq.${U.id}`).order('created_at',{ascending:true}).limit(500),
+      sb.from('payments').select('id,mandat_id,due_date,amount,amount_paid,status,paid_at').in('mandat_id',ms.map(m=>m.id)).order('due_date',{ascending:false}).limit(60)]);
+    const A={};(ag.data||[]).forEach(a=>A[a.clerk_id]=a);
+    GEST=ms.map(m=>{const a=A[m.agency_id]||{};
+      return{m,aid:m.agency_id,nom:a.agency_name||'Votre agence',tel:a.phone||'',mail:a.email||'',logo:a.logo_url||'',
+        bien:m.bien_label||m.bien_adresse||'Votre logement',adresse:m.bien_adresse||'',
+        msgs:(msgs.data||[]).filter(x=>x.sender_id===m.agency_id||x.receiver_id===m.agency_id),
+        pays:(pays.data||[]).filter(p=>p.mandat_id===m.id&&p.status!=='cancelled')};});
+    renderGestionnaire();
+    if(location.hash==='#gestionnaire'&&GEST.length){history.replaceState(null,'',location.pathname+location.search);openGestChat(0);}
+  }catch(e){console.warn('gestionnaire',e);}
+}
+const gestUnread=g=>g.msgs.filter(x=>x.sender_id===g.aid&&x.receiver_id===U.id&&!x.read);
+function renderGestionnaire(){
+  const card=document.getElementById('gest-card'),th=document.getElementById('gest-threads');
+  if(!GEST.length){if(card)card.innerHTML='';if(th)th.innerHTML='';return;}
+  const loyer=p=>{const reste=(+p.amount||0)-(+p.amount_paid||0);const paid=p.status==='paid';const late=!paid&&new Date(p.due_date)<new Date(new Date().toDateString());
+    const mois=new Date(p.due_date+'T12:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+    return`<div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;padding:.35rem 0;border-top:1px solid var(--b)"><span style="text-transform:capitalize">${mois}</span><span style="font-weight:600;color:${paid?'var(--green)':late?'#C0392B':'var(--td)'}">${paid?'Payé':late?'Reste '+gEur(reste||p.amount):'À payer '+gEur(p.amount)}</span></div>`;};
+  if(card)card.innerHTML=GEST.map((g,i)=>{const un=gestUnread(g).length;const last=g.msgs[g.msgs.length-1];const pays=g.pays.slice(0,3);
+    return`<div class="card" style="border-color:rgba(27,79,216,.25)">
+      <div class="cb" style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.2rem" id="gest-grid-${i}">
+        <div style="min-width:0">
+          <div style="display:flex;gap:.8rem;align-items:center">
+            <div style="width:46px;height:46px;border-radius:12px;background:var(--marine);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;flex-shrink:0;overflow:hidden">${g.logo?`<img src="${gEsc(g.logo)}" alt="" style="width:100%;height:100%;object-fit:cover">`:gEsc(g.nom[0])}</div>
+            <div style="min-width:0"><div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--td)">Votre gestionnaire</div>
+              <div style="font-size:1rem;font-weight:700">${gEsc(g.nom)}</div>
+              <div style="font-size:.75rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${gEsc(g.adresse||g.bien)}</div></div>
+          </div>
+          <div style="margin-top:.85rem;padding:.65rem .8rem;background:var(--s2);border-radius:10px;font-size:.8rem;cursor:pointer" onclick="openGestChat(${i})">
+            ${last?`<div style="display:flex;justify-content:space-between;gap:.5rem"><span style="font-weight:${un?700:500};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.sender_id===U.id?'Vous : ':''}${gEsc(last.content)}</span>${un?`<span class="nbadge" style="margin-left:0">${un}</span>`:''}</div>`
+              :`<span style="color:var(--td)">Une question, un problème dans le logement, une quittance ? Écrivez directement à votre gestionnaire.</span>`}
+          </div>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem">
+            <button class="btn bp bsm" onclick="openGestChat(${i})"><i data-lucide=message-circle class=ic></i> ${un?'Lire le message':'Écrire'}</button>
+            <button class="btn bg bsm" onclick="openGestChat(${i},'Bonjour, j’ai un problème dans le logement : ')"><i data-lucide=wrench class=ic></i> Signaler un problème</button>
+            ${g.tel?`<a class="btn bg bsm" href="tel:${gEsc(g.tel.replace(/\s/g,''))}" style="text-decoration:none"><i data-lucide=phone class=ic></i> Appeler</a>`:''}
+          </div>
+        </div>
+        <div style="min-width:0">
+          <div style="font-size:.72rem;font-weight:700;color:var(--td);margin-bottom:.2rem">Mes derniers loyers</div>
+          ${pays.length?pays.map(loyer).join(''):'<div style="font-size:.76rem;color:var(--td);padding:.35rem 0">Rien pour l’instant.</div>'}
+          <button class="btn bg bsm" style="margin-top:.5rem;width:100%;justify-content:center" onclick="openGestChat(${i},'Bonjour, pourriez-vous m’envoyer ma dernière quittance de loyer ? Merci.')"><i data-lucide=receipt class=ic></i> Demander une quittance</button>
+        </div>
+      </div></div>`;}).join('');
+  if(th)th.innerHTML=GEST.map((g,i)=>{const un=gestUnread(g).length;const last=g.msgs[g.msgs.length-1];
+    return`<div class="card" style="cursor:pointer;border-color:rgba(27,79,216,.25)" onclick="openGestChat(${i})"><div class="cb" style="display:flex;gap:.8rem;align-items:center">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--marine);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${gEsc(g.nom[0])}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:.86rem;font-weight:700">${gEsc(g.nom)} <span class="badge" style="background:rgba(27,79,216,.1);color:var(--bleu);margin-left:.3rem">Gestionnaire</span></div>
+        <div style="font-size:.76rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last?(last.sender_id===U.id?'Vous : ':'')+gEsc(last.content):gEsc(g.adresse||g.bien)+' · écrivez à votre gestionnaire'}</div></div>
+      ${un?`<span class="nbadge" style="margin-left:0">${un}</span>`:'<i data-lucide=chevron-right class=ic style="color:var(--td)"></i>'}
+    </div></div>`;}).join('');
+  window.lucide&&lucide.createIcons();
+}
+function renderGestThread(){
+  const g=GEST[GEST_CUR];if(!g)return;const box=document.getElementById('gm-thread');if(!box)return;
+  let last='';
+  box.innerHTML=g.msgs.length?g.msgs.map(x=>{const mine=x.sender_id===U.id;const d=new Date(x.created_at);const day=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    const sep=day!==last?`<div style="text-align:center;font-size:.66rem;color:var(--td);margin:.4rem 0;text-transform:capitalize">${day}</div>`:'';last=day;
+    return sep+`<div style="align-self:${mine?'flex-end':'flex-start'};max-width:80%"><div style="padding:.55rem .8rem;border-radius:${mine?'14px 14px 4px 14px':'14px 14px 14px 4px'};background:${mine?'var(--bleu)':'var(--s2)'};color:${mine?'#fff':'var(--txt)'};font-size:.84rem;line-height:1.45;white-space:pre-wrap;word-break:break-word">${gEsc(x.content)}</div>
+      <div style="font-size:.62rem;color:var(--td);margin-top:.15rem;text-align:${mine?'right':'left'}">${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}${mine&&x.read?' · lu':''}</div></div>`;}).join('')
+    :`<div style="margin:auto;text-align:center;color:var(--td);font-size:.8rem;padding:1.5rem 0">Pas encore de message.<br>Votre gestionnaire vous répond ici, et vous recevez un e-mail à chaque réponse.</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+async function openGestChat(i,prefill){
+  GEST_CUR=i;const g=GEST[i];if(!g)return;
+  document.getElementById('gm-title').textContent=g.nom;
+  document.getElementById('gm-sub').textContent='Gestionnaire de votre logement · '+(g.adresse||g.bien);
+  const inp=document.getElementById('gm-reply');inp.value=prefill||'';
+  renderGestThread();document.getElementById('gest-modal').classList.add('open');
+  setTimeout(()=>{inp.focus();const b=document.getElementById('gm-thread');if(b)b.scrollTop=b.scrollHeight;},50);
+  const un=gestUnread(g);
+  if(un.length){try{await sb.from('messages').update({read:true}).in('id',un.map(x=>x.id));}catch(e){}un.forEach(x=>x.read=true);renderGestionnaire();try{loadOverview();}catch(e){}}
+  clearInterval(GEST_POLL);GEST_POLL=setInterval(gestPoll,12000);
+}
+function closeGestChat(){document.getElementById('gest-modal').classList.remove('open');clearInterval(GEST_POLL);GEST_CUR=null;renderGestionnaire();}
+async function gestPoll(){
+  const g=GEST[GEST_CUR];if(!g||!document.getElementById('gest-modal').classList.contains('open')){clearInterval(GEST_POLL);return;}
+  const{data}=await sb.from('messages').select('*').eq('type','gestion').or(`and(sender_id.eq.${g.aid},receiver_id.eq.${U.id}),and(sender_id.eq.${U.id},receiver_id.eq.${g.aid})`).order('created_at',{ascending:true}).limit(500);
+  if(!data)return;
+  const changed=data.length!==g.msgs.length||data.some((x,k)=>x.read!==g.msgs[k]?.read);
+  g.msgs=data;
+  if(changed){renderGestThread();const un=gestUnread(g);if(un.length){await sb.from('messages').update({read:true}).in('id',un.map(x=>x.id));un.forEach(x=>x.read=true);}}
+}
+async function sendGestMsg(){
+  const g=GEST[GEST_CUR];const inp=document.getElementById('gm-reply');const txt=(inp.value||'').trim();
+  if(!g||!txt)return;inp.value='';
+  const row={sender_id:U.id,receiver_id:g.aid,listing_id:g.m.listing_id||null,content:txt,type:'gestion',read:false};
+  const{data,error}=await sb.from('messages').insert(row).select().single();
+  if(error){inp.value=txt;toast('Message non envoyé : '+gEsc(error.message));return;}
+  g.msgs.push(data);renderGestThread();
+}
+
 function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');window.lucide&&lucide.createIcons();setTimeout(()=>t.classList.remove('show'),3200);}
 setRating(5);
 
