@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon espace propriétaire — Trouve Ton Toit</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F6F7FB;--s:#fff;--s2:#EEF1F8;--txt:#161A26;--td:#5E6475;--b:rgba(22,26,38,.1);--green:#2F8F5B;--red:#C2410C;--gold:#B7791F}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1220;--s:#161B2C;--s2:#1E2438;--txt:#EEF0F6;--td:#9AA1B5;--b:rgba(255,255,255,.09);--green:#4CC38A;--red:#F07A52;--gold:#E3B341}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;-webkit-font-smoothing:antialiased}
+.nav{padding:1rem 1.25rem;border-bottom:1px solid var(--b);background:var(--s);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.15rem;color:var(--bleu);text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:1.6rem 1rem 4rem}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+h1{font-family:'Playfair Display',serif;font-size:1.7rem;line-height:1.2;margin:.2rem 0 1rem;text-wrap:balance}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.7rem;margin-bottom:1.2rem}
+.kpi{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.85rem 1rem}
+.kpi .l{font-size:.7rem;color:var(--td);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.kpi .v{font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:.15rem}
+.tabs{display:flex;gap:.3rem;margin-bottom:.9rem;flex-wrap:wrap}
+.tab{border:1px solid var(--b);background:var(--s);color:var(--txt);border-radius:999px;padding:.45rem .9rem;font:600 .84rem 'DM Sans',sans-serif;cursor:pointer}
+.tab[aria-selected=true]{background:var(--bleu);border-color:var(--bleu);color:#fff}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.8rem}
+.bien{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:start}
+.badge{display:inline-block;font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;background:var(--s2)}
+.ok{color:var(--green)}.ko{color:var(--red)}.wait{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:.84rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:.7rem;color:var(--td);text-transform:uppercase;letter-spacing:.04em;padding:.5rem .4rem;border-bottom:1px solid var(--b)}
+td{padding:.5rem .4rem;border-bottom:1px solid var(--b);vertical-align:top}
+.r{text-align:right}
+.scroll{overflow-x:auto}
+.btn{border:1px solid var(--b);background:var(--s);color:var(--txt);border-radius:10px;padding:.5rem .9rem;font:600 .84rem 'DM Sans',sans-serif;cursor:pointer}
+.btn:focus-visible,.tab:focus-visible{outline:2px solid var(--marine);outline-offset:2px}
+.sp{width:22px;height:22px;border:3px solid rgba(27,79,216,.2);border-top-color:var(--bleu);border-radius:50%;animation:r 1s linear infinite;margin:3rem auto}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sp{animation:none}}
+@media (max-width:560px){.bien{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="nav"><a class="logo" href="/">Trouve Ton Toit</a><span id="ag" style="font-size:.8rem;color:var(--td)"></span></div>
+<main class="wrap" id="app"><div class="sp" role="status" aria-label="Chargement"></div></main>
+<script>
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur=n=>(Math.round((+n||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const fr=d=>d?new Date(String(d).length===10?d+'T12:00:00':d).toLocaleDateString('fr-FR'):'—';
+const mois=ym=>{const[y,m]=String(ym).split('-');return new Date(+y,+m-1,15).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});};
+const app=document.getElementById('app');let D=null,tab='biens';
+function render(){
+  const c=D.compte;const imp=D.biens.reduce((s,b)=>s+b.impaye,0);
+  const tabs=[['biens','Mes biens'],['compte','Mon compte'],['documents','Comptes rendus'],['contact','Mon gestionnaire']];
+  let body='';
+  if(tab==='biens')body=D.biens.map(b=>`<div class="card bien"><div><strong>${E(b.bien)}</strong><div style="font-size:.8rem;color:var(--td)">${E(b.adresse)} · ${E(b.type)}</div>
+      <div style="font-size:.86rem;margin-top:.4rem">${b.locataire?`Loué à <strong>${E(b.locataire)}</strong>${b.depuis?` depuis le ${fr(b.depuis)}`:''} · ${eur(b.loyer)} / mois`:'<span class="wait">Vacant</span>'}</div>
+      ${b.regul.length?`<div style="font-size:.76rem;color:var(--td);margin-top:.3rem">Régularisation des charges ${b.regul.map(r=>`${r.annee} : ${eur(r.solde)}`).join(' · ')}</div>`:''}</div>
+    <div style="text-align:right">${b.mois?`<span class="badge ${b.mois.statut==='payé'?'ok':b.mois.statut==='en retard'?'ko':'wait'}">${mois(b.mois.echeance.slice(0,7))} : ${b.mois.statut}</span>`:''}
+      ${b.impaye>0?`<div class="ko" style="font-size:.82rem;font-weight:700;margin-top:.35rem">Impayé ${eur(b.impaye)}</div><div style="font-size:.72rem;color:var(--td)">votre gestionnaire s’en occupe</div>`:''}</div></div>`).join('');
+  else if(tab==='compte')body=`<div class="card"><div style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.5rem"><strong>Mouvements de votre compte</strong><button class="btn" onclick="csv()">Télécharger (CSV)</button></div>
+    <div class="scroll"><table><thead><tr><th>Date</th><th>Bien</th><th>Libellé</th><th class="r">Crédit</th><th class="r">Débit</th></tr></thead><tbody>
+    ${c.lignes.map(l=>`<tr><td>${fr(l.date)}</td><td>${E(l.bien)}</td><td>${E(l.lib)}</td><td class="r">${l.cr?eur(l.cr):''}</td><td class="r">${l.db?eur(l.db):''}</td></tr>`).join('')||'<tr><td colspan="5">Aucun mouvement.</td></tr>'}</tbody></table></div></div>`;
+  else if(tab==='documents')body=`<div class="card">${D.crg.length?`<table><thead><tr><th>Période</th><th class="r">Net du mois</th><th>Envoyé</th></tr></thead><tbody>${D.crg.map(x=>`<tr><td style="text-transform:capitalize">${mois(x.periode)}</td><td class="r">${x.net!=null?eur(x.net):'—'}</td><td>${x.envoye_at?fr(x.envoye_at):'—'}</td></tr>`).join('')}</tbody></table>
+    <p style="font-size:.78rem;color:var(--td);margin-top:.6rem">Les comptes rendus détaillés vous sont envoyés par e-mail chaque mois. L’aide à la déclaration de vos revenus fonciers vous est remise chaque année.</p>`:'<p style="color:var(--td)">Vos comptes rendus de gestion apparaîtront ici.</p>'}</div>`;
+  else body=`<div class="card"><strong>${E(D.agence.nom)}</strong><div style="color:var(--td);font-size:.86rem;margin-top:.3rem">${E(D.agence.adresse)}</div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">${D.agence.tel?`<a class="btn" href="tel:${E(D.agence.tel.replace(/\s/g,''))}" style="text-decoration:none">Appeler ${E(D.agence.tel)}</a>`:''}${D.agence.email?`<a class="btn" href="mailto:${E(D.agence.email)}" style="text-decoration:none">Écrire</a>`:''}</div></div>`;
+  app.innerHTML=`<div class="eyebrow">Espace propriétaire</div><h1>Bonjour ${E(D.proprietaire)}</h1>
+  <div class="kpis"><div class="kpi"><div class="l">Solde en votre faveur</div><div class="v">${eur(c.solde)}</div></div>
+    <div class="kpi"><div class="l">Loyers encaissés</div><div class="v">${eur(c.encaisse)}</div></div>
+    <div class="kpi"><div class="l">Reversé</div><div class="v">${eur(c.reverse)}</div></div>
+    <div class="kpi"><div class="l">Impayés en cours</div><div class="v ${imp>0?'ko':''}">${eur(imp)}</div></div></div>
+  <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${tab===k}" onclick="tab='${k}';render()">${l}</button>`).join('')}</div>${body}`;
+}
+function csv(){
+  const rows=[['Date','Bien','Libellé','Crédit','Débit'],...D.compte.lignes.map(l=>[l.date,l.bien,l.lib,String(l.cr).replace('.',','),String(l.db).replace('.',',')])];
+  const txt='﻿'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv'}));a.download='mon-compte-proprietaire.csv';document.body.appendChild(a);a.click();a.remove();
+}
+(async()=>{
+  const t=new URLSearchParams(location.search).get('t');
+  try{const r=await fetch('/.netlify/functions/espace-proprietaire?t='+encodeURIComponent(t||''));const j=await r.json();if(!r.ok)throw new Error(j.error||'Erreur');D=j;
+    document.getElementById('ag').textContent=D.agence.nom;render();}
+  catch(e){app.innerHTML=`<div class="card">${E(e.message)}. Demandez un nouveau lien à votre agence.</div>`;}
+})();
+</script>
+</body>
+</html>
