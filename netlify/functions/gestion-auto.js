@@ -88,12 +88,13 @@ exports.handler = async () => {
     const e = r.etalement; const k = mDiff(e.debut, ym); if (k < 0 || k >= e.mois) return s;
     return s + (k === e.mois - 1 ? R(e.total - e.mensualite * (e.mois - 1)) : e.mensualite); }, 0);
 
+  const tvaM = m => (m.tva_loyer && ['commercial', 'professionnel'].includes(m.type_bail)) ? (+m.tva_taux || 20) : 0;
   const ten = m => {
     const f = m.fin_bail || {};
     if (f.sortie_effective && days(f.sortie_effective, today) > 0) return null;
     const L = leases[m.lease_id];
-    if (L) { const p = profs[L.tenant_id] || {}; return { nom: p.full_name || 'Locataire', email: p.email || '', tenant_id: L.tenant_id, hc: +L.rent || 0, ch: +L.charges || 0, debut: L.start_date, jour: +(L.payment_due_day || 1) || 1, lease: L }; }
-    if (m.loc_nom) return { nom: m.loc_nom, email: m.loc_email || '', tenant_id: m.loc_clerk_id || null, hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0, debut: m.loc_debut, jour: +m.loc_jour || 1, lease: null };
+    if (L) { const p = profs[L.tenant_id] || {}; return { nom: p.full_name || 'Locataire', email: p.email || '', tenant_id: L.tenant_id, hc: +L.rent || 0, ch: +L.charges || 0, debut: L.start_date, jour: +(L.payment_due_day || 1) || 1, lease: L, tva: tvaM(m) }; }
+    if (m.loc_nom) return { nom: m.loc_nom, email: m.loc_email || '', tenant_id: m.loc_clerk_id || null, hc: +m.loc_loyer_hc || 0, ch: +m.loc_charges || 0, debut: m.loc_debut, jour: +m.loc_jour || 1, lease: null, tva: tvaM(m) };
     return null;
   };
   const paid = p => p.status === 'paid' ? Number(p.amount_paid ?? p.amount) || 0 : Number(p.amount_paid) || 0;
@@ -117,7 +118,7 @@ exports.handler = async () => {
           if (m.fin_bail?.date_fin && ym > String(m.fin_bail.date_fin).slice(0, 7)) continue;
           if (due(ym, t.jour) < cutoff) continue;
           rows.push({ landlord_id: m.agency_id, tenant_id: t.tenant_id, listing_id: m.listing_id || t.lease?.listing_id || null, lease_id: t.lease?.id || null, booking_id: t.lease?.booking_id || null,
-            mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R(t.hc + t.ch + extra(m.id, ym)), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
+            mandat_id: m.id, tenant_name: t.nom, tenant_email: t.email, amount: R((t.hc + t.ch) * (1 + (t.tva || 0) / 100) + extra(m.id, ym)), type: 'rent', status: 'pending', due_date: due(ym, t.jour) });
         }
         if (rows.length) { const ins = await post('payments', rows); mp.push(...(ins || [])); S(m.agency_id, 'echeances'); }
       }
@@ -198,7 +199,7 @@ exports.handler = async () => {
     if (t && r.nouvelle_provision != null && R(r.nouvelle_provision) !== R(t.ch)) {
       if (t.lease) await patch(`leases?id=eq.${t.lease.id}`, { charges: R(r.nouvelle_provision) });
       else await patch(`gestion_mandats?id=eq.${m.id}`, { loc_charges: R(r.nouvelle_provision) });
-      for (const p of futurs) await setAmt(p, +p.amount - t.ch + R(r.nouvelle_provision));
+      for (const p of futurs) await setAmt(p, +p.amount + (R(r.nouvelle_provision) - t.ch) * (1 + (t.tva || 0) / 100));
       t.ch = R(r.nouvelle_provision);
     }
     let et = null, reste = 0;
