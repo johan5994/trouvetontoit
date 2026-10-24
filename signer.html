@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signature électronique — Trouve Ton Toit</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F6F7FB;--s:#fff;--txt:#161A26;--td:#5E6475;--b:rgba(22,26,38,.1);--green:#2F8F5B;--red:#C2410C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
+.nav{padding:1rem 1.25rem;border-bottom:1px solid var(--b);background:var(--s)}
+.logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.2rem;color:var(--bleu);text-decoration:none}
+.wrap{max-width:620px;margin:0 auto;padding:2rem 1rem 4rem}
+h1{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1.2;margin:.2rem 0 .5rem}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.1rem 1.15rem;margin-bottom:.8rem}
+.row{display:flex;justify-content:space-between;gap:1rem;font-size:.85rem;padding:.3rem 0;border-bottom:1px solid var(--b)}
+.row span:first-child{color:var(--td)}
+label{display:block;font-size:.8rem;font-weight:600;margin:.7rem 0 .25rem}
+input[type=text]{width:100%;padding:.7rem .8rem;border:1px solid rgba(22,26,38,.2);border-radius:10px;font:500 1rem 'DM Sans',sans-serif}
+input:focus-visible,button:focus-visible{outline:2px solid var(--marine);outline-offset:2px}
+.legal{font-size:.76rem;color:var(--td);line-height:1.55;background:var(--bg);border-radius:10px;padding:.75rem .85rem;margin-top:.8rem}
+.chk{display:flex;gap:.55rem;align-items:flex-start;font-size:.84rem;font-weight:500;margin-top:.9rem}
+.btn{display:block;width:100%;border:none;border-radius:12px;background:var(--bleu);color:#fff;font:600 1rem 'DM Sans',sans-serif;padding:.9rem;cursor:pointer;margin-top:1rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{color:var(--red);font-size:.84rem;margin-top:.6rem}
+.sp{width:22px;height:22px;border:3px solid rgba(27,79,216,.2);border-top-color:var(--bleu);border-radius:50%;animation:r 1s linear infinite;margin:2rem auto}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sp{animation:none}}
+
+.doc{width:100%;height:60vh;min-height:340px;border:1px solid var(--b);border-radius:12px;background:#fff}
+.pad{width:100%;height:170px;border:1.5px dashed rgba(22,26,38,.3);border-radius:12px;background:#fff;touch-action:none;display:block}
+.link{background:none;border:none;color:var(--bleu);font:600 .8rem 'DM Sans',sans-serif;cursor:pointer;padding:.3rem 0}
+.warn{background:#FFF4E5;color:#8A4B00;border-radius:10px;padding:.7rem .85rem;font-size:.84rem;margin-bottom:.8rem}
+</style>
+</head>
+<body>
+<div class="nav"><a class="logo" href="/">Trouve Ton Toit</a></div>
+<main class="wrap" id="app" style="max-width:760px"><div class="sp" role="status" aria-label="Chargement"></div></main>
+<script>
+const SU='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fr=d=>new Date(d).toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'});
+const app=document.getElementById('app');
+const t=new URLSearchParams(location.search).get('t');
+let D=null,me=null,integre=true,vide=true,ctx=null;
+async function sha(txt){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const docFrame=()=>`<iframe class="doc" sandbox="" title="Document à signer" srcdoc="${E('<!doctype html><meta charset=utf-8><style>body{font:14px/1.6 Georgia,serif;color:#161A26;padding:18px 22px;max-width:720px;margin:auto}h1,h2{font-family:system-ui,sans-serif}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 6px}</style>'+D.contenu)}"></iframe>`;
+const liste=()=>D.signataires.map(x=>`<div class="row"><span>${E(x.role)}</span><span>${E(x.nom)} ${x.signed_at?`<strong style="color:var(--green)">✓ signé le ${fr(x.signed_at)}</strong>`:'<span style="color:var(--td)">en attente</span>'}</span></div>`).join('');
+function render(){
+  if(me.signed_at){app.innerHTML=`<div class="card" style="text-align:center;padding:2rem"><div style="font-size:2rem;color:var(--green)" aria-hidden="true">✓</div><h1 style="font-size:1.35rem">Document signé</h1><p style="color:var(--td)">${E(D.titre)} — signé le ${fr(me.signed_at)}.</p><p style="color:var(--td);font-size:.84rem;margin-top:.4rem">${D.statut==='signe'?'Toutes les parties ont signé : votre agence vous transmet l’exemplaire final.':'Les autres signataires vont recevoir le document à leur tour.'}</p></div><div class="card">${liste()}</div>`;return;}
+  if(D.statut==='annule'){app.innerHTML='<div class="card">Ce document a été annulé par l’agence.</div>';return;}
+  app.innerHTML=`<div class="eyebrow">Signature électronique</div><h1>${E(D.titre)}</h1>
+  <p style="color:var(--td);margin-bottom:1rem">Bonjour ${E(me.nom)}, relisez le document puis signez en bas de page.</p>
+  ${integre?'':'<div class="warn" role="alert">Le contenu de ce document ne correspond plus à la version d’origine. Ne signez pas et contactez votre agence.</div>'}
+  <div class="card" style="padding:.5rem">${docFrame()}</div>
+  <div class="card">${liste()}<div style="font-size:.72rem;color:var(--td);margin-top:.5rem;word-break:break-all">Empreinte du document (SHA-256) : ${E(D.empreinte)}</div></div>
+  <div class="card">
+    <label for="nom">Nom et prénom du signataire</label><input type="text" id="nom" autocomplete="name" value="${E(me.nom)}">
+    <label for="pad">Votre signature</label><canvas id="pad" class="pad" aria-label="Zone de signature : dessinez votre signature"></canvas>
+    <button class="link" onclick="effacer()">Effacer</button>
+    <label class="chk"><input type="checkbox" id="lu"> <span>J’ai lu le document « ${E(D.titre)} » et je l’accepte. Je reconnais que ma signature électronique a la même valeur qu’une signature manuscrite.</span></label>
+    <div id="err" class="err" role="alert"></div>
+    <button class="btn" id="go" onclick="signer()" ${integre?'':'disabled'}>Signer le document</button>
+    <p style="font-size:.72rem;color:var(--td);margin-top:.7rem">Signature électronique simple (règlement eIDAS) : la date, l’heure, votre navigateur et l’empreinte du document sont conservés dans un fichier de preuve.</p>
+  </div>`;
+  initPad();
+}
+function initPad(){
+  const c=document.getElementById('pad');const r=c.getBoundingClientRect();const k=window.devicePixelRatio||1;
+  c.width=r.width*k;c.height=r.height*k;ctx=c.getContext('2d');ctx.scale(k,k);ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0F2D7A';vide=true;
+  let on=false;const pt=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top];};
+  c.onpointerdown=e=>{on=true;c.setPointerCapture(e.pointerId);const[x,y]=pt(e);ctx.beginPath();ctx.moveTo(x,y);};
+  c.onpointermove=e=>{if(!on)return;const[x,y]=pt(e);ctx.lineTo(x,y);ctx.stroke();vide=false;};
+  c.onpointerup=c.onpointercancel=()=>{on=false;};
+}
+function effacer(){const c=document.getElementById('pad');ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.restore();vide=true;}
+async function signer(){
+  const err=document.getElementById('err');err.textContent='';
+  const nom=document.getElementById('nom').value.trim();
+  if(!nom){err.textContent='Indiquez votre nom.';return;}
+  if(vide){err.textContent='Dessinez votre signature dans le cadre.';return;}
+  if(!document.getElementById('lu').checked){err.textContent='Cochez la case pour confirmer votre accord.';return;}
+  const b=document.getElementById('go');b.disabled=true;b.textContent='Signature…';
+  // Relire la version en base juste avant d'écrire (autre signataire entre-temps)
+  const{data:cur}=await sb.from('gestion_signatures').select('*').eq('id',D.id).maybeSingle();
+  if(!cur){err.textContent='Document introuvable.';b.disabled=false;b.textContent='Signer le document';return;}
+  if(await sha(cur.contenu)!==cur.empreinte){err.textContent='Le document a été modifié : signature refusée.';return;}
+  const now=new Date().toISOString();
+  const S=(cur.signataires||[]).map(x=>x.token===t?{...x,nom,signed_at:now,image:document.getElementById('pad').toDataURL('image/png'),ua:navigator.userAgent.slice(0,160)}:x);
+  const statut=S.every(x=>x.signed_at)?'signe':'en_cours';
+  const{error}=await sb.from('gestion_signatures').update({signataires:S,statut}).eq('id',D.id);
+  if(error){err.textContent='Signature impossible : '+error.message;b.disabled=false;b.textContent='Signer le document';return;}
+  D={...cur,signataires:S,statut};me=S.find(x=>x.token===t);
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:D.agency_id,type:'message',read:false,content:`« ${D.titre} » signé électroniquement par ${nom}${statut==='signe'?' — toutes les parties ont signé.':'.'}`});}catch(e){}
+  render();
+}
+(async()=>{
+  if(!t||!/^[a-f0-9]{16,64}$/.test(t)){app.innerHTML='<div class="card">Ce lien n’est pas valable.</div>';return;}
+  const{data}=await sb.from('gestion_signatures').select('*').filter('signataires','cs',JSON.stringify([{token:t}])).limit(1);
+  D=(data||[])[0];me=D&&(D.signataires||[]).find(x=>x.token===t);
+  if(!D||!me){app.innerHTML='<div class="card">Ce lien n’est pas valable. Demandez-en un nouveau à votre agence.</div>';return;}
+  integre=(await sha(D.contenu))===D.empreinte;
+  render();
+})();
+</script>
+</body>
+</html>
