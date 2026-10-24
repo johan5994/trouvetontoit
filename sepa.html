@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mandat de prélèvement SEPA — Trouve Ton Toit</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F6F7FB;--s:#fff;--txt:#161A26;--td:#5E6475;--b:rgba(22,26,38,.1);--green:#2F8F5B;--red:#C2410C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
+.nav{padding:1rem 1.25rem;border-bottom:1px solid var(--b);background:var(--s)}
+.logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.2rem;color:var(--bleu);text-decoration:none}
+.wrap{max-width:620px;margin:0 auto;padding:2rem 1rem 4rem}
+h1{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1.2;margin:.2rem 0 .5rem}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.1rem 1.15rem;margin-bottom:.8rem}
+.row{display:flex;justify-content:space-between;gap:1rem;font-size:.85rem;padding:.3rem 0;border-bottom:1px solid var(--b)}
+.row span:first-child{color:var(--td)}
+label{display:block;font-size:.8rem;font-weight:600;margin:.7rem 0 .25rem}
+input[type=text]{width:100%;padding:.7rem .8rem;border:1px solid rgba(22,26,38,.2);border-radius:10px;font:500 1rem 'DM Sans',sans-serif}
+input:focus-visible,button:focus-visible{outline:2px solid var(--marine);outline-offset:2px}
+.legal{font-size:.76rem;color:var(--td);line-height:1.55;background:var(--bg);border-radius:10px;padding:.75rem .85rem;margin-top:.8rem}
+.chk{display:flex;gap:.55rem;align-items:flex-start;font-size:.84rem;font-weight:500;margin-top:.9rem}
+.btn{display:block;width:100%;border:none;border-radius:12px;background:var(--bleu);color:#fff;font:600 1rem 'DM Sans',sans-serif;padding:.9rem;cursor:pointer;margin-top:1rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{color:var(--red);font-size:.84rem;margin-top:.6rem}
+.sp{width:22px;height:22px;border:3px solid rgba(27,79,216,.2);border-top-color:var(--bleu);border-radius:50%;animation:r 1s linear infinite;margin:2rem auto}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sp{animation:none}}
+</style>
+</head>
+<body>
+<div class="nav"><a class="logo" href="/">Trouve Ton Toit</a></div>
+<main class="wrap" id="app"><div class="sp" role="status" aria-label="Chargement"></div></main>
+<script>
+const SU='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const app=document.getElementById('app');
+let S=null,M=null,C=null;
+function ibanOk(iban){const s=String(iban||'').replace(/\s+/g,'').toUpperCase();if(!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(s))return false;const r=(s.slice(4)+s.slice(0,4)).replace(/[A-Z]/g,c=>c.charCodeAt(0)-55);let m=0;for(const ch of r)m=(m*10+ +ch)%97;return m===1;}
+function render(){
+  if(S.statut==='actif'){app.innerHTML=`<div class="card" style="text-align:center;padding:2rem"><div style="font-size:2rem;color:var(--green)" aria-hidden="true">✓</div><h1 style="font-size:1.35rem">Mandat signé</h1><p style="color:var(--td)">Votre loyer sera prélevé à chaque échéance par ${E(C.nom)}. Vous recevez l’avis d’échéance quelques jours avant chaque prélèvement.</p><p style="color:var(--td);font-size:.8rem;margin-top:.6rem">Référence du mandat : ${E(S.rum)}</p></div>`;return;}
+  if(S.statut==='revoque'){app.innerHTML='<div class="card">Ce mandat a été révoqué. Contactez votre agence.</div>';return;}
+  app.innerHTML=`<div class="eyebrow">${E(C.nom)}</div><h1>Mandat de prélèvement SEPA</h1>
+  <p style="color:var(--td);margin-bottom:1rem">Paiement automatique du loyer de <strong>${E(M?.bien_label||M?.bien_adresse||'votre logement')}</strong>, à chaque échéance.</p>
+  <div class="card">
+    <div class="row"><span>Créancier</span><strong>${E(C.nom)}</strong></div>
+    ${C.adresse?`<div class="row"><span>Adresse</span><span>${E(C.adresse)}</span></div>`:''}
+    <div class="row"><span>Identifiant créancier SEPA</span><span>${E(C.ics||'—')}</span></div>
+    <div class="row"><span>Référence unique du mandat</span><span>${E(S.rum)}</span></div>
+    <div class="row" style="border:none"><span>Type de paiement</span><span>Récurrent</span></div>
+  </div>
+  <div class="card">
+    <label for="tit">Titulaire du compte</label><input type="text" id="tit" autocomplete="name" value="${E(S.titulaire||'')}">
+    <label for="iban">IBAN</label><input type="text" id="iban" autocomplete="off" placeholder="FR76 3000 6000 0112 3456 7890 189" oninput="this.value=this.value.toUpperCase()">
+    <label for="bic">BIC <span style="font-weight:400;color:var(--td)">(facultatif)</span></label><input type="text" id="bic" autocomplete="off">
+    <div class="legal">En signant ce formulaire de mandat, vous autorisez ${E(C.nom)} à envoyer des instructions à votre banque pour débiter votre compte, et votre banque à débiter votre compte conformément aux instructions de ${E(C.nom)}. Vous bénéficiez du droit d’être remboursé par votre banque selon les conditions décrites dans la convention que vous avez passée avec elle. Une demande de remboursement doit être présentée dans les 8 semaines suivant la date de débit de votre compte pour un prélèvement autorisé. Le montant et la date de chaque prélèvement vous sont communiqués par l’avis d’échéance, au moins 5 jours avant. Vos droits concernant le présent mandat sont expliqués dans un document que vous pouvez obtenir auprès de votre banque.</div>
+    <label class="chk"><input type="checkbox" id="ok"> <span>J’ai lu le mandat et je signe électroniquement en tant que titulaire du compte.</span></label>
+    <div id="err" class="err" role="alert"></div>
+    <button class="btn" id="go" onclick="signer()">Signer le mandat</button>
+  </div>`;
+}
+async function signer(){
+  const err=document.getElementById('err');err.textContent='';
+  const tit=document.getElementById('tit').value.trim(),iban=document.getElementById('iban').value.replace(/\s+/g,'').toUpperCase(),bic=document.getElementById('bic').value.trim().toUpperCase();
+  if(!tit){err.textContent='Indiquez le titulaire du compte.';return;}
+  if(!ibanOk(iban)){err.textContent='Cet IBAN n’est pas valide : vérifiez-le.';return;}
+  if(!document.getElementById('ok').checked){err.textContent='Cochez la case pour signer.';return;}
+  const b=document.getElementById('go');b.disabled=true;b.textContent='Signature…';
+  const upd={titulaire:tit,iban,bic:bic||null,statut:'actif',signe_at:new Date().toISOString(),signe_par:'en ligne — '+navigator.userAgent.slice(0,120)};
+  const{error}=await sb.from('gestion_sepa_mandats').update(upd).eq('id',S.id);
+  if(error){b.disabled=false;b.textContent='Signer le mandat';err.textContent='Signature impossible : '+error.message;return;}
+  Object.assign(S,upd);
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:S.agency_id,type:'message',read:false,content:`Mandat de prélèvement SEPA signé par ${tit} (${M?.bien_label||M?.bien_adresse||'un bien'}) — référence ${S.rum}.`});}catch(e){}
+  render();
+}
+(async()=>{
+  const t=new URLSearchParams(location.search).get('t');
+  const{data:s}=t?await sb.from('gestion_sepa_mandats').select('*').eq('token',t).maybeSingle():{data:null};
+  if(!s){app.innerHTML='<div class="card">Ce lien n’est pas valable. Demandez-en un nouveau à votre agence.</div>';return;}
+  S=s;
+  const{data:m}=await sb.from('gestion_mandats').select('bien_label,bien_adresse,entite_id').eq('id',s.mandat_id).maybeSingle();M=m;
+  let c=null;
+  if(m?.entite_id){const{data}=await sb.from('gestion_entites').select('nom,adresse,ics').eq('id',m.entite_id).maybeSingle();c=data;}
+  if(!c){const{data}=await sb.from('gestion_entites').select('nom,adresse,ics,defaut').eq('agency_id',s.agency_id);c=(data||[]).find(x=>x.defaut)||(data||[])[0]||null;}
+  if(!c){const{data}=await sb.from('agency_profiles').select('agency_name,address').eq('clerk_id',s.agency_id).maybeSingle();c={nom:data?.agency_name||'Votre agence',adresse:data?.address||'',ics:''};}
+  C=c;render();
+})();
+</script>
+</body>
+</html>
