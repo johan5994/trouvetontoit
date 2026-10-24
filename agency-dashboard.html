@@ -236,12 +236,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <button class="ni" onclick="sp('honoraires',this)"><span class="nico"><i data-lucide=receipt class=ic></i></span>Honoraires</button>
 
     <div class="nl">Gestion locative</div>
-    <button class="ni" onclick="spG('jour',this)"><span class="nico"><i data-lucide=sun class=ic></i></span>Ma journée<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
-    <button class="ni" onclick="spG('home',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Mes biens gérés</button>
+    <button class="ni" onclick="spG('home',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Mes biens gérés<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
     <button class="ni" onclick="spG('agenda',this)"><span class="nico"><i data-lucide=calendar-days class=ic></i></span>Agenda</button>
     <button class="ni" onclick="spG('owners',this)"><span class="nico"><i data-lucide=users-round class=ic></i></span>Propriétaires</button>
     <button class="ni" onclick="spG('banque',this)"><span class="nico"><i data-lucide=landmark class=ic></i></span>Banque<span class="nbadge" id="nb-banque" style="display:none">0</span></button>
     <button class="ni" onclick="spG('stats',this)"><span class="nico"><i data-lucide=bar-chart-3 class=ic></i></span>Statistiques</button>
+    <button class="ni" onclick="spG('compta',this)"><span class="nico"><i data-lucide=book-open class=ic></i></span>Comptabilité</button>
+    <button class="ni" onclick="spG('prelev',this)"><span class="nico"><i data-lucide=repeat class=ic></i></span>Prélèvements</button>
+    <button class="ni" onclick="spG('assur',this)"><span class="nico"><i data-lucide=shield-check class=ic></i></span>Assurances</button>
+    <button class="ni" onclick="spG('courriers',this)"><span class="nico"><i data-lucide=mails class=ic></i></span>Courriers & signatures</button>
+    <button class="ni" onclick="spG('params',this)"><span class="nico"><i data-lucide=sliders-horizontal class=ic></i></span>Paramètres gestion</button>
 
     <div class="nl">Clients</div>
     <button class="ni" onclick="sp('crm',this)"><span class="nico"><i data-lucide=users class=ic></i></span>CRM clients<span class="nbadge" id="nb-leads" style="display:none">0</span></button>
@@ -1312,7 +1316,7 @@ function canSeePage(id){
 }
 // Navigation vers une vue de la gestion locative (le module peut ne pas être encore chargé)
 function spG(v,btn){if(typeof GA!=='undefined')GA.view={t:v};else window.__gaView={t:v};sp('gestion',btn||document.querySelector(`#sidebar .ni[onclick*="spG('${v}'"]`));}
-function goLanding(){const l=metierLanding();if(l==='gestion')spG('jour');else sp(l);}
+function goLanding(){const l=metierLanding();if(l==='gestion')spG('home');else sp(l);}
 function metierLanding(){const ms=getMemberMetiers();if(ms&&!ms.includes('vente')&&!ms.includes('location'))return'gestion';return'overview';}
 function metierBadges(ms,small){return(ms||[]).map(k=>METIERS[k]?`<span style="display:inline-flex;align-items:center;gap:.2rem;font-size:${small?'.6rem':'.66rem'};font-weight:700;padding:.08rem .45rem;border-radius:100px;background:${METIERS[k].c}22;color:${METIERS[k].c};border:1px solid ${METIERS[k].c}55"><i data-lucide=${METIERS[k].ic} class=ic></i> ${METIERS[k].court}</span>`:'').join(' ');}
 function applyRoleNav(){
@@ -1408,7 +1412,7 @@ async function setMemberMetiers(name,metiers){
 
 // ── Navigation ────────────────────────────────────────────────
 function sp(id, btn){
-  if(typeof canSeePage==='function'&&!canSeePage(id)){id=metierLanding();if(id==='gestion'){if(typeof GA!=='undefined')GA.view={t:'jour'};else window.__gaView={t:'jour'};}}
+  if(typeof canSeePage==='function'&&!canSeePage(id)){id=metierLanding();if(id==='gestion'){if(typeof GA!=='undefined')GA.view={t:'home'};else window.__gaView={t:'home'};}}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   const pg=document.getElementById('page-'+id);
