@@ -625,8 +625,8 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 </div>
 <div class="page" id="page-post">
   <div class="pwrap">
-    <div class="ptitle">Post  votre annonce</div>
-    <div class="psub">Reach vérifié locataires across France — interns, expats, nomads. Free to post.</div>
+    <div class="ptitle" id="post-titre">Publier votre annonce</div>
+    <div class="psub" id="post-sous-titre">Touchez des locataires vérifiés partout en France. Publication gratuite.</div>
 
     <!-- Choix : je remplis moi-même vs passer par une agence -->
     <div class="fcard" id="post-choice-screen">
@@ -880,7 +880,6 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <div class="cbwrap cbcol" style="margin-top:.1rem">
                 <label class="cl"><input type="checkbox" id="ef-charges" onchange="setEauFroide('charges',this)"> Comprise dans les charges</label>
                 <label class="cl"><input type="checkbox" id="ef-individuelle" onchange="setEauFroide('individuelle',this)"> Facturée individuellement</label>
-                <label class="cl"><input type="checkbox" id="ef-inconnu" onchange="setEauFroide('inconnu',this)"> Je ne sais pas</label>
               </div>
               <input type="hidden" id="p-eau-froide" value="">
             </div>
@@ -907,9 +906,10 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="cblock">
               <div class="cblock-hd" style="font-size:.78rem"><i data-lucide=refresh-cw class=ic></i> Type de charges</div>
               <div class="cbwrap cbcol" style="margin-top:.1rem">
-                <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Régularisation annuelle</label>
-                <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfaitaires (fixe)</label>
+                <label class="cl"><input type="checkbox" id="reg-annuelle" onchange="setChargesRegularisation('annuelle',this)"> Provisions sur charges</label>
+                <label class="cl"><input type="checkbox" id="reg-forfaitaire" onchange="setChargesRegularisation('forfaitaire',this)"> Forfait de charges</label>
               </div>
+              <div id="reg-hint" style="font-size:.72rem;color:var(--stone);line-height:1.45;margin-top:.35rem"></div>
               <input type="hidden" id="p-charges-regularisation" value="">
             </div>
           </div>
@@ -926,7 +926,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
       <div class="wizard-step" id="wstep-6" style="display:none">
         <p class="wstep-title">Prix &amp; diagnostic énergétique</p>
         <div class="frow">
-          <div class="fg2" id="pt-avail-wrap"><label>Disponible depuis *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
+          <div class="fg2" id="pt-avail-wrap"><label>Disponible à partir du *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
           <div class="fg2" id="pt-price-wrap">
             <label id="pt-price-label">Loyer mensuel charges comprises (€) *</label>
             <input class="fi" type="number" id="ppr" placeholder="950" oninput="updateLoyerHC()">
@@ -1000,9 +1000,12 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="cblock-hd"><i data-lucide=layout-grid class=ic></i> Pièces annexes</div>
             <div class="equip-chips">
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="cave" onchange="updateAnnexes()"><i data-lucide=archive class=ic></i> Cave</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="sous_sol" onchange="updateAnnexes()"><i data-lucide=arrow-down class=ic></i> Sous-sol</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="sous_sol" data-maison onchange="updateAnnexes()"><i data-lucide=arrow-down class=ic></i> Sous-sol</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="grenier" onchange="updateAnnexes()"><i data-lucide=home class=ic></i> Grenier</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="dependance" onchange="updateAnnexes()"><i data-lucide=house class=ic></i> Dépendance</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="dependance" data-maison onchange="updateAnnexes()"><i data-lucide=house class=ic></i> Dépendance</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="parking" onchange="updateAnnexes()"><i data-lucide=car class=ic></i> Place de parking</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="box_garage" onchange="updateAnnexes()"><i data-lucide=warehouse class=ic></i> Box / garage</label>
+              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" class="annexe-cb" value="parking_souterrain" onchange="updateAnnexes()"><i data-lucide=circle-parking class=ic></i> Parking souterrain</label>
             </div>
             <input type="hidden" id="p-annexes" value="">
           </div>
@@ -1014,26 +1017,24 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pfu" checked><i data-lucide=sofa class=ic></i> Meublé</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwi"><i data-lucide=wifi class=ic></i> WiFi</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pac"><i data-lucide=snowflake class=ic></i> Clim / A/C</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppk"><i data-lucide=car class=ic></i> Parking</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="ppool"><i data-lucide=waves class=ic></i> Piscine</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pbalc"><i data-lucide=leaf class=ic></i> Balcon / Terrasse</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pwash"><i data-lucide=droplets class=ic></i> Lave-linge</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="pdish"><i data-lucide=utensils class=ic></i> Lave-vaisselle</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-chauffage-sol"><i data-lucide=sun class=ic></i> Chauffage au sol</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-baignoire"><i data-lucide=droplets class=ic></i> Baignoire</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-plusieurs-wc"><i data-lucide=layers class=ic></i> Plusieurs WC</label>
               <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-pmr"><i data-lucide=accessibility class=ic></i> Accès PMR</label>
             </div>
           </div>
 
-          <!-- Bâtiment -->
+          <!-- Copropriété -->
           <div class="cblock">
-            <div class="cblock-hd"><i data-lucide=building-2 class=ic></i> Bâtiment</div>
-            <div class="equip-chips">
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-ancienne"><i data-lucide=landmark class=ic></i> Construction ancienne</label>
-              <label class="equip-chip" onclick="toggleChip(this)"><input type="checkbox" id="p-construction-recente"><i data-lucide=hard-hat class=ic></i> Construction récente</label>
-              <label class="equip-chip" id="chip-copro" onclick="toggleChip(this)"><input type="checkbox" id="p-copropriete"><i data-lucide=building-2 class=ic></i> Copropriété</label>
+            <div class="cblock-hd"><i data-lucide=building-2 class=ic></i> Immeuble</div>
+            <div class="toggle-pills">
+              <span class="toggle-pill" id="copro-pill-copro" onclick="setCopro('copro')">Copropriété</span>
+              <span class="toggle-pill" id="copro-pill-mono" onclick="setCopro('mono')">Monopropriété</span>
             </div>
+            <input type="hidden" id="p-copro-type" value="">
           </div>
 
         </div>
@@ -1091,7 +1092,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <div class="fg2"><label>Type de chambre</label><select class="fi" id="p-room-type" style="cursor:pointer"><option value="private">Chambre privée</option><option value="shared">Chambre partagée</option></select></div>
             <div class="fg2"><label>Salle de bain</label><select class="fi" id="p-room-salle de bain" style="cursor:pointer"><option value="shared">Partagée</option><option value="private">Privée</option></select></div>
             <div class="fg2"><label>Personnes déjà dans le logement</label><select class="fi" id="p-roommates" style="cursor:pointer"><option value="1">1 personne (vous)</option><option value="2">2 personnes</option><option value="3">3 personnes</option><option value="4">4+ personnes</option></select></div>
-            <div class="fg2"><label>Disponible depuis</label><input class="fi" type="date" id="p-room-disponible"></div>
+            <div class="fg2"><label>Disponible à partir du</label><input class="fi" type="date" id="p-room-disponible"></div>
           </div>
           <div style="font-size:.73rem;color:var(--stone);line-height:1.6;margin-top:.5rem"><i data-lucide=alert-triangle class=ic></i> En publiant une location de chambre, vous confirmez avoir l'accord du propriétaire pour sous-louer et acceptez que Trouve Ton Toit ne gère pas l'enregistrement auprès des autorités.</div>
           <label style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.78rem;cursor:pointer"><input type="checkbox" id="room_rental-confirm" required> Je confirme avoir lu et accepté ces conditions</label>
@@ -1250,7 +1251,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
             <input class="fi" type="number" id="p-pk-depot" placeholder="80" min="0">
           </div>
           <div class="fg2">
-            <label>Disponible depuis *</label>
+            <label>Disponible à partir du *</label>
             <input class="fi" type="date" id="p-pk-dispo">
           </div>
           <div class="fg2">
@@ -2765,6 +2766,7 @@ async function sU(clerkUser, showPicker=true) {
         }
       }catch(e){}
     }
+    if(data.role==='bailleur')setTimeout(()=>{try{editDepuisUrl();}catch(e){console.error(e);}},300);
   } else {
     const full_name = clerkUser.fullName || clerkUser.firstName || '';
     P = data || { clerk_id: U.id, full_name, email: U.email, role: null };
@@ -2857,7 +2859,7 @@ async function requestEstimation(agencyId,agencyNom){
       </div>
       <div class="fg2"><label>Bien address *</label><input class="fi" id="est-req-address" value="${prefillAdresse.replace(/"/g,'&quot;')}" placeholder="12 Triq il-Kbira, Paris"></div>
       <div class="fg2"><label>Anything else? (optional)</label><textarea class="fi" id="est-req-notes" rows="3" placeholder="Bien type, size, condition..."></textarea></div>
-      <button class="btn btn-p" style="width:100%;justify-content:center;margin-top:.5rem" onclick="submitEstimationRequest('${agencyId}')">Envoyer request →</button>
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-top:.5rem" onclick="submitEstimationRequest('${agencyId}')">Envoyer la demande →</button>
       <button class="btn btn-s" style="width:100%;justify-content:center;margin-top:.5rem" onclick="document.getElementById('est-req-modal').remove()">Annuler</button>
     </div>`;
   document.body.appendChild(modal);
@@ -3525,7 +3527,7 @@ async function _openDetBody(l,id){
   const _chMap={individuel:'Individuel',collectif:'Collectif',electrique:'Électrique',gaz:'Gaz',fioul:'Fioul',pompe_chaleur:'Pompe à chaleur',bois:'Bois / Poêle',autre:'Autre'};
   const _cmMap={eau:'Radiateurs eau chaude',air:'Air soufflé',sol:'Chauffage au sol',autre:'Autre'};
   const _cMap={eau_froide:'Eau froide',eau_chaude:'Eau chaude',chauffage:'Chauffage',electricite:'Électricité',parties_communes:'Parties communes',internet:'Internet',autre:'Autre'};
-  const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance'};
+  const _aMap={cave:'Cave',sous_sol:'Sous-sol',grenier:'Grenier',dependance:'Dépendance',parking:'Place de parking',box_garage:'Box / garage',parking_souterrain:'Parking souterrain'};
   const _typMap={studio:'Studio',t1:'T1 — 1 pièce',t2:'T2 — 2 pièces',t3:'T3 — 3 pièces',t4:'T4 — 4 pièces',t5:'T5 — 5 pièces',t6plus:'T6 et plus'};
   const _cusMap={equipee:'Équipée',amenagee:'Aménagée',equipee_amenagee:'Équipée / Aménagée',americaine:'Américaine',ouverte:'Ouverte',separee:'Séparée'};
 
@@ -3612,7 +3614,7 @@ async function _openDetBody(l,id){
       l.pmr?_item('<i data-lucide=accessibility class=ic></i>','Accès PMR'):null,
     ];
     const _ext=[
-      l.parking?_item('<i data-lucide=car class=ic></i>','Parking'):null,
+      l.parking&&!/(parking|box_garage)/.test(l.annexes||'')?_item('<i data-lucide=car class=ic></i>','Parking'):null,
       l.balcon?(l.terrasse_sqm?_item('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse '+l.terrasse_sqm+' m²'):_item('<i data-lucide=flower-2 class=ic></i>','Balcon / Terrasse')):null,
       l.pool?_item('<i data-lucide=waves class=ic></i>','Piscine'):null,
       l.jardin?_item('<i data-lucide=trees class=ic></i>','Jardin'):null,
@@ -3973,16 +3975,18 @@ async function requestVisitFromDetail(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div style="background:white;border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
-      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Request a visite</div>
+      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Demander une visite</div>
       <div style="font-size:.78rem;color:var(--stone);margin-bottom:1rem">${(AL.title||'ce logement').replace(/</g,'&lt;')}</div>
-      <div class="fg2"><label>Preferred date</label><input class="fi" type="date" id="vr-date"></div>
-      <div class="fg2"><label>Preferred time</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
+      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
+      <div class="fg2"><label>Date souhaitée</label><input class="fi" type="date" id="vr-date"></div>
+      <div class="fg2"><label>Heure souhaitée</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button id="vr-send-btn" style="flex:1;background:var(--terra);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer request →</button>
+        <button id="vr-send-btn" style="flex:1;background:var(--terra);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer la demande →</button>
         <button onclick="document.getElementById('visite-request-modal-overlay').remove()" style="background:#f2ede4;color:var(--stone);border:1px solid #e5ddd0;border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
+  try{if(window.lucide)lucide.createIcons();}catch(e){}
 
   document.getElementById('vr-send-btn').onclick=async()=>{
     const visitDate=document.getElementById('vr-date')?.value;
@@ -4144,6 +4148,7 @@ function setT(el,t){
   document.getElementById('pt').value=dbType;
   const subtypeEl=document.getElementById('pt-bail-subtype');
   if(subtypeEl) subtypeEl.value=(t==='bail_vide')?'vide':(t==='bail_meuble')?'meuble':'';
+  try{regHint();}catch(e){}
 
   const bailVideOpts=document.getElementById('bail-vide-opts');
   const bailMeubleOpts=document.getElementById('bail-meuble-opts');
@@ -4221,6 +4226,7 @@ function setTB(el,v){
   document.getElementById('p-type-bien').value=v;
   const sec=document.getElementById('section-etage');
   if(sec)sec.style.display=(v==='appartement')?'grid':'none';
+  annexesSelonType(v);
 }
 function setTBCard(v){
   // Nouveau step 2 avec tloc-card-row
@@ -4234,6 +4240,7 @@ function setTBCard(v){
   document.getElementById('p-type-bien').value=v;
   const sec=document.getElementById('section-etage');
   if(sec)sec.style.display=(v==='appartement')?'grid':'none';
+  annexesSelonType(v);
 }
 
 // Ascenseur — deux checkboxes exclusives (radio behaviour)
@@ -4346,6 +4353,10 @@ function setAscenseur(v){
   const inp=document.getElementById('p-ascenseur');
   if(inp)inp.value=v;
 }
+function setCopro(v){
+  ['copro','mono'].forEach(k=>{const pill=document.getElementById('copro-pill-'+k);if(pill)pill.classList.toggle('sel',k===v);});
+  const inp=document.getElementById('p-copro-type');if(inp)inp.value=v;
+}
 function setAscenseurFromCb(v,cb){
   ['oui','non'].forEach(m=>{
     const el=document.getElementById('asc-cb-'+m);
@@ -4406,7 +4417,7 @@ function setEcsInclus(v,cb){
   updateChargesInclus();
 }
 function setEauFroide(v,cb){
-  ['charges','individuelle','inconnu'].forEach(m=>{const el=document.getElementById('ef-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
+  ['charges','individuelle'].forEach(m=>{const el=document.getElementById('ef-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
   document.getElementById('p-eau-froide').value=cb.checked?v:'';
   updateChargesInclus();
 }
@@ -4418,6 +4429,22 @@ function setElectricite(v,cb){
 function setChargesRegularisation(v,cb){
   ['annuelle','forfaitaire'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
   document.getElementById('p-charges-regularisation').value=cb.checked?v:'';
+  regHint();
+}
+// Le forfait de charges n'est autorisé qu'en meublé et en colocation (loi du 6 juillet 1989) : en location vide, provisions obligatoires.
+function regHint(){
+  const h=document.getElementById('reg-hint');if(!h)return;
+  const vide=document.getElementById('pt-bail-subtype')?.value==='vide';
+  const v=document.getElementById('p-charges-regularisation')?.value;
+  const f=document.getElementById('reg-forfaitaire');if(f){f.disabled=vide;f.closest('label').style.opacity=vide?'.45':'';f.closest('label').title=vide?'Réservé à la location meublée et à la colocation':'';}
+  if(vide&&v==='forfaitaire'){
+    ['annuelle','forfaitaire'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=m==='annuelle';});
+    document.getElementById('p-charges-regularisation').value='annuelle';
+    h.innerHTML='<strong style="color:var(--terra)">En location vide, le forfait de charges n’est pas autorisé</strong> : les charges sont forcément des provisions, régularisées chaque année.';return;
+  }
+  h.textContent=v==='annuelle'?'Avance mensuelle sur les charges réelles : une fois par an, vous comparez avec les dépenses réelles et le locataire paie le complément ou est remboursé.'
+    :v==='forfaitaire'?'Montant fixe, sans régularisation : ni complément ni remboursement en fin d’année. Il peut seulement être révisé une fois par an, comme le loyer (IRL).'
+    :vide?'En location vide, les charges sont toujours des provisions avec régularisation annuelle.':'';
 }
 function updateChargesInclus(){
   const _labels={chauffage:'Chauffage',eau_chaude:'Eau chaude',eau_froide:'Eau froide',electricite:'Électricité',parties_communes:'Parties communes',ascenseur:'Ascenseur',internet:'Internet',autre:'Autre'};
@@ -4469,6 +4496,13 @@ function updateDepotMontant(){
 }
 
 // Pièces annexes — checkboxes, stored as comma-separated
+// Sous-sol et dépendance n'existent pas en appartement
+function annexesSelonType(v){
+  document.querySelectorAll('.annexe-cb[data-maison]').forEach(cb=>{const l=cb.closest('label');const cache=v==='appartement';
+    if(cache&&cb.checked){cb.checked=false;l.classList.remove('sel','checked','actif');}l.style.display=cache?'none':'';});
+  updateAnnexes();
+}
+{const _a=()=>{try{annexesSelonType(document.getElementById('p-type-bien')?.value);}catch(e){}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_a);else _a();}
 function updateAnnexes(){
   const cbs=document.querySelectorAll('.annexe-cb:checked');
   const inp=document.getElementById('p-annexes');
@@ -4552,7 +4586,7 @@ let uploadedPhotos = [];
 function updatePhotoArea(){
   const area=document.getElementById('photo-upload-area');
   const msg=document.getElementById('photo-required-msg');
-  if(uploadedPhotos.length>0){
+  if(uploadedPhotos.length+(window._editPhotos||[]).length>0){
     area.style.borderColor='var(--green)';
     area.style.background='rgba(76,175,125,.04)';
     if(msg)msg.style.display='none';
@@ -4560,7 +4594,7 @@ function updatePhotoArea(){
     area.style.borderColor='var(--terra)';
     area.style.background='rgba(201,85,58,.03)';
   }
-  if(uploadedPhotos.length>=5)area.style.opacity='0.5';
+  if(uploadedPhotos.length+(window._editPhotos||[]).length>=5)area.style.opacity='0.5';
   else area.style.opacity='1';
 }
 
@@ -4588,7 +4622,7 @@ async function reduirePhoto(file){
 }
 async function handlePhotos(files) {
   const pavis = document.getElementById('photo-pavis');
-  for (const raw of Array.from(files).slice(0, 5 - uploadedPhotos.length)) {
+  for (const raw of Array.from(files).slice(0, Math.max(0, 5 - uploadedPhotos.length - (window._editPhotos||[]).length))) {
     if (!raw.type.startsWith('image/')) continue;
     const file = await reduirePhoto(raw);
     if (file.size > 5 * 1024 * 1024) { toast('<i data-lucide=x-circle class=ic></i> Photo trop lourde et impossible à réduire (format non pris en charge ?) — essayez en JPG'); continue; }
@@ -4644,7 +4678,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const hash=window.location.hash;
   if(hash&&hash.startsWith('#annonce-')){
     const listingId=hash.replace('#annonce-','');
-    setTimeout(()=>openDet(listingId),1000);
+    go('det'); // pas de passage par l'accueil : la fiche s'affiche dès qu'elle est chargée
+    openDet(listingId);
   }
 
   // Propriétaire arrivant depuis l'email d'activation d'une annonce "À vendre"
@@ -4749,6 +4784,73 @@ async function uploadPhotosForListing(listingId, files) {
   return urls;
 }
 
+// ── Modifier une annonce existante dans le même parcours que la création (?edit=ID) ──
+async function editDepuisUrl(){
+  const id=new URLSearchParams(location.search).get('edit');
+  if(!id||window._editId||!U)return;
+  const{data:l}=await sb.from('listings').select('*').eq('id',id).maybeSingle();
+  if(!l||(l.landlord_id!==U.id&&l.real_landlord_id!==U.id)){toast('<i data-lucide=x-circle class=ic></i> Annonce introuvable');return;}
+  window._editId=id;window._editListing=l;window._editPhotos=Array.isArray(l.photos)?[...l.photos]:[];
+  go('post');
+  {const ch=document.getElementById('post-choice-screen'),f=document.getElementById('post-self-form');if(ch)ch.style.display='none';if(f)f.style.display='block';}
+  selectTypeLocation(l.type==='room_rental'?'room_rental':(l['meublé']===false?'bail_vide':'bail_meuble'));
+  editRemplir(l);
+  {const t=document.getElementById('post-titre'),st=document.getElementById('post-sous-titre');if(t)t.textContent='Modifier votre annonce';if(st)st.textContent='Toutes les informations de l’annonce, comme à la création.';}
+  const b=document.querySelector('button[onclick="doPost()"]');if(b)b.innerHTML='<i data-lucide=check class=ic></i> Enregistrer les modifications';
+  if(!document.getElementById('edit-bandeau')){
+    const bandeau=document.createElement('div');bandeau.id='edit-bandeau';
+    bandeau.style.cssText='background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.7rem 1rem;margin:0 0 1rem;font-size:.85rem;display:flex;justify-content:space-between;gap:.6rem;align-items:center;flex-wrap:wrap';
+    bandeau.innerHTML=`<span><strong>Modification de l’annonce</strong> « ${String(l.title||'').replace(/[<>&"]/g,'')} » — parcourez les étapes et changez ce que vous voulez, puis enregistrez à la dernière étape.</span><a href="/landlord-dashboard.html?tab=annonces" style="font-weight:600;color:var(--bleu,#1B4FD8)">Annuler</a>`;
+    const st=document.getElementById('wstep-1');if(st&&st.parentNode)st.parentNode.insertBefore(bandeau,st);
+  }
+  try{if(window.lucide)lucide.createIcons();}catch(e){}
+}
+function editRemplir(l){
+  const $=id=>document.getElementById(id);
+  const val=(id,v)=>{const e=$(id);if(e&&v!=null&&v!=='')e.value=v;};
+  const coche=(id,v)=>{const e=$(id);if(!e)return;e.checked=!!v;const lb=e.closest('.equip-chip');if(lb)lb.classList.toggle('checked',!!v);};
+  // Choix exclusifs gérés par un setter : <input type=checkbox onchange="setX('valeur',this)">
+  const choix=(setter,v)=>{if(v==null||v==='')return;const cb=[...document.querySelectorAll('input[type=checkbox][onchange]')].find(c=>c.getAttribute('onchange').startsWith(setter+"('"+v+"'"));if(cb){cb.checked=true;try{window[setter](v,cb);}catch(e){}}};
+  setTBCard(l.type_bien==='maison'?'maison':'appartement');
+  val('pti',l.title);val('ppr',l.price);val('p-charges',l.charges_mensuelles);
+  val('psp',l.spots);val('p-baths',l.baths);val('p-sqm',l.sqm);val('pfr',l.available_from);val('pde',l.description);
+  val('p-surface-sejour',l.surface_sejour);val('p-type-cuisine',l.type_cuisine);val('p-terrasse-sqm',l.terrasse_sqm);val('p-annee-construction',l.annee_construction);
+  if(l.typology){const ty=String(l.typology).toLowerCase().replace(/^t6.*/,'t6plus');val('p-typology',ty);try{onTypologyChange(ty);}catch(e){}}
+  val('p-dpe',l.dpe);val('p-ges',l.ges);try{onDpeChange();}catch(e){}
+  val('p-etage',l.etage);val('p-nb-etages',l.nb_etages);
+  val('p-full-address',l.full_address);val('pz',l.zone);val('p-commune',l.commune);
+  try{const cp=(String(l.full_address||'').match(/\b\d{5}\b/)||[])[0];if(cp)autoDetectZoneTendue(cp);}catch(e){}
+  if(l.zone_tendue)val('p-zone-tendue',l.zone_tendue);
+  ['amiante','plomb','elec','gaz','erp','bruit'].forEach(k=>val('p-diag-'+k,l['diag_'+k]));
+  val('p-loyer-ref',l.loyer_reference);val('p-loyer-ref-maj',l.loyer_reference_majore);
+  coche('pfu',l['meublé']!==false);coche('pwi',l.wifi);coche('pac',l.ac);coche('ppool',l.pool);coche('pbalc',l.balcon);
+  coche('pwash',l.washing_machine);coche('pdish',l.dishwasher);coche('p-chauffage-sol',l.chauffage_sol);coche('p-plusieurs-wc',l.plusieurs_wc);coche('p-pmr',l.pmr);
+  if(l.ascenseur)try{setAscenseur(l.ascenseur);}catch(e){}
+  if(l.copropriete)try{setCopro('copro');}catch(e){}
+  choix('setChauffageTypeFromCb',l.chauffage_type);choix('setChauffageModeFromCb',l.chauffage_mode);choix('setChauffageInclus',l.chauffage_inclus);
+  choix('setEcsType',l.ecs_type);choix('setEcsEnergie',l.ecs_energie);choix('setEcsInclus',l.ecs_inclus);
+  choix('setEauFroide',l.eau_froide_facturation);choix('setElectricite',l.electricite_situation);choix('setChargesRegularisation',l.charges_regularisation);
+  const ann=String(l.annexes||'').split(',').filter(Boolean);
+  document.querySelectorAll('.annexe-cb').forEach(c=>{c.checked=ann.includes(c.value);const lb=c.closest('.equip-chip');if(lb)lb.classList.toggle('checked',c.checked);});
+  try{updateAnnexes();}catch(e){}
+  const inc=String(l.charges_inclus||'').split(',').filter(Boolean);
+  document.querySelectorAll('.charges-cb').forEach(c=>{c.checked=inc.includes(c.value);});
+  try{updateChargesInclus();}catch(e){}
+  try{updateLoyerHC();}catch(e){}
+  // Dépôt de garantie : retrouver le nombre de mois de loyer hors charges
+  if(l.depot!=null){const hc=Math.max(0,(+l.price||0)-(+l.charges_mensuelles||0));const m=hc?Math.round(+l.depot/hc):0;
+    if(+l.depot===0)setDepotMois(0);else if(hc&&Math.abs(m*hc-l.depot)<1)setDepotMois(m);else val('pdep',l.depot);}
+  editPhotosAfficher();
+}
+function editPhotosAfficher(){
+  const pv=document.getElementById('photo-pavis');if(!pv)return;
+  let box=document.getElementById('photo-exist');
+  if(!box){box=document.createElement('div');box.id='photo-exist';box.style.cssText='display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem';pv.parentNode.insertBefore(box,pv);}
+  box.innerHTML=(window._editPhotos||[]).map((u,i)=>`<div style="position:relative;width:80px;height:80px"><img src="${String(u).replace(/"/g,'&quot;')}" alt="Photo ${i+1}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--green)"><button type="button" onclick="editPhotoRetirer(${i})" aria-label="Retirer la photo" style="position:absolute;top:-6px;right:-6px;background:var(--terra);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer">✕</button></div>`).join('');
+  try{updatePhotoArea();}catch(e){}
+}
+function editPhotoRetirer(i){window._editPhotos.splice(i,1);editPhotosAfficher();}
+
 async function doPost(){
   const err=document.getElementById('poer'),ok=document.getElementById('pook');err.style.display='none';ok.style.display='none';
   const ti=document.getElementById('pti').value.trim(),pr=document.getElementById('ppr').value;
@@ -4765,7 +4867,7 @@ async function doPost(){
   }
 
   // Photo required check
-  if(uploadedPhotos.length===0){
+  if(uploadedPhotos.length+(window._editId?(window._editPhotos||[]).length:0)===0){
     const msg=document.getElementById('photo-required-msg');
     if(msg)msg.style.display='block';
     document.getElementById('photo-upload-area').style.borderColor='var(--terra)';
@@ -4775,7 +4877,7 @@ async function doPost(){
     return;
   }
 
-  sA(ok,'Publishing  votre annonce…');
+  sA(ok,window._editId?'Enregistrement des modifications…':'Publishing  votre annonce…');
   ok.style.background='rgba(46,107,138,0.08)';
   ok.style.color='var(--sea)';
   const fields={
@@ -4826,24 +4928,26 @@ async function doPost(){
     locataire_availability:document.getElementById('p-locataire-availability')?.value||'vacant',
   };
 
-  const{data:annonce,error}=await sb.from('listings').insert(fields).select().single();
+  let annonce,error;
+  if(window._editId){
+    // Modification : on ne touche ni au propriétaire, ni à la visibilité, ni à l'abonnement vente
+    ['landlord_id','actif','active','sale_subscription_status','video_url'].forEach(k=>delete fields[k]);
+    ({data:annonce,error}=await sb.from('listings').update(fields).eq('id',window._editId).select().single());
+  }else ({data:annonce,error}=await sb.from('listings').insert(fields).select().single());
   if(error){sA(err,error.message);ok.style.display='none';return;}
   // Enregistrer extra amenities
   const extraData = {
     ac: document.getElementById('pac')?.checked||false,
-    parking: document.getElementById('ppk')?.checked||false,
+    parking: /(^|,)(parking|box_garage|parking_souterrain)(,|$)/.test(document.getElementById('p-annexes')?.value||''),
     pool: document.getElementById('ppool')?.checked||false,
     balcon: document.getElementById('pbalc')?.checked||false,
     pets: document.getElementById('ppets')?.checked||false,
     washing_machine: document.getElementById('pwash')?.checked||false,
     dishwasher: document.getElementById('pdish')?.checked||false,
-    copropriete: document.getElementById('p-copropriete')?.checked||false,
+    copropriete: document.getElementById('p-copro-type')?.value==='copro',
     pmr: document.getElementById('p-pmr')?.checked||false,
     chauffage_sol: document.getElementById('p-chauffage-sol')?.checked||false,
-    baignoire: document.getElementById('p-baignoire')?.checked||false,
     plusieurs_wc: document.getElementById('p-plusieurs-wc')?.checked||false,
-    construction_ancienne: document.getElementById('p-construction-ancienne')?.checked||false,
-    construction_recente: document.getElementById('p-construction-recente')?.checked||false,
     charges_inclus: document.getElementById('p-charges-inclus')?.value||null,
     charges_mensuelles: parseInt(document.getElementById('p-charges')?.value)||null,
     surface_sejour: parseFloat(document.getElementById('p-surface-sejour')?.value)||null,
@@ -4884,7 +4988,12 @@ async function doPost(){
     const{error:extraErr}=await sb.from('listings').update(extraData).eq('id',annonce.id);
     if(extraErr){console.error('extraData update error:',extraErr);sA(err,'Erreur sauvegarde équipements : '+extraErr.message);return;}
   }
-  if(uploadedPhotos.length>0&&annonce){
+  if(window._editId&&annonce){
+    try{
+      const neuves=uploadedPhotos.length?await uploadPhotosForListing(annonce.id,uploadedPhotos):[];
+      await sb.from('listings').update({photos:[...(window._editPhotos||[]),...neuves]}).eq('id',annonce.id);
+    }catch(photoErr){sA(err,'<i data-lucide=alert-triangle class=ic></i> Erreur upload photos : '+photoErr.message);return;}
+  }else if(uploadedPhotos.length>0&&annonce){
     try{
       const photoUrls=await uploadPhotos(annonce.id);
       if(photoUrls.length>0){
@@ -4903,6 +5012,11 @@ async function doPost(){
   }
   uploadedPhotos=[];document.getElementById('photo-pavis').innerHTML='';
   document.getElementById('video-pavis').innerHTML='';
+  if(window._editId){
+    sA(ok,'<i data-lucide=check-circle-2 class=ic></i> Modifications enregistrées.');
+    setTimeout(()=>{window.location.href='/landlord-dashboard.html?tab=annonces';},1000);
+    return;
+  }
   if(document.getElementById('pt').value==='for_sale'&&annonce){
     sA(ok,'Redirecting you to activate  votre annonce (€2/week)...');
     try{
@@ -4915,7 +5029,7 @@ async function doPost(){
       window.location.href=data.checkout_url;
     }catch(e){
       sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
-      setTimeout(()=>{window.location.href='/landlord-dashboard.html';},2500);
+      setTimeout(()=>{window.location.href='/landlord-dashboard.html?tab=annonces';},2500);
     }
   }else if(document.getElementById('pt').value==='room_rental'&&annonce){
     // Pas de commission ni de bail/État des lieux sur les room locations — un petit
@@ -4931,13 +5045,13 @@ async function doPost(){
       window.location.href=data.checkout_url;
     }catch(e){
       sA(err,'Annonce created, but activation failed: '+e.message+'. You can retry  depuis votre tableau de bord.');
-      setTimeout(()=>{window.location.href='/landlord-dashboard.html';},2500);
+      setTimeout(()=>{window.location.href='/landlord-dashboard.html?tab=annonces';},2500);
     }
   }else{
     sA(ok,"<i data-lucide=party-popper class=ic></i> Annonce published! It's now live on Trouve Ton Toit.");
     updC();loadL();
     if(annonce)offerBoostAfterPublish(annonce.id,annonce.title,annonce.type);
-    else setTimeout(()=>{window.location.href='/landlord-dashboard.html';},1800);
+    else setTimeout(()=>{window.location.href='/landlord-dashboard.html?tab=annonces';},1800);
   }
 }
 
@@ -4951,10 +5065,10 @@ function offerBoostAfterPublish(listingId,listingTitle,listingType){
   modal.innerHTML=`
     <div style="background:white;border-radius:18px;padding:1.75rem;max-width:400px;width:100%;text-align:center">
       <div style="font-size:2rem;margin-bottom:.5rem"><i data-lucide=flame class=ic></i></div>
-      <div style="font-weight:800;font-size:1.05rem;margin-bottom:.4rem">Want more eyes on  votre annonce?</div>
-      <div style="font-size:.82rem;color:var(--stone-l);margin-bottom:1.2rem;line-height:1.6">Boost "${listingTitle}" to the top of search results pour <strong>${days} days</strong> — one-time paiement of <strong>${price}</strong>.</div>
+      <div style="font-weight:800;font-size:1.05rem;margin-bottom:.4rem">Plus de visibilité pour votre annonce ?</div>
+      <div style="font-size:.82rem;color:var(--stone-l);margin-bottom:1.2rem;line-height:1.6">Placez « ${listingTitle} » en tête des résultats de recherche pendant <strong>${days} jours</strong> — paiement unique de <strong>${price}</strong>.</div>
       <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:.5rem" onclick="startBoostPaiement('${listingId}','${listingTitle.replace(/'/g,"\\'")}','${listingType}')"><i data-lucide=flame class=ic></i> Boost pour ${price} →</button>
-      <button class="btn btn-s" style="width:100%;justify-content:center" onclick="window.location.href='/landlord-dashboard.html'">Maybe later — I'll do it  depuis Mes annonces</button>
+      <button class="btn btn-s" style="width:100%;justify-content:center" onclick="window.location.href='/landlord-dashboard.html?tab=annonces'">Non merci, plus tard depuis Mes annonces</button>
     </div>`;
   document.body.appendChild(modal);
 }
@@ -7012,7 +7126,7 @@ async function doPostParking(){
   setTimeout(()=>{
     _parkingMode=false;_pkStep=0;_pkSubtype='';_pkPhotos=[];
     toast('<i data-lucide=check-circle-2 class=ic></i> Annonce parking publiée avec succès !');
-    setTimeout(()=>window.location.reload(),1200);
+    setTimeout(()=>{window.location.href='/landlord-dashboard.html?tab=annonces';},1200);
   },2000);
 }
 
