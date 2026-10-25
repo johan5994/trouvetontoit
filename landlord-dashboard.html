@@ -581,8 +581,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               <label class="fl">Téléphone *</label>
               <div style="display:flex;gap:.5rem;align-items:center">
                 <select id="prof-phone-country" style="width:95px;flex-shrink:0;padding:.65rem .4rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--txt);font-size:.8rem;outline:none;cursor:pointer" oninput="updateLLCompleteness()">
-                  <option value="+356">🇲🇹+356</option>
-                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+33" selected>🇫🇷 +33</option>
+                  <option value="+356">🇲🇹 +356</option>
                   <option value="+44">🇬🇧 +44</option>
                   <option value="+49">🇩🇪 +49</option>
                   <option value="+39">🇮🇹 +39</option>
@@ -799,16 +799,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem">
-        <div class="ch"><div class="ct"><i data-lucide=bell class=ic></i> Notifications</div><span style="font-size:.75rem;color:var(--td)">Control what alerts you receive</span></div>
-        <div class="cb">
-          <div class="toggle-row"><span style="font-size:.85rem;color:var(--tm)">New message  depuis  locataire</span><div class="tgl on" onclick="toggleTgl(this)"><div class="tgl-dot"></div></div></div>
-          <div class="toggle-row"><span style="font-size:.85rem;color:var(--tm)">Locataire declared loyer paid</span><div class="tgl on" onclick="toggleTgl(this)"><div class="tgl-dot"></div></div></div>
-          <div class="toggle-row"><span style="font-size:.85rem;color:var(--tm)">New maintenance ticket</span><div class="tgl on" onclick="toggleTgl(this)"><div class="tgl-dot"></div></div></div>
-          <div class="toggle-row"><span style="font-size:.85rem;color:var(--tm)">Overdue loyer alert</span><div class="tgl on" onclick="toggleTgl(this)"><div class="tgl-dot"></div></div></div>
-          <div class="toggle-row"><span style="font-size:.85rem;color:var(--tm)">Expiration du bail reminder (30 days)</span><div class="tgl on" onclick="toggleTgl(this)"><div class="tgl-dot"></div></div></div>
-        </div>
-      </div>
     </div>
   </div>
 </main>
@@ -938,6 +928,11 @@ let clerk,U=null,P=null,myAnnonces=[],allMsgs=[],activeMsgId=null,activeListingI
     if(_evtMsg)setTimeout(()=>toast(_evtMsg),600);
     sp('applications',document.querySelector('.ni[onclick*=applications]'));
     history.replaceState(null,'',location.pathname+(window.EMBED_AGENCE?'?embed=agence&page=applications':''));
+  }
+  // Après la publication d'une annonce : ouvrir Mes annonces
+  if(urlParams.get('tab')==='annonces'){
+    sp('annonces',document.querySelector('.ni[onclick*="\'annonces\'"]'));
+    history.replaceState(null,'',location.pathname+(window.EMBED_AGENCE?'?embed=agence&page=annonces':''));
   }
   // Portail agence : ouvrir directement la page demandée
   const _pg=urlParams.get('page');
@@ -1106,7 +1101,7 @@ async function loadAnnonces(){
     <td>${statusBadge}</td>
     <td style="font-size:.75rem;color:var(--td)">${l.available_indefinitely?'Indéfiniment':l.available_from?new Date(l.available_from).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'Maintenant'}</td>
     <td><div style="display:flex;gap:.4rem;flex-wrap:wrap">
-      <button class="btn bg bsm" onclick="viewAnnonce('${l.id}')">View</button>
+      <button class="btn bg bsm" onclick="viewAnnonce('${l.id}')">Voir</button>
       <button class="btn bg bsm" onclick="editAnnonce('${l.id}')"><i data-lucide=pencil class=ic></i> Modifier</button>
       ${actionBtn}
       ${boostBtn}
@@ -1180,6 +1175,8 @@ async function editAnnonce(id){
   try{
     const{data:l,erreur}=await sb.from('listings').select('*').eq('id',id).single();
     if(erreur||!l){toast('<i data-lucide=x-circle class=ic></i> Could not load annonce');return;}
+    // Location (meublée, vide, colocation) : modification complète dans le même parcours que la création
+    if(['long','room_rental','short'].includes(l.type)&&!window.EMBED_AGENCE){window.location.href='/?edit='+encodeURIComponent(id);return;}
     document.getElementById('edit-annonce-modal').dataset.listingId=id;
     document.getElementById('edit-title').value=l.title||'';
     document.getElementById('edit-price').value=(l.type==='for_sale'?l.sale_price:l.price)||'';
@@ -1279,7 +1276,7 @@ async function deleteAnnonce(id,titleForConfirmer){
   toast('<i data-lucide=trash-2 class=ic></i> Annonce deleted');loadAnnonces();loadDash();
 }
 
-function viewAnnonce(id){window.open('/','_blank');}
+function viewAnnonce(id){window.open('/#annonce-'+encodeURIComponent(id),'_blank');}
 function openNewAnnonce(){window.location.href='/';}
 
 /* LEASES */
@@ -1729,7 +1726,7 @@ function renderCoLocatairesSummary(booking){
       :`<div style="font-weight:600">${ct.phone||'—'}</div>`;
     return`
     <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:.55rem .65rem;margin-bottom:.35rem">
-      <div style="font-size:.6rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Co-locataire ${i+1}${ct.hasAccount?' — Trouve Ton Toit compte':' — no compte yet'}</div>
+      <div style="font-size:.6rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Locataire ${i+2}${ct.hasAccount?' — Trouve Ton Toit compte':' — no compte yet'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;font-size:.72rem;margin-bottom:.4rem">
         <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:600">${ct.name||'—'}</div></div>
         <div><div style="color:var(--td);font-size:.58rem">Vérifié</div>${vérifiéCell}</div>
@@ -5018,7 +5015,6 @@ function renderVisitGroup(g, isPast){
     setTimeout(()=>loadLocataireDossierForLL(g.tenant_id),50);
     // Chaque co-locataire : même fiche complète (identité, documents, garant)
     _colocsLL(bk).forEach(c=>setTimeout(()=>loadLocataireDossierForLL(c.id),60));
-    if(bk)setTimeout(()=>loadEffortLL(g,bk),80);
   }
 
   return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
@@ -5067,9 +5063,8 @@ function renderVisitGroup(g, isPast){
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
     <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
       <div style="font-size:.85rem;font-weight:700;color:var(--txt);margin-bottom:.6rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
-      <div id="effort-${bk?.id||g.id}" style="margin-bottom:.6rem"></div>
       <div style="${_LL_CARD}">
-      ${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire principal':'Locataire')}
+      ${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire 1':'Locataire')}
       <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.2rem">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nom complet</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
@@ -5128,11 +5123,11 @@ function renderColocFicheLL(c,num){
   let gd=c.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
   const gType={garant_visale:'Visale',garant_organisme:'organisme de caution',garant_autre_organisme:'organisme de caution',garant_moral:'personne morale'};
   const garant=c.has_garant
-    ?((Array.isArray(gd)&&gd.length)?'<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique : '+gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+'</span>':'<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+(c.garant_type==='garant_visale'?'Garantie Visale':'Garant '+(gType[c.garant_type]||'déclaré'))+'</span>')
+    ?((Array.isArray(gd)&&gd.length)?'<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique : '+gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+'</span>':'<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+(c.garant_type==='garant_visale'?'Garantie Visale'+(c.visa_ref?' — visa n° '+String(c.visa_ref).replace(/</g,'&lt;'):'')+(c.visa_commun?' · <strong>demande commune</strong>'+(c.visa_commun_avec?' avec '+String(c.visa_commun_avec).replace(/</g,'&lt;'):''):''):'Garant '+(gType[c.garant_type]||'déclaré'))+'</span>')
     :'<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
   const hg='<i data-lucide=hourglass class=ic></i>';
   return `<div style="${_LL_CARD}">
-    ${_llHead(num,c.name||c.email||'','Co-locataire')}
+    ${_llHead(num,c.name||c.email||'','Locataire '+num)}
     ${c.id?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
       ${cell('Nom complet','t-name-'+c.id,c.name||hg)}
       ${cell('Garantie',c.coloc_status?'':'t-ver-'+c.id,c.coloc_status?garant:hg)}
@@ -5153,7 +5148,7 @@ function garantieTxtLL(dd){
     return '<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique'+(gs.length?' : '+gs.join(', '):'')+'</span>';
   }
   const m={garant_visale:'Garantie Visale',garant_organisme:'Organisme de caution',garant_autre_organisme:'Organisme de caution',garant_moral:'Garant personne morale'};
-  if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+(t==='garant_visale'&&st.visa_ref?' — visa n° '+String(st.visa_ref).replace(/</g,'&lt;'):'')+'</span>';
+  if(m[t])return '<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+m[t]+(t==='garant_visale'&&st.visa_ref?' — visa n° '+String(st.visa_ref).replace(/</g,'&lt;'):'')+(t==='garant_visale'&&st.visa_commun?' · <strong>demande commune</strong>'+(st.visa_commun_avec?' avec '+String(st.visa_commun_avec).replace(/</g,'&lt;'):'')+' (un seul visa pour le bail commun)':'')+'</span>';
   return '<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
 }
 
@@ -5884,6 +5879,51 @@ function confirmIbanForBooking(){
   });
 }
 
+// GLI : un bailleur assuré contre les loyers impayés ne peut pas exiger de caution,
+// sauf si le locataire est étudiant ou apprenti (art. 22-1 loi du 6 juillet 1989).
+// Demandé à l'acceptation de la candidature ; le choix est retenu pour ce logement.
+async function chooseGliForLease(listingId,locataireId){
+  let dd=null;try{const{data:tp}=await sb.from('profiles').select('dossier_data').eq('clerk_id',locataireId).maybeSingle();dd=tp?.dossier_data;dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(e){}
+  const etudiant=['etudes','alternance','stage'].includes(dd?.[2]?.type);
+  const gt=dd?.[5]?.type;
+  const garants=gt==='garant_personne'?(dd[5].garants||[]).map(g=>[g?.garant_name?.prenom,g?.garant_name?.nom].filter(Boolean).join(' ')).filter(Boolean):[];
+  const declare=gt==='garant_personne'?`garant${garants.length>1?'s':''} personne physique${garants.length?' ('+garants.join(', ')+')':''}`:gt==='garant_visale'?'Visale':(gt==='garant_organisme'||gt==='garant_autre_organisme'||gt==='garant_moral')?'organisme ou personne morale':'aucun garant';
+  let pre=null;try{pre=localStorage.getItem('ttt_gli_'+listingId);}catch(e){}
+  if(pre==null&&window.EMBED_AGENCE){try{const{data:m}=await sb.from('gestion_mandats').select('gli').eq('listing_id',listingId).neq('statut','resilie').limit(1).maybeSingle();if(m)pre=m.gli?'oui':'non';}catch(e){}}
+  return new Promise(resolve=>{
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    const opt=(v,title,sub)=>`<label class="gli-opt" style="display:flex;gap:.6rem;align-items:flex-start;border:1.5px solid var(--b2);border-radius:10px;padding:.7rem .8rem;cursor:pointer">
+        <input type="radio" name="gli-mode" value="${v}" ${pre===v?'checked':''} style="margin-top:.2rem;accent-color:var(--bleu)">
+        <span><strong style="font-size:.88rem">${title}</strong><span style="display:block;font-size:.75rem;color:var(--td);line-height:1.45">${sub}</span></span></label>`;
+    ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:18px;padding:1.4rem;width:100%;max-width:500px;max-height:92vh;overflow-y:auto">
+      <div style="font-size:1.05rem;font-weight:800;margin-bottom:.3rem"><i data-lucide=shield-check class=ic></i> Assurance loyers impayés (GLI) ?</div>
+      <div style="font-size:.8rem;color:var(--tm);margin-bottom:.4rem;line-height:1.5">Avez-vous souscrit une assurance loyers impayés pour ce logement ?</div>
+      <div style="font-size:.76rem;color:var(--td);margin-bottom:.9rem;line-height:1.5">Garantie proposée par le candidat : <strong>${declare}</strong>.</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        ${opt('oui','Oui, j’ai une GLI',etudiant?'Votre locataire est étudiant ou apprenti : la loi vous permet de garder aussi son garant.':'La loi interdit alors de demander une caution (art. 22-1 de la loi du 6 juillet 1989) : le bail sera fait <strong>sans garant</strong>, personne n’aura à signer d’engagement de caution.')}
+        ${opt('non','Non','Le bail reprend la garantie proposée par le candidat'+(garants.length?' : son garant signera un engagement de caution.':'.'))}
+      </div>
+      <div id="gli-err" style="color:#C9553A;font-size:.8rem;margin-top:.6rem;display:none"></div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn bg" id="gli-cancel">Annuler</button>
+        <button class="btn bp" id="gli-go">Continuer</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    const sync=()=>ov.querySelectorAll('.gli-opt').forEach(l=>{const on=l.querySelector('input').checked;l.style.borderColor=on?'var(--bleu)':'var(--b2)';l.style.background=on?'rgba(27,79,216,.05)':'';});
+    ov.querySelectorAll('input[name="gli-mode"]').forEach(r=>r.addEventListener('change',sync));sync();
+    ov.querySelector('#gli-cancel').onclick=()=>{ov.remove();resolve(null);};
+    ov.querySelector('#gli-go').onclick=()=>{
+      const v=ov.querySelector('input[name="gli-mode"]:checked')?.value;
+      if(!v){const e=ov.querySelector('#gli-err');e.textContent='Répondez oui ou non.';e.style.display='block';return;}
+      try{localStorage.setItem('ttt_gli_'+listingId,v);}catch(e){}
+      ov.remove();resolve({gli:v==='oui',etudiant,avaitGarant:!!(gt&&gt!=='skipped_garant')});
+    };
+    if(window.lucide)lucide.createIcons();
+  });
+}
+
 function chooseCoBailleursForLease(){
   return new Promise(resolve=>{
     const saved=_coBailleursSaved();
@@ -5978,6 +6018,9 @@ async function acceptDirectBooking(listingId, locataireId){
       const{error:cbErr}=await sb.from('bookings').update({co_bailleurs_data:coBailleursChoisis}).eq('id',booking.id);
       if(cbErr)console.warn('co_bailleurs_data (exécutez supabase-migration-co-bailleurs.sql) :',cbErr.message);
     }catch(e){}
+    // Assurance loyers impayés : si oui, pas de caution (sauf étudiant / apprenti)
+    const gliChoix=await chooseGliForLease(listingId,locataireId);
+    if(gliChoix===null){toast('Acceptation annulée');return;}
     // Confirmer le compte sur lequel le locataire va virer le dépôt + 1er loyer
     const compte=await confirmIbanForBooking();
     if(compte===null){toast('Acceptation annulée');return;}
@@ -6012,6 +6055,16 @@ async function acceptDirectBooking(listingId, locataireId){
 
     // Générer le bail avec co-locataires (gère aussi le update booking)
     await generateBailFromBooking(booking.id, listingId, locataireId);
+    // GLI sur le bail : sans caution si le locataire n'est ni étudiant ni apprenti
+    try{
+      const upd={gli:gliChoix.gli?'oui':'non'};
+      if(gliChoix.gli&&!gliChoix.etudiant)Object.assign(upd,{garant_type:'aucune',garant_name:null,garant_email:null});
+      const{error:gErr}=await sb.from('leases').update(upd).eq('booking_id',booking.id);
+      if(gErr)console.warn('GLI (exécutez supabase-migration-bail-garanties.sql) :',gErr.message);
+      if(gliChoix.gli&&!gliChoix.etudiant&&gliChoix.avaitGarant)
+        await sb.from('messages').insert({listing_id:listingId,sender_id:'system',receiver_id:locataireId,type:'message',
+          content:'Bonne nouvelle : le propriétaire a souscrit une assurance loyers impayés. Aucune caution n\'est demandée pour ce logement, votre garant n\'aura rien à signer.'});
+    }catch(e){console.warn('GLI :',e.message);}
 
     // Mettre à jour le statut de la visite existante → bail_en attente
     // Exclure explicitement les visites déjà annulées/refusées — leur
