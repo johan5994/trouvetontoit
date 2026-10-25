@@ -459,6 +459,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="ch"><div class="ct"><i data-lucide=user class=ic></i> Mon profil colocataire</div><span class="badge" id="rm-profil-badge" style="display:none"></span></div>
           <div class="cb">
             <p style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">C'est ce que les autres locataires voient à côté de vos messages dans le Community Channel.</p>
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+              <div id="rm-avatar-prev" style="width:72px;height:72px;border-radius:50%;background:var(--s2);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;color:var(--td)"><i data-lucide=user class=ic style="width:28px;height:28px"></i></div>
+              <div>
+                <div style="font-size:.82rem;font-weight:600;margin-bottom:.35rem">Photo de profil</div>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                  <label class="btn bg bsm" style="cursor:pointer"><i data-lucide=camera class=ic></i> <span id="rm-avatar-lbl">Choisir une photo</span><input type="file" id="rm-avatar-file" accept="image/*" style="display:none" onchange="rmAvatarChoisie(this)"></label>
+                  <button class="btn bg bsm" id="rm-avatar-suppr" style="display:none" onclick="rmAvatarRetirer()">Retirer</button>
+                </div>
+                <div style="font-size:.7rem;color:var(--td);margin-top:.3rem">Une photo de vous, visage visible : les autres locataires répondent plus facilement.</div>
+              </div>
+              <input type="hidden" id="rm-avatar" value="">
+            </div>
             <div class="fgrid2">
               <div class="fg"><label class="fl">Budget min (€/mois)</label><input class="fi" type="number" id="rm-budget-min" placeholder="400"></div>
               <div class="fg"><label class="fl">Budget max (€/mois)</label><input class="fi" type="number" id="rm-budget-max" placeholder="700"></div>
@@ -706,13 +718,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <!-- Import d'un DossierFacile déjà constitué -->
       <div id="df-import" style="background:rgba(27,79,216,.05);border:1.5px solid rgba(27,79,216,.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
         <div style="font-size:.92rem;font-weight:800;color:var(--deep)"><i data-lucide=file-up class=ic></i> Vous avez déjà un dossier sur DossierFacile ?</div>
-        <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez-le ici (le PDF téléchargé depuis DossierFacile et/ou votre lien de partage) : il sera envoyé au propriétaire avec chaque candidature.</div>
+        <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez le PDF téléchargé depuis DossierFacile : <strong>votre dossier ici se remplit tout seul</strong> (identité, situation, revenus, avis d’impôt, garant), puis il est envoyé au propriétaire avec chaque candidature. Vous pouvez aussi coller votre lien de partage.</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
           <input class="fi" id="df-link" placeholder="Lien de partage DossierFacile (facultatif)" style="flex:1;min-width:220px" onchange="dfSaveLink()">
           <button class="btn bp bsm" onclick="document.getElementById('df-file').click()"><i data-lucide=upload class=ic></i> Ajouter le PDF</button>
           <input type="file" id="df-file" accept=".pdf,image/*" multiple style="display:none" onchange="dfUpload(this.files)">
         </div>
         <div id="df-files" style="margin-top:.6rem"></div>
+        <div id="df-extract" style="margin-top:.6rem" aria-live="polite"></div>
       </div>
 
       <!-- Progress bar global -->
@@ -1131,15 +1144,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                     <!-- Identité du garant courant -->
                     <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:1rem;margin-bottom:1rem">
                       <div style="font-size:.88rem;font-weight:600;margin-bottom:.75rem;color:var(--deep)"><i data-lucide=user class=ic></i> Identité du garant</div>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem">
-                        <div>
-                          <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Nom de naissance *</label>
-                          <input type="text" id="garant-nom" placeholder="Nom de naissance" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
-                        </div>
-                        <div>
-                          <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Prénom *</label>
-                          <input type="text" id="garant-prenom" placeholder="Prénom" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
-                        </div>
+                      <div style="margin-bottom:.6rem">
+                        <label for="garant-nomcomplet" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Prénom et nom de naissance *</label>
+                        <input type="text" id="garant-nomcomplet" placeholder="ex. Jean-Pierre Dupont" autocomplete="off" oninput="garantNomSaisi(this.value)" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--txt)">
+                        <div id="garant-nom-aide" style="font-size:.68rem;color:var(--td);margin-top:.2rem">Comme sur sa pièce d’identité : le prénom puis le nom de naissance.</div>
+                        <input type="hidden" id="garant-prenom"><input type="hidden" id="garant-nom">
                       </div>
                       <div style="display:grid;grid-template-columns:1fr;gap:.6rem">
                         <div>
@@ -1544,6 +1553,7 @@ async function loadRoommateProfile(){
     document.getElementById('rm-movein').value=p.move_in_date||'';
     document.getElementById('rm-spots-needed').value=p.spots_needed||0;
     document.getElementById('rm-bio').value=p.bio||'';
+    rmAvatarAfficher(p.avatar_url||'');
     document.getElementById('rm-actif').checked=p.actif!==false;
     let life={};
     try{life=p.lifestyle?JSON.parse(p.lifestyle):{};}catch(e){}
@@ -1604,16 +1614,58 @@ async function saveRoommateProfile(){
     spots_needed:parseInt(document.getElementById('rm-spots-needed').value)||0,
     lifestyle:JSON.stringify(lifestyle),
     bio:document.getElementById('rm-bio').value.trim(),
+    avatar_url:document.getElementById('rm-avatar').value||null,
     actif:document.getElementById('rm-actif').checked,
     updated_at:new Date().toISOString()
   };
   try{
-    const{error}=await sb.from('roommate_profiles').upsert(payload,{onConflict:'locataire_id'});
+    let{error}=await sb.from('roommate_profiles').upsert(payload,{onConflict:'locataire_id'});
+    if(error&&/avatar_url/.test(error.message)){
+      // Colonne pas encore créée dans Supabase : on enregistre le reste
+      delete payload.avatar_url;({error}=await sb.from('roommate_profiles').upsert(payload,{onConflict:'locataire_id'}));
+      if(!error){toast('<i data-lucide=alert-triangle class=ic></i> Profil enregistré, mais pas la photo : exécutez supabase-migration-photo-profil.sql dans Supabase.');return;}
+    }
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
     toast('<i data-lucide=check-circle-2 class=ic></i> Profil enregistré !');
     loadRoommateProfile();
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
+
+// ── Photo de profil colocataire ──
+function rmAvatarAfficher(url){
+  const prev=document.getElementById('rm-avatar-prev'),inp=document.getElementById('rm-avatar');if(!prev||!inp)return;
+  inp.value=url||'';
+  prev.innerHTML=url?`<img src="${String(url).replace(/"/g,'&quot;')}" alt="Votre photo de profil" style="width:100%;height:100%;object-fit:cover">`:'<i data-lucide=user class=ic style="width:28px;height:28px"></i>';
+  document.getElementById('rm-avatar-suppr').style.display=url?'':'none';
+  document.getElementById('rm-avatar-lbl').textContent=url?'Changer la photo':'Choisir une photo';
+  if(!url&&window.lucide)lucide.createIcons();
+}
+// Recadre au centre en carré 400 px (JPEG) pour une photo légère
+async function rmAvatarCarre(file){
+  const u=URL.createObjectURL(file);
+  const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u;});
+  const c=Math.min(img.width,img.height),t=400,cv=document.createElement('canvas');cv.width=cv.height=t;
+  cv.getContext('2d').drawImage(img,(img.width-c)/2,(img.height-c)/2,c,c,0,0,t,t);URL.revokeObjectURL(u);
+  return await new Promise(r=>cv.toBlob(r,'image/jpeg',.85));
+}
+async function rmAvatarChoisie(input){
+  const f=input.files?.[0];input.value='';if(!f)return;
+  if(!f.type.startsWith('image/')){toast('<i data-lucide=x-circle class=ic></i> Choisissez une image (JPG, PNG…)');return;}
+  const lbl=document.getElementById('rm-avatar-lbl');lbl.textContent='Envoi…';
+  try{
+    const blob=await rmAvatarCarre(f);
+    const path=`avatars/${U.id}-${Date.now()}.jpg`;
+    const{error}=await sb.storage.from('photos-listings').upload(path,blob,{upsert:true,contentType:'image/jpeg',cacheControl:'3600'});
+    if(error)throw error;
+    const{data}=sb.storage.from('photos-listings').getPublicUrl(path);
+    rmAvatarAfficher(data.publicUrl);
+    await saveRoommateProfile();
+  }catch(e){toast('<i data-lucide=x-circle class=ic></i> Photo non envoyée : '+(e.message||e));rmAvatarAfficher(document.getElementById('rm-avatar').value);}
+}
+async function rmAvatarRetirer(){rmAvatarAfficher('');await saveRoommateProfile();}
+const rmAvatarMini=(prof,name)=>prof?.avatar_url
+  ?`<img src="${String(prof.avatar_url).replace(/"/g,'&quot;')}" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+  :`<span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;background:var(--tdim);color:var(--bleu);font-size:.62rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${String(name||'?').trim().charAt(0).toUpperCase()}</span>`;
 
 function rmLifestyleIcons(life){
   if(!life)return'';
@@ -1664,7 +1716,7 @@ async function loadRmChannel(){
         const spotsNote=prof?.spots_needed>0?`· needs ${prof.spots_needed} more`:'';
         return`<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
           ${!isMe?`<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.15rem">
-            <span style="font-size:.68rem;color:var(--bleu);font-weight:700">${name}${budget?' · '+budget:''}${zones?' · <i data-lucide=map-pin class=ic></i>'+zones:''} ${spotsNote} ${rmLifestyleIcons(prof?.lifestyle?JSON.parse(prof.lifestyle):null)}</span>
+            ${rmAvatarMini(prof,name)}<span style="font-size:.68rem;color:var(--bleu);font-weight:700">${name}${budget?' · '+budget:''}${zones?' · <i data-lucide=map-pin class=ic></i>'+zones:''} ${spotsNote} ${rmLifestyleIcons(prof?.lifestyle?JSON.parse(prof.lifestyle):null)}</span>
             <button onclick="viewRmProfile('${m.sender_id}')" title="Voir le profil" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=eye class=ic></i></button>
             <button onclick="openRmDm('${m.sender_id}','${name.replace(/'/g,"\\'")}')" title="Envoyer un message privé" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=message-circle class=ic></i></button>
           </div>`:''}
@@ -2910,12 +2962,14 @@ async function fetchLocataireVisitData(){
       const lIds=[...new Set(visites.map(v=>v.listing_id).filter(Boolean))];
       if(lIds.length){
         try{
-          const{data:ls}=await sb.from('listings').select('id,price,title,zone,wants_agent,agent_service,agency_annonce').in('id',lIds);
+          const{data:ls}=await sb.from('listings').select('*').in('id',lIds);
           const lMap={};(ls||[]).forEach(l=>{lMap[l.id]=l;});
           visites=visites.map(v=>({...v,
             listing_price:lMap[v.listing_id]?.price||0,
             listing_title:v.listing_title||lMap[v.listing_id]?.title||'Bien',
-            listing_zone:v.listing_zone||lMap[v.listing_id]?.zone||'France',
+            listing_zone:v.listing_zone||lMap[v.listing_id]?.zone||'',
+            listing_address:lMap[v.listing_id]?.full_address||'',
+            listing_photo:(Array.isArray(lMap[v.listing_id]?.photos)?lMap[v.listing_id].photos[0]:null)||null,
             has_agent:lMap[v.listing_id]?.wants_agent&&lMap[v.listing_id]?.agent_service==='full',
             agency_annonce:!!lMap[v.listing_id]?.agency_annonce
           }));
@@ -3083,39 +3137,47 @@ function renderLocataireVisitCard(v){
   const bgCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.05)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.05)':'var(--s2)';
   const borderCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.2)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.2)':'var(--b)';
 
-  let html=`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${bgCol};border:1px solid ${borderCol};border-radius:12px;margin-bottom:.65rem">
+  const _esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const _hr=t=>t?String(t).slice(0,5).replace(':','h'):'';
+  const _vd=v.visit_date?new Date(v.visit_date+'T12:00:00'):null;
+  const _visiteSeule=['pending','confirmed','completed'].includes(v.status)&&!bk;
+  const _titre=_esc(v.listing_title&&v.listing_title!=='Bien'?v.listing_title:'Logement');
+  const _lieu=_esc(v.listing_address||v.listing_zone||'');
+  const _tuile=_vd?`<div aria-hidden="true" style="width:58px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid var(--b2);text-align:center;background:var(--s)">
+      <div style="background:${v.status==='confirmed'?'var(--green)':v.status==='pending'?'var(--gold)':'var(--bleu)'};color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.18rem 0">${_vd.toLocaleDateString('fr-FR',{month:'short'}).replace('.','')}</div>
+      <div style="font-size:1.35rem;font-weight:800;line-height:1.15;padding-top:.15rem">${_vd.getDate()}</div>
+      <div style="font-size:.6rem;color:var(--td);padding-bottom:.25rem;text-transform:capitalize">${_vd.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</div></div>`
+    :(v.listing_photo?`<img src="${_esc(v.listing_photo)}" alt="" style="width:58px;height:58px;border-radius:12px;object-fit:cover;flex-shrink:0">`:'');
+  let html=`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:1rem 1.1rem;scroll-margin-top:80px;background:${_visiteSeule?'var(--s2)':bgCol};border:1px solid ${_visiteSeule?'var(--b)':borderCol};border-radius:14px;margin-bottom:.75rem">
 
       <!-- Header -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
-        <div>
-          <div style="font-size:.88rem;font-weight:700">${v.listing_title||'Bien'}</div>
-          <div style="font-size:.7rem;color:var(--td);margin-top:.1rem"><i data-lucide=calendar class=ic></i> ${dateStr}</div>
-          ${v.listing_zone?`<div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${v.listing_zone}</div>`:''}
-          ${v.agent_name?`<div style="font-size:.7rem;color:var(--td)"><i data-lucide=award class=ic></i> Agent: ${v.agent_name}</div>`:''}
+      <div style="display:flex;gap:.9rem;align-items:flex-start">
+        ${_tuile}
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;gap:.6rem;align-items:flex-start;flex-wrap:wrap">
+            <div style="font-size:.95rem;font-weight:700;line-height:1.3">${_titre}</div>
+            <span class="badge ${sc}" style="font-size:.66rem;flex-shrink:0">${sl}</span>
+          </div>
+          ${_lieu?`<div style="font-size:.76rem;color:var(--td);margin-top:.2rem"><i data-lucide=map-pin class=ic></i> ${_lieu}</div>`:''}
+          <div style="font-size:.76rem;color:var(--td);margin-top:.15rem"><i data-lucide=${_vd?'clock':'calendar'} class=ic></i> ${_vd?`Visite ${_vd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}${v.visit_time?' à <strong style="color:var(--txt)">'+_hr(v.visit_time)+'</strong>':''}`:dateStr}</div>
+          ${v.agent_name?`<div style="font-size:.74rem;color:var(--td);margin-top:.15rem"><i data-lucide=award class=ic></i> Agent : ${_esc(v.agent_name)}</div>`:''}
         </div>
-        <span class="badge ${sc}" style="font-size:.62rem;flex-shrink:0">${sl}</span>
       </div>
 
       <!-- ÉTAPE 1 : En attente confirmation propriétaire -->
       ${v.status==='pending'?`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
-        <i data-lucide=hourglass class=ic></i> En attente de confirmation du propriétaire.
-      </div>`:''}
+      <div style="font-size:.78rem;color:var(--tm);margin-top:.7rem;line-height:1.5">Le propriétaire doit confirmer ce créneau. Vous recevrez un message dès qu’il répond.</div>`:''}
 
       <!-- ÉTAPE 3 : Visite confirmée -->
       ${v.status==='confirmed'?`
-      <div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem">
-        <div style="font-size:.75rem;font-weight:600;color:var(--green);margin-bottom:.15rem"><i data-lucide=check-circle-2 class=ic></i> Visite confirmed — see you there!</div>
-        <div style="font-size:.7rem;color:var(--td)"><i data-lucide=calendar class=ic></i> ${dateStr}</div>
-      </div>
-      `:''} 
+      <div style="font-size:.78rem;color:var(--tm);margin-top:.7rem;line-height:1.5">Le propriétaire a confirmé votre visite. Pensez à venir avec vos questions ; si vous êtes intéressé(e), vous pourrez envoyer votre candidature juste après.</div>`:''}
 
       <!-- ÉTAPE 4 : Visite faite — intéressé ou non -->
       ${v.status==='completed'&&!bk?`
       <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.6rem;margin-top:.4rem">
-        <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.4rem">How did the visite go?</div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.4rem">Comment s’est passée la visite ?</div>
         <div style="display:flex;gap:.4rem">
-          <button onclick="locataireInterested('${v.id}','${v.listing_id}',${v.listing_price||0},'${(v.listing_title||'').replace(/'/g,"\\'")}','${v.landlord_id||''}' )" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=home class=ic></i> I want to loyer!</button>
+          <button onclick="locataireInterested('${v.id}','${v.listing_id}',${v.listing_price||0},'${(v.listing_title||'').replace(/'/g,"\\'")}','${v.landlord_id||''}' )" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=home class=ic></i> Je veux louer ce logement</button>
           <button onclick="locataireNotInterested('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Plus intéressé(e)</button>
         </div>
       </div>`:''} 
@@ -3136,10 +3198,12 @@ function renderLocataireVisitCard(v){
       <!-- ÉTAPES 6+ : Bail, paiement, État des lieux -->
       ${['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready'].includes(v.status)&&bk?renderLocataireBailSection(v,bk,null,bk._lease||null):''} 
 
-      <!-- Bouton annuler si début du flow -->
-      <div style="margin-top:.4rem">
-        ${['pending','confirmed'].includes(v.status)?`<button class="btn bg bsm" style="font-size:.68rem" onclick="cancelVisit('${v.id}','${v.agent_id||''}','${v.listing_id||''}')">Annuler visite</button>`:''}
-      </div>
+      <!-- Actions -->
+      ${_visiteSeule||['pending','confirmed'].includes(v.status)?`<div style="display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--b)">
+        ${v.listing_id?`<a class="btn bg bsm" href="/#annonce-${encodeURIComponent(v.listing_id)}" target="_blank" rel="noopener" style="text-decoration:none"><i data-lucide=external-link class=ic></i> Voir l’annonce</a>`:''}
+        ${v.status==='confirmed'&&v.listing_address?`<a class="btn bg bsm" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(v.listing_address)}" target="_blank" rel="noopener" style="text-decoration:none"><i data-lucide=navigation class=ic></i> Itinéraire</a>`:''}
+        ${['pending','confirmed'].includes(v.status)?`<button class="btn bg bsm" style="margin-left:auto" onclick="cancelVisit('${v.id}','${v.agent_id||''}','${v.listing_id||''}')"><i data-lucide=x class=ic></i> Annuler la visite</button>`:''}
+      </div>`:''}
 
     </div>`;
   return html;
@@ -5822,11 +5886,19 @@ function garOrgPick(type,keepFiles){
   const r=document.querySelector('input[name="garant-org"][value="'+type+'"]');if(r)r.checked=true;
   const h=document.getElementById('garant-org-hint');
   h.innerHTML='Assurez-vous de joindre <strong>votre justificatif'+(type==='garant_visale'?' Visale':'')+'</strong> :<ul style="margin:.3rem 0 0 1.2rem"><li><strong>à votre nom</strong></li><li><strong>en cours de validité</strong></li></ul>'
-    +(type==='garant_visale'?`<div style="margin-top:.7rem"><label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:.3rem">Numéro de visa <span style="font-weight:400;color:var(--td)">(écrit sur votre certificat Visale)</span></label><input id="visa-ref" class="fi" placeholder="ex. V123456789" value="${String(st.visa_ref||'').replace(/"/g,'&quot;')}" oninput="(dossierState[5]=dossierState[5]||{}).visa_ref=this.value.trim().toUpperCase()" style="max-width:260px"><div style="font-size:.74rem;color:var(--td);margin-top:.3rem">Le propriétaire en a besoin pour valider votre garantie sur visale.fr. Vous n'aurez rien à signer pour Visale.</div></div>`:'');
+    +(type==='garant_visale'?`<div style="margin-top:.7rem"><label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:.3rem">Numéro de visa <span style="font-weight:400;color:var(--td)">(écrit sur votre certificat Visale)</span></label><input id="visa-ref" class="fi" placeholder="ex. V123456789" value="${String(st.visa_ref||'').replace(/"/g,'&quot;')}" oninput="(dossierState[5]=dossierState[5]||{}).visa_ref=this.value.trim().toUpperCase()" style="max-width:260px"><div style="margin-top:.8rem"><div style="font-size:.82rem;font-weight:700;margin-bottom:.35rem">Ce visa est-il une demande commune avec un colocataire ?</div>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.84rem;cursor:pointer;margin-bottom:.25rem"><input type="radio" name="visa-commun" value="non" ${st.visa_commun?'':'checked'} onchange="visaCommunSet(false)" style="accent-color:var(--bleu)"> Non, c’est mon visa personnel</label>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.84rem;cursor:pointer"><input type="radio" name="visa-commun" value="oui" ${st.visa_commun?'checked':''} onchange="visaCommunSet(true)" style="accent-color:var(--bleu)"> Oui, demande commune : nos deux noms sont sur le visa</label>
+      <input id="visa-commun-avec" class="fi" placeholder="Prénom et nom du colocataire inscrit sur le visa" value="${String(st.visa_commun_avec||'').replace(/"/g,'&quot;')}" oninput="(dossierState[5]=dossierState[5]||{}).visa_commun_avec=this.value.trim()" style="max-width:360px;margin-top:.45rem;display:${st.visa_commun?'block':'none'}">
+      <div style="font-size:.72rem;color:var(--td);margin-top:.35rem;line-height:1.5">Pour louer à deux sur <strong>un seul bail</strong> avec Visale, Visale exige une demande commune : un seul visa avec vos deux noms. Votre colocataire indique le <strong>même numéro de visa</strong> dans son dossier. Avec deux visas séparés, le propriétaire fera un bail par locataire.</div></div><div style="font-size:.74rem;color:var(--td);margin-top:.3rem">Le propriétaire en a besoin pour valider votre garantie sur visale.fr. Vous n'aurez rien à signer pour Visale.</div></div>`:'');
   h.style.display='block';
   const area=document.querySelector('#garant-simple-upload > .dossier-upload-area');if(area)area.style.display='';
 }
 
+function visaCommunSet(v){
+  const st=dossierState[5]=dossierState[5]||{};st.visa_commun=!!v;if(!v)st.visa_commun_avec='';
+  const i=document.getElementById('visa-commun-avec');if(i){i.style.display=v?'block':'none';if(v)i.focus();else i.value='';}
+}
 function selectDocType(idx,type){
   const grid=document.getElementById('dtype-grid-'+idx);
   const upload=document.getElementById('dupload-'+idx);
@@ -5956,6 +6028,8 @@ async function confirmDossierStep(idx){
     const v=(document.getElementById('visa-ref')?.value||st.visa_ref||'').trim().toUpperCase();
     if(!v){toast('<i data-lucide=alert-triangle class=ic></i> Indiquez votre numéro de visa Visale');document.getElementById('visa-ref')?.focus();return;}
     st.visa_ref=v;
+    if(st.visa_commun&&!String(st.visa_commun_avec||document.getElementById('visa-commun-avec')?.value||'').trim()){toast('<i data-lucide=alert-triangle class=ic></i> Indiquez le nom du colocataire inscrit sur le visa commun');document.getElementById('visa-commun-avec')?.focus();return;}
+    if(st.visa_commun&&!st.visa_commun_avec)st.visa_commun_avec=document.getElementById('visa-commun-avec').value.trim();
   }
   if(idx===5&&(st.pendingType||st.type)==='garant_moral'){
     gmSave();
@@ -6253,6 +6327,7 @@ async function deleteGarant(i){
   // remettre dans les champs l'identité du garant désormais actif
   const gn=gs[0].garant_name||{};
   [['garant-nom',gn.nom],['garant-prenom',gn.prenom],['garant-email',gn.email]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v||'';});
+  garantNomAfficher();
   await saveDossierState();
   renderDossierState();
   showGarantList();
@@ -6271,6 +6346,7 @@ function switchGarant(idx){
   if(nomEl)nomEl.value=gn.nom||'';
   if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
   if(emailEl)emailEl.value=gn.email||'';
+  garantNomAfficher();
   garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
   garantSubStep=0;
   for(let i=0;i<5;i++)renderGarantSubScreen(i);
@@ -6284,7 +6360,7 @@ function addNewGarant(){
   if(!dossierState[5].garants)gState();
   dossierState[5].garants.push({garant_name:{},garant_subs:{},files:[]});
   activeGarantIdx=dossierState[5].garants.length-1;
-  ['garant-nom','garant-nom-usage','garant-prenom','garant-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['garant-nom','garant-nom-usage','garant-prenom','garant-email','garant-nomcomplet'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
   garantSubStep=0;
   for(let i=0;i<5;i++)renderGarantSubScreen(i);
@@ -6318,6 +6394,19 @@ function getLastMonthNames(n){
   return out;
 }
 
+// Un seul champ « Prénom et nom » : le premier mot est le prénom (« Jean-Pierre » reste un seul mot), le reste le nom
+function garantNomSaisi(v){
+  const t=String(v||'').trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
+  document.getElementById('garant-prenom').value=t.length>1?t[0]:'';
+  document.getElementById('garant-nom').value=t.length>1?t.slice(1).join(' '):(t[0]||'');
+  const aide=document.getElementById('garant-nom-aide');
+  if(aide){const un=t.length===1;aide.textContent=un?'Indiquez le prénom et le nom (ex. Jean Dupont).':'Comme sur sa pièce d’identité : le prénom puis le nom de naissance.';aide.style.color=un?'var(--red)':'var(--td)';}
+  updateGarantName();
+}
+function garantNomAfficher(){
+  const el=document.getElementById('garant-nomcomplet');if(!el)return;
+  el.value=[document.getElementById('garant-prenom')?.value,document.getElementById('garant-nom')?.value].filter(Boolean).join(' ');
+}
 function updateGarantName(){
   gState();
   const prenom=document.getElementById('garant-prenom')?.value||'';
@@ -6348,6 +6437,7 @@ function initGarantSubDossier(){
   if(nomEl)nomEl.value=gn.nom||'';
   if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
   if(emailEl)emailEl.value=gn.email||'';
+  garantNomAfficher();
   garantHebSit=null;garantResPath=[];garantRevenueAdding=null;garantRevFiles=[];garantRevSalaireMontant='';
   garantSubStep=0;
   for(let i=0;i<5;i++){
@@ -6878,6 +6968,7 @@ function dfRender(){
   const df=dossierState?.df||{};
   const l=document.getElementById('df-link');if(l&&document.activeElement!==l)l.value=df.link||'';
   const b=document.getElementById('df-files');if(b)b.innerHTML=fileRowsHtml(df.files||[],i=>`dfRemove(${i})`);
+  dfExtractRender();
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 async function dfSaveLink(){
@@ -6889,7 +6980,7 @@ async function dfSaveLink(){
 async function dfUpload(files){
   if(!files?.length)return;
   dossierState.df=dossierState.df||{};
-  const df=dossierState.df;df.files=df.files||[];
+  const df=dossierState.df;df.files=df.files||[];let dfLire=null;
   try{
     for(const file of Array.from(files)){
       if(file.size>15*1024*1024){toast('Fichier trop lourd (max 15 Mo) : '+file.name);continue;}
@@ -6899,11 +6990,57 @@ async function dfUpload(files){
       if(error)throw error;
       const{data:u}=await sb.storage.from('documents-dossiers').createSignedUrl(path,604800);
       df.files.push({name:file.name,path,url:u?.signedUrl||'',ext});
+      if(/^pdf$/i.test(ext))dfLire=path;
     }
     await saveDossierState();
     toast('<i data-lucide=check-circle-2 class=ic></i> DossierFacile ajouté');
+    if(dfLire)dfLancerLecture(dfLire);
   }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Erreur upload : '+e.message);}
   dfRender();
+}
+// ── Lecture automatique du PDF DossierFacile → remplit les étapes vides du dossier ──
+const DF_ETAPES=['Pièce d’identité','Hébergement','Situation professionnelle','Ressources','Avis d’imposition','Garant'];
+async function dfLancerLecture(path){
+  const avant=dossierState.df?.extract?.at||null;
+  dossierState.df.extract={status:'en_cours',at:avant,path};dfExtractRender();
+  try{
+    const r=await fetch('/.netlify/functions/dossierfacile-extract-background',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clerk_id:U.id,path})});
+    if(!r.ok&&r.status!==202)throw new Error('service indisponible ('+r.status+')');
+  }catch(e){dossierState.df.extract={status:'erreur',err:'Lecture automatique indisponible : '+e.message};dfExtractRender();return;}
+  dfSuivre(Date.now(),avant);
+}
+async function dfSuivre(t0,avant){
+  if(Date.now()-t0>240000){dossierState.df.extract={status:'erreur',err:'La lecture prend trop de temps : réessayez dans quelques minutes.'};dfExtractRender();return;}
+  await new Promise(r=>setTimeout(r,4000));
+  try{
+    const{data}=await sb.from('profiles').select('dossier_data').eq('clerk_id',U.id).single();
+    const d=typeof data?.dossier_data==='string'?JSON.parse(data.dossier_data):data?.dossier_data;
+    const ex=d?.df?.extract;
+    if(ex&&ex.status!=='en_cours'&&ex.at&&ex.at!==avant){
+      dossierState=d;try{localStorage.setItem('dossier_'+U.id,JSON.stringify(d));}catch(e){}
+      try{renderDossierState();}catch(e){}
+      dfRender();
+      if(ex.status==='ok')toast('<i data-lucide=check-circle-2 class=ic></i> Dossier rempli depuis DossierFacile : vérifiez chaque étape');
+      return;
+    }
+  }catch(e){}
+  dfSuivre(t0,avant);
+}
+function dfExtractRender(){
+  const el=document.getElementById('df-extract');if(!el)return;
+  const ex=dossierState?.df?.extract;const pdf=(dossierState?.df?.files||[]).find(f=>/^pdf$/i.test(f.ext||''));
+  const relire=pdf?`<button class="btn bg bsm" onclick="dfLancerLecture('${String(pdf.path).replace(/'/g,'')}')">${ex?'Relire le PDF':'Remplir mon dossier avec ce PDF'}</button>`:'';
+  if(!ex){el.innerHTML=relire;return;}
+  if(ex.status==='en_cours'){el.innerHTML='<div style="display:flex;gap:.5rem;align-items:center;font-size:.82rem;color:var(--tm)"><span class="spin" style="width:14px;height:14px;border:2px solid rgba(27,79,216,.25);border-top-color:var(--bleu);border-radius:50%;display:inline-block;animation:spin 1s linear infinite"></span> Lecture de votre DossierFacile… (environ 30 secondes)</div>';return;}
+  if(ex.status==='erreur'){el.innerHTML=`<div style="font-size:.8rem;color:var(--red);margin-bottom:.4rem">${String(ex.err||'Lecture impossible').replace(/[<>]/g,'')}</div>${relire}`;return;}
+  const r=ex.resume||{};const rempli=(ex.rempli||[]).map(i=>DF_ETAPES[i]).filter(Boolean);
+  const eur=n=>Math.round(n).toLocaleString('fr-FR')+' €';
+  el.innerHTML=`<div style="background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:.7rem .85rem;font-size:.8rem;line-height:1.6">
+    <div style="font-weight:700;color:var(--green);margin-bottom:.2rem"><i data-lucide=check-circle-2 class=ic></i> DossierFacile lu${r.valide?' — dossier validé par DossierFacile':''}</div>
+    ${[r.nom&&'Locataire : <strong>'+String(r.nom).replace(/[<>]/g,'')+'</strong>',r.profession&&'Situation : '+(DOSSIER_TYPE_LABELS[r.profession]||r.profession)+(r.employeur?' chez '+String(r.employeur).replace(/[<>]/g,''):''),r.revenus&&'Revenus : '+eur(r.revenus)+' net / mois',(r.garants||[]).length&&'Garant : '+r.garants.map(g=>(DOSSIER_TYPE_LABELS[g.type]||g.type).replace(/^Garant — /,'')+(g.nom?' ('+String(g.nom).replace(/[<>]/g,'')+')':'')).join(', ')].filter(Boolean).map(x=>'<div>'+x+'</div>').join('')}
+    <div style="color:var(--tm);margin-top:.3rem">${rempli.length?'Étapes remplies automatiquement : '+rempli.join(', ')+'. Vérifiez-les ci-dessous.':'Vos étapes étaient déjà remplies : rien n’a été remplacé.'}${(ex.rempli||[]).includes(5)?' Complétez les informations du garant si besoin.':''}</div>
+  </div><div style="margin-top:.4rem">${relire}</div>`;
+  if(typeof lucide!=='undefined')lucide.createIcons();
 }
 async function dfRemove(i){
   const f=dossierState?.df?.files?.[i];
@@ -6933,6 +7070,21 @@ function _gateGarantList(){
   const st=dossierState?.[5];
   if(st?.type!=='garant_personne'||!Array.isArray(st.garants))return [];
   return st.garants.map((g,i)=>{const n=g?.garant_name||{};return{i,name:[n.prenom,n.nom].filter(Boolean).join(' ')||('Garant '+(i+1)),ok:isGarantComplete(i)};});
+}
+// Choix des garants à joindre (même affichage pour le locataire principal et les co-locataires)
+function _garantOuiHtml(cls,prev){
+  const gl=_gateGarantList();
+  if(gl.length&&gl.some(x=>x.ok)){
+    return `<div style="font-size:.8rem;margin:.2rem 0 .45rem;color:var(--tm)">Cochez le ou les garants à joindre à cette candidature :</div>
+          <div style="display:flex;flex-direction:column;gap:.35rem">${gl.map(x=>{
+            const on=x.ok&&(prev?prev.includes(x.i):true);
+            return `<label class="gate-g${on?' on':''}${x.ok?'':' off'}"><input type="checkbox" class="${cls}" value="${x.i}" ${on?'checked':''} ${x.ok?'':'disabled'} onchange="this.parentElement.classList.toggle('on',this.checked)">
+              <span style="flex:1;min-width:0"><strong>${_escC(x.name)}</strong><span style="display:block;font-size:.72rem;color:${x.ok?'var(--green)':'#C9553A'}">${x.ok?'✓ Dossier complet — figurera dans le bail':'Dossier incomplet — ne peut pas être sélectionné'}</span></span>
+              ${x.ok?'':`<a href="#" onclick="_goDossierStep(5);return false" style="font-size:.72rem;color:var(--bleu);white-space:nowrap">Compléter →</a>`}</label>`;}).join('')}</div>
+          <a href="#" onclick="_goDossierStep(5);return false" style="display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--bleu)">+ Ajouter ou modifier un garant →</a>`;
+  }
+  if(!_garantReady())return `<div style="background:rgba(201,85,58,.08);border:1.5px solid rgba(201,85,58,.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:#C9553A">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
+  return '<div style="font-size:.82rem;color:var(--green)">✓ Votre garant est dans votre dossier — il figurera dans le bail.</div>';
 }
 function _goDossierStep(i){
   document.getElementById('apply-gate-overlay')?.remove();
@@ -7006,7 +7158,7 @@ function applicationGate(listingId,opts){
         <div id="gate-split" style="display:none;margin-top:.75rem;padding-top:.65rem;border-top:1px dashed var(--b)">
           <div style="font-size:.82rem;font-weight:700;margin-bottom:.35rem">Qui paie les frais ?</div>
           <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer;margin-bottom:.3rem"><input type="radio" name="gate-split" value="solo" checked style="accent-color:var(--bleu);margin-top:.15rem"><span>Je paie tout seul (${opts.commission} €)</span></label>
-          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="radio" name="gate-split" value="split" style="accent-color:var(--bleu);margin-top:.15rem"><span>On partage à parts égales : chacun paie sa part avec sa propre carte</span></label>
+          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="radio" name="gate-split" value="split" style="accent-color:var(--bleu);margin-top:.15rem"><span>On partage à parts égales : chacun paie sa part avec sa propre carte<span style="display:block;font-size:.74rem;color:var(--td);margin-top:.15rem;line-height:1.45"><i data-lucide=info class=ic></i> Votre candidature ne sera envoyée au propriétaire <strong>qu’une fois que chaque colocataire aura accepté et enregistré sa carte</strong>. Rien n’est débité tant que le propriétaire n’a pas accepté.</span></span></label>
         </div>`
         :`<div style="font-size:.82rem;color:var(--green);margin-top:.25rem"><i data-lucide=building-2 class=ic></i> Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</div>`}
       </div>`:''}
@@ -7022,21 +7174,7 @@ function applicationGate(listingId,opts){
     const garMsg=()=>{
       const v=ov.querySelector('input[name="gate-garant"]:checked')?.value;
       const m=ov.querySelector('#gate-garant-msg');
-      const gl=_gateGarantList();
-      if(v==='oui'&&gl.length&&gl.some(x=>x.ok)){
-        const prev=window._gateGarants?.idx;
-        m.innerHTML=`<div style="font-size:.8rem;margin:.2rem 0 .45rem;color:var(--tm)">Cochez le ou les garants à joindre à cette candidature :</div>
-          <div style="display:flex;flex-direction:column;gap:.35rem">${gl.map(x=>{
-            const on=x.ok&&(prev?prev.includes(x.i):true);
-            return `<label class="gate-g${on?' on':''}${x.ok?'':' off'}"><input type="checkbox" class="gate-g-chk" value="${x.i}" ${on?'checked':''} ${x.ok?'':'disabled'} onchange="this.parentElement.classList.toggle('on',this.checked)">
-              <span style="flex:1;min-width:0"><strong>${esc(x.name)}</strong><span style="display:block;font-size:.72rem;color:${x.ok?'var(--green)':'#C9553A'}">${x.ok?'✓ Dossier complet — figurera dans le bail':'Dossier incomplet — ne peut pas être sélectionné'}</span></span>
-              ${x.ok?'':`<a href="#" onclick="_goDossierStep(5);return false" style="font-size:.72rem;color:var(--bleu);white-space:nowrap">Compléter →</a>`}</label>`;}).join('')}</div>
-          <a href="#" onclick="_goDossierStep(5);return false" style="display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--bleu)">+ Ajouter ou modifier un garant →</a>`;
-      }else if(v==='oui'&&!_garantReady()){
-        m.innerHTML=`<div style="background:rgba(201,85,58,.08);border:1.5px solid rgba(201,85,58,.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:#C9553A">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
-      }else if(v==='oui'){
-        m.innerHTML='<div style="font-size:.82rem;color:var(--green)">✓ Votre garant est dans votre dossier — il figurera dans le bail.</div>';
-      }else m.innerHTML='';
+      m.innerHTML=v==='oui'?_garantOuiHtml('gate-g-chk',window._gateGarants?.idx):'';
     };
     ov.querySelectorAll('input[name="gate-garant"]').forEach(r=>r.addEventListener('change',garMsg));
     // « Qui paie les frais ? » seulement s'il y a au moins un co-locataire
@@ -7209,16 +7347,18 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div style="background:var(--s);border:1px solid var(--b);border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
-      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Request a visite</div>
+      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Demander une visite</div>
       <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">${listingTitle||'ce logement'}</div>
-      <div class="fg"><label class="fl">Preferred date</label><input class="fi" type="date" id="vr-date"></div>
-      <div class="fg"><label class="fl">Preferred time</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
+      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
+      <div class="fg"><label class="fl">Date souhaitée</label><input class="fi" type="date" id="vr-date"></div>
+      <div class="fg"><label class="fl">Heure souhaitée</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button id="vr-send-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer request →</button>
+        <button id="vr-send-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer la demande →</button>
         <button onclick="document.getElementById('visite-request-modal-overlay').remove()" style="background:var(--s2);color:var(--tm);border:1px solid var(--b);border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
+  try{if(window.lucide)lucide.createIcons();}catch(e){}
 
   document.getElementById('vr-send-btn').onclick=async()=>{
     const visitDate=document.getElementById('vr-date')?.value;
@@ -7771,7 +7911,7 @@ async function loadColocInvites(){
     }
     if(invites.length){
       const ids=[...new Set(invites.map(x=>x.b.listing_id))];
-      const{data:ls}=await sb.from('listings').select('id,title,price,city,zone').in('id',ids);
+      const{data:ls}=await sb.from('listings').select('*').in('id',ids);
       const m={};(ls||[]).forEach(l=>{m[l.id]=l;});
       invites.forEach(x=>x.l=m[x.b.listing_id]||{});
     }
@@ -7797,7 +7937,8 @@ function renderColocInvite(x){
       <div style="font-weight:700">${_escC(l.title||'Logement')}</div>
       <div style="font-size:.8rem;color:var(--tm);margin-top:.25rem">${me.coloc_status==='accepted'
         ?`<i data-lucide=check-circle-2 class=ic></i> Vous avez confirmé. ${att?'En attente des autres co-locataires.':'La candidature part chez le propriétaire.'}`
-        :`<i data-lucide=calendar class=ic></i> Vous avez proposé le ${_frDate(me.date_proposee)}. En attente de ${_escC(b.locataire_name||'du locataire principal')}.`}</div>
+        :`<i data-lucide=calendar class=ic></i> Vous avez proposé une autre date d’entrée.`}</div>
+      ${_blocPropositionsDate(b,arr)}
     </div>`;
   }
   const gl=_gateGarantList(),st=dossierState?.[5];
@@ -7808,24 +7949,23 @@ function renderColocInvite(x){
     <div style="font-size:1rem;font-weight:800;margin:.25rem 0">${_escC(b.locataire_name||'Un locataire')} veut louer avec vous</div>
     <div style="font-size:.82rem;color:var(--tm)">${_escC(l.title||'Logement')}${l.city||l.zone?' · '+_escC(l.city||l.zone):''}${b.monthly_rent?' · <strong style="color:var(--txt)">'+b.monthly_rent+' €/mois</strong>':''}</div>
     <div style="font-size:.75rem;color:var(--td);margin-top:.2rem">Rien n'est envoyé au propriétaire tant que vous n'avez pas répondu.</div>
+    ${_blocPropositionsDate(b,arr)}
 
     <div class="gate-box" style="margin-top:.8rem">
       <div class="gate-h">1. Date d'entrée : ${b.move_in_date?_frDate(b.move_in_date):'non précisée'}</div>
       <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer;margin:.3rem 0"><input type="radio" name="ci-date-${id}" value="oui" style="accent-color:var(--bleu)"> Elle me convient</label>
-      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-date-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-d2-${id}').style.display='block'"> Je préfère une autre date</label>
+      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-date-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-d2-${id}').style.display='block';document.getElementById('ci-d2n-${id}').style.display='block'"> Je préfère une autre date</label>
+      <div id="ci-d2n-${id}" style="display:none;font-size:.74rem;color:var(--td);margin-top:.35rem">Votre date sera proposée à ${_escC(b.locataire_name||'locataire 1')}${arr.length>1?' et aux autres co-locataires':''} : elle remplace la date actuelle quand tout le monde l’a acceptée.</div>
       <input type="date" id="ci-d2-${id}" min="${new Date().toISOString().slice(0,10)}" style="display:none;margin-top:.45rem;width:100%;padding:.5rem .7rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--txt);font-family:inherit">
     </div>
 
     <div class="gate-box">
       <div class="gate-h">2. Avez-vous un garant ?</div>
-      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer;margin:.3rem 0"><input type="radio" name="ci-g-${id}" value="oui" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').style.display='block'"> Oui, je l'ajoute à la candidature</label>
-      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').style.display='none'"> Non</label>
-      <div id="ci-gl-${id}" style="display:none;margin-top:.5rem">${
-        gl.some(g=>g.ok)
-          ?gl.map(g=>`<label class="gate-g${g.ok?' on':' off'}"><input type="checkbox" class="ci-gchk-${id}" value="${g.i}" ${g.ok?'checked':'disabled'}><span style="flex:1"><strong>${_escC(g.name)}</strong><span style="display:block;font-size:.72rem;color:${g.ok?'var(--green)':'#C9553A'}">${g.ok?'✓ Dossier complet':'Dossier incomplet'}</span></span></label>`).join('')
-          :autreGarantie?`<div style="font-size:.82rem;color:var(--green)">✓ Garantie ${gLabel} déclarée dans votre dossier.</div>`
-          :`<div style="font-size:.82rem;color:#C9553A">Aucun garant complet dans votre dossier.</div><a href="#" onclick="_goDossierStep(5);return false" style="font-size:.78rem;color:var(--bleu)">Ajouter mon garant →</a>`
-      }</div>
+      <div style="display:flex;gap:1rem;margin:.4rem 0">
+        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="oui" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').innerHTML=_garantOuiHtml('ci-gchk-${id}');lucide&&lucide.createIcons()"> Oui</label>
+        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').innerHTML=''"> Non</label>
+      </div>
+      <div id="ci-gl-${id}"></div>
     </div>
 
     ${split?`<div class="gate-box">
@@ -7877,7 +8017,7 @@ async function repondreColoc(bookingId,accepte){
       const idx=[...document.querySelectorAll('.ci-gchk-'+bookingId+':checked')].map(c=>+c.value);
       if(!idx.length)return fail('Ajoutez un garant complet à votre dossier, ou répondez « Non ».');
       garants=_garantsDuDossier(idx);garantType='physique';
-    }else if(st?.type&&st.type!=='skipped_garant'){garantType=st.type;}
+    }else if(st?.type&&st.type!=='skipped_garant'){garantType=st.type;if(st.type==='garant_visale')garants=[{visa_ref:st.visa_ref||null,visa_commun:!!st.visa_commun,visa_commun_avec:st.visa_commun_avec||null}];}
     else return fail('Ajoutez votre garant à votre dossier, ou répondez « Non ».');
   }
   let payers=_parseArr(bk.fee_payers);
@@ -7888,8 +8028,9 @@ async function repondreColoc(bookingId,accepte){
   }
   arr[i]={...arr[i],
     coloc_status:d==='oui'?'accepted':'date_proposed',
-    date_ok:d==='oui',date_proposee:d==='oui'?null:d2,
-    has_garant:g==='oui',garant_type:garantType,garant_data:garants,
+    date_ok:d==='oui',date_proposee:d==='oui'?null:d2,date_votes:{},pret:true,
+    has_garant:g==='oui',garant_type:garantType,garant_data:garantType==='garant_visale'?[]:garants,
+    ...(garantType==='garant_visale'?{visa_ref:garants[0]?.visa_ref||null,visa_commun:!!garants[0]?.visa_commun,visa_commun_avec:garants[0]?.visa_commun_avec||null}:{}),
     responded_at:new Date().toISOString()};
   const{error}=await sb.from('bookings').update({co_locataires_data:JSON.stringify(arr),fee_payers:payers}).eq('id',bookingId);
   if(error)return fail(error.message);
@@ -7898,8 +8039,9 @@ async function repondreColoc(bookingId,accepte){
     if(!parti)await notifier(`${nom} a confirmé votre candidature commune${g==='oui'?' et ajouté son garant':''}.`);
     toast(parti?'<i data-lucide=check-circle-2 class=ic></i> Confirmé : la candidature est partie chez le propriétaire.':'<i data-lucide=check-circle-2 class=ic></i> Confirmé. En attente des autres co-locataires.');
   }else{
-    await notifier(`${nom} préfère entrer le ${_frDate(d2)}. Ouvrez « Candidatures » pour changer la date ou garder la vôtre.`);
-    toast('Proposition de date envoyée.');
+    const vot=_votantsDate(bk,arr,arr[i]);
+    for(const v of vot)try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:v.id,content:`${nom} propose d'entrer le ${_frDate(d2)} au lieu du ${_frDate(bk.move_in_date)}. Acceptez ou gardez la date actuelle dans « Candidatures ».`,type:'coloc_reponse'});}catch(e){}
+    toast('Nouvelle date envoyée aux autres locataires : elle sera adoptée quand tout le monde l’aura acceptée.');
   }
   loadColocInvites();
 }
@@ -7916,12 +8058,13 @@ function renderAttenteColocs(bk){
   const refus=arr.filter(c=>c.coloc_status==='declined');
   const props=arr.filter(c=>c.coloc_status==='date_proposed');
   const acts=[];
-  props.forEach(c=>acts.push(`<button class="btn bp bsm" onclick="changerDateCandidature('${bk.id}','${c.date_proposee}')"><i data-lucide=calendar class=ic></i> Passer au ${_frDate(c.date_proposee)}</button><button class="btn bg bsm" onclick="garderDateCandidature('${bk.id}','${c.locataire_id||c.tenant_id}')">Garder ma date</button>`));
+  if(false)props.forEach(c=>acts.push(`<button class="btn bp bsm" onclick="changerDateCandidature('${bk.id}','${c.date_proposee}')"><i data-lucide=calendar class=ic></i> Passer au ${_frDate(c.date_proposee)}</button><button class="btn bg bsm" onclick="garderDateCandidature('${bk.id}','${c.locataire_id||c.tenant_id}')">Garder ma date</button>`));
   if(refus.length)acts.push(`<button class="btn bp bsm" onclick="continuerSansRefus('${bk.id}')">Continuer sans ${_escC(refus.map(c=>c.name||'lui').join(', '))}</button>`);
   acts.push(`<button class="btn bg bsm" style="color:var(--red)" onclick="annulerCandidatureColoc('${bk.id}')">Annuler la candidature</button>`);
   return `<div style="margin-top:.5rem">
     <div style="font-size:.75rem;color:var(--tm);margin-bottom:.4rem">La candidature partira chez le propriétaire quand tous vos co-locataires auront confirmé.${bk.fee_split==='split'?' Frais partagés à parts égales.':''}</div>
     <div style="display:flex;flex-direction:column;gap:.3rem">${rows}</div>
+    ${_blocPropositionsDate(bk,arr)}
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem">${acts.join('')}</div>
   </div>`;
 }
@@ -7938,6 +8081,55 @@ async function _majCandidature(bookingId,fn){
   loadLocataireApplicationsPage();
   return bk;
 }
+// ── Nouvelle date proposée par un co-locataire : tous les autres (locataire principal + co-locataires) doivent l'accepter ──
+const _cid=c=>c?.locataire_id||c?.tenant_id||null;
+function _votantsDate(bk,arr,prop){
+  return [{id:bk.tenant_id,name:bk.locataire_name||'Le locataire 1'},...arr.filter(c=>c!==prop&&c.coloc_status!=='declined').map(c=>({id:_cid(c),name:c.name||c.email||'Co-locataire'}))].filter(v=>v.id);
+}
+function _blocPropositionsDate(bk,arr){
+  return arr.filter(c=>c.coloc_status==='date_proposed'&&c.date_proposee).map(prop=>{
+    const pid=_cid(prop),votes=prop.date_votes||{},vot=_votantsDate(bk,arr,prop),moi=pid===U.id;
+    const etat=vot.map(v=>`<span style="white-space:nowrap">${_escC(v.name)} ${votes[v.id]==='oui'?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--gold)">…</span>'}</span>`).join(' · ');
+    const peutVoter=!moi&&vot.some(v=>v.id===U.id)&&votes[U.id]!=='oui';
+    return `<div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.65rem .8rem;margin:.5rem 0;font-size:.82rem;line-height:1.5">
+      <div><i data-lucide=calendar class=ic></i> <strong>${moi?'Vous proposez':_escC(prop.name||'Un co-locataire')+' propose'}</strong> d’entrer le <strong>${_frDate(prop.date_proposee)}</strong> au lieu du ${_frDate(bk.move_in_date)}.</div>
+      <div style="font-size:.74rem;color:var(--td);margin-top:.2rem">La nouvelle date est adoptée quand tout le monde l’a acceptée : ${etat}</div>
+      ${peutVoter?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="btn bp bsm" onclick="voterDate('${bk.id}','${pid}',true)"><i data-lucide=check class=ic></i> Accepter cette date</button><button class="btn bg bsm" onclick="voterDate('${bk.id}','${pid}',false)">Garder le ${_frDate(bk.move_in_date).replace(/^\S+ /,'')}</button></div>`:''}
+    </div>`;}).join('');
+}
+async function voterDate(bookingId,propId,oui){
+  if(!oui&&!confirm('Refuser cette date ? La date d’entrée actuelle est conservée.'))return;
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
+  if(!bk||bk.status!=='awaiting_colocs'){toast('Cette candidature a déjà changé.');loadLocataireApplicationsPage();loadColocInvites();return;}
+  let arr=_parseArr(bk.co_locataires_data);
+  const k=arr.findIndex(c=>_cid(c)===propId&&c.coloc_status==='date_proposed');
+  if(k<0){toast('Cette proposition n’est plus d’actualité.');loadLocataireApplicationsPage();loadColocInvites();return;}
+  const prop=arr[k],date=prop.date_proposee,moiNom=bk.tenant_id===U.id?(bk.locataire_name||P?.full_name||'Le locataire 1'):(arr.find(_isMeC)?.name||P?.full_name||'Un co-locataire');
+  const msgs=[];let update={},adoptee=false;
+  if(!oui){
+    arr[k]={...prop,coloc_status:'pending',date_proposee:null,date_votes:{}};
+    msgs.push({to:propId,txt:`${moiNom} préfère garder la date du ${_frDate(bk.move_in_date)}. Dites dans « Candidatures » si vous la confirmez.`});
+  }else{
+    const votes={...(prop.date_votes||{}),[U.id]:'oui'};
+    const vot=_votantsDate(bk,arr,prop);
+    if(vot.every(v=>votes[v.id]==='oui')){
+      adoptee=true;
+      arr[k]={...prop,coloc_status:prop.pret?'accepted':'pending',date_ok:true,date_proposee:null,date_votes:{}};
+      update.move_in_date=date;
+      [propId,...vot.map(v=>v.id)].filter(id=>id&&id!==U.id).forEach(id=>msgs.push({to:id,txt:`Tout le monde est d’accord : la date d’entrée de la candidature commune passe au ${_frDate(date)}.`}));
+    }else{
+      arr[k]={...prop,date_votes:votes};
+      msgs.push({to:propId,txt:`${moiNom} accepte d’entrer le ${_frDate(date)}.`});
+    }
+  }
+  update.co_locataires_data=JSON.stringify(arr);
+  const{error}=await sb.from('bookings').update(update).eq('id',bookingId);
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
+  for(const m of msgs)try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:m.to,content:m.txt,type:'coloc_reponse'});}catch(e){}
+  const parti=adoptee&&await verifierColocsEtEnvoyer(bookingId);
+  toast(parti?'<i data-lucide=check-circle-2 class=ic></i> Date adoptée : la candidature est partie chez le propriétaire.':adoptee?'<i data-lucide=check-circle-2 class=ic></i> Nouvelle date adoptée.':oui?'Réponse envoyée.':'Date actuelle conservée.');
+  loadLocataireApplicationsPage();loadColocInvites();
+}
 function changerDateCandidature(bookingId,date){
   if(!confirm('Passer la date d\'entrée au '+_frDate(date)+' ? Les co-locataires qui avaient déjà confirmé devront reconfirmer.'))return;
   _majCandidature(bookingId,(bk,arr)=>{
@@ -7953,7 +8145,7 @@ function changerDateCandidature(bookingId,date){
 function garderDateCandidature(bookingId,colocId){
   _majCandidature(bookingId,(bk,arr)=>{
     arr=arr.map(c=>(c.locataire_id===colocId||c.tenant_id===colocId)?{...c,coloc_status:'pending',date_proposee:null}:c);
-    return{update:{co_locataires_data:JSON.stringify(arr)},msgs:[{to:colocId,txt:`${bk.locataire_name||'Le locataire principal'} garde la date du ${_frDate(bk.move_in_date)}. Dites-lui dans « Candidatures » si vous la confirmez.`}]};
+    return{update:{co_locataires_data:JSON.stringify(arr)},msgs:[{to:colocId,txt:`${bk.locataire_name||'Le locataire 1'} garde la date du ${_frDate(bk.move_in_date)}. Dites-lui dans « Candidatures » si vous la confirmez.`}]};
   });
 }
 function continuerSansRefus(bookingId){
@@ -7971,7 +8163,7 @@ async function annulerCandidatureColoc(bookingId){
   const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
   const{error}=await sb.from('bookings').update({status:'cancelled_by_locataire',cancelled_at:new Date().toISOString()}).eq('id',bookingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
-  for(const c of _parseArr(bk?.co_locataires_data))if(c.coloc_status!=='declined')try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:c.locataire_id||c.tenant_id,content:`${bk.locataire_name||'Le locataire principal'} a annulé la candidature commune.`,type:'coloc_reponse'});}catch(e){}
+  for(const c of _parseArr(bk?.co_locataires_data))if(c.coloc_status!=='declined')try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:c.locataire_id||c.tenant_id,content:`${bk.locataire_name||'Le locataire 1'} a annulé la candidature commune.`,type:'coloc_reponse'});}catch(e){}
   toast('Candidature annulée.');loadLocataireApplicationsPage();
 }
 
