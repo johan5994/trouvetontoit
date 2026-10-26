@@ -340,7 +340,16 @@
       .bail-header{print-color-adjust:exact;-webkit-print-color-adjust:exact}
       .caution-card{break-before:page}
     }
-  </style>
+    /* Étape avant le bail (ex. Visale + garant : baux individuels obligatoires) : seule cette page est visible */
+  body.bail-gate #bail-wrap > *:not(#model-bar),body.bail-gate #submit-bar,body.bail-gate #negoc-bar,body.bail-gate #remarques-bar,body.bail-gate #status-bar,body.bail-gate #pdf-btn{display:none!important}
+  .gate-page{max-width:620px;margin:3rem auto 4rem;background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:2rem 1.8rem;box-shadow:0 10px 40px rgba(15,45,122,.08)}
+  .gate-page h2{font-size:1.35rem;margin:.35rem 0 .7rem;line-height:1.3;text-wrap:balance}
+  .gate-page .gate-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+  .gate-page ul{margin:.6rem 0 0 1.1rem;font-size:.9rem;line-height:1.65}
+  .gate-page .gate-btn{display:inline-flex;align-items:center;gap:.45rem;margin-top:1.4rem;background:var(--bleu);color:#fff;border:none;border-radius:12px;padding:.85rem 1.3rem;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer}
+  .gate-page .gate-btn:disabled{opacity:.6;cursor:wait}
+  @media (max-width:600px){.gate-page{margin:1.2rem 0;padding:1.4rem 1.1rem}}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" defer></script>
 <style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
@@ -3489,12 +3498,20 @@ function renderModelBar(L){
   const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
   if(myRole!=='landlord'||!L.booking_id||!cols.length){el.innerHTML='';return;}
   const signe=!!(L.landlord_signed_at||L.tenant_signed_at||SIBLINGS.some(x=>x.landlord_signed_at||x.tenant_signed_at));
-  if(!L.colocation_type&&window._colocBloqueCommun){
-    el.innerHTML=`<div style="max-width:880px;margin:0 auto .8rem;background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:12px;padding:.85rem 1rem;font-size:.85rem;line-height:1.55">
-      <div style="font-weight:800;margin-bottom:.25rem"><i data-lucide=info class=ic></i> Ici, il faut un bail par locataire</div>
-      <div>${window._colocConseilTxt||''}</div>
-      <div style="font-size:.78rem;color:var(--td);margin-top:.35rem">Chaque locataire aura son propre bail (sa chambre, sa part du loyer, sa garantie), sans solidarité entre eux. Vous les retrouverez dans les onglets en haut de la page.</div>
-      ${_editMode&&!signe?`<button class="bc-pill on" style="margin-top:.6rem" onclick="if(confirm('Créer un bail par locataire ?'))chooseColocType('individuel',true)"><i data-lucide=files class=ic></i> Créer les ${cols.length+1} baux individuels</button>`:''}
+  const _gate=!L.colocation_type&&window._colocBloqueCommun;
+  document.body.classList.toggle('bail-gate',!!_gate);
+  if(_gate){
+    const vis=visaleTenants().map(v=>v.name).filter(Boolean);
+    const noms=[L.tenant_name||'Locataire 1',...cols.map(c=>c.name||c.email||'Co-locataire')];
+    el.innerHTML=`<div class="gate-page">
+      <div class="gate-eyebrow"><i data-lucide=files class=ic></i> Avant de préparer le bail</div>
+      <h2>Ici, il faut un bail par locataire</h2>
+      <p style="font-size:.92rem;line-height:1.6;margin:0">${window._colocConseilTxt||''}</p>
+      <ul>
+        ${noms.map((n,i)=>`<li><strong>Bail ${i+1}</strong> — ${_escB(n)} : sa chambre, sa part du loyer, ${vis.includes(n)?'sa garantie Visale':i===0&&L.garant_name?'la caution de '+_escB(L.garant_name):'sa propre garantie'}.</li>`).join('')}
+      </ul>
+      <p style="font-size:.82rem;color:var(--td);margin:.8rem 0 0;line-height:1.55">Pas de solidarité entre les locataires : chacun ne doit que sa part. Vous retrouverez chaque bail dans les onglets en haut de la page, à compléter et envoyer un par un ou tous ensemble.</p>
+      ${_editMode&&!signe?`<button class="gate-btn" onclick="this.disabled=true;this.innerHTML='Création des baux…';chooseColocType('individuel',true).finally(()=>{this.disabled=false;})"><i data-lucide=files class=ic></i> Créer les ${noms.length} baux individuels</button>`:''}
     </div>`;
     if(window.lucide)lucide.createIcons();return;
   }
