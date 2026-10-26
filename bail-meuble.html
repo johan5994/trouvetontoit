@@ -2159,6 +2159,25 @@ function renderGarantiesBlock(L){
   {const el=document.getElementById('gli-txt');if(el){if(!el.dataset.base)el.dataset.base=el.innerHTML;
     el.innerHTML=String(L.gli||'')==='oui'?`Le bailleur a souscrit une assurance loyers impayés (GLI), dont le coût est à sa seule charge et ne peut être répercuté sur le locataire.${TENANT_ETUDIANT?'':' En conséquence, aucune caution n\'est exigée du locataire (art. 22-1 de la loi du 6 juillet 1989).'} <em>Toute clause prévoyant des pénalités ou amendes en cas de retard de paiement est réputée non écrite en application de l'article 4 de la loi n° 89-462 du 6 juillet 1989.</em>`:el.dataset.base;}}
   const{g,physique,c,coLocs}=bailChoices(L);
+  // Visale ne se cumule avec aucune autre garantie sur un même bail, et ne couvre un bail commun qu'à 2 colocataires (demande de visa conjointe)
+  const _colocConseil=(()=>{
+    if(!coLocs.length)return{reco:null,txt:'',bloque:false};
+    const vis=visaleTenants(),nbT=coLocs.length+1;
+    const autres=(physique||g==='organisme'?1:0)+coLocs.filter(x=>x.has_garant&&x.garant_type!=='garant_visale').length;
+    if(vis.length&&autres)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(', ')} ${vis.length>1?'ont':'a'} Visale et un autre locataire a un garant (personne ou organisme) : Visale ne se cumule avec aucune autre garantie sur un même bail. Faites <strong>un bail par locataire</strong>, chacun avec sa propre garantie.`};
+    if(vis.length&&nbT>=3)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> Visale ne couvre un bail commun que pour 2 colocataires. À ${nbT}, faites <strong>un bail par locataire</strong> avec un visa chacun.`};
+    // 2 locataires : bail commun seulement avec UN visa commun (demande conjointe, les deux noms sur le visa)
+    const _nv=v=>String(v||'').replace(/\s+/g,'').toUpperCase();
+    const visas=[...new Set(vis.map(v=>_nv(v.visa)).filter(Boolean))];
+    if(vis.length===2&&visas.length===2&&vis.some(v=>v.commun))return{reco:'individuel',bloque:true,txt:`<strong>À vérifier :</strong> une demande Visale commune est déclarée, mais les numéros de visa sont différents (n° ${visas.join(' et n° ')}). Un bail commun exige un seul visa avec les deux noms : corrigez le numéro, sinon faites <strong>un bail par locataire</strong>.`};
+    if(vis.length===2&&visas.length===2)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(' et ')} ont chacun leur propre visa (n° ${visas.join(' et n° ')}). Deux visas séparés ne remplacent pas la demande commune exigée par Visale pour un bail commun : faites <strong>un bail par locataire</strong>, chacun avec son visa et un contrat de cautionnement Visale par bail, sans solidarité entre eux.`};
+    if(vis.length===2&&visas.length===1&&(vis.every(v=>_nv(v.visa))||vis.some(v=>v.commun)))return{reco:null,bloque:false,txt:`Visa Visale commun (n° ${visas[0]})${vis.some(v=>v.commun)?' — demande commune déclarée par les locataires':''} : un bail commun est possible. Vérifiez que le visa certifié mentionne bien les deux noms ; vous activerez <strong>un seul contrat de cautionnement Visale</strong> pour les deux.`};
+    if(vis.length===2)return{reco:null,bloque:false,txt:`Les deux locataires ont Visale. <strong>Un seul bail</strong> n’est possible que s’ils ont fait <strong>une demande de visa commune</strong> (un seul visa avec les deux noms). S’ils ont chacun leur propre visa, faites <strong>un bail par locataire</strong>. Renseignez les n° de visa pour que le bail le vérifie.`};
+    if(vis.length)return{reco:null,bloque:false,txt:`Visale sur un bail commun à 2 : les deux colocataires doivent faire une <strong>demande de visa conjointe</strong> (un seul visa qui couvre le bail), et aucun autre garant ne peut s’ajouter. Sinon, choisissez un bail par locataire.`};
+    return{reco:'commun_solidaire',bloque:false,txt:''};
+  })();
+  window._colocBloqueCommun=_colocConseil.bloque;window._colocConseilTxt=_colocConseil.txt;
+  const _bloqueAvantChoix=_colocConseil.bloque&&!L.colocation_type; // expliqué au-dessus du bail, pas dans le bail
   const pill=(key,val,label,on)=>`<button type="button" class="bc-pill${on?' on':''}" onclick="saveField('${key}','${val}')">${label}</button>`;
   // Résumé court (visible par tous, dans le bail)
   const lines=[];
@@ -2191,14 +2210,16 @@ function renderGarantiesBlock(L){
     lines[0]=`<strong>Garanties :</strong><div style="margin-top:.3rem;display:flex;flex-direction:column;gap:.3rem">${rows.map(r=>`<div>${r}</div>`).join('')}</div>`;
     // Visale en colocation : un visa par locataire, qui ne couvre que sa part du loyer
     const _vis=visaleTenants();
-    if(_vis.length>1&&_vis[0].joint){
+    if(_bloqueAvantChoix){/* bail commun impossible : rien dans le texte du bail */}
+    else if(_vis.length>1&&_vis[0].joint){
       lines.splice(1,0,`<strong>Visale en colocation :</strong> ${_vis.map(v=>_escB(v.name)).join(' et ')} bénéficient d'<strong>un visa Visale commun</strong> (n° ${_escB(_vis[0].visa)}), issu d'une demande conjointe. Un seul contrat de cautionnement, conclu entre le bailleur et Action Logement, garantit le présent bail commun dans les limites fixées par ce visa.`);
     }else if(_vis.length){
       const n=coLocs.length+1,part=Math.round(((Number(L.rent)||0)+(Number(L.charges)||0))/n);
       lines.splice(1,0,`<strong>Visale en colocation :</strong> la garantie Visale de ${_vis.map(v=>_escB(v.name)).join(', ')} couvre, selon le contrat de cautionnement conclu entre le bailleur et Action Logement, ${_vis.length===1&&n===2?'le loyer admissible fixé par le visa':'la part du loyer de son titulaire'}${part?` (part de chacun : environ ${fmt(part)} par mois, charges comprises)`:''}. Elle n'efface pas les obligations des colocataires${c==='commun_solidaire'?', qui restent tenus solidairement du loyer et des charges, sans que le bailleur puisse être payé deux fois pour la même somme':''}.`);
     }
   }
-  if(c==='commun_solidaire')lines.push(`<strong>Colocation :</strong> bail commun à tous les colocataires, <strong>avec clause de solidarité</strong> entre eux.`);
+  if(_bloqueAvantChoix){/* modèle à choisir : expliqué au-dessus du bail */}
+  else if(c==='commun_solidaire')lines.push(`<strong>Colocation :</strong> bail commun à tous les colocataires, <strong>avec clause de solidarité</strong> entre eux.`);
   else if(c==='commun_simple')lines.push(`<strong>Colocation :</strong> bail commun, <strong>sans solidarité</strong> — chaque colocataire n'est tenu que de sa part.`);
   else if(c==='individuel')lines.push(`<strong>Location individuelle :</strong> ce bail ne concerne que le locataire désigné, qui ne répond pas des dettes des autres occupants.`);
   const _gliOn=String(L.gli||'')==='oui';
@@ -2208,32 +2229,14 @@ function renderGarantiesBlock(L){
   const sum=`<ul class="bc-sum">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>${_gliToggle}`;
   const anyPhys=physique||EXTRA_SIGNERS.some(x=>x.type==='cogarant');
   // Conseil de colocation selon les garanties
-  // Visale ne se cumule avec aucune autre garantie sur un même bail, et ne couvre un bail commun qu'à 2 colocataires (demande de visa conjointe)
-  const _colocConseil=(()=>{
-    if(!coLocs.length)return{reco:null,txt:'',bloque:false};
-    const vis=visaleTenants(),nbT=coLocs.length+1;
-    const autres=(physique||g==='organisme'?1:0)+coLocs.filter(x=>x.has_garant&&x.garant_type!=='garant_visale').length;
-    if(vis.length&&autres)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(', ')} ${vis.length>1?'ont':'a'} Visale et un autre locataire a un garant (personne ou organisme) : Visale ne se cumule avec aucune autre garantie sur un même bail. Faites <strong>un bail par locataire</strong>, chacun avec sa propre garantie.`};
-    if(vis.length&&nbT>=3)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> Visale ne couvre un bail commun que pour 2 colocataires. À ${nbT}, faites <strong>un bail par locataire</strong> avec un visa chacun.`};
-    // 2 locataires : bail commun seulement avec UN visa commun (demande conjointe, les deux noms sur le visa)
-    const _nv=v=>String(v||'').replace(/\s+/g,'').toUpperCase();
-    const visas=[...new Set(vis.map(v=>_nv(v.visa)).filter(Boolean))];
-    if(vis.length===2&&visas.length===2&&vis.some(v=>v.commun))return{reco:'individuel',bloque:true,txt:`<strong>À vérifier :</strong> une demande Visale commune est déclarée, mais les numéros de visa sont différents (n° ${visas.join(' et n° ')}). Un bail commun exige un seul visa avec les deux noms : corrigez le numéro, sinon faites <strong>un bail par locataire</strong>.`};
-    if(vis.length===2&&visas.length===2)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(' et ')} ont chacun leur propre visa (n° ${visas.join(' et n° ')}). Deux visas séparés ne remplacent pas la demande commune exigée par Visale pour un bail commun : faites <strong>un bail par locataire</strong>, chacun avec son visa et un contrat de cautionnement Visale par bail, sans solidarité entre eux.`};
-    if(vis.length===2&&visas.length===1&&(vis.every(v=>_nv(v.visa))||vis.some(v=>v.commun)))return{reco:null,bloque:false,txt:`Visa Visale commun (n° ${visas[0]})${vis.some(v=>v.commun)?' — demande commune déclarée par les locataires':''} : un bail commun est possible. Vérifiez que le visa certifié mentionne bien les deux noms ; vous activerez <strong>un seul contrat de cautionnement Visale</strong> pour les deux.`};
-    if(vis.length===2)return{reco:null,bloque:false,txt:`Les deux locataires ont Visale. <strong>Un seul bail</strong> n’est possible que s’ils ont fait <strong>une demande de visa commune</strong> (un seul visa avec les deux noms). S’ils ont chacun leur propre visa, faites <strong>un bail par locataire</strong>. Renseignez les n° de visa pour que le bail le vérifie.`};
-    if(vis.length)return{reco:null,bloque:false,txt:`Visale sur un bail commun à 2 : les deux colocataires doivent faire une <strong>demande de visa conjointe</strong> (un seul visa qui couvre le bail), et aucun autre garant ne peut s’ajouter. Sinon, choisissez un bail par locataire.`};
-    return{reco:'commun_solidaire',bloque:false,txt:''};
-  })();
-  window._colocBloqueCommun=_colocConseil.bloque;
   const _form=g==='simple'||(!physique&&L.garant_type==='simple')?'simple':'solidaire';
-  if(!_editMode||(!physique&&!coLocs.length)){show('garanties-summary',`<div class="bc-card"><div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'}</div>${sum}</div>`);return;}
+  if(!_editMode||(!physique&&!coLocs.length)||_bloqueAvantChoix){show('garanties-summary',`<div class="bc-card"><div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'}</div>${sum}</div>`);return;}
   // Mode édition bailleur : choix par boutons
   show('garanties-summary',`<div class="bc-card">
     <div class="bc-title">${coLocs.length?'Garantie et colocation':'Garantie'} — à choisir</div>
     <div style="font-size:.76rem;color:var(--td);margin-bottom:.45rem">Garantie indiquée par le ${coLocs.length?'locataire 1':'locataire'} : <strong>${physique?'garant personne physique':g==='visale'?'Visale':g==='organisme'?'organisme ou banque':'aucune'}</strong></div>
     <div class="bc-edit">
-      ${anyPhys?`<div style="margin-bottom:.6rem">
+      ${anyPhys&&!_bloqueAvantChoix?`<div style="margin-bottom:.6rem">
         <div style="font-size:.8rem;font-weight:700;margin-bottom:.35rem">Quel type de caution acceptez-vous ?</div>
         ${visaleTenants().length?'<div style="font-size:.74rem;color:var(--td);margin:-.15rem 0 .4rem">Concerne uniquement les garants personnes physiques. Visale a ses propres conditions, fixées par son contrat sur visale.fr.</div>':''}
         <div class="cs-choice">
@@ -2253,7 +2256,7 @@ function renderGarantiesBlock(L){
         <span><i data-lucide=lock class=ic></i> Modèle de bail choisi : <strong>${_COLOC_LBL[L.colocation_type]||L.colocation_type}</strong> — verrouillé${_colocConseil.bloque&&L.colocation_type!=='individuel'?`<span style="display:block;color:#B91C1C;margin-top:.25rem"><i data-lucide=alert-triangle class=ic></i> Incompatible avec Visale ici : ${_colocConseil.txt.replace(/<\/?strong>/g,'')}</span>`:''}</span>
         <button type="button" class="bc-pill" onclick="resetColocType()">Changer de modèle (tout recommencer)</button>
       </div>`:''}
-      ${coLocs.length&&!L.colocation_type?`<div style="margin-bottom:.6rem">
+      ${coLocs.length&&!L.colocation_type&&!_bloqueAvantChoix?`<div style="margin-bottom:.6rem">
         <div style="font-size:.85rem;font-weight:800;margin-bottom:.2rem;color:var(--bleu)">Étape 1 — Comment louez-vous à vos ${coLocs.length+1} locataires ?</div>
         <div style="font-size:.74rem;color:var(--td);margin-bottom:.4rem">À choisir avant tout le reste. Une fois choisi, le modèle est verrouillé (vous pourrez seulement tout recommencer).</div>
         ${_colocConseil.txt?`<div style="font-size:.76rem;background:${_colocConseil.bloque?'#FEF2F2':'#FFFBEB'};border:1px solid ${_colocConseil.bloque?'#FECACA':'#FDE68A'};border-radius:7px;padding:.45rem .6rem;margin-bottom:.45rem;line-height:1.5"><i data-lucide=${_colocConseil.bloque?'alert-triangle':'info'} class=ic></i> ${_colocConseil.txt}</div>`:''}
@@ -3450,11 +3453,11 @@ const _COLOC_LBL={commun_solidaire:'un seul bail, avec solidarité',commun_simpl
 function needsColocChoice(){
   return !!(LEASE&&LEASE.booking_id&&!LEASE.colocation_type&&_bailArr(BOOKING?.co_locataires_data).some(c=>c.coloc_status!=='declined'));
 }
-async function chooseColocType(val){
+async function chooseColocType(val,sansConfirm){
   if(myRole!=='landlord'||LEASE.landlord_signed_at||LEASE.tenant_signed_at)return;
   if(LEASE.colocation_type){toast('Le modèle est verrouillé. Utilisez « Changer de modèle (tout recommencer) ».',5000);return;}
   if(val!=='individuel'&&window._colocBloqueCommun){toast('Avec Visale ici, un seul bail n’est pas possible : choisissez un bail par locataire.',6000);return;}
-  if(!confirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
+  if(!sansConfirm&&!confirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
   const cur='commun_solidaire';
   if(val==='individuel'&&cur!=='individuel'){
     const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
@@ -3486,6 +3489,15 @@ function renderModelBar(L){
   const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
   if(myRole!=='landlord'||!L.booking_id||!cols.length){el.innerHTML='';return;}
   const signe=!!(L.landlord_signed_at||L.tenant_signed_at||SIBLINGS.some(x=>x.landlord_signed_at||x.tenant_signed_at));
+  if(!L.colocation_type&&window._colocBloqueCommun){
+    el.innerHTML=`<div style="max-width:880px;margin:0 auto .8rem;background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:12px;padding:.85rem 1rem;font-size:.85rem;line-height:1.55">
+      <div style="font-weight:800;margin-bottom:.25rem"><i data-lucide=info class=ic></i> Ici, il faut un bail par locataire</div>
+      <div>${window._colocConseilTxt||''}</div>
+      <div style="font-size:.78rem;color:var(--td);margin-top:.35rem">Chaque locataire aura son propre bail (sa chambre, sa part du loyer, sa garantie), sans solidarité entre eux. Vous les retrouverez dans les onglets en haut de la page.</div>
+      ${_editMode&&!signe?`<button class="bc-pill on" style="margin-top:.6rem" onclick="if(confirm('Créer un bail par locataire ?'))chooseColocType('individuel',true)"><i data-lucide=files class=ic></i> Créer les ${cols.length+1} baux individuels</button>`:''}
+    </div>`;
+    if(window.lucide)lucide.createIcons();return;
+  }
   el.innerHTML=!L.colocation_type
     ?`<div style="max-width:880px;margin:0 auto .8rem;background:#EFF6FF;border:1.5px solid var(--bleu);border-radius:12px;padding:.75rem .9rem;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
         <span><strong>Étape 1 :</strong> choisissez le modèle de bail pour vos ${cols.length+1} locataires avant de compléter et d'envoyer le bail.</span>
