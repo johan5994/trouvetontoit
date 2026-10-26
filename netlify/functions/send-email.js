@@ -73,12 +73,12 @@ const templates = {
 
   // Invitation garant à signer l'acte de caution solidaire
   garant_invite: ({ garantNom, locataireNom, listingTitle, listingAddress, bailUrl }) => ({
-    subject: `Acte de caution solidaire à signer — ${listingTitle}`,
+    subject: `Acte de cautionnement à signer — ${listingTitle}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#0F2D7A;padding:24px 32px;border-radius:12px 12px 0 0">
           <p style="color:rgba(255,255,255,.7);font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 4px">Trouve Ton Toit</p>
-          <h1 style="color:#fff;font-size:22px;margin:0">Acte de caution solidaire</h1>
+          <h1 style="color:#fff;font-size:22px;margin:0">Acte de cautionnement</h1>
         </div>
         <div style="background:#fff;padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
           <p>Bonjour <strong>${garantNom}</strong>,</p>
@@ -87,10 +87,10 @@ const templates = {
             <strong>${listingTitle}</strong><br>
             <span style="color:#6b7280;font-size:.9em">${listingAddress||''}</span>
           </div>
-          <p>Le bail a été accepté par toutes les parties. Vous devez maintenant signer l'<strong>acte de caution solidaire</strong> joint au bail.</p>
-          <p>Cliquez sur le bouton ci-dessous pour accéder au bail et apposer votre signature :</p>
-          <a href="${bailUrl}" style="display:inline-block;background:#B45309;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:800;font-size:1em;margin-top:8px">Signer l'acte de caution →</a>
-          <p style="color:#6b7280;font-size:.85em;margin-top:20px">Ce lien vous donne accès au contrat de location en lecture seule, ainsi qu'au formulaire de signature de l'acte de caution solidaire en bas de page.</p>
+          <p>Le bail a été accepté par le bailleur et le locataire. Vous devez maintenant signer votre <strong>acte de cautionnement</strong>, un document séparé du bail.</p>
+          <p>Cliquez sur le bouton ci-dessous : vous lirez l'acte et le bail, recopierez les mentions prévues par la loi, puis signerez en ligne (environ 5 minutes).</p>
+          <a href="${bailUrl}" style="display:inline-block;background:#B45309;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:800;font-size:1em;margin-top:8px">Lire et signer l'acte →</a>
+          <p style="color:#6b7280;font-size:.85em;margin-top:20px">Ce lien est personnel : il vous donne accès à votre acte de cautionnement et à un exemplaire du contrat de location.</p>
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0">
           <p style="color:#9ca3af;font-size:.8em">Trouve Ton Toit — Location meublée en France · <a href="https://trouvetonoit.fr" style="color:#9ca3af">trouvetonoit.fr</a></p>
         </div>
