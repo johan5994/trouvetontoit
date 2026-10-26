@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acte de cautionnement — Trouve Ton Toit</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F6F7FB;--s:#fff;--txt:#161A26;--td:#5E6475;--b:rgba(22,26,38,.12);--green:#2F8F5B;--red:#C2410C;--gold:#B45309}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
+.nav{padding:1rem 1.25rem;border-bottom:1px solid var(--b);background:var(--s);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.15rem;color:var(--bleu);text-decoration:none}
+.wrap{max-width:780px;margin:0 auto;padding:1.6rem 1rem 4rem}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bleu)}
+h1{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1.2;margin:.2rem 0 .6rem;text-wrap:balance}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:.9rem}
+.doc{background:#fff;color:#161A26;border:1px solid var(--b);border-radius:14px;padding:1.6rem 1.7rem;margin-bottom:.9rem;font-size:.9rem}
+.doc h2{font-family:'Playfair Display',serif;font-size:1.3rem;text-align:center;margin-bottom:.2rem}
+.doc .sub{text-align:center;font-size:.75rem;color:#5E6475;margin-bottom:1.1rem}
+.doc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--marine);margin:1.1rem 0 .4rem;border-bottom:1px solid #E5E7EB;padding-bottom:.25rem}
+.doc p{margin:.35rem 0}
+.mention{background:#FFFBEB;border-left:3px solid var(--gold);padding:.6rem .8rem;border-radius:6px;font-style:italic;margin:.4rem 0;white-space:pre-wrap}
+label{display:block;font-size:.8rem;font-weight:600;margin:.7rem 0 .25rem}
+input[type=text],input[type=number],select,textarea{width:100%;padding:.6rem .75rem;border:1px solid rgba(22,26,38,.22);border-radius:10px;font:500 .95rem 'DM Sans',sans-serif;background:#fff;color:var(--txt)}
+textarea{min-height:92px;resize:vertical;line-height:1.5}
+input:focus-visible,button:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--marine);outline-offset:2px}
+.modele{font-size:.82rem;background:#F1F5FF;border:1px dashed rgba(27,79,216,.4);border-radius:8px;padding:.5rem .7rem;margin-top:.35rem;color:#1E3A8A}
+.etat{font-size:.76rem;margin-top:.25rem;font-weight:600}
+.ok{color:var(--green)}.ko{color:var(--red)}
+.chk{display:flex;gap:.55rem;align-items:flex-start;font-size:.85rem;font-weight:500;margin-top:.8rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:none;border-radius:12px;background:var(--bleu);color:#fff;font:600 .95rem 'DM Sans',sans-serif;padding:.8rem 1.2rem;cursor:pointer}
+.btn.sec{background:#fff;color:var(--txt);border:1px solid var(--b)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.pad{width:100%;height:160px;border:1.5px dashed rgba(22,26,38,.3);border-radius:12px;background:#fff;touch-action:none;display:block}
+.err{color:var(--red);font-size:.84rem;margin-top:.6rem}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#EEF1F8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.sp{width:22px;height:22px;border:3px solid rgba(27,79,216,.2);border-top-color:var(--bleu);border-radius:50%;animation:r 1s linear infinite;margin:3rem auto}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sp{animation:none}}
+@media (max-width:560px){.row2{grid-template-columns:1fr}.doc{padding:1.1rem 1rem}}
+@media print{.nav,.no-print{display:none!important}body{background:#fff}.wrap{padding:0;max-width:none}.doc{border:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="nav"><a class="logo" href="/">Trouve Ton Toit</a><span id="statut" class="no-print"></span></div>
+<main class="wrap" id="app"><div class="sp" role="status" aria-label="Chargement"></div></main>
+<script>
+const SU='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur=n=>Math.round(Number(n)||0).toLocaleString('fr-FR')+' €';
+const fr=d=>d?new Date(String(d).length===10?d+'T12:00:00':d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+const P=new URLSearchParams(location.search),TOK=P.get('t'),ID=P.get('id');
+const app=document.getElementById('app');
+let A=null,mode='garant',vide=true,ctx=null;
+
+// ── Nombres en toutes lettres (jusqu'aux millions) ──
+function lettres(n){
+  n=Math.round(Number(n)||0);if(n===0)return'zéro';
+  const U=['','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'],T=['','','vingt','trente','quarante','cinquante','soixante'];
+  const diz=x=>{if(x<20)return U[x];const d=Math.floor(x/10),r=x%10;if(d===7)return r===1?'soixante et onze':'soixante-'+U[10+r];if(d===8)return r?'quatre-vingt-'+U[r]:'quatre-vingts';if(d===9)return'quatre-vingt-'+U[10+r];return T[d]+(r===1?' et un':r?'-'+U[r]:'');};
+  const cent=x=>{if(x<100)return diz(x);const c=Math.floor(x/100),r=x%100;return(c>1?U[c]+' cent':'cent')+(r?' '+diz(r):(c>1?'s':''));};
+  const parts=[];const mi=Math.floor(n/1e6),k=Math.floor(n%1e6/1000),r=n%1000;
+  if(mi)parts.push(mi===1?'un million':cent(mi)+' millions');
+  if(k)parts.push(k===1?'mille':cent(k).replace(/s$/,'')+' mille');
+  if(r)parts.push(cent(r));
+  return parts.join(' ');
+}
+const DUREES={bail_2:'pour la durée du bail et de ses deux premiers renouvellements ou reconductions',bail_1:'pour la durée du bail et de son premier renouvellement ou reconduction',bail:'pour la durée initiale du bail',indeterminee:'pour une durée indéterminée'};
+function locNom(){return A.locataire_nom||'le locataire';}
+function modeles(){
+  const s=A.snapshot||{},pl=Number(A.plafond)||0,sol=A.type!=='simple';
+  const m1=`Le loyer mensuel est de ${Math.round(s.loyer||0)} euros hors charges${s.charges>0?`, plus ${Math.round(s.charges)} euros de charges`:''}, révisable chaque année selon l'indice de référence des loyers.`;
+  const m2=`Je m'engage en qualité de caution à payer au bailleur ce que lui doit ${locNom()} en cas de défaillance de celui-ci, dans la limite de ${lettres(pl)} euros (${pl} euros) en principal et accessoires, ${DUREES[A.duree]||DUREES.bail_2}.`+(sol?` Je reconnais ne pouvoir exiger du bailleur qu'il poursuive d'abord ${locNom()} ni qu'il divise ses poursuites entre les cautions.`:'');
+  const m3=`Je reconnais avoir parfaitement connaissance de la nature et de l'étendue de mon engagement.`;
+  return[m1,m2,m3];
+}
+// Comparaison souple : casse, accents, ponctuation, espaces et « € » ignorés
+const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/€/g,' euros ').replace(/[’']/g,"'").replace(/[^a-z0-9]+/g,' ').trim();
+
+function corps(final){
+  const s=A.snapshot||{},pl=Number(A.plafond)||0,sol=A.type!=='simple',c=s.colocation||{};
+  const mentions=final&&A.mention?(()=>{try{return JSON.parse(A.mention);}catch(e){return null;}})():null;
+  return `<h2>Acte de cautionnement</h2>
+  <div class="sub">Caution ${sol?'solidaire':'simple'} d'un bail d'habitation — article 22-1 de la loi n° 89-462 du 6 juillet 1989 et articles 2288 et suivants du Code civil</div>
+  <h3>Les parties</h3>
+  <p><strong>La caution :</strong> ${E(A.garant_nom||'—')}${A.garant_naissance?`, né(e) le ${E(A.garant_naissance)}`:''}${A.garant_adresse?`, demeurant ${E(A.garant_adresse)}`:''}${A.garant_email?` — ${E(A.garant_email)}`:''}.</p>
+  <p><strong>Le bailleur (créancier) :</strong> ${E(s.bailleur_nom||'—')}${s.bailleur_adresse?`, ${E(s.bailleur_adresse)}`:''}.</p>
+  <p><strong>Le locataire garanti (débiteur) :</strong> ${E(locNom())}.</p>
+  <h3>Le bail garanti</h3>
+  <p>Contrat de location ${E(s.type_bail==='vide'?'vide':'meublée')} à usage de résidence principale du logement situé <strong>${E(s.adresse||'—')}</strong>, prenant effet le ${fr(s.date_debut)}, conclu ${E(s.duree_txt?('pour une durée de '+s.duree_txt):'')}${s.reconduction_txt?`, reconduit tacitement par périodes ${E(s.reconduction_txt)}`:''}.</p>
+  <p>Loyer mensuel : <strong>${eur(s.loyer)}</strong> (${lettres(s.loyer)} euros) hors charges${s.charges>0?`, plus ${eur(s.charges)} (${lettres(s.charges)} euros) de provisions ou forfait de charges`:''}. Le loyer est révisable chaque année à la date anniversaire du bail selon la variation de l'indice de référence des loyers (IRL) publié par l'INSEE${s.irl_txt?` — ${E(s.irl_txt)}`:''}.</p>
+  ${c.commun?`<p><strong>Colocation :</strong> le bail est conclu avec ${c.nb} locataires${c.solidaire?', solidaires entre eux':''}. Le présent cautionnement garantit uniquement les obligations de <strong>${E(locNom())}</strong>${c.part?`, dans la limite de sa part (environ ${eur(c.part)} par mois, charges comprises)`:''}. ${c.solidaire?`Si ${E(locNom())} donne congé, l'engagement de la caution prend fin au plus tard six mois après la date d'effet de ce congé, ou plus tôt si un nouveau colocataire figure au bail (article 8-1 de la loi du 6 juillet 1989).`:''}</p>`:''}
+  <h3>Engagement</h3>
+  <p>La caution garantit le paiement des loyers, des charges récupérables, des indemnités d'occupation éventuelles et des réparations locatives dues par le locataire garanti, dans la limite d'un montant total de <strong>${eur(pl)}</strong> (${lettres(pl)} euros) en principal et accessoires, ${DUREES[A.duree]||DUREES.bail_2}.</p>
+  <p>${sol?`Cautionnement <strong>solidaire</strong> : la caution renonce aux bénéfices de discussion et de division ; le bailleur peut lui demander le paiement sans poursuivre d'abord le locataire.`:`Cautionnement <strong>simple</strong> : le bailleur doit d'abord poursuivre le locataire ; la caution ne paie qu'à défaut de paiement par celui-ci (bénéfice de discussion).`}</p>
+  ${A.duree==='indeterminee'?`<p>Engagement à durée indéterminée : la caution peut le résilier à tout moment ; la résiliation prend effet au terme du contrat de location (initial, reconduit ou renouvelé) en cours au moment où le bailleur la reçoit. La caution reste tenue des dettes nées avant cette date.</p>`:''}
+  <p>La caution reconnaît avoir reçu un exemplaire du contrat de location (article 22-1 de la loi du 6 juillet 1989).</p>
+  <h3>Mentions de la caution</h3>
+  <p style="font-size:.8rem;color:#5E6475">Précédant sa signature, la caution indique elle-même le montant du loyer et ses conditions de révision, la mention prévue à l'article 2297 du Code civil et sa connaissance de la nature et de l'étendue de son engagement.</p>
+  ${mentions?mentions.map(m=>`<div class="mention">« ${E(m)} »</div>`).join(''):'<p style="font-size:.84rem;color:#5E6475"><em>Les mentions sont saisies par la caution au moment de signer.</em></p>'}
+  ${final&&A.signature?`<h3>Signature de la caution</h3><p>Signé électroniquement par ${E(A.garant_nom)} le ${new Date(A.signed_at).toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'})}.</p><img src="${A.signature}" alt="Signature de la caution" style="max-height:110px;max-width:100%">`:''}`;
+}
+
+function preuve(){
+  return `<div class="card" style="font-size:.78rem;color:var(--td);word-break:break-all"><strong style="color:var(--txt)">Fichier de preuve</strong><br>
+    Signature électronique simple (règlement eIDAS) · signé le ${new Date(A.signed_at).toLocaleString('fr-FR')} · navigateur : ${E(A.signe_ua||'—')}<br>
+    Empreinte SHA-256 du document signé : ${E(A.empreinte||'—')} <span id="integ"></span></div>`;
+}
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+function render(){
+  const signe=A.statut==='signe';
+  document.getElementById('statut').innerHTML=signe?'<span class="badge" style="background:#DCFCE7;color:#166534">Signé</span>':A.statut==='annule'?'<span class="badge">Annulé</span>':'<span class="badge" style="background:#FEF3C7;color:#92400E">À signer</span>';
+  if(A.statut==='annule'){app.innerHTML='<div class="card">Cet acte a été annulé. Contactez le bailleur.</div>';return;}
+  if(signe){
+    app.innerHTML=`<div class="no-print" style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.8rem"><div><div class="eyebrow">Acte de cautionnement</div><h1 style="margin:0">Signé par ${E(A.garant_nom)}</h1></div><button class="btn sec" onclick="print()">Imprimer / PDF</button></div>
+      <div class="doc">${A.contenu||corps(true)}</div>${preuve()}`;
+    if(A.contenu)sha(A.contenu).then(h=>{const el=document.getElementById('integ');if(el)el.innerHTML=h===A.empreinte?'<span class="ok">✓ document intact</span>':'<span class="ko">✗ le document a été modifié</span>';});
+    return;
+  }
+  if(mode==='bailleur')return renderBailleur();
+  const[m1,m2,m3]=modeles();
+  app.innerHTML=`<div class="eyebrow">Acte de cautionnement</div><h1>${E(A.garant_nom||'Bonjour')}, vous vous portez caution de ${E(locNom())}</h1>
+  <p style="color:var(--td);margin-bottom:1rem">Lisez l'acte, recopiez les trois mentions, puis signez. Comptez 5 minutes.</p>
+  <div class="doc">${corps(false)}</div>
+  <div class="card">
+    ${A.snapshot?.bail_url?`<a class="btn sec" href="${E(A.snapshot.bail_url)}" target="_blank" rel="noopener" onclick="document.getElementById('bail-lu').disabled=false">Lire le bail (exemplaire de la caution) ↗</a>`:''}
+    <label class="chk"><input type="checkbox" id="bail-lu" ${A.snapshot?.bail_url?'disabled':''}> <span>J'ai reçu et lu un exemplaire du contrat de location.</span></label>
+  </div>
+  <div class="card">
+    <strong>Vos informations</strong>
+    <div class="row2"><div><label for="g-nom">Prénom et nom</label><input type="text" id="g-nom" value="${E(A.garant_nom||'')}" autocomplete="name"></div>
+      <div><label for="g-naiss">Date et lieu de naissance</label><input type="text" id="g-naiss" placeholder="12/03/1968 à Lyon" value="${E(A.garant_naissance||'')}"></div></div>
+    <label for="g-adr">Adresse</label><input type="text" id="g-adr" placeholder="12 rue …, 69002 Lyon" value="${E(A.garant_adresse||'')}" autocomplete="street-address">
+  </div>
+  <div class="card">
+    <strong>Les trois mentions, à taper vous-même</strong>
+    <p style="font-size:.8rem;color:var(--td);margin-top:.2rem">La loi exige que la caution les écrive elle-même : le copier-coller est désactivé. Majuscules, accents et ponctuation n'ont pas d'importance.</p>
+    ${[m1,m2,m3].map((m,i)=>`<label for="m${i}">${['1. Le loyer et sa révision','2. Votre engagement (article 2297 du Code civil)','3. Votre connaissance de l’engagement'][i]}</label>
+      <div class="modele">${E(m)}</div>
+      <textarea id="m${i}" oninput="verif()" onpaste="return false" ondrop="return false" autocomplete="off" spellcheck="false" aria-describedby="e${i}"></textarea><div class="etat" id="e${i}"></div>`).join('')}
+  </div>
+  <div class="card">
+    <label for="pad">Votre signature</label><canvas id="pad" class="pad" aria-label="Zone de signature"></canvas>
+    <button class="btn sec" style="margin-top:.4rem;padding:.4rem .8rem;font-size:.8rem" onclick="effacer()">Effacer</button>
+    <label class="chk"><input type="checkbox" id="accord"> <span>Je signe cet acte de cautionnement en connaissance de cause. Ma signature électronique a la même valeur qu'une signature manuscrite.</span></label>
+    <div id="err" class="err" role="alert"></div>
+    <button class="btn" id="go" style="width:100%;margin-top:1rem" onclick="signer()">Signer l'acte de cautionnement</button>
+    <p style="font-size:.72rem;color:var(--td);margin-top:.6rem">Signature électronique simple (eIDAS) : la date, l'heure, votre navigateur et l'empreinte du document sont conservés dans un fichier de preuve.</p>
+  </div>`;
+  initPad();verif();
+}
+function verif(){
+  const mods=modeles();let tout=true;
+  mods.forEach((m,i)=>{const t=document.getElementById('m'+i);if(!t)return;const v=t.value,ok=norm(v)===norm(m);if(!ok)tout=false;
+    document.getElementById('e'+i).innerHTML=!v?'':ok?'<span class="ok">✓ Mention correcte</span>':norm(m).startsWith(norm(v))?'<span style="color:var(--td)">… continuez</span>':'<span class="ko">Le texte ne correspond pas au modèle</span>';});
+  return tout;
+}
+function initPad(){
+  const c=document.getElementById('pad');if(!c)return;const r=c.getBoundingClientRect(),k=window.devicePixelRatio||1;
+  c.width=r.width*k;c.height=r.height*k;ctx=c.getContext('2d');ctx.scale(k,k);ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0F2D7A';vide=true;
+  let on=false;const pt=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top];};
+  c.onpointerdown=e=>{on=true;c.setPointerCapture(e.pointerId);const[x,y]=pt(e);ctx.beginPath();ctx.moveTo(x,y);};
+  c.onpointermove=e=>{if(!on)return;const[x,y]=pt(e);ctx.lineTo(x,y);ctx.stroke();vide=false;};
+  c.onpointerup=c.onpointercancel=()=>{on=false;};
+}
+function effacer(){const c=document.getElementById('pad');ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.restore();vide=true;}
+
+async function signer(){
+  const err=document.getElementById('err');err.textContent='';
+  const nom=document.getElementById('g-nom').value.trim(),naiss=document.getElementById('g-naiss').value.trim(),adr=document.getElementById('g-adr').value.trim();
+  if(!document.getElementById('bail-lu').checked){err.textContent='Lisez le bail puis cochez « J’ai reçu et lu un exemplaire du contrat de location ».';return;}
+  if(!nom||!naiss||!adr){err.textContent='Indiquez votre nom, votre date et lieu de naissance et votre adresse.';return;}
+  if(!verif()){err.textContent='Une des trois mentions ne correspond pas au modèle : corrigez-la.';return;}
+  if(vide){err.textContent='Dessinez votre signature dans le cadre.';return;}
+  if(!document.getElementById('accord').checked){err.textContent='Cochez la case pour confirmer votre signature.';return;}
+  const b=document.getElementById('go');b.disabled=true;b.textContent='Signature…';
+  // Relire l'acte juste avant de signer (le bailleur a pu le modifier)
+  const{data:cur}=await sb.from('actes_caution').select('*').eq('id',A.id).maybeSingle();
+  if(!cur||cur.statut==='signe'||cur.statut==='annule'){err.textContent='Cet acte n’est plus à signer.';b.disabled=false;b.textContent='Signer l’acte de cautionnement';return;}
+  if(cur.plafond!=A.plafond||cur.type!==A.type||cur.duree!==A.duree){A=cur;render();document.getElementById('err').textContent='Le bailleur vient de modifier l’acte : relisez-le et recopiez les mentions.';return;}
+  const mentions=[0,1,2].map(i=>document.getElementById('m'+i).value.trim());
+  const now=new Date().toISOString();
+  Object.assign(A,{garant_nom:nom,garant_naissance:naiss,garant_adresse:adr,mention:JSON.stringify(mentions),signature:document.getElementById('pad').toDataURL('image/png'),signed_at:now,signe_ua:navigator.userAgent.slice(0,160)});
+  const contenu=corps(true),empreinte=await sha(contenu);
+  const upd={garant_nom:nom,garant_naissance:naiss,garant_adresse:adr,mention:A.mention,signature:A.signature,signed_at:now,signe_ua:A.signe_ua,contenu,empreinte,statut:'signe'};
+  const{error}=await sb.from('actes_caution').update(upd).eq('id',A.id).neq('statut','signe');
+  if(error){err.textContent='Signature impossible : '+error.message;b.disabled=false;b.textContent='Signer l’acte de cautionnement';return;}
+  Object.assign(A,upd);
+  // Le bail sait que la caution a signé (même champs qu'avant : rien d'autre à changer côté bail)
+  try{
+    if(A.cle==='g:main')await sb.from('leases').update({garant_signed_at:now,garant_signature:A.signature}).eq('id',A.lease_id);
+    else{const{data:l}=await sb.from('leases').select('co_signers').eq('id',A.lease_id).single();let cs=l?.co_signers||{};if(typeof cs==='string')cs=JSON.parse(cs);cs[A.cle]={...(cs[A.cle]||{}),signed_at:now,signature:A.signature};await sb.from('leases').update({co_signers:cs}).eq('id',A.lease_id);}
+  }catch(e){}
+  for(const to of [A.landlord_id,A.tenant_id].filter(x=>x&&!String(x).includes('@')))try{await sb.from('messages').insert({listing_id:A.listing_id,sender_id:'system',receiver_id:to,type:'message',content:`${nom} a signé son acte de cautionnement pour ${locNom()}.`});}catch(e){}
+  render();
+}
+
+// ── Vue du bailleur : réglages avant signature ──
+function renderBailleur(){
+  const s=A.snapshot||{},base=Math.round((Number(s.colocation?.part)||((Number(s.loyer)||0)+(Number(s.charges)||0))));
+  const lien=location.origin+'/acte-caution.html?t='+A.token;
+  app.innerHTML=`<div class="eyebrow">Acte de cautionnement · vue du bailleur</div><h1>Caution de ${E(A.garant_nom||'—')} pour ${E(locNom())}</h1>
+  <div class="card">
+    <div class="row2">
+      <div><label for="b-type">Type de caution</label><select id="b-type"><option value="solidaire" ${A.type!=='simple'?'selected':''}>Solidaire</option><option value="simple" ${A.type==='simple'?'selected':''}>Simple</option></select></div>
+      <div><label for="b-duree">Durée de l'engagement</label><select id="b-duree">${Object.entries({bail_2:'Bail + 2 renouvellements',bail_1:'Bail + 1 renouvellement',bail:'Durée initiale du bail',indeterminee:'Indéterminée (résiliable)'}).map(([k,l])=>`<option value="${k}" ${A.duree===k?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <label for="b-plafond">Plafond de l'engagement (€)</label><input type="number" id="b-plafond" min="0" step="1" value="${Math.round(A.plafond||0)}">
+    <div style="font-size:.74rem;color:var(--td);margin-top:.25rem">Pour information : 36 mois de loyer charges comprises = ${eur(base*36)}. Le montant est écrit en lettres et en chiffres dans l'acte.</div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.9rem"><button class="btn" onclick="enregistrerBailleur()">Enregistrer</button><button class="btn sec" onclick="navigator.clipboard.writeText('${lien}').then(()=>alert('Lien copié'))">Copier le lien du garant</button></div>
+    <div id="b-msg" style="font-size:.8rem;margin-top:.5rem" role="status"></div>
+  </div>
+  <div class="doc">${corps(false)}</div>`;
+}
+async function enregistrerBailleur(){
+  const upd={type:document.getElementById('b-type').value,duree:document.getElementById('b-duree').value,plafond:Math.max(0,Math.round(Number(document.getElementById('b-plafond').value)||0))};
+  const{error}=await sb.from('actes_caution').update(upd).eq('id',A.id).neq('statut','signe');
+  const m=document.getElementById('b-msg');
+  if(error){m.innerHTML='<span class="ko">'+E(error.message)+'</span>';return;}
+  Object.assign(A,upd);render();document.getElementById('b-msg').innerHTML='<span class="ok">✓ Enregistré. Le garant verra la nouvelle version.</span>';
+}
+
+(async()=>{
+  let r=null;
+  if(TOK&&/^[A-Za-z0-9-]{12,80}$/.test(TOK)){r=await sb.from('actes_caution').select('*').eq('token',TOK).maybeSingle();mode='garant';}
+  else if(ID&&/^[0-9a-f-]{36}$/i.test(ID)){r=await sb.from('actes_caution').select('*').eq('id',ID).maybeSingle();mode=P.get('role')==='bailleur'?'bailleur':'lecture';}
+  A=r?.data||null;
+  if(!A){app.innerHTML='<div class="card">Ce lien n’est pas valable. Demandez-en un nouveau au bailleur.</div>';return;}
+  if(mode==='lecture'&&A.statut!=='signe'){app.innerHTML='<div class="card">L’acte de cautionnement n’est pas encore signé par la caution.</div>';return;}
+  render();
+})();
+</script>
+</body>
+</html>
