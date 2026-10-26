@@ -3900,7 +3900,7 @@ async function envoyerActes(force,seulement,sansEnvoi){
       locataire_nom:g.forName,garant_nom:g.nom,garant_email:g.email,snapshot:snap,token:g.token,statut:sansEnvoi?(ex?.statut||'brouillon'):'envoye',
       ...(ex?{}:{type:_cautionForm(),plafond:Math.round(base*36),duree:'bail_2'})};
     const{data,error}=await sb.from('actes_caution').upsert(row,{onConflict:'lease_id,cle'}).select().single();
-    if(error){toast(/actes_caution|relation|schema/i.test(error.message)?'Exécutez supabase-migration-acte-caution.sql dans Supabase.':'Acte de cautionnement : '+error.message,8000);return false;}
+    if(error){console.error('actes_caution',error);toast((/does not exist|schema cache|Could not find/i.test(error.message)?'Table des actes introuvable : exécutez supabase-migration-acte-caution.sql dans Supabase (SQL Editor). ':'')+'Détail : '+error.message,12000);return false;}
     const i=ACTES.findIndex(a=>a.cle===g.cle);if(i>=0)ACTES[i]=data;else ACTES.push(data);
     // Lien du garant vers le bail (lecture) = même jeton que son acte
     if(g.cle==='g:main'&&LEASE.garant_token!==g.token){try{await sb.from('leases').update({garant_token:g.token}).eq('id',LEASE.id);LEASE.garant_token=g.token;}catch(e){}}
