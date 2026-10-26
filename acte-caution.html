@@ -116,7 +116,7 @@ async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncod
 
 function render(){
   const signe=A.statut==='signe';
-  document.getElementById('statut').innerHTML=signe?'<span class="badge" style="background:#DCFCE7;color:#166534">Signé</span>':A.statut==='annule'?'<span class="badge">Annulé</span>':'<span class="badge" style="background:#FEF3C7;color:#92400E">À signer</span>';
+  document.getElementById('statut').innerHTML=A.statut==='brouillon'?'<span class="badge">Brouillon — pas encore envoyé</span>':signe?'<span class="badge" style="background:#DCFCE7;color:#166534">Signé</span>':A.statut==='annule'?'<span class="badge">Annulé</span>':'<span class="badge" style="background:#FEF3C7;color:#92400E">À signer</span>';
   if(A.statut==='annule'){app.innerHTML='<div class="card">Cet acte a été annulé. Contactez le bailleur.</div>';return;}
   if(signe){
     app.innerHTML=`<div class="no-print" style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.8rem"><div><div class="eyebrow">Acte de cautionnement</div><h1 style="margin:0">Signé par ${E(A.garant_nom)}</h1></div><button class="btn sec" onclick="print()">Imprimer / PDF</button></div>
@@ -125,6 +125,7 @@ function render(){
     return;
   }
   if(mode==='bailleur')return renderBailleur();
+  if(A.statut==='brouillon'){app.innerHTML='<div class="card">Cet acte n’a pas encore été envoyé par le bailleur. Vous recevrez un e-mail quand il sera prêt à signer.</div>';return;}
   const[m1,m2,m3]=modeles();
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement</div><h1>${E(A.garant_nom||'Bonjour')}, vous vous portez caution de ${E(locNom())}</h1>
   <p style="color:var(--td);margin-bottom:1rem">Lisez l'acte, recopiez les trois mentions, puis signez. Comptez 5 minutes.</p>
@@ -207,6 +208,7 @@ function renderBailleur(){
   const s=A.snapshot||{},base=Math.round((Number(s.colocation?.part)||((Number(s.loyer)||0)+(Number(s.charges)||0))));
   const lien=location.origin+'/acte-caution.html?t='+A.token;
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement · vue du bailleur</div><h1>Caution de ${E(A.garant_nom||'—')} pour ${E(locNom())}</h1>
+  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte part automatiquement au garant quand le modèle de bail est accepté. Vous pouvez déjà régler le plafond, la durée et le type.</p>':''}
   <div class="card">
     <div class="row2">
       <div><label for="b-type">Type de caution</label><select id="b-type"><option value="solidaire" ${A.type!=='simple'?'selected':''}>Solidaire</option><option value="simple" ${A.type==='simple'?'selected':''}>Simple</option></select></div>
