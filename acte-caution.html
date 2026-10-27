@@ -42,6 +42,8 @@ input:focus-visible,button:focus-visible,textarea:focus-visible,select:focus-vis
 @keyframes r{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.sp{animation:none}}
 @media (max-width:560px){.row2{grid-template-columns:1fr}.doc{padding:1.1rem 1rem}}
+/* Intégré sous le bail (iframe) */
+body.embed{background:transparent}body.embed .nav{display:none}body.embed .wrap{padding:0;max-width:none}body.embed h1{font-size:1.25rem}
 @media print{.nav,.no-print{display:none!important}body{background:#fff}.wrap{padding:0;max-width:none}.doc{border:none;padding:0}}
 </style>
 </head>
@@ -55,7 +57,11 @@ const sb=window.supabase.createClient(SU,SK,{auth:{persistSession:false}});
 const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const eur=n=>Math.round(Number(n)||0).toLocaleString('fr-FR')+' €';
 const fr=d=>d?new Date(String(d).length===10?d+'T12:00:00':d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
-const P=new URLSearchParams(location.search),TOK=P.get('t'),ID=P.get('id');
+const P=new URLSearchParams(location.search),TOK=P.get('t'),ID=P.get('id'),EMBED=P.get('embed')==='1';
+if(EMBED){document.body.classList.add('embed');
+  // La page du bail ajuste la hauteur du cadre à son contenu
+  const _h=()=>{try{parent.postMessage({acteCaution:true,h:document.documentElement.scrollHeight,id:A?.id||null},'*');}catch(e){}};
+  new ResizeObserver(_h).observe(document.body);window.addEventListener('load',_h);}
 const app=document.getElementById('app');
 let A=null,mode='garant',vide=true,ctx=null;
 
@@ -125,7 +131,8 @@ function render(){
     return;
   }
   if(mode==='bailleur')return renderBailleur();
-  if(A.statut==='brouillon'){app.innerHTML='<div class="card">Cet acte n’a pas encore été envoyé par le bailleur. Vous recevrez un e-mail quand il sera prêt à signer.</div>';return;}
+  if(mode==='lecture'){app.innerHTML=`<div class="card" style="font-size:.84rem;color:var(--td)">${A.statut==='brouillon'?'Brouillon : envoyé au garant quand le modèle de bail est accepté.':'En attente de la signature de '+E(A.garant_nom||'la caution')+'.'} Les mentions et la signature apparaîtront ici une fois l’acte signé.</div><div class="doc">${corps(false)}</div>`;return;}
+  if(A.statut==='brouillon'){app.innerHTML='<div class="card">Votre acte de cautionnement sera prêt à signer dès que le bail sera validé par le bailleur et le locataire. Vous recevrez un e-mail à ce moment-là.</div>';return;}
   const[m1,m2,m3]=modeles();
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement</div><h1>${E(A.garant_nom||'Bonjour')}, vous vous portez caution de ${E(locNom())}</h1>
   <p style="color:var(--td);margin-bottom:1rem">Lisez l'acte, recopiez les trois mentions, puis signez. Comptez 5 minutes.</p>
@@ -199,6 +206,7 @@ async function signer(){
     if(A.cle==='g:main')await sb.from('leases').update({garant_signed_at:now,garant_signature:A.signature}).eq('id',A.lease_id);
     else{const{data:l}=await sb.from('leases').select('co_signers').eq('id',A.lease_id).single();let cs=l?.co_signers||{};if(typeof cs==='string')cs=JSON.parse(cs);cs[A.cle]={...(cs[A.cle]||{}),signed_at:now,signature:A.signature};await sb.from('leases').update({co_signers:cs}).eq('id',A.lease_id);}
   }catch(e){}
+  if(EMBED)try{parent.postMessage({acteCaution:true,signe:true,id:A.id},'*');}catch(e){}
   for(const to of [A.landlord_id,A.tenant_id].filter(x=>x&&!String(x).includes('@')))try{await sb.from('messages').insert({listing_id:A.listing_id,sender_id:'system',receiver_id:to,type:'message',content:`${nom} a signé son acte de cautionnement pour ${locNom()}.`});}catch(e){}
   render();
 }
@@ -235,7 +243,12 @@ async function enregistrerBailleur(){
   else if(ID&&/^[0-9a-f-]{36}$/i.test(ID)){r=await sb.from('actes_caution').select('*').eq('id',ID).maybeSingle();mode=P.get('role')==='bailleur'?'bailleur':'lecture';}
   A=r?.data||null;
   if(!A){app.innerHTML='<div class="card">Ce lien n’est pas valable. Demandez-en un nouveau au bailleur.</div>';return;}
-  if(mode==='lecture'&&A.statut!=='signe'){app.innerHTML='<div class="card">L’acte de cautionnement n’est pas encore signé par la caution.</div>';return;}
+  // Le garant ne signe que sur un bail validé (loyer, charges et date définitifs)
+  if(mode==='garant'&&A.statut!=='signe'&&A.statut!=='brouillon'){
+    try{const{data:l}=await sb.from('leases').select('negotiation_status').eq('id',A.lease_id).maybeSingle();
+      if(l&&l.negotiation_status&&!['agreed','signed'].includes(l.negotiation_status)){document.getElementById('statut').innerHTML='<span class="badge">Bail en cours de modification</span>';app.innerHTML='<div class="card">Le bail est en cours de modification entre le bailleur et le locataire. Vous pourrez signer votre acte dès qu’il sera de nouveau validé : vous recevrez un e-mail.</div>';return;}}catch(e){}
+  }
+  if(mode==='lecture'&&A.statut!=='signe'&&!EMBED){app.innerHTML='<div class="card">L’acte de cautionnement n’est pas encore signé par la caution.</div>';return;}
   render();
 })();
 </script>
