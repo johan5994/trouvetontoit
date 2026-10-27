@@ -363,6 +363,25 @@
   .wz-page h2{font-size:1.3rem;margin:.6rem 0 .2rem;text-wrap:balance}
   .wz-desc{font-size:.86rem;color:#6B7280;margin:0 0 1rem}
   .wz-f{margin-bottom:.9rem}
+  .wz-grp{margin:0 0 1.2rem}
+  .wz-grp-t{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin:0 0 .55rem;padding-bottom:.35rem;border-bottom:1px solid #F3F4F6}
+  .wz-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:.9rem}
+  .wz-grille .wz-large{grid-column:1/-1}
+  .wz-lignes{border:1px solid #EEF0F3;border-radius:12px;background:#FAFBFC;padding:.15rem .85rem;margin-bottom:.6rem}
+  .wz-ligne{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-bottom:1px solid #EEF0F3;font-size:.86rem}
+  .wz-ligne:last-child{border-bottom:none}
+  .wz-l-lbl{color:#6B7280;flex:0 0 42%}
+  .wz-l-val{flex:1;font-weight:600;min-width:0;overflow-wrap:anywhere}
+  .wz-l-mod{background:none;border:none;color:var(--bleu);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0}
+  .wz-cases{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.6rem}
+  .wz-case{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid #D1D5DB;border-radius:10px;padding:.45rem .8rem;font-size:.84rem;font-weight:600;cursor:pointer;background:#fff}
+  .wz-case input{accent-color:var(--bleu);margin:0}
+  .wz-case.on{border-color:var(--bleu);background:#EEF2FF;color:var(--bleu)}
+  .wz-case:focus-within{outline:2px solid var(--bleu);outline-offset:2px}
+  .wz-det{background:#F8FAFF;border:1px solid #E0E7FF;border-radius:10px;padding:.7rem .8rem .1rem;margin:.2rem 0 .7rem}
+  .wz-plus{border:1px dashed #D1D5DB;border-radius:10px;padding:.6rem .8rem;margin-top:.4rem}
+  .wz-plus summary{cursor:pointer;font-size:.82rem;font-weight:600;color:var(--bleu)}
+  @media (max-width:600px){.wz-l-lbl{flex-basis:45%}}
   .wz-f>label{display:block;font-size:.82rem;font-weight:700;margin-bottom:.3rem}
   .wz-in{width:100%;padding:.6rem .75rem;border:1px solid #D1D5DB;border-radius:10px;font-size:.92rem;font-family:inherit;background:#fff;color:inherit}
   .wz-in:focus-visible,.wz-btn:focus-visible,.wz-pill:focus-visible,.wz-dot:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
@@ -1552,6 +1571,8 @@ async function saveField(key,value){
   if(String(value??'')===String(LEASE[key]??''))return;
   const old=LEASE[key];
   const upd={[key]:value};
+  // Date de fin jamais saisie : début + durée légale (reconduction tacite ensuite)
+  if(key==='start_date'&&value){const d=new Date(value);d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);upd.end_date=d.toISOString().slice(0,10);}
   if(FIELD_LABELS[key]){
     const entry={par:'landlord',date:new Date().toISOString(),champs:[{cle:key,label:FIELD_LABELS[key],ancien:old??null,nouveau:value??null}],note:null};
     const newLog=[...(LEASE.modifs_log||[]),entry];
@@ -1571,7 +1592,7 @@ async function saveField(key,value){
     }
     return;
   }
-  LEASE[key]=value;
+  LEASE[key]=value;if(upd.end_date)LEASE.end_date=upd.end_date;
   toast('<i data-lucide=check-circle-2 class=ic></i> '+(FIELD_LABELS[key]||key)+' enregistré');
   renderBail();
 }
@@ -3922,7 +3943,7 @@ const WZ_STEPS=[
   {t:'Les parties',d:'Vérifiez les coordonnées du bailleur et du locataire telles qu’elles figureront dans le bail.',k:['landlord_name','landlord_address','landlord_email','landlord_phone','tenant_name','tenant_address','tenant_email','tenant_phone','tenant_nationality']},
   {t:'Le logement',d:'Description du logement loué.',k:['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['usage']},
   {t:'Annexes et équipements',d:'Cave, stationnement, parties communes et télécoms.',k:['dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres','commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres']},
-  {t:'Dates',d:'Entrée dans les lieux et échéance du loyer.',k:['start_date','end_date','payment_due_day']},
+  {t:'Dates',d:'La date de fin est calculée d’après la durée légale ; modifiez-la seulement si besoin.',k:['start_date','end_date','payment_due_day']},
   {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
   {t:'Dépôt de garantie',d:'Montant demandé au locataire à l’entrée.',k:['deposit_mode','deposit']},
   {t:'Garantie',d:'Garant du locataire (son acte de cautionnement se signe à part).',k:['garant_name','garant_email','garant_phone','garant_address','garant_type','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
@@ -3944,7 +3965,7 @@ function _wzSteps(){
   return WZ_STEPS.map(s=>{
     const keys=s.k==='reste'?[...present].filter(k=>!pris.has(k)):(s.k||[]).filter(k=>present.has(k));
     const sp=(s.sp||[]).filter(x=>x==='caution'?(()=>{try{return bailChoices(LEASE).physique;}catch(e){return false;}})():x==='lot'?!!document.querySelector('[onclick*="renameLot("]'):x==='zone'?!!document.querySelector('[onclick*="setZoneTendue("]'):x==='usage'?!!document.querySelector('[onclick*="usage_locaux"]'):x==='annexes'?(window._annexesManquantes||[]).length>0||!!document.querySelector('#annexes-list [onchange*="uploadDoc("]'):true);
-    return{...s,keys,sp,manque:keys.filter(k=>manque.has(k))};
+    return{...s,keys,sp,manque:keys.filter(k=>manque.has(k)&&!WZ_FACULTATIF.has(k))};
   }).filter(s=>s.recap||s.keys.length||s.sp.length);
 }
 // Valeur reprise de l'annonce quand le bail ne l'a pas encore (pré-remplissage du tunnel)
@@ -3965,13 +3986,24 @@ function _bailDefaut(key){
     case 'mode_ecs':return Li.ecs_type==='collectif'?'Collectif (immeuble)':Li.ecs_type==='individuel'?({electrique:'Chauffe-eau électrique individuel',gaz:'Chauffe-eau gaz individuel'}[Li.ecs_energie]||null):null;
     case 'dpe_energy_rating':return Li.dpe||null;
     case 'dpe_ges_rating':return Li.ges||null;
-    case 'diag_amiante':case 'diag_plomb':case 'diag_elec':case 'diag_gaz':case 'diag_erp':case 'diag_bruit':return Li[key]||null;
+    case 'diag_amiante':case 'diag_plomb':{if(Li[key])return Li[key];const a=n(LEASE?.annee_construction)||n(Li.annee_construction);
+      return a&&a>=(key==='diag_amiante'?1997:1949)?'na':null;}
+    case 'diag_elec':case 'diag_gaz':case 'diag_erp':case 'diag_bruit':return Li[key]||null;
     case 'loyer_ref':return n(Li.loyer_reference);
     case 'loyer_ref_majore':return n(Li.loyer_reference_majore);
     case 'charges':return n(Li.charges_mensuelles);
     case 'rent':{const p=n(Li.price);return p==null?null:Math.max(0,p-(n(Li.charges_mensuelles)||0));}
     case 'deposit':return n(Li.depot);
+    case 'end_date':{if(!LEASE?.start_date)return null;const d=new Date(LEASE.start_date);d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
   }
+  // Annexes cochées dans l'annonce
+  const ann=String(Li.annexes||'').split(',').filter(Boolean),on=x=>x?'oui':null;
+  if(key==='dep_cave')return on(ann.includes('cave'));
+  if(key==='dep_parking')return on(ann.includes('parking')||ann.includes('parking_souterrain'));
+  if(key==='dep_garage')return on(ann.includes('box_garage'));
+  if(key==='dep_balcon')return on(Li.balcon);
+  if(key==='commun_ascenseur')return Li.ascenseur==='oui'||Li.ascenseur==='non'?Li.ascenseur:null;
+  if(key==='parking_type'&&ann.includes('parking_souterrain'))return'Emplacement souterrain';
   return null;
 }
 function _wzVal(key){
@@ -3985,7 +4017,7 @@ function _wzVal(key){
   if(!v){const d=_bailDefaut(key);if(d!=null)v=d;}
   return String(v??'');
 }
-function _wzChamp(key,manque){
+function _wzChamp(key,manque,sansGrille){
   const cfg=FIELD_CONFIGS[key]||{type:'text'},lbl=FIELD_LABELS[key]||key,cur=_wzVal(key),id='wz-'+key;
   const esc=x=>String(x??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   let input;
@@ -4000,12 +4032,92 @@ function _wzChamp(key,manque){
     input=`<label class="wz-chk"><input type="checkbox" id="${id}-aucun" ${aucun?'checked':''} onchange="document.getElementById('${id}').disabled=this.checked"> Aucuns travaux à déclarer</label><textarea id="${id}" class="wz-in" rows="3" ${aucun?'disabled':''} placeholder="${esc(cfg.placeholder||'')}">${aucun?'':esc(cur)}</textarea>`;
   }else{
     const extra=[cfg.min!=null?`min="${cfg.min}"`:'',cfg.max!=null?`max="${cfg.max}"`:'',cfg.step!=null?`step="${cfg.step}"`:'',cfg.maxlength?`maxlength="${cfg.maxlength}"`:'',cfg.placeholder?`placeholder="${esc(cfg.placeholder)}"`:''].join(' ');
-    input=`<input type="${cfg.type||'text'}" id="${id}" class="wz-in" value="${esc(cur)}" ${extra}>`;
+    input=`<input type="${cfg.type||'text'}" id="${id}" class="wz-in" value="${esc(cur)}" ${extra}${key==='start_date'?' oninput="_wzFinAuto(this.value)"':''}>`;
   }
-  return`<div class="wz-f${manque?' wz-manque':''}"><label for="${id}">${esc(lbl)}${manque?' <span class="wz-tag">à compléter</span>':''}</label>${input}</div>`;
+  const large=cfg.type==='travaux'||/address|_autres|_details|justif|nature/.test(key)||(cfg.type==='select'&&cfg.options.length<=3);
+  return`<div class="wz-f${manque?' wz-manque':''}${large?' wz-large':''}"><label for="${id}">${esc(lbl)}${manque?' <span class="wz-tag">à compléter</span>':''}</label>${input}</div>`;
+}
+// ── Présentation : groupes, champs facultatifs repliés, champs déjà remplis en lecture ──
+const WZ_GROUPES=[
+  ['Bailleur',/^landlord_/],['Locataire',/^tenant_/],
+  ['Adresse',/^(prop_address|numero_lot|numero_fiscal)$/],['Caractéristiques',/^(prop_type|prop_pieces|prop_etage|surface_boutin|annee_construction|regime_copro)$/],['Chauffage et eau chaude',/^mode_/],
+  ['Loyer',/^(rent|charges)$/],['Encadrement des loyers',/^(loyer_ref|loyer_ref_majore|complement_)/],['Précédent locataire',/^(premiere_mise_en_location|dernier_)/],
+  ['Performance énergétique',/^dpe_/],['Autres diagnostics',/^diag_/],
+];
+const WZ_FACULTATIF=new Set(['numero_lot','dep_autres','commun_autres','telecom_autres','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','garant_pro','garant_birth_date','garant_birth_place','tenant_nationality','complement_justif']);
+// Annexes : cases à cocher (oui/non) + précisions affichées seulement si coché
+const WZ_CASES=[
+  ['Annexes privatives',['dep_cave','dep_parking','dep_garage','dep_balcon','dep_terrasse','dep_jardin']],
+  ['Parties communes',['commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie']],
+  ['Télécoms',['telecom_fibre','telecom_prise_tv','telecom_internet_fourni']],
+];
+const WZ_DETAILS={dep_cave:['dep_cave_numero','cave_details'],dep_parking:['parking_type','parking_details'],dep_garage:['box_details']};
+const _WZ_COURTS={dep_parking:'Parking',dep_garage:'Garage',telecom_fibre:'Fibre optique',telecom_internet_fourni:'Internet fourni'};
+let _wzOuverts=new Set();
+function _wzAffiche(key){
+  const cfg=FIELD_CONFIGS[key]||{},v=_wzVal(key);if(!v)return'';
+  if(cfg.type==='select'){const o=(cfg.options||[]).find(o=>String(typeof o==='object'?o.v:o)===v);return o?(typeof o==='object'?o.l:o):v;}
+  if(cfg.type==='date'){try{return fmtDate(v);}catch(e){return v;}}
+  if(cfg.type==='travaux'&&v==='aucun')return'Aucuns travaux';
+  if(key==='rent'||key==='charges'||key==='deposit'||key==='garant_montant')return v+' €';
+  if(key==='surface_boutin')return v+' m²';
+  return v;
+}
+function _wzLigne(key){
+  const esc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  return`<div class="wz-ligne"><span class="wz-l-lbl">${esc(FIELD_LABELS[key]||key)}</span><span class="wz-l-val">${esc(_wzAffiche(key))}</span><button type="button" class="wz-l-mod" onclick="_wzOuvrirChamp(this,'${key}')">Modifier</button></div>`;
+}
+function _wzOuvrirChamp(btn,key){
+  _wzOuverts.add(key);const l=btn.closest('.wz-ligne');if(!l)return;
+  const box=l.parentElement,w=document.createElement('div');w.className='wz-grille';w.innerHTML=_wzChamp(key,false);
+  box.parentElement.insertBefore(w,box);l.remove();if(!box.children.length)box.remove();
+  w.querySelector('input:not([type=hidden]),select,textarea')?.focus();
+}
+function _wzCases(keys){
+  const out=[];
+  WZ_CASES.forEach(([titre,ks])=>{
+    const ici=ks.filter(k=>keys.includes(k));if(!ici.length)return;
+    out.push(`<div class="wz-grp"><div class="wz-grp-t">${titre}</div><div class="wz-cases">${ici.map(k=>{const on=_wzVal(k)==='oui';
+      return`<label class="wz-case${on?' on':''}"><input type="checkbox" id="wz-${k}" ${on?'checked':''} onchange="this.parentElement.classList.toggle('on',this.checked);const d=document.getElementById('wzd-${k}');if(d)d.hidden=!this.checked">${_WZ_COURTS[k]||FIELD_LABELS[k]||k}</label>`;}).join('')}</div>
+      ${ici.filter(k=>WZ_DETAILS[k]).map(k=>{const det=WZ_DETAILS[k].filter(d=>keys.includes(d));return det.length?`<div id="wzd-${k}" class="wz-det" ${_wzVal(k)==='oui'?'':'hidden'}><div class="wz-grp-t" style="margin-top:.2rem">${_WZ_COURTS[k]||FIELD_LABELS[k]} — précisions</div>${det.map(d=>_wzChamp(d,false,true)).join('')}</div>`:'';}).join('')}</div>`);
+  });
+  return out.join('');
+}
+function _wzCorps(s){
+  const casesK=WZ_CASES.flatMap(x=>x[1]),detK=Object.values(WZ_DETAILS).flat();
+  const aCases=s.keys.some(k=>casesK.includes(k));
+  let keys=s.keys.filter(k=>!(aCases&&(casesK.includes(k)||detK.includes(k))));
+  const fac=keys.filter(k=>WZ_FACULTATIF.has(k)&&!_wzVal(k)&&!s.manque.includes(k)&&!_wzOuverts.has(k));
+  keys=keys.filter(k=>!fac.includes(k));
+  // Groupes dans l'ordre de l'étape
+  const grp=new Map();
+  keys.forEach(k=>{const g=(WZ_GROUPES.find(([,re])=>re.test(k))||[''])[0];if(!grp.has(g))grp.set(g,[]);grp.get(g).push(k);});
+  const bloc=ks=>{
+    const aRemplir=ks.filter(k=>s.manque.includes(k)||!_wzVal(k)||_wzOuverts.has(k)||(FIELD_CONFIGS[k]?.type==='select'&&FIELD_CONFIGS[k].options.length<=3));
+    const faits=ks.filter(k=>!aRemplir.includes(k));
+    // Ordre conservé : les champs remplis consécutifs forment un encadré de lignes
+    let h='',run=[],mode=null;
+    const flush=()=>{if(!run.length)return;h+=mode==='f'?`<div class="wz-lignes">${run.map(_wzLigne).join('')}</div>`:`<div class="wz-grille">${run.map(k=>_wzChamp(k,s.manque.includes(k))).join('')}</div>`;run=[];};
+    ks.forEach(k=>{const m=faits.includes(k)?'f':'i';if(m!==mode){flush();mode=m;}run.push(k);});flush();
+    return h;
+  };
+  const apres=['annexes'];
+  let h=s.sp.filter(x=>!apres.includes(x)).map(_wzSpecial).join('');
+  if(aCases)h+=_wzCases(s.keys);
+  const multi=grp.size>1;
+  grp.forEach((ks,g)=>{h+=`<div class="wz-grp">${multi&&g?`<div class="wz-grp-t">${g}</div>`:''}${bloc(ks)}</div>`;});
+  h+=s.sp.filter(x=>apres.includes(x)).map(_wzSpecial).join('');
+  if(fac.length)h+=`<details class="wz-plus"><summary>Ajouter des précisions (facultatif)</summary><div class="wz-grille" style="margin-top:.7rem">${fac.map(k=>_wzChamp(k,false)).join('')}</div></details>`;
+  return h;
+}
+// Date de fin pré-calculée qui suit la date d'entrée dans le tunnel
+function _wzFinAuto(v){
+  const f=document.getElementById('wz-end_date');if(!f||!v)return;
+  const d=new Date(v);if(isNaN(d))return;d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);f.value=d.toISOString().slice(0,10);
 }
 function _wzLire(key){
   const cfg=FIELD_CONFIGS[key]||{},el=document.getElementById('wz-'+key);if(!el)return undefined;
+  if(el.type==='checkbox')return el.checked?'oui':'non';
   if(cfg.type==='travaux'&&document.getElementById('wz-'+key+'-aucun')?.checked)return'aucun';
   let v=String(el.value??'').trim();
   if(v==='')return null;
@@ -4048,7 +4160,7 @@ function wzOuvrir(i){
   _wzStep=i||0;document.body.classList.add('bail-tunnel');wzRender();
 }
 function wzFermer(){document.body.classList.remove('bail-tunnel');const el=q('wz');if(el)el.innerHTML='';renderBail();window.scrollTo(0,0);}
-function wzRender(){
+function wzRender(garderScroll){
   const el=q('wz');if(!el)return;
   const S=_wzSteps();_wzStep=Math.max(0,Math.min(_wzStep,S.length-1));
   const s=S[_wzStep];
@@ -4065,7 +4177,7 @@ function wzRender(){
       </div>
       <p class="wz-aide" style="margin-top:.8rem">Le locataire relit le bail et peut demander des modifications. Une fois le bail accepté, les garants reçoivent leur acte de cautionnement et les signatures s’ouvrent.</p>`;
   }else{
-    corps=s.sp.map(_wzSpecial).join('')+s.keys.map(k=>_wzChamp(k,s.manque.includes(k))).join('');
+    corps=_wzCorps(s);
   }
   el.innerHTML=`<div class="wz-page">
     <div class="wz-top"><div class="wz-eyebrow">Préparer le bail · étape ${_wzStep+1} sur ${S.length}</div><button type="button" class="wz-x" onclick="wzFermer()">Voir le bail complet</button></div>
@@ -4075,16 +4187,20 @@ function wzRender(){
     <div class="wz-nav">${_wzStep>0?'<button type="button" class="wz-btn sec" onclick="wzPrec()">← Retour</button>':'<span></span>'}${s.recap?'':'<button type="button" class="wz-btn" id="wz-suiv" onclick="wzSuiv()">Suivant →</button>'}</div>
   </div>`;
   if(window.lucide)lucide.createIcons();
-  window.scrollTo(0,0);
+  if(!garderScroll)window.scrollTo(0,0);
 }
 async function _wzEnregistrer(){
   const S=_wzSteps(),s=S[_wzStep];if(!s||s.recap)return true;
   const b=q('wz-suiv');if(b){b.disabled=true;b.textContent='Enregistrement…';}
-  for(const k of s.keys){
+  const ordre=[...s.keys].sort((a,b)=>(a==='end_date')-(b==='end_date'));
+  for(const k of ordre){
+    const parent=Object.keys(WZ_DETAILS).find(p=>WZ_DETAILS[p].includes(k));
+    if(parent&&document.getElementById('wz-'+parent)?.checked===false)continue;
     const v=_wzLire(k);if(v===undefined)continue;
     const brut=(LL_PROFILE_MAP&&LL_PROFILE_MAP[k])||(T_PROFILE_MAP&&T_PROFILE_MAP[k])?_wzVal(k):(LEASE[k]!=null?String(LEASE[k]):'');
     if(String(v??'')===brut)continue;
     if(v===null&&!brut)continue;
+    if(k==='end_date'&&v===LEASE.end_date)continue;
     if(k==='zone_tendue'&&v!=null)await setZoneTendue(v);else await saveField(k,v);
   }
   return true;
@@ -4096,10 +4212,10 @@ async function wzSuiv(){
   const apres=_wzSteps().find(x=>x.t===avant.t);
   const nouveaux=apres?apres.keys.filter(k=>!avant.keys.includes(k)):[];
   if(nouveaux.length){wzRender();toast('Complétez les nouvelles informations de cette étape.');return;}
-  _wzStep++;wzRender();
+  _wzOuverts.clear();_wzStep++;wzRender();
 }
-async function wzPrec(){await _wzEnregistrer();_wzStep--;wzRender();}
-async function wzAller(i){await _wzEnregistrer();_wzStep=i;wzRender();}
+async function wzPrec(){await _wzEnregistrer();_wzOuverts.clear();_wzStep--;wzRender();}
+async function wzAller(i){await _wzEnregistrer();_wzOuverts.clear();_wzStep=i;wzRender();}
 // Ouverture automatique : bail en brouillon jamais envoyé, côté bailleur (après le choix du modèle de colocation)
 function wzAuto(){
   if(_wzOuvertAuto||!_editMode||myRole!=='landlord')return;
