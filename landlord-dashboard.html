@@ -19,7 +19,19 @@
   // Les liens (bail, état des lieux…) s'ouvrent en pleine page, pas dans le cadre
   if(window.EMBED_AGENCE)document.write('<base target="_top">');
 </script>
-<style>html.embed .sb,html.embed .topbar,html.embed #mob-menu{display:none!important}html.embed .main{margin-left:0!important}</style>
+<style>html.embed .sb,html.embed .topbar,html.embed #mob-menu{display:none!important}html.embed .main{margin-left:0!important}  .bpx{background:var(--s,#fff);border:1px solid var(--b,#E5E7EB);border-radius:10px;padding:.65rem .75rem}
+  .bpx-steps{display:flex;align-items:center;gap:.3rem;overflow-x:auto;padding-bottom:.1rem}
+  .bpx-s{display:flex;align-items:center;gap:.3rem;flex-shrink:0;font-size:.7rem;color:var(--td);font-weight:600}
+  .bpx-d{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--b2,#D1D5DB);display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;background:var(--s,#fff)}
+  .bpx-s.bpx-ok{color:var(--green)}.bpx-s.bpx-ok .bpx-d{background:var(--green);border-color:var(--green);color:#fff}
+  .bpx-s.bpx-on{color:var(--bleu)}.bpx-s.bpx-on .bpx-d{background:var(--bleu);border-color:var(--bleu);color:#fff}
+  .bpx-s:not(.bpx-on) .bpx-l{display:none}
+  @media(min-width:520px){.bpx-s .bpx-l{display:inline!important}}
+  .bpx-sep{flex:1 1 10px;min-width:8px;height:1.5px;background:var(--b2,#E5E7EB)}
+  .bpx-now{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.55rem;font-size:.76rem;line-height:1.45;color:var(--txt)}
+  .bpx-btn{background:var(--bleu);color:#fff!important;text-decoration:none;border-radius:8px;padding:.4rem .8rem;font-size:.74rem;font-weight:700;white-space:nowrap}
+  .bpx-btn.bpx-sec{background:transparent;color:var(--bleu)!important;border:1px solid var(--bleu)}
+</style>
 <style>
 :root{--bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--bleu:#1B4FD8;--tdim:rgba(224,90,58,.15);--gold:#E8A020;--gdim:rgba(212,168,71,.12);--sea:#3A8FB5;--sdim:rgba(58,143,181,.12);--green:#4CAF7D;--grdim:rgba(76,175,125,.12);--red:#E05A5A;--rdim:rgba(224,90,90,.12);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)}
 html.light{--bg:#F7F5F1;--s:#FFFFFF;--s2:#F0EDE6;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);--bleu:#1B4FD8;--tdim:rgba(201,85,58,.1);--gold:#B8862F;--gdim:rgba(184,134,47,.1);--marine:#0F2D7A;--sdim:rgba(46,107,138,.1);--green:#3D8F63;--grdim:rgba(61,143,99,.1);--red:#1B4FD8;--rdim:rgba(201,85,58,.1);--txt:#1A1410;--tm:rgba(26,20,16,.59);--td:rgba(26,20,16,.56)}
@@ -1481,6 +1493,7 @@ async function loadApplicationsPageLL(){
     }
     wrap.innerHTML=html;
     window.lucide&&lucide.createIcons();
+    loadActesLL();
     focusAppCard();
 
   }catch(e){
@@ -4281,6 +4294,26 @@ async function propriétaireEdlSelfDecision(bookingId,wantsIt){
   }catch(e){toast('<i data-lucide=x-circle class=ic></i> '+e.message);}
 }
 
+// ═══ Actes de cautionnement (table actes_caution) : affichés sous chaque bail dans les candidatures ═══
+async function loadActesLL(){
+  const els=[...document.querySelectorAll('.actes-ll[data-lease]:not([data-ok])')];if(!els.length)return;
+  const ids=[...new Set(els.map(e=>e.dataset.lease))];
+  let rows=[];try{const{data,error}=await sb.from('actes_caution').select('id,lease_id,cle,garant_nom,locataire_nom,statut,envoye_at,signed_at,plafond,type').in('lease_id',ids);if(error)return;rows=data||[];}catch(e){return;}
+  const fd=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+  els.forEach(el=>{el.dataset.ok='1';
+    const a=rows.filter(r=>r.lease_id===el.dataset.lease);if(!a.length)return;
+    el.innerHTML=`<div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem">${a.map(r=>{
+      const st=r.statut==='signe'?['var(--green)','check-circle-2','Signé le '+fd(r.signed_at)]:r.statut==='envoye'?['var(--gold)','hourglass','Envoyé'+(r.envoye_at?' le '+fd(r.envoye_at):'')+' — à signer']:r.statut==='annule'?['var(--td)','x-circle','Annulé']:['var(--td)','file-pen','Brouillon — envoyé quand le bail est validé'];
+      return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;background:rgba(180,83,9,.06);border:1px solid rgba(180,83,9,.2);border-radius:8px;padding:.4rem .6rem">
+        <span style="font-size:.76rem"><i data-lucide=file-signature class=ic></i> Acte de cautionnement — <strong>${r.garant_nom||'garant'}</strong>${r.locataire_nom?` <span style="color:var(--td)">(caution de ${r.locataire_nom}${r.plafond?' · plafond '+fmtEur(r.plafond):''})</span>`:''}</span>
+        <span style="display:flex;align-items:center;gap:.6rem"><span style="font-size:.72rem;font-weight:600;color:${st[0]}"><i data-lucide=${st[1]} class=ic></i> ${st[2]}</span>
+          <a href="/acte-caution.html?id=${r.id}${r.statut==='signe'?'':'&role=bailleur'}" target="_blank" rel="noopener" style="font-size:.72rem;font-weight:700;color:var(--bleu);text-decoration:none">${r.statut==='signe'?'Voir l\'acte →':'Voir / régler →'}</a></span>
+      </div>`;}).join('')}</div>`;
+  });
+  if(window.lucide)lucide.createIcons();
+}
+// Charger les actes dès qu'un bloc apparaît (candidatures, biens loués…)
+(()=>{let t=null;new MutationObserver(()=>{if(t)return;t=setTimeout(()=>{t=null;if(document.querySelector('.actes-ll[data-lease]:not([data-ok])'))loadActesLL();},150);}).observe(document.documentElement,{childList:true,subtree:true});})();
 // ═══ Location par chambre : un bail par locataire, suivi séparé (bail, signatures, 1er paiement) ═══
 function renderIndivLeasesLL(g,bk){
   let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){}
@@ -4316,6 +4349,7 @@ function renderIndivLeasesLL(g,bk){
           <a href="/bail-meuble.html?lease_id=${l.id}&role=landlord" style="font-size:.72rem;font-weight:700;color:var(--bleu);text-decoration:none">Ouvrir ce bail →</a></div>
       </div>
       <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.4rem">${chip(!!l.landlord_signed_at,'Vous')}${chip(!!l.tenant_signed_at,l._name)}${l.garant_name?chip(!!l.garant_signed_at,'Garant '+l.garant_name):''}</div>
+      ${l.id?`<div class="actes-ll" data-lease="${l.id}"></div>`:''}
       ${pay}
     </div>`;
   }).join('');
@@ -4699,6 +4733,36 @@ function gFiscalCSV(annee){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download=`recap-fiscal-${annee}.csv`;a.click();
 }
 
+// Parcours du bail en une ligne : étapes + la seule chose à faire maintenant
+function _bailParcoursLL(g,bk){
+  const main=bk?._lease||null;
+  const tous=[main,...(bk?._childLeases||[])].filter(Boolean);
+  const rang=l=>{const ns=l?.negotiation_status||'draft';
+    if(ns==='signed'||(l.landlord_signed_at&&l.tenant_signed_at))return 3;
+    if(ns==='agreed')return 2;
+    if(ns==='pending_tenant'||ns==='pending_landlord')return 1;
+    return 0;};
+  let r=tous.length?Math.min(...tous.map(rang)):0;
+  if(r===3){if((bk?.edl_signed_landlord&&bk?.edl_signed_tenant)||bk?.status==='move_in_ready')r=6;else if(bk?.first_payment_confirmed)r=5;else r=4;}
+  const etapes=['Compléter','Relecture','Signatures','—','Paiement','Entrée'];
+  const vis=[0,1,2,4,5]; // étapes affichées
+  const L=tous.find(l=>rang(l)===Math.min(...tous.map(rang)))||main;
+  const multi=tous.length>1;
+  const lien=L?.id?`/bail-meuble.html?lease_id=${L.id}&role=landlord`:null;
+  const ns=L?.negotiation_status||'draft';
+  let txt='',btn='';
+  if(r===0){txt=multi?'Complétez les baux (les infos du logement se reprennent d’un bail à l’autre), puis envoyez-les pour relecture.':'Complétez le bail étape par étape, puis envoyez-le au locataire pour relecture.';btn=lien?`<a href="${lien}" class="bpx-btn">${L?'Préparer le bail':'Ouvrir'}</a>`:'';}
+  else if(r===1){txt=ns==='pending_landlord'?'Le locataire demande des modifications : relisez-les et renvoyez le bail.':'Le locataire relit le bail. Vous serez prévenu dès qu’il l’accepte ou demande une modification.';btn=lien?`<a href="${lien}" class="bpx-btn${ns==='pending_landlord'?'':' bpx-sec'}">${ns==='pending_landlord'?'Voir les modifications':'Voir le bail'}</a>`:'';}
+  else if(r===2){const moi=!L.landlord_signed_at;txt=moi?'Le bail est accepté : signez-le. Les garants reçoivent leur acte de cautionnement.':'Vous avez signé. Signature du locataire attendue.';btn=lien?`<a href="${lien}" class="bpx-btn${moi?'':' bpx-sec'}">${moi?'Signer le bail':'Voir le bail'}</a>`:'';}
+  else if(r===4){txt=bk?.first_payment_sent?'Le locataire a déclaré son premier paiement : confirmez sa réception ci-dessous.':'Bail signé. Le locataire doit faire son premier paiement (loyer + dépôt).';}
+  else if(r===5){txt='Paiement reçu. Faites l’état des lieux d’entrée et remettez les clés.';}
+  else txt='Entrée terminée : tout est en ordre.';
+  const pos=r>=6?vis.length:vis.indexOf(r===3?4:r);
+  return`<div class="bpx">
+    <div class="bpx-steps">${vis.map((e,i)=>`<div class="bpx-s${i<pos?' bpx-ok':i===pos?' bpx-on':''}"><span class="bpx-d">${i<pos?'✓':i+1}</span><span class="bpx-l">${etapes[e]}</span></div>`).join('<span class="bpx-sep"></span>')}</div>
+    <div class="bpx-now"><span>${txt}</span>${btn}</div>
+  </div>`;
+}
 function renderBailSection(g){
   const bk=g.booking||null;
   // Signatures : la table leases fait foi (nouveau flux) ; booking = ancien flux DocuSeal
@@ -4713,8 +4777,9 @@ function renderBailSection(g){
 
   return`<div style="margin-top:.6rem;background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;overflow:hidden">
     <div style="background:var(--grdim);padding:.55rem .85rem">
-      <div style="font-size:.82rem;font-weight:700;color:var(--green)"><i data-lucide=party-popper class=ic></i> Application accepté — bail in progress</div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--green)"><i data-lucide=party-popper class=ic></i> Candidature acceptée</div>
     </div>
+    <div style="padding:.75rem .85rem 0">${_bailParcoursLL(g,bk)}</div>
     <div style="padding:.75rem .85rem">
 
       <!-- Dates -->
@@ -4813,6 +4878,7 @@ function renderBailSection(g){
           </div>
         </div>`;
       })()}
+      ${bk?._childLeases?.length?'':(bk?._lease?.id?`<div class="actes-ll" data-lease="${bk._lease.id}"></div>`:'')}
 
       ${bk?._childLeases?.length?'':`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
       ${(()=>{let d=bk?.first_payment_declarations;try{d=typeof d==='string'?JSON.parse(d):d;}catch(e){d=null;}
