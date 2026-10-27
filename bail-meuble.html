@@ -71,6 +71,35 @@
     }
 
     /* BAIL CARD */
+    /* ── Présentation du document : sobre, lisible, comme un contrat imprimé ── */
+    .bail-card .bail-header{background:#fff!important;color:var(--tm)!important;border-bottom:2px solid var(--marine);padding:2.2rem 2.5rem 1.6rem}
+    .bail-card .bail-header .brand{color:var(--bleu);opacity:1;letter-spacing:.22em}
+    .bail-card .bail-header h1{color:var(--marine);font-size:1.6rem;text-transform:none;letter-spacing:0;line-height:1.25;text-wrap:balance}
+    .bail-card .bail-header .subtitle{color:var(--td);opacity:1}
+    .bail-card .bail-header .ref{background:#F1F4FA;color:var(--marine)}
+    .bail-card .bail-header .gen-date{color:var(--td);opacity:1}
+    .bail-card .bail-body{padding:2.2rem 2.75rem}
+    .bail-card .article-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.12rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--marine);border-bottom:none;padding-bottom:0;margin-bottom:.6rem}
+    .bail-card .article-content{font-size:.9rem;line-height:1.7;color:#22262F}
+    .bail-card hr.divider{border:none;border-top:1px solid #ECEEF2;margin:1.6rem 0}
+    .bail-card hr.divider+hr.divider{display:none}
+    .bail-card .partie-card{background:#fff;border:1px solid #E3E6EC;border-radius:8px}
+    .bail-card .partie-pill{background:none;color:var(--td);padding:0;letter-spacing:.08em;font-size:.66rem}
+    .bail-card .info-rows{border-color:#E3E6EC;border-radius:8px}
+    .bail-card .info-row{min-height:0;padding:.55rem .9rem;border-bottom-color:#EEF0F3}
+    .bail-card .info-row:hover{background:none}
+    .bail-card .info-blue{background:#F7F8FA!important;border:none!important;border-left:3px solid #C9D2E3!important;border-radius:0 6px 6px 0!important;color:#22262F!important}
+    .bail-card .bc-card{background:#fff;border:1px solid #E3E6EC;border-radius:8px}
+    .bail-card .bc-title{color:var(--td)}
+    .bail-card .annexe-list li{background:#fff;border:1px solid #E3E6EC;border-radius:6px}
+    .bail-card .annexe-num{background:none;color:var(--marine);border:1.5px solid var(--marine)}
+    .resume-bail{border:1.5px solid var(--marine);border-radius:10px;padding:1rem 1.15rem;margin:1.1rem 0 1rem;break-inside:avoid}
+    .resume-t{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--marine);margin-bottom:.7rem}
+    .resume-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem 1rem}
+    .resume-l{font-size:.72rem;color:var(--td);line-height:1.3}
+    .resume-v{font-size:1rem;font-weight:700;color:var(--tm);font-variant-numeric:tabular-nums;margin-top:.15rem}
+    .resume-c.fort .resume-v{color:var(--marine)}
+    @media(max-width:600px){.resume-g{grid-template-columns:repeat(2,minmax(0,1fr))}.bail-card .bail-body{padding:1.25rem}.bail-card .bail-header{padding:1.4rem 1.25rem 1.1rem}.bail-card .bail-header h1{font-size:1.3rem}}
     .bail-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
 
     /* HEADER */
@@ -362,6 +391,11 @@
   .wz-dot.act{background:var(--bleu);border-color:var(--bleu);color:#fff}
   .wz-page h2{font-size:1.3rem;margin:.6rem 0 .2rem;text-wrap:balance}
   .wz-desc{font-size:.86rem;color:#6B7280;margin:0 0 1rem}
+  .hors-doc{max-width:880px;margin:0 auto}
+  .hors-doc:empty,.hors-doc>div:empty{display:none}
+  /* Vue propre : le document affiché = le bail final (comme le PDF) */
+  body.bail-propre .bail-card .no-print:not(#actes-docs),body.bail-propre .bail-card .na-note,body.bail-propre .bail-card .yn-btns,body.bail-propre .bail-card .annexe-act,body.bail-propre .bail-card .partie-edit-row{display:none!important}
+  body.bail-propre #bail-wrap .edit-btn,body.bail-propre #bail-wrap .missing-badge,body.bail-propre #bail-wrap .bc-edit,body.bail-propre #bail-wrap .clause-add-btn{display:none!important}
   .wz-f{margin-bottom:.9rem}
   .wz-grp{margin:0 0 1.2rem}
   .wz-grp-t{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin:0 0 .55rem;padding-bottom:.35rem;border-bottom:1px solid #F3F4F6}
@@ -512,6 +546,8 @@
     <div id="wz" class="no-print"></div>
     <div id="wz-lanceur" class="no-print"></div>
     <div id="lease-tabs" class="no-print"></div>
+    <!-- Suivi Visale et actes de cautionnement : hors du document -->
+    <div class="hors-doc no-print"><div id="visale-box"></div><div id="actes-box"></div></div>
 
     <!-- ═══ DOCUMENT OFFICIEL ═══ -->
     <div class="bail-card">
@@ -536,12 +572,10 @@
             <!-- rempli dynamiquement -->
           </div>
 
+          <!-- CONDITIONS ESSENTIELLES (rempli par JS) -->
+          <div id="resume-bail"></div>
           <!-- GARANTIE & COLOCATION — choix du bailleur + résumé (rempli par JS) -->
           <div id="garanties-summary"></div>
-          <!-- Visale : marche à suivre (hors document imprimé) -->
-          <div id="visale-box" class="no-print"></div>
-          <!-- Actes de cautionnement séparés : suivi (hors document imprimé) -->
-          <div id="actes-box" class="no-print"></div>
 
           <!-- CLAUSE DE CAUTIONNEMENT SOLIDAIRE — insérée ici quand un garant est désigné -->
           <div id="caution-section" style="display:none;margin-top:.9rem">
@@ -609,7 +643,7 @@
           <div class="article-content">
             <p>Le présent contrat est conclu pour une durée de <strong id="duree-txt">1 (un) an</strong> à compter du <strong id="start-date-txt">—</strong>, pour se terminer le <strong id="end-date-txt">—</strong>.</p>
             <p>À l'expiration de ce délai, le bail sera <strong>tacitement reconduit</strong> pour des périodes <span id="reconduction-txt">d'un an</span>, sauf congé donné par l'une ou l'autre des parties dans les conditions prévues aux articles 17 et 18 du présent contrat.</p>
-            <p id="duree-remarque"><em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em></p>
+            <p id="duree-remarque"></p>
           </div>
         </div>
 
@@ -699,7 +733,7 @@
             <p>Conformément à l'article 3-3 de la loi du 6 juillet 1989 et au décret n° 2016-1671 du 5 décembre 2016, les diagnostics techniques suivants sont annexés au présent contrat :</p>
           </div>
 
-          <p style="font-size:.72rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin:.75rem 0 .35rem">Performance énergétique (DPE)</p>
+          <p style="font-size:.72rem;font-weight:700;color:var(--marine);text-transform:uppercase;letter-spacing:.5px;margin:.75rem 0 .35rem">Performance énergétique (DPE)</p>
           <div class="dpe-grid" id="dpe-grid">
             <!-- rempli dynamiquement -->
           </div>
@@ -750,7 +784,7 @@
 
         <!-- ART 23 — CLAUSES PARTICULIÈRES -->
         <div class="section" id="clauses-section">
-          <div class="article-title" id="art23-title">Article 10 — Clauses particulières</div>
+          <div class="article-title" id="art10-title">Article 10 — Clauses particulières</div>
           <div class="article-content">
             <p style="font-size:.82rem;color:var(--td);margin-bottom:.7rem">Les parties conviennent des clauses particulières suivantes, licites et non contraires à l'ordre public :</p>
             <div class="clauses-wrap" id="clauses-particulieres-wrap">
@@ -1074,7 +1108,7 @@ function applyTypeBail(){
   set('reconduction-txt',V?(ans===6?'de six ans':'de trois ans'):`d'un an`);
   set('duree-remarque',V
     ?`<em>Durée minimale légale : trois ans lorsque le bailleur est une personne physique ou une SCI familiale, six ans lorsqu'il est une personne morale (art. 10 de la loi du 6 juillet 1989).</em>`
-    :`<em>Remarque : pour un étudiant, la durée peut être réduite à 9 mois (bail étudiant), sans reconduction tacite.</em>`);
+    :'');
   set('preavis-locataire-txt',V
     ?`Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis de trois (3) mois</strong>, réduit à <strong>un (1) mois</strong> si le logement est situé en zone tendue, ou en cas d'obtention d'un premier emploi, de mutation, de perte d'emploi ou de nouvel emploi consécutif à une perte d'emploi, d'état de santé justifiant un changement de domicile, ou de bénéfice du RSA ou de l'AAH (art. 15 I de la loi du 6 juillet 1989). Le motif de réduction est précisé et justifié dans la lettre de congé, notifiée par :`
     :`Le locataire peut donner congé à tout moment, sous réserve du respect d'un <strong>préavis d'un (1) mois</strong> pour un logement meublé (art. 25-8 de la loi du 6 juillet 1989), notifié par :`);
@@ -1207,7 +1241,7 @@ const FIELD_LABELS={
 };
 
 // ── INLINE EDITING ────────────────────────────────────────────────────────────
-let _editMode=false;
+let _editMode=false,_peutModifier=false; // _peutModifier : droit réel de modifier ; _editMode : contrôles affichés (seulement dans le tunnel)
 let _tenantEditMode=false; // true quand locataire peut modifier ses champs
 let _editPopup=null;
 
@@ -1634,7 +1668,7 @@ function renderLandlordGuide(){
     <div class="ll-guide-step">
       ${stepNum(1,step1Done)}
       <div class="ll-step-text">
-        <strong>Complétez le bail</strong> — Les champs <span style="display:inline-flex;align-items:center;gap:.2rem;background:#FFF7ED;border:1.5px solid #F97316;border-radius:20px;padding:.05rem .4rem;font-size:.72rem;font-weight:700;color:#C2410C;vertical-align:middle"><i data-lucide=alert-triangle class=ic></i> surlignés</span> sont manquants. Cliquez dessus directement dans le document pour les renseigner.
+        <strong>Complétez le bail</strong> — Cliquez sur <strong>Modifier le bail</strong> : tout se remplit étape par étape, le document reste propre.
       </div>
     </div>
     <div class="ll-guide-step">
@@ -1658,7 +1692,7 @@ function renderLandlordGuide(){
 
   // Message contextuel selon l'étape actuelle
   let contextMsg='';
-  if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=arrow-right class=ic></i> <strong>Étape actuelle :</strong> Complétez les champs manquants puis cliquez sur <strong><i data-lucide=send class=ic></i> Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
+  if(ns==='draft') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=arrow-right class=ic></i> <strong>Étape actuelle :</strong> Complétez le bail avec <strong>Modifier le bail</strong>, puis cliquez sur <strong><i data-lucide=send class=ic></i> Envoyer au locataire →</strong> dans la barre de navigation pour démarrer la procédure.</p>`;
   else if(ns==='pending_tenant') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=hourglass class=ic></i> <strong>En attente :</strong> Le locataire doit relire et accepter le bail. Vous recevrez un message dès qu'il aura répondu.</p>`;
   else if(ns==='pending_landlord') contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=refresh-cw class=ic></i> <strong>Action requise :</strong> Le locataire a demandé des modifications. Lisez sa note dans la barre ci-dessous, effectuez les ajustements nécessaires, puis cliquez sur <strong><i data-lucide=send class=ic></i> Renvoyer au locataire →</strong>. Il devra relire et accepter la nouvelle version.</p>`;
   else if(ns==='agreed'&&!step3Done) contextMsg=`<hr class="ll-guide-divider"><p class="ll-guide-note"><i data-lucide=check-circle-2 class=ic></i> <strong>Modèle accepté !</strong> Les signatures sont maintenant débloquées. Faites défiler vers le bas pour apposer votre signature.</p>`;
@@ -1693,7 +1727,7 @@ function renderClauses(){
   const canEdit=_editMode;
   let html='';
   if(clauses.length===0){
-    html=`<p class="clauses-empty">Aucune clause particulière ajoutée.</p>`;
+    html=`<p>Néant.</p>`;
   }else{
     clauses.forEach((c,i)=>{
       html+=`<div class="clause-item">
@@ -1712,7 +1746,8 @@ function renderClauses(){
   wrap.innerHTML=html;
   // Show/hide the article section depending on content + edit mode
   const sec=document.getElementById('clauses-section');
-  if(sec) sec.style.display=(clauses.length>0||canEdit)?'':'none';
+  if(sec) sec.style.display='';
+  const intro=sec?.querySelector('.article-content > p');if(intro)intro.style.display=clauses.length?'':'none';
 }
 
 function openClauseModal(idx){
@@ -2419,7 +2454,11 @@ function renderReglesDroit(L,opts={}){
   show('regles-droit',R.join(''));
 }
 
+// Bail affiché « propre » : aucune modification directe, tout passe par le tunnel
 function renderBail(){
+  try{_renderBail();}finally{_editMode=_peutModifier;}
+}
+function _renderBail(){
   const L=LEASE,Li=LISTING;
   const rent=L.rent||0, deposit=(L.deposit!==null&&L.deposit!==undefined)?Number(L.deposit):(rent*2), charges=L.charges||0;
 
@@ -2427,11 +2466,15 @@ function renderBail(){
   const isLandlord=myRole==='landlord';
   const _ns=LEASE.negotiation_status||'';
   _editMode=isLandlord&&!LEASE.landlord_signed_at&&_ns!=='agreed'&&_ns!=='signed';
+  _peutModifier=_editMode;
+  const _propre=_editMode&&!document.body.classList.contains('bail-tunnel');
+  document.body.classList.toggle('bail-propre',_propre);
+  if(_propre)_editMode=false;
   const isTenant=myRole==='tenant';
   _tenantEditMode=isTenant&&(LEASE.negotiation_status==='pending_tenant');
   // Afficher le bouton SQL migrations pour le bailleur (en mode édition)
   const migrNavBtn=document.getElementById('migr-btn');
-  if(migrNavBtn)migrNavBtn.style.display=_editMode?'':'none';
+  if(migrNavBtn)migrNavBtn.style.display=_peutModifier?'':'none';
 
   buildRecentChanges();   // construire les highlights
   // Historique des modifications retiré : les changements se voient directement dans le bail
@@ -2550,7 +2593,7 @@ function renderBail(){
   renderGarantiesBlock(L);
   renderVisaleBox(L);
   try{renderActesBox(L);renderActesDocs(L);}catch(e){console.error(e);}
-  {const wl=q('wz-lanceur');if(wl)wl.innerHTML=_editMode&&myRole==='landlord'&&!document.body.classList.contains('bail-gate')?`<div class="wz-lanceur"><span><strong>Préparer le bail étape par étape</strong> — parties, logement, loyer, dépôt, diagnostics… puis envoi au locataire.</span><button type="button" class="bc-pill on" onclick="wzOuvrir(0)">Ouvrir le tunnel</button></div>`:'';}
+  {const wl=q('wz-lanceur');if(wl)wl.innerHTML=_peutModifier&&myRole==='landlord'&&!document.body.classList.contains('bail-gate')?`<div class="wz-lanceur"><span><strong>Vous voulez changer quelque chose ?</strong> Toutes les modifications se font étape par étape, le bail reste propre.</span><button type="button" class="bc-pill on" onclick="wzOuvrir(0)">Modifier le bail</button></div>`:'';}
   renderLotAndTabs(L);
   renderModelBar(L);
   renderUsage(L);
@@ -3200,6 +3243,25 @@ function renderBail(){
 
   renderClauses();
   renderStatusAndSigs();
+  renderResume(L);
+}
+// Encadré « Conditions essentielles » : les chiffres clés du bail d'un coup d'œil
+function renderResume(L){
+  const el=document.getElementById('resume-bail');if(!el)return;
+  const e=x=>x==null||x===''||isNaN(+x)?null:Number(x).toLocaleString('fr-FR',{maximumFractionDigits:2})+' €';
+  const rent=+L.rent||0,ch=+L.charges||0;
+  const dep=(L.deposit!==null&&L.deposit!==undefined&&L.deposit!=='')?+L.deposit:null;
+  const d=x=>{try{return x?fmtDate(x):null;}catch(err){return x||null;}};
+  const ans=(()=>{try{return dureeAns();}catch(err){return 1;}})();
+  const cases=[
+    ['Loyer mensuel hors charges',e(rent)],
+    ['Provision sur charges',e(ch)],
+    ['Total mensuel',e(rent+ch),true],
+    ['Dépôt de garantie',dep===0?'Aucun':e(dep)],
+    ['Prise d’effet',d(L.start_date)],
+    ['Durée',ans===1?'1 an, renouvelable':ans+' ans, renouvelable'],
+  ];
+  el.innerHTML=`<div class="resume-bail"><div class="resume-t">Conditions essentielles</div><div class="resume-g">${cases.map(([l,v,fort])=>`<div class="resume-c${fort?' fort':''}"><div class="resume-l">${l}</div><div class="resume-v">${v||'—'}</div></div>`).join('')}</div></div>`;
 }
 
 // ── STATUS & SIGNATURES ───────────────────────────────────────────────────────
@@ -3277,7 +3339,7 @@ function addSectionTenantFlags(){
     {id:'art7-title',  label:'Article 7 — Diagnostics techniques'},
     {id:'art8-title',  label:'Article 8 — Travaux réalisés'},
     {id:'art16-title', label:'Article 18 — Congé donné par le bailleur'},
-    {id:'art23-title', label:'Article 10 — Clauses particulières'},
+    {id:'art10-title', label:'Article 10 — Clauses particulières'},
   ];
   contestable.forEach(({id,label})=>{
     const el=document.getElementById(id);
@@ -3580,14 +3642,14 @@ function renderModelBar(L){
         ${noms.map((n,i)=>`<li><strong>Bail ${i+1}</strong> — ${_escB(n)} : sa chambre, sa part du loyer, ${vis.includes(n)?'sa garantie Visale':i===0&&L.garant_name?'la caution de '+_escB(L.garant_name):'sa propre garantie'}.</li>`).join('')}
       </ul>
       <p style="font-size:.82rem;color:var(--td);margin:.8rem 0 0;line-height:1.55">Pas de solidarité entre les locataires : chacun ne doit que sa part. Vous retrouverez chaque bail dans les onglets en haut de la page, à compléter et envoyer un par un ou tous ensemble.</p>
-      ${_editMode&&!signe?`<button class="gate-btn" onclick="this.disabled=true;this.innerHTML='Création des baux…';chooseColocType('individuel',true).finally(()=>{this.disabled=false;})"><i data-lucide=files class=ic></i> Créer les ${noms.length} baux individuels</button>`:''}
+      ${_peutModifier&&!signe?`<button class="gate-btn" onclick="this.disabled=true;this.innerHTML='Création des baux…';chooseColocType('individuel',true).finally(()=>{this.disabled=false;})"><i data-lucide=files class=ic></i> Créer les ${noms.length} baux individuels</button>`:''}
     </div>`;
     if(window.lucide)lucide.createIcons();return;
   }
   el.innerHTML=!L.colocation_type
     ?`<div style="max-width:880px;margin:0 auto .8rem;background:#EFF6FF;border:1.5px solid var(--bleu);border-radius:12px;padding:.75rem .9rem;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
         <span><strong>Étape 1 :</strong> choisissez le modèle de bail pour vos ${cols.length+1} locataires avant de compléter et d'envoyer le bail.</span>
-        ${_editMode?`<button class="bc-pill on" onclick="document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'})">Choisir le modèle ↓</button>`:signe?'':`<button class="bc-pill on" onclick="resetColocType()">Repasser le bail en brouillon pour choisir</button>`}</div>`
+        ${_peutModifier?`<button class="bc-pill on" onclick="document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'})">Choisir le modèle ↓</button>`:signe?'':`<button class="bc-pill on" onclick="resetColocType()">Repasser le bail en brouillon pour choisir</button>`}</div>`
     :`<div style="max-width:880px;margin:0 auto .8rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.55rem .9rem;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
         <span><i data-lucide=lock class=ic></i> Modèle de bail : <strong>${_COLOC_LBL[L.colocation_type]||L.colocation_type}</strong></span>
         ${signe?'<span style="font-size:.74rem;color:var(--td)">Bail signé : modèle définitif</span>':'<button class="bc-pill" onclick="resetColocType()">Changer de modèle (tout recommencer)</button>'}</div>`;
@@ -3957,6 +4019,8 @@ let _wzStep=0,_wzOuvertAuto=false;
 function _wzScan(){
   const present=new Set(),manque=new Set();
   document.querySelectorAll('#bail-wrap [onclick*="editField(event,"]').forEach(e=>{const m=(e.getAttribute('onclick')||'').match(/editField\(event,'([^']+)'\)/);if(!m)return;present.add(m[1]);if(e.classList.contains('missing-badge'))manque.add(m[1]);});
+  const prevus=new Set(WZ_STEPS.flatMap(s=>Array.isArray(s.k)?s.k:[]));
+  document.querySelectorAll('#bail-wrap [onclick*="saveField(\'"]').forEach(e=>{const m=(e.getAttribute('onclick')||'').match(/saveField\('([^']+)'/);if(!m||!prevus.has(m[1]))return;present.add(m[1]);if(LEASE[m[1]]==null||LEASE[m[1]]==='')manque.add(m[1]);});
   return{present,manque};
 }
 function _wzSteps(){
@@ -3994,6 +4058,7 @@ function _bailDefaut(key){
     case 'charges':return n(Li.charges_mensuelles);
     case 'rent':{const p=n(Li.price);return p==null?null:Math.max(0,p-(n(Li.charges_mensuelles)||0));}
     case 'deposit':return n(Li.depot);
+    case 'travaux_realises':return'non';
     case 'end_date':{if(!LEASE?.start_date)return null;const d=new Date(LEASE.start_date);d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
   }
   // Annexes cochées dans l'annonce
@@ -4021,9 +4086,9 @@ function _wzChamp(key,manque,sansGrille){
   const cfg=FIELD_CONFIGS[key]||{type:'text'},lbl=FIELD_LABELS[key]||key,cur=_wzVal(key),id='wz-'+key;
   const esc=x=>String(x??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   let input;
-  if(cfg.type==='select'&&cfg.options.length<=3){
+  if(cfg.type==='select'&&cfg.options.length<=3&&!/^diag_/.test(key)){
     // Peu de choix : boutons plutôt qu'une liste déroulante
-    input=`<input type="hidden" id="${id}" value="${esc(cur)}"><div class="wz-pills" role="radiogroup" aria-label="${esc(lbl)}">${cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<button type="button" role="radio" aria-checked="${cur===String(v)}" class="wz-pill${cur===String(v)?' on':''}" onclick="document.getElementById('${id}').value='${esc(v)}';this.parentElement.querySelectorAll('.wz-pill').forEach(b=>{b.classList.toggle('on',b===this);b.setAttribute('aria-checked',b===this)})">${esc(l)}</button>`;}).join('')}</div>`;
+    input=`<input type="hidden" id="${id}" value="${esc(cur)}"><div class="wz-pills" role="radiogroup" aria-label="${esc(lbl)}">${cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<button type="button" role="radio" aria-checked="${cur===String(v)}" class="wz-pill${cur===String(v)?' on':''}" onclick="document.getElementById('${id}').value='${esc(v)}';this.parentElement.querySelectorAll('.wz-pill').forEach(b=>{b.classList.toggle('on',b===this);b.setAttribute('aria-checked',b===this)});_wzSi()">${esc(l)}</button>`;}).join('')}</div>`;
   }else if(cfg.type==='select'){
     const opts=cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<option value="${esc(v)}"${cur===String(v)?' selected':''}>${esc(l)}</option>`;}).join('');
     input=`<select id="${id}" class="wz-in"><option value=""${cur?'':' selected'}>— Choisir —</option>${opts}</select>`;
@@ -4034,8 +4099,9 @@ function _wzChamp(key,manque,sansGrille){
     const extra=[cfg.min!=null?`min="${cfg.min}"`:'',cfg.max!=null?`max="${cfg.max}"`:'',cfg.step!=null?`step="${cfg.step}"`:'',cfg.maxlength?`maxlength="${cfg.maxlength}"`:'',cfg.placeholder?`placeholder="${esc(cfg.placeholder)}"`:''].join(' ');
     input=`<input type="${cfg.type||'text'}" id="${id}" class="wz-in" value="${esc(cur)}" ${extra}${key==='start_date'?' oninput="_wzFinAuto(this.value)"':''}>`;
   }
-  const large=cfg.type==='travaux'||/address|_autres|_details|justif|nature/.test(key)||(cfg.type==='select'&&cfg.options.length<=3);
-  return`<div class="wz-f${manque?' wz-manque':''}${large?' wz-large':''}"><label for="${id}">${esc(lbl)}${manque?' <span class="wz-tag">à compléter</span>':''}</label>${input}</div>`;
+  const large=cfg.type==='travaux'||/address|_autres|_details|justif|nature/.test(key)||(cfg.type==='select'&&cfg.options.length<=3&&!/^diag_/.test(key));
+  const si=WZ_SI[key]?` data-si="${key}"${_wzSiOk(key)?'':' hidden'}`:'';
+  return`<div class="wz-f${manque?' wz-manque':''}${large?' wz-large':''}"${si}><label for="${id}">${esc(lbl)}${manque?' <span class="wz-tag">à compléter</span>':''}</label>${input}</div>`;
 }
 // ── Présentation : groupes, champs facultatifs repliés, champs déjà remplis en lecture ──
 const WZ_GROUPES=[
@@ -4052,6 +4118,12 @@ const WZ_CASES=[
   ['Télécoms',['telecom_fibre','telecom_prise_tv','telecom_internet_fourni']],
 ];
 const WZ_DETAILS={dep_cave:['dep_cave_numero','cave_details'],dep_parking:['parking_type','parking_details'],dep_garage:['box_details']};
+// Champs affichés seulement selon une réponse : clé → [champ parent, valeur attendue]
+const WZ_SI={};
+['travaux_desc','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer'].forEach(k=>WZ_SI[k]=['travaux_realises','oui']);
+['dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'].forEach(k=>WZ_SI[k]=['premiere_mise_en_location','non']);
+function _wzSiOk(k){const c=WZ_SI[k];if(!c)return true;const el=document.getElementById('wz-'+c[0]);const v=el?el.value:_wzVal(c[0]);return v===c[1];}
+function _wzSi(){document.querySelectorAll('#wz [data-si]').forEach(e=>{e.hidden=!_wzSiOk(e.dataset.si);});}
 const _WZ_COURTS={dep_parking:'Parking',dep_garage:'Garage',telecom_fibre:'Fibre optique',telecom_internet_fourni:'Internet fourni'};
 let _wzOuverts=new Set();
 function _wzAffiche(key){
@@ -4065,7 +4137,8 @@ function _wzAffiche(key){
 }
 function _wzLigne(key){
   const esc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  return`<div class="wz-ligne"><span class="wz-l-lbl">${esc(FIELD_LABELS[key]||key)}</span><span class="wz-l-val">${esc(_wzAffiche(key))}</span><button type="button" class="wz-l-mod" onclick="_wzOuvrirChamp(this,'${key}')">Modifier</button></div>`;
+  const si=WZ_SI[key]?` data-si="${key}"${_wzSiOk(key)?'':' hidden'}`:'';
+  return`<div class="wz-ligne"${si}><span class="wz-l-lbl">${esc(FIELD_LABELS[key]||key)}</span><span class="wz-l-val">${esc(_wzAffiche(key))}</span><button type="button" class="wz-l-mod" onclick="_wzOuvrirChamp(this,'${key}')">Modifier</button></div>`;
 }
 function _wzOuvrirChamp(btn,key){
   _wzOuverts.add(key);const l=btn.closest('.wz-ligne');if(!l)return;
@@ -4093,7 +4166,7 @@ function _wzCorps(s){
   const grp=new Map();
   keys.forEach(k=>{const g=(WZ_GROUPES.find(([,re])=>re.test(k))||[''])[0];if(!grp.has(g))grp.set(g,[]);grp.get(g).push(k);});
   const bloc=ks=>{
-    const aRemplir=ks.filter(k=>s.manque.includes(k)||!_wzVal(k)||_wzOuverts.has(k)||(FIELD_CONFIGS[k]?.type==='select'&&FIELD_CONFIGS[k].options.length<=3));
+    const aRemplir=ks.filter(k=>s.manque.includes(k)||!_wzVal(k)||_wzOuverts.has(k)||(FIELD_CONFIGS[k]?.type==='select'&&FIELD_CONFIGS[k].options.length<=3&&!/^diag_/.test(k)));
     const faits=ks.filter(k=>!aRemplir.includes(k));
     // Ordre conservé : les champs remplis consécutifs forment un encadré de lignes
     let h='',run=[],mode=null;
@@ -4156,8 +4229,8 @@ async function setReglesDroit(v){
   window.saveClause=async(...a)=>{await _sc(...a);if(document.body.classList.contains('bail-tunnel'))wzRender();};
   window.deleteClause=async(...a)=>{await _dc(...a);if(document.body.classList.contains('bail-tunnel'))wzRender();};}
 function wzOuvrir(i){
-  if(!_editMode){toast('Le bail n’est plus modifiable (déjà validé ou signé).');return;}
-  _wzStep=i||0;document.body.classList.add('bail-tunnel');wzRender();
+  if(!_peutModifier){toast('Le bail n’est plus modifiable (déjà validé ou signé).');return;}
+  _wzStep=i||0;document.body.classList.add('bail-tunnel');renderBail();wzRender();
 }
 function wzFermer(){document.body.classList.remove('bail-tunnel');const el=q('wz');if(el)el.innerHTML='';renderBail();window.scrollTo(0,0);}
 function wzRender(garderScroll){
@@ -4196,6 +4269,7 @@ async function _wzEnregistrer(){
   for(const k of ordre){
     const parent=Object.keys(WZ_DETAILS).find(p=>WZ_DETAILS[p].includes(k));
     if(parent&&document.getElementById('wz-'+parent)?.checked===false)continue;
+    if(!_wzSiOk(k))continue;
     const v=_wzLire(k);if(v===undefined)continue;
     const brut=(LL_PROFILE_MAP&&LL_PROFILE_MAP[k])||(T_PROFILE_MAP&&T_PROFILE_MAP[k])?_wzVal(k):(LEASE[k]!=null?String(LEASE[k]):'');
     if(String(v??'')===brut)continue;
@@ -4218,7 +4292,7 @@ async function wzPrec(){await _wzEnregistrer();_wzOuverts.clear();_wzStep--;wzRe
 async function wzAller(i){await _wzEnregistrer();_wzOuverts.clear();_wzStep=i;wzRender();}
 // Ouverture automatique : bail en brouillon jamais envoyé, côté bailleur (après le choix du modèle de colocation)
 function wzAuto(){
-  if(_wzOuvertAuto||!_editMode||myRole!=='landlord')return;
+  if(_wzOuvertAuto||!_peutModifier||myRole!=='landlord')return;
   if(document.body.classList.contains('bail-gate'))return;
   const ns=LEASE.negotiation_status||'draft';
   if(ns!=='draft'||LEASE.sent_to_tenant_at)return;
