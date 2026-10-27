@@ -377,6 +377,16 @@
   .gate-page ul{margin:.6rem 0 0 1.1rem;font-size:.9rem;line-height:1.65}
   .gate-page .gate-btn{display:inline-flex;align-items:center;gap:.45rem;margin-top:1.4rem;background:var(--bleu);color:#fff;border:none;border-radius:12px;padding:.85rem 1.3rem;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer}
   .gate-page .gate-btn:disabled{opacity:.6;cursor:wait}
+  .gate-opt{border:1px solid #E3E6EC;border-radius:12px;padding:1rem 1.1rem;margin-top:1rem}
+  .gate-opt-t{font-weight:700;font-size:.98rem;margin-bottom:.2rem}
+  .gate-opt .gate-btn{margin-top:.9rem}
+  .gate-note{font-size:.8rem;color:var(--td);margin:.6rem 0 0;line-height:1.5}
+  .gate-choix-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem;margin-top:.6rem}
+  .gate-choix{display:flex;flex-direction:column;gap:.2rem;text-align:left;background:#fff;border:1.5px solid #D1D5DB;border-radius:10px;padding:.7rem .85rem;font-family:inherit;cursor:pointer;color:inherit}
+  .gate-choix:hover,.gate-choix:focus-visible{border-color:var(--bleu);outline:none}
+  .gate-choix span{font-size:.78rem;color:var(--td);line-height:1.45}
+  .gate-quand-meme summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--td)}
+  .gate-alerte{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:8px;padding:.65rem .8rem;font-size:.82rem;line-height:1.5;margin-top:.7rem}
   @media (max-width:600px){.gate-page{margin:1.2rem 0;padding:1.4rem 1.1rem}}
   /* Tunnel « Préparer le bail » */
   body.bail-tunnel #bail-wrap > *:not(#wz),body.bail-tunnel #submit-bar,body.bail-tunnel #negoc-bar,body.bail-tunnel #remarques-bar,body.bail-tunnel #status-bar,body.bail-tunnel #pdf-btn{display:none!important}
@@ -391,13 +401,18 @@
   .wz-dot.act{background:var(--bleu);border-color:var(--bleu);color:#fff}
   .wz-page h2{font-size:1.3rem;margin:.6rem 0 .2rem;text-wrap:balance}
   .wz-desc{font-size:.86rem;color:#6B7280;margin:0 0 1rem}
-  .hors-doc{max-width:880px;margin:0 auto}
+  .hors-doc{margin:0}
+  .panneau{background:#fff;border:1px solid #E3E6EC;border-radius:12px;padding:.9rem 1.1rem;margin:0 0 .8rem}
+  .panneau-t{font-size:.9rem;font-weight:700;color:var(--tm);margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+  .vis-aide{margin:0 0 .6rem;font-size:.8rem}
+  .vis-aide summary{cursor:pointer;color:var(--bleu);font-weight:600;font-size:.8rem;margin-bottom:.3rem}
   .hors-doc:empty,.hors-doc>div:empty{display:none}
   /* Vue propre : le document affiché = le bail final (comme le PDF) */
   body.bail-propre .bail-card .no-print:not(#actes-docs),body.bail-propre .bail-card .na-note,body.bail-propre .bail-card .yn-btns,body.bail-propre .bail-card .annexe-act,body.bail-propre .bail-card .partie-edit-row{display:none!important}
   body.bail-propre #bail-wrap .edit-btn,body.bail-propre #bail-wrap .missing-badge,body.bail-propre #bail-wrap .bc-edit,body.bail-propre #bail-wrap .clause-add-btn{display:none!important}
   .wz-f{margin-bottom:.9rem}
   .wz-grp{margin:0 0 1.2rem}
+  .wz-sec+.wz-sec,.wz-sec+.wz-grp{border-top:1px solid #F0F1F4;padding-top:1.1rem;margin-top:.2rem}
   .wz-grp-t{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin:0 0 .55rem;padding-bottom:.35rem;border-bottom:1px solid #F3F4F6}
   .wz-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:.9rem}
   .wz-grille .wz-large{grid-column:1/-1}
@@ -435,7 +450,7 @@
   .wz-alerte ul{margin:.4rem 0 0 1.1rem;line-height:1.7}
   .wz-ok{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.75rem .9rem;font-size:.88rem}
   .wz-recap-btns{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
-  .wz-lanceur{max-width:880px;margin:0 auto .8rem;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:12px;padding:.7rem .9rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.85rem}
+  .wz-lanceur{margin:0 0 .8rem;background:#fff;border:1px solid #E3E6EC;border-radius:12px;padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.85rem}
   @media (max-width:600px){.wz-page{margin:1rem 0;padding:1.2rem 1rem;border-radius:14px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
@@ -536,10 +551,6 @@
       <div class="tools-header"><i data-lucide=wrench class=ic></i> Espace de travail</div>
     </div>
 
-    <!-- Séparateur "Document officiel" -->
-    <div class="doc-separator no-print" id="doc-separator" style="display:none">
-      <span><i data-lucide=file-text class=ic></i> Document officiel</span>
-    </div>
 
     <!-- Baux individuels (colocation par chambre) : un onglet par locataire -->
     <div id="model-bar" class="no-print"></div>
@@ -548,6 +559,10 @@
     <div id="lease-tabs" class="no-print"></div>
     <!-- Suivi Visale et actes de cautionnement : hors du document -->
     <div class="hors-doc no-print"><div id="visale-box"></div><div id="actes-box"></div></div>
+    <!-- Séparateur "Document officiel" -->
+    <div class="doc-separator no-print" id="doc-separator" style="display:none">
+      <span><i data-lucide=file-text class=ic></i> Document officiel</span>
+    </div>
 
     <!-- ═══ DOCUMENT OFFICIEL ═══ -->
     <div class="bail-card">
@@ -1356,6 +1371,7 @@ ALTER TABLE leases ADD COLUMN IF NOT EXISTS tenant_address TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS modifs_log JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS clauses_particulieres JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS regles_droit BOOLEAN DEFAULT true;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS caution_mode TEXT DEFAULT 'acte';
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref_majore NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS zone_tendue BOOLEAN DEFAULT false;
@@ -1560,6 +1576,7 @@ async function setZoneTendue(v){
   if(error&&/zone_tendue_choix/.test(error.message)){({error}=await sb.from('leases').update({zone_tendue:v}).eq('id',LEASE.id));if(!error)toast('Choix enregistré. Exécutez supabase-migration-zone-tendue.sql pour qu’il soit mémorisé.',6000);}
   if(error){toast('<i data-lucide=alert-triangle class=ic></i> Erreur : '+error.message,5000);return;}
   LEASE.zone_tendue=v;LEASE.zone_tendue_choix=v?'oui':'non';
+  _syncSoeurs({zone_tendue:v,zone_tendue_choix:v?'oui':'non'}).catch(()=>{});
   renderBail();
 }
 async function saveField(key,value){
@@ -1625,6 +1642,7 @@ async function saveField(key,value){
     return;
   }
   LEASE[key]=value;if(upd.end_date)LEASE.end_date=upd.end_date;
+  _syncSoeurs({[key]:value}).catch(()=>{});
   toast('<i data-lucide=check-circle-2 class=ic></i> '+(FIELD_LABELS[key]||key)+' enregistré');
   renderBail();
 }
@@ -2010,6 +2028,7 @@ async function loadBail(){
     if(LEASE?.type_bail==='parking'||LISTING?.type==='parking'){location.replace('/bail-parking.html'+location.search);return;}
     TYPE_BAIL=detectTypeBail();
     await loadSiblings();
+    try{await _reprendreDesSoeurs();}catch(e){console.warn(e);}
     if(LEASE&&LEASE.type_bail!==TYPE_BAIL&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){LEASE.type_bail=TYPE_BAIL;sb.from('leases').update({type_bail:TYPE_BAIL}).eq('id',LEASE.id).then(()=>{},()=>{});}
     if(LEASE?.booking_id&&!BOOKING){
       const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
@@ -2273,13 +2292,13 @@ function renderGarantiesBlock(L){
     if(!coLocs.length)return{reco:null,txt:'',bloque:false};
     const vis=visaleTenants(),nbT=coLocs.length+1;
     const autres=(physique||g==='organisme'?1:0)+coLocs.filter(x=>x.has_garant&&x.garant_type!=='garant_visale').length;
-    if(vis.length&&autres)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(', ')} ${vis.length>1?'ont':'a'} Visale et un autre locataire a un garant (personne ou organisme) : Visale ne se cumule avec aucune autre garantie sur un même bail. Faites <strong>un bail par locataire</strong>, chacun avec sa propre garantie.`};
-    if(vis.length&&nbT>=3)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> Visale ne couvre un bail commun que pour 2 colocataires. À ${nbT}, faites <strong>un bail par locataire</strong> avec un visa chacun.`};
+    if(vis.length&&autres)return{reco:'individuel',bloque:true,txt:`<strong>Ici, un seul bail ne respecte pas les règles de Visale.</strong> ${vis.map(v=>_escB(v.name)).join(', ')} ${vis.length>1?'ont':'a'} Visale et un autre locataire a un garant (personne ou organisme) : Visale ne se cumule avec aucune autre garantie sur un même bail. Faites <strong>un bail par locataire</strong>, chacun avec sa propre garantie.`};
+    if(vis.length&&nbT>=3)return{reco:'individuel',bloque:true,txt:`<strong>Ici, un seul bail ne respecte pas les règles de Visale.</strong> Visale ne couvre un bail commun que pour 2 colocataires. À ${nbT}, faites <strong>un bail par locataire</strong> avec un visa chacun.`};
     // 2 locataires : bail commun seulement avec UN visa commun (demande conjointe, les deux noms sur le visa)
     const _nv=v=>String(v||'').replace(/\s+/g,'').toUpperCase();
     const visas=[...new Set(vis.map(v=>_nv(v.visa)).filter(Boolean))];
     if(vis.length===2&&visas.length===2&&vis.some(v=>v.commun))return{reco:'individuel',bloque:true,txt:`<strong>À vérifier :</strong> une demande Visale commune est déclarée, mais les numéros de visa sont différents (n° ${visas.join(' et n° ')}). Un bail commun exige un seul visa avec les deux noms : corrigez le numéro, sinon faites <strong>un bail par locataire</strong>.`};
-    if(vis.length===2&&visas.length===2)return{reco:'individuel',bloque:true,txt:`<strong>Un seul bail n’est pas possible ici.</strong> ${vis.map(v=>_escB(v.name)).join(' et ')} ont chacun leur propre visa (n° ${visas.join(' et n° ')}). Deux visas séparés ne remplacent pas la demande commune exigée par Visale pour un bail commun : faites <strong>un bail par locataire</strong>, chacun avec son visa et un contrat de cautionnement Visale par bail, sans solidarité entre eux.`};
+    if(vis.length===2&&visas.length===2)return{reco:'individuel',bloque:true,txt:`<strong>Ici, un seul bail ne respecte pas les règles de Visale.</strong> ${vis.map(v=>_escB(v.name)).join(' et ')} ont chacun leur propre visa (n° ${visas.join(' et n° ')}). Deux visas séparés ne remplacent pas la demande commune exigée par Visale pour un bail commun : faites <strong>un bail par locataire</strong>, chacun avec son visa et un contrat de cautionnement Visale par bail, sans solidarité entre eux.`};
     if(vis.length===2&&visas.length===1&&(vis.every(v=>_nv(v.visa))||vis.some(v=>v.commun)))return{reco:null,bloque:false,txt:`Visa Visale commun (n° ${visas[0]})${vis.some(v=>v.commun)?' — demande commune déclarée par les locataires':''} : un bail commun est possible. Vérifiez que le visa certifié mentionne bien les deux noms ; vous activerez <strong>un seul contrat de cautionnement Visale</strong> pour les deux.`};
     if(vis.length===2)return{reco:null,bloque:false,txt:`Les deux locataires ont Visale. <strong>Un seul bail</strong> n’est possible que s’ils ont fait <strong>une demande de visa commune</strong> (un seul visa avec les deux noms). S’ils ont chacun leur propre visa, faites <strong>un bail par locataire</strong>. Renseignez les n° de visa pour que le bail le vérifie.`};
     if(vis.length)return{reco:null,bloque:false,txt:`Visale sur un bail commun à 2 : les deux colocataires doivent faire une <strong>demande de visa conjointe</strong> (un seul visa qui couvre le bail), et aucun autre garant ne peut s’ajouter. Sinon, choisissez un bail par locataire.`};
@@ -2591,7 +2610,7 @@ function _renderBail(){
   renderGarantiesBlock(L);
   renderVisaleBox(L);
   try{renderActesBox(L);renderActesDocs(L);}catch(e){console.error(e);}
-  {const wl=q('wz-lanceur');if(wl)wl.innerHTML=_peutModifier&&myRole==='landlord'&&!document.body.classList.contains('bail-gate')?`<div class="wz-lanceur"><span><strong>Vous voulez changer quelque chose ?</strong> Toutes les modifications se font étape par étape, le bail reste propre.</span><button type="button" class="bc-pill on" onclick="wzOuvrir(0)">Modifier le bail</button></div>`:'';}
+  {const wl=q('wz-lanceur');if(wl)wl.innerHTML=_peutModifier&&myRole==='landlord'&&!document.body.classList.contains('bail-gate')?`<div class="wz-lanceur"><span style="color:#4B5563">Pour changer une information du bail, passez par les étapes.</span><button type="button" class="bc-pill on" style="padding:.4rem 1rem" onclick="wzOuvrir(0)">Modifier le bail</button></div>`:'';}
   renderLotAndTabs(L);
   renderModelBar(L);
   renderUsage(L);
@@ -3510,6 +3529,35 @@ async function exportBailPDF(){
 
 // ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
 function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
+// Infos du logement communes à tous les baux d'une même colocation (un bail par locataire)
+const CHAMPS_COMMUNS=new Set(['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
+  'dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres',
+  'commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres',
+  'dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit',
+  'travaux_desc','travaux_realises','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer',
+  'loyer_ref','loyer_ref_majore','zone_tendue','zone_tendue_choix','regles_droit','custom_clauses','caution_mode']);
+function _soeursModifiables(){
+  return (SIBLINGS||[]).filter(x=>x.id!==LEASE?.id&&!x.landlord_signed_at&&!x.tenant_signed_at&&!['agreed','signed'].includes(x.negotiation_status||''));
+}
+async function _syncSoeurs(upd){
+  if(myRole!=='landlord'||!LEASE)return;
+  const u={};Object.keys(upd||{}).forEach(k=>{if(CHAMPS_COMMUNS.has(k))u[k]=upd[k];});
+  const ids=_soeursModifiables().map(x=>x.id);
+  if(!Object.keys(u).length||!ids.length)return;
+  const{error}=await sb.from('leases').update(u).in('id',ids);
+  if(!error)SIBLINGS.forEach(x=>{if(ids.includes(x.id))Object.assign(x,u);});
+}
+// À l'ouverture : reprendre ce qui a déjà été rempli sur un autre bail de la colocation
+async function _reprendreDesSoeurs(){
+  if(myRole!=='landlord'||!LEASE||LEASE.landlord_signed_at||LEASE.tenant_signed_at||['agreed','signed'].includes(LEASE.negotiation_status||''))return;
+  const autres=(SIBLINGS||[]).filter(x=>x.id!==LEASE.id);if(!autres.length)return;
+  const vide=v=>v==null||v===''||(Array.isArray(v)&&!v.length);
+  const u={};
+  CHAMPS_COMMUNS.forEach(k=>{if(!vide(LEASE[k]))return;const src=autres.find(x=>!vide(x[k]));if(src)u[k]=src[k];});
+  if(!Object.keys(u).length)return;
+  const{error}=await sb.from('leases').update(u).eq('id',LEASE.id);
+  if(!error)Object.assign(LEASE,u);
+}
 async function loadSiblings(){
   SIBLINGS=[];
   const B=_bookingRef();if(!B)return;
@@ -3590,10 +3638,11 @@ const _COLOC_LBL={commun_solidaire:'un seul bail, avec solidarité',commun_simpl
 function needsColocChoice(){
   return !!(LEASE&&LEASE.booking_id&&!LEASE.colocation_type&&_bailArr(BOOKING?.co_locataires_data).some(c=>c.coloc_status!=='declined'));
 }
-async function chooseColocType(val,sansConfirm){
+async function chooseColocType(val,sansConfirm,force){
   if(myRole!=='landlord'||LEASE.landlord_signed_at||LEASE.tenant_signed_at)return;
   if(LEASE.colocation_type){toast('Le modèle est verrouillé. Utilisez « Changer de modèle (tout recommencer) ».',5000);return;}
-  if(val!=='individuel'&&window._colocBloqueCommun){toast('Avec Visale ici, un seul bail n’est pas possible : choisissez un bail par locataire.',6000);return;}
+  if(val!=='individuel'&&window._colocBloqueCommun&&!force){toast('Avec Visale ici, un seul bail n’est pas possible : choisissez un bail par locataire.',6000);return;}
+  if(val!=='individuel'&&window._colocBloqueCommun&&force&&!confirm('Faire un seul bail malgré tout ?\n\nLes règles de Visale demandent ici un bail par locataire. Avec un seul bail, Action Logement peut refuser de couvrir les impayés.\n\nVous confirmez ce choix en connaissance de cause ?'))return;
   if(!sansConfirm&&!confirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
   const cur='commun_solidaire';
   if(val==='individuel'&&cur!=='individuel'){
@@ -3626,20 +3675,29 @@ function renderModelBar(L){
   const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
   if(myRole!=='landlord'||!L.booking_id||!cols.length){el.innerHTML='';return;}
   const signe=!!(L.landlord_signed_at||L.tenant_signed_at||SIBLINGS.some(x=>x.landlord_signed_at||x.tenant_signed_at));
-  const _gate=!L.colocation_type&&window._colocBloqueCommun;
+  const _gate=!L.colocation_type&&_peutModifier&&!signe;
   document.body.classList.toggle('bail-gate',!!_gate);
   if(_gate){
+    const bloque=!!window._colocBloqueCommun;
     const vis=visaleTenants().map(v=>v.name).filter(Boolean);
     const noms=[L.tenant_name||'Locataire 1',...cols.map(c=>c.name||c.email||'Co-locataire')];
+    const btnCommun=(v,l,d)=>`<button type="button" class="gate-choix" onclick="chooseColocType('${v}',${bloque},${bloque})"><strong>${l}</strong><span>${d}</span></button>`;
+    const commun=`<div class="gate-choix-g">${btnCommun('commun_solidaire','Avec solidarité','Si un locataire ne paie pas, les autres peuvent devoir payer sa part.')}${btnCommun('commun_simple','Sans solidarité','Chacun ne doit que sa part du loyer.')}</div>`;
     el.innerHTML=`<div class="gate-page">
       <div class="gate-eyebrow"><i data-lucide=files class=ic></i> Avant de préparer le bail</div>
-      <h2>Ici, il faut un bail par locataire</h2>
-      <p style="font-size:.92rem;line-height:1.6;margin:0">${window._colocConseilTxt||''}</p>
-      <ul>
-        ${noms.map((n,i)=>`<li><strong>Bail ${i+1}</strong> — ${_escB(n)} : sa chambre, sa part du loyer, ${vis.includes(n)?'sa garantie Visale':i===0&&L.garant_name?'la caution de '+_escB(L.garant_name):'sa propre garantie'}.</li>`).join('')}
-      </ul>
-      <p style="font-size:.82rem;color:var(--td);margin:.8rem 0 0;line-height:1.55">Pas de solidarité entre les locataires : chacun ne doit que sa part. Vous retrouverez chaque bail dans les onglets en haut de la page, à compléter et envoyer un par un ou tous ensemble.</p>
-      ${_peutModifier&&!signe?`<button class="gate-btn" onclick="this.disabled=true;this.innerHTML='Création des baux…';chooseColocType('individuel',true).finally(()=>{this.disabled=false;})"><i data-lucide=files class=ic></i> Créer les ${noms.length} baux individuels</button>`:''}
+      <h2>${bloque?'Ici, il faut un bail par locataire':'Un bail pour tous, ou un bail par locataire ?'}</h2>
+      ${window._colocConseilTxt?`<p style="font-size:.9rem;line-height:1.6;margin:0 0 .4rem">${window._colocConseilTxt}</p>`:''}
+      <div class="gate-opt">
+        <div class="gate-opt-t">Un bail par locataire</div>
+        <ul>${noms.map((n,i)=>`<li><strong>Bail ${i+1}</strong> — ${_escB(n)} : sa chambre, sa part du loyer, ${vis.includes(n)?'sa garantie Visale':i===0&&L.garant_name?'la caution de '+_escB(L.garant_name):'sa propre garantie'}.</li>`).join('')}</ul>
+        <p class="gate-note">Les informations du logement (diagnostics, annexes, travaux…) remplies sur un bail sont reprises sur les autres.</p>
+        <button class="gate-btn" onclick="this.disabled=true;this.innerHTML='Création des baux…';chooseColocType('individuel',true).finally(()=>{this.disabled=false;})"><i data-lucide=files class=ic></i> Créer les ${noms.length} baux individuels</button>
+      </div>
+      ${bloque
+        ?`<details class="gate-opt gate-quand-meme"><summary>Faire quand même un seul bail pour tous</summary>
+            <div class="gate-alerte"><strong>Déconseillé.</strong> Dans cette situation, les règles de Visale demandent un bail par locataire. Avec un seul bail, Action Logement peut refuser de couvrir les impayés, et vous restez seul responsable de ce choix.</div>
+            ${commun}</details>`
+        :`<div class="gate-opt"><div class="gate-opt-t">Un seul bail pour tous</div>${commun}</div>`}
     </div>`;
     if(window.lucide)lucide.createIcons();return;
   }
@@ -3770,7 +3828,7 @@ function renderVisaleBox(L){
     </div>`;
   }).join('');
   const aide=ll
-    ?`<ol style="margin:.2rem 0 .6rem 1.1rem;font-size:.8rem;line-height:1.6">
+    ?`<details class="vis-aide"><summary>Comment faire sur visale.fr ?</summary><ol style="margin:.2rem 0 .6rem 1.1rem;font-size:.8rem;line-height:1.6">
         <li>Ouvrez <strong>visale.fr</strong> → espace bailleur (créez votre compte la première fois).</li>
         <li>Attendez que le loyer, les charges et la date d'entrée soient <strong>définitifs</strong> (modèle validé par le locataire) : le contrat Visale les reprend.</li>
         <li>Entrez le <strong>n° de visa</strong> ci-dessous et les infos du bail.${vs.length>1?' <strong>Rattachez chaque visa au même bail.</strong>':''} Le visa doit être <strong>encore valide</strong> le jour de la signature du bail.</li>
@@ -3778,10 +3836,10 @@ function renderVisaleBox(L){
         <li>Revenez ici, cliquez « J'ai signé le contrat Visale » et <strong>déposez le contrat en PDF</strong> : il est annexé au bail.</li>
       </ol>
       ${multiV?`<div style="font-size:.76rem;background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:.45rem .6rem;margin-bottom:.5rem"><strong>Colocation :</strong> ${nbT===2&&vs.length===1?'à 2 colocataires, un seul visa peut suffire (Action Logement tient compte des revenus des deux).':nbT>=3?'à 3 locataires ou plus, Action Logement conseille un bail et un visa par locataire.':'un visa par locataire.'} Part de chacun ici : environ ${fmt(partV)}/mois. Vérifiez sur visale.fr que le loyer garanti ne dépasse pas le plafond du visa. ${nbT>vs.length&&!(nbT===2&&vs.length===1)?'Les colocataires sans visa ne sont pas couverts par Visale.':''}</div>`:''}
-      <div style="font-size:.74rem;color:var(--td);margin-bottom:.6rem">Visale (Action Logement) ne signe pas le bail : il n'y a pas de case « garant » pour lui. En cas d'impayé, vous le déclarez sur visale.fr et Visale vous paie.</div>`
+      <div style="font-size:.74rem;color:var(--td);margin-bottom:.4rem">Visale (Action Logement) ne signe pas le bail : il n'y a pas de case « garant » pour lui. En cas d'impayé, vous le déclarez sur visale.fr et Visale vous paie.</div></details>`
     :`<div style="font-size:.8rem;line-height:1.55;margin-bottom:.6rem">${vs.some(v=>v.isMe)?'<strong>Vous n\'avez rien à signer pour Visale.</strong> ':''}Le bailleur valide le visa sur visale.fr et signe en ligne le contrat de cautionnement avec Action Logement. Visale ne signe pas le bail. Une fois signé, le contrat de cautionnement est aussi disponible dans votre espace Visale : vous pouvez le déposer ci-dessous pour l’annexer au bail.</div>`;
-  el.innerHTML=`<div style="margin-top:.8rem;border:1.5px solid rgba(27,79,216,.25);background:rgba(27,79,216,.04);border-radius:10px;padding:.85rem 1rem">
-    <div class="bc-title" style="margin-bottom:.4rem"><i data-lucide=shield-check class=ic></i> Garantie Visale${ll?' — à faire avant de signer':''}</div>
+  el.innerHTML=`<div class="panneau">
+    <div class="panneau-t"><i data-lucide=shield-check class=ic></i> Garantie Visale${ll?' <span style="font-weight:500;color:var(--td)">· à faire avant de signer</span>':''}</div>
     ${aide}<div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
 }
@@ -3890,7 +3948,16 @@ function colocPart(L){
   const n=bc.coLocs.length+1,tot=(Number((L||LEASE).rent)||0)+(Number((L||LEASE).charges)||0);
   return{n,part:Math.round(tot/n)};
 }
-const ACTE_SEPARE=true; // garants : acte de cautionnement séparé au lieu d'une clause dans le bail
+// Garants : acte de cautionnement séparé (par défaut) ou engagement directement dans le bail — choix du bailleur (leases.caution_mode)
+Object.defineProperty(window,'ACTE_SEPARE',{get:()=>!(LEASE&&LEASE.caution_mode==='bail'),configurable:true});
+async function setCautionMode(v){
+  if(!LEASE||(LEASE.caution_mode||'acte')===v)return;
+  if(v==='bail'&&(ACTES||[]).some(a=>a.statut==='envoye'||a.statut==='signe')){toast('Des actes de cautionnement ont déjà été envoyés aux garants : impossible de repasser la caution dans le bail.',6000);return;}
+  const{error}=await sb.from('leases').update({caution_mode:v}).eq('id',LEASE.id);
+  if(error){toast(/caution_mode/.test(error.message)?'Exécutez supabase-migration-caution-mode.sql dans Supabase pour enregistrer ce choix.':'Erreur : '+error.message,7000);return;}
+  LEASE.caution_mode=v;_syncSoeurs({caution_mode:v}).catch(()=>{});
+  renderBail();if(document.body.classList.contains('bail-tunnel'))wzRender(true);
+}
 const GARANTS_AVANT=false; // true = le bail ne se signe qu'après tous les actes ; false = en même temps ou juste après
 function renderCoGarantsSection(L){
   const el=q('cogarants-section');if(!el)return;
@@ -3979,7 +4046,7 @@ async function inviteExtraSigners(force){
     const t=x.token||tok();
     const lien=location.origin+'/bail-meuble.html?lease_id='+LEASE.id+'&role=garant&cgt='+encodeURIComponent(t);
     try{
-      const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:x.email,data:{garantNom:x.name,locataireNom:x.forName,listingTitle:LEASE.listing_title||'le logement',listingAddress:LISTING?.full_address||'',bailUrl:lien}})});
+      const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:x.email,data:{dansBail:true,garantNom:x.name,locataireNom:x.forName,listingTitle:LEASE.listing_title||'le logement',listingAddress:LISTING?.full_address||'',bailUrl:lien}})});
       if(!r.ok)throw new Error('HTTP '+r.status);
       patch[x.key]={token:t,invited_at:new Date().toISOString()};sent++;
     }catch(e){patch[x.key]={token:t};toast('Email au garant '+x.name+' non envoyé : '+e.message,7000);}
@@ -4000,16 +4067,16 @@ async function inviteGarant(force){
 // (zone tendue, meublé/vide, première location…) restent gérées par le bail lui-même.
 const WZ_STEPS=[
   {t:'Les parties',d:'Vérifiez les coordonnées du bailleur et du locataire telles qu’elles figureront dans le bail.',k:['landlord_name','landlord_address','landlord_email','landlord_phone','tenant_name','tenant_address','tenant_email','tenant_phone','tenant_nationality']},
-  {t:'Le logement',d:'Description du logement loué.',k:['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['usage']},
+  {t:'Le logement',d:'Description du logement loué.',k:['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['lot','usage']},
   {t:'Annexes et équipements',d:'Cave, stationnement, parties communes et télécoms.',k:['dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres','commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres']},
   {t:'Dates',d:'La date de fin est calculée d’après la durée légale ; modifiez-la seulement si besoin.',k:['start_date','end_date','payment_due_day']},
   {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
   {t:'Dépôt de garantie',d:'Montant demandé au locataire à l’entrée.',k:['deposit_mode','deposit']},
-  {t:'Garantie',d:'Garant du locataire (son acte de cautionnement se signe à part).',k:['garant_name','garant_email','garant_phone','garant_address','garant_type','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
+  {t:'Garantie',d:'Comment le loyer est garanti si le locataire ne paie pas.',sp:['garantie','gli'],k:['garant_name','garant_email','garant_phone','garant_address','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
   {t:'Diagnostics',d:'Performance énergétique et diagnostics obligatoires.',k:['dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit'],sp:['annexes']},
   {t:'Travaux',d:'Travaux réalisés depuis le dernier bail.',k:['travaux_desc','travaux_realises','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer']},
   {t:'Autres informations',d:'Derniers éléments repérés dans le bail.',k:'reste'},
-  {t:'Finitions',d:'Assurance loyers impayés, type de caution, clauses particulières et textes de loi en fin de bail.',k:[],sp:['gli','caution','lot','clauses','regles']},
+  {t:'Clauses du bail',d:'Ajoutez si besoin des clauses propres à votre logement, puis choisissez d’afficher ou non les textes de loi.',k:[],sp:['clauses','regles']},
   {t:'Récapitulatif',d:'',recap:true},
 ];
 let _wzStep=0,_wzOuvertAuto=false;
@@ -4119,8 +4186,10 @@ const WZ_DETAILS={dep_cave:['dep_cave_numero','cave_details'],dep_parking:['park
 const WZ_SI={};
 ['travaux_desc','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer'].forEach(k=>WZ_SI[k]=['travaux_realises','oui']);
 ['dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'].forEach(k=>WZ_SI[k]=['premiere_mise_en_location','non']);
-function _wzSiOk(k){const c=WZ_SI[k];if(!c)return true;const el=document.getElementById('wz-'+c[0]);const v=el?el.value:_wzVal(c[0]);return v===c[1];}
+function _wzSiOk(k){const c=WZ_SI[k];if(!c)return true;const el=document.getElementById('wz-'+c[0]);const v=el?el.value:_wzVal(c[0]);return Array.isArray(c[1])?c[1].includes(v):v===c[1];}
 function _wzSi(){document.querySelectorAll('#wz [data-si]').forEach(e=>{e.hidden=!_wzSiOk(e.dataset.si);});}
+['garant_name','garant_email','garant_phone','garant_address','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place'].forEach(k=>WZ_SI[k]=['garant_type',['solidaire','simple']]);
+WZ_SI.visale_ref=['garant_type','visale'];WZ_SI.garant_organisme=['garant_type','organisme'];
 const _WZ_COURTS={dep_parking:'Parking',dep_garage:'Garage',telecom_fibre:'Fibre optique',telecom_internet_fourni:'Internet fourni'};
 let _wzOuverts=new Set();
 function _wzAffiche(key){
@@ -4172,11 +4241,12 @@ function _wzCorps(s){
     return h;
   };
   const apres=['annexes'];
-  let h=s.sp.filter(x=>!apres.includes(x)).map(_wzSpecial).join('');
+  const sec=x=>{const h=_wzSpecial(x);return h?`<div class="wz-sec">${h}</div>`:'';};
+  let h=s.sp.filter(x=>!apres.includes(x)).map(sec).join('');
   if(aCases)h+=_wzCases(s.keys);
   const multi=grp.size>1;
   grp.forEach((ks,g)=>{h+=`<div class="wz-grp">${multi&&g?`<div class="wz-grp-t">${g}</div>`:''}${bloc(ks)}</div>`;});
-  h+=s.sp.filter(x=>apres.includes(x)).map(_wzSpecial).join('');
+  h+=s.sp.filter(x=>apres.includes(x)).map(sec).join('');
   if(fac.length)h+=`<details class="wz-plus"><summary>Ajouter des précisions (facultatif)</summary><div class="wz-grille" style="margin-top:.7rem">${fac.map(k=>_wzChamp(k,false)).join('')}</div></details>`;
   return h;
 }
@@ -4202,9 +4272,15 @@ function _wzSpecial(x){
     return`<div class="wz-f"><label>Avez-vous une assurance loyers impayés (GLI) sur ce logement ?</label><div class="wz-pills"><button type="button" class="wz-pill${v?' on':''}" onclick="setGli('oui').then(()=>wzRender())">Oui</button><button type="button" class="wz-pill${!v?' on':''}" onclick="setGli('non').then(()=>wzRender())">Non</button></div><div class="wz-aide">Avec une GLI, vous ne pouvez pas demander de garant en plus (sauf locataire étudiant ou apprenti).</div></div>`;}
   if(x==='caution'){const sim=LEASE.garant_type==='simple';
     return`<div class="wz-f"><label>Type de caution accepté pour le garant</label><div class="wz-pills"><button type="button" class="wz-pill${!sim?' on':''}" onclick="saveField('garant_type','solidaire').then(()=>wzRender())">Solidaire uniquement</button><button type="button" class="wz-pill${sim?' on':''}" onclick="saveField('garant_type','simple').then(()=>wzRender())">Simple aussi</button></div><div class="wz-aide">${sim?'En cas d’impayé, vous devez d’abord poursuivre le locataire ; le garant ne paie que si le locataire ne peut pas.':'En cas d’impayé, vous pouvez demander directement au garant de payer.'}</div></div>`;}
-  if(x==='lot')return`<div class="wz-f"><label>Nom de la chambre louée</label><div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap"><span>${LEASE.lot_label?String(LEASE.lot_label).replace(/</g,'&lt;'):'<em style="color:#6B7280">non renseigné</em>'}</span><button type="button" class="wz-pill" onclick="renameLot().then(()=>wzRender())">${LEASE.lot_label?'Modifier':'Nommer la chambre'}</button></div></div>`;
+  if(x==='garantie'){
+    const gt=LEASE.garant_type||'',phys=gt==='solidaire'||gt==='simple';
+    const p=(v,l,on)=>`<button type="button" class="wz-pill${on?' on':''}" onclick="saveField('garant_type','${v}').then(()=>wzRender(true))">${l}</button>`;
+    return`<div class="wz-f"><label>Quel type de garantie ?</label><div class="wz-pills">${p(phys?gt:'solidaire','Une personne se porte garante',phys)}${p('visale','Garantie Visale',gt==='visale')}${p('organisme','Organisme ou caution bancaire',gt==='organisme')}${p('aucune','Aucune garantie',gt==='aucune')}</div></div>`
+      +(phys?`<div class="wz-f"><label>Où le garant signe-t-il son engagement ?</label><div class="wz-pills"><button type="button" class="wz-pill${LEASE.caution_mode!=='bail'?' on':''}" onclick="setCautionMode('acte')">Acte de cautionnement à part</button><button type="button" class="wz-pill${LEASE.caution_mode==='bail'?' on':''}" onclick="setCautionMode('bail')">Directement dans le bail</button></div><div class="wz-aide">${LEASE.caution_mode==='bail'?'L’engagement du garant figure dans le bail et il signe le bail avec vous et le locataire.':'Le garant signe un document séparé, annexé au bail. Le bail reste plus court et lisible.'}</div></div>`:'')
+      +(phys?`<div class="wz-f"><label>Engagement de la personne garante</label><div class="wz-pills">${p('solidaire','Caution solidaire',gt==='solidaire')}${p('simple','Caution simple',gt==='simple')}</div><div class="wz-aide">${gt==='simple'?'En cas d’impayé, vous devez d’abord poursuivre le locataire ; le garant ne paie que si le locataire ne peut pas.':'En cas d’impayé, vous pouvez demander directement au garant de payer (le plus courant).'}</div></div>`:'');}
+  if(x==='lot')return`<div class="wz-f"><label for="wz-lot_label">Nom de la chambre louée</label><input id="wz-lot_label" class="wz-in" maxlength="80" placeholder="ex. Chambre 2 — 12 m², fenêtre sur cour" value="${String(LEASE.lot_label||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}"></div>`;
   if(x==='clauses'){const C=LEASE.custom_clauses||[];
-    return`<div class="wz-f"><label>Clauses particulières <span style="font-weight:400;color:#6B7280">(facultatif)</span></label>${C.length?`<ul style="margin:.2rem 0 .5rem 1.1rem;font-size:.86rem;line-height:1.6">${C.map((c,i)=>`<li>${String(c.title||c.content||'Clause').replace(/</g,'&lt;').slice(0,80)} <a href="#" onclick="openClauseModal(${i});return false" style="font-size:.78rem">modifier</a></li>`).join('')}</ul>`:'<div class="wz-aide" style="margin:0 0 .4rem">Aucune clause ajoutée.</div>'}<button type="button" class="wz-pill" onclick="openClauseModal(-1)">+ Ajouter une clause</button></div>`;}
+    return`<div class="wz-f"><label>Clauses particulières <span style="font-weight:400;color:#6B7280">(facultatif)</span></label>${C.length?`<div class="wz-lignes">${C.map((c,i)=>`<div class="wz-ligne"><span class="wz-l-val" style="font-weight:500">${String(c.title||c.content||'Clause').replace(/</g,'&lt;').slice(0,90)}</span><button type="button" class="wz-l-mod" onclick="openClauseModal(${i})">Modifier</button></div>`).join('')}</div>`:'<div class="wz-aide" style="margin:0 0 .5rem">Aucune clause : l’article 10 du bail indiquera « Néant ».</div>'}<button type="button" class="wz-pill" onclick="openClauseModal(-1)">+ Ajouter une clause</button></div>`;}
   if(x==='regles'){const on=LEASE.regles_droit!==false;
     return`<div class="wz-f"><label>Mettre les textes de loi applicables à la fin du bail ?</label><div class="wz-pills"><button type="button" class="wz-pill${on?' on':''}" onclick="setReglesDroit(true)">Oui, les afficher</button><button type="button" class="wz-pill${!on?' on':''}" onclick="setReglesDroit(false)">Non</button></div><div class="wz-aide">Dernier article du bail : liste des lois et décrets qui s’appliquent (loi du 6 juillet 1989, décence, révision IRL, clause résolutoire…). Facultatif : la loi s’applique de toute façon.</div></div>`;}
   if(x==='usage'){const m=LEASE.usage_locaux==='mixte';
@@ -4219,12 +4295,12 @@ function _wzSpecial(x){
 async function setReglesDroit(v){
   const{error}=await sb.from('leases').update({regles_droit:v}).eq('id',LEASE.id);
   if(error){toast(/regles_droit/.test(error.message)?'Exécutez supabase-migration-regles-droit.sql dans Supabase pour enregistrer ce choix.':'Erreur : '+error.message,7000);return;}
-  LEASE.regles_droit=v;renderBail();if(document.body.classList.contains('bail-tunnel'))wzRender();
+  LEASE.regles_droit=v;_syncSoeurs({regles_droit:v}).catch(()=>{});renderBail();if(document.body.classList.contains('bail-tunnel'))wzRender();
 }
 // Clauses ajoutées depuis le tunnel : le tunnel se met à jour
 {const _sc=saveClause,_dc=deleteClause;
-  window.saveClause=async(...a)=>{await _sc(...a);if(document.body.classList.contains('bail-tunnel'))wzRender();};
-  window.deleteClause=async(...a)=>{await _dc(...a);if(document.body.classList.contains('bail-tunnel'))wzRender();};}
+  window.saveClause=async(...a)=>{await _sc(...a);_syncSoeurs({custom_clauses:LEASE.custom_clauses||[]}).catch(()=>{});if(document.body.classList.contains('bail-tunnel'))wzRender();};
+  window.deleteClause=async(...a)=>{await _dc(...a);_syncSoeurs({custom_clauses:LEASE.custom_clauses||[]}).catch(()=>{});if(document.body.classList.contains('bail-tunnel'))wzRender();};}
 function wzOuvrir(i){
   if(!_peutModifier){toast('Le bail n’est plus modifiable (déjà validé ou signé).');return;}
   _wzStep=i||0;document.body.classList.add('bail-tunnel');renderBail();wzRender();
@@ -4262,6 +4338,10 @@ function wzRender(garderScroll){
 async function _wzEnregistrer(){
   const S=_wzSteps(),s=S[_wzStep];if(!s||s.recap)return true;
   const b=q('wz-suiv');if(b){b.disabled=true;b.textContent='Enregistrement…';}
+  const lot=document.getElementById('wz-lot_label');
+  if(lot&&lot.value.trim()!==(LEASE.lot_label||'')){const v=lot.value.trim()||null;
+    const{error}=await sb.from('leases').update({lot_label:v}).eq('id',LEASE.id);
+    if(error)toast('Erreur : '+error.message,6000);else{LEASE.lot_label=v;const me=(typeof SIBLINGS!=='undefined'?SIBLINGS:[]).find(x=>x.id===LEASE.id);if(me)me.lot_label=v;try{renderLotAndTabs(LEASE);}catch(e){}}}
   const ordre=[...s.keys].sort((a,b)=>(a==='end_date')-(b==='end_date'));
   for(const k of ordre){
     const parent=Object.keys(WZ_DETAILS).find(p=>WZ_DETAILS[p].includes(k));
@@ -4414,8 +4494,8 @@ function renderActesBox(L){
       <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center"><div><strong>${_escB(g.nom)}</strong> <span style="color:var(--td);font-size:.8rem">· caution de ${_escB(g.forName)}</span></div><div style="font-size:.78rem">${etat}</div></div>
       ${acts.length?`<div style="display:flex;gap:.4rem;flex-wrap:wrap">${acts.join('')}</div>`:''}</div>`;
   }).join('');
-  el.innerHTML=`<div style="margin-top:.8rem;border:1.5px solid rgba(180,83,9,.3);background:rgba(180,83,9,.04);border-radius:10px;padding:.85rem 1rem">
-    <div class="bc-title" style="margin-bottom:.35rem"><i data-lucide=file-signature class=ic></i> Actes de cautionnement</div>
+  el.innerHTML=`<div class="panneau">
+    <div class="panneau-t"><i data-lucide=file-signature class=ic></i> Actes de cautionnement</div>
     <div style="font-size:.78rem;color:var(--td);margin-bottom:.55rem;line-height:1.5">Chaque garant signe son acte de cautionnement en même temps que le bail ou juste après : il recopie les mentions légales et reçoit un exemplaire du bail. L'acte est affiché en dessous du bail et annexé une fois signé.</div>
     <div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
@@ -4438,7 +4518,7 @@ async function _inviteMainGarant(force){
   const tNom=[T_PROFILE?.first_name,T_PROFILE?.last_name].filter(Boolean).join(' ')||T_PROFILE?.full_name||LEASE.tenant_name||'Le locataire';
   // 2) envoyer l'email
   try{
-    const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{garantNom:LEASE.garant_name,locataireNom:tNom,listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||LISTING?.full_address||'',bailUrl:lien}})});
+    const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:LEASE.garant_email,data:{dansBail:true,garantNom:LEASE.garant_name,locataireNom:tNom,listingTitle:LEASE.listing_title||'le logement',listingAddress:LEASE.address||LISTING?.full_address||'',bailUrl:lien}})});
     if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();if(j?.error)m=j.error;}catch(e){}throw new Error(m);}
   }catch(e){toast('<i data-lucide=alert-triangle class=ic></i> Email au garant non envoyé : '+e.message,8000);return false;}
   // 3) marquer comme envoyé seulement si l'email est vraiment parti
