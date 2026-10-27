@@ -412,6 +412,7 @@
   body.bail-propre #bail-wrap .edit-btn,body.bail-propre #bail-wrap .missing-badge,body.bail-propre #bail-wrap .bc-edit,body.bail-propre #bail-wrap .clause-add-btn{display:none!important}
   .wz-f{margin-bottom:.9rem}
   .wz-grp{margin:0 0 1.2rem}
+  .wz-info{font-size:.78rem;color:#4B5563;background:#F7F8FA;border-radius:8px;padding:.45rem .7rem;margin-top:.6rem}
   .wz-sec+.wz-sec,.wz-sec+.wz-grp{border-top:1px solid #F0F1F4;padding-top:1.1rem;margin-top:.2rem}
   .wz-grp-t{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin:0 0 .55rem;padding-bottom:.35rem;border-bottom:1px solid #F3F4F6}
   .wz-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:.9rem}
@@ -440,6 +441,7 @@
   .wz-pills{display:flex;gap:.4rem;flex-wrap:wrap}
   .wz-pill{border:1.5px solid #D1D5DB;background:#fff;border-radius:20px;padding:.35rem .9rem;font-size:.84rem;font-weight:600;cursor:pointer;color:inherit}
   .wz-pill.on{background:var(--bleu);border-color:var(--bleu);color:#fff}
+  .wz-pill:disabled{opacity:.45;cursor:not-allowed}
   .wz-aide{font-size:.75rem;color:#6B7280;margin-top:.3rem;line-height:1.5}
   .wz-annexe{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.84rem;padding:.45rem 0;border-bottom:1px solid #F3F4F6}
   .wz-nav{display:flex;justify-content:space-between;gap:.6rem;margin-top:1.4rem;padding-top:1rem;border-top:1px solid #F3F4F6}
@@ -1053,7 +1055,8 @@
   <div class="submit-bar-inner">
     <div id="submit-hint">—</div>
     <div style="display:flex;gap:.5rem;align-items:center">
-      <button class="btn" type="button" onclick="exportBailPDF()" style="background:#fff;border:1.5px solid var(--bleu);color:var(--bleu);border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem"><i data-lucide=download class=ic></i> Exporter en PDF</button>
+      <button class="btn" type="button" id="bar-modifier" onclick="wzOuvrir(0,true)" style="display:none;background:var(--bleu);border:1.5px solid var(--bleu);color:#fff;border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer;align-items:center;gap:.35rem"><i data-lucide=pencil class=ic></i> Modifier le bail</button>
+      <button class="btn" type="button" id="bar-pdf" onclick="exportBailPDF()" style="background:#fff;border:1.5px solid var(--bleu);color:var(--bleu);border-radius:8px;padding:.5rem .9rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem"><i data-lucide=download class=ic></i> Exporter en PDF</button>
       <button class="btn btn-green" id="submit-btn" style="display:none" onclick="submitSignature()"><i data-lucide=pen-tool class=ic></i> Signer le bail</button>
     </div>
   </div>
@@ -2163,12 +2166,14 @@ async function loadBail(){
     if(LEASE?.garant_name)LEASE.garant_name=cleanPersonName(LEASE.garant_name);
     renderBail();
     // Bail déjà accepté mais garant jamais invité → envoyer son lien maintenant
-    if((LEASE.negotiation_status==='agreed')&&(myRole==='landlord'||myRole==='tenant')&&((!LEASE.garant_invited_at&&LEASE.garant_email&&!LEASE.garant_signed_at)||EXTRA_SIGNERS.some(s=>!s.signed_at&&((s.type==='cogarant'&&s.email&&!s.invited_at)||(s.type==='coloc'&&s.id&&!s.notified_at))))){
+    if(['agreed','signed'].includes(LEASE.negotiation_status)&&(myRole==='landlord'||myRole==='tenant')&&((!LEASE.garant_invited_at&&LEASE.garant_email&&!LEASE.garant_signed_at)||EXTRA_SIGNERS.some(s=>!s.signed_at&&((s.type==='cogarant'&&s.email&&!s.invited_at)||(s.type==='coloc'&&s.id&&!s.notified_at))))){
       inviteGarant(false).then(ok=>{if(ok)renderStatusAndSigs();});
     }
     startSigPolling();
     renderNegocBar();
     try{wzAuto();}catch(e){console.error(e);}
+    try{const r=JSON.parse(sessionStorage.getItem('wz-reprise')||'null');sessionStorage.removeItem('wz-reprise');
+      if(r&&r.id===LEASE.id&&_peutModifier){if(r.libre)_wzLibre=true;if(!document.body.classList.contains('bail-tunnel'))wzOuvrir(0);const i=_wzSteps().findIndex(x=>x.t===r.t);if(i>=0){_wzStep=i;wzRender();}}}catch(e){}
   }catch(e){showError('Erreur : '+e.message);}
 }
 
@@ -2278,7 +2283,9 @@ async function setGli(v){
   if(v==='non'&&LEASE.garant_type==='aucune')upd.garant_type=null;
   const{error}=await sb.from('leases').update(upd).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message,5000);return;}
-  if(v==='non'){location.reload();return;} // reprend le garant déclaré dans le dossier
+  if(v==='non'){ // reprend le garant déclaré dans le dossier ; le tunnel rouvre à la même étape
+    try{if(document.body.classList.contains('bail-tunnel'))sessionStorage.setItem('wz-reprise',JSON.stringify({id:LEASE.id,t:_wzSteps()[_wzStep]?.t,libre:_wzLibre}));}catch(e){}
+    location.reload();return;}
   Object.assign(LEASE,upd);buildExtraSigners();renderBail();
   toast(TENANT_ETUDIANT?'GLI enregistrée':'GLI enregistrée : aucune caution ne sera demandée au locataire',4000);
 }
@@ -2392,7 +2399,7 @@ function renderGarantiesBlock(L){
           </button>
           <button type="button" class="cs-opt${c==='individuel'?' on':''}" onclick="chooseColocType('individuel')">
             <strong>Un bail par locataire (location de chambre)</strong>
-            <span>Un bail séparé est créé pour chaque locataire, avec sa chambre et sa part du loyer. Vous les retrouvez dans les onglets en haut de la page et les envoyez un par un ou tous ensemble.</span>
+            <span>Un bail séparé est créé pour chaque locataire, avec sa chambre et sa part du loyer. Chaque bail s’ouvre depuis la fiche de la candidature dans votre tableau de bord.</span>
           </button>
         </div>
       </div>`:''}
@@ -2611,7 +2618,9 @@ function _renderBail(){
   renderGarantiesBlock(L);
   renderVisaleBox(L);
   try{renderActesBox(L);renderActesDocs(L);}catch(e){console.error(e);}
-  {const wl=q('wz-lanceur');if(wl)wl.innerHTML=_peutModifier&&myRole==='landlord'&&!document.body.classList.contains('bail-gate')?`<div class="wz-lanceur"><span style="color:#4B5563">Pour changer une information du bail, passez par les étapes.</span><button type="button" class="bc-pill on" style="padding:.4rem 1rem" onclick="wzOuvrir(0)">Modifier le bail</button></div>`:'';}
+  {const wl=q('wz-lanceur');if(wl)wl.innerHTML='';
+   const mod=_peutModifier&&myRole==='landlord'&&!document.body.classList.contains('bail-gate');
+   const bm=q('bar-modifier'),bp=q('bar-pdf');if(bm)bm.style.display=mod?'inline-flex':'none';if(bp)bp.style.display=mod?'none':'inline-flex';}
   renderLotAndTabs(L);
   renderModelBar(L);
   renderUsage(L);
@@ -3397,12 +3406,12 @@ function renderNegocBar(){
   const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.innerHTML=label;b.onclick=fn;acts.appendChild(b);window.lucide&&lucide.createIcons();};
 
   if(effectiveRole==='landlord'){
-    if(ns==='draft')                  btn('<i data-lucide=send class=ic></i> Envoyer au locataire →','btn-blue',sendToTenant);
+    if(ns==='draft'){_suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Envoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour l’envoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);}
     if(ns==='pending_tenant')         step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Rien à faire pour l'instant : le locataire doit accepter le bail ou demander des modifications. Les signatures s'ouvriront ensuite.</div>`;
     // Le locataire a fait des remarques → le bailleur ajuste puis RENVOIE obligatoirement (pas de validation directe)
     if(ns==='pending_landlord'){
       step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Faites les ajustements dans le bail, puis renvoyez-le au locataire pour qu'il le relise et l'accepte.</div>`;
-      btn('<i data-lucide=send class=ic></i> Renvoyer au locataire →','btn-blue',sendToTenant);
+      _suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Renvoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour le renvoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);
     }
   }
   if(effectiveRole==='tenant'){
@@ -3421,7 +3430,15 @@ function renderNegocBar(){
   }
 }
 
+let _bailLu=false;
+function _suivreLecture(){
+  if(_bailLu||document.getElementById('fin-bail'))return;
+  const c=document.querySelector('.bail-card');if(!c)return;
+  const f=document.createElement('div');f.id='fin-bail';f.style.height='1px';c.appendChild(f);
+  new IntersectionObserver((en,o)=>{if(en.some(e=>e.isIntersecting)&&!document.body.classList.contains('bail-tunnel')){_bailLu=true;o.disconnect();try{renderNegocBar();}catch(e){}}}).observe(f);
+}
 async function sendToTenant(){
+  if(!_bailLu){toast('Relisez le bail jusqu’en bas avant de l’envoyer au locataire.',5000);document.querySelector('.bail-card')?.scrollIntoView({behavior:'smooth'});return;}
   if(needsColocChoice()){toast('Choisissez d\'abord le modèle de bail (Étape 1, bloc « Garantie et colocation »).',6000);document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const _resend=LEASE.negotiation_status==='pending_landlord';
   const{error}=await sb.from('leases').update({negotiation_status:'pending_tenant',sent_to_tenant_at:new Date().toISOString()}).eq('id',LEASE.id);
@@ -3601,7 +3618,8 @@ function renderLotAndTabs(L){
       return;
     }
   }
-  if(SIBLINGS.length<2||myRole!=='landlord'){
+  // Un seul bail affiché : chaque bail s'ouvre depuis la fiche du locataire dans le tableau de bord
+  if(true){
     el.innerHTML=(SIBLINGS.length>1&&L.lot_label)?`<div style="max-width:880px;margin:0 auto .8rem;font-size:.82rem;color:var(--td)">Votre bail individuel — <strong>${_escB(L.lot_label)}</strong></div>`:'';
     return;
   }
@@ -3950,7 +3968,7 @@ function colocPart(L){
   return{n,part:Math.round(tot/n)};
 }
 // Garants : acte de cautionnement séparé (par défaut) ou engagement directement dans le bail — choix du bailleur (leases.caution_mode)
-Object.defineProperty(window,'ACTE_SEPARE',{get:()=>!(LEASE&&LEASE.caution_mode==='bail'),configurable:true});
+const ACTE_SEPARE=true; // toujours un acte de cautionnement séparé (choix du bailleur retiré)
 async function setCautionMode(v){
   if(!LEASE||(LEASE.caution_mode||'acte')===v)return;
   if(v==='bail'&&(ACTES||[]).some(a=>a.statut==='envoye'||a.statut==='signe')){toast('Des actes de cautionnement ont déjà été envoyés aux garants : impossible de repasser la caution dans le bail.',6000);return;}
@@ -4058,7 +4076,8 @@ async function inviteExtraSigners(force){
 }
 
 async function inviteGarant(force){
-  const a=ACTE_SEPARE?await envoyerActes(force):await _inviteMainGarant(force);
+  // Actes de cautionnement : envoyés au garant seulement une fois le bail signé par le bailleur et le locataire
+  const a=ACTE_SEPARE?(LEASE.negotiation_status==='signed'?await envoyerActes(force):false):await _inviteMainGarant(force);
   const b=await inviteExtraSigners(force);
   return a||b;
 }
@@ -4073,11 +4092,12 @@ const WZ_STEPS=[
   {t:'Dates',d:'La date de fin est calculée d’après la durée légale ; modifiez-la seulement si besoin.',k:['start_date','end_date','payment_due_day']},
   {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
   {t:'Dépôt de garantie',d:'Montant demandé au locataire à l’entrée.',k:['deposit_mode','deposit']},
-  {t:'Garantie',d:'Comment le loyer est garanti si le locataire ne paie pas.',sp:['garantie','gli'],k:['garant_name','garant_email','garant_phone','garant_address','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
+  {t:'Garantie',d:'Comment le loyer est garanti si le locataire ne paie pas.',sp:['gli','garantie'],k:['garant_name','garant_email','garant_phone','garant_address','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
   {t:'Diagnostics',d:'Performance énergétique et diagnostics obligatoires.',k:['dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit'],sp:['annexes']},
   {t:'Travaux',d:'Travaux réalisés depuis le dernier bail.',k:['travaux_desc','travaux_realises','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer']},
   {t:'Autres informations',d:'Derniers éléments repérés dans le bail.',k:'reste'},
   {t:'Clauses du bail',d:'Ajoutez si besoin des clauses propres à votre logement, puis choisissez d’afficher ou non les textes de loi.',k:[],sp:['clauses','regles']},
+  {t:'Acte de cautionnement',d:'Le document que le garant signera à part, en même temps que le bail ou juste après. Réglez le plafond et la durée de son engagement.',k:[],sp:['actes']},
   {t:'Récapitulatif',d:'',recap:true},
 ];
 let _wzStep=0,_wzOuvertAuto=false;
@@ -4093,7 +4113,7 @@ function _wzSteps(){
   const pris=new Set(WZ_STEPS.flatMap(s=>Array.isArray(s.k)?s.k:[]));
   return WZ_STEPS.map(s=>{
     const keys=s.k==='reste'?[...present].filter(k=>!pris.has(k)):(s.k||[]).filter(k=>present.has(k));
-    const sp=(s.sp||[]).filter(x=>x==='caution'?(()=>{try{return bailChoices(LEASE).physique;}catch(e){return false;}})():x==='lot'?!!document.querySelector('[onclick*="renameLot("]'):x==='zone'?!!document.querySelector('[onclick*="setZoneTendue("]'):x==='usage'?!!document.querySelector('[onclick*="usage_locaux"]'):x==='annexes'?(window._annexesManquantes||[]).length>0||!!document.querySelector('#annexes-list [onchange*="uploadDoc("]'):true);
+    const sp=(s.sp||[]).filter(x=>x==='caution'?(()=>{try{return bailChoices(LEASE).physique;}catch(e){return false;}})():x==='lot'?!!document.querySelector('[onclick*="renameLot("]'):x==='zone'?!!document.querySelector('[onclick*="setZoneTendue("]'):x==='usage'?!!document.querySelector('[onclick*="usage_locaux"]'):x==='actes'?(()=>{try{return ACTE_SEPARE&&garantsActes().length>0;}catch(e){return false;}})():x==='annexes'?(window._annexesManquantes||[]).length>0||!!document.querySelector('#annexes-list [onchange*="uploadDoc("]'):true);
     return{...s,keys,sp,manque:keys.filter(k=>manque.has(k)&&!WZ_FACULTATIF.has(k))};
   }).filter(s=>s.recap||s.keys.length||s.sp.length);
 }
@@ -4156,7 +4176,7 @@ function _wzChamp(key,manque,sansGrille){
     input=`<input type="hidden" id="${id}" value="${esc(cur)}"><div class="wz-pills" role="radiogroup" aria-label="${esc(lbl)}">${cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<button type="button" role="radio" aria-checked="${cur===String(v)}" class="wz-pill${cur===String(v)?' on':''}" onclick="document.getElementById('${id}').value='${esc(v)}';this.parentElement.querySelectorAll('.wz-pill').forEach(b=>{b.classList.toggle('on',b===this);b.setAttribute('aria-checked',b===this)});_wzSi()">${esc(l)}</button>`;}).join('')}</div>`;
   }else if(cfg.type==='select'){
     const opts=cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<option value="${esc(v)}"${cur===String(v)?' selected':''}>${esc(l)}</option>`;}).join('');
-    input=`<select id="${id}" class="wz-in"><option value=""${cur?'':' selected'}>— Choisir —</option>${opts}</select>`;
+    input=`<select id="${id}" class="wz-in"${/^(diag_|dpe_)/.test(key)?` onchange="_wzLive('${key}',this.value)"`:''}><option value=""${cur?'':' selected'}>— Choisir —</option>${opts}</select>`;
   }else if(cfg.type==='travaux'){
     const aucun=cur==='aucun';
     input=`<label class="wz-chk"><input type="checkbox" id="${id}-aucun" ${aucun?'checked':''} onchange="document.getElementById('${id}').disabled=this.checked"> Aucuns travaux à déclarer</label><textarea id="${id}" class="wz-in" rows="3" ${aucun?'disabled':''} placeholder="${esc(cfg.placeholder||'')}">${aucun?'':esc(cur)}</textarea>`;
@@ -4242,7 +4262,7 @@ function _wzCorps(s){
     return h;
   };
   const apres=['annexes'];
-  const sec=x=>{const h=_wzSpecial(x);return h?`<div class="wz-sec">${h}</div>`:'';};
+  const sec=x=>{const h=_wzSpecial(x);return h?`<div class="wz-sec" id="wz-sp-${x}">${h}</div>`:'';};
   let h=s.sp.filter(x=>!apres.includes(x)).map(sec).join('');
   if(aCases)h+=_wzCases(s.keys);
   const multi=grp.size>1;
@@ -4255,6 +4275,18 @@ function _wzCorps(s){
 function _wzFinAuto(v){
   const f=document.getElementById('wz-end_date');if(!f||!v)return;
   const d=new Date(v);if(isNaN(d))return;d.setFullYear(d.getFullYear()+dureeAns());d.setDate(d.getDate()-1);f.value=d.toISOString().slice(0,10);
+}
+// Diagnostic modifié : enregistré tout de suite, la liste « Documents à annexer » se met à jour sans recharger
+async function _wzLive(key,v){
+  await saveField(key,v===''?null:v);
+  _wzMajAnnexes();
+}
+function _wzMajAnnexes(){
+  const box=document.getElementById('wz-sp-annexes');
+  const h=_wzSpecial('annexes');
+  if(box){box.innerHTML=h;box.hidden=!h;}
+  else if(h){const c=document.querySelector('#wz .wz-corps');const plus=c?.querySelector('.wz-plus');const d=document.createElement('div');d.className='wz-sec';d.id='wz-sp-annexes';d.innerHTML=h;if(plus)c.insertBefore(d,plus);else c?.appendChild(d);}
+  if(window.lucide)lucide.createIcons();
 }
 function _wzLire(key){
   const cfg=FIELD_CONFIGS[key]||{},el=document.getElementById('wz-'+key);if(!el)return undefined;
@@ -4273,11 +4305,21 @@ function _wzSpecial(x){
     return`<div class="wz-f"><label>Avez-vous une assurance loyers impayés (GLI) sur ce logement ?</label><div class="wz-pills"><button type="button" class="wz-pill${v?' on':''}" onclick="setGli('oui').then(()=>wzRender())">Oui</button><button type="button" class="wz-pill${!v?' on':''}" onclick="setGli('non').then(()=>wzRender())">Non</button></div><div class="wz-aide">Avec une GLI, vous ne pouvez pas demander de garant en plus (sauf locataire étudiant ou apprenti).</div></div>`;}
   if(x==='caution'){const sim=LEASE.garant_type==='simple';
     return`<div class="wz-f"><label>Type de caution accepté pour le garant</label><div class="wz-pills"><button type="button" class="wz-pill${!sim?' on':''}" onclick="saveField('garant_type','solidaire').then(()=>wzRender())">Solidaire uniquement</button><button type="button" class="wz-pill${sim?' on':''}" onclick="saveField('garant_type','simple').then(()=>wzRender())">Simple aussi</button></div><div class="wz-aide">${sim?'En cas d’impayé, vous devez d’abord poursuivre le locataire ; le garant ne paie que si le locataire ne peut pas.':'En cas d’impayé, vous pouvez demander directement au garant de payer.'}</div></div>`;}
+  if(x==='actes'){
+    const gs=garantsActes();
+    if(myRole==='landlord'&&!_actesPrepares&&gs.some(g=>!_acteDe(g)&&!g.signed_at)){_actesPrepares=true;envoyerActes(false,null,true).then(()=>wzRender(true));}
+    return gs.map((g,i)=>{const a=_acteDe(g);
+      const t=`<div class="wz-grp-t">${gs.length>1?'Acte n° '+(i+1)+' — ':''}${_escB(g.nom)} · caution de ${_escB(g.forName)}</div>`;
+      if(!a)return`<div class="wz-f">${t}<div class="wz-aide">Préparation de l’acte…</div></div>`;
+      if(a.statut==='signe')return`<div class="wz-f">${t}<div class="wz-aide">Acte signé le ${fmtDate(a.signed_at)}.</div></div>`;
+      return`<div class="wz-f">${t}<iframe src="/acte-caution.html?embed=1&role=bailleur&id=${a.id}" title="Acte de cautionnement de ${_escB(g.nom)}" class="wz-acte" style="width:100%;height:700px;border:1px solid #E3E6EC;border-radius:10px;display:block"></iframe></div>`;
+    }).join('')+`<div class="wz-aide">L’acte est envoyé automatiquement au garant dès que le bail est signé par vous et le locataire.</div>`;}
   if(x==='garantie'){
     const gt=LEASE.garant_type||'',phys=gt==='solidaire'||gt==='simple';
+    const gli=String(LEASE.gli||'')==='oui'&&!TENANT_ETUDIANT;
+    if(gli)return`<div class="wz-f"><label>Quel type de garantie ?</label><div class="wz-pills"><button type="button" class="wz-pill on" disabled>Aucune garantie</button><button type="button" class="wz-pill" disabled>Une personne se porte garante</button><button type="button" class="wz-pill" disabled>Garantie Visale</button></div><div class="wz-aide">Vous avez une GLI : la loi interdit de demander en plus un garant au locataire (sauf étudiant ou apprenti). Répondez « Non » à la GLI pour choisir une garantie.</div></div>`;
     const p=(v,l,on)=>`<button type="button" class="wz-pill${on?' on':''}" onclick="saveField('garant_type','${v}').then(()=>wzRender(true))">${l}</button>`;
     return`<div class="wz-f"><label>Quel type de garantie ?</label><div class="wz-pills">${p(phys?gt:'solidaire','Une personne se porte garante',phys)}${p('visale','Garantie Visale',gt==='visale')}${p('organisme','Organisme ou caution bancaire',gt==='organisme')}${p('aucune','Aucune garantie',gt==='aucune')}</div></div>`
-      +(phys?`<div class="wz-f"><label>Où le garant signe-t-il son engagement ?</label><div class="wz-pills"><button type="button" class="wz-pill${LEASE.caution_mode!=='bail'?' on':''}" onclick="setCautionMode('acte')">Acte de cautionnement à part</button><button type="button" class="wz-pill${LEASE.caution_mode==='bail'?' on':''}" onclick="setCautionMode('bail')">Directement dans le bail</button></div><div class="wz-aide">${LEASE.caution_mode==='bail'?'L’engagement du garant figure dans le bail et il signe le bail avec vous et le locataire.':'Le garant signe un document séparé, annexé au bail. Le bail reste plus court et lisible.'}</div></div>`:'')
       +(phys?`<div class="wz-f"><label>Engagement de la personne garante</label><div class="wz-pills">${p('solidaire','Caution solidaire',gt==='solidaire')}${p('simple','Caution simple',gt==='simple')}</div><div class="wz-aide">${gt==='simple'?'En cas d’impayé, vous devez d’abord poursuivre le locataire ; le garant ne paie que si le locataire ne peut pas.':'En cas d’impayé, vous pouvez demander directement au garant de payer (le plus courant).'}</div></div>`:'');}
   if(x==='lot')return`<div class="wz-f"><label for="wz-lot_label">Nom de la chambre louée</label><input id="wz-lot_label" class="wz-in" maxlength="80" placeholder="ex. Chambre 2 — 12 m², fenêtre sur cour" value="${String(LEASE.lot_label||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}"></div>`;
   if(x==='clauses'){const C=LEASE.custom_clauses||[];
@@ -4289,7 +4331,7 @@ function _wzSpecial(x){
   if(x==='annexes'){
     const m=window._annexesManquantes||[];
     const ups=[...document.querySelectorAll('#annexes-list li')].filter(li=>li.querySelector('[onchange*="uploadDoc("]')).map(li=>{const k=(li.querySelector('[onchange*="uploadDoc("]').getAttribute('onchange').match(/uploadDoc\('([^']+)'/)||[])[1];const t=(li.querySelector('span[style*="flex:1"]')?.childNodes[0]?.textContent||k).trim();const ok=!!li.querySelector('a.annexe-link');
-      return`<div class="wz-annexe"><span>${ok?'<span style="color:var(--green)">✓</span>':'<span style="color:#C2410C">•</span>'} ${t}</span><label class="wz-pill" style="cursor:pointer;position:relative">${ok?'Remplacer':'Déposer le PDF'}<input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${k}',this).then(()=>wzRender())" style="position:absolute;opacity:0;width:0;height:0"></label></div>`;}).join('');
+      return`<div class="wz-annexe"><span>${ok?'<span style="color:var(--green)">✓</span>':'<span style="color:#C2410C">•</span>'} ${t}</span><label class="wz-pill" style="cursor:pointer;position:relative">${ok?'Remplacer':'Déposer le PDF'}<input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${k}',this).then(()=>_wzMajAnnexes())" style="position:absolute;opacity:0;width:0;height:0"></label></div>`;}).join('');
     return`<div class="wz-f"><label>Documents à annexer${m.length?` <span class="wz-tag">${m.length} manquant${m.length>1?'s':''}</span>`:''}</label>${ups||'<div class="wz-aide">Rien à déposer.</div>'}</div>`;}
   return'';
 }
@@ -4302,7 +4344,9 @@ async function setReglesDroit(v){
 {const _sc=saveClause,_dc=deleteClause;
   window.saveClause=async(...a)=>{await _sc(...a);_syncSoeurs({custom_clauses:LEASE.custom_clauses||[]}).catch(()=>{});if(document.body.classList.contains('bail-tunnel'))wzRender();};
   window.deleteClause=async(...a)=>{await _dc(...a);_syncSoeurs({custom_clauses:LEASE.custom_clauses||[]}).catch(()=>{});if(document.body.classList.contains('bail-tunnel'))wzRender();};}
-function wzOuvrir(i){
+let _wzLibre=false; // vrai quand le bailleur a déjà vu le bail (ouverture depuis le bail ou récapitulatif atteint)
+function wzOuvrir(i,depuisBail){
+  if(depuisBail)_wzLibre=true;
   if(!_peutModifier){toast('Le bail n’est plus modifiable (déjà validé ou signé).');return;}
   _wzStep=i||0;document.body.classList.add('bail-tunnel');renderBail();wzRender();
 }
@@ -4310,24 +4354,24 @@ function wzFermer(){document.body.classList.remove('bail-tunnel');const el=q('wz
 function wzRender(garderScroll){
   const el=q('wz');if(!el)return;
   const S=_wzSteps();_wzStep=Math.max(0,Math.min(_wzStep,S.length-1));
-  const s=S[_wzStep];
+  const s=S[_wzStep];if(s.recap)_wzLibre=true;
   const dots=S.map((x,i)=>`<button type="button" class="wz-dot${i===_wzStep?' act':''}${i<_wzStep?' fait':''}${x.manque?.length?' manque':''}" onclick="wzAller(${i})" title="${x.t}" aria-label="Étape ${i+1} : ${x.t}">${i+1}</button>`).join('');
   let corps='';
   if(s.recap){
     const reste=S.filter(x=>!x.recap&&x.manque.length);
     const ann=window._annexesManquantes||[],ns=LEASE.negotiation_status||'draft';
     corps=`${reste.length||ann.length?`<div class="wz-alerte"><strong>Il reste à compléter :</strong><ul>${reste.map(x=>`<li><a href="#" onclick="wzAller(${S.indexOf(x)});return false">${x.t}</a> : ${x.manque.map(k=>FIELD_LABELS[k]||k).join(', ')}</li>`).join('')}${ann.length?`<li><a href="#" onclick="wzAller(${S.findIndex(x=>x.sp.includes('annexes'))});return false">Documents à annexer</a> : ${ann.join(', ')}</li>`:''}</ul></div>`
-      :'<div class="wz-ok"><strong>Tout est rempli.</strong> Relisez le bail complet, puis envoyez-le au locataire.</div>'}
+      :'<div class="wz-ok"><strong>Tout est rempli.</strong> Il ne reste qu’à relire le bail complet.</div>'}
       <div class="wz-recap-btns">
-        <button type="button" class="wz-btn sec" onclick="wzFermer()">Relire le bail complet</button>
-        ${['draft','pending_landlord'].includes(ns)?`<button type="button" class="wz-btn" onclick="if(${reste.length||ann.length?'confirm(\'Des informations ne sont pas encore remplies. Envoyer quand même le bail au locataire ?\')':'true'}){wzFermer();sendToTenant();}">Envoyer le bail au locataire →</button>`:''}
+        <button type="button" class="wz-btn" onclick="wzFermer()">Relire le bail complet →</button>
       </div>
-      <p class="wz-aide" style="margin-top:.8rem">Le locataire relit le bail et peut demander des modifications. Une fois le bail accepté, les garants reçoivent leur acte de cautionnement et les signatures s’ouvrent.</p>`;
+      <p class="wz-aide" style="margin-top:.8rem"><strong>Relisez le bail en entier avant de l’envoyer :</strong> le bouton « Envoyer au locataire » s’active une fois arrivé en bas du bail. Le locataire relit ensuite le bail et peut demander des modifications. Une fois le bail accepté, les signatures s’ouvrent ; dès qu’il est signé, les garants reçoivent automatiquement leur acte de cautionnement.</p>`;
   }else{
     corps=_wzCorps(s);
   }
   el.innerHTML=`<div class="wz-page">
-    <div class="wz-top"><div class="wz-eyebrow">Préparer le bail · étape ${_wzStep+1} sur ${S.length}</div><button type="button" class="wz-x" onclick="wzFermer()">Voir le bail complet</button></div>
+    <div class="wz-top"><div class="wz-eyebrow">Préparer le bail · étape ${_wzStep+1} sur ${S.length}</div>${_wzLibre||s.recap?'<button type="button" class="wz-x" onclick="wzFermer()">Voir le bail complet</button>':''}</div>
+    ${!_wzLibre&&!s.recap?'<div class="wz-info">Remplissez les étapes : à la fin, vous verrez le bail complet et pourrez encore tout modifier.</div>':''}
     <div class="wz-dots">${dots}</div>
     <h2>${s.t}</h2>${s.d?`<p class="wz-desc">${s.d}</p>`:''}
     <div class="wz-corps">${corps}</div>
@@ -4450,6 +4494,7 @@ function renderActesDocs(L){
         <div class="article-title" style="margin:0">Acte de cautionnement${gs.length>1?' n° '+(i+1):''} — ${_escB(g.nom)} <span style="font-weight:500;color:var(--td);text-transform:none;letter-spacing:0">(caution de ${_escB(g.forName)})</span></div>
         <a href="/acte-caution.html?id=${a.id}${myRole==='landlord'&&a.statut!=='signe'?'&role=bailleur':''}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--bleu);font-weight:600">${a.statut==='signe'?'Ouvrir / imprimer ↗':myRole==='landlord'?'Régler l\'acte ↗':'Ouvrir ↗'}</a>
       </div>
+      ${a.statut==='brouillon'?'<p style="font-size:.8rem;color:var(--td);margin:0 0 .6rem"><i data-lucide=send class=ic></i> Envoyé automatiquement au garant dès que le bail est signé par le bailleur et le locataire.</p>':''}
       <iframe src="${src}" title="Acte de cautionnement de ${_escB(g.nom)}" data-acte="${a.id}" style="width:100%;height:600px;border:none;display:block" loading="lazy"></iframe>
     </div>`;}).join('');
   if(el.dataset.html!==html){el.dataset.html=html;el.innerHTML=html;}
@@ -4457,7 +4502,7 @@ function renderActesDocs(L){
 // Hauteur des cadres + rafraîchissement quand un garant signe dans le cadre
 window.addEventListener('message',async e=>{
   const d=e.data;if(!d||!d.acteCaution)return;
-  if(d.h)document.querySelectorAll('#actes-docs iframe').forEach(f=>{if(f.contentWindow===e.source)f.style.height=Math.max(200,d.h+10)+'px';});
+  if(d.h)document.querySelectorAll('#actes-docs iframe,#wz iframe.wz-acte').forEach(f=>{if(f.contentWindow===e.source)f.style.height=Math.max(200,d.h+10)+'px';});
   if(d.signe){try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,snapshot').eq('lease_id',LEASE.id);ACTES=ac||ACTES;const{data:f}=await sb.from('leases').select('garant_signed_at,garant_signature,co_signers').eq('id',LEASE.id).single();if(f)Object.assign(LEASE,f);}catch(x){}renderBail();}
 });
 // Référence de l'acte dans le texte du bail : date de signature et plafond garanti
@@ -4477,6 +4522,7 @@ async function voirActe(cle){
 }
 function renderActesBox(L){
   const el=q('actes-box');if(!el)return;
+  el.innerHTML='';return; // retiré : l'acte est visible sous le bail
   const gs=ACTE_SEPARE?garantsActes():[];
   if(!gs.length){el.innerHTML='';return;}
   const ns=L.negotiation_status||'agreed',pret=ns==='agreed'||ns==='signed';
@@ -4842,6 +4888,8 @@ async function submitSignature(){
   if(error){alert('Erreur lors de la sauvegarde de la signature.\nAssurez-vous d\'avoir exécuté la migration SQL (migration-leases.sql).\n\nDétail : '+error.message);return;}
   Object.assign(LEASE,upd);
   window._pendingSigWho=null;window._pendingSigData=null;
+  // Bail signé par les deux : les actes de cautionnement partent aux garants
+  if(upd.negotiation_status==='signed'){try{await inviteGarant(false);}catch(e){console.warn(e);}}
 
   // Comme RestMalta : la réservation garde aussi l'état des signatures du bail
   if(LEASE.booking_id&&(who==='ll'||who==='t')){
