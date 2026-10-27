@@ -1656,7 +1656,8 @@ function renderLandlordGuide(){
 
   // Chercher ou créer le panneau guide
   let guide=document.getElementById('ll-guide-panel');
-  if(!isLandlord||allSigned||ns==='agreed'||ns==='signed'){if(guide)guide.style.display='none';return;}
+  // Guide déplacé dans la fiche de la candidature (tableau de bord) : plus affiché sur le bail
+  if(true){if(guide)guide.style.display='none';updateToolsVisibility();return;}
 
   // Injecter dans bail-tools-wrap (espace de travail, hors document)
   if(!guide){
