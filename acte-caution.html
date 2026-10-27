@@ -131,7 +131,7 @@ function render(){
     return;
   }
   if(mode==='bailleur')return renderBailleur();
-  if(mode==='lecture'){app.innerHTML=`<div class="card" style="font-size:.84rem;color:var(--td)">${A.statut==='brouillon'?'Brouillon : envoyé au garant quand le modèle de bail est accepté.':'En attente de la signature de '+E(A.garant_nom||'la caution')+'.'} Les mentions et la signature apparaîtront ici une fois l’acte signé.</div><div class="doc">${corps(false)}</div>`;return;}
+  if(mode==='lecture'){app.innerHTML=`<div class="card" style="font-size:.84rem;color:var(--td)">${A.statut==='brouillon'?'Brouillon : envoyé automatiquement au garant dès que le bail est signé.':'En attente de la signature de '+E(A.garant_nom||'la caution')+'.'} Les mentions et la signature apparaîtront ici une fois l’acte signé.</div><div class="doc">${corps(false)}</div>`;return;}
   if(A.statut==='brouillon'){app.innerHTML='<div class="card">Votre acte de cautionnement sera prêt à signer dès que le bail sera validé par le bailleur et le locataire. Vous recevrez un e-mail à ce moment-là.</div>';return;}
   const[m1,m2,m3]=modeles();
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement</div><h1>${E(A.garant_nom||'Bonjour')}, vous vous portez caution de ${E(locNom())}</h1>
@@ -216,7 +216,7 @@ function renderBailleur(){
   const s=A.snapshot||{},base=Math.round((Number(s.colocation?.part)||((Number(s.loyer)||0)+(Number(s.charges)||0))));
   const lien=location.origin+'/acte-caution.html?t='+A.token;
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement · vue du bailleur</div><h1>Caution de ${E(A.garant_nom||'—')} pour ${E(locNom())}</h1>
-  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte part automatiquement au garant quand le modèle de bail est accepté. Vous pouvez déjà régler le plafond, la durée et le type.</p>':''}
+  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte est envoyé automatiquement au garant dès que le bail est signé par le bailleur et le locataire. Vous pouvez déjà régler le plafond, la durée et le type.</p>':''}
   <div class="card">
     <div class="row2">
       <div><label for="b-type">Type de caution</label><select id="b-type"><option value="solidaire" ${A.type!=='simple'?'selected':''}>Solidaire</option><option value="simple" ${A.type==='simple'?'selected':''}>Simple</option></select></div>
