@@ -2333,7 +2333,7 @@ function renderUsage(L){
     ?'Le logement est loué à <strong>usage mixte professionnel et d\'habitation</strong> et constitue la <strong>résidence principale</strong> du locataire. Le locataire peut y exercer une activité professionnelle, à l\'exclusion de toute activité commerciale, artisanale ou industrielle, et sous réserve du règlement de copropriété.'
     :'Le logement est loué à usage de <strong>résidence principale exclusive</strong> du locataire, à l\'exclusion de tout exercice d\'une activité commerciale, artisanale, libérale ou industrielle.');
   const pill=(v,l)=>`<button type="button" class="bc-pill${u===v?' on':''}" onclick="saveField('usage_locaux','${v}')">${l}</button>`;
-  const isCopro=!!(L.regime_copro||LISTING?.regime_copro);
+  const isCopro=!!(L.regime_copro||LISTING?.regime_copro||LISTING?.copropriete);
   const ct=q('copro-text');
   if(ct){ct.style.display=isCopro?'':'none';ct.innerHTML=isCopro?'Le logement fait partie d\'une copropriété : le bailleur remet au locataire les extraits du règlement de copropriété relatifs à la destination de l\'immeuble, à l\'usage des parties communes et privatives et à la part des charges du logement.':'';}
   // Servitude de résidence principale (décret n° 2026-596) : seulement si le logement y est soumis
@@ -2362,7 +2362,7 @@ function renderReglesDroit(L,opts={}){
     :'usage d\'habitation, à titre de résidence principale du locataire, occupée au moins 8 mois par an (art. 2'+(isVide()?'':' et 25-3')+' loi 89-462).');
   add('Assurance','obligation d\'assurance du locataire contre les risques locatifs et sanctions en cas de défaut (art. 7 g loi 89-462).');
   add('Clause résolutoire','art. 24 loi 89-462, modifié par la loi n° 2023-668 du 27 juillet 2023 (délai de six semaines pour les baux conclus depuis le 29 juillet 2023). Seuls ces motifs peuvent entraîner la résiliation de plein droit ; toute autre clause résolutoire est réputée non écrite (art. 4). Le commandement est délivré par commissaire de justice. Aucune expulsion ne peut être exécutée du 1er novembre au 31 mars (art. L. 412-6 du Code des procédures civiles d\'exécution).');
-  if(L.regime_copro||LISTING?.regime_copro)add('Copropriété','communication au locataire des extraits du règlement de copropriété (art. 3 loi 89-462).');
+  if(L.regime_copro||LISTING?.regime_copro||LISTING?.copropriete)add('Copropriété','communication au locataire des extraits du règlement de copropriété (art. 3 loi 89-462).');
   add('Travaux du locataire','transformations soumises à l\'accord écrit du bailleur (art. 7 f loi 89-462) ; travaux d\'adaptation au handicap ou à la perte d\'autonomie : accord réputé acquis à défaut de réponse dans les deux mois (art. 7 f et décret n° 2016-1282 du 29 septembre 2016).');
   if(isVide())add('Congé','bailleur : préavis de six mois avant la fin du bail, motif obligatoire (reprise, vente avec droit de préemption du locataire, motif légitime et sérieux) et protection des locataires âgés aux ressources modestes — art. 15 loi 89-462. Locataire : préavis de trois mois, réduit à un mois en zone tendue ou dans les cas prévus à l\'art. 15 I.');
   else add('Congé du bailleur','location meublée : préavis de trois mois, motif obligatoire (reprise, vente, motif légitime et sérieux) — art. 25-8 loi 89-462. Locataire : préavis d\'un mois.');
@@ -2543,10 +2543,10 @@ function renderBail(){
   const surfBoutin=L.surface_boutin||Li?.surface_boutin||Li?.sqm;
   // Chauffage — lecture depuis listing (colonnes réelles) en priorité
   const _eeMap={gaz:'Gaz naturel',elec:'Électrique',fioul:'Fioul',pac:'Pompe à chaleur',bois:'Bois/Granulés',reseau:'Réseau de chaleur'};
-  const modeChauffage=Li?.chauffage_type
+  const modeChauffage=L.mode_chauffage?L.mode_chauffage:Li?.chauffage_type
     ?(Li.chauffage_type==='collectif'?'Collectif':'Individuel')+(Li.chauffage_mode?' — '+(_eeMap[Li.chauffage_mode]||Li.chauffage_mode):'')
     :(L.mode_chauffage||'Non renseigné');
-  const modeEcs=Li?.ecs_type
+  const modeEcs=L.mode_ecs?L.mode_ecs:Li?.ecs_type
     ?(Li.ecs_type==='collectif'?'Collectif':'Individuel (chauffe-eau)')+(Li.ecs_energie?' — '+(_eeMap[Li.ecs_energie]||Li.ecs_energie):'')
     :(L.mode_ecs||'Non renseigné');
   const numFiscal=L.numero_fiscal||'—';
@@ -2555,9 +2555,9 @@ function renderBail(){
   // Filtrer les valeurs "type de durée" (long/short/medium) qui ne sont pas un type de logement
   const _DUREE_VALS=['long','short','medium','long_term','short_term','saisonnier','seasonal'];
   const _liType=Li?.type&&!_DUREE_VALS.includes((Li.type||'').toLowerCase())?Li.type:null;
-  const propType=L.prop_type||(_liType?_liType.charAt(0).toUpperCase()+_liType.slice(1):null)||'Appartement';
-  const propPieces=L.prop_pieces||(Li?.spots?Number(Li.spots):null);
-  const propEtageRaw=L.prop_etage||(Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?' sur '+Li.total_floors:''):null);
+  const propType=L.prop_type||_bailDefaut('prop_type')||(_liType?_liType.charAt(0).toUpperCase()+_liType.slice(1):null)||'Appartement';
+  const propPieces=L.prop_pieces||_bailDefaut('prop_pieces')||(Li?.spots?Number(Li.spots):null);
+  const propEtageRaw=L.prop_etage||_bailDefaut('prop_etage')||(Li?.floor!=null?'Étage '+Li.floor+(Li?.total_floors?' sur '+Li.total_floors:''):null);
   const items1=[
     {label:'Adresse complète',value:propAddr?ev('prop_address',propAddr):mf('prop_address')},
     {label:'Type de logement',value:ev('prop_type',propType)},
@@ -2577,7 +2577,7 @@ function renderBail(){
   ];
   // Copropriété : choix Oui / Non direct (plus de badge orange)
   {
-    const isCop=!!(L.regime_copro||Li?.regime_copro);
+    const isCop=!!(L.regime_copro||Li?.regime_copro||Li?.copropriete);
     const cp=(v,l,on)=>`<button type="button" class="bc-pill${on?' on':''}" style="padding:.1rem .6rem;font-size:.74rem" onclick="saveField('regime_copro',${v})">${l}</button>`;
     const lot=isCop?(L.numero_lot?` — lot ${L.numero_lot}${_editMode?` <span class="edit-btn" onclick="editField(event,'numero_lot')"><i data-lucide=pencil class=ic></i></span>`:''}`:(_editMode?` <span class="edit-btn" onclick="editField(event,'numero_lot')">+ n° de lot</span>`:'')):'';
     items2.push({label:'Copropriété',value:_editMode
@@ -3947,6 +3947,33 @@ function _wzSteps(){
     return{...s,keys,sp,manque:keys.filter(k=>manque.has(k))};
   }).filter(s=>s.recap||s.keys.length||s.sp.length);
 }
+// Valeur reprise de l'annonce quand le bail ne l'a pas encore (pré-remplissage du tunnel)
+function _bailDefaut(key){
+  const Li=LISTING||{},n=x=>x!=null&&x!==''&&!isNaN(+x)?+x:null;
+  const ch={individuel:{electrique:'Individuel électrique',gaz:'Individuel gaz'},collectif:{gaz:'Collectif gaz',electrique:'Collectif électrique',fioul:'Collectif fuel'}};
+  switch(key){
+    case 'prop_address':return Li.full_address||null;
+    case 'prop_type':{const t=String(Li.typology||'').toLowerCase();if(t==='studio')return'Studio';
+      const b=String(Li.type_bien||'').toLowerCase();return b==='maison'?'Maison':b==='appartement'?'Appartement':null;}
+    case 'prop_pieces':{const t=String(Li.typology||'').toLowerCase();if(t==='studio')return 1;const m=t.match(/^t(\d)/);return m?+m[1]:null;}
+    case 'prop_etage':{const e=n(Li.etage);if(e==null)return null;const t=n(Li.nb_etages);
+      return (e===0?'Rez-de-chaussée':e+(e===1?'ᵉʳ':'ᵉ')+' étage')+(t?' sur '+t:'');}
+    case 'surface_boutin':return n(Li.surface_boutin)||n(Li.sqm);
+    case 'annee_construction':return n(Li.annee_construction);
+    case 'regime_copro':return Li.copropriete==null?null:!!Li.copropriete;
+    case 'mode_chauffage':return ch[Li.chauffage_type]?.[Li.chauffage_mode]||null;
+    case 'mode_ecs':return Li.ecs_type==='collectif'?'Collectif (immeuble)':Li.ecs_type==='individuel'?({electrique:'Chauffe-eau électrique individuel',gaz:'Chauffe-eau gaz individuel'}[Li.ecs_energie]||null):null;
+    case 'dpe_energy_rating':return Li.dpe||null;
+    case 'dpe_ges_rating':return Li.ges||null;
+    case 'diag_amiante':case 'diag_plomb':case 'diag_elec':case 'diag_gaz':case 'diag_erp':case 'diag_bruit':return Li[key]||null;
+    case 'loyer_ref':return n(Li.loyer_reference);
+    case 'loyer_ref_majore':return n(Li.loyer_reference_majore);
+    case 'charges':return n(Li.charges_mensuelles);
+    case 'rent':{const p=n(Li.price);return p==null?null:Math.max(0,p-(n(Li.charges_mensuelles)||0));}
+    case 'deposit':return n(Li.depot);
+  }
+  return null;
+}
 function _wzVal(key){
   let v='';
   if(LL_PROFILE_MAP&&LL_PROFILE_MAP[key])v=LL_PROFILE?.[LL_PROFILE_MAP[key]]??'';
@@ -3954,6 +3981,8 @@ function _wzVal(key){
   else v=LEASE[key]!=null?String(LEASE[key]):'';
   if(!v&&key==='landlord_address')v=LL_PROFILE?.home_address||'';
   if(!v&&key==='tenant_address')v=T_PROFILE?.home_address||'';
+  if(key==='regime_copro'&&LEASE.regime_copro!==true&&_bailDefaut('regime_copro')===true)v='true';
+  if(!v){const d=_bailDefaut(key);if(d!=null)v=d;}
   return String(v??'');
 }
 function _wzChamp(key,manque){
@@ -4053,8 +4082,9 @@ async function _wzEnregistrer(){
   const b=q('wz-suiv');if(b){b.disabled=true;b.textContent='Enregistrement…';}
   for(const k of s.keys){
     const v=_wzLire(k);if(v===undefined)continue;
-    if(String(v??'')===_wzVal(k))continue;
-    if(v===null&&!_wzVal(k))continue;
+    const brut=(LL_PROFILE_MAP&&LL_PROFILE_MAP[k])||(T_PROFILE_MAP&&T_PROFILE_MAP[k])?_wzVal(k):(LEASE[k]!=null?String(LEASE[k]):'');
+    if(String(v??'')===brut)continue;
+    if(v===null&&!brut)continue;
     if(k==='zone_tendue'&&v!=null)await setZoneTendue(v);else await saveField(k,v);
   }
   return true;
