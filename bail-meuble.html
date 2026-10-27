@@ -937,6 +937,8 @@
 
       </div><!-- /bail-body -->
     </div><!-- /bail-card -->
+    <!-- Actes de cautionnement : affichés en dessous du bail (documents séparés) -->
+    <div id="actes-docs" class="no-print"></div>
   </div><!-- /page-wrap -->
 
   </div><!-- /bail-wrap -->
@@ -2005,7 +2007,7 @@ async function loadBail(){
       }catch(e){}
     }
     if(BOOKING?.garant_data){try{const gd=typeof BOOKING.garant_data==='string'?JSON.parse(BOOKING.garant_data):BOOKING.garant_data;if(Array.isArray(gd)&&gd.length)TENANT_GARANTIE='physique';}catch(e){}}
-    try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond').eq('lease_id',LEASE.id);ACTES=ac||[];}catch(e){ACTES=[];}
+    try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,snapshot').eq('lease_id',LEASE.id);ACTES=ac||[];}catch(e){ACTES=[];}
     // Visale : n° de visa repris du dossier du locataire 1 (tant que le bail n'est pas signé)
     if(TENANT_GARANTIE==='visale'&&!LEASE.visale_ref&&TENANT_D5?.visa_ref&&!LEASE.landlord_signed_at){
       LEASE.visale_ref=TENANT_D5.visa_ref;try{await sb.from('leases').update({visale_ref:TENANT_D5.visa_ref}).eq('id',LEASE.id);}catch(e){}
@@ -2484,7 +2486,7 @@ function renderBail(){
   show('parties-grid',partiesHtml);
   renderGarantiesBlock(L);
   renderVisaleBox(L);
-  try{renderActesBox(L);}catch(e){console.error(e);}
+  try{renderActesBox(L);renderActesDocs(L);}catch(e){console.error(e);}
   renderLotAndTabs(L);
   renderModelBar(L);
   renderUsage(L);
@@ -3766,6 +3768,7 @@ function colocPart(L){
   return{n,part:Math.round(tot/n)};
 }
 const ACTE_SEPARE=true; // garants : acte de cautionnement séparé au lieu d'une clause dans le bail
+const GARANTS_AVANT=false; // true = le bail ne se signe qu'après tous les actes ; false = en même temps ou juste après
 function renderCoGarantsSection(L){
   const el=q('cogarants-section');if(!el)return;
   if(ACTE_SEPARE){el.innerHTML='';return;}
@@ -3896,6 +3899,9 @@ async function envoyerActes(force,seulement,sansEnvoi){
     if(ex?.statut==='signe'||g.signed_at)continue;
     g.token=ex?.token||g.token||newTok();
     const snap=_snapshotActe(g),base=snap.colocation.part||(snap.loyer+snap.charges);
+    // Bail modifié après un premier envoi (loyer, charges, date…) : le garant reçoit la nouvelle version
+    const _cle=x=>x?JSON.stringify([x.loyer,x.charges,x.date_debut,x.adresse,x.duree_txt,x.colocation?.part]):'';
+    const _change=!!(ex?.envoye_at&&ex?.snapshot&&_cle(ex.snapshot)!==_cle(snap));
     const row={lease_id:LEASE.id,cle:g.cle,listing_id:LEASE.listing_id||null,landlord_id:LEASE.landlord_id||null,tenant_id:g.forId||LEASE.tenant_id||null,
       locataire_nom:g.forName,garant_nom:g.nom,garant_email:g.email,snapshot:snap,token:g.token,statut:sansEnvoi?(ex?.statut||'brouillon'):'envoye',
       ...(ex?{}:{type:_cautionForm(),plafond:Math.round(base*36),duree:'bail_2'})};
@@ -3905,7 +3911,7 @@ async function envoyerActes(force,seulement,sansEnvoi){
     // Lien du garant vers le bail (lecture) = même jeton que son acte
     if(g.cle==='g:main'&&LEASE.garant_token!==g.token){try{await sb.from('leases').update({garant_token:g.token}).eq('id',LEASE.id);LEASE.garant_token=g.token;}catch(e){}}
     if(g.cle!=='g:main')await _saveCoSigners(cur=>{cur[g.cle]={...(cur[g.cle]||{}),token:g.token};});
-    if(sansEnvoi||!g.email||(data.envoye_at&&!force))continue;
+    if(sansEnvoi||!g.email||(data.envoye_at&&!force&&!_change))continue;
     const lien=location.origin+'/acte-caution.html?t='+encodeURIComponent(g.token);
     try{
       const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:g.email,data:{garantNom:g.nom,locataireNom:g.forName,listingTitle:LEASE.listing_title||'le logement',listingAddress:LISTING?.full_address||'',bailUrl:lien}})});
@@ -3921,6 +3927,33 @@ async function envoyerActes(force,seulement,sansEnvoi){
   return envoyes>0;
 }
 function _acteDe(g){return ACTES.find(a=>a.cle===g.cle)||null;}
+// ── Les actes de cautionnement, affichés en entier sous le bail ──
+let _actesPrepares=false;
+function renderActesDocs(L){
+  const el=q('actes-docs');if(!el)return;
+  const gs=ACTE_SEPARE?garantsActes():[];
+  if(!gs.length){el.innerHTML='';return;}
+  // Bailleur : créer les brouillons manquants une fois (sans e-mail) pour que l'acte soit visible tout de suite
+  if(myRole==='landlord'&&!_actesPrepares&&gs.some(g=>!_acteDe(g)&&!g.signed_at)){_actesPrepares=true;envoyerActes(false,null,true).then(()=>renderActesDocs(LEASE));}
+  const moiG=g=>myRole==='garant'&&((g.cle==='g:main'&&!MY_EXTRA_KEY)||MY_EXTRA_KEY===g.cle);
+  const html=gs.map((g,i)=>{const a=_acteDe(g);
+    if(!a)return `<div class="bail-card" style="margin-top:1.2rem;padding:1.2rem 1.4rem"><div class="article-title" style="margin:0">Acte de cautionnement — ${_escB(g.nom)}</div><p style="font-size:.84rem;color:var(--td);margin-top:.4rem">Caution de ${_escB(g.forName)}. L'acte apparaîtra ici dès qu'il est préparé par le bailleur.</p></div>`;
+    const src=moiG(g)&&a.statut!=='signe'?'/acte-caution.html?embed=1&t='+encodeURIComponent(a.token):'/acte-caution.html?embed=1&id='+a.id;
+    return `<div class="bail-card" style="margin-top:1.2rem;padding:1.2rem 1.4rem">
+      <div style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.6rem">
+        <div class="article-title" style="margin:0">Acte de cautionnement${gs.length>1?' n° '+(i+1):''} — ${_escB(g.nom)} <span style="font-weight:500;color:var(--td);text-transform:none;letter-spacing:0">(caution de ${_escB(g.forName)})</span></div>
+        <a href="/acte-caution.html?id=${a.id}${myRole==='landlord'&&a.statut!=='signe'?'&role=bailleur':''}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--bleu);font-weight:600">${a.statut==='signe'?'Ouvrir / imprimer ↗':myRole==='landlord'?'Régler l\'acte ↗':'Ouvrir ↗'}</a>
+      </div>
+      <iframe src="${src}" title="Acte de cautionnement de ${_escB(g.nom)}" data-acte="${a.id}" style="width:100%;height:600px;border:none;display:block" loading="lazy"></iframe>
+    </div>`;}).join('');
+  if(el.dataset.html!==html){el.dataset.html=html;el.innerHTML=html;}
+}
+// Hauteur des cadres + rafraîchissement quand un garant signe dans le cadre
+window.addEventListener('message',async e=>{
+  const d=e.data;if(!d||!d.acteCaution)return;
+  if(d.h)document.querySelectorAll('#actes-docs iframe').forEach(f=>{if(f.contentWindow===e.source)f.style.height=Math.max(200,d.h+10)+'px';});
+  if(d.signe){try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,snapshot').eq('lease_id',LEASE.id);ACTES=ac||ACTES;const{data:f}=await sb.from('leases').select('garant_signed_at,garant_signature,co_signers').eq('id',LEASE.id).single();if(f)Object.assign(LEASE,f);}catch(x){}renderBail();}
+});
 // Référence de l'acte dans le texte du bail : date de signature et plafond garanti
 function _acteRef(f){
   const a=(typeof ACTES!=='undefined'?ACTES:[]).filter(f).filter(x=>x.statut==='signe');
@@ -3958,7 +3991,7 @@ function renderActesBox(L){
   }).join('');
   el.innerHTML=`<div style="margin-top:.8rem;border:1.5px solid rgba(180,83,9,.3);background:rgba(180,83,9,.04);border-radius:10px;padding:.85rem 1rem">
     <div class="bc-title" style="margin-bottom:.35rem"><i data-lucide=file-signature class=ic></i> Actes de cautionnement</div>
-    <div style="font-size:.78rem;color:var(--td);margin-bottom:.55rem;line-height:1.5">Les garants signent <strong>d'abord</strong> leur acte de cautionnement en ligne (hors du bail) : ils recopient les mentions légales et reçoivent un exemplaire du bail. Le bail se signe ensuite, et chaque acte signé y est annexé.</div>
+    <div style="font-size:.78rem;color:var(--td);margin-bottom:.55rem;line-height:1.5">Chaque garant signe son acte de cautionnement en même temps que le bail ou juste après : il recopie les mentions légales et reçoit un exemplaire du bail. L'acte est affiché en dessous du bail et annexé une fois signé.</div>
     <div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
 }
@@ -4125,7 +4158,7 @@ function renderStatusAndSigs(){
       draft:'<i data-lucide=file-pen class=ic></i> Bail en préparation — pas encore envoyé au locataire',
       pending_tenant:'<i data-lucide=send class=ic></i> Bail envoyé — le locataire le relit',
       pending_landlord:'<i data-lucide=refresh-cw class=ic></i> Le locataire a demandé des modifications',
-    }[_nsB]||(ACTE_SEPARE&&(()=>{try{return garantsActes().some(g=>!(g.signed_at||_acteDe(g)?.statut==='signe'));}catch(e){return false;}})()?'<i data-lucide=hourglass class=ic></i> Bail prêt — les garants signent d’abord leur acte de cautionnement':'<i data-lucide=hourglass class=ic></i> Bail prêt — en attente des signatures');
+    }[_nsB]||(ACTE_SEPARE&&GARANTS_AVANT&&(()=>{try{return garantsActes().some(g=>!(g.signed_at||_acteDe(g)?.statut==='signe'));}catch(e){return false;}})()?'<i data-lucide=hourglass class=ic></i> Bail prêt — les garants signent d’abord leur acte de cautionnement':'<i data-lucide=hourglass class=ic></i> Bail prêt — en attente des signatures');
     sb2.className='sb-pending';sb2.innerHTML=_sbTxt;
   }
 
@@ -4153,7 +4186,7 @@ function renderStatusAndSigs(){
   }
 
   // Garants d'abord : le bail ne se signe qu'une fois tous les actes de cautionnement signés
-  const _gAtt=ACTE_SEPARE&&canSign?garantsActes().filter(g=>!(g.signed_at||_acteDe(g)?.statut==='signe')):[];
+  const _gAtt=ACTE_SEPARE&&GARANTS_AVANT&&canSign?garantsActes().filter(g=>!(g.signed_at||_acteDe(g)?.statut==='signe')):[];
   window._garantsAttente=_gAtt;
   const _gMsg=_gAtt.length?`<div class="sig-awaiting" style="flex-direction:column;gap:.3rem;text-align:center"><span><i data-lucide=hourglass class=ic></i> Le bail se signe après les garants</span><span style="font-size:.72rem;color:var(--td)">En attente de l'acte de cautionnement de ${_gAtt.map(g=>_escB(g.nom)).join(', ')}</span></div>`:'';
   // Sig bailleur
