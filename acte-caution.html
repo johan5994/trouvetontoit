@@ -216,10 +216,10 @@ function renderBailleur(){
   const s=A.snapshot||{},base=Math.round((Number(s.colocation?.part)||((Number(s.loyer)||0)+(Number(s.charges)||0))));
   const lien=location.origin+'/acte-caution.html?t='+A.token;
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement · vue du bailleur</div><h1>Caution de ${E(A.garant_nom||'—')} pour ${E(locNom())}</h1>
-  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte est envoyé automatiquement au garant dès que le bail est signé par le bailleur et le locataire. Vous pouvez déjà régler le plafond, la durée et le type.</p>':''}
+  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte est envoyé automatiquement au garant dès que le bail est signé par le bailleur et le locataire. Vous pouvez déjà régler le plafond et la durée.</p>':''}
   <div class="card">
     <div class="row2">
-      <div><label for="b-type">Type de caution</label><select id="b-type"><option value="solidaire" ${A.type!=='simple'?'selected':''}>Solidaire</option><option value="simple" ${A.type==='simple'?'selected':''}>Simple</option></select></div>
+      <div><label>Type de caution</label><div style="padding:.55rem 0;font-weight:600">${A.type==='simple'?'Simple':'Solidaire'} <span style="font-weight:400;color:var(--td);font-size:.78rem">(réglé dans le bail, étape Garantie)</span></div></div>
       <div><label for="b-duree">Durée de l'engagement</label><select id="b-duree">${Object.entries({bail_2:'Bail + 2 renouvellements',bail_1:'Bail + 1 renouvellement',bail:'Durée initiale du bail',indeterminee:'Indéterminée (résiliable)'}).map(([k,l])=>`<option value="${k}" ${A.duree===k?'selected':''}>${l}</option>`).join('')}</select></div>
     </div>
     <label for="b-plafond">Plafond de l'engagement (€)</label><input type="number" id="b-plafond" min="0" step="1" value="${Math.round(A.plafond||0)}">
@@ -230,7 +230,7 @@ function renderBailleur(){
   <div class="doc">${corps(false)}</div>`;
 }
 async function enregistrerBailleur(){
-  const upd={type:document.getElementById('b-type').value,duree:document.getElementById('b-duree').value,plafond:Math.max(0,Math.round(Number(document.getElementById('b-plafond').value)||0))};
+  const upd={duree:document.getElementById('b-duree').value,plafond:Math.max(0,Math.round(Number(document.getElementById('b-plafond').value)||0))};
   const{error}=await sb.from('actes_caution').update(upd).eq('id',A.id).neq('statut','signe');
   const m=document.getElementById('b-msg');
   if(error){m.innerHTML='<span class="ko">'+E(error.message)+'</span>';return;}
