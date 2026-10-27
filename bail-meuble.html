@@ -2123,7 +2123,7 @@ async function loadBail(){
       }catch(e){}
     }
     if(BOOKING?.garant_data){try{const gd=typeof BOOKING.garant_data==='string'?JSON.parse(BOOKING.garant_data):BOOKING.garant_data;if(Array.isArray(gd)&&gd.length)TENANT_GARANTIE='physique';}catch(e){}}
-    try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,snapshot').eq('lease_id',LEASE.id);ACTES=ac||[];}catch(e){ACTES=[];}
+    try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,duree,snapshot').eq('lease_id',LEASE.id);ACTES=ac||[];}catch(e){ACTES=[];}
     // Visale : n° de visa repris du dossier du locataire 1 (tant que le bail n'est pas signé)
     if(TENANT_GARANTIE==='visale'&&!LEASE.visale_ref&&TENANT_D5?.visa_ref&&!LEASE.landlord_signed_at){
       LEASE.visale_ref=TENANT_D5.visa_ref;try{await sb.from('leases').update({visale_ref:TENANT_D5.visa_ref}).eq('id',LEASE.id);}catch(e){}
@@ -4281,6 +4281,12 @@ async function _wzLive(key,v){
   await saveField(key,v===''?null:v);
   _wzMajAnnexes();
 }
+async function _wzActeMaj(id,champ,v){
+  const{error}=await sb.from('actes_caution').update({[champ]:v}).eq('id',id).neq('statut','signe');
+  if(error){toast('Erreur : '+error.message,6000);return;}
+  const a=ACTES.find(x=>x.id===id);if(a)a[champ]=v;
+  toast('<i data-lucide=check-circle-2 class=ic></i> Acte de cautionnement mis à jour');
+}
 function _wzMajAnnexes(){
   const box=document.getElementById('wz-sp-annexes');
   const h=_wzSpecial('annexes');
@@ -4312,7 +4318,14 @@ function _wzSpecial(x){
       const t=`<div class="wz-grp-t">${gs.length>1?'Acte n° '+(i+1)+' — ':''}${_escB(g.nom)} · caution de ${_escB(g.forName)}</div>`;
       if(!a)return`<div class="wz-f">${t}<div class="wz-aide">Préparation de l’acte…</div></div>`;
       if(a.statut==='signe')return`<div class="wz-f">${t}<div class="wz-aide">Acte signé le ${fmtDate(a.signed_at)}.</div></div>`;
-      return`<div class="wz-f">${t}<iframe src="/acte-caution.html?embed=1&role=bailleur&id=${a.id}" title="Acte de cautionnement de ${_escB(g.nom)}" class="wz-acte" style="width:100%;height:700px;border:1px solid #E3E6EC;border-radius:10px;display:block"></iframe></div>`;
+      const sn=a.snapshot||{},base=Math.round(Number(sn.colocation?.part)||((Number(sn.loyer)||0)+(Number(sn.charges)||0)));
+      const DUREES={bail_2:'Durée du bail + 2 renouvellements',bail_1:'Durée du bail + 1 renouvellement',bail:'Durée initiale du bail seulement',indeterminee:'Durée indéterminée (le garant peut résilier)'};
+      return`<div class="wz-f">${t}
+        <div class="wz-grille">
+          <div class="wz-f"><label for="wz-acte-duree-${a.id}">Durée de l’engagement</label><select id="wz-acte-duree-${a.id}" class="wz-in" onchange="_wzActeMaj('${a.id}','duree',this.value)">${Object.entries(DUREES).map(([k,l])=>`<option value="${k}"${(a.duree||'bail_2')===k?' selected':''}>${l}</option>`).join('')}</select></div>
+          <div class="wz-f"><label for="wz-acte-plafond-${a.id}">Montant maximum garanti (€)</label><input id="wz-acte-plafond-${a.id}" class="wz-in" type="number" min="0" step="1" value="${Math.round(a.plafond||0)}" onchange="_wzActeMaj('${a.id}','plafond',Math.max(0,Math.round(+this.value||0)))"><div class="wz-aide">Repère : 36 mois de loyer charges comprises = ${fmt(base*36)}.</div></div>
+        </div>
+        <div class="wz-aide">Type de caution : <strong>${a.type==='simple'?'simple':'solidaire'}</strong> (réglé à l’étape Garantie).</div></div>`;
     }).join('')+`<div class="wz-aide">L’acte est envoyé automatiquement au garant dès que le bail est signé par vous et le locataire.</div>`;}
   if(x==='garantie'){
     const gt=LEASE.garant_type||'',phys=gt==='solidaire'||gt==='simple';
@@ -4454,7 +4467,7 @@ async function envoyerActes(force,seulement,sansEnvoi){
     const _change=!!(ex?.envoye_at&&ex?.snapshot&&_cle(ex.snapshot)!==_cle(snap));
     const row={lease_id:LEASE.id,cle:g.cle,listing_id:LEASE.listing_id||null,landlord_id:LEASE.landlord_id||null,tenant_id:g.forId||LEASE.tenant_id||null,
       locataire_nom:g.forName,garant_nom:g.nom,garant_email:g.email,snapshot:snap,token:g.token,statut:sansEnvoi?(ex?.statut||'brouillon'):'envoye',
-      ...(ex?{}:{type:_cautionForm(),plafond:Math.round(base*36),duree:'bail_2'})};
+      type:_cautionForm(),...(ex?{}:{plafond:Math.round(base*36),duree:'bail_2'})};
     const{data,error}=await sb.from('actes_caution').upsert(row,{onConflict:'lease_id,cle'}).select().single();
     if(error){console.error('actes_caution',error);toast((/does not exist|schema cache|Could not find/i.test(error.message)?'Table des actes introuvable : exécutez supabase-migration-acte-caution.sql dans Supabase (SQL Editor). ':'')+'Détail : '+error.message,12000);return false;}
     const i=ACTES.findIndex(a=>a.cle===g.cle);if(i>=0)ACTES[i]=data;else ACTES.push(data);
@@ -4484,7 +4497,7 @@ function renderActesDocs(L){
   const gs=ACTE_SEPARE?garantsActes():[];
   if(!gs.length){el.innerHTML='';return;}
   // Bailleur : créer les brouillons manquants une fois (sans e-mail) pour que l'acte soit visible tout de suite
-  if(myRole==='landlord'&&!_actesPrepares&&gs.some(g=>!_acteDe(g)&&!g.signed_at)){_actesPrepares=true;envoyerActes(false,null,true).then(()=>renderActesDocs(LEASE));}
+  if(myRole==='landlord'&&!_actesPrepares&&gs.some(g=>!_acteDe(g)&&!g.signed_at)){_actesPrepares=true;envoyerActes(false,null,true).then(()=>{renderActesDocs(LEASE);if(document.body.classList.contains('bail-tunnel'))wzRender(true);});}
   const moiG=g=>myRole==='garant'&&((g.cle==='g:main'&&!MY_EXTRA_KEY)||MY_EXTRA_KEY===g.cle);
   const html=gs.map((g,i)=>{const a=_acteDe(g);
     if(!a)return `<div class="bail-card" style="margin-top:1.2rem;padding:1.2rem 1.4rem"><div class="article-title" style="margin:0">Acte de cautionnement — ${_escB(g.nom)}</div><p style="font-size:.84rem;color:var(--td);margin-top:.4rem">Caution de ${_escB(g.forName)}. L'acte apparaîtra ici dès qu'il est préparé par le bailleur.</p></div>`;
@@ -4503,7 +4516,7 @@ function renderActesDocs(L){
 window.addEventListener('message',async e=>{
   const d=e.data;if(!d||!d.acteCaution)return;
   if(d.h)document.querySelectorAll('#actes-docs iframe,#wz iframe.wz-acte').forEach(f=>{if(f.contentWindow===e.source)f.style.height=Math.max(200,d.h+10)+'px';});
-  if(d.signe){try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,snapshot').eq('lease_id',LEASE.id);ACTES=ac||ACTES;const{data:f}=await sb.from('leases').select('garant_signed_at,garant_signature,co_signers').eq('id',LEASE.id).single();if(f)Object.assign(LEASE,f);}catch(x){}renderBail();}
+  if(d.signe){try{const{data:ac}=await sb.from('actes_caution').select('id,cle,garant_nom,garant_email,locataire_nom,statut,signed_at,envoye_at,token,type,plafond,duree,snapshot').eq('lease_id',LEASE.id);ACTES=ac||ACTES;const{data:f}=await sb.from('leases').select('garant_signed_at,garant_signature,co_signers').eq('id',LEASE.id).single();if(f)Object.assign(LEASE,f);}catch(x){}renderBail();}
 });
 // Référence de l'acte dans le texte du bail : date de signature et plafond garanti
 function _acteRef(f){
