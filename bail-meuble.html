@@ -630,6 +630,7 @@
           <div class="info-grid" id="logement-grid3"></div>
           <div class="info-grid" id="logement-grid4"></div>
           <div class="info-grid" id="logement-grid5"></div>
+          <div class="article-content" id="description-block" style="margin-top:.55rem"></div>
           <div class="article-content" id="equipements-block" style="margin-top:.55rem"></div>
         </div>
 
@@ -1203,6 +1204,7 @@ const FIELD_LABELS={
   dernier_loyer_revision:'Date dernière révision IRL',
   dernier_loyer_versement:'Date de versement du dernier loyer',
   prop_address:'Adresse du logement',
+  description_logement:'Description du logement',
   prop_type:'Type de logement',
   prop_pieces:'Nombre de pièces',
   prop_etage:'Étage',
@@ -1305,6 +1307,7 @@ const FIELD_CONFIGS={
   dernier_loyer_revision:{type:'date'},
   dernier_loyer_versement:{type:'date'},
   prop_address:{type:'text',placeholder:'ex. 10 Rue de la Paix, 75001 Paris'},
+  description_logement:{type:'textarea',placeholder:'ex. Appartement lumineux au 3ᵉ étage : séjour avec cuisine ouverte, deux chambres, salle d’eau, WC séparés.',maxlength:'1500'},
   prop_type:{type:'select',options:['Appartement','Maison','Studio','Loft','Chambre','Duplex','Villa']},
   prop_pieces:{type:'number',placeholder:'ex. 3',step:1,min:1,max:20},
   prop_etage:{type:'text',placeholder:'ex. 2ème étage sur 5'},
@@ -1375,6 +1378,7 @@ ALTER TABLE leases ADD COLUMN IF NOT EXISTS modifs_log JSONB DEFAULT '[]'::jsonb
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS clauses_particulieres JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS regles_droit BOOLEAN DEFAULT true;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS caution_mode TEXT DEFAULT 'acte';
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS description_logement TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref_majore NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS zone_tendue BOOLEAN DEFAULT false;
@@ -2752,6 +2756,9 @@ function _renderBail(){
 
   // Équipements
   const feats=Li?.features||[];
+  {const dsc=String(L.description_logement||Li?.description||'').trim();
+    const escD=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    show('description-block',dsc?`<p><strong>Description :</strong> ${escD(dsc)}${_editMode?` <span class="edit-btn" onclick="editField(event,'description_logement')"><i data-lucide=pencil class=ic></i></span>`:''}</p>`:(_editMode?`<p>${mf('description_logement')}</p>`:''));}
   if(feats.length)show('equipements-block','<p>Équipements inclus : '+feats.join(', ')+'.</p>');
 
   // Zone tendue — auto-détection + calcul automatique des loyers de référence
@@ -3553,7 +3560,7 @@ async function exportBailPDF(){
 // ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
 function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
 // Infos du logement communes à tous les baux d'une même colocation (un bail par locataire)
-const CHAMPS_COMMUNS=new Set(['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
+const CHAMPS_COMMUNS=new Set(['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
   'dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres',
   'commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres',
   'dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit',
@@ -4092,7 +4099,7 @@ async function inviteGarant(force){
 // (zone tendue, meublé/vide, première location…) restent gérées par le bail lui-même.
 const WZ_STEPS=[
   {t:'Les parties',d:'Vérifiez les coordonnées du bailleur et du locataire telles qu’elles figureront dans le bail.',k:['landlord_name','landlord_address','landlord_email','landlord_phone','tenant_name','tenant_address','tenant_email','tenant_phone','tenant_nationality']},
-  {t:'Le logement',d:'Description du logement loué.',k:['prop_address','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['lot','usage']},
+  {t:'Le logement',d:'Description du logement loué.',k:['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['lot','usage']},
   {t:'Annexes et équipements',d:'Cave, stationnement, parties communes et télécoms.',k:['dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres','commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres']},
   {t:'Dates',d:'La date de fin est calculée d’après la durée légale ; modifiez-la seulement si besoin.',k:['start_date','end_date','payment_due_day']},
   {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
@@ -4128,6 +4135,7 @@ function _bailDefaut(key){
   const ch={individuel:{electrique:'Individuel électrique',gaz:'Individuel gaz'},collectif:{gaz:'Collectif gaz',electrique:'Collectif électrique',fioul:'Collectif fuel'}};
   switch(key){
     case 'prop_address':return Li.full_address||null;
+    case 'description_logement':return String(Li.description||'').trim()||null;
     case 'prop_type':{const t=String(Li.typology||'').toLowerCase();if(t==='studio')return'Studio';
       const b=String(Li.type_bien||'').toLowerCase();return b==='maison'?'Maison':b==='appartement'?'Appartement':null;}
     case 'prop_pieces':{const t=String(Li.typology||'').toLowerCase();if(t==='studio')return 1;const m=t.match(/^t(\d)/);return m?+m[1]:null;}
@@ -4182,6 +4190,8 @@ function _wzChamp(key,manque,sansGrille){
   }else if(cfg.type==='select'){
     const opts=cfg.options.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return`<option value="${esc(v)}"${cur===String(v)?' selected':''}>${esc(l)}</option>`;}).join('');
     input=`<select id="${id}" class="wz-in"${/^(diag_|dpe_)/.test(key)?` onchange="_wzLive('${key}',this.value)"`:''}><option value=""${cur?'':' selected'}>— Choisir —</option>${opts}</select>`;
+  }else if(cfg.type==='textarea'){
+    input=`<textarea id="${id}" class="wz-in" rows="5" maxlength="${cfg.maxlength||2000}" placeholder="${esc(cfg.placeholder||'')}">${esc(cur)}</textarea>`;
   }else if(cfg.type==='travaux'){
     const aucun=cur==='aucun';
     input=`<label class="wz-chk"><input type="checkbox" id="${id}-aucun" ${aucun?'checked':''} onchange="document.getElementById('${id}').disabled=this.checked"> Aucuns travaux à déclarer</label><textarea id="${id}" class="wz-in" rows="3" ${aucun?'disabled':''} placeholder="${esc(cfg.placeholder||'')}">${aucun?'':esc(cur)}</textarea>`;
@@ -4189,12 +4199,13 @@ function _wzChamp(key,manque,sansGrille){
     const extra=[cfg.min!=null?`min="${cfg.min}"`:'',cfg.max!=null?`max="${cfg.max}"`:'',cfg.step!=null?`step="${cfg.step}"`:'',cfg.maxlength?`maxlength="${cfg.maxlength}"`:'',cfg.placeholder?`placeholder="${esc(cfg.placeholder)}"`:''].join(' ');
     input=`<input type="${cfg.type||'text'}" id="${id}" class="wz-in" value="${esc(cur)}" ${extra}${key==='start_date'?' oninput="_wzFinAuto(this.value)"':''}>`;
   }
-  const large=cfg.type==='travaux'||/address|_autres|_details|justif|nature/.test(key)||(cfg.type==='select'&&cfg.options.length<=3&&!/^diag_/.test(key));
+  const large=cfg.type==='travaux'||cfg.type==='textarea'||/address|_autres|_details|justif|nature/.test(key)||(cfg.type==='select'&&cfg.options.length<=3&&!/^diag_/.test(key));
   const si=WZ_SI[key]?` data-si="${key}"${_wzSiOk(key)?'':' hidden'}`:'';
   return`<div class="wz-f${manque?' wz-manque':''}${large?' wz-large':''}"${si}><label for="${id}">${esc(lbl)}${manque?' <span class="wz-tag">à compléter</span>':''}</label>${input}</div>`;
 }
 // ── Présentation : groupes, champs facultatifs repliés, champs déjà remplis en lecture ──
 const WZ_GROUPES=[
+  ['Description',/^description_logement$/],
   ['Bailleur',/^landlord_/],['Locataire',/^tenant_/],
   ['Adresse',/^(prop_address|numero_lot|numero_fiscal)$/],['Caractéristiques',/^(prop_type|prop_pieces|prop_etage|surface_boutin|annee_construction|regime_copro)$/],['Chauffage et eau chaude',/^mode_/],
   ['Loyer',/^(rent|charges)$/],['Encadrement des loyers',/^(loyer_ref|loyer_ref_majore|complement_)/],['Précédent locataire',/^(premiere_mise_en_location|dernier_)/],
