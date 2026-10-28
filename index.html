@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Trouve Ton Toit — Location immobilière en France</title>
@@ -2900,7 +2901,7 @@ async function submitEstimationRequest(agencyId){
 
 async function contactAgence(agencyId,agencyNom){
   if(!U){toast('Pbail sign in first');go('auth');return;}
-  const msg=prompt(`Envoyer a message to ${agencyNom}:`,`Hi, I'd like to discuss managing my bien avec votre agence.`);
+  const msg=await uiPrompt(`Envoyer a message to ${agencyNom}:`,`Hi, I'd like to discuss managing my bien avec votre agence.`);
   if(!msg)return;
   try{
     const{error}=await sb.from('messages').insert({
@@ -5468,7 +5469,7 @@ async function uploadVisitVideo(input, listingId){
 // ── Système de références locataire ─────────────────────────────
 async function requestReference(){
   if(!U){toast('Pbail sign in first');return;}
-  const email=prompt('Enter votre previous propriétaire\'s email to request a reference:');
+  const email=await uiPrompt('Enter votre previous propriétaire\'s email to request a reference:');
   if(!email||!email.includes('@')){toast('Invalid email');return;}
   // Store reference request in Supabase
   try{
