@@ -19,22 +19,41 @@
   // Les liens (bail, état des lieux…) s'ouvrent en pleine page, pas dans le cadre
   if(window.EMBED_AGENCE)document.write('<base target="_top">');
 </script>
-<style>html.embed .sb,html.embed .topbar,html.embed #mob-menu{display:none!important}html.embed .main{margin-left:0!important}  .bpx{background:var(--s,#fff);border:1px solid var(--b,#E5E7EB);border-radius:10px;padding:.65rem .75rem}
+<style>html.embed .sb,html.embed .topbar,html.embed #mob-menu{display:none!important}html.embed .main{margin-left:0!important}  .bpx{background:var(--s,#fff);border:1px solid var(--b,var(--b2));border-radius:10px;padding:.65rem .75rem}
   .bpx-steps{display:flex;align-items:center;gap:.3rem;overflow-x:auto;padding-bottom:.1rem}
   .bpx-s{display:flex;align-items:center;gap:.3rem;flex-shrink:0;font-size:.7rem;color:var(--td);font-weight:600}
-  .bpx-d{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--b2,#D1D5DB);display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;background:var(--s,#fff)}
+  .bpx-d{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--b2,var(--b2));display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;background:var(--s,#fff)}
   .bpx-s.bpx-ok{color:var(--green)}.bpx-s.bpx-ok .bpx-d{background:var(--green);border-color:var(--green);color:#fff}
   .bpx-s.bpx-on{color:var(--bleu)}.bpx-s.bpx-on .bpx-d{background:var(--bleu);border-color:var(--bleu);color:#fff}
   .bpx-s:not(.bpx-on) .bpx-l{display:none}
   @media(min-width:520px){.bpx-s .bpx-l{display:inline!important}}
-  .bpx-sep{flex:1 1 10px;min-width:8px;height:1.5px;background:var(--b2,#E5E7EB)}
+  .bpx-sep{flex:1 1 10px;min-width:8px;height:1.5px;background:var(--b2,var(--b2))}
   .bpx-now{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.55rem;font-size:.76rem;line-height:1.45;color:var(--txt)}
   .bpx-btn{background:var(--bleu);color:#fff!important;text-decoration:none;border-radius:8px;padding:.4rem .8rem;font-size:.74rem;font-weight:700;white-space:nowrap}
   .bpx-btn.bpx-sec{background:transparent;color:var(--bleu)!important;border:1px solid var(--bleu)}
+  .cand-t{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--td);margin:.2rem 0 .45rem}
+  .cand-demande{background:var(--s);border:1px solid var(--b2);border-left:3px solid var(--gold);border-radius:8px;padding:.55rem .7rem;font-size:.78rem;margin-bottom:.8rem}
+  .cand-demande strong{display:block;font-size:.72rem;margin-bottom:.2rem}
+  .cand-tab{width:100%;border-collapse:collapse;font-size:.8rem;background:var(--s);border:1px solid var(--b2);border-radius:10px;overflow:hidden}
+  .cand-tab th{text-align:left;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--td);font-weight:700;padding:.5rem .65rem;border-bottom:1px solid var(--b2);background:var(--s2)}
+  .cand-tab td{padding:.55rem .65rem;border-bottom:1px solid var(--b);vertical-align:top;font-variant-numeric:tabular-nums}
+  .cand-tab tr:last-child td{border-bottom:none}
+  .cb-num{display:inline-flex;width:18px;height:18px;border-radius:50%;background:var(--bleu);color:#fff;font-size:.62rem;font-weight:800;align-items:center;justify-content:center;margin-right:.4rem}
+  .cb-sub{color:var(--td);font-size:.72rem}
+  .cb-ok{color:var(--green);font-weight:700}.cb-mid{color:var(--gold);font-weight:700}.cb-ko{color:var(--red);font-weight:700}
+  .dos-ll{background:var(--s);border:1px solid var(--b2);border-radius:10px;margin-bottom:.5rem}
+  .dos-ll>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.55rem .75rem}
+  .dos-ll>summary::-webkit-details-marker{display:none}
+  .dos-ll>summary>div{margin-bottom:0!important}
+  .dos-ll[open]>summary{border-bottom:1px solid var(--b)}
+  .dos-ll>:not(summary){margin:.6rem .75rem}
+  .dos-ouvrir{font-size:.74rem;font-weight:600;color:var(--bleu);white-space:nowrap}
+  .dos-ouvrir::after{content:' ▾'}.dos-ll[open] .dos-ouvrir::after{content:' ▴'}
 </style>
 <style>
-:root{--bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--bleu:#1B4FD8;--tdim:rgba(224,90,58,.15);--gold:#E8A020;--gdim:rgba(212,168,71,.12);--sea:#3A8FB5;--sdim:rgba(58,143,181,.12);--green:#4CAF7D;--grdim:rgba(76,175,125,.12);--red:#E05A5A;--rdim:rgba(224,90,90,.12);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)}
-html.light{--bg:#F7F5F1;--s:#FFFFFF;--s2:#F0EDE6;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);--bleu:#1B4FD8;--tdim:rgba(201,85,58,.1);--gold:#B8862F;--gdim:rgba(184,134,47,.1);--marine:#0F2D7A;--sdim:rgba(46,107,138,.1);--green:#3D8F63;--grdim:rgba(61,143,99,.1);--red:#1B4FD8;--rdim:rgba(201,85,58,.1);--txt:#1A1410;--tm:rgba(26,20,16,.59);--td:rgba(26,20,16,.56)}
+:root{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
+html.light{--bg:#F6F4EF;--s:#FFFFFF;--s2:#F1EEE7;--b:rgba(40,32,24,.09);--b2:rgba(40,32,24,.16);--txt:#1C1A17;--tm:#5E574D;--td:#857D71;--ink-rgb:28,26,23;--bleu:#1B4FD8;--bleu-rgb:27,79,216;--marine:#0F2D7A;--green:#2F8A5B;--green-rgb:47,138,91;--gold:#A86F14;--gold-rgb:176,122,30;--red:#C2412D;--red-rgb:194,65,45;--sea:#2B7898;--sea-rgb:43,120,152;--grdim:rgba(47,138,91,.10);--gdim:rgba(176,122,30,.10);--rdim:rgba(194,65,45,.09);--tdim:rgba(27,79,216,.08);--sdim:rgba(43,120,152,.10);--deep:#1C1A17;--stone:#5E574D}
+:root{--accent:var(--bleu);--primary:var(--bleu);--tf:var(--tm);--stone-l:var(--td)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;overflow-x:hidden}
 
@@ -45,14 +64,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .sb-nav{flex:1;padding:1rem 0;overflow-y:auto}
 .nl{font-size:.65rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--td);padding:.8rem 1.5rem .4rem}
 .ni{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.5rem;cursor:pointer;transition:all .15s;position:relative;font-size:.88rem;font-weight:500;color:var(--tm);border:none;background:none;width:100%;text-align:left}
-.ni:hover{color:var(--txt);background:rgba(255,255,255,.04)}
+.ni:hover{color:var(--txt);background:rgba(var(--ink-rgb),.04)}
 .ni.act{color:var(--bleu);background:var(--tdim)}
 .ni.act::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bleu);border-radius:0 2px 2px 0}
 .nico{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
 .nbadge{margin-left:auto;background:var(--bleu);color:white;font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;min-width:20px;text-align:center}
 .nbadge.g{background:var(--green)}.nbadge.gold{background:var(--gold);color:#1A1410}
 .sb-user{padding:1rem 1.5rem;border-top:1px solid var(--b);display:flex;align-items:center;gap:.75rem}
-.uav{width:34px;height:34px;border-radius:50%;background:var(--tdim);border:1px solid rgba(224,90,58,.3);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:700;color:var(--bleu)}
+.uav{width:34px;height:34px;border-radius:50%;background:var(--tdim);border:1px solid rgba(var(--bleu-rgb),.3);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:700;color:var(--bleu)}
 .un{font-size:.82rem;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ur{font-size:.7rem;color:var(--td)}
 
@@ -64,10 +83,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 #mob-menu{display:none}
 
 .btn{padding:.55rem 1.2rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}
-.bp{background:var(--bleu);color:white}.bp:hover{background:#f06545;transform:translateY(-1px)}
-.bg{background:rgba(255,255,255,.06);color:var(--tm);border:1px solid var(--b2)}.bg:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+.bp{background:var(--bleu);color:white}.bp:hover{background:var(--red);transform:translateY(-1px)}
+.bg{background:rgba(var(--ink-rgb),.06);color:var(--tm);border:1px solid var(--b2)}.bg:hover{background:rgba(var(--ink-rgb),.1);color:var(--txt)}
 .bsm{padding:.4rem .9rem;font-size:.78rem}
-.bdanger{background:var(--rdim);color:var(--red);border:1px solid rgba(224,90,90,.2)}
+.bdanger{background:var(--rdim);color:var(--red);border:1px solid rgba(var(--red-rgb),.2)}
 
 .content{padding:1.5rem 2rem;flex:1}
 .page{display:none}.page.act{display:block;animation:fi .2s ease}
@@ -93,7 +112,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .tbl th{text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--td);padding:.6rem 1rem;border-bottom:1px solid var(--b);background:var(--s)}
 .tbl td{padding:.85rem 1rem;font-size:.83rem;border-bottom:1px solid var(--b);color:var(--tm)}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl tr:hover td{background:rgba(var(--ink-rgb),.02)}
 
 /* BADGES */
 .badge{padding:.25rem .65rem;border-radius:100px;font-size:.68rem;font-weight:700}
@@ -101,7 +120,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .b-gold{background:var(--gdim);color:var(--gold)}
 .b-red{background:var(--rdim);color:var(--red)}
 .b-sea{background:var(--sdim);color:var(--marine)}
-.b-dim{background:rgba(255,255,255,.05);color:var(--td)}
+.b-dim{background:rgba(var(--ink-rgb),.05);color:var(--td)}
 
 /* PROPERTY ROW */
 .prow{display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--b)}
@@ -121,7 +140,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
 /* CHART */
 .chart{display:flex;align-items:flex-end;gap:.4rem;height:100px;margin-bottom:.5rem}
-.cbar{flex:1;border-radius:4px 4px 0 0;background:var(--tdim);border:1px solid rgba(224,90,58,.2);transition:all .3s;cursor:pointer;position:relative}
+.cbar{flex:1;border-radius:4px 4px 0 0;background:var(--tdim);border:1px solid rgba(var(--bleu-rgb),.2);transition:all .3s;cursor:pointer;position:relative}
 .cbar.cur{background:var(--bleu);border-color:var(--bleu)}
 .cbar:hover{opacity:.8}
 .clabel{font-size:.62rem;color:var(--td);text-align:center;margin-top:.3rem}
@@ -139,13 +158,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--b)}
 .toggle-row:last-child{border-bottom:none}
 .tgl{width:36px;height:20px;border-radius:100px;position:relative;cursor:pointer;transition:background .2s}
-.tgl.on{background:var(--green)}.tgl.off{background:rgba(255,255,255,.1)}
-.tgl-dot{width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:2px;transition:left .2s}
+.tgl.on{background:var(--green)}.tgl.off{background:rgba(var(--ink-rgb),.1)}
+.tgl-dot{width:16px;height:16px;background:var(--s);border-radius:50%;position:absolute;top:2px;transition:left .2s}
 .tgl.on .tgl-dot{left:18px}.tgl.off .tgl-dot{left:2px}
 
 /* MSG */
 .mitem{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
-.mitem:hover{background:rgba(255,255,255,.03)}
+.mitem:hover{background:rgba(var(--ink-rgb),.03)}
 .mitem.unread{border-left:3px solid var(--bleu)}
 .mav{width:36px;height:36px;border-radius:50%;background:var(--tdim);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bleu);font-size:.8rem;flex-shrink:0}
 .mprev{font-size:.75rem;color:var(--td);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
@@ -179,7 +198,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .mover{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
 .mover.open{display:flex}
 .modal{background:var(--s);border:1px solid var(--b2);border-radius:20px;padding:2rem;max-width:500px;width:100%;position:relative;animation:fi .25s ease;max-height:88vh;overflow-y:auto}
-.mclose{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.07);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--tm);display:flex;align-items:center;justify-content:center}
+.mclose{position:absolute;top:1rem;right:1rem;background:rgba(var(--ink-rgb),.07);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--tm);display:flex;align-items:center;justify-content:center}
 .mclose:hover{background:var(--tdim);color:var(--bleu)}
 .fr{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;margin-bottom:.2rem;color:var(--txt)}
 .ms{color:var(--tm);font-size:.82rem;margin-bottom:1.2rem}
@@ -195,7 +214,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
 /* LOADING */
 .ld{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--td);gap:.6rem;grid-column:1/-1}
-.sp{width:18px;height:18px;border:2px solid rgba(224,90,58,.2);border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite}
+.sp{width:18px;height:18px;border:2px solid rgba(var(--red-rgb),.2);border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:3rem 1rem;color:var(--tm)}
 .empty .em{font-size:2.5rem;margin-bottom:.75rem}
@@ -420,7 +439,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div id="gestion-content"></div>
       <!-- MAINTENANCE (dans la gestion locative) -->
       <div id="sec-maintenance" style="display:none">
-      <div style="background:var(--tdim);border:1px solid rgba(224,90,58,.15);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
+      <div style="background:var(--tdim);border:1px solid rgba(var(--bleu-rgb),.15);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
         <i data-lucide=wrench class=ic></i> Les locataires peuvent signaler des problèmes depuis leur tableau de bord — vous serez notifié instantanément. Suivez chaque ticket de l'ouverture à la résolution, et gardez un historique complet par bien.
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
@@ -436,33 +455,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.6rem">
         <div style="font-size:1rem;font-weight:700">Paiements & Loyer</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <button class="btn bp bsm" onclick="addRentEntry()">+ Add locataire loyer</button>
+          <button class="btn bp bsm" onclick="addRentEntry()">+ Ajouter un loyer</button>
           <button class="btn bg bsm" onclick="exportPaiements()"><i data-lucide=inbox class=ic></i> Export CSV</button>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
-        <div class="kcard"><div class="klabel">collecté ce mois-ci</div><div class="kval" id="pay-collected" style="color:var(--green)">—</div><div class="ksub">Confirmered received</div></div>
+        <div class="kcard"><div class="klabel">Encaissé ce mois-ci</div><div class="kval" id="pay-collected" style="color:var(--green)">—</div><div class="ksub">Reçus et confirmés</div></div>
         <div class="kcard"><div class="klabel">Locataire a déclaré payer</div><div class="kval" id="pay-declared" style="color:var(--gold)">—</div><div class="ksub">En attente de votre confirmation</div></div>
-        <div class="kcard"><div class="klabel">En attente / Overdue</div><div class="kval" id="pay-en attente" style="color:var(--red)">—</div><div class="ksub">No paiement declared</div></div>
+        <div class="kcard"><div class="klabel">En attente / en retard</div><div class="kval" id="pay-en attente" style="color:var(--red)">—</div><div class="ksub">Aucun paiement déclaré</div></div>
       </div>
 
       <!-- En attente confirmations - most important -->
-      <div class="card" style="margin-bottom:1rem;border:1px solid rgba(212,168,71,.3)">
-        <div class="ch" style="background:rgba(212,168,71,.07)">
+      <div class="card" style="margin-bottom:1rem;border:1px solid rgba(var(--gold-rgb),.3)">
+        <div class="ch" style="background:rgba(var(--gold-rgb),.07)">
           <div class="ct"><i data-lucide=hourglass class=ic></i> En attente de votre confirmation</div>
-          <span style="font-size:.75rem;color:var(--gold)">Locataires a déclaré avoir payé — confirmez la réception</span>
+          <span style="font-size:.75rem;color:var(--gold)">Le locataire a déclaré avoir payé : confirmez la réception</span>
         </div>
         <div class="cb" id="pay-awaiting"><div style="text-align:center;padding:1.5rem;font-size:.83rem;color:var(--td)">Aucun paiement en attente de confirmation</div></div>
       </div>
 
       <div class="card" style="margin-bottom:1rem">
         <div class="ch">
-          <div class="ct">Paiement history</div>
+          <div class="ct">Historique des paiements</div>
           <select class="fsel" style="width:auto;font-size:.75rem;padding:.3rem .6rem" onchange="loadPaiements(this.value)">
-            <option value="all">All paiements</option>
+            <option value="all">Tous les paiements</option>
             <option value="paid">Confirmered <i data-lucide=check-circle-2 class=ic></i></option>
-            <option value="declared">Declared by locataire</option>
+            <option value="declared">Déclarés par le locataire</option>
             <option value="en attente">En attente </option>
             <option value="late">Overdue <i data-lucide=alert-triangle class=ic></i></option>
           </select>
@@ -505,7 +524,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- REVIEWS -->
     <div class="page" id="page-avis">
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Reviews & Ratings</div>
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
+      <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
         <i data-lucide=star class=ic></i> Votre note est visible par tous les locataires qui consultent les annonces. Les propriétaires avec une moyenne de 4,5+ obtiennent un badge "Propriétaire de confiance" et apparaissent plus haut dans les résultats.
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
@@ -539,10 +558,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Mon compte & Paramètres</div>
 
       <!-- Profil completeness banner -->
-      <div id="profil-incomplete-banner" style="display:none;background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem">
+      <div id="profil-incomplete-banner" style="display:none;background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.25);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem">
         <div style="font-weight:700;font-size:.88rem;color:var(--gold);margin-bottom:.4rem"><i data-lucide=alert-triangle class=ic></i> Complétez votre profil pour débloquer toutes les fonctionnalités</div>
         <div style="font-size:.78rem;color:var(--tm);margin-bottom:.75rem">Vous avez besoin d'un profil complet pour publier des annonces, générer des baux et utiliser Trouve Ton Toit.</div>
-        <div style="background:rgba(255,255,255,.07);border-radius:100px;height:10px;margin-bottom:.4rem">
+        <div style="background:rgba(var(--ink-rgb),.07);border-radius:100px;height:10px;margin-bottom:.4rem">
           <div id="ll-completeness-bar" style="background:var(--bleu);height:10px;border-radius:100px;width:0%;transition:width .4s"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--td)">
@@ -1079,7 +1098,7 @@ async function loadAnnonces(){
         ?`<button class="btn bg bsm" onclick="toggleAnnonce('${l.id}',true)">Pause</button>`
         :`<button class="btn bp bsm" onclick="retrySaleActivationLL('${l.id}','${(l.title||'').replace(/'/g,"\\'")}')"><i data-lucide=credit-card class=ic></i> Activer</button>`)
       :`<button class="btn bg bsm" onclick="toggleAnnonce('${l.id}',${(l.actif??l.active)})">${(l.actif??l.active)?'Pause':'Activer'}</button>`;
-    const boostBtn=!pendingSale?((l.actif??l.active)?`<button class="btn bg bsm" style="${isBoosted?'':'background:linear-gradient(135deg,#F59E0B,#DC2626);color:white;border:none'}" onclick="startBoostPaiementLL('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn bg bsm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — paused annonces don't show in search"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
+    const boostBtn=!pendingSale?((l.actif??l.active)?`<button class="btn bg bsm" style="${isBoosted?'':'background:linear-gradient(135deg,var(--gold),var(--red));color:white;border:none'}" onclick="startBoostPaiementLL('${l.id}','${(l.title||'').replace(/'/g,"\\'")}','${l.type}')">${isBoosted?'<i data-lucide=flame class=ic></i> Extend':'<i data-lucide=rocket class=ic></i> Boost'}</button>`:`<button class="btn bg bsm" disabled style="opacity:.5;cursor:not-allowed" title="Activer the annonce first — paused annonces don't show in search"><i data-lucide=rocket class=ic></i> Boost</button>`):'';
     return`<tr>
     <td style="color:var(--txt);font-weight:500">${l.title}
       <div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${l.zone}${isBoosted?` · <i data-lucide=flame class=ic></i> Boosté jusqu'au ${new Date(l.boosted_until).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`:''}</div></td>
@@ -1545,10 +1564,10 @@ function renderDossierHTML(dd){
   if(dd.df&&(dd.df.link||(dd.df.files||[]).length)){
     const _e=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
     const fs=(dd.df.files||[]).filter(f=>f?.url);
-    html+=`<div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.3);border-radius:9px;padding:.55rem .7rem;margin-bottom:.5rem">
+    html+=`<div style="background:rgba(var(--bleu-rgb),.08);border:1px solid rgba(var(--bleu-rgb),.3);border-radius:9px;padding:.55rem .7rem;margin-bottom:.5rem">
       <div style="font-size:.7rem;font-weight:800;color:var(--bleu);margin-bottom:.3rem"><i data-lucide=folder class=ic></i> DossierFacile du locataire</div>
       ${dd.df.link&&/^https?:\/\//i.test(dd.df.link)?`<a href="${_e(dd.df.link)}" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--bleu);font-weight:700;word-break:break-all">Ouvrir le dossier en ligne →</a>`:''}
-      ${fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.25rem .5rem;margin-top:.25rem"><span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${_e(f.name)}</span><a href="${_e(f.url)}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join('')}
+      ${fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(var(--ink-rgb),.05);border-radius:6px;padding:.25rem .5rem;margin-top:.25rem"><span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${_e(f.name)}</span><a href="${_e(f.url)}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join('')}
     </div>`;
   }
 
@@ -1570,7 +1589,7 @@ function renderDossierHTML(dd){
       ${step.type&&!skipped?`<div style="font-size:.73rem;font-weight:600;color:var(--txt);margin-bottom:.3rem"><i data-lucide=file-text class=ic></i> ${typeLabel}</div>`:''}
       ${step.amount?`<div style="font-size:.73rem;color:var(--txt);margin-bottom:.3rem">Revenu mensuel net déclaré : <strong>${Number(step.amount).toLocaleString('fr-FR')} €</strong></div>`:''}
       ${step.explication?`<div style="font-size:.72rem;color:var(--txt);margin-bottom:.3rem;font-style:italic;white-space:pre-wrap">« ${String(step.explication).replace(/</g,'&lt;')} »</div>`:''}
-      ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
+      ${files.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(var(--ink-rgb),.04);border-radius:6px;padding:.25rem .5rem;margin-bottom:.2rem">
         <span style="font-size:.7rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${f.name||'Fichier'}</span>
         <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--marine);color:white;border-radius:5px;padding:.15rem .45rem;font-size:.65rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
       </div>`).join('')}
@@ -1600,7 +1619,7 @@ function renderDossierHTML(dd){
       // Organisme ou personne morale : infos + fichiers
       if(garantStep.type!=='garant_personne'){
         const _e=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-        const _f=(arr,title)=>{const fs=(arr||[]).filter(f=>f?.url);return fs.length?`<div style="font-size:.63rem;font-weight:700;color:var(--td);text-transform:uppercase;margin:.3rem 0 .15rem">${title}</div>`+fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem"><span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${_e(f.name)||'Doc'}</span><a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join(''):'';};
+        const _f=(arr,title)=>{const fs=(arr||[]).filter(f=>f?.url);return fs.length?`<div style="font-size:.63rem;font-weight:700;color:var(--td);text-transform:uppercase;margin:.3rem 0 .15rem">${title}</div>`+fs.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(var(--ink-rgb),.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem"><span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${_e(f.name)||'Doc'}</span><a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none">Voir →</a></div>`).join(''):'';};
         if(garantStep.type==='garant_moral'){
           const pieces={cni:"carte d'identité",passeport:'passeport',sejour:'titre de séjour',autre:'autre pièce'};
           html+=`<div style="font-size:.72rem;color:var(--txt);margin-bottom:.2rem">Société : <strong>${_e(garantStep.moral_nom)||'—'}</strong></div>
@@ -1633,7 +1652,7 @@ function renderDossierHTML(dd){
               subDocsHtml+=`<div style="margin-bottom:.3rem">
                 <div style="font-size:.63rem;font-weight:700;color:var(--td);text-transform:uppercase;margin-bottom:.15rem">${GSUB_LABELS[3]} — ${rev.label||GSUB_TYPE_LABELS[rev.type]||rev.type||''}</div>
                 ${rev.montant?`<div style="font-size:.66rem;color:var(--txt);margin-bottom:.15rem">Revenu mensuel net déclaré : <strong>${Number(rev.montant).toLocaleString('fr-FR')} €</strong></div>`:''}
-                ${revFiles.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
+                ${revFiles.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(var(--ink-rgb),.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
                   <span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${f.name||'Doc'}</span>
                   <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
                 </div>`).join('')}
@@ -1646,7 +1665,7 @@ function renderDossierHTML(dd){
             totalFiles+=subFiles.length;
             subDocsHtml+=`<div style="margin-bottom:.3rem">
               <div style="font-size:.63rem;font-weight:700;color:var(--td);text-transform:uppercase;margin-bottom:.15rem">${GSUB_LABELS[si]}${typeLabel?' — '+typeLabel:''}</div>
-              ${subFiles.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
+              ${subFiles.map(f=>`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(var(--ink-rgb),.05);border-radius:6px;padding:.2rem .45rem;margin-bottom:.15rem">
                 <span style="font-size:.67rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${f.name||'Doc'}</span>
                 <a href="${f.url}" target="_blank" rel="noopener" style="background:var(--bleu);color:white;border-radius:5px;padding:.11rem .38rem;font-size:.62rem;font-weight:600;text-decoration:none;flex-shrink:0">Voir →</a>
               </div>`).join('')}
@@ -1654,7 +1673,7 @@ function renderDossierHTML(dd){
             </div>`;
           }
         }
-        html+=`<div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.18);border-radius:9px;padding:.5rem .65rem;margin-bottom:.35rem">
+        html+=`<div style="background:rgba(var(--bleu-rgb),.08);border:1px solid rgba(var(--bleu-rgb),.18);border-radius:9px;padding:.5rem .65rem;margin-bottom:.35rem">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.2rem .6rem;font-size:.72rem;margin-bottom:.4rem">
             <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:700">${nom}</div></div>
             <div><div style="color:var(--td);font-size:.58rem">Email</div><div style="font-weight:600;word-break:break-all">${email}</div></div>
@@ -1713,7 +1732,7 @@ function renderCoLocatairesSummary(booking){
       ?`<div id="ct-phone-${booking.id}-${i}" style="font-weight:600"><i data-lucide=hourglass class=ic></i></div>`
       :`<div style="font-weight:600">${ct.phone||'—'}</div>`;
     return`
-    <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:.55rem .65rem;margin-bottom:.35rem">
+    <div style="background:rgba(var(--ink-rgb),.03);border-radius:8px;padding:.55rem .65rem;margin-bottom:.35rem">
       <div style="font-size:.6rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem"><i data-lucide=users class=ic></i> Locataire ${i+2}${ct.hasAccount?' — Trouve Ton Toit compte':' — no compte yet'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;font-size:.72rem;margin-bottom:.4rem">
         <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:600">${ct.name||'—'}</div></div>
@@ -1813,7 +1832,7 @@ async function loadBookingDossier(booking){
 
   const verif=profil.vérifié
     ?'<span style="background:var(--grdim);color:var(--green);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=check-circle-2 class=ic></i> ID Vérifié</span>'
-    :'<span style="background:rgba(212,168,71,.15);color:var(--gold);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=alert-triangle class=ic></i> Non vérifié</span>';
+    :'<span style="background:rgba(var(--gold-rgb),.15);color:var(--gold);padding:.15rem .5rem;border-radius:100px;font-size:.65rem;font-weight:700"><i data-lucide=alert-triangle class=ic></i> Non vérifié</span>';
 
   const fields=[profil.full_name,profil.nationality,profil.date_of_birth,profil.phone,profil.email,profil.emprent];
   const pct=Math.round(fields.filter(Boolean).length/fields.length*100);
@@ -1838,7 +1857,7 @@ async function loadBookingDossier(booking){
       <img src="${profil.id_photo_url}" style="width:100%;border-radius:8px;border:1px solid var(--b);max-height:130px;object-fit:cover">
     </div>`:''}
 
-    <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
+    <div style="background:rgba(var(--ink-rgb),.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
       <div style="font-size:.63rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem"><i data-lucide=user class=ic></i> Identité</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:.77rem">
         <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Nom complet</div><div style="font-weight:700">${profil.full_name||'—'}</div></div>
@@ -1851,26 +1870,26 @@ async function loadBookingDossier(booking){
       </div>
     </div>
 
-    <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
+    <div style="background:rgba(var(--ink-rgb),.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
       <div style="font-size:.63rem;font-weight:700;color:var(--marine);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem"><i data-lucide=home class=ic></i> Adresse</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:.77rem">
         <div style="grid-column:1/-1"><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Accueil address (country of origin)</div><div style="font-weight:600">${profil.home_address||'—'}</div></div>
         ${profil.france_address?`<div style="grid-column:1/-1"><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Current address en France</div><div style="font-weight:600">${profil.france_address}</div></div>`:''}
       </div>
-      <div style="margin-top:.5rem;font-size:.63rem;color:var(--td);background:rgba(58,143,181,.06);border-radius:6px;padding:.3rem .5rem"><i data-lucide=lock class=ic></i> Contact details shared only after bail signature via Trouve Ton Toit messaging</div>
+      <div style="margin-top:.5rem;font-size:.63rem;color:var(--td);background:rgba(var(--sea-rgb),.06);border-radius:6px;padding:.3rem .5rem"><i data-lucide=lock class=ic></i> Contact details shared only after bail signature via Trouve Ton Toit messaging</div>
     </div>
 
-    <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
+    <div style="background:rgba(var(--ink-rgb),.03);border-radius:10px;padding:.7rem;margin-bottom:.5rem">
       <div style="font-size:.63rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">Situation en France</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:.77rem">
         <div><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Planned duration</div><div style="font-weight:600">${profil.stay_duration||'—'}</div></div>
         ${profil.emprent?`<div style="grid-column:1/-1"><div style="color:var(--td);font-size:.62rem;margin-bottom:.1rem">Employer / University</div><div style="font-weight:600">${profil.emprent}</div></div>`:''}
-        ${profil.needs_attestation?`<div style="grid-column:1/-1"><div style="background:rgba(58,143,181,.1);border:1px solid rgba(58,143,181,.2);border-radius:6px;padding:.3rem .6rem;font-size:.7rem;color:var(--marine)">ℹ Requires notarised bail attestation (non-EU)</div></div>`:''}
+        ${profil.needs_attestation?`<div style="grid-column:1/-1"><div style="background:rgba(var(--sea-rgb),.1);border:1px solid rgba(var(--sea-rgb),.2);border-radius:6px;padding:.3rem .6rem;font-size:.7rem;color:var(--marine)">ℹ Requires notarised bail attestation (non-EU)</div></div>`:''}
       </div>
     </div>
 
     ${profil.review_count>0
-      ?`<div style="background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.15);border-radius:8px;padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between">
+      ?`<div style="background:rgba(var(--gold-rgb),.06);border:1px solid rgba(var(--gold-rgb),.15);border-radius:8px;padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between">
           <span style="font-size:.73rem;color:var(--td)">Trouve Ton Toit locataire score</span>
           <span style="font-size:.85rem;font-weight:700;color:var(--gold)"><i data-lucide=star class=ic></i> ${profil.avg_rating?.toFixed(1)||'—'} (${profil.review_count} avis${profil.review_count>1?'s':''})</span>
         </div>`
@@ -1917,7 +1936,7 @@ async function loadBookingDossier(booking){
         payDiv.innerHTML='<div style="font-size:.73rem;color:var(--gold);margin-bottom:.25rem"><i data-lucide=euro class=ic></i> Locataire says paiement sent:</div>'
           +'<div style="display:flex;gap:.35rem">'
           +'<button onclick="confirmFirstPaiementReceived(this.dataset.id,true)" data-id="'+booking.id+'" style="flex:1;background:var(--grdim);color:var(--green);border:1px solid var(--grdim);border-radius:7px;padding:.4rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Reçu</button>'
-          +'<button onclick="confirmFirstPaiementReceived(this.dataset.id,false)" data-id="'+booking.id+'" style="flex:1;background:rgba(224,90,90,.1);color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.4rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=x-circle class=ic></i> Non reçu</button>'
+          +'<button onclick="confirmFirstPaiementReceived(this.dataset.id,false)" data-id="'+booking.id+'" style="flex:1;background:rgba(var(--red-rgb),.1);color:var(--red);border:1px solid rgba(var(--red-rgb),.3);border-radius:7px;padding:.4rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=x-circle class=ic></i> Non reçu</button>'
           +'</div>';
         container.appendChild(payDiv);
       }
@@ -2826,7 +2845,7 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
           <div style="white-space:pre-wrap">${m.content}</div>
           <div style="margin-top:.75rem;display:flex;gap:.5rem">
             <button onclick="confirmPaiementFromMsg('${m.id}','${listingId}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Oui, j'ai reçu le paiement</button>
-            <button onclick="disputePaiement('${m.id}','${listingId}')" style="flex:1;background:rgba(224,90,90,.2);color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Not received yet</button>
+            <button onclick="disputePaiement('${m.id}','${listingId}')" style="flex:1;background:rgba(var(--red-rgb),.2);color:var(--red);border:1px solid rgba(var(--red-rgb),.3);border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Not received yet</button>
           </div>
         </div>
         <div style="font-size:.6rem;color:var(--td)">${new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
@@ -3512,8 +3531,8 @@ function updateLLCompleteness(){
   if(pctEl)pctEl.innerHTML=pct===100?'<i data-lucide=check-circle-2 class=ic></i> Complete':pct+'% complete';
   if(banner){
     banner.style.display='block';
-    banner.style.background=pct===100?'var(--grdim)':'rgba(212,168,71,.1)';
-    banner.style.borderColor=pct===100?'var(--grdim)':'rgba(212,168,71,.25)';
+    banner.style.background=pct===100?'var(--grdim)':'rgba(var(--gold-rgb),.1)';
+    banner.style.borderColor=pct===100?'var(--grdim)':'rgba(var(--gold-rgb),.25)';
     const t=banner.querySelector('div[style*="font-weight:700"]');
     if(t)t.innerHTML=pct===100?'<span style="color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Profil complete — all features unlocked!</span>':'<span style="color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Complétez votre profil pour débloquer toutes les fonctionnalités</span>';
   }
@@ -3587,7 +3606,7 @@ async function loadProfilee(){
     if(llUploadSection) llUploadSection.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=check-circle-2 class=ic></i></div><div style="font-weight:700;color:var(--green);margin-bottom:.3rem">Identité vérifiée</div><div style="font-size:.78rem;color:var(--tm)">Votre badge <i data-lucide=check-circle-2 class=ic></i> est visible sur toutes vos annonces.</div></div>`;
   } else if(P.id_submitted){
     if(llBadge){llBadge.classNom='badge b-gold';llBadge.textContent='En attente';}
-    if(llUploadSection) llUploadSection.innerHTML=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=hourglass class=ic></i></div><div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">Under avis</div><div style="font-size:.78rem;color:var(--tm)">Verification within 24 hours.</div></div>`;
+    if(llUploadSection) llUploadSection.innerHTML=`<div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:12px;padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=hourglass class=ic></i></div><div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">Under avis</div><div style="font-size:.78rem;color:var(--tm)">Verification within 24 hours.</div></div>`;
   }
   // Téléphone prefix
   const ph = P.phone||'';
@@ -3619,7 +3638,7 @@ function renderCoBailleurRow(idx, co){
   const div = document.createElement('div');
   div.id = 'co-row-'+idx;
   div.style.cssText = 'background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:.85rem 1rem;position:relative';
-  div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem"><span style="font-size:.72rem;font-weight:700;color:var(--bleu)"><i data-lucide=user class=ic></i> Co-bailleur ${idx+1}</span><button onclick="removeCoBailleur(${idx})" style="background:var(--rdim);color:var(--red);border:1px solid rgba(224,90,90,.2);border-radius:6px;padding:.2rem .6rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=trash-2 class=ic></i> Retirer</button></div>
+  div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem"><span style="font-size:.72rem;font-weight:700;color:var(--bleu)"><i data-lucide=user class=ic></i> Co-bailleur ${idx+1}</span><button onclick="removeCoBailleur(${idx})" style="background:var(--rdim);color:var(--red);border:1px solid rgba(var(--red-rgb),.2);border-radius:6px;padding:.2rem .6rem;font-size:.72rem;font-weight:700;cursor:pointer"><i data-lucide=trash-2 class=ic></i> Retirer</button></div>
 <div class="fgrid2">
   <div class="fg"><label class="fl">Nom complet légal *</label><input class="fi" id="co-name-${idx}" placeholder="Marie Dupont" value="${co?.name||''}"></div>
   <div class="fg"><label class="fl">N° pièce d\'identité / passeport *</label><input class="fi" id="co-id-${idx}" placeholder="AB123456" value="${co?.passport||''}"></div>
@@ -3870,7 +3889,7 @@ async function loadRentedProperties(){
     const openTickets=ticketsByAnnonce[bk.listing_id]||[];
 
     // Locataire parti — encart de compte à rebours avant disparition
-    const leftHtml=bk._daysLeftToView?`<div style="background:rgba(224,90,90,.08);border:1px solid rgba(224,90,90,.2);border-radius:8px;padding:.5rem .7rem;font-size:.72rem;color:var(--red);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Locataire has left — this card disappears in ${bk._daysLeftToView} day${bk._daysLeftToView>1?'s':''}</div>`:'';
+    const leftHtml=bk._daysLeftToView?`<div style="background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.2);border-radius:8px;padding:.5rem .7rem;font-size:.72rem;color:var(--red);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Locataire has left — this card disappears in ${bk._daysLeftToView} day${bk._daysLeftToView>1?'s':''}</div>`:'';
 
     const recentPays=pays.filter(p=>p.status==='paid').sort((a,b)=>new Date(b.paid_at||b.due_date)-new Date(a.paid_at||a.due_date)).slice(0,5);
     const quittancesHtml=recentPays.length?recentPays.map(p=>`
@@ -4008,7 +4027,7 @@ function openSigningDocLL(embedSrc,title,bookingId){
     closeBtn.onclick=()=>{modal.remove();refreshCurrentBookingView();};
     header.appendChild(closeBtn);
     const body=document.createElement('div');
-    body.style.cssText='flex:1;overflow:auto;background:white';
+    body.style.cssText='flex:1;overflow:auto;background:var(--s)';
     const form=document.createElement('docuseal-form');
     form.setAttribute('data-src',embedSrc);
     form.setAttribute('data-send-copy-email','false');
@@ -4075,7 +4094,7 @@ function doOuvrirPropriétaireDoc(bk,bookingId,embedSrc,dbField,title){
     closeBtn.onclick=()=>{modal.remove();refreshCurrentBookingView();};
     header.appendChild(closeBtn);
     const body=document.createElement('div');
-    body.style.cssText='flex:1;overflow:auto;background:white';
+    body.style.cssText='flex:1;overflow:auto;background:var(--s)';
     const form=document.createElement('docuseal-form');
     form.setAttribute('data-src',embedSrc);
     form.setAttribute('data-send-copy-email','false');
@@ -4244,7 +4263,7 @@ function renderPropriétaireEdlSection(bk,g){
     if(bk.edl_propriétaire_declined){
       return`<div style="margin-top:.6rem;font-size:.72rem;color:var(--td)"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux: waiting to see if votre locataire wants to handle it</div>`;
     }
-    return`<div style="margin-top:.6rem;background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.65rem">
+    return`<div style="margin-top:.6rem;background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25);border-radius:8px;padding:.65rem">
       <div style="font-size:.76rem;font-weight:700;margin-bottom:.4rem"><i data-lucide=clipboard-list class=ic></i> Your agence isn't handling the entrée dans les lieux état des lieux. Would you like to use Trouve Ton Toit's feature yourself?</div>
       <div style="display:flex;gap:.4rem">
         <button onclick="propriétaireEdlSelfDecision('${bk.id}',true)" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Yes</button>
@@ -4279,7 +4298,7 @@ async function loadActesLL(){
     const a=rows.filter(r=>r.lease_id===el.dataset.lease);if(!a.length)return;
     el.innerHTML=`<div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem">${a.map(r=>{
       const st=r.statut==='signe'?['var(--green)','check-circle-2','Signé le '+fd(r.signed_at)]:r.statut==='envoye'?['var(--gold)','hourglass','Envoyé'+(r.envoye_at?' le '+fd(r.envoye_at):'')+' — à signer']:r.statut==='annule'?['var(--td)','x-circle','Annulé']:['var(--td)','file-pen','Brouillon — envoyé quand le bail est validé'];
-      return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;background:rgba(180,83,9,.06);border:1px solid rgba(180,83,9,.2);border-radius:8px;padding:.4rem .6rem">
+      return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;background:rgba(var(--gold-rgb),.06);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.4rem .6rem">
         <span style="font-size:.76rem"><i data-lucide=file-signature class=ic></i> Acte de cautionnement — <strong>${r.garant_nom||'garant'}</strong>${r.locataire_nom?` <span style="color:var(--td)">(caution de ${r.locataire_nom}${r.plafond?' · plafond '+fmtEur(r.plafond):''})</span>`:''}</span>
         <span style="display:flex;align-items:center;gap:.6rem"><span style="font-size:.72rem;font-weight:600;color:${st[0]}"><i data-lucide=${st[1]} class=ic></i> ${st[2]}</span>
           <a href="/acte-caution.html?id=${r.id}${r.statut==='signe'?'':'&role=bailleur'}" target="_blank" rel="noopener" style="font-size:.72rem;font-weight:700;color:var(--bleu);text-decoration:none">${r.statut==='signe'?'Voir l\'acte →':'Voir / régler →'}</a></span>
@@ -4452,7 +4471,7 @@ function renderImpayes(){
       <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.5rem">${etapes.map(e=>{const due=new Date()>=e.d;return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;background:var(--s2);border-radius:8px;padding:.4rem .6rem">
         <span>${e.done?'✅':due?'⏰':'🕒'} <strong>${e.t}</strong> <span style="color:var(--td)">${e.done?'fait le '+_gD(e.done):'à partir du '+_gD(e.d)}</span></span>
         ${e.done?'':`<button class="btn ${due?'bp':'bg'} bsm" onclick="${e.act}">${e.btn}</button>`}</div>`;}).join('')}</div>
-      ${alerte?`<div style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;border-radius:8px;padding:.5rem .65rem;line-height:1.5">${alerte}</div>`:''}
+      ${alerte?`<div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.3);color:var(--gold);border-radius:8px;padding:.5rem .65rem;line-height:1.5">${alerte}</div>`:''}
       <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Si rien ne bouge après la mise en demeure : commandement de payer par un commissaire de justice (ex-huissier), puis procédure devant le juge. Le locataire peut aussi être orienté vers la CAF ou le FSL.</div>
     </div></div>`;
   }).join('');
@@ -4732,7 +4751,7 @@ function _bailParcoursLL(g,bk){
   let txt='',btn='';
   if(r===0){txt=multi?'Complétez les baux (les infos du logement se reprennent d’un bail à l’autre), puis envoyez-les pour relecture.':'Complétez le bail étape par étape, puis envoyez-le au locataire pour relecture.';btn=lien?`<a href="${lien}" class="bpx-btn">${L?'Préparer le bail':'Ouvrir'}</a>`:'';}
   else if(r===1){txt=ns==='pending_landlord'?'Le locataire demande des modifications : relisez-les et renvoyez le bail.':'Le locataire relit le bail. Vous serez prévenu dès qu’il l’accepte ou demande une modification.';btn=lien?`<a href="${lien}" class="bpx-btn${ns==='pending_landlord'?'':' bpx-sec'}">${ns==='pending_landlord'?'Voir les modifications':'Voir le bail'}</a>`:'';}
-  else if(r===2){const moi=!L.landlord_signed_at;txt=moi?'Le bail est accepté : signez-le. Dès qu’il est signé, les garants reçoivent leur acte de cautionnement.':'Vous avez signé. Signature du locataire attendue.';btn=lien?`<a href="${lien}" class="bpx-btn${moi?'':' bpx-sec'}">${moi?'Signer le bail':'Voir le bail'}</a>`:'';}
+  else if(r===2){const moi=!L.landlord_signed_at;txt=moi?'Le bail est accepté : signez-le. Les garants ont reçu leur acte de cautionnement.':'Vous avez signé. Signature du locataire attendue.';btn=lien?`<a href="${lien}" class="bpx-btn${moi?'':' bpx-sec'}">${moi?'Signer le bail':'Voir le bail'}</a>`:'';}
   else if(r===4){txt=bk?.first_payment_sent?'Le locataire a déclaré son premier paiement : confirmez sa réception ci-dessous.':'Bail signé. Le locataire doit faire son premier paiement (loyer + dépôt).';}
   else if(r===5){txt='Paiement reçu. Faites l’état des lieux d’entrée et remettez les clés.';}
   else txt='Entrée terminée : tout est en ordre.';
@@ -4754,8 +4773,8 @@ function renderBailSection(g){
   const moveIn=bk?.move_in_date||g.move_in_date||null; // date choisie par le locataire à la candidature
   const edlDate=bk?.edl_date||moveIn||g.visit_date||null; // par défaut, même date que le entrée dans les lieux — le proprio peut la changer
 
-  return`<div style="margin-top:.6rem;background:var(--grdim);border:1px solid var(--grdim);border-radius:12px;overflow:hidden">
-    <div style="background:var(--grdim);padding:.55rem .85rem">
+  return`<div style="margin-top:.6rem;background:var(--s);border:1px solid var(--b2);border-radius:12px;overflow:hidden">
+    <div style="background:var(--s2);padding:.55rem .85rem;border-bottom:1px solid var(--b)">
       <div style="font-size:.82rem;font-weight:700;color:var(--green)"><i data-lucide=party-popper class=ic></i> Candidature acceptée</div>
     </div>
     <div style="padding:.75rem .85rem 0">${_bailParcoursLL(g,bk)}</div>
@@ -4848,7 +4867,7 @@ function renderBailSection(g){
         if(ns==='pending_tenant'&&(Array.isArray(lease?.modifs_log)?lease.modifs_log:[]).some(e=>e&&e.par==='tenant'))
           workflowMsgs.pending_tenant={icon:'<i data-lucide=send class=ic></i>',title:'Bail modifié renvoyé — en attente du locataire',msg:'Vous avez renvoyé le bail après ses remarques. Le locataire relit la nouvelle version et doit l\'accepter ou faire de nouvelles remarques.'};
         const wm=workflowMsgs[ns]||workflowMsgs.unknown;
-        return`<div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.18);border-radius:9px;padding:.65rem .8rem;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.6rem">
+        return`<div style="background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.18);border-radius:9px;padding:.65rem .8rem;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.6rem">
           <span style="font-size:1rem;flex-shrink:0;margin-top:.05rem">${wm.icon}</span>
           <div style="flex:1;min-width:0">
             <div style="font-size:.77rem;font-weight:700;color:var(--bleu);margin-bottom:.2rem">${wm.title}</div>
@@ -5051,8 +5070,8 @@ function renderVisitGroup(g, isPast){
     else if(_ns&&_bl[_ns])sc=_bl[_ns];else if(!_ns)sc={label:'<i data-lucide=file-pen class=ic></i> Bail à compléter',cls:'b-gold'};
   }
   const visitDateStr=g.visit_date?new Date(g.visit_date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(g.visit_time?' à '+g.visit_time:''):'Date à confirmer';
-  const borderColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.25)':sc.cls==='b-sea'?'rgba(58,143,181,.25)':'var(--b)';
-  const bgColor=sc.cls==='b-green'?'var(--grdim)':sc.cls==='b-gold'?'rgba(212,168,71,.04)':sc.cls==='b-sea'?'rgba(58,143,181,.04)':'var(--s2)';
+  const borderColor='var(--b2)';const accentCol=sc.cls==='b-green'?'var(--green)':sc.cls==='b-gold'?'var(--gold)':sc.cls==='b-sea'?'var(--bleu)':'var(--b2)';
+  const bgColor='var(--s)';
   const bk=g.booking||null;
 
   // Charger les infos du locataire si dossier reçu
@@ -5060,9 +5079,10 @@ function renderVisitGroup(g, isPast){
     setTimeout(()=>loadLocataireDossierForLL(g.tenant_id),50);
     // Chaque co-locataire : même fiche complète (identité, documents, garant)
     _colocsLL(bk).forEach(c=>setTimeout(()=>loadLocataireDossierForLL(c.id),60));
+    setTimeout(()=>loadResumeCandLL(g,bk),70);
   }
 
-  return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
+  return`<div ${bk?.id?`id="appcard-${bk.id}"`:''} style="padding:.85rem;scroll-margin-top:80px;background:${isPast?'transparent':bgColor};border:1px solid ${isPast?'var(--b)':borderColor};border-left:3px solid ${isPast?'var(--b)':accentCol};border-radius:12px;margin-bottom:.6rem;opacity:${isPast?'.6':'1'}">
 
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
@@ -5078,24 +5098,24 @@ function renderVisitGroup(g, isPast){
     </div>
 
     ${(g.statut==='pending'||g.statut==='awaiting_propriétaire')?`
-    <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.6rem .75rem;margin-top:.4rem">
+    <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.6rem .75rem;margin-top:.4rem">
       <div style="font-size:.78rem;font-weight:600;color:var(--gold);margin-bottom:.3rem"><i data-lucide=hourglass class=ic></i> Locataire requested a visite</div>
       <div style="font-size:.7rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
       <div style="display:flex;gap:.4rem">
         <button onclick="propriétaireConfirmerVisit('${g.id}','yes','${g.listing_id}','${g.tenant_id}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> I'm disponible</button>
-        <button onclick="propriétaireConfirmerVisit('${g.id}','wrong_date','${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Can't make it</button>
+        <button onclick="propriétaireConfirmerVisit('${g.id}','wrong_date','${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(var(--red-rgb),.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Can't make it</button>
       </div>
     </div>`:''} 
 
     ${g.statut==='confirmed'?`
-    <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:.75rem;margin-top:.4rem">
+    <div style="background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.2);border-radius:10px;padding:.75rem;margin-top:.4rem">
       <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">
         <i data-lucide=check-circle-2 style="color:var(--green);flex-shrink:0"></i>
         <div style="font-size:.8rem;font-weight:700;color:var(--green)">Visite confirmée</div>
       </div>
       <div style="font-size:.72rem;color:var(--tm);margin-bottom:.6rem"><i data-lucide=calendar class=ic></i> ${visitDateStr}</div>
       ${!g.has_agent?`
-      <div style="background:rgba(27,79,216,.08);border:1px solid rgba(27,79,216,.2);border-radius:8px;padding:.55rem .65rem;margin-bottom:.5rem">
+      <div style="background:rgba(var(--bleu-rgb),.08);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:8px;padding:.55rem .65rem;margin-bottom:.5rem">
         <div style="font-size:.72rem;color:var(--bleu);font-weight:600;margin-bottom:.15rem"><i data-lucide=info class=ic></i> Après la visite</div>
         <div style="font-size:.68rem;color:var(--td);line-height:1.4">Une fois la visite effectuée, cliquez sur le bouton ci-dessous pour l'indiquer. Cela permettra au locataire de vous faire un retour.</div>
       </div>
@@ -5106,24 +5126,23 @@ function renderVisitGroup(g, isPast){
     </div>`:''}
 
     ${g.statut==='booking_en attente'||g.statut==='en attente'?`
-    <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.65rem .75rem;margin-top:.4rem">
+    <div style="border-top:1px solid var(--b);padding:.75rem 0 0;margin-top:.6rem">
       <div style="font-size:.85rem;font-weight:700;color:var(--txt);margin-bottom:.6rem"><i data-lucide=clipboard-list class=ic></i> ${_colocsLL(bk).length?`Candidature commune : ${_nomsLL(g,bk)}`:`${g.tenant_name||'Le locataire'} veut louer votre bien`}</div>
-      <div style="${_LL_CARD}">
-      ${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire 1':'Locataire')}
+      ${bk?.negotiation_note?`<div class="cand-demande"><strong><i data-lucide=handshake class=ic></i> Message du locataire</strong><div style="white-space:pre-line">${bk.negotiation_note}</div></div>`:''}
+      <div class="cand-t">En bref</div>
+      <div id="bref-${bk?.id||g.id}" class="cand-bref"><div style="font-size:.74rem;color:var(--td)">Chargement…</div></div>
+      <div class="cand-t" style="margin-top:.9rem">Dossiers détaillés</div>
+      <details class="dos-ll">
+      <summary>${_llHead(1,g.tenant_name||'',_colocsLL(bk).length?'Locataire 1':'Locataire')}<span class="dos-ouvrir">Voir le dossier et le garant</span></summary>
       <div id="t-dossier-${g.tenant_id}" style="margin-bottom:.2rem">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nom complet</div><div id="t-name-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Garantie</div><div id="t-ver-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Nationalité</div><div id="t-nat-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
           <div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Téléphone</div><div id="t-phone-${g.tenant_id}" style="font-size:.73rem;font-weight:600">${g.tenant_id?'<i data-lucide=hourglass class=ic></i>':'—'}</div></div>
-          ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
+          ${bk?.monthly_rent&&g.listing_price&&bk.monthly_rent!==g.listing_price?`<div style="background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.25);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--gold)"><i data-lucide=euro class=ic></i> Proposed loyer</div><div style="font-size:.73rem;font-weight:700;color:var(--gold)">€${bk.monthly_rent}/mois <span style="font-size:.65rem;font-weight:400;color:var(--td)">(listed: €${g.listing_price})</span></div></div>`:''}
           ${bk?.move_in_date?`<div style="background:var(--s2);border-radius:6px;padding:.35rem .5rem"><div style="font-size:.6rem;color:var(--td)">Entrée souhaitée</div><div style="font-size:.78rem;font-weight:700">${new Date(bk.move_in_date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>`:''}
         </div>
-        ${bk?.negotiation_note?`
-        <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:7px;padding:.5rem .65rem;margin-bottom:.5rem">
-          <div style="font-size:.63rem;color:var(--gold);font-weight:700;margin-bottom:.2rem"><i data-lucide=handshake class=ic></i> Locataire's request</div>
-          <div style="font-size:.73rem;color:var(--tm);white-space:pre-line">${bk.negotiation_note}</div>
-        </div>`:''}
         <div style="margin-bottom:.5rem">
           <div style="font-size:.65rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem"><i data-lucide=file-text class=ic></i> Documents</div>
           <div id="t-docs-chips-${g.tenant_id}" style="display:flex;flex-direction:column;gap:.25rem">
@@ -5131,11 +5150,12 @@ function renderVisitGroup(g, isPast){
           </div>
         </div>
       </div>
-      </div>
+      </details>
       ${_colocsLL(bk).map((c,k)=>renderColocFicheLL(c,k+2)).join('')}
+      <div style="height:.4rem"></div>
       <div style="display:flex;gap:.4rem">
         <button onclick="acceptDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:2;background:var(--green);color:white;border:none;border-radius:7px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Accepter</button>
-        <button onclick="declineDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Refuser</button>
+        <button onclick="declineDirectBooking('${g.listing_id}','${g.tenant_id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(var(--red-rgb),.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Refuser</button>
       </div>
     </div>`:''} 
 
@@ -5171,8 +5191,8 @@ function renderColocFicheLL(c,num){
     ?((Array.isArray(gd)&&gd.length)?'<span style="color:var(--green)"><i data-lucide=user-check class=ic></i> Garant physique : '+gd.map(g=>[g.prenom,g.nom].filter(Boolean).join(' ')).join(', ')+'</span>':'<span style="color:var(--green)"><i data-lucide=shield-check class=ic></i> '+(c.garant_type==='garant_visale'?'Garantie Visale'+(c.visa_ref?' — visa n° '+String(c.visa_ref).replace(/</g,'&lt;'):'')+(c.visa_commun?' · <strong>demande commune</strong>'+(c.visa_commun_avec?' avec '+String(c.visa_commun_avec).replace(/</g,'&lt;'):''):''):'Garant '+(gType[c.garant_type]||'déclaré'))+'</span>')
     :'<span style="color:var(--td)"><i data-lucide=shield-off class=ic></i> Pas de garant</span>';
   const hg='<i data-lucide=hourglass class=ic></i>';
-  return `<div style="${_LL_CARD}">
-    ${_llHead(num,c.name||c.email||'','Locataire '+num)}
+  return `<details class="dos-ll">
+    <summary>${_llHead(num,c.name||c.email||'','Locataire '+num)}<span class="dos-ouvrir">Voir le dossier et le garant</span></summary>
     ${c.id?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.5rem">
       ${cell('Nom complet','t-name-'+c.id,c.name||hg)}
       ${cell('Garantie',c.coloc_status?'':'t-ver-'+c.id,c.coloc_status?garant:hg)}
@@ -5182,7 +5202,31 @@ function renderColocFicheLL(c,num){
     <div style="font-size:.65rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem"><i data-lucide=file-text class=ic></i> Documents de ${c.name||'ce locataire'}</div>
     <div id="t-docs-chips-${c.id}" style="display:flex;flex-direction:column;gap:.25rem"><div style="font-size:.72rem;color:var(--td)">Chargement...</div></div>`
     :`<div style="font-size:.75rem;color:var(--td)">Pas de compte Trouve Ton Toit : aucun document disponible.</div>`}
-  </div>`;
+  </details>`;
+}
+
+// ── « En bref » : une ligne par locataire (activité, revenus, garantie, dossier) ──
+const _ACT_LL={cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant',retraite:'Retraite',chomage:'Chômage',etudes:'Études',alternance:'Alternance',stage:'Stage',service_civique:'Service civique',intermittent:'Intermittent',allocations_rsa:'RSA / allocations',autre_pro:'Autre activité',sans_activite:'Sans activité'};
+async function loadResumeCandLL(g,bk){
+  const el=document.getElementById('bref-'+(bk?.id||g.id));if(!el)return;
+  const people=[{id:g.tenant_id,name:g.tenant_name||'Locataire 1'},..._colocsLL(bk).map(c=>({id:c.id,name:c.name||c.email||'Co-locataire',c}))];
+  const profs={};
+  try{const ids=people.map(p=>p.id).filter(Boolean);if(ids.length){const{data}=await sb.from('profiles').select('clerk_id,full_name,dossier_data').in('clerk_id',ids);(data||[]).forEach(p=>{profs[p.clerk_id]={...p,dd:_ddLL(p.dossier_data)};});}}catch(e){}
+  const e=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const rows=people.map((p,i)=>{
+    const pr=profs[p.id],dd=pr?.dd;
+    const act=dd?.[2]?.type?(_ACT_LL[dd[2].type]||dd[2].type):'—';
+    const rev=_revLocataireLL(dd);
+    const gar=_garantsLL(dd);
+    let garTxt='Aucune';
+    if(gar.type==='garant_personne')garTxt=gar.list.map(x=>`${e(x.name)}${x.rev?` <span class="cb-sub">${_eur(x.rev)}/mois</span>`:''}`).join('<br>')||'Personne';
+    else if(gar.type==='garant_visale')garTxt='Visale'+(dd?.[5]?.visa_ref?` <span class="cb-sub">n° ${e(dd[5].visa_ref)}</span>`:'');
+    else if(gar.type&&gar.type!=='skipped_garant')garTxt='Organisme de caution';
+    const faits=[0,1,2,3,4,5].filter(k=>dd?.[k]?.type||dd?.[k]?.skipped).length;
+    const dos=!dd?'<span class="cb-ko">Aucun dossier</span>':faits>=6?'<span class="cb-ok">✓ Complet</span>':`<span class="cb-mid">${faits}/6</span>`;
+    return `<tr><td><span class="cb-num">${i+1}</span>${e(pr?.full_name||p.name)}</td><td data-l="Activité">${e(act)}</td><td data-l="Revenus">${rev==null?'<span class="cb-sub">non déclarés</span>':rev===0?'Aucun':_eur(rev)+'<span class="cb-sub">/mois</span>'}</td><td data-l="Garant">${garTxt}</td><td data-l="Dossier">${dos}</td></tr>`;
+  }).join('');
+  el.innerHTML=`<div style="overflow-x:auto"><table class="cand-tab"><thead><tr><th>Locataire</th><th>Activité</th><th>Revenus nets</th><th>Garant</th><th>Dossier</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 // Type de garantie déclaré dans le dossier (étape 5)
@@ -5358,7 +5402,7 @@ async function openEtatDesLieux(bookingId){
 
   const roomsHtml=rooms.map((room,ri)=>`
     <div style="margin-bottom:.75rem;border:1px solid var(--b);border-radius:10px;overflow:hidden">
-      <div style="background:rgba(224,90,58,.85);color:white;padding:.45rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <div style="background:rgba(var(--red-rgb),.85);color:white;padding:.45rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
         <span>${room.name}</span><span>▼</span>
       </div>
       <div style="padding:.4rem;overflow-x:auto">
@@ -5448,7 +5492,7 @@ async function openEtatDesLieux(bookingId){
               <div id="ll-edl-meter-photos-electricity" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem"></div>
             </div>
           </div>
-          <div style="margin-top:.65rem;background:rgba(212,168,71,.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
+          <div style="margin-top:.65rem;background:rgba(var(--gold-rgb),.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
             <i data-lucide=alert-triangle class=ic></i> Take photos of both meters. These readings will be annexed to the bail.
           </div>
         </div>
@@ -5485,7 +5529,7 @@ async function openEtatDesLieux(bookingId){
       </div>
 
       <div id="ll-edl-step-3" style="display:none">
-        <div style="background:rgba(212,168,71,.1);border:2px solid rgba(212,168,71,.3);border-radius:14px;padding:1.5rem;text-align:center">
+        <div style="background:rgba(var(--gold-rgb),.1);border:2px solid rgba(var(--gold-rgb),.3);border-radius:14px;padding:1.5rem;text-align:center">
           <div style="font-size:2.5rem;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i></div>
           <div style="font-size:1.1rem;font-weight:800;color:var(--gold);margin-bottom:.4rem">État des lieux sent pour signature</div>
           <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">ce logement will move to Rented Biens once you et the locataire have both signed.</div>
@@ -5899,7 +5943,7 @@ function confirmIbanForBooking(){
       <div class="fg"><label class="fl">Titulaire du compte</label><input class="fi" id="ib-holder" value="${esc(P?.full_name||'')}" disabled style="opacity:.75"></div>
       <div class="fg"><label class="fl">Revolut (facultatif)</label><input class="fi" id="ib-rev" value="${esc(P?.revolut_tag||'')}" placeholder="@pseudo"></div>
       <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;margin-top:.4rem;cursor:pointer"><input type="checkbox" id="ib-ok" style="margin-top:.2rem;accent-color:var(--bleu)"> <span>Je confirme que cet IBAN est bien <strong>mon compte</strong> et que le locataire peut y envoyer les paiements.</span></label>
-      <div id="ib-err" style="color:#C9553A;font-size:.8rem;margin-top:.6rem;display:none"></div>
+      <div id="ib-err" style="color:var(--red);font-size:.8rem;margin-top:.6rem;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap">
         <button class="btn bg" id="ib-cancel">Annuler</button>
         <button class="btn bp" id="ib-go"><i data-lucide=check-circle-2 class=ic></i> Confirmer et accepter</button>
@@ -5949,14 +5993,14 @@ async function chooseGliForLease(listingId,locataireId){
         ${opt('oui','Oui, j’ai une GLI',etudiant?'Votre locataire est étudiant ou apprenti : la loi vous permet de garder aussi son garant.':'La loi interdit alors de demander une caution (art. 22-1 de la loi du 6 juillet 1989) : le bail sera fait <strong>sans garant</strong>, personne n’aura à signer d’engagement de caution.')}
         ${opt('non','Non','Le bail reprend la garantie proposée par le candidat'+(garants.length?' : son garant signera un engagement de caution.':'.'))}
       </div>
-      <div id="gli-err" style="color:#C9553A;font-size:.8rem;margin-top:.6rem;display:none"></div>
+      <div id="gli-err" style="color:var(--red);font-size:.8rem;margin-top:.6rem;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap">
         <button class="btn bg" id="gli-cancel">Annuler</button>
         <button class="btn bp" id="gli-go">Continuer</button>
       </div>
     </div>`;
     document.body.appendChild(ov);
-    const sync=()=>ov.querySelectorAll('.gli-opt').forEach(l=>{const on=l.querySelector('input').checked;l.style.borderColor=on?'var(--bleu)':'var(--b2)';l.style.background=on?'rgba(27,79,216,.05)':'';});
+    const sync=()=>ov.querySelectorAll('.gli-opt').forEach(l=>{const on=l.querySelector('input').checked;l.style.borderColor=on?'var(--bleu)':'var(--b2)';l.style.background=on?'rgba(var(--bleu-rgb),.05)':'';});
     ov.querySelectorAll('input[name="gli-mode"]').forEach(r=>r.addEventListener('change',sync));sync();
     ov.querySelector('#gli-cancel').onclick=()=>{ov.remove();resolve(null);};
     ov.querySelector('#gli-go').onclick=()=>{
@@ -5998,7 +6042,7 @@ function chooseCoBailleursForLease(){
         </div>
         ${opt('none','Pas de co-bailleur','Vous serez le seul bailleur sur ce bail',!saved.length)}
       </div>
-      <div id="cb-err" style="color:#C9553A;font-size:.8rem;margin-top:.6rem;display:none"></div>
+      <div id="cb-err" style="color:var(--red);font-size:.8rem;margin-top:.6rem;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap">
         <button class="btn bg" id="cb-cancel">Annuler</button>
         <button class="btn bp" id="cb-go"><i data-lucide=check-circle-2 class=ic></i> Accepter la candidature</button>
@@ -6008,7 +6052,7 @@ function chooseCoBailleursForLease(){
     const mode=()=>ov.querySelector('input[name="cb-mode"]:checked')?.value;
     const sync=()=>{
       const m=mode();
-      ov.querySelectorAll('.cb-opt').forEach(l=>{const on=l.querySelector('input').checked;l.style.borderColor=on?'var(--bleu)':'var(--b2)';l.style.background=on?'rgba(27,79,216,.05)':'';});
+      ov.querySelectorAll('.cb-opt').forEach(l=>{const on=l.querySelector('input').checked;l.style.borderColor=on?'var(--bleu)':'var(--b2)';l.style.background=on?'rgba(var(--bleu-rgb),.05)':'';});
       const sl=ov.querySelector('#cb-saved-list');if(saved.length)sl.style.opacity=m==='saved'?'1':'.45';
       ov.querySelectorAll('.cb-saved').forEach(c=>c.disabled=m!=='saved');
       ov.querySelector('#cb-new-form').style.display=m==='new'?'block':'none';
