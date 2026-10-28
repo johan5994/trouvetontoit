@@ -419,11 +419,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div style="font-size:.8rem;color:var(--td);margin-bottom:1rem">Tout ce qu'une agence ferait pour vous : impayés, révision du loyer, charges et récap fiscal.</div>
       <div id="gestion-content"></div>
       <!-- MAINTENANCE (dans la gestion locative) -->
-      <div id="sec-maintenance" style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--b);scroll-margin-top:80px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
-        <div style="font-size:1rem;font-weight:700"><i data-lucide=wrench class=ic></i> Maintenance</div>
-        <button class="btn bp bsm" onclick="openNewTicket()">+ Nouveau ticket</button>
-      </div>
+      <div id="sec-maintenance" style="display:none">
       <div style="background:var(--tdim);border:1px solid rgba(224,90,58,.15);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
         <i data-lucide=wrench class=ic></i> Les locataires peuvent signaler des problèmes depuis leur tableau de bord — vous serez notifié instantanément. Suivez chaque ticket de l'ouverture à la résolution, et gardez un historique complet par bien.
       </div>
@@ -948,7 +944,7 @@ async function loadAll(){
 }
 
 function sp(id,btn){
-  if(id==='maintenance'){id='gestion';btn=document.querySelector('.ni[onclick*="\'gestion\'"]');setTimeout(()=>document.getElementById('sec-maintenance')?.scrollIntoView({behavior:'smooth'}),150);}
+  if(id==='maintenance'){id='gestion';window._gTab='maintenance';btn=document.querySelector('.ni[onclick*="\'gestion\'"]');setTimeout(()=>{try{renderGestion();}catch(e){}},150);}
   if(id==='dash'){id='annonces';btn=btn||document.querySelector('.ni[onclick*="\'annonces\'"]');} // « Mon compte » retiré : page d'accueil = Mes annonces
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
@@ -3269,10 +3265,10 @@ async function loadMaintenance(){
   const wrap=document.getElementById('tickets-list');
   const pc={high:'ph',medium:'pm',low:'pl'};
   const sc={open:'to',in_progress:'tip',resolved:'tr'};
-  const sl={open:'<i data-lucide=alert-triangle class=ic></i> Ouvrir',in_progress:'<i data-lucide=wrench class=ic></i> In progress',resolved:'<i data-lucide=check-circle-2 class=ic></i> Resolved'};
+  const sl={open:'<i data-lucide=alert-triangle class=ic></i> Ouvert',in_progress:'<i data-lucide=wrench class=ic></i> En cours',resolved:'<i data-lucide=check-circle-2 class=ic></i> Résolu'};
   const pl={high:'<i data-lucide=circle class=ic></i> High priority',medium:'<i data-lucide=circle class=ic></i> Medium priority',low:'<i data-lucide=circle class=ic></i> Low priority'};
   const ico={Plumbing:'<i data-lucide=droplet class=ic></i>',Electricity:'<i data-lucide=lightbulb class=ic></i>','Chauffage/AC':'<i data-lucide=snowflake class=ic></i>','Doors/Windows':'<i data-lucide=door-open class=ic></i>',Pests:'<i data-lucide=bug class=ic></i>',Structure:'<i data-lucide=construction class=ic></i>',Lock:'<i data-lucide=lock class=ic></i>',Appliances:'<i data-lucide=utensils class=ic></i>',Internet:'<i data-lucide=wifi class=ic></i>'};
-  if(!allTickets.length){wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=check-circle-2 class=ic></i></div><p>No maintenance tickets</p></div>';return;}
+  if(!allTickets.length){wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=check-circle-2 class=ic></i></div><p>Aucun signalement pour l’instant. Les locataires signalent les problèmes depuis leur espace.</p></div>';return;}
   wrap.innerHTML=allTickets.map(t=>{
     let photos=[];
     try{photos=t.photos?JSON.parse(t.photos):[];}catch(e){}
@@ -3287,7 +3283,7 @@ async function loadMaintenance(){
           <div style="font-size:.72rem;color:var(--tm);line-height:1.4">${t.description||''}</div>
           <div style="font-size:.68rem;color:var(--td);margin-top:.2rem">${t.tenant_id?`<i data-lucide=user class=ic></i> ${locataireNoms[t.tenant_id]||'Locataire'} · `:'<i data-lucide=home class=ic></i> Signalé par vous · '}${listingTitles[t.listing_id]||'Aucun bien lié'} · ${new Date(t.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div>
         </div>
-        <span class="tst ${sc[t.statut]||'to'}">${sl[t.statut]||'Ouvrir'}</span>
+        <span class="tst ${sc[t.statut]||'to'}">${sl[t.statut]||'Ouvert'}</span>
       </div>
       ${photos.length?`<div style="display:flex;gap:.5rem;flex-wrap:wrap">${photos.map(url=>`<a href="${url}" target="_blank"><img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--b)"></a>`).join('')}</div>`:''}
       ${t.statut==='open'?`
@@ -4403,12 +4399,16 @@ function _gDpe(l){return String(l?.dpe_energy_rating||GEST.listings[l?.listing_i
 
 function renderGestion(){
   const tab=window._gTab||'impayes';
-  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark']];
+  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark'],['maintenance','Maintenance','wrench']];
+  // Maintenance : la section existante est déplacée dans l'onglet (mêmes identifiants, rien n'est recréé)
+  const secM=document.getElementById('sec-maintenance');
+  if(secM){secM.style.display='none';document.getElementById('page-gestion').appendChild(secM);}
   document.getElementById('gestion-content').innerHTML=`
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${tabs.map(([k,l,ic])=>`<button class="btn bsm ${tab===k?'bp':'bg'}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}</button>`).join('')}</div>
     <div id="gestion-tab"></div>
-    <div style="font-size:.7rem;color:var(--td);margin-top:1rem;line-height:1.5">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
-  ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
+    <div style="font-size:.7rem;color:var(--td);margin-top:1rem;line-height:1.5;${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
+  if(tab==='maintenance'){if(secM){document.getElementById('gestion-tab').appendChild(secM);secM.style.display='';}try{loadMaintenance();}catch(e){}}
+  else ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
   if(window.lucide)lucide.createIcons();
 }
 
