@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>État des lieux & inventaire — Trouve Ton Toit</title>
@@ -241,10 +242,18 @@ async function load(){
   }
   if(!myRole)return fatal(U?'Cet état des lieux ne concerne pas votre compte.':'Connectez-vous pour accéder à l\'état des lieux.');
   const[{data:lp},{data:tp}]=await Promise.all([
-    sb.from('profiles').select('full_name,email,home_address').eq('clerk_id',landlordId).maybeSingle(),
+    sb.from('profiles').select('full_name,email,home_address,role').eq('clerk_id',landlordId).maybeSingle(),
     sb.from('profiles').select('full_name,email').eq('clerk_id',tenantId).maybeSingle()
   ]);
   LL_P=lp;T_P=tp;
+  // Bien géré par une agence : bailleur = propriétaire, représenté par l'agence (mandataire)
+  if(['agent','agence','agency'].includes(lp?.role)){
+    let ag=null;try{const{data}=await sb.from('agency_profiles').select('agency_name').eq('clerk_id',landlordId).maybeSingle();ag=data;}catch(e){}
+    let owner=LEASE?.landlord_name||li?.manual_landlord_name||'';
+    if(!owner&&li?.real_landlord_id){try{const{data:op}=await sb.from('profiles').select('full_name').eq('clerk_id',li.real_landlord_id).maybeSingle();owner=op?.full_name||'';}catch(e){}}
+    const agn=ag?.agency_name||lp?.full_name||'l\'agence';
+    LL_P={...lp,full_name:owner?`${owner}, représenté par ${agn} (mandataire)`:`${agn} (mandataire du bailleur)`};
+  }
   if(!bk.co_bailleurs_data){try{const{data:lpc}=await sb.from('profiles').select('co_bailleur_data').eq('clerk_id',landlordId).maybeSingle();COBAILS=_arr(lpc?.co_bailleur_data);}catch(e){}}
   EDL=(ed||[])[0]||null;
   if(!EDL&&myRole==='landlord'){
@@ -383,10 +392,10 @@ function renderRooms(d,ro){
 function toggleRoom(ri){const r=EDL.data.rooms[ri];r._open=!r._open;render();}
 function setEtat(ri,ei,v){if(!editable())return;const e=EDL.data.rooms[ri].elements[ei];e.etat=e.etat===v?'':v;touch();render();}
 function allEtat(ri,v){EDL.data.rooms[ri].elements.forEach(e=>{if(!e.etat)e.etat=v;});touch();render();}
-function addElement(ri){const l=prompt('Nom de l\'élément (ex. Baignoire, Placard…)');if(!l)return;EDL.data.rooms[ri].elements.push({label:l.trim(),etat:'',note:''});touch();render();}
+async function addElement(ri){const l=await uiPrompt('Nom de l\'élément (ex. Baignoire, Placard…)');if(!l)return;EDL.data.rooms[ri].elements.push({label:l.trim(),etat:'',note:''});touch();render();}
 function addRoom(){const t=$('new-room-type').value;const r=newRoom(t);r._open=true;EDL.data.rooms.push(r);touch();render();}
 function dupRoom(ri){const s=EDL.data.rooms[ri];const r=JSON.parse(JSON.stringify(s));r.id=uid();r.name=s.name+' (2)';r.photos=[];r.elements.forEach(e=>{e.etat='';e.note='';});r._open=true;EDL.data.rooms.splice(ri+1,0,r);touch();render();}
-function delRoom(ri){if(!confirm('Supprimer « '+EDL.data.rooms[ri].name+' » ?'))return;EDL.data.rooms.splice(ri,1);touch();render();}
+async function delRoom(ri){if(!await uiConfirm('Supprimer « '+EDL.data.rooms[ri].name+' » ?'))return;EDL.data.rooms.splice(ri,1);touch();render();}
 
 // 3 — Inventaire
 function renderInv(d,ro){
@@ -536,8 +545,8 @@ async function addPhotos(input,kind,ri){
   }
   touch();render();toast('<i data-lucide=check-circle-2 class=ic></i> Photos ajoutées');
 }
-function delPhoto(kind,ri,pi){
-  if(!editable()||!confirm('Supprimer cette photo ?'))return;
+async function delPhoto(kind,ri,pi){
+  if(!editable()||!await uiConfirm('Supprimer cette photo ?'))return;
   if(kind==='room')EDL.data.rooms[ri].photos.splice(pi,1);else EDL.data.compteurs.photos.splice(pi,1);
   touch();render();
 }
@@ -546,7 +555,7 @@ function delPhoto(kind,ri,pi){
 async function finaliser(){
   const d=EDL.data;
   const vides=d.rooms.reduce((n,r)=>n+r.elements.filter(e=>!e.etat).length,0);
-  if(vides&&!confirm(vides+' élément(s) n\'ont pas d\'état. Faire signer quand même ?'))return;
+  if(vides&&!await uiConfirm(vides+' élément(s) n\'ont pas d\'état. Faire signer quand même ?'))return;
   _dirty=true;await save();
   const{error}=await sb.from('etats_des_lieux').update({status:'to_sign',sent_at:new Date().toISOString()}).eq('id',EDL.id);
   if(error)return toast('Erreur : '+esc(error.message),6000);
@@ -575,7 +584,7 @@ async function signer(who){
   if(myRole!==who)return toast('Vous ne pouvez signer que pour vous-même.');
   if(who==='coloc')return signerColoc();
   const p=_pads[who];if(!p||!p.used)return toast('Dessinez votre signature dans la zone.');
-  if(!confirm('Je certifie avoir vérifié cet état des lieux et cet inventaire. Signer ?'))return;
+  if(!await uiConfirm('Je certifie avoir vérifié cet état des lieux et cet inventaire. Signer ?'))return;
   const now=new Date().toISOString(),sig=p.c.toDataURL('image/png');
   const upd=who==='landlord'?{landlord_signature:sig,landlord_signed_at:now}:{tenant_signature:sig,tenant_signed_at:now};
   // relire l'état réel (l'autre partie a peut-être signé en même temps)
@@ -598,7 +607,7 @@ async function signer(who){
 }
 async function signerColoc(){
   const p=_pads.coloc;if(!p||!p.used)return toast('Dessinez votre signature dans la zone.');
-  if(!confirm('Je certifie avoir vérifié cet état des lieux et cet inventaire. Signer ?'))return;
+  if(!await uiConfirm('Je certifie avoir vérifié cet état des lieux et cet inventaire. Signer ?'))return;
   const{data:fresh}=await sb.from('etats_des_lieux').select('*').eq('id',EDL.id).single();
   if(fresh)Object.assign(EDL,fresh);
   const list=coSigs().filter(x=>x.tenant_id!==U.id);
