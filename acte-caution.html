@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acte de cautionnement — Trouve Ton Toit</title>
@@ -131,7 +132,7 @@ function render(){
     return;
   }
   if(mode==='bailleur')return renderBailleur();
-  if(mode==='lecture'){app.innerHTML=`<div class="card" style="font-size:.84rem;color:var(--td)">${A.statut==='brouillon'?'Brouillon : envoyé automatiquement au garant dès que le bail est signé.':'En attente de la signature de '+E(A.garant_nom||'la caution')+'.'} Les mentions et la signature apparaîtront ici une fois l’acte signé.</div><div class="doc">${corps(false)}</div>`;return;}
+  if(mode==='lecture'){app.innerHTML=`<div class="card" style="font-size:.84rem;color:var(--td)">${A.statut==='brouillon'?'Brouillon : envoyé automatiquement au garant dès que le bail est accepté comme final.':'En attente de la signature de '+E(A.garant_nom||'la caution')+'.'} Les mentions et la signature apparaîtront ici une fois l’acte signé.</div><div class="doc">${corps(false)}</div>`;return;}
   if(A.statut==='brouillon'){app.innerHTML='<div class="card">Votre acte de cautionnement sera prêt à signer dès que le bail sera validé par le bailleur et le locataire. Vous recevrez un e-mail à ce moment-là.</div>';return;}
   const[m1,m2,m3]=modeles();
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement</div><h1>${E(A.garant_nom||'Bonjour')}, vous vous portez caution de ${E(locNom())}</h1>
@@ -216,7 +217,7 @@ function renderBailleur(){
   const s=A.snapshot||{},base=Math.round((Number(s.colocation?.part)||((Number(s.loyer)||0)+(Number(s.charges)||0))));
   const lien=location.origin+'/acte-caution.html?t='+A.token;
   app.innerHTML=`<div class="eyebrow">Acte de cautionnement · vue du bailleur</div><h1>Caution de ${E(A.garant_nom||'—')} pour ${E(locNom())}</h1>
-  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte est envoyé automatiquement au garant dès que le bail est signé par le bailleur et le locataire. Vous pouvez déjà régler le plafond et la durée.</p>':''}
+  ${A.statut==='brouillon'?'<p style="color:var(--td);margin-bottom:.8rem">Brouillon : l’acte est envoyé automatiquement au garant dès que le bail est accepté comme final par le bailleur et le locataire. Vous pouvez déjà régler le plafond et la durée.</p>':''}
   <div class="card">
     <div class="row2">
       <div><label>Type de caution</label><div style="padding:.55rem 0;font-weight:600">${A.type==='simple'?'Simple':'Solidaire'} <span style="font-weight:400;color:var(--td);font-size:.78rem">(réglé dans le bail, étape Garantie)</span></div></div>
