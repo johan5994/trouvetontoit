@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bail de parking / garage — Trouve Ton Toit</title>
@@ -300,7 +301,7 @@ async function envoyer(){
   toast('<i data-lucide=send class=ic></i> Bail envoyé au locataire');render();backToDash('landlord',resend?'resent':'sent');
 }
 async function accepter(){
-  if(!confirm('Accepter le bail tel quel ? Les signatures seront ensuite ouvertes.'))return;
+  if(!await uiConfirm('Accepter le bail tel quel ? Les signatures seront ensuite ouvertes.'))return;
   const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString()}).eq('id',LEASE.id);
   if(error)return toast('Erreur : '+esc(error.message),6000);
   LEASE.negotiation_status='agreed';
@@ -308,7 +309,7 @@ async function accepter(){
   toast('<i data-lucide=check-circle-2 class=ic></i> Bail accepté — vous pouvez signer');render();
 }
 async function remarques(){
-  const t=prompt('Vos remarques sur le bail (toutes en une fois) :');
+  const t=await uiPrompt('Vos remarques sur le bail (toutes en une fois) :');
   if(!t||!t.trim())return;
   const log=[...(Array.isArray(LEASE.modifs_log)?LEASE.modifs_log:[]),{par:'tenant',date:new Date().toISOString(),note:t.trim()}];
   const{error}=await sb.from('leases').update({negotiation_status:'pending_landlord',tenant_notes:t.trim(),modifs_log:log}).eq('id',LEASE.id);
@@ -333,7 +334,7 @@ function clearPad(w){const p=_pads[w];if(p){p.c.getContext('2d').clearRect(0,0,p
 async function signer(who){
   if(myRole!==who)return toast('Vous ne pouvez signer que pour vous-même.');
   const p=_pads[who];if(!p||!p.used)return toast('Dessinez votre signature dans la zone.');
-  if(!confirm('Signer le bail ?'))return;
+  if(!await uiConfirm('Signer le bail ?'))return;
   const{data:f}=await sb.from('leases').select('landlord_signed_at,tenant_signed_at,landlord_signature,tenant_signature').eq('id',LEASE.id).single();
   if(f)Object.assign(LEASE,f);
   const now=new Date().toISOString(),sig=p.c.toDataURL('image/png');
