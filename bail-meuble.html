@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bail de location meublée — Trouve Ton Toit</title>
@@ -1834,7 +1835,7 @@ async function saveClause(){
 }
 
 async function deleteClause(idx){
-  if(!confirm('Supprimer cette clause particulière ?'))return;
+  if(!await uiConfirm('Supprimer cette clause particulière ?'))return;
   const clauses=[...(LEASE.custom_clauses||[])];
   clauses.splice(idx,1);
   const{error}=await sb.from('leases').update({custom_clauses:clauses}).eq('id',LEASE.id);
@@ -3662,7 +3663,7 @@ async function recreateChildLeases(){
   if(await createChildLeases(cols))location.reload();
 }
 async function renameLot(){
-  const v=prompt('Nom de la chambre / partie louée (ex. « Chambre 2 — 12 m², fenêtre sur cour ») :',LEASE.lot_label||'');
+  const v=await uiPrompt('Nom de la chambre / partie louée (ex. « Chambre 2 — 12 m², fenêtre sur cour ») :',LEASE.lot_label||'');
   if(v===null)return;
   const{error}=await sb.from('leases').update({lot_label:v.trim()||null}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message+' (migration bail-individuel exécutée ?)',6000);return;}
@@ -3677,8 +3678,8 @@ async function chooseColocType(val,sansConfirm,force){
   if(myRole!=='landlord'||LEASE.landlord_signed_at||LEASE.tenant_signed_at)return;
   if(LEASE.colocation_type){toast('Le modèle est verrouillé. Utilisez « Changer de modèle (tout recommencer) ».',5000);return;}
   if(val!=='individuel'&&window._colocBloqueCommun&&!force){toast('Avec Visale ici, un seul bail n’est pas possible : choisissez un bail par locataire.',6000);return;}
-  if(val!=='individuel'&&window._colocBloqueCommun&&force&&!confirm('Faire un seul bail malgré tout ?\n\nLes règles de Visale demandent ici un bail par locataire. Avec un seul bail, Action Logement peut refuser de couvrir les impayés.\n\nVous confirmez ce choix en connaissance de cause ?'))return;
-  if(!sansConfirm&&!confirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
+  if(val!=='individuel'&&window._colocBloqueCommun&&force&&!await uiConfirm('Faire un seul bail malgré tout ?\n\nLes règles de Visale demandent ici un bail par locataire. Avec un seul bail, Action Logement peut refuser de couvrir les impayés.\n\nVous confirmez ce choix en connaissance de cause ?'))return;
+  if(!sansConfirm&&!await uiConfirm('Choisir le modèle : '+_COLOC_LBL[val]+' ?\n\nCe choix est verrouillé ensuite. Pour en changer, il faudra tout recommencer (le bail repasse en brouillon).'))return;
   const cur='commun_solidaire';
   if(val==='individuel'&&cur!=='individuel'){
     const cols=_bailArr(BOOKING?.co_locataires_data).filter(c=>c.coloc_status!=='declined');
@@ -3691,7 +3692,7 @@ async function chooseColocType(val,sansConfirm,force){
   if(val!=='individuel'&&cur==='individuel'){
     const kids=SIBLINGS.filter(x=>x.parent_booking_id&&!x.booking_id);
     if(kids.some(x=>x.landlord_signed_at||x.tenant_signed_at)){toast('Un bail individuel est déjà signé : impossible de revenir à un bail commun.',6000);return;}
-    if(kids.length&&!confirm(`Revenir à un seul bail commun ? Les ${kids.length} autre(s) bail(s) individuel(s) seront supprimés.`))return;
+    if(kids.length&&!await uiConfirm(`Revenir à un seul bail commun ? Les ${kids.length} autre(s) bail(s) individuel(s) seront supprimés.`))return;
     if(kids.length){const{error}=await sb.from('leases').delete().in('id',kids.map(x=>x.id));if(error){toast('Erreur : '+error.message,6000);return;}}
     const upd={};
     if(LEASE.rent_total!=null)upd.rent=LEASE.rent_total;
@@ -3703,6 +3704,8 @@ async function chooseColocType(val,sansConfirm,force){
     return;
   }
   await saveField('colocation_type',val);
+  // Modèle choisi : on enchaîne directement sur le tunnel de préparation du bail
+  if(LEASE.colocation_type===val){_wzOuvertAuto=false;try{wzAuto();}catch(e){console.error(e);}if(!document.body.classList.contains('bail-tunnel')&&_peutModifier)wzOuvrir(0);}
 }
 // Bandeau propriétaire : modèle de bail (à choisir en premier, puis verrouillé)
 function renderModelBar(L){
@@ -3762,7 +3765,7 @@ async function resetColocType(){
   const B=_bookingRef();
   const all=SIBLINGS.length?SIBLINGS:[LEASE];
   if(all.some(x=>x.landlord_signed_at||x.tenant_signed_at)||LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast('Un bail est déjà signé : impossible de changer de modèle.',6000);return;}
-  if(!confirm('Changer de modèle de bail ?\n\nTout recommence :\n• les baux individuels éventuels sont supprimés,\n• le loyer, les charges et le dépôt reprennent les montants totaux,\n• le bail repasse en brouillon et les locataires sont prévenus qu\'il a été retiré.\n\nContinuer ?'))return;
+  if(!await uiConfirm('Changer de modèle de bail ?\n\nTout recommence :\n• les baux individuels éventuels sont supprimés,\n• le loyer, les charges et le dépôt reprennent les montants totaux,\n• le bail repasse en brouillon et les locataires sont prévenus qu\'il a été retiré.\n\nContinuer ?'))return;
   const kids=SIBLINGS.filter(x=>x.parent_booking_id&&!x.booking_id);
   if(kids.length){const{error}=await sb.from('leases').delete().in('id',kids.map(x=>x.id));if(error){toast('Erreur : '+error.message,6000);return;}}
   const upd={colocation_type:null,negotiation_status:'draft',sent_to_tenant_at:null,lot_label:null};
@@ -3810,7 +3813,7 @@ async function sendAllLeases(){
   if(needsColocChoice()){toast('Choisissez d\'abord le modèle de bail.',5000);return;}
   const todo=SIBLINGS.filter(x=>['draft','pending_landlord'].includes(x.negotiation_status||'draft'));
   if(!todo.length)return;
-  if(!confirm('Envoyer à chaque locataire son bail pour relecture ?\n\n'+todo.map(x=>'• '+(x.tenant_name||'Locataire')+' — '+(x.lot_label||'')).join('\n')))return;
+  if(!await uiConfirm('Envoyer à chaque locataire son bail pour relecture ?\n\n'+todo.map(x=>'• '+(x.tenant_name||'Locataire')+' — '+(x.lot_label||'')).join('\n')))return;
   let ok=0;
   for(const x of todo){
     const resend=x.negotiation_status==='pending_landlord';
@@ -3915,7 +3918,7 @@ async function uploadVisaleContrat(key,input){
 async function removeVisaleContrat(key){
   if(LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast(_MSG_DOCS_FIGES,6000);try{if(input)input.value='';}catch(e){}return;}
   const v=visaleTenants().find(x=>x.key===key);if(!v||!(myRole==='landlord'||v.isMe))return;
-  if(!confirm('Retirer le contrat Visale des annexes du bail ?'))return;
+  if(!await uiConfirm('Retirer le contrat Visale des annexes du bail ?'))return;
   const url=v.contrat?.url;
   const ok=await _saveCoSigners(cur=>{const x={...(cur[key]||{})};delete x.contrat;cur[key]=x;});
   if(!ok)return;
@@ -3933,7 +3936,7 @@ function _visaEditBtn(key,has){
 async function editVisaRef(key){
   const v=visaleTenants().find(x=>x.key===key);if(!v)return;
   if(!(myRole==='landlord'||v.isMe)||LEASE.landlord_signed_at)return;
-  let val=prompt('N° de visa Visale de '+v.name+' (écrit sur le certificat Visale) :',v.visa||'');
+  let val=await uiPrompt('N° de visa Visale de '+v.name+' (écrit sur le certificat Visale) :',v.visa||'');
   if(val===null)return;
   val=val.trim().toUpperCase();
   if(key==='v:1'){
@@ -4636,7 +4639,7 @@ async function _inviteMainGarant(force){
 async function resendGarantMail(){await inviteGarant(true);renderStatusAndSigs();}
 
 async function tenantAcceptsModel(){
-  if(!confirm('Confirmez-vous accepter le modèle du bail tel quel ?')) return;
+  if(!await uiConfirm('Confirmez-vous accepter le modèle du bail tel quel ?')) return;
   const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString()}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
@@ -4700,7 +4703,7 @@ function esc(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 async function submitModifRequest(){
   const r=getRemarques();
   if(!r.length){toast('<i data-lucide=alert-triangle class=ic></i> Aucune remarque à envoyer');return;}
-  if(!confirm('Envoyer vos '+r.length+' remarque(s) au bailleur ?'))return;
+  if(!await uiConfirm('Envoyer vos '+r.length+' remarque(s) au bailleur ?'))return;
   const notes=r.map((x,i)=>(i+1)+'. '+x.section+' : '+x.texte).join('\n');
   const tenantEntry={par:'tenant',date:new Date().toISOString(),champs:[],note:notes,remarques:r};
   const newLog=[...(LEASE.modifs_log||[]),tenantEntry];
@@ -4732,7 +4735,7 @@ function annexesManquantesBloquent(){
 }
 async function landlordValidateModel(){
   if(annexesManquantesBloquent())return;
-  if(!confirm('Confirmer le modèle final ? Le locataire pourra ensuite signer.')) return;
+  if(!await uiConfirm('Confirmer le modèle final ? Le locataire pourra ensuite signer.')) return;
   const{error}=await sb.from('leases').update({negotiation_status:'agreed',agreed_at:new Date().toISOString(),tenant_notes:null}).eq('id',LEASE.id);
   if(error){toast('Erreur : '+error.message);return;}
   LEASE.negotiation_status='agreed';LEASE.agreed_at=new Date().toISOString();
@@ -5053,7 +5056,7 @@ async function removeDoc(key){
   if(_docsVerrouilles()){toast(_MSG_DOCS_FIGES,6000);return;}
   const col=DOC_COL[key];
   if(!col||!LEASE?.[col])return;
-  if(!confirm('Supprimer ce document du bail ?'))return;
+  if(!await uiConfirm('Supprimer ce document du bail ?'))return;
   const url=LEASE[col];
   const{error}=await sb.from('leases').update({[col]:null}).eq('id',LEASE.id);
   if(error){toast('<i data-lucide=x-circle class=ic></i> Suppression impossible : '+error.message,5000);return;}
