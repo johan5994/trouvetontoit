@@ -3507,7 +3507,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       bailBlock=`<div style="background:rgba(var(--gold-rgb),.07);border:1px solid rgba(var(--gold-rgb),.25);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--gold)"><i data-lucide=send class=ic></i> Vos remarques ont été envoyées — en attente du propriétaire</div>${leaseBtn('Voir le bail →',false)}`;
     }else if(ns==='agreed'||ns==='signed'){
       const llSigned=!!lease.landlord_signed_at;
-      const tSigned=!!lease.tenant_signed_at;
+      // tSigned (plus haut) = MA signature : celle du locataire principal ou, pour un colocataire, la sienne (co_signers)
       if(tSigned&&llSigned){
         // Tout signé
         bailBlock=`<div style="background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> <i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
