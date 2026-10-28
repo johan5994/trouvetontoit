@@ -421,6 +421,12 @@
   .wz-grp-t{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin:0 0 .55rem;padding-bottom:.35rem;border-bottom:1px solid #F3F4F6}
   .wz-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));column-gap:.9rem}
   .wz-grille .wz-large{grid-column:1/-1}
+  .wz-rows{padding:0 .85rem}
+  .wz-rows .wz-f{display:grid;grid-template-columns:42% 1fr;align-items:center;gap:.6rem;margin:0;padding:.5rem 0;border-bottom:1px solid #EEF0F3}
+  .wz-rows .wz-f:last-child{border-bottom:none}
+  .wz-rows .wz-f>label{margin:0;font-weight:500;color:#4B5563;font-size:.86rem}
+  .wz-rows .wz-in{padding:.45rem .6rem}
+  @media(max-width:600px){.wz-rows .wz-f{grid-template-columns:1fr;gap:.3rem}}
   .wz-lignes{border:1px solid #EEF0F3;border-radius:12px;background:#FAFBFC;padding:.15rem .85rem;margin-bottom:.6rem}
   .wz-ligne{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-bottom:1px solid #EEF0F3;font-size:.86rem}
   .wz-ligne:last-child{border-bottom:none}
@@ -2672,7 +2678,9 @@ function _renderBail(){
     {label:'Année de construction',value:anneeCons?ev('annee_construction',hl('annee_construction',anneeCons+'')):mf('annee_construction')},
     {label:'Mode de chauffage',value:(modeChauffage&&modeChauffage!=='Non renseigné')?ev('mode_chauffage',hl('mode_chauffage',modeChauffage)):mf('mode_chauffage')},
     {label:'Production ECS',value:(modeEcs&&modeEcs!=='Non renseigné')?ev('mode_ecs',hl('mode_ecs',modeEcs)):mf('mode_ecs')},
-    {label:'Numéro fiscal',value:(numFiscal&&numFiscal!=='—')?ev('numero_fiscal',hl('numero_fiscal',numFiscal)):mf('numero_fiscal')},
+    // Numéro fiscal : facultatif — absent du bail s'il n'est pas renseigné
+    ...((numFiscal&&numFiscal!=='—')?[{label:'Numéro fiscal',value:ev('numero_fiscal',hl('numero_fiscal',numFiscal))}]
+      :_editMode?[{label:'Numéro fiscal',value:ev('numero_fiscal','<em style="color:var(--td)">facultatif</em>')}]:[]),
   ];
   // Copropriété : choix Oui / Non direct (plus de badge orange)
   {
@@ -4228,7 +4236,7 @@ const WZ_GROUPES=[
   ['Loyer',/^(rent|charges)$/],['Encadrement des loyers',/^(loyer_ref|loyer_ref_majore|complement_)/],['Précédent locataire',/^(premiere_mise_en_location|dernier_)/],
   ['Performance énergétique',/^dpe_/],['Autres diagnostics',/^diag_/],
 ];
-const WZ_FACULTATIF=new Set(['numero_lot','dep_autres','commun_autres','telecom_autres','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','garant_pro','garant_birth_date','garant_birth_place','tenant_nationality','complement_justif']);
+const WZ_FACULTATIF=new Set(['numero_fiscal','numero_lot','dep_autres','commun_autres','telecom_autres','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','garant_pro','garant_birth_date','garant_birth_place','tenant_nationality','complement_justif']);
 // Annexes : cases à cocher (oui/non) + précisions affichées seulement si coché
 const WZ_CASES=[
   ['Annexes privatives',['dep_cave','dep_parking','dep_garage','dep_balcon','dep_terrasse','dep_jardin']],
@@ -4290,7 +4298,9 @@ function _wzCorps(s){
     const faits=ks.filter(k=>!aRemplir.includes(k));
     // Ordre conservé : les champs remplis consécutifs forment un encadré de lignes
     let h='',run=[],mode=null;
-    const flush=()=>{if(!run.length)return;h+=mode==='f'?`<div class="wz-lignes">${run.map(_wzLigne).join('')}</div>`:`<div class="wz-grille">${run.map(k=>_wzChamp(k,s.manque.includes(k))).join('')}</div>`;run=[];};
+    // Diagnostics : une ligne par diagnostic (libellé à gauche, choix à droite), comme la performance énergétique
+    const enLignes=ks.every(k=>/^(diag_|dpe_)/.test(k));
+    const flush=()=>{if(!run.length)return;h+=mode==='f'?`<div class="wz-lignes">${run.map(_wzLigne).join('')}</div>`:`<div class="${enLignes?'wz-lignes wz-rows':'wz-grille'}">${run.map(k=>_wzChamp(k,s.manque.includes(k))).join('')}</div>`;run=[];};
     ks.forEach(k=>{const m=faits.includes(k)?'f':'i';if(m!==mode){flush();mode=m;}run.push(k);});flush();
     return h;
   };
@@ -4376,6 +4386,26 @@ function _wzSpecial(x){
         <div class="wz-aide">Type de caution : <strong>${a.type==='simple'?'simple':'solidaire'}</strong> (réglé à l’étape Garantie).</div></div>`;
     }).join('')+`<div class="wz-aide">L’acte est envoyé automatiquement au garant dès que le bail est accepté comme final par vous et le locataire, en même temps que l’ouverture des signatures.</div>`;}
   if(x==='garantie'){
+    // Garantie connue par les dossiers des locataires : affichée telle quelle, pas à ressaisir
+    {const bc=bailChoices(LEASE),gli=String(LEASE.gli||'')==='oui'&&!TENANT_ETUDIANT;
+      const lignes=[];
+      if(TENANT_GARANTIE){
+        const t=TENANT_GARANTIE,nm=LEASE.tenant_name||T_PROFILE?.full_name||'Locataire 1';
+        lignes.push({nm,phys:t==='physique',txt:t==='physique'?'Caution de '+(LEASE.garant_name?_escB(LEASE.garant_name):'son garant'):t==='visale'?'Garantie Visale'+((LEASE.visale_ref||TENANT_D5?.visa_ref)?' — visa n° '+_escB(LEASE.visale_ref||TENANT_D5?.visa_ref):''):t==='organisme'?'Organisme de caution':'Aucune garantie'});
+        if(bc.c!=='individuel')bc.coLocs.forEach(c=>{let g=c.garant_data;try{g=typeof g==='string'?JSON.parse(g):g;}catch(e){g=[];}
+          const noms=(Array.isArray(g)?g:[]).map(z=>[z.prenom,z.nom].filter(Boolean).join(' ')).filter(Boolean);
+          const t2=c.garant_type,phys=noms.length>0||t2==='physique';
+          lignes.push({nm:c.name||c.email||'Co-locataire',phys,txt:noms.length?'Caution de '+noms.map(_escB).join(' et '):t2==='garant_visale'?'Garantie Visale'+(c.visa_ref?' — visa n° '+_escB(c.visa_ref):''):c.has_garant?'Organisme de caution':'Aucune garantie'});});
+      }
+      if(lignes.length){
+        const gt=LEASE.garant_type,sim=gt==='simple',auMoinsUnePersonne=lignes.some(l=>l.phys)&&!gli;
+        const p=(v,l,on)=>`<button type="button" class="wz-pill${on?' on':''}" onclick="saveField('garant_type','${v}').then(()=>wzRender(true))">${l}</button>`;
+        return`<div class="wz-f"><label>Garantie de ${lignes.length>1?'chaque locataire':'votre locataire'}</label>
+          <div class="wz-lignes">${lignes.map(l=>`<div class="wz-ligne"><span class="wz-l-lbl">${_escB(l.nm)}</span><span class="wz-l-val">${gli&&l.phys?'Aucune (GLI)':l.txt}</span></div>`).join('')}</div>
+          <div class="wz-aide">Repris du dossier ${lignes.length>1?'des locataires':'du locataire'}.</div></div>`
+          +(auMoinsUnePersonne?`<div class="wz-f"><label>Engagement ${lignes.filter(l=>l.phys).length>1?'des personnes garantes':'de la personne garante'}</label><div class="wz-pills">${p('solidaire','Caution solidaire',!sim)}${p('simple','Caution simple',sim)}</div><div class="wz-aide">${sim?'En cas d’impayé, vous devez d’abord poursuivre le locataire ; le garant ne paie que si le locataire ne peut pas.':'En cas d’impayé, vous pouvez demander directement au garant de payer.'}</div></div>`:'');
+      }
+    }
     const gt=LEASE.garant_type||'',phys=gt==='solidaire'||gt==='simple';
     const gli=String(LEASE.gli||'')==='oui'&&!TENANT_ETUDIANT;
     if(gli)return`<div class="wz-f"><label>Quel type de garantie ?</label><div class="wz-pills"><button type="button" class="wz-pill on" disabled>Aucune garantie</button><button type="button" class="wz-pill" disabled>Une personne se porte garante</button><button type="button" class="wz-pill" disabled>Garantie Visale</button></div><div class="wz-aide">Vous avez une GLI : la loi interdit de demander en plus un garant au locataire (sauf étudiant ou apprenti). Répondez « Non » à la GLI pour choisir une garantie.</div></div>`;
