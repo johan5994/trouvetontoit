@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit — Espace locataire</title>
@@ -1916,11 +1917,11 @@ async function sendRmDm(){
 
 async function reportRoommateUser(){
   if(!rmDmOtherId)return;
-  const reason=prompt('Que s\'est-il passé ? (aide-nous à traiter le signalement)');
+  const reason=await uiPrompt('Que s\'est-il passé ? (aide-nous à traiter le signalement)');
   if(reason===null)return;
   try{
     await sb.from('roommate_reports').insert({reporter_id:U.id,reported_id:rmDmOtherId,context:reason||''});
-    if(confirm('Signalement envoyé. Voulez-vous également bloquer cette personne du channel ?')){
+    if(await uiConfirm('Signalement envoyé. Voulez-vous également bloquer cette personne du channel ?')){
       await sb.from('roommate_blocks').insert({blocker_id:U.id,blocked_id:rmDmOtherId});
       toast('<i data-lucide=ban class=ic></i> Bloqué et signalé');
       closeRmDm();
@@ -2088,7 +2089,7 @@ async function loadRmGroupMessages(){
 
 async function leaveRoommateGroup(){
   if(!rmActifGroupId)return;
-  if(!confirm('Quitter ce groupe ? Vous devrez être réinvité pour y revenir.'))return;
+  if(!await uiConfirm('Quitter ce groupe ? Vous devrez être réinvité pour y revenir.'))return;
   try{
     const{error}=await sb.from('roommate_group_members').delete().eq('group_id',rmActifGroupId).eq('locataire_id',U.id);
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
@@ -3233,7 +3234,7 @@ function renderLocataireDoneCard(item,isBooking){
 }
 
 async function declareChildPayment(leaseId){
-  if(!confirm('Confirmez-vous avoir payé le dépôt de garantie et le premier loyer au propriétaire ?'))return;
+  if(!await uiConfirm('Confirmez-vous avoir payé le dépôt de garantie et le premier loyer au propriétaire ?'))return;
   const{data:l}=await sb.from('leases').select('id,landlord_id,listing_id,lot_label').eq('id',leaseId).single();
   const{error}=await sb.from('leases').update({first_payment_sent_at:new Date().toISOString()}).eq('id',leaseId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
@@ -4079,7 +4080,7 @@ async function locataireInterested(visitId, listingId, price, listingTitle, land
 }
 
 async function locataireNotInterested(visitId){
-  if(!confirm('Confirmer que vous n\'êtes plus intéressé(e) par ce logement ?')) return;
+  if(!await uiConfirm('Confirmer que vous n\'êtes plus intéressé(e) par ce logement ?')) return;
   await sb.from('visits').update({status:'declined'}).eq('id',visitId);
   toast('OK — visite moved to past.');
   loadLocataireVisits();
@@ -4097,7 +4098,7 @@ async function declareLocatairePaiement(bookingId,part){
   if(!bk)return;
   const people=_payPeople(bk);
   const multi=people.length>1;
-  if(!confirm(multi?`Confirmez-vous avoir payé VOTRE part${part?' ('+part+')':''} au propriétaire ?`:'Confirmez-vous avoir effectué le virement au propriétaire ?'))return;
+  if(!await uiConfirm(multi?`Confirmez-vous avoir payé VOTRE part${part?' ('+part+')':''} au propriétaire ?`:'Confirmez-vous avoir effectué le virement au propriétaire ?'))return;
   let upd={first_payment_sent:true};
   if(multi){
     const d={..._payDecl(bk),[U.id]:new Date().toISOString()};
@@ -4318,7 +4319,7 @@ async function locataireDeclineProposedVisit(visitId){
 }
 
 async function cancelVisit(visitId, agentId, listingId){
-  if(!confirm('Annuler cette visite ? Gratuit si elle a lieu dans plus de 24h.'))return;
+  if(!await uiConfirm('Annuler cette visite ? Gratuit si elle a lieu dans plus de 24h.'))return;
 
   let visite=null;
   try{const{data:v}=await sb.from('visits').select('*').eq('id',visitId).single();visite=v;}catch(e){}
@@ -4328,7 +4329,7 @@ async function cancelVisit(visitId, agentId, listingId){
   const hoursUntil=visitDate?(visitDate-now)/(1000*60*60):999;
   const isLate=hoursUntil<24;
 
-  if(!confirm('Annuler cette visite ? Le propriétaire/agent sera notifié.'))return;
+  if(!await uiConfirm('Annuler cette visite ? Le propriétaire/agent sera notifié.'))return;
 
   // Marquer la visite comme annulée
   try{await sb.from('visits').update({status:'cancelled'}).eq('id',visitId);}catch(e){}
@@ -4375,7 +4376,7 @@ function locationQuitteeExpiree(b){
   return (Date.now()-new Date(b.tenancy_ended_at).getTime())>7*24*3600*1000;
 }
 async function leaveCurrentProperty(){
-  if(!confirm("Vous n'habitez plus ce logement ?\n\nEn confirmant, vous indiquez que vous l'avez quitté. Trouve Ton Toit n'intervient pas dans la fin du bail (préavis, état des lieux de sortie, restitution du dépôt) : cela se règle directement avec votre propriétaire.\n\nVous pourrez tout de suite chercher et postuler à un nouveau logement. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours, puis ils disparaissent de votre espace : pensez à les télécharger."))return;
+  if(!await uiConfirm("Vous n'habitez plus ce logement ?\n\nEn confirmant, vous indiquez que vous l'avez quitté. Trouve Ton Toit n'intervient pas dans la fin du bail (préavis, état des lieux de sortie, restitution du dépôt) : cela se règle directement avec votre propriétaire.\n\nVous pourrez tout de suite chercher et postuler à un nouveau logement. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours, puis ils disparaissent de votre espace : pensez à les télécharger."))return;
 
   let bk=null,annonce=null;
   const actifs=['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready','completed','active'];
@@ -5183,7 +5184,7 @@ function openSigningDoc(embedSrc, title, bookingId){
 
 
 async function confirmLocatairePaiement(bookingId){
-  if(!confirm('Confirmer that you have transferred the paiement to the propriétaire?'))return;
+  if(!await uiConfirm('Confirmer that you have transferred the paiement to the propriétaire?'))return;
   try{
     const{error:payErr}=await sb.from('bookings').update({first_payment_sent:true}).eq('id',bookingId);
     if(payErr){toast('<i data-lucide=x-circle class=ic></i> Impossible d\'enregistrer — réessayez : '+payErr.message);return;}
@@ -5781,7 +5782,7 @@ function _rmStorage(f){
 async function removeDossierFile(idx,fi){
   const st=dossierState[idx];
   const f=st?.files?.[fi];
-  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  if(!f||!await uiConfirm('Retirer « '+f.name+' » ?'))return;
   st.files.splice(fi,1);
   _rmStorage(f);
   // Plus aucun fichier : l'étape n'est plus « fournie » tant qu'on n'en ajoute pas un autre
@@ -5801,16 +5802,16 @@ async function removeDossierFile(idx,fi){
 async function removeGarantFile(subIdx,fi){
   const sub=gState().garant_subs?.[subIdx];
   const f=sub?.files?.[fi];
-  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  if(!f||!await uiConfirm('Retirer « '+f.name+' » ?'))return;
   sub.files.splice(fi,1);
   _rmStorage(f);
   renderGarantSubScreen(subIdx);renderGarantSubNav();renderGarantSelector();
   await saveDossierState();renderDossierState();
   toast('Fichier retiré');
 }
-function removeGarantRevFile(fi){
+async function removeGarantRevFile(fi){
   const f=garantRevFiles[fi];
-  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  if(!f||!await uiConfirm('Retirer « '+f.name+' » ?'))return;
   garantRevFiles.splice(fi,1);
   _rmStorage(f);
   renderGarantSubScreen(3);
@@ -5871,7 +5872,7 @@ async function gmUpload(kind,files){
 async function gmRemove(kind,i){
   const st=dossierState[5];const key=kind==='kbis'?'files':'rep_files';
   const f=st?.[key]?.[i];
-  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  if(!f||!await uiConfirm('Retirer « '+f.name+' » ?'))return;
   st[key].splice(i,1);_rmStorage(f);gmRender();
   // Un document obligatoire manque à nouveau : l'étape n'est plus « fournie »
   if(st.type==='garant_moral'&&(!st.files?.length||!st.rep_files?.length)){st.pendingType=st.type;delete st.type;}
@@ -6320,7 +6321,7 @@ async function deleteGarant(i){
   const gs=dossierState[5]?.garants;
   if(!gs||!gs[i])return;
   const nm=[gs[i].garant_name?.prenom,gs[i].garant_name?.nom].filter(Boolean).join(' ')||'ce garant';
-  if(!confirm('Supprimer '+nm+' ?'))return;
+  if(!await uiConfirm('Supprimer '+nm+' ?'))return;
   gs.splice(i,1);
   if(!gs.length){
     delete dossierState[5];
@@ -7052,7 +7053,7 @@ function dfExtractRender(){
 }
 async function dfRemove(i){
   const f=dossierState?.df?.files?.[i];
-  if(!f||!confirm('Retirer « '+f.name+' » ?'))return;
+  if(!f||!await uiConfirm('Retirer « '+f.name+' » ?'))return;
   dossierState.df.files.splice(i,1);_rmStorage(f);
   await saveDossierState();dfRender();
 }
@@ -8000,7 +8001,7 @@ async function repondreColoc(bookingId,accepte){
   const notifier=txt=>sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:bk.tenant_id,content:txt,type:'coloc_reponse'}).then(()=>{},()=>{});
 
   if(!accepte){
-    if(!confirm('Refuser de rejoindre cette candidature ?'))return;
+    if(!await uiConfirm('Refuser de rejoindre cette candidature ?'))return;
     arr[i]={...arr[i],coloc_status:'declined',responded_at:new Date().toISOString()};
     const{error}=await sb.from('bookings').update({co_locataires_data:JSON.stringify(arr)}).eq('id',bookingId);
     if(error)return fail(error.message);
@@ -8101,7 +8102,7 @@ function _blocPropositionsDate(bk,arr){
     </div>`;}).join('');
 }
 async function voterDate(bookingId,propId,oui){
-  if(!oui&&!confirm('Refuser cette date ? La date d’entrée actuelle est conservée.'))return;
+  if(!oui&&!await uiConfirm('Refuser cette date ? La date d’entrée actuelle est conservée.'))return;
   const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
   if(!bk||bk.status!=='awaiting_colocs'){toast('Cette candidature a déjà changé.');loadLocataireApplicationsPage();loadColocInvites();return;}
   let arr=_parseArr(bk.co_locataires_data);
@@ -8133,8 +8134,8 @@ async function voterDate(bookingId,propId,oui){
   toast(parti?'<i data-lucide=check-circle-2 class=ic></i> Date adoptée : la candidature est partie chez le propriétaire.':adoptee?'<i data-lucide=check-circle-2 class=ic></i> Nouvelle date adoptée.':oui?'Réponse envoyée.':'Date actuelle conservée.');
   loadLocataireApplicationsPage();loadColocInvites();
 }
-function changerDateCandidature(bookingId,date){
-  if(!confirm('Passer la date d\'entrée au '+_frDate(date)+' ? Les co-locataires qui avaient déjà confirmé devront reconfirmer.'))return;
+async function changerDateCandidature(bookingId,date){
+  if(!await uiConfirm('Passer la date d\'entrée au '+_frDate(date)+' ? Les co-locataires qui avaient déjà confirmé devront reconfirmer.'))return;
   _majCandidature(bookingId,(bk,arr)=>{
     const msgs=[];
     arr=arr.map(c=>{
@@ -8151,8 +8152,8 @@ function garderDateCandidature(bookingId,colocId){
     return{update:{co_locataires_data:JSON.stringify(arr)},msgs:[{to:colocId,txt:`${bk.locataire_name||'Le locataire 1'} garde la date du ${_frDate(bk.move_in_date)}. Dites-lui dans « Candidatures » si vous la confirmez.`}]};
   });
 }
-function continuerSansRefus(bookingId){
-  if(!confirm('Retirer les co-locataires qui ont refusé et continuer sans eux ?'))return;
+async function continuerSansRefus(bookingId){
+  if(!await uiConfirm('Retirer les co-locataires qui ont refusé et continuer sans eux ?'))return;
   _majCandidature(bookingId,(bk,arr)=>{
     arr=arr.filter(c=>c.coloc_status!=='declined');
     let payers=_parseArr(bk.fee_payers).filter(p=>p.tenant_id===bk.tenant_id||arr.some(c=>(c.locataire_id||c.tenant_id)===p.tenant_id));
@@ -8162,7 +8163,7 @@ function continuerSansRefus(bookingId){
   });
 }
 async function annulerCandidatureColoc(bookingId){
-  if(!confirm('Annuler cette candidature ?'))return;
+  if(!await uiConfirm('Annuler cette candidature ?'))return;
   const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
   const{error}=await sb.from('bookings').update({status:'cancelled_by_locataire',cancelled_at:new Date().toISOString()}).eq('id',bookingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
