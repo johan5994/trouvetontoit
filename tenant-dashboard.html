@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trouve Ton Toit — Locataire Mon compte</title>
+<title>Trouve Ton Toit — Espace locataire</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
@@ -15,8 +15,9 @@
   if(localStorage.getItem('rm_theme')==='dark')document.documentElement.classList.add('dark');
 </script>
 <style>
-:root{--bg:#F5EFE0;--s:#FDFAF4;--s2:#EDE8D8;--b:rgba(26,20,16,.08);--b2:rgba(26,20,16,.15);--bleu:#1B4FD8;--tdim:rgba(201,85,58,.1);--gold:#E8A020;--gdim:rgba(212,168,71,.1);--marine:#0F2D7A;--sdim:rgba(46,107,138,.1);--green:#4CAF7D;--grdim:rgba(76,175,125,.1);--red:#1B4FD8;--rdim:rgba(201,85,58,.1);--deep:#1A1410;--stone:#6B5F52;--txt:#1A1410;--tm:#6B5F52;--td:#887A68}
-html.dark{--bg:#0F1117;--s:#1A1D27;--s2:#22263A;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--bleu:#1B4FD8;--tdim:rgba(224,90,58,.15);--gold:#E8A020;--gdim:rgba(212,168,71,.12);--sea:#3A8FB5;--sdim:rgba(58,143,181,.12);--green:var(--green);--grdim:var(--grdim);--red:var(--red);--rdim:rgba(224,90,90,.12);--deep:#F0EDE8;--stone:rgba(240,237,232,.48);--txt:#F0EDE8;--tm:rgba(240,237,232,.48);--td:rgba(240,237,232,.45)}
+:root{--bg:#F6F4EF;--s:#FFFFFF;--s2:#F1EEE7;--b:rgba(40,32,24,.09);--b2:rgba(40,32,24,.16);--txt:#1C1A17;--tm:#5E574D;--td:#857D71;--ink-rgb:28,26,23;--bleu:#1B4FD8;--bleu-rgb:27,79,216;--marine:#0F2D7A;--green:#2F8A5B;--green-rgb:47,138,91;--gold:#A86F14;--gold-rgb:176,122,30;--red:#C2412D;--red-rgb:194,65,45;--sea:#2B7898;--sea-rgb:43,120,152;--grdim:rgba(47,138,91,.10);--gdim:rgba(176,122,30,.10);--rdim:rgba(194,65,45,.09);--tdim:rgba(27,79,216,.08);--sdim:rgba(43,120,152,.10);--deep:#1C1A17;--stone:#5E574D}
+html.dark{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
+:root{--accent:var(--bleu);--primary:var(--bleu);--tf:var(--tm);--stone-l:var(--td)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
 .sb{width:240px;min-height:100vh;background:var(--s);border-right:1px solid var(--b);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50}
@@ -26,21 +27,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .sb-nav{flex:1;padding:1rem 0;overflow-y:auto}
 .nl{font-size:.65rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--td);padding:.8rem 1.5rem .4rem}
 .ni{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.5rem;cursor:pointer;transition:all .15s;position:relative;font-size:.88rem;font-weight:500;color:var(--tm);border:none;background:none;width:100%;text-align:left}
-.ni:hover{color:var(--deep);background:rgba(26,20,16,.04)}
+.ni:hover{color:var(--deep);background:rgba(var(--ink-rgb),.04)}
 .ni.act{color:var(--bleu);background:var(--tdim)}
 .ni.act::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bleu);border-radius:0 2px 2px 0}
 .nico{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
 .nbadge{margin-left:auto;background:var(--bleu);color:white;font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:100px}
 .sb-user{padding:1rem 1.5rem;border-top:1px solid var(--b);display:flex;align-items:center;gap:.75rem}
-.uav{width:34px;height:34px;border-radius:50%;background:var(--tdim);border:1px solid rgba(201,85,58,.3);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:700;color:var(--bleu)}
+.uav{width:34px;height:34px;border-radius:50%;background:var(--tdim);border:1px solid rgba(var(--bleu-rgb),.3);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:700;color:var(--bleu)}
 .un{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ur{font-size:.7rem;color:var(--td)}
 .main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{padding:1rem 2rem;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--s);position:sticky;top:0;z-index:40}
 .tb-title{font-size:1rem;font-weight:600}.tb-sub{font-size:.75rem;color:var(--tm);margin-top:.1rem}
 .btn{padding:.55rem 1.2rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}
-.bp{background:var(--bleu);color:white}.bp:hover{background:#e06545;transform:translateY(-1px)}
-.bg{background:rgba(26,20,16,.06);color:var(--stone);border:1px solid var(--b2)}.bg:hover{background:rgba(26,20,16,.1);color:var(--deep)}
+.bp{background:var(--bleu);color:white}.bp:hover{background:var(--red);transform:translateY(-1px)}
+.bg{background:rgba(var(--ink-rgb),.06);color:var(--stone);border:1px solid var(--b2)}.bg:hover{background:rgba(var(--ink-rgb),.1);color:var(--deep)}
 .bsm{padding:.4rem .9rem;font-size:.78rem}
 .content{padding:1.5rem 2rem;flex:1}
 .page{display:none!important}.page.act{display:block!important;animation:fi .2s ease}
@@ -62,9 +63,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .badge{padding:.25rem .65rem;border-radius:100px;font-size:.68rem;font-weight:700}
 .b-green{background:var(--grdim);color:var(--green)}.b-gold{background:var(--gdim);color:var(--gold)}
 .b-red{background:var(--rdim);color:var(--red)}.b-sea{background:var(--sdim);color:var(--marine)}
-.b-dim{background:rgba(26,20,16,.06);color:var(--td)}
+.b-dim{background:rgba(var(--ink-rgb),.06);color:var(--td)}
 .mitem{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
-.mitem:hover{background:rgba(26,20,16,.03)}.mitem.unread{border-left:3px solid var(--bleu)}
+.mitem:hover{background:rgba(var(--ink-rgb),.03)}.mitem.unread{border-left:3px solid var(--bleu)}
 .mav{width:36px;height:36px;border-radius:50%;background:var(--tdim);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bleu);font-size:.8rem;flex-shrink:0}
 .mprev{font-size:.75rem;color:var(--td);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
 .tcard{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;margin-bottom:.75rem}
@@ -76,16 +77,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .fl{font-size:.75rem;font-weight:600;color:var(--tm)}
 .fi{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%}
 .fi:focus{border-color:var(--bleu)}
-.fi.fi-need,.fsel.fi-need{border:2px solid var(--bleu)!important;background:rgba(27,79,216,.06)!important}
+.fi.fi-need,.fsel.fi-need{border:2px solid var(--bleu)!important;background:rgba(var(--bleu-rgb),.06)!important}
 .fg:has(.fi-need)>.fl::after{content:'À remplir';margin-left:.45rem;background:var(--bleu);color:#fff;font-size:.62rem;font-weight:700;padding:.08rem .45rem;border-radius:100px;vertical-align:1px}
 .fsel{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;cursor:pointer;width:100%}
 .fta{padding:.65rem .9rem;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;width:100%;resize:vertical}
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.ai{background:var(--sdim);color:var(--marine);border:1px solid rgba(46,107,138,.2);padding:.75rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem}
-.aw{background:var(--gdim);color:var(--gold);border:1px solid rgba(212,168,71,.2);padding:.75rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem}
-.mover{position:fixed;inset:0;background:rgba(26,20,16,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+.ai{background:var(--sdim);color:var(--marine);border:1px solid rgba(var(--sea-rgb),.2);padding:.75rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem}
+.aw{background:var(--gdim);color:var(--gold);border:1px solid rgba(var(--gold-rgb),.2);padding:.75rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem}
+.mover{position:fixed;inset:0;background:rgba(var(--ink-rgb),.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
 .mover.open{display:flex}
-.modal{background:var(--s);border:1px solid var(--b2);border-radius:20px;padding:2rem;max-width:500px;width:100%;position:relative;animation:fi .25s ease;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,20,16,.15)}
+.modal{background:var(--s);border:1px solid var(--b2);border-radius:20px;padding:2rem;max-width:500px;width:100%;position:relative;animation:fi .25s ease;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(var(--ink-rgb),.15)}
 .mclose{position:absolute;top:1rem;right:1rem;background:var(--s2);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--tm);display:flex;align-items:center;justify-content:center}
 .mclose:hover{background:var(--tdim);color:var(--bleu)}
 .fr{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
@@ -95,14 +96,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .bm{background:var(--bleu);color:white;padding:.65rem .9rem;border-radius:12px 4px 12px 12px;font-size:.83rem;line-height:1.5;align-self:flex-end;max-width:85%}
 .bs{background:transparent;border:1px dashed var(--b2);padding:.5rem .85rem;border-radius:10px;font-size:.78rem;color:var(--td);line-height:1.5;align-self:center;max-width:90%}
 .ld{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--td);gap:.6rem}
-.sp{width:18px;height:18px;border:2px solid rgba(201,85,58,.2);border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite}
+.sp{width:18px;height:18px;border:2px solid rgba(var(--red-rgb),.2);border-top-color:var(--bleu);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:3rem 1rem;color:var(--tm)}
 .empty .em{font-size:2.5rem;margin-bottom:.75rem}
 .empty p{font-size:.88rem;margin-bottom:1rem;line-height:1.6}
 .star-btn{font-size:1.5rem;cursor:pointer;opacity:.3;transition:opacity .15s}
 .star-btn.actif{opacity:1}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--deep);color:white;padding:.85rem 1.4rem;border-radius:12px;font-size:.85rem;z-index:1000;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:0 8px 24px rgba(26,20,16,.25)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--deep);color:white;padding:.85rem 1.4rem;border-radius:12px;font-size:.85rem;z-index:1000;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:0 8px 24px rgba(var(--ink-rgb),.25)}
 .toast.show{transform:translateY(0);opacity:1}
 @media(max-width:768px){
   .fi,.fsel,.fta{font-size:16px!important}
@@ -140,7 +141,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 /* Situation d'hébergement — choix en liste, comme DossierFacile */
 .heb-list{display:flex;flex-direction:column;gap:.75rem;margin-top:1rem}
 .heb-opt{width:100%;text-align:left;font-family:inherit;border:2px solid var(--b2);border-radius:12px;padding:1rem 1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.75rem;transition:all .15s;background:var(--s);color:var(--txt)}
-.heb-opt:hover{border-color:var(--bleu);background:rgba(27,79,216,.05)}
+.heb-opt:hover{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.05)}
 .heb-opt:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
 .heb-t{display:block;font-weight:700;font-size:.95rem;color:var(--bleu);line-height:1.35}
 .heb-s{display:block;font-size:.8rem;color:var(--tm);margin-top:.3rem}
@@ -163,19 +164,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gl-name{font-weight:700;font-size:.95rem;color:var(--deep);min-width:7rem}
 .gl-badge{display:inline-flex;align-items:center;gap:.35rem;border-radius:100px;padding:.25rem .75rem;font-size:.8rem;font-weight:600}
 .gl-badge.ok{background:var(--grdim);color:var(--green)}
-.gl-badge.ko{background:rgba(27,79,216,.08);color:var(--bleu)}
+.gl-badge.ko{background:rgba(var(--bleu-rgb),.08);color:var(--bleu)}
 .gl-actions{margin-left:auto;display:flex;gap:.5rem}
 .gl-ico{width:40px;height:40px;border:1.5px solid var(--bleu);border-radius:8px;background:var(--s);color:var(--bleu);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
-.gl-ico:hover{background:rgba(27,79,216,.08)}
+.gl-ico:hover{background:rgba(var(--bleu-rgb),.08)}
 .gl-ico .ic{width:18px;height:18px}
-.gl-add{width:100%;margin-top:.4rem;padding:1.1rem;border:1.5px solid var(--bleu);border-radius:10px;background:rgba(27,79,216,.12);color:var(--bleu);font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
-.gl-add:hover{background:rgba(27,79,216,.2)}
+.gl-add{width:100%;margin-top:.4rem;padding:1.1rem;border:1.5px solid var(--bleu);border-radius:10px;background:rgba(var(--bleu-rgb),.12);color:var(--bleu);font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
+.gl-add:hover{background:rgba(var(--bleu-rgb),.2)}
 .ai.dtype-chosen{background:transparent;border:none;padding:.2rem 0;margin-bottom:.5rem;color:var(--txt);font-size:.92rem}
 .file-row{display:flex;align-items:center;gap:.6rem;background:var(--grdim);border-radius:8px;padding:.45rem .75rem;margin-bottom:.3rem}
 .file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem;font-weight:600;color:var(--green)}
 .file-see{font-size:.75rem;color:var(--bleu);text-decoration:none;white-space:nowrap}
 .file-rm{display:inline-flex;align-items:center;gap:.25rem;background:none;border:1px solid var(--b2);border-radius:6px;padding:.2rem .5rem;font-family:inherit;font-size:.72rem;font-weight:600;color:var(--tm);cursor:pointer;white-space:nowrap}
-.file-rm:hover{border-color:#C9553A;color:#C9553A}
+.file-rm:hover{border-color:var(--red);color:var(--red)}
 .file-rm .ic{width:12px;height:12px}
 .gar-opt{padding:0;align-items:stretch;gap:0}
 .gar-opt>.gar-radio{flex-shrink:0;width:18px;height:18px;border:2px solid var(--bleu);border-radius:50%;margin:auto 0 auto 1.1rem}
@@ -187,7 +188,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gm-block{border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem;background:var(--s)}
 .gm-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bleu);margin-bottom:.7rem}
 .gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
-.gate-g{display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:9px;padding:.5rem .65rem;cursor:pointer;font-size:.84rem}.gate-g.on{border-color:var(--bleu);background:rgba(27,79,216,.06)}.gate-g.off{opacity:.75;cursor:default}.gate-g input{width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0}
+.gate-g{display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:9px;padding:.5rem .65rem;cursor:pointer;font-size:.84rem}.gate-g.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.06)}.gate-g.off{opacity:.75;cursor:default}.gate-g input{width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0}
 .gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 .gate-tag{background:var(--bleu);color:#fff;font-size:.65rem;font-weight:700;padding:.12rem .5rem;border-radius:100px}
 .ac-wrap{position:relative}
@@ -195,7 +196,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .ac-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden}
 .ac-item{padding:.6rem .9rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--b);display:flex;gap:.5rem;align-items:baseline}
 .ac-item:last-child{border-bottom:none}
-.ac-item:hover,.ac-item.ac-on{background:rgba(27,79,216,.07)}
+.ac-item:hover,.ac-item.ac-on{background:rgba(var(--bleu-rgb),.07)}
 .ac-item small{color:var(--td);font-size:.75rem}
 .heb-done{margin-top:.75rem;background:var(--grdim);color:var(--green);border-radius:8px;padding:.6rem .85rem;font-size:.84rem;font-weight:600}
 .dossier-type-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
@@ -211,7 +212,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .doc-status-row+.doc-status-row{margin-top:.5rem}
 .dsr-label{font-size:.85rem;font-weight:600;flex:1}
 .dsr-sub{font-size:.72rem;color:var(--td);margin-top:.15rem}
-.badge-missing{background:rgba(201,85,58,.12);color:#C9553A;padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-missing{background:rgba(var(--red-rgb),.12);color:var(--red);padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .badge-uploaded{background:var(--grdim);color:var(--green);padding:.3rem .8rem;border-radius:100px;font-size:.68rem;font-weight:700}
 .dossier-progress{background:var(--b);border-radius:100px;height:6px;margin:.75rem 0}
 .dossier-progress-bar{background:var(--bleu);height:6px;border-radius:100px;transition:width .4s ease}
@@ -239,9 +240,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .iti{width:100%;display:block}
 #p-phone{padding-left:115px!important}
 .iti--separate-dial-code .iti__selected-flag{height:100%}
-.iti__country-list{background:#1A1D27;border:1px solid rgba(255,255,255,.12);color:#F0EDE8;border-radius:10px;z-index:1000}
-.iti__country:hover,.iti__highlight{background:rgba(255,255,255,.07)!important}
-.iti__dial-code{color:rgba(240,237,232,.5)}
+.iti__country-list{background:#1A1D27;border:1px solid rgba(var(--ink-rgb),.12);color:#F0EDE8;border-radius:10px;z-index:1000}
+.iti__country:hover,.iti__highlight{background:rgba(var(--ink-rgb),.07)!important}
+.iti__dial-code{color:rgba(var(--ink-rgb),.5)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <style>.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke-width:2}</style>
@@ -250,7 +251,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 <aside class="sb" id="sb">
   <div class="sb-logo">
     <div class="logo" onclick="window.location.href='/'"><span style="color:var(--primary,#1B4FD8)">T</span>rouve<span style="color:var(--primary,#1B4FD8)">T</span>on<span style="color:var(--primary,#1B4FD8)">T</span>oit</div>
-    <div class="logo-sub">Locataire Mon compte</div>
+    <div class="logo-sub">Espace locataire</div>
   </div>
   <nav class="sb-nav">
     <div class="nl">Aperçu</div>
@@ -354,12 +355,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         <div style="margin-bottom:1.2rem">
           <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> Mon logement</div>
           <div style="font-size:.78rem;color:var(--tm);margin-top:.15rem" id="ml-bien-name">—</div>
-          <div id="ml-tenancy-ended-notice" style="display:none;background:rgba(224,90,90,.08);border:1px solid rgba(224,90,90,.2);border-radius:10px;padding:.65rem .9rem;margin-top:.6rem;font-size:.78rem;color:var(--red);line-height:1.5"></div>
+          <div id="ml-tenancy-ended-notice" style="display:none;background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.2);border-radius:10px;padding:.65rem .9rem;margin-top:.6rem;font-size:.78rem;color:var(--red);line-height:1.5"></div>
         </div>
 
         <div id="ml-bail-progress"></div>
 
-        <div id="ml-no-tracking-notice" style="display:none;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
+        <div id="ml-no-tracking-notice" style="display:none;background:rgba(var(--sea-rgb),.08);border:1px solid rgba(var(--sea-rgb),.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
 
         <div style="display:flex;gap:.4rem;margin:1rem 0;overflow-x:auto;padding-bottom:.2rem">
           <button class="ml-tab act" id="ml-tabbtn-bail" onclick="showMlTab('bail')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=file-text class=ic></i> Bail & État des lieux</button>
@@ -423,7 +424,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
       <!-- Sub-tab: Community Channel -->
       <div id="rm-tab-channel">
-        <div id="rm-profil-required" style="display:none;background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--gold)">
+        <div id="rm-profil-required" style="display:none;background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--gold)">
           <i data-lucide=user class=ic></i> Créez d'abord votre profil colocataire pour que les autres sachent ce que vous cherchez — <span onclick="showRmTab('profil')" style="text-decoration:underline;cursor:pointer;font-weight:700">configurer maintenant</span>.
         </div>
         <!-- Channel list Discord-style -->
@@ -716,7 +717,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       </div>
 
       <!-- Import d'un DossierFacile déjà constitué -->
-      <div id="df-import" style="background:rgba(27,79,216,.05);border:1.5px solid rgba(27,79,216,.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
+      <div id="df-import" style="background:rgba(var(--bleu-rgb),.05);border:1.5px solid rgba(var(--bleu-rgb),.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
         <div style="font-size:.92rem;font-weight:800;color:var(--deep)"><i data-lucide=file-up class=ic></i> Vous avez déjà un dossier sur DossierFacile ?</div>
         <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez le PDF téléchargé depuis DossierFacile : <strong>votre dossier ici se remplit tout seul</strong> (identité, situation, revenus, avis d’impôt, garant), puis il est envoyé au propriétaire avec chaque candidature. Vous pouvez aussi coller votre lien de partage.</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
@@ -1439,7 +1440,7 @@ function showProfileNeeded(need,missing,back){
   const d=document.createElement('div');
   d.id='profil-needed-banner';
   d.dataset.back=back||'';
-  d.style.cssText='background:rgba(27,79,216,.08);border:1.5px solid rgba(27,79,216,.35);color:var(--txt);border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.88rem;line-height:1.55';
+  d.style.cssText='background:rgba(var(--bleu-rgb),.08);border:1.5px solid rgba(var(--bleu-rgb),.35);color:var(--txt);border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.88rem;line-height:1.55';
   d.innerHTML='<strong style="color:var(--bleu)">Complétez votre profil '+why+'.</strong>'
     +(list.length?'<br>Il manque : <strong>'+list.join(', ')+'</strong>.':'')
     +'<br>Remplissez ces champs puis cliquez sur « Enregistrer profil ».'
@@ -1850,7 +1851,7 @@ async function loadRmDmsList(){
       if(isUnread)unreadTotal++;
       const name=nameMap[otherId]||'Locataire';
       const pavis=(m.content||'').slice(0,60);
-      return`<div style="padding:.7rem 1rem;border-bottom:1px solid var(--b);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${isUnread?'rgba(201,85,58,.06)':'transparent'}" onclick="openRmDm('${otherId}','${name.replace(/'/g,"\\'")}')">
+      return`<div style="padding:.7rem 1rem;border-bottom:1px solid var(--b);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${isUnread?'rgba(var(--red-rgb),.06)':'transparent'}" onclick="openRmDm('${otherId}','${name.replace(/'/g,"\\'")}')">
         <div style="min-width:0">
           <div style="font-size:.85rem;font-weight:${isUnread?'700':'600'};color:${isUnread?'var(--bleu)':'var(--txt)'}">${name}</div>
           <div style="font-size:.75rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.sender_id===U.id?'You: ':''}${pavis}</div>
@@ -3141,8 +3142,8 @@ function renderLocataireVisitCard(v){
       :null;
     if(b){sc=b[0];sl=b[1];}
   }
-  const bgCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.05)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.05)':'var(--s2)';
-  const borderCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(212,168,71,.2)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(58,143,181,.2)':'var(--b)';
+  const bgCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(var(--gold-rgb),.05)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(var(--sea-rgb),.05)':'var(--s2)';
+  const borderCol=v.status==='accepted'||v.status==='move_in_ready'?'var(--grdim)':v.status==='booking_pending'?'rgba(var(--gold-rgb),.2)':v.status==='lease_pending'||v.status==='edl_scheduled'||v.status==='signing_day'?'rgba(var(--sea-rgb),.2)':'var(--b)';
 
   const _esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const _hr=t=>t?String(t).slice(0,5).replace(':','h'):'';
@@ -3181,18 +3182,18 @@ function renderLocataireVisitCard(v){
 
       <!-- ÉTAPE 4 : Visite faite — intéressé ou non -->
       ${v.status==='completed'&&!bk?`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.6rem;margin-top:.4rem">
+      <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.6rem;margin-top:.4rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.4rem">Comment s’est passée la visite ?</div>
         <div style="display:flex;gap:.4rem">
           <button onclick="locataireInterested('${v.id}','${v.listing_id}',${v.listing_price||0},'${(v.listing_title||'').replace(/'/g,"\\'")}','${v.landlord_id||''}' )" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.78rem;font-weight:600;cursor:pointer"><i data-lucide=home class=ic></i> Je veux louer ce logement</button>
-          <button onclick="locataireNotInterested('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(224,90,90,.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Plus intéressé(e)</button>
+          <button onclick="locataireNotInterested('${v.id}')" style="flex:1;background:transparent;color:var(--red);border:1px solid rgba(var(--red-rgb),.3);border-radius:7px;padding:.5rem;font-size:.75rem;font-weight:600;cursor:pointer"><i data-lucide=x-circle class=ic></i> Plus intéressé(e)</button>
         </div>
       </div>`:''} 
 
       ${v.status==='awaiting_colocs'?renderAttenteColocs(bk):''}
       <!-- ÉTAPE 5 : En attente décision propriétaire -->
       ${v.status==='booking_pending'?`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
+      <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.5rem .7rem;margin-top:.3rem;font-size:.75rem;color:var(--gold)">
         <i data-lucide=lock class=ic></i> Votre candidature a été envoyée au propriétaire. En attente de sa décision.
       </div>
       ${bk?.quittance_locataire_embed?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem;margin-top:.4rem">
@@ -3268,7 +3269,7 @@ async function renderLocataireCoLocataireSection(coLocataireBookings){
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.4rem"><i data-lucide=map-pin class=ic></i> ${annonce.zone||'France'} · Candidat principal: ${b.locataire_name||'—'}</div>`;
 
         if(b.status==='pending'||b.status==='booking_pending'){
-          html+=`<div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
+          html+=`<div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Waiting pour the propriétaire to respond to ${b.locataire_name||'the main applicant'}'s request</div>`;
         }else if(isAccepted){
           html+=renderLocataireBailSection({move_in_date:b.move_in_date},b,entry,_lz||null);
           if(_lz)html+=`<a class="btn bp bsm" style="margin-top:.5rem;display:inline-flex" href="/bail-meuble.html?lease_id=${_lz.id}"><i data-lucide=pen-line class=ic></i> ${['agreed','signed'].includes(_lz.negotiation_status)?'Voir et signer le bail':'Voir le bail'}${_lz.lot_label&&_lz.tenant_id===U.id?' — '+_lz.lot_label:''}</a>`;
@@ -3464,22 +3465,22 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
     const leaseUrl='/bail-meuble.html?lease_id='+lease.id+'&role=tenant';
     const leaseBtn=(label,primary)=>`<a href="${leaseUrl}" style="display:block;width:100%;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'white':'var(--txt)'};border:${primary?'none':'1px solid var(--b)'};border-radius:8px;padding:.45rem;font-size:.78rem;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.35rem"><i data-lucide=file-text class=ic></i> ${label}</a>`;
     if(ns==='pending_tenant'){
-      bailBlock=`<div style="background:rgba(27,79,216,.07);border:1px solid rgba(27,79,216,.22);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--bleu)"><i data-lucide=mail class=ic></i> ${(Array.isArray(lease.modifs_log)?lease.modifs_log:[]).some(e=>e&&e.par==='tenant')?'Le propriétaire a modifié le bail suite à vos remarques — relisez la nouvelle version':'Le propriétaire vous a envoyé le bail — relisez-le, puis acceptez-le ou envoyez vos remarques'}</div>${leaseBtn('Relire le bail →',true)}`;
+      bailBlock=`<div style="background:rgba(var(--bleu-rgb),.07);border:1px solid rgba(var(--bleu-rgb),.22);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--bleu)"><i data-lucide=mail class=ic></i> ${(Array.isArray(lease.modifs_log)?lease.modifs_log:[]).some(e=>e&&e.par==='tenant')?'Le propriétaire a modifié le bail suite à vos remarques — relisez la nouvelle version':'Le propriétaire vous a envoyé le bail — relisez-le, puis acceptez-le ou envoyez vos remarques'}</div>${leaseBtn('Relire le bail →',true)}`;
     }else if(ns==='pending_landlord'){
-      bailBlock=`<div style="background:rgba(212,168,71,.07);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--gold)"><i data-lucide=send class=ic></i> Vos remarques ont été envoyées — en attente du propriétaire</div>${leaseBtn('Voir le bail →',false)}`;
+      bailBlock=`<div style="background:rgba(var(--gold-rgb),.07);border:1px solid rgba(var(--gold-rgb),.25);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--gold)"><i data-lucide=send class=ic></i> Vos remarques ont été envoyées — en attente du propriétaire</div>${leaseBtn('Voir le bail →',false)}`;
     }else if(ns==='agreed'||ns==='signed'){
       const llSigned=!!lease.landlord_signed_at;
       const tSigned=!!lease.tenant_signed_at;
       if(tSigned&&llSigned){
         // Tout signé
-        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> <i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
+        bailBlock=`<div style="background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=badge-check class=ic></i> <i data-lucide=check-circle-2 class=ic></i> Bail signé par les deux parties — c'est officiel !</div>${leaseBtn('Consulter le bail signé →',false)}`;
       }else if(tSigned&&!llSigned){
         // Locataire a signé, attend bailleur
-        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check class=ic></i> Vous avez signé — en attente de la signature du bailleur</div>${leaseBtn('Voir le bail →',false)}`;
+        bailBlock=`<div style="background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check class=ic></i> Vous avez signé — en attente de la signature du bailleur</div>${leaseBtn('Voir le bail →',false)}`;
       }else{
         // Accord trouvé, signatures ouvertes — CTA principal
-        bailBlock=`<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Bail accepté${llSigned?' — le bailleur a déjà signé':' — signatures ouvertes'}</div>
-        <a href="${leaseUrl}" style="display:block;width:100%;background:var(--green,#16a34a);color:white;border:none;border-radius:8px;padding:.5rem;font-size:.82rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.4rem;letter-spacing:.01em"><i data-lucide=pen-tool class=ic></i> Signer le bail maintenant →</a>`;
+        bailBlock=`<div style="background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.28);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;font-weight:600;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Bail accepté${llSigned?' — le bailleur a déjà signé':' — signatures ouvertes'}</div>
+        <a href="${leaseUrl}" style="display:block;width:100%;background:var(--green,var(--green));color:white;border:none;border-radius:8px;padding:.5rem;font-size:.82rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:.4rem;letter-spacing:.01em"><i data-lucide=pen-tool class=ic></i> Signer le bail maintenant →</a>`;
       }
     }else{
       bailBlock='<div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.55rem .65rem;font-size:.78rem;color:var(--td)"><i data-lucide=clock class=ic></i> Le propriétaire prépare le bail</div>';
@@ -3539,7 +3540,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
         ${!coLocataireEntry?renderCoLocataireSignatureRowsLocataire(bk):''}
       </div>
       ${bk.status==='edl_scheduled'?`
-      <div style="margin-top:.6rem;background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--marine);font-weight:600"><i data-lucide=clipboard-list class=ic></i> ${bk.edl_handler==='agence'?'Your agence is':'Your propriétaire is'} completing the entrée dans les lieux état des lieux (État des lieux) — vous serez notifié once it's prêt à signer.</div>`:''}
+      <div style="margin-top:.6rem;background:rgba(var(--sea-rgb),.08);border:1px solid rgba(var(--sea-rgb),.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--marine);font-weight:600"><i data-lucide=clipboard-list class=ic></i> ${bk.edl_handler==='agence'?'Your agence is':'Your propriétaire is'} completing the entrée dans les lieux état des lieux (État des lieux) — vous serez notifié once it's prêt à signer.</div>`:''}
       ${payConfirmered?renderEdlBlockT(bk):''}
 
       <!-- Paiement -->
@@ -3553,7 +3554,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
         ${holding?`<div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--green);margin-bottom:.15rem"><span><i data-lucide=check-circle-2 class=ic></i> Holding depot deducted</span><span>-€${holding}</span></div>`:''}
         <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;border-top:1px solid var(--b);padding-top:.3rem;margin-top:.3rem"><span>Total${totalLocataires>1?' (tous)':''} à payer</span><span>${fmtEur(totalDue)}</span></div>
       </div>
-      ${totalLocataires>1?`<div style="background:rgba(46,107,138,.08);border:1px solid rgba(46,107,138,.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.4rem">
+      ${totalLocataires>1?`<div style="background:rgba(var(--sea-rgb),.08);border:1px solid rgba(var(--sea-rgb),.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.4rem">
         <div style="font-size:.78rem;font-weight:700;color:var(--marine);margin-bottom:.2rem"><i data-lucide=users class=ic></i> Votre part : ${fmtEur(perPersonShare)}</div>
         <div style="font-size:.72rem;color:var(--tm)">${fmtEur(totalDue)} ÷ ${totalLocataires} locataires (dépôt ${fmtEur(Math.round(depot/totalLocataires*100)/100)} + 1er loyer ${fmtEur(Math.round(loyer/totalLocataires*100)/100)} chacun)</div>
         <div style="font-size:.7rem;color:var(--td);margin-top:.3rem">Chaque locataire paie sa part et confirme ci-dessous. Le paiement n'est transmis au propriétaire que lorsque tout le monde a confirmé.</div>
@@ -3588,7 +3589,7 @@ function renderLocataireEdlSection(bk){
     if(bk.edl_locataire_declined){
       return`<div style="margin-top:.6rem;font-size:.72rem;color:var(--td)"><i data-lucide=clipboard-list class=ic></i> Entrée dans les lieux état des lieux: waiting to see if votre propriétaire wants to handle it</div>`;
     }
-    return`<div style="margin-top:.6rem;background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.65rem">
+    return`<div style="margin-top:.6rem;background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25);border-radius:8px;padding:.65rem">
       <div style="font-size:.76rem;font-weight:700;margin-bottom:.4rem"><i data-lucide=clipboard-list class=ic></i> Your agence isn't handling the entrée dans les lieux état des lieux. Would you like to use Trouve Ton Toit's feature yourself?</div>
       <div style="display:flex;gap:.4rem">
         <button onclick="locataireEdlSelfDecision('${bk.id}',true)" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:7px;padding:.5rem;font-size:.76rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Yes</button>
@@ -3655,7 +3656,7 @@ async function openLocataireEdl(bookingId){
 
   const roomsHtml=rooms.map((room,ri)=>`
     <div style="margin-bottom:.75rem;border:1px solid var(--b);border-radius:10px;overflow:hidden">
-      <div style="background:rgba(224,90,58,.85);color:white;padding:.45rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <div style="background:rgba(var(--red-rgb),.85);color:white;padding:.45rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
         <span>${room.name}</span><span>▼</span>
       </div>
       <div style="padding:.4rem;overflow-x:auto">
@@ -3738,7 +3739,7 @@ async function openLocataireEdl(bookingId){
               <div id="tn-edl-meter-photos-electricity" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem"></div>
             </div>
           </div>
-          <div style="margin-top:.65rem;background:rgba(212,168,71,.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
+          <div style="margin-top:.65rem;background:rgba(var(--gold-rgb),.08);border-radius:8px;padding:.55rem;font-size:.7rem;color:var(--gold)">
             <i data-lucide=alert-triangle class=ic></i> Take photos of both meters. These readings will be annexed to the bail.
           </div>
         </div>
@@ -3775,7 +3776,7 @@ async function openLocataireEdl(bookingId){
       </div>
 
       <div id="tn-edl-step-3" style="display:none">
-        <div style="background:rgba(212,168,71,.1);border:2px solid rgba(212,168,71,.3);border-radius:14px;padding:1.5rem;text-align:center">
+        <div style="background:rgba(var(--gold-rgb),.1);border:2px solid rgba(var(--gold-rgb),.3);border-radius:14px;padding:1.5rem;text-align:center">
           <div style="font-size:2.5rem;margin-bottom:.5rem"><i data-lucide=clipboard-list class=ic></i></div>
           <div style="font-size:1.1rem;font-weight:800;color:var(--gold);margin-bottom:.4rem">État des lieux sent pour signature</div>
           <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">ce logement will move to Rented statut once you et votre propriétaire have both signed.</div>
@@ -4032,7 +4033,7 @@ function doOuvrirLocataireDoc(bk,bookingId,embedSrc,dbField,title){
   closeBtn.onclick=()=>{modal.remove();loadLocataireVisits();};
   header.appendChild(closeBtn);
   const body=document.createElement('div');
-  body.style.cssText='flex:1;overflow:auto;background:white';
+  body.style.cssText='flex:1;overflow:auto;background:var(--s)';
   const form=document.createElement('docuseal-form');
   form.setAttribute('data-src',embedSrc);
   form.setAttribute('data-send-copy-email','false');
@@ -4140,7 +4141,7 @@ function doOuvrirLocataireBailDoc(bk,bookingId){
   closeBtn.onclick=()=>{modal.remove();loadLocataireVisits();};
   header.appendChild(closeBtn);
   const body=document.createElement('div');
-  body.style.cssText='flex:1;overflow:auto;background:white';
+  body.style.cssText='flex:1;overflow:auto;background:var(--s)';
   const form=document.createElement('docuseal-form');
   form.setAttribute('data-src',bk.bail_tenant_embed);
   form.setAttribute('data-send-copy-email','false');
@@ -4192,7 +4193,7 @@ function doOuvrirCoLocataireBailDoc(bk,bookingId,myEntry){
   closeBtn.onclick=()=>{modal.remove();loadLocataireVisits();};
   header.appendChild(closeBtn);
   const body2=document.createElement('div');
-  body2.style.cssText='flex:1;overflow:auto;background:white';
+  body2.style.cssText='flex:1;overflow:auto;background:var(--s)';
   const form2=document.createElement('docuseal-form');
   form2.setAttribute('data-src',myEntry.embed_src);
   form2.setAttribute('data-send-copy-email','false');
@@ -4254,7 +4255,7 @@ function doOuvrirCoLocataireEdlDoc(bk,bookingId,myEntry){
   closeBtn.onclick=()=>{modal.remove();loadLocataireVisits();};
   header.appendChild(closeBtn);
   const body2=document.createElement('div');
-  body2.style.cssText='flex:1;overflow:auto;background:white';
+  body2.style.cssText='flex:1;overflow:auto;background:var(--s)';
   const form2=document.createElement('docuseal-form');
   form2.setAttribute('data-src',myEntry.embed_src);
   form2.setAttribute('data-send-copy-email','false');
@@ -4466,7 +4467,7 @@ async function loadPaiementsData(){
   const dueWrap=document.getElementById('pay-due-now');
   if(dueWrap&&dueNow.length){
     dueWrap.innerHTML=dueNow.map(p=>`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.25);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
+      <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
         <div style="font-size:2rem"><i data-lucide=euro class=ic></i></div>
         <div style="flex:1">
           <div style="font-weight:700;font-size:.95rem;margin-bottom:.2rem">Loyer due — €${(p.amount||0).toLocaleString()}</div>
@@ -4839,7 +4840,7 @@ async function loadProfilee(){
     badge.className='badge b-gold';
     badge.textContent='En attente';
     if(uploadSection) uploadSection.innerHTML=`
-      <div style="background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.2);border-radius:12px;padding:1.2rem;text-align:center">
+      <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:12px;padding:1.2rem;text-align:center">
         <div style="font-size:2rem;margin-bottom:.4rem"><i data-lucide=hourglass class=ic></i></div>
         <div style="font-weight:700;color:var(--gold);margin-bottom:.3rem">En cours de vérification</div>
         <div style="font-size:.78rem;color:var(--tm)">Vos documents ont été soumis. Un membre de l\'équipe Trouve Ton Toit vérifiera votre identité sous 24h.</div>
@@ -4970,7 +4971,7 @@ async function saveProfilee(){
   const ban=document.getElementById('profil-needed-banner');
   if(ban&&_neededFields().every(([id])=>_val(id))){
     const back=ban.dataset.back||'';
-    ban.style.background='rgba(76,175,125,.1)';ban.style.borderColor='rgba(76,175,125,.4)';
+    ban.style.background='rgba(var(--green-rgb),.1)';ban.style.borderColor='rgba(var(--green-rgb),.4)';
     ban.innerHTML='<strong style="color:var(--green)">'+(window._profilNeed==='visite'?'C\'est bon, vous pouvez maintenant demander une visite.':window._profilNeed==='candidature'?'C\'est bon, vous pouvez maintenant postuler.':'C\'est bon, vous pouvez maintenant contacter le propriétaire.')+'</strong>'
       +(back?' <a href="/?annonce='+back+'" style="color:var(--bleu);font-weight:700;text-decoration:underline;white-space:nowrap">Revenir à l\'annonce →</a>':'');
     ban.scrollIntoView({behavior:'smooth',block:'center'});
@@ -5139,7 +5140,7 @@ function openSigningDoc(embedSrc, title, bookingId){
     closeBtn.onclick=()=>{modal.remove();loadLocataireVisits();};
     header.appendChild(closeBtn);
     const body=document.createElement('div');
-    body.style.cssText='flex:1;overflow:auto;background:white';
+    body.style.cssText='flex:1;overflow:auto;background:var(--s)';
     const form=document.createElement('docuseal-form');
     form.setAttribute('data-src',embedSrc);
     form.setAttribute('data-send-copy-email','false');
@@ -5278,7 +5279,7 @@ function checkDossierComplete(){
   if(!missing.length){
     res.innerHTML=`<div style="background:var(--grdim);border:1px solid var(--grdim);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Profil complet — vous pouvez maintenant demander des visites !</div>`;
   } else {
-    res.innerHTML=`<div style="background:rgba(212,168,71,.1);border:1px solid rgba(212,168,71,.25);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Documents manquants : ${missing.map(d=>d==='id'?'Passeport/CNI':'Justificatif employeur').join(', ')}</div>`;
+    res.innerHTML=`<div style="background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.25);border-radius:8px;padding:.75rem;font-size:.8rem;color:var(--gold)"><i data-lucide=alert-triangle class=ic></i> Documents manquants : ${missing.map(d=>d==='id'?'Passeport/CNI':'Justificatif employeur').join(', ')}</div>`;
   }
 }
 
@@ -6855,7 +6856,7 @@ function renderDossierCompletion(){
       <div class="dfb-sub">Tous vos documents sont prêts. Vous pouvez maintenant partager votre dossier avec des propriétaires ou des agences.</div>
     </div>`;
   } else {
-    html=`<div style="background:var(--rdim);border:1px solid rgba(201,85,58,.2);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem">
+    html=`<div style="background:var(--rdim);border:1px solid rgba(var(--red-rgb),.2);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem">
       <div style="font-weight:700;font-size:.95rem;margin-bottom:.75rem"><i data-lucide=alert-triangle class=ic></i> Dossier incomplet</div>
       <div style="font-size:.82rem;color:var(--tm);margin-bottom:.75rem">Documents manquants :</div>
       <div style="display:flex;flex-direction:column;gap:.4rem">${missing.map(m=>`<div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem"><span style="color:var(--red)">✗</span> <strong>${m}</strong></div>`).join('')}</div>
@@ -7038,7 +7039,7 @@ function dfExtractRender(){
   const ex=dossierState?.df?.extract;const pdf=(dossierState?.df?.files||[]).find(f=>/^pdf$/i.test(f.ext||''));
   const relire=pdf?`<button class="btn bg bsm" onclick="dfLancerLecture('${String(pdf.path).replace(/'/g,'')}')">${ex?'Relire le PDF':'Remplir mon dossier avec ce PDF'}</button>`:'';
   if(!ex){el.innerHTML=relire;return;}
-  if(ex.status==='en_cours'){el.innerHTML='<div style="display:flex;gap:.5rem;align-items:center;font-size:.82rem;color:var(--tm)"><span class="spin" style="width:14px;height:14px;border:2px solid rgba(27,79,216,.25);border-top-color:var(--bleu);border-radius:50%;display:inline-block;animation:spin 1s linear infinite"></span> Lecture de votre DossierFacile… (environ 30 secondes)</div>';return;}
+  if(ex.status==='en_cours'){el.innerHTML='<div style="display:flex;gap:.5rem;align-items:center;font-size:.82rem;color:var(--tm)"><span class="spin" style="width:14px;height:14px;border:2px solid rgba(var(--bleu-rgb),.25);border-top-color:var(--bleu);border-radius:50%;display:inline-block;animation:spin 1s linear infinite"></span> Lecture de votre DossierFacile… (environ 30 secondes)</div>';return;}
   if(ex.status==='erreur'){el.innerHTML=`<div style="font-size:.8rem;color:var(--red);margin-bottom:.4rem">${String(ex.err||'Lecture impossible').replace(/[<>]/g,'')}</div>${relire}`;return;}
   const r=ex.resume||{};const rempli=(ex.rempli||[]).map(i=>DF_ETAPES[i]).filter(Boolean);
   const eur=n=>Math.round(n).toLocaleString('fr-FR')+' €';
@@ -7086,11 +7087,11 @@ function _garantOuiHtml(cls,prev){
           <div style="display:flex;flex-direction:column;gap:.35rem">${gl.map(x=>{
             const on=x.ok&&(prev?prev.includes(x.i):true);
             return `<label class="gate-g${on?' on':''}${x.ok?'':' off'}"><input type="checkbox" class="${cls}" value="${x.i}" ${on?'checked':''} ${x.ok?'':'disabled'} onchange="this.parentElement.classList.toggle('on',this.checked)">
-              <span style="flex:1;min-width:0"><strong>${_escC(x.name)}</strong><span style="display:block;font-size:.72rem;color:${x.ok?'var(--green)':'#C9553A'}">${x.ok?'✓ Dossier complet — figurera dans le bail':'Dossier incomplet — ne peut pas être sélectionné'}</span></span>
+              <span style="flex:1;min-width:0"><strong>${_escC(x.name)}</strong><span style="display:block;font-size:.72rem;color:${x.ok?'var(--green)':'var(--red)'}">${x.ok?'✓ Dossier complet — figurera dans le bail':'Dossier incomplet — ne peut pas être sélectionné'}</span></span>
               ${x.ok?'':`<a href="#" onclick="_goDossierStep(5);return false" style="font-size:.72rem;color:var(--bleu);white-space:nowrap">Compléter →</a>`}</label>`;}).join('')}</div>
           <a href="#" onclick="_goDossierStep(5);return false" style="display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--bleu)">+ Ajouter ou modifier un garant →</a>`;
   }
-  if(!_garantReady())return `<div style="background:rgba(201,85,58,.08);border:1.5px solid rgba(201,85,58,.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:#C9553A">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
+  if(!_garantReady())return `<div style="background:rgba(var(--red-rgb),.08);border:1.5px solid rgba(var(--red-rgb),.4);border-radius:10px;padding:.7rem .85rem;font-size:.82rem;line-height:1.55;color:var(--txt)"><strong style="color:var(--red)">Votre garant doit obligatoirement être ajouté à votre dossier.</strong><br>Sinon, il ne pourra pas figurer dans le bail généré automatiquement.<div style="margin-top:.55rem"><button class="btn bp bsm" onclick="_goDossierStep(5)">Ajouter mon garant maintenant →</button></div></div>`;
   return '<div style="font-size:.82rem;color:var(--green)">✓ Votre garant est dans votre dossier — il figurera dans le bail.</div>';
 }
 function _goDossierStep(i){
@@ -7125,7 +7126,7 @@ function applicationGate(listingId,opts){
         <a href="#" onclick="document.getElementById('apply-gate-overlay').remove();goToProfileFor('candidature',[]);return false" style="font-size:.75rem;color:var(--bleu)">Corriger mon nom dans le profil →</a>
       </div>
 
-      <div class="gate-box" style="${dossierOk?'':'border-color:var(--bleu);background:rgba(27,79,216,.05)'}">
+      <div class="gate-box" style="${dossierOk?'':'border-color:var(--bleu);background:rgba(var(--bleu-rgb),.05)'}">
         <div class="gate-h">2. Votre dossier locataire ${dossierOk?'<span style="color:var(--green)">✓</span>':'<span class="gate-tag">Fortement recommandé</span>'}</div>
         ${dossierOk
           ?`<div style="font-size:.82rem;color:var(--green)">${hasDF?'Votre DossierFacile importé sera envoyé au propriétaire avec votre candidature.':'Votre dossier est complet — il sera envoyé au propriétaire.'}</div>`
@@ -7148,7 +7149,7 @@ function applicationGate(listingId,opts){
       <div class="gate-box">
         <div class="gate-h">4. Emménagez-vous avec quelqu'un ?</div>
         <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Ajoutez les autres personnes qui seront sur le bail avec vous (conjoint, colocataires…). Sinon, laissez vide.</div>
-        <div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.<br><br><strong style="color:var(--bleu)">Comment ça marche :</strong> chaque co-locataire reçoit votre candidature dans son espace. Il confirme la date d'entrée, indique s'il a un garant et, si vous partagez les frais, enregistre sa carte. La candidature part chez le propriétaire quand tout le monde a répondu.</div>
+        <div style="background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.<br><br><strong style="color:var(--bleu)">Comment ça marche :</strong> chaque co-locataire reçoit votre candidature dans son espace. Il confirme la date d'entrée, indique s'il a un garant et, si vous partagez les frais, enregistre sa carte. La candidature part chez le propriétaire quand tout le monde a répondu.</div>
         <div id="colocataires-list"></div>
         <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:10px;padding:.55rem;font-size:.8rem;font-weight:700;cursor:pointer">+ Ajouter un co-locataire</button>
       </div>
@@ -7170,7 +7171,7 @@ function applicationGate(listingId,opts){
         :`<div style="font-size:.82rem;color:var(--green);margin-top:.25rem"><i data-lucide=building-2 class=ic></i> Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</div>`}
       </div>`:''}
 
-      <div id="gate-err" style="color:#C9553A;font-size:.8rem;margin:.5rem 0;display:none"></div>
+      <div id="gate-err" style="color:var(--red);font-size:.8rem;margin:.5rem 0;display:none"></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem;flex-wrap:wrap">
         <button class="btn bg" id="gate-cancel">Annuler</button>
         <button class="btn bp" id="gate-go">${opts.withSend?'<i data-lucide=send class=ic></i> Envoyer ma candidature':'Continuer ma candidature →'}</button>
@@ -7239,21 +7240,21 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
   modal.id='inline-card-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
-    <div style="background:#1A1D27;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:1.5rem;width:100%;max-width:380px">
+    <div style="background:#1A1D27;border:1px solid rgba(var(--ink-rgb),.12);border-radius:20px;padding:1.5rem;width:100%;max-width:380px">
       <div style="font-size:.95rem;font-weight:800;color:#F0EDE8;margin-bottom:.3rem"><i data-lucide=credit-card class=ic></i> Enregistrer votre carte</div>
-      <div style="font-size:.75rem;color:rgba(240,237,232,.45);margin-bottom:1rem">Nécessaire pour envoyer une candidature — rien n'est débité si le propriétaire n'accepte pas.</div>
-      <div id="inline-card-element" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.85rem;margin-bottom:.75rem"></div>
+      <div style="font-size:.75rem;color:rgba(var(--ink-rgb),.45);margin-bottom:1rem">Nécessaire pour envoyer une candidature — rien n'est débité si le propriétaire n'accepte pas.</div>
+      <div id="inline-card-element" style="background:rgba(var(--ink-rgb),.06);border:1px solid rgba(var(--ink-rgb),.12);border-radius:10px;padding:.85rem;margin-bottom:.75rem"></div>
       <div id="inline-card-erreur" style="color:var(--red);font-size:.76rem;margin-bottom:.5rem;display:none"></div>
       <div style="display:flex;gap:.5rem">
         <button id="inline-card-save-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Enregistrer la carte →</button>
-        <button onclick="document.getElementById('inline-card-modal').remove()" style="background:rgba(255,255,255,.06);color:rgba(240,237,232,.5);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
+        <button onclick="document.getElementById('inline-card-modal').remove()" style="background:rgba(var(--ink-rgb),.06);color:rgba(var(--ink-rgb),.5);border:1px solid rgba(var(--ink-rgb),.08);border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 
   if(!stripeInstance)stripeInstance=Stripe('pk_live_51PCmBIRohPPRcIAMybMYQlU1lK84EYglMY2Y8RbC8ziqAooxPtrWmMq6FketwD9daJxG67MRyMJIskT2U3tHTFNH009UkL6iMQ');
   const elements=stripeInstance.elements();
-  const inlineCard=elements.create('card',{style:{base:{color:'#F0EDE8',fontFamily:'"DM Sans",sans-serif',fontSize:'14px','::placeholder':{color:'rgba(240,237,232,.4)'}},invalid:{color:'var(--red)'}}});
+  const inlineCard=elements.create('card',{style:{base:{color:'#F0EDE8',fontFamily:'"DM Sans",sans-serif',fontSize:'14px','::placeholder':{color:'rgba(var(--ink-rgb),.4)'}},invalid:{color:'var(--red)'}}});
   inlineCard.mount('#inline-card-element');
 
   document.getElementById('inline-card-save-btn').onclick=async()=>{
@@ -7356,7 +7357,7 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
     <div style="background:var(--s);border:1px solid var(--b);border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
       <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Demander une visite</div>
       <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">${listingTitle||'ce logement'}</div>
-      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
+      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
       <div class="fg"><label class="fl">Date souhaitée</label><input class="fi" type="date" id="vr-date"></div>
       <div class="fg"><label class="fl">Heure souhaitée</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
@@ -7480,12 +7481,12 @@ async function lookupCoLocataire(slotId){
       phone:profil.phone||'',verified:!!(profil['vérifié']||profil.verified)
     };
   }else if(profil&&missingFields.length){
-    resultEl.innerHTML=`<span style="color:#C9553A"><i data-lucide=alert-triangle class=ic></i> Compte trouvé, mais son profil est incomplet (${missingFields.join(', ')}). Demandez-lui de compléter son profil sur Trouve Ton Toit, puis cliquez à nouveau sur « Rechercher ».</span>`;
+    resultEl.innerHTML=`<span style="color:var(--red)"><i data-lucide=alert-triangle class=ic></i> Compte trouvé, mais son profil est incomplet (${missingFields.join(', ')}). Demandez-lui de compléter son profil sur Trouve Ton Toit, puis cliquez à nouveau sur « Rechercher ».</span>`;
     manualEl.style.display='none';manualEl.innerHTML='';
     window._coLocatairesData[slotId]={hasAccount:true,incomplete:true,locataire_id:profil.clerk_id,email};
   }else{
     const invite=location.origin+'/';
-    resultEl.innerHTML=`<span style="color:#C9553A"><i data-lucide=alert-triangle class=ic></i> Aucun compte Trouve Ton Toit pour cet e-mail. Cette personne doit <strong>créer un compte locataire</strong> et compléter son profil pour apparaître sur le bail, puis cliquez à nouveau sur « Rechercher ».</span>
+    resultEl.innerHTML=`<span style="color:var(--red)"><i data-lucide=alert-triangle class=ic></i> Aucun compte Trouve Ton Toit pour cet e-mail. Cette personne doit <strong>créer un compte locataire</strong> et compléter son profil pour apparaître sur le bail, puis cliquez à nouveau sur « Rechercher ».</span>
       <div style="margin-top:.45rem"><button type="button" class="btn bg bsm" onclick="navigator.clipboard?.writeText('${invite}').then(()=>toast('Lien copié — envoyez-le à votre co-locataire'))"><i data-lucide=link class=ic></i> Copier le lien d'inscription</button></div>`;
     manualEl.style.display='none';manualEl.innerHTML='';
     window._coLocatairesData[slotId]={hasAccount:false,email};
@@ -7585,8 +7586,8 @@ async function openDirectRentPaiement(listingId, listingTitle, landlordId, price
         ${_availableGarants.map(g=>{
           const name=[g.garant_prenom,g.garant_nom].filter(Boolean).join(' ');
           const sub=[lienLbl[g.garant_lien]||g.garant_lien,g.garant_profession,g.garant_revenus?g.garant_revenus.toLocaleString('fr-FR')+' €/mois':null].filter(Boolean).join(' · ');
-          return `<label id="garant-lbl-${g.id}" style="display:flex;align-items:center;gap:.6rem;background:${g.preselected?'#EFF6FF':'var(--s)'};border:1.5px solid ${g.preselected?'var(--bleu)':'var(--b)'};border-radius:8px;padding:.5rem .65rem;cursor:pointer;transition:all .15s">
-            <input type="checkbox" id="garant-chk-${g.id}" ${g.preselected?'checked':''} onchange="(function(id){const lbl=document.getElementById('garant-lbl-'+id);lbl.style.borderColor=this.checked?'var(--bleu)':'var(--b)';lbl.style.background=this.checked?'#EFF6FF':'var(--s)';}).call(this,'${g.id}')" style="width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0;cursor:pointer">
+          return `<label id="garant-lbl-${g.id}" style="display:flex;align-items:center;gap:.6rem;background:${g.preselected?'rgba(var(--bleu-rgb),.08)':'var(--s)'};border:1.5px solid ${g.preselected?'var(--bleu)':'var(--b)'};border-radius:8px;padding:.5rem .65rem;cursor:pointer;transition:all .15s">
+            <input type="checkbox" id="garant-chk-${g.id}" ${g.preselected?'checked':''} onchange="(function(id){const lbl=document.getElementById('garant-lbl-'+id);lbl.style.borderColor=this.checked?'var(--bleu)':'var(--b)';lbl.style.background=this.checked?'rgba(var(--bleu-rgb),.08)':'var(--s)';}).call(this,'${g.id}')" style="width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0;cursor:pointer">
             <div style="min-width:0">
               <div style="font-size:.83rem;font-weight:700;color:var(--txt)">${name}</div>
               ${sub?`<div style="font-size:.71rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>`:''}
@@ -7977,7 +7978,7 @@ function renderColocInvite(x){
         :`<button type="button" class="btn bp bsm" onclick="registerCardThenSend('${b.listing_id}','','',0)"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>
     </div>`:''}
 
-    <div id="ci-err-${id}" style="color:#C9553A;font-size:.8rem;margin:.4rem 0;display:none"></div>
+    <div id="ci-err-${id}" style="color:var(--red);font-size:.8rem;margin:.4rem 0;display:none"></div>
     <div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.6rem">
       <button class="btn bg" onclick="repondreColoc('${id}',false)">Refuser</button>
       <button class="btn bp" onclick="repondreColoc('${id}',true)"><i data-lucide=check class=ic></i> Confirmer</button>
@@ -8052,7 +8053,7 @@ async function repondreColoc(bookingId,accepte){
 function renderAttenteColocs(bk){
   if(!bk)return '';
   const arr=_parseArr(bk.co_locataires_data);
-  const lab={accepted:['var(--green)','check-circle-2','A confirmé'],pending:['var(--gold)','hourglass','Pas encore répondu'],declined:['#C9553A','x-circle','A refusé'],date_proposed:['var(--bleu)','calendar','Propose une autre date']};
+  const lab={accepted:['var(--green)','check-circle-2','A confirmé'],pending:['var(--gold)','hourglass','Pas encore répondu'],declined:['var(--red)','x-circle','A refusé'],date_proposed:['var(--bleu)','calendar','Propose une autre date']};
   const rows=arr.map(c=>{const[col,ic,t]=lab[c.coloc_status||'pending']||lab.pending;
     return `<div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;background:var(--s2);border-radius:8px;padding:.45rem .65rem;font-size:.8rem">
       <span><i data-lucide=user class=ic></i> ${_escC(c.name||c.email||'Co-locataire')}${c.has_garant?' <span style="font-size:.7rem;color:var(--td)">· avec garant</span>':''}</span>
@@ -8093,7 +8094,7 @@ function _blocPropositionsDate(bk,arr){
     const pid=_cid(prop),votes=prop.date_votes||{},vot=_votantsDate(bk,arr,prop),moi=pid===U.id;
     const etat=vot.map(v=>`<span style="white-space:nowrap">${_escC(v.name)} ${votes[v.id]==='oui'?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--gold)">…</span>'}</span>`).join(' · ');
     const peutVoter=!moi&&vot.some(v=>v.id===U.id)&&votes[U.id]!=='oui';
-    return `<div style="background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.25);border-radius:10px;padding:.65rem .8rem;margin:.5rem 0;font-size:.82rem;line-height:1.5">
+    return `<div style="background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.25);border-radius:10px;padding:.65rem .8rem;margin:.5rem 0;font-size:.82rem;line-height:1.5">
       <div><i data-lucide=calendar class=ic></i> <strong>${moi?'Vous proposez':_escC(prop.name||'Un co-locataire')+' propose'}</strong> d’entrer le <strong>${_frDate(prop.date_proposee)}</strong> au lieu du ${_frDate(bk.move_in_date)}.</div>
       <div style="font-size:.74rem;color:var(--td);margin-top:.2rem">La nouvelle date est adoptée quand tout le monde l’a acceptée : ${etat}</div>
       ${peutVoter?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="btn bp bsm" onclick="voterDate('${bk.id}','${pid}',true)"><i data-lucide=check class=ic></i> Accepter cette date</button><button class="btn bg bsm" onclick="voterDate('${bk.id}','${pid}',false)">Garder le ${_frDate(bk.move_in_date).replace(/^\S+ /,'')}</button></div>`:''}
@@ -8301,9 +8302,9 @@ function renderGestionnaire(){
   if(!GEST.length){if(card)card.innerHTML='';if(th)th.innerHTML='';return;}
   const loyer=p=>{const reste=(+p.amount||0)-(+p.amount_paid||0);const paid=p.status==='paid';const late=!paid&&new Date(p.due_date)<new Date(new Date().toDateString());
     const mois=new Date(p.due_date+'T12:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-    return`<div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;padding:.35rem 0;border-top:1px solid var(--b)"><span style="text-transform:capitalize">${mois}</span><span style="font-weight:600;color:${paid?'var(--green)':late?'#C0392B':'var(--td)'}">${paid?'Payé':late?'Reste '+gEur(reste||p.amount):'À payer '+gEur(p.amount)}</span></div>`;};
+    return`<div style="display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;padding:.35rem 0;border-top:1px solid var(--b)"><span style="text-transform:capitalize">${mois}</span><span style="font-weight:600;color:${paid?'var(--green)':late?'var(--red)':'var(--td)'}">${paid?'Payé':late?'Reste '+gEur(reste||p.amount):'À payer '+gEur(p.amount)}</span></div>`;};
   if(card)card.innerHTML=GEST.map((g,i)=>{const un=gestUnread(g).length;const last=g.msgs[g.msgs.length-1];const pays=g.pays.slice(0,3);
-    return`<div class="card" style="border-color:rgba(27,79,216,.25)">
+    return`<div class="card" style="border-color:rgba(var(--bleu-rgb),.25)">
       <div class="cb" style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.2rem" id="gest-grid-${i}">
         <div style="min-width:0">
           <div style="display:flex;gap:.8rem;align-items:center">
@@ -8329,9 +8330,9 @@ function renderGestionnaire(){
         </div>
       </div></div>`;}).join('');
   if(th)th.innerHTML=GEST.map((g,i)=>{const un=gestUnread(g).length;const last=g.msgs[g.msgs.length-1];
-    return`<div class="card" style="cursor:pointer;border-color:rgba(27,79,216,.25)" onclick="openGestChat(${i})"><div class="cb" style="display:flex;gap:.8rem;align-items:center">
+    return`<div class="card" style="cursor:pointer;border-color:rgba(var(--bleu-rgb),.25)" onclick="openGestChat(${i})"><div class="cb" style="display:flex;gap:.8rem;align-items:center">
       <div style="width:38px;height:38px;border-radius:50%;background:var(--marine);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${gEsc(g.nom[0])}</div>
-      <div style="flex:1;min-width:0"><div style="font-size:.86rem;font-weight:700">${gEsc(g.nom)} <span class="badge" style="background:rgba(27,79,216,.1);color:var(--bleu);margin-left:.3rem">Gestionnaire</span></div>
+      <div style="flex:1;min-width:0"><div style="font-size:.86rem;font-weight:700">${gEsc(g.nom)} <span class="badge" style="background:rgba(var(--bleu-rgb),.1);color:var(--bleu);margin-left:.3rem">Gestionnaire</span></div>
         <div style="font-size:.76rem;color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last?(last.sender_id===U.id?'Vous : ':'')+gEsc(last.content):gEsc(g.adresse||g.bien)+' · écrivez à votre gestionnaire'}</div></div>
       ${un?`<span class="nbadge" style="margin-left:0">${un}</span>`:'<i data-lucide=chevron-right class=ic style="color:var(--td)"></i>'}
     </div></div>`;}).join('');
