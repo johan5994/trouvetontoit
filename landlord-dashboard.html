@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit — Espace propriétaire</title>
@@ -1244,7 +1245,7 @@ async function deleteAnnonce(id,titleForConfirmer){
     toast(`<i data-lucide=x-circle class=ic></i> Can't delete — ${activeBooking.tenant_name||'a locataire'} has an actif tenancy on ce logement. Pause it instead if you want to hide it.`);
     return;
   }
-  if(!confirm('Supprimer cette annonce ? Cette action est irréversible.'))return;
+  if(!await uiConfirm('Supprimer cette annonce ? Cette action est irréversible.'))return;
 
   const{error}=await sb.from('listings').delete().eq('id',id);
   if(error){
@@ -1252,7 +1253,7 @@ async function deleteAnnonce(id,titleForConfirmer){
     // OK sur une simple confirmation ne suffit plus pour effacer des
     // messages définitivement — trop facile de cliquer par erreur sans
     // avoir lu. Il faut mainlocataire taper le vrai titre de l'annonce.
-    const wantsForce=confirm("Cette annonce a un historique de messages et ne peut pas être supprimée en le conservant.\n\nCliquez sur OK pour la masquer des résultats de recherche (sécurisé, conserve l'historique — recommandé).\nCliquez sur Annuler si vous souhaitez la supprimer définitivement avec tous ses messages.");
+    const wantsForce=await uiConfirm("Cette annonce a un historique de messages et ne peut pas être supprimée en le conservant.\n\nCliquez sur OK pour la masquer des résultats de recherche (sécurisé, conserve l'historique — recommandé).\nCliquez sur Annuler si vous souhaitez la supprimer définitivement avec tous ses messages.");
     if(wantsForce){
       const{error:deactivateErreur}=await sb.from('listings').update({active:false}).eq('id',id);
       if(deactivateErreur){
@@ -1264,7 +1265,7 @@ async function deleteAnnonce(id,titleForConfirmer){
       return;
     }
 
-    const typed=prompt(`To permanently delete this annonce AND all its messages, type its exact title to confirm:\n\n"${titleForConfirmer||''}"`);
+    const typed=await uiPrompt(`To permanently delete this annonce AND all its messages, type its exact title to confirm:\n\n"${titleForConfirmer||''}"`);
     if(typed!==titleForConfirmer){
       if(typed!==null)toast("<i data-lucide=x-circle class=ic></i> Title didn't match — nothing was deleted.");
       return;
@@ -2204,7 +2205,7 @@ We recommend searching pour other annonces on Trouve Ton Toit.`,
 }
 
 async function declineVisit(visitId){
-  if(!confirm('Annuler cette visite ?'))return;
+  if(!await uiConfirm('Annuler cette visite ?'))return;
   await sb.from('visits').update({status:'declined'}).eq('id',visitId);
   toast('Visite annulée.');
   loadVisitsPage();
@@ -3014,7 +3015,7 @@ async function acceptLocataireFromVisits(visitId, listingId, locataireId){
 }
 
 async function declineLocataireFromVisits(visitId, listingId, locataireId){
-  if(!confirm('Refuser ce locataire ?'))return;
+  if(!await uiConfirm('Refuser ce locataire ?'))return;
 
   try{await sb.from('visits').update({status:'declined'}).eq('id',visitId);}catch(e){}
 
@@ -3727,7 +3728,7 @@ async function signAgenceManagedDoc(bookingId,embedSrc,dbField,title){
 
 async function messageAgenceÀProposProperty(agentId,listingId,propertyTitle){
   if(!agentId){toast('<i data-lucide=x-circle class=ic></i> No agence linked');return;}
-  const content=prompt(`Message votre agence about "${propertyTitle}":`);
+  const content=await uiPrompt(`Message votre agence about "${propertyTitle}":`);
   if(!content||!content.trim())return;
   try{
     const{error}=await sb.from('messages').insert({
@@ -4177,7 +4178,7 @@ async function confirmFirstPaiementReceived(bookingId,received){
 }
 
 async function retryCreatePaiementRecords(bookingId){
-  if(!confirm('Créer les enregistrements manquants (dépôt + premier mois) pour cette réservation ?'))return;
+  if(!await uiConfirm('Créer les enregistrements manquants (dépôt + premier mois) pour cette réservation ?'))return;
   await confirmFirstPaiementReceived(bookingId,true);
 }
 
@@ -4353,7 +4354,7 @@ function renderIndivLeasesLL(g,bk){
   </div>`;
 }
 async function confirmChildPaymentLL(leaseId){
-  if(!confirm('Confirmer que vous avez reçu le premier paiement (dépôt + 1er loyer) de ce locataire ?'))return;
+  if(!await uiConfirm('Confirmer que vous avez reçu le premier paiement (dépôt + 1er loyer) de ce locataire ?'))return;
   const{data:l}=await sb.from('leases').select('*').eq('id',leaseId).single();
   if(!l)return;
   const now=new Date().toISOString(),today=now.split('T')[0];
@@ -4479,7 +4480,7 @@ function renderImpayes(){
 async function _gMsg(to,listing,txt){if(!to)return;try{await sb.from('messages').insert({listing_id:listing||null,sender_id:'system',receiver_id:to,content:txt,type:'message'});}catch(e){}}
 async function gRelance(pid){
   const p=GEST.pays.find(x=>x.id===pid);if(!p)return;const l=_gLeaseOf(p);
-  if(!confirm('Envoyer une relance amiable à '+_gName(p.tenant_id)+' ?'))return;
+  if(!await uiConfirm('Envoyer une relance amiable à '+_gName(p.tenant_id)+' ?'))return;
   await _gMsg(p.tenant_id,p.listing_id,`Rappel : le loyer de ${_g$(p.amount)} dû le ${_gD(p.due_date)} pour « ${_gTitle(l)} » n'a pas encore été reçu. Merci de régulariser rapidement ou de contacter votre propriétaire en cas de difficulté.`);
   const em=GEST.names[p.tenant_id]?.email;
   if(em)fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'relance_loyer',to:em,data:{locataireNom:_gName(p.tenant_id),montant:_g$(p.amount),echeance:_gD(p.due_date),logement:_gTitle(l)}})}).catch(()=>{});
@@ -4541,7 +4542,7 @@ async function gInformerGarant(pid){
   renderGestion();
 }
 async function gMarquerPaye(pid){
-  if(!confirm('Marquer ce loyer comme payé ?'))return;
+  if(!await uiConfirm('Marquer ce loyer comme payé ?'))return;
   const now=new Date().toISOString();
   const{error}=await sb.from('payments').update({status:'paid',paid_at:now}).eq('id',pid);
   if(error){toast('Erreur : '+error.message);return;}
@@ -4593,7 +4594,7 @@ function renderIRL(){
 }
 async function gAppliquerIRL(lid){
   const l=GEST.leases.find(x=>x.id===lid);const r=_gRevision(l);if(!r?.nouveau)return;
-  if(!confirm(`Réviser le loyer hors charges de ${_g$(r.rent)} à ${_g$(r.nouveau)} à partir du ${_gD(r.anniv)} ?\n\nLes échéances à venir sont mises à jour et le locataire reçoit un courrier.`))return;
+  if(!await uiConfirm(`Réviser le loyer hors charges de ${_g$(r.rent)} à ${_g$(r.nouveau)} à partir du ${_gD(r.anniv)} ?\n\nLes échéances à venir sont mises à jour et le locataire reçoit un courrier.`))return;
   const rev={date:new Date().toISOString(),effet:_gIso(r.anniv),ancien:r.rent,nouveau:r.nouveau,annee_indice:r.targetY,trimestre:r.rq,irl_ancien:r.oldI,irl_nouveau:r.newI};
   let{error}=await sb.from('leases').update({rent:r.nouveau,irl_last_revision:rev}).eq('id',lid);
   if(error){toast('Erreur : '+error.message+' (migration gestion exécutée ?)',8000);return;}
@@ -4656,7 +4657,7 @@ async function gChSave(lid,annee,envoyer){
   const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);
   const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0),prov=Math.round(_gProvisions(l,annee)*100)/100,solde=Math.round((tot-prov)*100)/100;
   if(envoyer&&!tot){toast('Saisissez les dépenses réelles avant d\'envoyer.');return;}
-  if(envoyer&&!confirm(`Envoyer le décompte ${annee} à ${_gName(l.tenant_id)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
+  if(envoyer&&!await uiConfirm(`Envoyer le décompte ${annee} à ${_gName(l.tenant_id)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
   const row={lease_id:lid,landlord_id:U.id,tenant_id:l.tenant_id,annee,depenses:dep,provisions:prov,total_depenses:tot,solde,...(envoyer?{envoye_at:new Date().toISOString()}:{})};
   const{data,error}=await sb.from('charges_regularisations').upsert(row,{onConflict:'lease_id,annee'}).select().single();
   if(error){toast('Erreur : '+error.message+' (exécutez supabase-migration-gestion.sql)',8000);return;}
@@ -4681,7 +4682,7 @@ async function gChProvision(lid,annee){
   const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0);
   if(!tot){toast('Saisissez d\'abord les dépenses réelles.');return;}
   const nv=Math.ceil(tot/12);
-  if(!confirm(`Passer la provision sur charges de ${_g$(l.charges)} à ${_g$(nv)} par mois pour les prochaines échéances ?`))return;
+  if(!await uiConfirm(`Passer la provision sur charges de ${_g$(l.charges)} à ${_g$(nv)} par mois pour les prochaines échéances ?`))return;
   const{error}=await sb.from('leases').update({charges:nv}).eq('id',lid);if(error){toast('Erreur : '+error.message);return;}
   const cc=(Number(l.rent)||0)+nv;l.charges=nv;
   const fut=GEST.pays.filter(p=>p.type==='rent'&&p.status==='pending'&&p.due_date>=_gIso(new Date())&&(p.lease_id===lid||(l.booking_id&&p.booking_id===l.booking_id)));
@@ -5863,7 +5864,7 @@ async function generateRentScheduleLL(ctx,monthsAhead=12){
 
 async function confirmLocatairePaiement(bookingId){
   if(!bookingId){alert('No booking ID');return;}
-  if(!confirm('Confirmer la réception du paiement du locataire ?')) return;
+  if(!await uiConfirm('Confirmer la réception du paiement du locataire ?')) return;
 
   let bk=null,annonce=null,locataireProfile=null;
   try{const{data:b,error:bErr}=await sb.from('bookings').select('*').eq('id',bookingId).single();bk=b;if(bErr)alert('Could not load booking: '+bErr.message);}catch(e){alert('Booking load erreur: '+e.message);}
@@ -6224,7 +6225,7 @@ async function acceptDirectBooking(listingId, locataireId){
 }
 
 async function declineDirectBooking(listingId, locataireId){
-  if(!confirm('Refuser ce locataire ? L\'autorisation de frais Trouve Ton Toit sera remboursée.'))return;
+  if(!await uiConfirm('Refuser ce locataire ? L\'autorisation de frais Trouve Ton Toit sera remboursée.'))return;
   try{
     const{data:booking}=await sb.from('bookings').select('*').eq('listing_id',listingId).or(`tenant_id.eq.${locataireId},locataire_id.eq.${locataireId}`).in('status',['pending','booking_pending']).order('created_at',{ascending:false}).limit(1).maybeSingle();
     if(!booking){toast('<i data-lucide=x-circle class=ic></i> Booking not found');return;}
