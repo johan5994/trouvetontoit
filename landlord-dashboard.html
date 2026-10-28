@@ -1374,7 +1374,7 @@ async function fetchVisitAndApplicationGroups(){
 
   let leaseByBooking={};
   if(relevantBookingIds.length){
-    let{data:leases,error:_le}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email,modifs_log').in('booking_id',relevantBookingIds);
+    let{data:leases,error:_le}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email,modifs_log,co_signers,colocation_type').in('booking_id',relevantBookingIds);
     if(_le){({data:leases}=await sb.from('leases').select('id,booking_id,negotiation_status,landlord_signed_at,tenant_signed_at,garant_signed_at,garant_name,garant_email').in('booking_id',relevantBookingIds));}
     // Plusieurs leases possibles pour un même booking (anciens brouillons) → garder la plus avancée
     const _rk={signed:5,agreed:4,pending_landlord:3,pending_tenant:2,draft:1};
@@ -4765,6 +4765,23 @@ function _bailParcoursLL(g,bk){
     <div class="bpx-now"><span>${txt}</span>${btn}</div>
   </div>`;
 }
+function _escL(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+// Bail commun : tous les locataires (principal + colocataires) et tous leurs garants, avec leur statut de signature
+// Clés identiques à bail-meuble.html : t:<ref> / g:<ref>:<i> dans leases.co_signers
+function _signatairesLL(g,bk,lease){
+  const out=[{t:'loc',name:g.tenant_name||bk?.locataire_name||'Locataire',signed:!!lease?.tenant_signed_at}];
+  if(lease?.garant_name)out.push({t:'gar',name:lease.garant_name,pour:g.tenant_name,signed:!!lease.garant_signed_at});
+  if(!lease||lease.colocation_type==='individuel')return out;
+  let data=[];try{data=typeof bk?.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk?.co_locataires_data||[]);}catch(e){data=[];}
+  let cs=lease.co_signers;try{cs=typeof cs==='string'?JSON.parse(cs):cs;}catch(e){cs=null;}cs=cs&&typeof cs==='object'?cs:{};
+  (Array.isArray(data)?data:[]).filter(c=>c&&c.coloc_status!=='declined').forEach((c,k)=>{
+    const ref=c.locataire_id||c.tenant_id||c.email||String(k);
+    out.push({t:'loc',name:c.name||'Colocataire',signed:!!cs['t:'+ref]?.signed_at});
+    let gd=c.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
+    (Array.isArray(gd)?gd:[]).forEach((x,gi)=>{const nm=[x.prenom,x.nom].filter(Boolean).join(' ');if(nm)out.push({t:'gar',name:nm,pour:c.name,signed:!!cs['g:'+ref+':'+gi]?.signed_at});});
+  });
+  return out;
+}
 function renderBailSection(g){
   const bk=g.booking||null;
   // Signatures : la table leases fait foi (nouveau flux) ; booking = ancien flux DocuSeal
@@ -4784,21 +4801,16 @@ function renderBailSection(g){
     <div style="padding:.75rem .85rem 0">${_bailParcoursLL(g,bk)}</div>
     <div style="padding:.75rem .85rem">
 
-      <!-- Dates -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
-        <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
-          <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=clipboard-list class=ic></i> État des lieux / Key handover</div>
-          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${edlDate?new Date(edlDate).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'<i data-lucide=hourglass class=ic></i> TBC'}</div>
-          ${!edlDate?`<div style="display:flex;gap:.4rem;margin-top:.3rem">
+      <!-- Dates : une seule case si l'état des lieux a lieu le jour de l'entrée -->
+      ${(()=>{const f=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'<i data-lucide=hourglass class=ic></i> À définir';
+        const pick=!edlDate?`<div style="display:flex;gap:.4rem;margin-top:.3rem">
             <input type="date" id="edl-date-${bk?.id||''}" style="flex:1;padding:.3rem .5rem;background:var(--s);border:1px solid var(--b2);border-radius:6px;color:var(--txt);font-size:.72rem" min="${new Date().toISOString().slice(0,10)}">
-            <button onclick="setEDLDate('${bk?.id||''}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.3rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer">Set →</button>
-          </div>`:''}
-        </div>
-        <div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem">
-          <div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=home class=ic></i> Entrée dans les lieux date</div>
-          <div style="font-size:.8rem;font-weight:600;color:var(--txt)">${moveIn?new Date(moveIn).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'<i data-lucide=hourglass class=ic></i> TBC'}</div>
-        </div>
-      </div>
+            <button onclick="setEDLDate('${bk?.id||''}')" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.3rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer">Valider</button>
+          </div>`:'';
+        const box=(ic,l,d,x)=>`<div style="background:var(--s2);border-radius:8px;padding:.5rem .65rem"><div style="font-size:.65rem;color:var(--td);margin-bottom:.15rem"><i data-lucide=${ic} class=ic></i> ${l}</div><div style="font-size:.8rem;font-weight:600;color:var(--txt)">${f(d)}</div>${x||''}</div>`;
+        const meme=edlDate&&moveIn&&String(edlDate).slice(0,10)===String(moveIn).slice(0,10);
+        return meme?`<div style="margin-bottom:.75rem">${box('key-round','Entrée dans les lieux, état des lieux et remise des clés',moveIn)}</div>`
+          :`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">${box('home','Entrée dans les lieux',moveIn)}${box('clipboard-list','État des lieux et remise des clés',edlDate,pick)}</div>`;})()}
 
       <!-- Signatures / État du workflow bail -->
       ${bk?._childLeases?.length?renderIndivLeasesLL(g,bk):(()=>{
@@ -4810,52 +4822,16 @@ function renderBailSection(g){
         const gSigned=!!lease?.garant_signed_at;
         const hasGarant=!!(lease?.garant_name);
 
-        // Cas 1 — les deux ont signé → afficher les signatures normalement
-        if(bothSigned){
+        // Bail accepté (ou signé) → statut de signature de chaque partie : bailleur, chaque locataire, chaque garant
+        if(agreed||bothSigned){
+          const ok='<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>';
+          const att='<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente de signature</span>';
+          const row=(ic,l,st)=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem"><i data-lucide=${ic} class=ic></i> ${l}</span>${st}</div>`;
+          const ppl=_signatairesLL(g,bk,lease);
           return`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
           <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
-              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
-              <span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>
-            </div>
-            ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
-              ${gSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>`
-                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente de signature</span>`}
-            </div>`:''}
-            ${renderCoLocataireSignatureRows(bk)}
-          </div>
-          <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);color:var(--txt);border-radius:8px;padding:.45rem;font-size:.76rem;font-weight:600;text-decoration:none;margin:-.35rem 0 .75rem"><i data-lucide=file-text class=ic></i> Voir le bail</a>`;
-        }
-
-        // Cas 2 — accord obtenu → afficher le statut de chaque signature
-        if(agreed){
-          return`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Signatures</div>
-          <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=home class=ic></i> You (propriétaire)</span>
-              ${llSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>`
-                :`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer le bail</a>`}
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=user class=ic></i> Locataire (${g.tenant_name||'—'})</span>
-              ${tSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signed</span>`
-                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien envoyé)</span>`}
-            </div>
-            ${hasGarant?`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem">
-              <span style="font-size:.78rem"><i data-lucide=shield class=ic></i> Garant (${lease.garant_name})</span>
-              ${gSigned
-                ?`<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>`
-                :`<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente (lien bail envoyé)</span>`}
-            </div>`:''}
-            ${renderCoLocataireSignatureRows(bk)}
+            ${row('home','Vous (propriétaire)',llSigned?ok:`<a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="background:var(--bleu);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i data-lucide=pen-line class=ic></i> Signer le bail</a>`)}
+            ${ppl.map(x=>x.t==='loc'?row('user','Locataire · <strong>'+_escL(x.name)+'</strong>',x.signed?ok:att):row('shield','Garant · '+_escL(x.name)+(ppl.filter(y=>y.t==='loc').length>1&&x.pour?' <span style="color:var(--td)">(caution de '+_escL(x.pour)+')</span>':''),x.signed?ok:att)).join('')}
           </div>
           <a href="/bail-meuble.html?booking_id=${bk?.id||''}&role=landlord" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:var(--s2);border:1px solid var(--b2);color:var(--txt);border-radius:8px;padding:.45rem;font-size:.76rem;font-weight:600;text-decoration:none;margin:-.35rem 0 .75rem"><i data-lucide=file-text class=ic></i> Voir le bail</a>`;
         }
@@ -4882,16 +4858,16 @@ function renderBailSection(g){
       })()}
       ${bk?._childLeases?.length?'':(bk?._lease?.id?`<div class="actes-ll" data-lease="${bk._lease.id}"></div>`:'')}
 
-      ${bk?._childLeases?.length?'':`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">First paiement</div>
+      ${bk?._childLeases?.length?'':`<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Premier paiement</div>
       ${(()=>{let d=bk?.first_payment_declarations;try{d=typeof d==='string'?JSON.parse(d):d;}catch(e){d=null;}
         let cols=[];try{cols=typeof bk?.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk?.co_locataires_data||[]);}catch(e){}
         const ppl=[{id:bk?.tenant_id,name:g.tenant_name||'Locataire 1'},...(cols||[]).filter(c=>c&&c.coloc_status!=='declined'&&(c.locataire_id||c.tenant_id)).map(c=>({id:c.locataire_id||c.tenant_id,name:c.name||'Co-locataire'}))];
         if(ppl.length<2||payConfirmered)return '';
         return `<div style="font-size:.72rem;color:var(--td);margin-bottom:.3rem">Chaque locataire confirme sa part : ${ppl.map(p=>`<strong style="color:${(d&&d[p.id])||payDeclared?'var(--green)':'var(--gold)'}">${p.name} ${(d&&d[p.id])||payDeclared?'✓':'…'}</strong>`).join(' · ')}</div>`;})()}
       <div id="payrow-${bk?.id||''}" style="background:var(--s2);border-radius:8px;padding:.4rem .65rem;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:.78rem">${payConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Paiement confirmed':payDeclared?'<i data-lucide=euro class=ic></i> Locataire declared paiement':'<i data-lucide=hourglass class=ic></i> Waiting pour paiement'}</span>
+        <span style="font-size:.78rem">${payConfirmered?'<i data-lucide=check-circle-2 class=ic></i> Paiement reçu et confirmé':payDeclared?'<i data-lucide=euro class=ic></i> Le locataire a déclaré avoir payé':'<i data-lucide=hourglass class=ic></i> En attente du paiement'}</span>
         ${payDeclared&&!payConfirmered
-          ?`<button onclick="confirmLocatairePaiement('${bk?.id||''}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Confirmer received</button>`
+          ?`<button onclick="confirmLocatairePaiement('${bk?.id||''}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer"><i data-lucide=check-circle-2 class=ic></i> Confirmer la réception</button>`
           :payConfirmered?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i></span>':''}
       </div>`}
 
