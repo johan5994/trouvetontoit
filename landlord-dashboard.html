@@ -1678,6 +1678,9 @@ function renderDossierHTML(dd){
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.2rem .6rem;font-size:.72rem;margin-bottom:.4rem">
             <div><div style="color:var(--td);font-size:.58rem">Nom complet</div><div style="font-weight:700">${nom}</div></div>
             <div><div style="color:var(--td);font-size:.58rem">Email</div><div style="font-weight:600;word-break:break-all">${email}</div></div>
+            ${gn.naissance_date||gn.naissance_lieu?`<div><div style="color:var(--td);font-size:.58rem">Naissance</div><div style="font-weight:600">${gn.naissance_date?new Date(gn.naissance_date).toLocaleDateString('fr-FR'):''}${gn.naissance_lieu?' à '+String(gn.naissance_lieu).replace(/</g,'&lt;'):''}</div></div>`:''}
+            ${gn.telephone?`<div><div style="color:var(--td);font-size:.58rem">Téléphone</div><div style="font-weight:600">${String(gn.telephone).replace(/</g,'&lt;')}</div></div>`:''}
+            ${gn.adresse?`<div style="grid-column:1/-1"><div style="color:var(--td);font-size:.58rem">Adresse</div><div style="font-weight:600">${String(gn.adresse).replace(/</g,'&lt;')}</div></div>`:''}
           </div>
           ${subDocsHtml||'<div style="font-size:.67rem;color:var(--td);font-style:italic">Aucun document chargé dans le dossier du garant</div>'}
         </div>`;
