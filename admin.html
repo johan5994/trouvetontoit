@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit Admin</title>
@@ -239,7 +240,7 @@ async function loadLocataireDocs(clerkId){
 }
 
 async function verifyLocataire(clerkId, name){
-  if(!confirm('Verify '+name+'? This will grant the badge.')) return;
+  if(!await uiConfirm('Verify '+name+'? This will grant the badge.')) return;
   const{error} = await sb.from('profiles').update({vérifié:true, vérifié_at:new Date().toISOString()}).eq('clerk_id',clerkId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> Erreur: '+error.message);return;}
   toast('<i data-lucide=check-circle-2 class=ic></i> '+name+' vérifié!');
@@ -257,7 +258,7 @@ async function verifyLocataire(clerkId, name){
 }
 
 async function rejectLocataire(clerkId){
-  const reason = prompt('Reason pour rejection (will be sent to locataire):');
+  const reason = await uiPrompt('Reason pour rejection (will be sent to locataire):');
   if(!reason) return;
   await sb.from('profiles').update({id_submitted:false}).eq('clerk_id',clerkId);
   try{
