@@ -1152,9 +1152,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
                         <div id="garant-nom-aide" style="font-size:.68rem;color:var(--td);margin-top:.2rem">Comme sur sa pièce d’identité : le prénom puis le nom de naissance.</div>
                         <input type="hidden" id="garant-prenom"><input type="hidden" id="garant-nom">
                       </div>
-                      <div style="display:grid;grid-template-columns:1fr;gap:.6rem">
+                      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.6rem;margin-bottom:.6rem">
+                        <div><label for="garant-naissance-date" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Date de naissance *</label><input type="date" id="garant-naissance-date" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)"></div>
+                        <div><label for="garant-naissance-lieu" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Lieu de naissance *</label><input type="text" id="garant-naissance-lieu" placeholder="ex. Lyon (69)" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)"></div>
+                      </div>
+                      <div style="margin-bottom:.6rem"><label for="garant-adresse" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Adresse du domicile *</label><input type="text" id="garant-adresse" placeholder="ex. 12 rue de la République, 69002 Lyon" autocomplete="off" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)"></div>
+                      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.6rem">
+                        <div><label for="garant-tel" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Téléphone <span style="font-weight:400;color:var(--td)">(facultatif)</span></label><input type="tel" id="garant-tel" placeholder="+33 6 …" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)"></div>
                         <div>
-                          <label style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Email du garant *</label>
+                          <label for="garant-email" style="font-size:.75rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Email du garant *</label>
                           <input type="email" id="garant-email" placeholder="email@exemple.fr" oninput="updateGarantName()" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border:1px solid var(--b2);border-radius:8px;font-size:.85rem;background:var(--bg);color:var(--deep)">
                           <div style="font-size:.68rem;color:var(--td);margin-top:.2rem">Il sera prévenu lors de la soumission</div>
                         </div>
@@ -6335,7 +6341,7 @@ async function deleteGarant(i){
   activeGarantIdx=0;
   // remettre dans les champs l'identité du garant désormais actif
   const gn=gs[0].garant_name||{};
-  [['garant-nom',gn.nom],['garant-prenom',gn.prenom],['garant-email',gn.email]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v||'';});
+  [['garant-nom',gn.nom],['garant-prenom',gn.prenom],['garant-email',gn.email],['garant-naissance-date',gn.naissance_date],['garant-naissance-lieu',gn.naissance_lieu],['garant-adresse',gn.adresse],['garant-tel',gn.telephone]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v||'';});
   garantNomAfficher();
   await saveDossierState();
   renderDossierState();
@@ -6355,6 +6361,7 @@ function switchGarant(idx){
   if(nomEl)nomEl.value=gn.nom||'';
   if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
   if(emailEl)emailEl.value=gn.email||'';
+  _garantIdentiteRemplir(gn);
   garantNomAfficher();
   garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
   garantSubStep=0;
@@ -6369,7 +6376,7 @@ function addNewGarant(){
   if(!dossierState[5].garants)gState();
   dossierState[5].garants.push({garant_name:{},garant_subs:{},files:[]});
   activeGarantIdx=dossierState[5].garants.length-1;
-  ['garant-nom','garant-nom-usage','garant-prenom','garant-email','garant-nomcomplet'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['garant-nom','garant-nom-usage','garant-prenom','garant-email','garant-nomcomplet','garant-naissance-date','garant-naissance-lieu','garant-adresse','garant-tel'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   garantRevenueAdding=null;garantRevSubType=null;garantRevSalarieAnc=null;garantRevSalaireMontant='';garantRevFiles=[];
   garantSubStep=0;
   for(let i=0;i<5;i++)renderGarantSubScreen(i);
@@ -6422,7 +6429,11 @@ function updateGarantName(){
   const nom=document.getElementById('garant-nom')?.value||'';
   const nomUsage=document.getElementById('garant-nom-usage')?.value||'';
   const email=document.getElementById('garant-email')?.value||'';
-  gState().garant_name={prenom,nom,nomUsage,email};
+  const v=id=>(document.getElementById(id)?.value||'').trim();
+  gState().garant_name={prenom,nom,nomUsage,email,naissance_date:v('garant-naissance-date'),naissance_lieu:v('garant-naissance-lieu'),adresse:v('garant-adresse'),telephone:v('garant-tel')};
+}
+function _garantIdentiteRemplir(gn){
+  [['garant-naissance-date',gn?.naissance_date],['garant-naissance-lieu',gn?.naissance_lieu],['garant-adresse',gn?.adresse],['garant-tel',gn?.telephone]].forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val||'';});
 }
 
 function garantSubDone(i){
@@ -6446,6 +6457,7 @@ function initGarantSubDossier(){
   if(nomEl)nomEl.value=gn.nom||'';
   if(nomUsageEl)nomUsageEl.value=gn.nomUsage||'';
   if(emailEl)emailEl.value=gn.email||'';
+  _garantIdentiteRemplir(gn);
   garantNomAfficher();
   garantHebSit=null;garantResPath=[];garantRevenueAdding=null;garantRevFiles=[];garantRevSalaireMontant='';
   garantSubStep=0;
@@ -7804,7 +7816,7 @@ function _garantsDuDossier(idxList){
     const gn=g?.garant_name||{};
     if(!gn.nom&&!gn.prenom)return;
     if(Array.isArray(idxList)&&!idxList.includes(i))return;
-    out.push({nom:gn.nom||null,prenom:gn.prenom||null,email:gn.email||null,telephone:gn.telephone||null});
+    out.push({nom:gn.nom||null,prenom:gn.prenom||null,email:gn.email||null,telephone:gn.telephone||null,naissance_date:gn.naissance_date||null,naissance_lieu:gn.naissance_lieu||null,adresse:gn.adresse||null});
   });
   return out;
 }
