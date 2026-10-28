@@ -631,7 +631,6 @@
           <div class="info-grid" id="logement-grid4"></div>
           <div class="info-grid" id="logement-grid5"></div>
           <div class="article-content" id="equipements-block" style="margin-top:.55rem"></div>
-          <div id="zone-tendue-block"></div>
         </div>
 
         <hr class="divider">
@@ -690,6 +689,7 @@
               <span class="ir-value" id="echeance-val">—</span>
             </div>
           </div>
+          <div id="zone-tendue-block"></div>
           <div class="article-content">
             <p id="dernier-loyer-block"></p>
             <p><strong>4.2 Révision annuelle du loyer (IRL)</strong></p>
@@ -3090,7 +3090,7 @@ function _renderBail(){
   if(erpIdx>=0&&L.doc_erp_url) annexes[erpIdx].url=L.doc_erp_url;
 
   // Contrat de cautionnement Visale (signé par le bailleur sur visale.fr) : annexé au bail, déposé par le bailleur ou le locataire concerné
-  try{const _vs=visaleTenants();_vs.forEach(v=>annexes.push({txt:'Contrat de cautionnement Visale'+(_vs.length>1||v.num?' — '+_escB(v.name):'')+(v.visa?' (visa n° '+_escB(v.visa)+')':''),url:v.contrat?.url||null,visaleKey:v.key,canUp:myRole==='landlord'||v.isMe,cat:'si_applicable'}));}catch(e){}
+  try{const _vs=visaleTenants();_vs.forEach(v=>annexes.push({txt:'Contrat de cautionnement Visale'+(_vs.length>1||v.num?' — '+_escB(v.name):'')+(v.visa?' (visa n° '+_escB(v.visa)+')':''),url:v.contrat?.url||null,visaleKey:v.key,canUp:!(LEASE.landlord_signed_at||LEASE.tenant_signed_at)&&(myRole==='landlord'||v.isMe),cat:'si_applicable'}));}catch(e){}
   // Actes de cautionnement séparés : annexés au bail
   if(ACTE_SEPARE)try{garantsActes().forEach(g=>{const a=_acteDe(g),signe=a?.statut==='signe'||!!g.signed_at;annexes.push({txt:'Acte de cautionnement de '+_escB(g.nom)+' (caution de '+_escB(g.forName)+')',url:signe&&a?'/acte-caution.html?id='+a.id:null,acteKey:g.cle,cat:'si_applicable'});});}catch(e){}
   annexes.forEach((a,i)=>a.n=i+1); // numérotation continue (sans trous)
@@ -3107,12 +3107,12 @@ function _renderBail(){
     ${a.acteKey?(a.url?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=file-check class=ic></i> Acte signé</a>`:'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">Signé en ligne par le garant</span>'):a.visaleKey?_visaleAnnexeAct(a):a.url
       ?(a.official
         ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC"><i data-lucide=file-text class=ic></i> PDF officiel</a>`
-        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>${_editMode&&a.uploadKey?`
+        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>${_editMode&&a.uploadKey&&!_docsVerrouilles()?`
           <label class="annexe-act" title="Remplacer le document"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=refresh-cw class=ic></i> Changer</label>
           <button type="button" class="annexe-act annexe-del" title="Supprimer le document" onclick="removeDoc('${a.uploadKey}')"><i data-lucide=trash-2 class=ic></i> Supprimer</button>`:''}`)
       :a.edl
         ?'<span style="font-size:.7rem;color:#D97706;margin-left:auto;font-style:italic">À établir à la remise des clés</span>'
-        :_editMode&&a.uploadKey
+        :_editMode&&a.uploadKey&&!_docsVerrouilles()
           ?`<label class="annexe-upload-btn" title="Déposer PDF ou photo"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=upload class=ic></i> PDF ou photo</label>`
           :'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À remettre au locataire</span>'
     }
@@ -3406,12 +3406,14 @@ function renderNegocBar(){
   const btn=(label,cls,fn)=>{const b=document.createElement('button');b.className='btn '+cls;b.innerHTML=label;b.onclick=fn;acts.appendChild(b);window.lucide&&lucide.createIcons();};
 
   if(effectiveRole==='landlord'){
-    if(ns==='draft'){_suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Envoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour l’envoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);}
+    if(ns==='draft'&&_docsManquants().length){btn('<i data-lucide=file-up class=ic></i> Déposez les documents obligatoires pour envoyer','btn-outline',sendToTenant);}
+    else if(ns==='draft'){_suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Envoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour l’envoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);}
     if(ns==='pending_tenant')         step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Rien à faire pour l'instant : le locataire doit accepter le bail ou demander des modifications. Les signatures s'ouvriront ensuite.</div>`;
     // Le locataire a fait des remarques → le bailleur ajuste puis RENVOIE obligatoirement (pas de validation directe)
     if(ns==='pending_landlord'){
       step.innerHTML+=`<div style="font-size:.76rem;color:#6b7280;margin-top:.3rem">Faites les ajustements dans le bail, puis renvoyez-le au locataire pour qu'il le relise et l'accepte.</div>`;
-      _suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Renvoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour le renvoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);
+      if(_docsManquants().length)btn('<i data-lucide=file-up class=ic></i> Déposez les documents obligatoires pour renvoyer','btn-outline',sendToTenant);
+      else{_suivreLecture();btn(_bailLu?'<i data-lucide=send class=ic></i> Renvoyer au locataire →':'<i data-lucide=arrow-down class=ic></i> Relisez le bail jusqu’en bas pour le renvoyer',_bailLu?'btn-blue':'btn-outline',sendToTenant);}
     }
   }
   if(effectiveRole==='tenant'){
@@ -3437,7 +3439,10 @@ function _suivreLecture(){
   const f=document.createElement('div');f.id='fin-bail';f.style.height='1px';c.appendChild(f);
   new IntersectionObserver((en,o)=>{if(en.some(e=>e.isIntersecting)&&!document.body.classList.contains('bail-tunnel')){_bailLu=true;o.disconnect();try{renderNegocBar();}catch(e){}}}).observe(f);
 }
+function _docsManquants(){return (window._annexesManquantes||[]).slice();}
 async function sendToTenant(){
+  const dm=_docsManquants();
+  if(dm.length){toast('Déposez d’abord les documents obligatoires : '+dm.join(', ')+'.',7000);try{wzOuvrir(0,true);const i=_wzSteps().findIndex(x=>x.sp.includes('annexes'));if(i>=0){_wzStep=i;wzRender();}}catch(e){}return;}
   if(!_bailLu){toast('Relisez le bail jusqu’en bas avant de l’envoyer au locataire.',5000);document.querySelector('.bail-card')?.scrollIntoView({behavior:'smooth'});return;}
   if(needsColocChoice()){toast('Choisissez d\'abord le modèle de bail (Étape 1, bloc « Garantie et colocation »).',6000);document.getElementById('garanties-summary')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const _resend=LEASE.negotiation_status==='pending_landlord';
@@ -3553,7 +3558,8 @@ const CHAMPS_COMMUNS=new Set(['prop_address','prop_type','prop_pieces','prop_eta
   'commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres',
   'dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit',
   'travaux_desc','travaux_realises','travaux_nature','travaux_montant','travaux_date','travaux_amelioration','travaux_conformite','travaux_impact_loyer',
-  'loyer_ref','loyer_ref_majore','zone_tendue','zone_tendue_choix','regles_droit','custom_clauses','caution_mode']);
+  'loyer_ref','loyer_ref_majore','zone_tendue','zone_tendue_choix','regles_droit','custom_clauses','caution_mode',
+  'doc_dpe_url','doc_erp_url','doc_amiante_url','doc_plomb_url','doc_elec_url','doc_gaz_url','doc_bruit_url']);
 function _soeursModifiables(){
   return (SIBLINGS||[]).filter(x=>x.id!==LEASE?.id&&!x.landlord_signed_at&&!x.tenant_signed_at&&!['agreed','signed'].includes(x.negotiation_status||''));
 }
@@ -3823,6 +3829,8 @@ function _visaCommun(vs){
 }
 function renderVisaleBox(L){
   const el=q('visale-box');if(!el)return;
+  // Visible seulement entre l'acceptation du bail et les signatures : le contrat Visale se signe AVANT le bail
+  if(LEASE.negotiation_status!=='agreed'||LEASE.landlord_signed_at||LEASE.tenant_signed_at){el.innerHTML='';return;}
   let vs=visaleTenants();
   // Visa commun : une seule ligne (un seul contrat de cautionnement) au nom des deux locataires
   if(vs.length>1&&vs[0].joint)vs=[{...vs[0],name:vs.map(v=>v.name).join(' et '),num:null,isMe:vs.some(v=>v.isMe)}];
@@ -3846,19 +3854,14 @@ function renderVisaleBox(L){
       ${actions?`<div style="display:flex;gap:.4rem;flex-wrap:wrap">${actions}</div>`:''}
     </div>`;
   }).join('');
+  const fait=vs.every(v=>v.done_at);
   const aide=ll
-    ?`<details class="vis-aide"><summary>Comment faire sur visale.fr ?</summary><ol style="margin:.2rem 0 .6rem 1.1rem;font-size:.8rem;line-height:1.6">
-        <li>Ouvrez <strong>visale.fr</strong> → espace bailleur (créez votre compte la première fois).</li>
-        <li>Attendez que le loyer, les charges et la date d'entrée soient <strong>définitifs</strong> (modèle validé par le locataire) : le contrat Visale les reprend.</li>
-        <li>Entrez le <strong>n° de visa</strong> ci-dessous et les infos du bail.${vs.length>1?' <strong>Rattachez chaque visa au même bail.</strong>':''} Le visa doit être <strong>encore valide</strong> le jour de la signature du bail.</li>
-        <li>Signez en ligne le <strong>contrat de cautionnement</strong> Visale, <strong>avant de signer ce bail</strong> (au plus tard le même jour).</li>
-        <li>Revenez ici, cliquez « J'ai signé le contrat Visale » et <strong>déposez le contrat en PDF</strong> : il est annexé au bail.</li>
-      </ol>
-      ${multiV?`<div style="font-size:.76rem;background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:.45rem .6rem;margin-bottom:.5rem"><strong>Colocation :</strong> ${nbT===2&&vs.length===1?'à 2 colocataires, un seul visa peut suffire (Action Logement tient compte des revenus des deux).':nbT>=3?'à 3 locataires ou plus, Action Logement conseille un bail et un visa par locataire.':'un visa par locataire.'} Part de chacun ici : environ ${fmt(partV)}/mois. Vérifiez sur visale.fr que le loyer garanti ne dépasse pas le plafond du visa. ${nbT>vs.length&&!(nbT===2&&vs.length===1)?'Les colocataires sans visa ne sont pas couverts par Visale.':''}</div>`:''}
-      <div style="font-size:.74rem;color:var(--td);margin-bottom:.4rem">Visale (Action Logement) ne signe pas le bail : il n'y a pas de case « garant » pour lui. En cas d'impayé, vous le déclarez sur visale.fr et Visale vous paie.</div></details>`
-    :`<div style="font-size:.8rem;line-height:1.55;margin-bottom:.6rem">${vs.some(v=>v.isMe)?'<strong>Vous n\'avez rien à signer pour Visale.</strong> ':''}Le bailleur valide le visa sur visale.fr et signe en ligne le contrat de cautionnement avec Action Logement. Visale ne signe pas le bail. Une fois signé, le contrat de cautionnement est aussi disponible dans votre espace Visale : vous pouvez le déposer ci-dessous pour l’annexer au bail.</div>`;
+    ?(fait?'<p style="font-size:.82rem;margin:0 0 .6rem">Contrat Visale signé : vous pouvez maintenant signer le bail avec le locataire.</p>'
+      :`<p style="font-size:.82rem;line-height:1.55;margin:0 0 .6rem">Avant de signer le bail : sur <strong>visale.fr</strong>, vérifiez le visa du locataire, créez le contrat de cautionnement avec les infos de ce bail et <strong>signez-le en ligne</strong>. Revenez ensuite cliquer sur « J’ai signé le contrat Visale » : la signature du bail s’ouvrira. Si le bail est signé avant, Visale ne pourra plus le garantir.</p>`)
+    :(fait?'<p style="font-size:.82rem;margin:0 0 .6rem">Le bailleur a signé le contrat Visale : vous pouvez signer le bail.</p>'
+      :'<p style="font-size:.82rem;line-height:1.55;margin:0 0 .6rem">Le bailleur doit d’abord signer le contrat de cautionnement Visale sur visale.fr. La signature du bail s’ouvrira ensuite. Vous n’avez rien à faire.</p>');
   el.innerHTML=`<div class="panneau">
-    <div class="panneau-t"><i data-lucide=shield-check class=ic></i> Garantie Visale${ll?' <span style="font-weight:500;color:var(--td)">· à faire avant de signer</span>':''}</div>
+    <div class="panneau-t"><i data-lucide=shield-check class=ic></i> Garantie Visale${fait?'':' <span style="font-weight:500;color:var(--td)">· avant de signer le bail</span>'}</div>
     ${aide}<div style="display:flex;flex-direction:column;gap:.45rem">${rows}</div></div>`;
   if(window.lucide)lucide.createIcons();
 }
@@ -3870,6 +3873,7 @@ function _visaleAnnexeAct(a){
   return a.canUp?up('Déposer le PDF'):'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À déposer par le bailleur ou le locataire</span>';
 }
 async function uploadVisaleContrat(key,input){
+  if(LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast(_MSG_DOCS_FIGES,6000);try{if(input)input.value='';}catch(e){}return;}
   const f=input.files?.[0];input.value='';if(!f||!LEASE?.id)return;
   const v=visaleTenants().find(x=>x.key===key);if(!v||!(myRole==='landlord'||v.isMe)){toast('Seul le bailleur ou le locataire concerné peut déposer ce contrat.');return;}
   if(!/\.(pdf|jpe?g|png)$/i.test(f.name)){toast('Format non accepté : PDF ou photo.',4000);return;}
@@ -3888,6 +3892,7 @@ async function uploadVisaleContrat(key,input){
   renderBail();
 }
 async function removeVisaleContrat(key){
+  if(LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast(_MSG_DOCS_FIGES,6000);try{if(input)input.value='';}catch(e){}return;}
   const v=visaleTenants().find(x=>x.key===key);if(!v||!(myRole==='landlord'||v.isMe))return;
   if(!confirm('Retirer le contrat Visale des annexes du bail ?'))return;
   const url=v.contrat?.url;
@@ -3933,7 +3938,7 @@ async function setVisaleDone(key,on){
     if(tid&&!tid.includes('@'))try{await sb.from('messages').insert({listing_id:LEASE.listing_id,sender_id:'system',receiver_id:tid,content:`Le bailleur a validé votre garantie Visale${v?.visa?' (visa n° '+v.visa+')':''} pour ce logement. Vous n'avez rien à signer de plus pour Visale.`,type:'message'});}catch(e){}
     toast('<i data-lucide=check-circle-2 class=ic></i> Contrat Visale noté comme signé.');
   }
-  renderVisaleBox(LEASE);
+  renderVisaleBox(LEASE);try{renderStatusAndSigs();renderNegocBar();}catch(e){}
 }
 
 // ═══ Co-locataires et garants des co-locataires : signatures supplémentaires ═══
@@ -4281,6 +4286,18 @@ async function _wzLive(key,v){
   await saveField(key,v===''?null:v);
   _wzMajAnnexes();
 }
+// Identité du garant : enregistrée sur le bail (garant principal) ou sur le co-garant, puis l'acte est mis à jour
+async function _wzGarantMaj(cle,champ,v){
+  if(cle==='g:main'){
+    const k={nom:'garant_name',email:'garant_email',tel:'garant_phone',adresse:'garant_address'}[champ];
+    await saveField(k,v||null);
+  }else{
+    const k={nom:'name',email:'email',tel:'phone',adresse:'address'}[champ];
+    await _saveCoSigners(cur=>{cur[cle]={...(cur[cle]||{}),[k]:v||null};});buildExtraSigners();
+  }
+  await envoyerActes(false,cle,true);
+  toast('<i data-lucide=check-circle-2 class=ic></i> Garant mis à jour');
+}
 async function _wzActeMaj(id,champ,v){
   const{error}=await sb.from('actes_caution').update({[champ]:v}).eq('id',id).neq('statut','signe');
   if(error){toast('Erreur : '+error.message,6000);return;}
@@ -4319,8 +4336,11 @@ function _wzSpecial(x){
       if(!a)return`<div class="wz-f">${t}<div class="wz-aide">Préparation de l’acte…</div></div>`;
       if(a.statut==='signe')return`<div class="wz-f">${t}<div class="wz-aide">Acte signé le ${fmtDate(a.signed_at)}.</div></div>`;
       const sn=a.snapshot||{},base=Math.round(Number(sn.colocation?.part)||((Number(sn.loyer)||0)+(Number(sn.charges)||0)));
+      const gv=(c,v,lbl,type,ph)=>`<div class="wz-f${c==='adresse'?' wz-large':''}"><label for="wz-gar-${i}-${c}">${lbl}</label><input id="wz-gar-${i}-${c}" class="wz-in" type="${type}" value="${_escB(v||'').replace(/"/g,'&quot;')}" placeholder="${ph}" onchange="_wzGarantMaj('${g.cle.replace(/'/g,'')}','${c}',this.value.trim())"></div>`;
+      const ident=`<div class="wz-grille">${gv('nom',g.nom,'Nom et prénom du garant','text','Prénom NOM')}${gv('email',g.email,'Email (pour lui envoyer l’acte)','email','garant@email.fr')}${gv('tel',g.tel,'Téléphone','tel','+33 6 …')}${gv('adresse',g.adresse,'Adresse du garant','text','Rue, CP Ville')}</div>`;
       const DUREES={bail_2:'Durée du bail + 2 renouvellements',bail_1:'Durée du bail + 1 renouvellement',bail:'Durée initiale du bail seulement',indeterminee:'Durée indéterminée (le garant peut résilier)'};
       return`<div class="wz-f">${t}
+        ${ident}
         <div class="wz-grille">
           <div class="wz-f"><label for="wz-acte-duree-${a.id}">Durée de l’engagement</label><select id="wz-acte-duree-${a.id}" class="wz-in" onchange="_wzActeMaj('${a.id}','duree',this.value)">${Object.entries(DUREES).map(([k,l])=>`<option value="${k}"${(a.duree||'bail_2')===k?' selected':''}>${l}</option>`).join('')}</select></div>
           <div class="wz-f"><label for="wz-acte-plafond-${a.id}">Montant maximum garanti (€)</label><input id="wz-acte-plafond-${a.id}" class="wz-in" type="number" min="0" step="1" value="${Math.round(a.plafond||0)}" onchange="_wzActeMaj('${a.id}','plafond',Math.max(0,Math.round(+this.value||0)))"><div class="wz-aide">Repère : 36 mois de loyer charges comprises = ${fmt(base*36)}.</div></div>
@@ -4438,16 +4458,16 @@ function wzAuto(){
 function garantsActes(){
   if(!LEASE)return[];
   const out=[],bc=bailChoices(LEASE);
-  if(LEASE.garant_name&&bc.physique&&!gliSansCaution(LEASE))out.push({cle:'g:main',nom:LEASE.garant_name,email:LEASE.garant_email||null,forName:LEASE.tenant_name||T_PROFILE?.full_name||'le locataire',forId:LEASE.tenant_id,token:LEASE.garant_token||null,signed_at:LEASE.garant_signed_at||null});
+  if(LEASE.garant_name&&bc.physique&&!gliSansCaution(LEASE))out.push({cle:'g:main',nom:LEASE.garant_name,email:LEASE.garant_email||null,adresse:LEASE.garant_address||null,tel:LEASE.garant_phone||null,forName:LEASE.tenant_name||T_PROFILE?.full_name||'le locataire',forId:LEASE.tenant_id,token:LEASE.garant_token||null,signed_at:LEASE.garant_signed_at||null});
   buildExtraSigners();
-  EXTRA_SIGNERS.filter(x=>x.type==='cogarant').forEach(x=>out.push({cle:x.key,nom:x.name,email:x.email,forName:x.forName,forId:x.forId||null,token:x.token||null,signed_at:x.signed_at||null}));
+  EXTRA_SIGNERS.filter(x=>x.type==='cogarant').forEach(x=>out.push({cle:x.key,nom:x.name,email:x.email,adresse:x.address||null,tel:x.phone||null,forName:x.forName,forId:x.forId||null,token:x.token||null,signed_at:x.signed_at||null}));
   return out;
 }
 function _snapshotActe(g){
   const L=LEASE,bc=bailChoices(L),commun=bc.c!=='individuel'&&bc.coLocs.length>0,cp=commun?colocPart(L):null;
   const lien=location.origin+'/bail-meuble.html?lease_id='+L.id+'&role=garant&'+(g.cle==='g:main'?'gt=':'cgt=')+encodeURIComponent(g.token);
   return{bailleur_nom:L.landlord_name||LL_PROFILE?.full_name||'',bailleur_adresse:L.landlord_address||LL_PROFILE?.home_address||'',
-    adresse:LISTING?.full_address||L.property_address||'',type_bail:TYPE_BAIL,date_debut:L.start_date||null,
+    adresse:L.prop_address||LISTING?.full_address||L.property_address||'',type_bail:TYPE_BAIL,date_debut:L.start_date||null,
     duree_txt:(q('duree-txt')?.textContent||'').trim(),reconduction_txt:(q('reconduction-txt')?.textContent||'').trim(),
     loyer:Number(L.rent)||0,charges:Number(L.charges)||0,irl_txt:(q('irl-ref-txt')?.textContent||'').trim(),
     colocation:{commun,solidaire:bc.c==='commun_solidaire',nb:bc.coLocs.length+1,part:cp?.part||null},bail_url:lien};
@@ -4466,7 +4486,7 @@ async function envoyerActes(force,seulement,sansEnvoi){
     const _cle=x=>x?JSON.stringify([x.loyer,x.charges,x.date_debut,x.adresse,x.duree_txt,x.colocation?.part]):'';
     const _change=!!(ex?.envoye_at&&ex?.snapshot&&_cle(ex.snapshot)!==_cle(snap));
     const row={lease_id:LEASE.id,cle:g.cle,listing_id:LEASE.listing_id||null,landlord_id:LEASE.landlord_id||null,tenant_id:g.forId||LEASE.tenant_id||null,
-      locataire_nom:g.forName,garant_nom:g.nom,garant_email:g.email,snapshot:snap,token:g.token,statut:sansEnvoi?(ex?.statut||'brouillon'):'envoye',
+      locataire_nom:g.forName,garant_nom:g.nom,garant_email:g.email,...(g.adresse?{garant_adresse:g.adresse}:{}),snapshot:snap,token:g.token,statut:sansEnvoi?(ex?.statut||'brouillon'):'envoye',
       type:_cautionForm(),...(ex?{}:{plafond:Math.round(base*36),duree:'bail_2'})};
     const{data,error}=await sb.from('actes_caution').upsert(row,{onConflict:'lease_id,cle'}).select().single();
     if(error){console.error('actes_caution',error);toast((/does not exist|schema cache|Could not find/i.test(error.message)?'Table des actes introuvable : exécutez supabase-migration-acte-caution.sql dans Supabase (SQL Editor). ':'')+'Détail : '+error.message,12000);return false;}
@@ -4875,9 +4895,11 @@ async function submitSignature(){
   if(who&&myRole!==need&&!(TEST_GARANT_PAR_LOCATAIRE&&who==='g'&&myRole==='tenant')){alert('Vous ne pouvez signer que pour vous-même. Connectez-vous avec le bon compte (ou utilisez le lien reçu par email pour le garant).');window._pendingSigWho=null;window._pendingSigData=null;return;}
   if(who==='ll'&&annexesManquantesBloquent())return;
   if((who==='ll'||who==='t')&&window._garantsAttente?.length){toast('Le bail se signe après les garants : en attente de l’acte de cautionnement de '+window._garantsAttente.map(g=>g.nom).join(', ')+'.',6000);return;}
-  if(who==='ll'){
+  if(who==='ll'||who==='t'){
     const vm=visaleTenants().filter(v=>!v.done_at);
-    if(vm.length&&!confirm('Contrat Visale pas encore confirmé pour : '+vm.map(v=>v.name).join(', ')+'.\n\nSans ce contrat signé sur visale.fr, Visale ne couvrira pas les impayés.\n\nSigner le bail quand même ?')){window._pendingSigWho=null;window._pendingSigData=null;return;}
+    if(vm.length&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){
+      toast(who==='ll'?'Signez d’abord le contrat de cautionnement Visale sur visale.fr, puis cliquez sur « J’ai signé le contrat Visale ».':'Le bailleur doit d’abord signer le contrat Visale. Vous pourrez signer le bail juste après.',7000);
+      window._pendingSigWho=null;window._pendingSigData=null;document.getElementById('visale-box')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   }
   if(!who||!sigData){
     const c=document.getElementById('sig-canvas-ll')||document.getElementById('sig-canvas-t')||document.getElementById('sig-canvas-g');
@@ -4954,9 +4976,13 @@ async function submitSignature(){
 // ── UPLOAD DOCUMENT
 // ── UPLOAD DOCUMENT ───────────────────────────────────────────────────────────
 const DOC_BUCKET='lease-docs';
+// Documents annexés figés dès que le bail est accepté (phase de signature) ou signé
+function _docsVerrouilles(){return !!(LEASE&&(LEASE.landlord_signed_at||LEASE.tenant_signed_at||['agreed','signed'].includes(LEASE.negotiation_status||'')));}
+const _MSG_DOCS_FIGES='Le bail est en signature ou signé : les documents annexés ne peuvent plus être modifiés.';
 const DOC_COL={dpe:'doc_dpe_url',erp:'doc_erp_url',amiante:'doc_amiante_url',plomb:'doc_plomb_url',elec:'doc_elec_url',gaz:'doc_gaz_url',bruit:'doc_bruit_url'};
 
 async function uploadDoc(key,inputEl){
+  if(_docsVerrouilles()){toast(_MSG_DOCS_FIGES,6000);if(inputEl)inputEl.value='';return;}
   if(!inputEl.files||!inputEl.files[0])return;
   const file=inputEl.files[0];
   const allowedTypes=['application/pdf','image/jpeg','image/png','image/heic','image/heif'];
@@ -4990,24 +5016,28 @@ async function uploadDoc(key,inputEl){
     return;
   }
   LEASE[col]=publicUrl;
+  _syncSoeurs({[col]:publicUrl}).catch(()=>{}); // même document sur les autres baux de la colocation
 
   if(statusEl)statusEl.innerHTML=`<span class="cp-doc-ok"><i data-lucide=check-circle-2 class=ic></i> Déposé</span> <a href="${publicUrl}" target="_blank" class="cp-doc-link">Voir PDF</a>`;
   toast(`<i data-lucide=check-circle-2 class=ic></i> ${key.toUpperCase()} déposé avec succès`);
   renderBail(); // Mettre à jour la liste des annexes
+  try{renderNegocBar();}catch(e){}
 }
 
 async function removeDoc(key){
+  if(_docsVerrouilles()){toast(_MSG_DOCS_FIGES,6000);return;}
   const col=DOC_COL[key];
   if(!col||!LEASE?.[col])return;
   if(!confirm('Supprimer ce document du bail ?'))return;
   const url=LEASE[col];
   const{error}=await sb.from('leases').update({[col]:null}).eq('id',LEASE.id);
   if(error){toast('<i data-lucide=x-circle class=ic></i> Suppression impossible : '+error.message,5000);return;}
-  // Retirer aussi le fichier du stockage (sans bloquer si ça échoue)
-  try{const path=decodeURIComponent(url.split('/object/public/'+DOC_BUCKET+'/')[1]||'');if(path)await sb.storage.from(DOC_BUCKET).remove([path]);}catch(e){}
+  await _syncSoeurs({[col]:null}).catch(()=>{});
+  // Retirer aussi le fichier du stockage s'il ne sert plus à aucun autre bail (sans bloquer si ça échoue)
+  if(!(SIBLINGS||[]).some(x=>x.id!==LEASE.id&&x[col]===url))try{const path=decodeURIComponent(url.split('/object/public/'+DOC_BUCKET+'/')[1]||'');if(path)await sb.storage.from(DOC_BUCKET).remove([path]);}catch(e){}
   LEASE[col]=null;
   toast('<i data-lucide=check-circle-2 class=ic></i> Document supprimé');
-  renderBail();
+  renderBail();try{renderNegocBar();}catch(e){}
 }
 
 function showError(msg){q('loader').innerHTML=`<div style="color:var(--red);font-size:.9rem;padding:2rem">${msg}</div>`;}
