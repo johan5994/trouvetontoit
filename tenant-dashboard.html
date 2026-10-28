@@ -3439,8 +3439,16 @@ function renderEdlCoLocataireSignatureRowsLocataire(bk){
 // Clés identiques à bail-meuble.html : t:<ref> / g:<ref>:<i> dans leases.co_signers
 function _escT(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function _bailSignataires(bk,lease){
-  if(!lease||!bk||lease.colocation_type==='individuel')return null;
+  if(!lease||!bk)return null;
   let data=[];try{data=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){data=[];}
+  // Bail individuel (par chambre) : seuls signataires = ce locataire et son garant — les autres colocataires ont leur propre bail
+  if(lease.colocation_type==='individuel'){
+    const uid=U?.id||null,moiC=(Array.isArray(data)?data:[]).find(c=>c&&uid&&(c.locataire_id===uid||c.tenant_id===uid));
+    let gd=moiC?.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=[];}
+    const gs=lease.garant_name?[{name:lease.garant_name,signed:!!lease.garant_signed_at}]
+      :(Array.isArray(gd)?gd:[]).map(g=>({name:[g.prenom,g.nom].filter(Boolean).join(' '),signed:false})).filter(g=>g.name);
+    return [{id:uid,name:'Vous',signed:!!lease.tenant_signed_at,garants:gs}];
+  }
   const colocs=(Array.isArray(data)?data:[]).filter(c=>c&&c.coloc_status!=='declined');
   if(!colocs.length)return null;
   let cs=lease.co_signers;try{cs=typeof cs==='string'?JSON.parse(cs):cs;}catch(e){cs=null;}cs=cs&&typeof cs==='object'?cs:{};
@@ -3587,12 +3595,23 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
           ${mH?lg('Acompte déjà versé',' − '+fmtEur(mH),'color:var(--green)'):''}
           ${lg('<strong>Total à virer</strong>','<strong>'+fmtEur(moi)+'</strong>','border-top:1px solid var(--b);margin-top:.2rem;padding-top:.35rem;color:var(--txt)')}
         </div>
+        ${(()=>{const R=lease&&lease.rent!=null?Number(lease.rent)||0:null,C=Number(lease?.charges)||0,CC=_rentCC;
+          const nbM=R>0?Math.round(depot/R*100)/100:null;
+                    const per=_pr&&!_pr.full?' du '+fmtDateFr(_pr.start).replace(/ \d{4}$/,'')+' au '+fmtDateFr(_pr.end).replace(/ \d{4}$/,''):'';
+          const li=(t,c)=>`<li style="margin:.25rem 0"><div style="color:var(--txt);font-weight:600">${t}</div><div style="font-variant-numeric:tabular-nums">${c}</div></li>`;
+          return `<details style="margin-top:.45rem;font-size:.74rem;color:var(--tm)"><summary style="cursor:pointer;color:var(--bleu);font-weight:600">Voir le calcul</summary>
+          <ol style="margin:.35rem 0 0;padding-left:1.1rem;line-height:1.45">
+            ${li('Dépôt de garantie',R&&nbM?`${fmtEur(R)} de loyer hors charges × ${String(nbM).replace('.',',')} mois = <strong>${fmtEur(depot)}</strong>`:`<strong>${fmtEur(depot)}</strong> (montant fixé dans le bail)`)}
+            ${li('Premier loyer'+per,_pr&&!_pr.full?`${fmtEur(CC)} par mois charges comprises${C?` (${fmtEur(R)} + ${fmtEur(C)} de charges)`:''} × ${_pr.days} jours ÷ ${_pr.period} jours = <strong>${fmtEur(loyer)}</strong><br><span style="color:var(--td)">Vous ne payez que les jours où vous occupez le logement jusqu'à la prochaine échéance (le ${(+lease?.payment_due_day||1)===1?'1er':lease.payment_due_day} du mois).</span>`:`Un mois complet charges comprises${C?` (${fmtEur(R)} + ${fmtEur(C)} de charges)`:''} = <strong>${fmtEur(loyer)}</strong>`)}
+            ${holding?li('Acompte déjà versé',`− <strong>${fmtEur(holding)}</strong>`):''}
+            ${totalLocataires>1?li('Votre part',`${fmtEur(depot)} + ${fmtEur(loyer)}${holding?' − '+fmtEur(holding):''} = ${fmtEur(totalDue)} pour tout le logement, ÷ ${totalLocataires} locataires = <strong>${fmtEur(perPersonShare)}</strong>`):li('Total',`${fmtEur(depot)} + ${fmtEur(loyer)}${holding?' − '+fmtEur(holding):''} = <strong>${fmtEur(totalDue)}</strong>`)}
+          </ol></details>`;})()}
         ${bk.landlord_iban||bk.landlord_revolut?`<div style="margin-top:.55rem;background:var(--bg);border-radius:8px;padding:.45rem .6rem;font-size:.75rem;color:var(--tm)">
           <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--td);margin-bottom:.15rem">Virement au propriétaire (bailleur)</div>
           ${bk.landlord_iban?`<div><i data-lucide=landmark class=ic></i> IBAN du propriétaire : <strong style="color:var(--txt);font-variant-numeric:tabular-nums;word-break:break-all">${bk.landlord_iban}</strong></div>`:''}
           ${bk.landlord_revolut?`<div><i data-lucide=heart class=ic></i> Revolut du propriétaire : <strong style="color:var(--txt)">${bk.landlord_revolut}</strong></div>`:''}
         </div>`:''}
-        ${n>1?`<div style="margin-top:.55rem;font-size:.72rem;color:var(--td)">Pour tout le logement : dépôt ${fmtEur(depot)} + premier loyer ${fmtEur(loyer)}${holding?' − acompte '+fmtEur(holding):''} = ${fmtEur(totalDue)}, partagé en ${n} parts égales.</div>
+        ${n>1?`
         <div style="margin-top:.45rem;border-top:1px solid var(--b);padding-top:.4rem">
           <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--td);margin-bottom:.2rem">Qui a payé</div>
           ${_payPeople(bk).map(p=>{const d=_payDecl(bk)[p.id];return `<div style="display:flex;justify-content:space-between;font-size:.75rem;padding:.1rem 0"><span><i data-lucide=user class=ic></i> ${p.id===U.id?'Vous':_escT(p.name)}</span><span style="font-weight:600;color:${d||payDeclared?'var(--green)':'var(--gold)'}">${d||payDeclared?'✓ payé':'pas encore'}</span></div>`;}).join('')}
