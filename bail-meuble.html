@@ -1882,9 +1882,11 @@ function numEnLettres(n){
     return pfx+'cent'+(r?' '+diz(r):(c>1?'s':''));
   }
   if(n===0)return'zéro';
-  const m=Math.floor(n/1000),r=n%1000;
+  const mi=Math.floor(n/1e6),m=Math.floor(n%1e6/1000),r=n%1000;
+  const inv=x=>x.replace(/(cent|vingt)s$/,'$1'); // « deux cent mille », « quatre-vingt mille »
   let s='';
-  if(m)s=(m===1?'mille':grp(m)+' mille');
+  if(mi)s=(mi===1?'un million':grp(mi)+' millions');
+  if(m)s+=(s?' ':'')+(m===1?'mille':inv(grp(m))+' mille');
   if(r)s+=(s?' ':'')+grp(r);
   return s||'zéro';
 }
@@ -3116,7 +3118,7 @@ function _renderBail(){
   // Contrat de cautionnement Visale (signé par le bailleur sur visale.fr) : annexé au bail, déposé par le bailleur ou le locataire concerné
   try{const _vs=visaleTenants();_vs.forEach(v=>annexes.push({txt:'Contrat de cautionnement Visale'+(_vs.length>1||v.num?' — '+_escB(v.name):'')+(v.visa?' (visa n° '+_escB(v.visa)+')':''),url:v.contrat?.url||null,visaleKey:v.key,canUp:!(LEASE.landlord_signed_at||LEASE.tenant_signed_at)&&(myRole==='landlord'||v.isMe),cat:'si_applicable'}));}catch(e){}
   // Actes de cautionnement séparés : annexés au bail
-  if(ACTE_SEPARE)try{garantsActes().forEach(g=>{const a=_acteDe(g),signe=a?.statut==='signe'||!!g.signed_at;annexes.push({txt:'Acte de cautionnement de '+_escB(g.nom)+' (caution de '+_escB(g.forName)+')',url:signe&&a?'/acte-caution.html?id='+a.id:null,acteKey:g.cle,cat:'si_applicable'});});}catch(e){}
+  if(ACTE_SEPARE)try{garantsActes().filter(_acteVisible).forEach(g=>{const a=_acteDe(g),signe=a?.statut==='signe'||!!g.signed_at;annexes.push({txt:'Acte de cautionnement de '+_escB(g.nom)+' (caution de '+_escB(g.forName)+')',url:signe&&a?'/acte-caution.html?id='+a.id:null,acteKey:g.cle,cat:'si_applicable'});});}catch(e){}
   annexes.forEach((a,i)=>a.n=i+1); // numérotation continue (sans trous)
   // Pièces à joindre avant signature : obligatoires ou applicables, déposables, sans fichier
   window._annexesManquantes=annexes.filter(a=>a.cat!=='facultatif'&&a.uploadKey&&!a.url).map(a=>a.txt.split(' — ')[0]);
@@ -4466,7 +4468,7 @@ function wzRender(garderScroll){
     corps=_wzCorps(s);
   }
   el.innerHTML=`<div class="wz-page">
-    <div class="wz-top"><div class="wz-eyebrow">Préparer le bail · étape ${_wzStep+1} sur ${S.length}</div>${_wzLibre||s.recap?'<button type="button" class="wz-x" onclick="wzFermer()">Voir le bail complet</button>':''}</div>
+    <div class="wz-top"><div class="wz-eyebrow">Préparer le bail · étape ${_wzStep+1} sur ${S.length}</div></div>
     ${!_wzLibre&&!s.recap?'<div class="wz-info">Remplissez les étapes : à la fin, vous verrez le bail complet et pourrez encore tout modifier.</div>':''}
     <div class="wz-dots">${dots}</div>
     <h2>${s.t}</h2>${s.d?`<p class="wz-desc">${s.d}</p>`:''}
@@ -4518,6 +4520,16 @@ function wzAuto(){
 }
 
 // ═══ Actes de cautionnement séparés (un par garant personne physique) ═══
+// Qui voit quel acte : le bailleur voit tout ; un locataire seulement l'acte de son propre garant ; un garant seulement le sien
+function _acteVisible(g){
+  if(_editMode||myRole==='landlord')return true;
+  const uid=typeof U!=='undefined'&&U?U.id:null;
+  if(myRole==='tenant')return g.cle==='g:main'||(!!uid&&g.forId===uid);
+  if(myRole==='coloc'){const ref=String(MY_EXTRA_KEY||'').replace(/^t:/,'');return (!!ref&&String(g.cle).startsWith('g:'+ref+':'))||(!!uid&&g.forId===uid);}
+  if(myRole==='garant')return g.cle==='g:main'&&!MY_EXTRA_KEY;
+  if(myRole==='cogarant')return g.cle===MY_EXTRA_KEY;
+  return false;
+}
 function garantsActes(){
   if(!LEASE)return[];
   const out=[],bc=bailChoices(LEASE);
@@ -4577,7 +4589,7 @@ function _acteDe(g){return ACTES.find(a=>a.cle===g.cle)||null;}
 let _actesPrepares=false;
 function renderActesDocs(L){
   const el=q('actes-docs');if(!el)return;
-  const gs=ACTE_SEPARE?garantsActes():[];
+  const gs=ACTE_SEPARE?garantsActes().filter(_acteVisible):[];
   if(!gs.length){el.innerHTML='';return;}
   // Bailleur : créer les brouillons manquants une fois (sans e-mail) pour que l'acte soit visible tout de suite
   if(myRole==='landlord'&&!_actesPrepares&&gs.some(g=>!_acteDe(g)&&!g.signed_at)){_actesPrepares=true;envoyerActes(false,null,true).then(()=>{renderActesDocs(LEASE);if(document.body.classList.contains('bail-tunnel'))wzRender(true);});}
@@ -4603,9 +4615,12 @@ window.addEventListener('message',async e=>{
 });
 // Référence de l'acte dans le texte du bail : date de signature et plafond garanti
 function _acteRef(f){
-  const a=(typeof ACTES!=='undefined'?ACTES:[]).filter(f).filter(x=>x.statut==='signe');
+  const a=(typeof ACTES!=='undefined'?ACTES:[]).filter(f);
   if(!a.length)return '';
-  return ' du '+a.map(x=>fmtDate(x.signed_at)+(x.plafond?' (plafond : '+fmt(x.plafond)+')':'')).join(' et du ');
+  const lim=x=>x.plafond?'dans la limite de <strong>'+fmt(x.plafond)+'</strong> ('+numEnLettres(x.plafond)+' euros)':'';
+  const sig=x=>x.statut==='signe'&&x.signed_at;
+  if(a.length===1){const x=a[0];return (sig(x)?' du '+fmtDate(x.signed_at):'')+(x.plafond?', '+lim(x)+',':'');}
+  return ' ('+a.map(x=>_escB(x.garant_nom||'garant')+' : '+[sig(x)?'signé le '+fmtDate(x.signed_at):'',lim(x)].filter(Boolean).join(', ')).join(' ; ')+')';
 }
 // Bailleur : préparer / voir l'acte avant l'envoi au garant (brouillon, aucun e-mail)
 async function voirActe(cle){
