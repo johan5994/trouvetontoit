@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="/ui-dialog.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit — Portail agence</title>
@@ -1249,7 +1250,7 @@ async function addAndSelectTeamMember(){
 }
 
 async function removeTeamMember(name){
-  if(!confirm('Retirer '+name+'  de l’équipe ?'))return;
+  if(!await uiConfirm('Retirer '+name+'  de l’équipe ?'))return;
   const members=getTeamMembers().filter(m=>m.name!==name);
   try{
     await sb.from('agency_profiles').update({team_members:JSON.stringify(members)}).eq('clerk_id',U.id);
@@ -1645,7 +1646,7 @@ async function deleteListing(id, title, btn){
     toast(`<i data-lucide=x-circle class=ic></i> Suppression impossible — ${activeBooking.tenant_name||'un locataire'} a une location en cours sur ce bien.`);
     return;
   }
-  if(!confirm(`Supprimer annonce "${title}» ? Cette action est irréversible.`)) return;
+  if(!await uiConfirm(`Supprimer annonce "${title}» ? Cette action est irréversible.`)) return;
   btn.textContent='…';
   const{error}=await sb.from('listings').delete().eq('id',id);
   if(error){
@@ -1653,7 +1654,7 @@ async function deleteListing(id, title, btn){
     // OK sur une simple confirmation ne suffit plus pour effacer des
     // messages définitivement — trop facile de cliquer par erreur sans
     // avoir lu. Il faut mainlocataire taper le vrai titre de l'annonce.
-    const wantsForce=confirm("Cette annonce a un historique de messages : elle ne peut pas être supprimée sans l’effacer.\n\nOK = la masquer de la recherche (conseillé, l’historique est conservé).\nAnnuler = la supprimer définitivement avec ses messages.");
+    const wantsForce=await uiConfirm("Cette annonce a un historique de messages : elle ne peut pas être supprimée sans l’effacer.\n\nOK = la masquer de la recherche (conseillé, l’historique est conservé).\nAnnuler = la supprimer définitivement avec ses messages.");
     if(wantsForce){
       const{error:deactivateError}=await sb.from('listings').update({active:false}).eq('id',id);
       if(deactivateError){
@@ -1666,7 +1667,7 @@ async function deleteListing(id, title, btn){
       return;
     }
 
-    const typed=prompt(`Pour supprimer définitivement cette annonce ET tous ses messages, tapez son titre exact :\n\n«${title}"`);
+    const typed=await uiPrompt(`Pour supprimer définitivement cette annonce ET tous ses messages, tapez son titre exact :\n\n«${title}"`);
     if(typed!==title){
       if(typed!==null)toast("<i data-lucide=x-circle class=ic></i> Le titre ne correspond pas — rien n’a été supprimé.");
       btn.innerHTML='<i data-lucide=trash-2 class=ic></i>';
@@ -2308,7 +2309,7 @@ async function toggleCRMFavorite(clientId){
 }
 
 async function hideCRMClient(clientId,name){
-  if(!confirm(`Retirer ${name||'ce client'}  de votre liste CRM ? Ses réservations et visites ne seront pas supprimées — elles restent accessibles ailleurs.`))return;
+  if(!await uiConfirm(`Retirer ${name||'ce client'}  de votre liste CRM ? Ses réservations et visites ne seront pas supprimées — elles restent accessibles ailleurs.`))return;
   const hidden=getCRMHidden();
   if(!hidden.includes(clientId))hidden.push(clientId);
   try{
@@ -3556,7 +3557,7 @@ async function viewTenantDocAgency(path){
 }
 
 async function agencyConfirmPaymentReceived(bookingId){
-  if(!confirm('Confirmer la réception du dépôt de garantie et du premier loyer ?'))return;
+  if(!await uiConfirm('Confirmer la réception du dépôt de garantie et du premier loyer ?'))return;
   try{
     const{data:bk,error:fetchErr}=await sb.from('bookings').select('*').eq('id',bookingId).single();
     if(fetchErr||!bk){alert('Impossible de charger la réservation : '+(fetchErr?.message||'introuvable'));return;}
@@ -3591,7 +3592,7 @@ async function agencyConfirmPaymentReceived(bookingId){
 }
 
 async function declineApplicationAgency(bookingId,listingId,tenantId){
-  if(!confirm('Refuser cette candidature ?'))return;
+  if(!await uiConfirm('Refuser cette candidature ?'))return;
   try{
     await sb.from('bookings').update({status:'declined'}).eq('id',bookingId);
     if(tenantId){
@@ -3760,7 +3761,7 @@ document.addEventListener('click',()=>{
 
 async function unlinkOwnerAccount(){
   if(!_ownerLinkListingId)return;
-  if(!confirm('Dissocier ce compte ? Il perdra immédiatement l’accès aux détails de ce logement. Vous pourrez lier le bon propriétaire lors de la prochaine candidature acceptée.'))return;
+  if(!await uiConfirm('Dissocier ce compte ? Il perdra immédiatement l’accès aux détails de ce logement. Vous pourrez lier le bon propriétaire lors de la prochaine candidature acceptée.'))return;
   try{
     const{error}=await sb.from('listings').update({real_landlord_id:null,landlord_has_account:false}).eq('id',_ownerLinkListingId);
     if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
@@ -3780,7 +3781,7 @@ async function resolveLandlordAndAccept(bookingId,listingId,tenantId,fields){
     try{
       const{data:existingProfile}=await sb.from('profiles').select('clerk_id,full_name').eq('email',fields.email).maybeSingle();
       if(existingProfile?.clerk_id){
-        const confirmed=confirm(`Un compte Trouve Ton Toit a été trouvé pour cet e-mail :\n\n«${existingProfile.full_name||'(nom non renseigné)'}»\n\nLier ce compte pour qu’il puisse suivre et signer ? Vérifiez bien qu’il s’agit du propriétaire du bien — lier la mauvaise personne lui donne accès aux détails de cette location.`);
+        const confirmed=await uiConfirm(`Un compte Trouve Ton Toit a été trouvé pour cet e-mail :\n\n«${existingProfile.full_name||'(nom non renseigné)'}»\n\nLier ce compte pour qu’il puisse suivre et signer ? Vérifiez bien qu’il s’agit du propriétaire du bien — lier la mauvaise personne lui donne accès aux détails de cette location.`);
         if(confirmed)realLandlordId=existingProfile.clerk_id;
       }
     }catch(e){}
@@ -4450,7 +4451,7 @@ async function setZoneAlur(listingId,zone){
   toast('<i data-lucide=check-circle-2 class=ic></i> Zone enregistrée');loadHonoraires();
 }
 async function setSqm(listingId){
-  const v=parseFloat(String(prompt('Surface habitable du bien (m²) :')||'').replace(',','.'));
+  const v=parseFloat(String(await uiPrompt('Surface habitable du bien (m²) :')||'').replace(',','.'));
   if(!v||v<=0)return;
   const{error}=await sb.from('listings').update({sqm:Math.round(v)}).eq('id',listingId);
   if(error){toast('<i data-lucide=x-circle class=ic></i> '+error.message);return;}
