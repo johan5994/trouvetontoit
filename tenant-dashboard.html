@@ -2570,12 +2570,18 @@ async function loadMessages(){
     const existingRequestKeys=new Set();
     if(listingIds.length){
       try{
-        const[{data:existingVisits},{data:existingBookings}]=await Promise.all([
-          sb.from('visits').select('listing_id,landlord_id').eq('tenant_id',U.id).in('listing_id',listingIds),
-          sb.from('bookings').select('listing_id,landlord_id').eq('tenant_id',U.id).in('listing_id',listingIds)
+        // Déjà en lien avec ce logement : visite, candidature (y compris comme co-locataire) ou bail
+        const[{data:existingVisits},{data:existingBookings},{data:allBookings},{data:myLeases}]=await Promise.all([
+          sb.from('visits').select('listing_id,status').eq('tenant_id',U.id).in('listing_id',listingIds),
+          sb.from('bookings').select('listing_id,status').eq('tenant_id',U.id).in('listing_id',listingIds),
+          sb.from('bookings').select('*').in('listing_id',listingIds),
+          sb.from('leases').select('listing_id').eq('tenant_id',U.id).in('listing_id',listingIds)
         ]);
-        (existingVisits||[]).forEach(v=>existingRequestKeys.add(`${v.listing_id}-${v.landlord_id}`));
-        (existingBookings||[]).forEach(b=>existingRequestKeys.add(`${b.listing_id}-${b.landlord_id}`));
+        const _parse=x=>{try{return typeof x==='string'?JSON.parse(x):(x||[]);}catch(e){return[];}};
+        (existingVisits||[]).forEach(v=>existingRequestKeys.add(v.listing_id+'|visite'));
+        (existingBookings||[]).forEach(b=>existingRequestKeys.add(b.listing_id+'|candidature'));
+        (allBookings||[]).forEach(b=>{if(_parse(b.co_locataires_data).some(c=>(c.locataire_id||c.tenant_id)===U.id||(c.email&&U.email&&String(c.email).toLowerCase()===String(U.email).toLowerCase())))existingRequestKeys.add(b.listing_id+'|candidature');});
+        (myLeases||[]).forEach(l=>existingRequestKeys.add(l.listing_id+'|bail'));
       }catch(e){}
     }
 
@@ -2586,7 +2592,8 @@ async function loadMessages(){
       const name=other?.full_name||m.listings?.title||'Conversation';
       const subtitle=roleTxt?`${roleTxt} · ${m.listings?.title||''} · ${m.listings?.zone||''}`:m.listings?.title||'';
       const isUnread=!m.read&&m.receiver_id===U.id;
-      const hasExistingRequest=existingRequestKeys.has(`${m.listing_id}-${m.otherId}`);
+      const _etat=['bail','candidature','visite'].find(k=>existingRequestKeys.has(m.listing_id+'|'+k));
+      const hasExistingRequest=!!_etat;
       return`<div class="mitem ${isUnread?'unread':''}" data-key="${m.key}" data-name="${name.replace(/"/g,'&quot;')}" data-subtitle="${subtitle.replace(/"/g,'&quot;')}" data-annonce="${m.listing_id||''}" data-other="${m.otherId}" onclick="openMsgFromEl(this)">
         <div class="mav" style="font-size:1.1rem">${roleIco}</div>
         <div style="flex:1;min-width:0">
@@ -2595,18 +2602,18 @@ async function loadMessages(){
           <div class="mprev">${m.content?.substring(0,60)||''}</div>
         </div>
         <div style="flex-shrink:0;text-align:right">
-          <span style="font-size:.68rem;color:var(--td)">${new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+          <span style="font-size:.68rem;color:var(--td)">${new Date(m.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
           ${isUnread?'<div style="width:7px;height:7px;border-radius:50%;background:var(--bleu);margin:3px 0 0 auto"></div>':''}
         </div>
       </div>
       </div>
       ${!hasExistingRequest && m.listing_id ? `<div style="display:flex;flex-direction:column;gap:.3rem;padding:.45rem .85rem .65rem;border-top:1px solid var(--b)">
-        <button data-lid="${m.listing_id||''}" data-oid="${m.otherId||''}" data-name="${(m.listings?.title||''). replace(/"/g,'&quot;')}"\n            onclick="requestVisitFromContact(this.dataset.lid,this.dataset.oid,this.dataset.name)"\n            style="width:100%;background:var(--grdim);color:var(--green);border:1px solid var(--grdim);border-radius:7px;padding:.42rem;font-size:.73rem;font-weight:700;cursor:pointer;margin-bottom:.3rem">\n            <i data-lucide=calendar class=ic></i> I want to visite\n          </button>\n        <button data-lid="${m.listing_id||''}" data-oid="${m.otherId||''}" data-name="${(m.listings?.title||'').replace(/"/g,'&quot;')}" data-price="${m.listings?.price||0}"
+        <button data-lid="${m.listing_id||''}" data-oid="${m.otherId||''}" data-name="${(m.listings?.title||''). replace(/"/g,'&quot;')}"\n            onclick="requestVisitFromContact(this.dataset.lid,this.dataset.oid,this.dataset.name)"\n            style="width:100%;background:var(--grdim);color:var(--green);border:1px solid var(--grdim);border-radius:7px;padding:.42rem;font-size:.73rem;font-weight:700;cursor:pointer;margin-bottom:.3rem">\n            <i data-lucide=calendar class=ic></i> Demander une visite\n          </button>\n        <button data-lid="${m.listing_id||''}" data-oid="${m.otherId||''}" data-name="${(m.listings?.title||'').replace(/"/g,'&quot;')}" data-price="${m.listings?.price||0}"
           onclick="showNegotiationModal(this.dataset.lid,this.dataset.name,this.dataset.oid,parseFloat(this.dataset.price))"
           style="width:100%;background:var(--bleu);color:white;border:none;border-radius:7px;padding:.42rem;font-size:.73rem;font-weight:700;cursor:pointer">
-          <i data-lucide=home class=ic></i> I want to loyer ce logement →
+          <i data-lucide=home class=ic></i> Je veux louer ce logement →
         </button>
-      </div>` : ''}`;
+      </div>` : _etat&&m.listing_id?`<div style="padding:.4rem .85rem .6rem;border-top:1px solid var(--b);font-size:.74rem;color:var(--td)"><i data-lucide=${_etat==='visite'?'calendar-check':'check-circle-2'} class=ic></i> ${_etat==='bail'?'Bail en cours pour ce logement — voir « Mon logement »':_etat==='candidature'?'Candidature déjà envoyée pour ce logement — voir « Candidatures »':'Visite déjà demandée pour ce logement — voir « Mes visites »'}</div>`:''}`;
     }).join('');
   }catch(e){console.error('loadMessages:',e);}
 }
@@ -2863,7 +2870,7 @@ async function loadTickets(){
   const pc={high:'ph',medium:'pm',low:'pl'};
   const sc={open:'to',in_progress:'tip',resolved:'tr'};
   const sl={open:'Ouvert',in_progress:'En cours <i data-lucide=settings class=ic></i>',resolved:'Résolu <i data-lucide=check class=ic></i>'};
-  wrap.innerHTML=data.map(t=>'<div class="tcard"><div class="tpri '+(pc[t.priority]||'pm')+'"></div><div style="font-size:1.2rem">'+(t.title?.includes('Plumb')?'<i data-lucide=droplet class=ic></i>':t.title?.includes('Elect')?'<i data-lucide=lightbulb class=ic></i>':t.title?.includes('A/C')?'<i data-lucide=snowflake class=ic></i>':'<i data-lucide=wrench class=ic></i>')+'</div><div style="flex:1"><div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">'+t.title+'</div><div style="font-size:.72rem;color:var(--tm)">'+(t.description||'')+' · '+new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div></div><span class="tst '+(sc[t.statut]||'to')+'">'+(sl[t.statut]||'Ouvrir')+'</span></div>').join('');
+  wrap.innerHTML=data.map(t=>'<div class="tcard"><div class="tpri '+(pc[t.priority]||'pm')+'"></div><div style="font-size:1.2rem">'+(t.title?.includes('Plumb')?'<i data-lucide=droplet class=ic></i>':t.title?.includes('Elect')?'<i data-lucide=lightbulb class=ic></i>':t.title?.includes('A/C')?'<i data-lucide=snowflake class=ic></i>':'<i data-lucide=wrench class=ic></i>')+'</div><div style="flex:1"><div style="font-size:.88rem;font-weight:600;margin-bottom:.2rem">'+t.title+'</div><div style="font-size:.72rem;color:var(--tm)">'+(t.description||'')+' · '+new Date(t.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+'</div></div><span class="tst '+(sc[t.statut]||'to')+'">'+(sl[t.statut]||'Ouvrir')+'</span></div>').join('');
 }
 
 async function openTicketModal(){
