@@ -3349,7 +3349,7 @@ async function loadLocataireApplicationsPage(){
   try{
     const rawBkIds=allVisits.map(v=>v.booking?.id).filter(Boolean);
     if(rawBkIds.length){
-      let{data:leasesData,error:_le}=await sb.from('leases').select('id,booking_id,negotiation_status,tenant_signed_at,landlord_signed_at,garant_signed_at,garant_name,modifs_log,rent,charges,deposit,payment_due_day,start_date,co_signers,colocation_type,tenant_id,tenant_name').in('booking_id',rawBkIds);
+      let{data:leasesData,error:_le}=await sb.from('leases').select('*').in('booking_id',rawBkIds);
       if(_le){({data:leasesData}=await sb.from('leases').select('id,booking_id,negotiation_status,tenant_signed_at,landlord_signed_at,garant_signed_at,garant_name').in('booking_id',rawBkIds));}
       const leaseMap={};
       // Plusieurs leases possibles pour un booking → garder la plus avancée
