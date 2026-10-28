@@ -2170,6 +2170,11 @@ async function loadBail(){
           const nom=cleanPersonName([gn.prenom,gn.nom||gn.nomUsage].filter(Boolean).join(' '));
           if(nom){
             const upd={garant_name:nom,garant_email:gn.email||null};
+            // Identité complète du garant (pour l'acte de cautionnement) quand le bail ne l'a pas déjà
+            if(gn.adresse&&!LEASE.garant_address)upd.garant_address=gn.adresse;
+            if(gn.telephone&&!LEASE.garant_phone)upd.garant_phone=gn.telephone;
+            if(gn.naissance_date&&!LEASE.garant_birth_date)upd.garant_birth_date=gn.naissance_date;
+            if(gn.naissance_lieu&&!LEASE.garant_birth_place)upd.garant_birth_place=gn.naissance_lieu;
             await sb.from('leases').update(upd).eq('id',LEASE.id);
             Object.assign(LEASE,upd);
           }
@@ -3126,7 +3131,7 @@ function _renderBail(){
     ${a.acteKey?(a.url?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=file-check class=ic></i> Acte signé</a>`:'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">Signé en ligne par le garant</span>'):a.visaleKey?_visaleAnnexeAct(a):a.url
       ?(a.official
         ?`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener" style="background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC"><i data-lucide=file-text class=ic></i> PDF officiel</a>`
-        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>${_editMode&&a.uploadKey&&!_docsVerrouilles()?`
+        :`<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=eye class=ic></i> Voir</a>${_editMode&&a.uploadKey&&!_docsVerrouilles()?`
           <label class="annexe-act" title="Remplacer le document"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${a.uploadKey}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=refresh-cw class=ic></i> Changer</label>
           <button type="button" class="annexe-act annexe-del" title="Supprimer le document" onclick="removeDoc('${a.uploadKey}')"><i data-lucide=trash-2 class=ic></i> Supprimer</button>`:''}`)
       :a.edl
@@ -3901,8 +3906,8 @@ function renderVisaleBox(L){
 function _visaleAnnexeAct(a){
   const k=String(a.visaleKey).replace(/'/g,'');
   const up=lbl=>`<label class="${a.url?'annexe-act':'annexe-upload-btn'}" title="Déposer le contrat Visale (PDF)"><input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadVisaleContrat('${k}',this)" style="position:absolute;opacity:0;width:0;height:0"><i data-lucide=${a.url?'refresh-cw':'upload'} class=ic></i> ${lbl}</label>`;
-  if(a.url)return `<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=download class=ic></i> PDF</a>${a.canUp?up('Changer')+`<button type="button" class="annexe-act annexe-del" onclick="removeVisaleContrat('${k}')"><i data-lucide=trash-2 class=ic></i> Supprimer</button>`:''}`;
-  return a.canUp?up('Déposer le PDF'):'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À déposer par le bailleur ou le locataire</span>';
+  if(a.url)return `<a class="annexe-link" href="${a.url}" target="_blank" rel="noopener"><i data-lucide=eye class=ic></i> Voir</a>${a.canUp?up('Changer')+`<button type="button" class="annexe-act annexe-del" onclick="removeVisaleContrat('${k}')"><i data-lucide=trash-2 class=ic></i> Supprimer</button>`:''}`;
+  return a.canUp?up('Déposer (PDF ou photo)'):'<span style="font-size:.7rem;color:var(--td);margin-left:auto;font-style:italic">À déposer par le bailleur ou le locataire</span>';
 }
 async function uploadVisaleContrat(key,input){
   if(LEASE.landlord_signed_at||LEASE.tenant_signed_at){toast(_MSG_DOCS_FIGES,6000);try{if(input)input.value='';}catch(e){}return;}
@@ -4421,8 +4426,8 @@ function _wzSpecial(x){
     return`<div class="wz-f"><label>Destination du logement</label><div class="wz-pills"><button type="button" class="wz-pill${!m?' on':''}" onclick="saveField('usage_locaux','habitation').then(()=>wzRender())">Habitation uniquement</button><button type="button" class="wz-pill${m?' on':''}" onclick="saveField('usage_locaux','mixte').then(()=>wzRender())">Habitation + activité professionnelle</button></div></div>`;}
   if(x==='annexes'){
     const m=window._annexesManquantes||[];
-    const ups=[...document.querySelectorAll('#annexes-list li')].filter(li=>li.querySelector('[onchange*="uploadDoc("]')).map(li=>{const k=(li.querySelector('[onchange*="uploadDoc("]').getAttribute('onchange').match(/uploadDoc\('([^']+)'/)||[])[1];const t=(li.querySelector('span[style*="flex:1"]')?.childNodes[0]?.textContent||k).trim();const ok=!!li.querySelector('a.annexe-link');
-      return`<div class="wz-annexe"><span>${ok?'<span style="color:var(--green)">✓</span>':'<span style="color:#C2410C">•</span>'} ${t}</span><label class="wz-pill" style="cursor:pointer;position:relative">${ok?'Remplacer':'Déposer le PDF'}<input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${k}',this).then(()=>_wzMajAnnexes())" style="position:absolute;opacity:0;width:0;height:0"></label></div>`;}).join('');
+    const ups=[...document.querySelectorAll('#annexes-list li')].filter(li=>li.querySelector('[onchange*="uploadDoc("]')).map(li=>{const k=(li.querySelector('[onchange*="uploadDoc("]').getAttribute('onchange').match(/uploadDoc\('([^']+)'/)||[])[1];const t=(li.querySelector('span[style*="flex:1"]')?.childNodes[0]?.textContent||k).trim();const lk=li.querySelector('a.annexe-link'),ok=!!lk;
+      return`<div class="wz-annexe"><span>${ok?'<span style="color:var(--green)">✓</span>':'<span style="color:#C2410C">•</span>'} ${t}</span>${ok?`<a class="wz-pill" href="${lk.getAttribute('href')}" target="_blank" rel="noopener" style="text-decoration:none;margin-left:auto">Voir</a>`:''}<label class="wz-pill" style="cursor:pointer;position:relative">${ok?'Remplacer':'Déposer (PDF ou photo)'}<input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif" onchange="uploadDoc('${k}',this).then(()=>_wzMajAnnexes())" style="position:absolute;opacity:0;width:0;height:0"></label></div>`;}).join('');
     return`<div class="wz-f"><label>Documents à annexer${m.length?` <span class="wz-tag">${m.length} manquant${m.length>1?'s':''}</span>`:''}</label>${ups||'<div class="wz-aide">Rien à déposer.</div>'}</div>`;}
   return'';
 }
@@ -5054,8 +5059,10 @@ async function uploadDoc(key,inputEl){
   const statusEl=q('status-'+key);
   if(statusEl)statusEl.innerHTML='<span class="cp-doc-uploading"><i data-lucide=hourglass class=ic></i> Upload en cours…</span>';
 
-  const path=`${LEASE.id}/${key}_${Date.now()}.pdf`;
-  const{data,error}=await sb.storage.from(DOC_BUCKET).upload(path,file,{upsert:true,contentType:'application/pdf'});
+  const _ext=(file.name.match(/\.(pdf|jpe?g|png|heic|heif)$/i)||[,'pdf'])[1].toLowerCase();
+  const _ct=file.type||({pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',heic:'image/heic',heif:'image/heif'}[_ext]);
+  const path=`${LEASE.id}/${key}_${Date.now()}.${_ext}`;
+  const{data,error}=await sb.storage.from(DOC_BUCKET).upload(path,file,{upsert:true,contentType:_ct});
   if(error){
     if(statusEl)statusEl.innerHTML='<span style="color:var(--red);font-size:.72rem"><i data-lucide=x-circle class=ic></i> '+error.message+'</span>';
     toast('<i data-lucide=x-circle class=ic></i> Upload échoué : '+error.message,5000);
