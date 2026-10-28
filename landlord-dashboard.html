@@ -4300,13 +4300,12 @@ async function loadActesLL(){
   const fd=d=>d?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
   els.forEach(el=>{el.dataset.ok='1';
     const a=rows.filter(r=>r.lease_id===el.dataset.lease);if(!a.length)return;
-    el.innerHTML=`<div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem">${a.map(r=>{
-      const st=r.statut==='signe'?['var(--green)','check-circle-2','Signé le '+fd(r.signed_at)]:r.statut==='envoye'?['var(--gold)','hourglass','Envoyé'+(r.envoye_at?' le '+fd(r.envoye_at):'')+' — à signer']:r.statut==='annule'?['var(--td)','x-circle','Annulé']:['var(--td)','file-pen','Brouillon — envoyé quand le bail est validé'];
-      return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;background:rgba(var(--gold-rgb),.06);border:1px solid rgba(var(--gold-rgb),.2);border-radius:8px;padding:.4rem .6rem">
-        <span style="font-size:.76rem"><i data-lucide=file-signature class=ic></i> Acte de cautionnement — <strong>${r.garant_nom||'garant'}</strong>${r.locataire_nom?` <span style="color:var(--td)">(caution de ${r.locataire_nom}${r.plafond?' · plafond '+fmtEur(r.plafond):''})</span>`:''}</span>
-        <span style="display:flex;align-items:center;gap:.6rem"><span style="font-size:.72rem;font-weight:600;color:${st[0]}"><i data-lucide=${st[1]} class=ic></i> ${st[2]}</span>
-          <a href="/acte-caution.html?id=${r.id}${r.statut==='signe'?'':'&role=bailleur'}" target="_blank" rel="noopener" style="font-size:.72rem;font-weight:700;color:var(--bleu);text-decoration:none">${r.statut==='signe'?'Voir l\'acte →':'Voir / régler →'}</a></span>
-      </div>`;}).join('')}</div>`;
+    // Simple consultation : la signature des garants est suivie dans « Signatures », le réglage de l'acte se fait dans le tunnel du bail
+    const vis=a.filter(r=>r.statut!=='annule');if(!vis.length)return;
+    el.innerHTML=`<details style="margin:-.35rem 0 .75rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.45rem .65rem">
+      <summary style="cursor:pointer;font-size:.76rem;font-weight:600;color:var(--txt)"><i data-lucide=file-signature class=ic></i> Actes de cautionnement (${vis.length})</summary>
+      <div style="display:flex;flex-direction:column;gap:.25rem;margin-top:.4rem">${vis.map(r=>`<a href="/acte-caution.html?id=${r.id}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;gap:.5rem;font-size:.76rem;color:var(--txt);text-decoration:none;padding:.3rem 0;border-top:1px solid var(--b)"><span>${_escL(r.garant_nom||'Garant')}${r.locataire_nom?` <span style="color:var(--td)">· caution de ${_escL(r.locataire_nom)}</span>`:''}</span><span style="color:var(--bleu);font-weight:600;white-space:nowrap">Voir l'acte ↗</span></a>`).join('')}</div>
+    </details>`;
   });
   if(window.lucide)lucide.createIcons();
 }
