@@ -7958,25 +7958,19 @@ function renderColocInvite(x){
     <div style="font-size:.75rem;color:var(--td);margin-top:.2rem">Rien n'est envoyé au propriétaire tant que vous n'avez pas répondu.</div>
     ${_blocPropositionsDate(b,arr)}
 
-    <div class="gate-box" style="margin-top:.8rem">
-      <div class="gate-h">1. Date d'entrée : ${b.move_in_date?_frDate(b.move_in_date):'non précisée'}</div>
-      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer;margin:.3rem 0"><input type="radio" name="ci-date-${id}" value="oui" style="accent-color:var(--bleu)"> Elle me convient</label>
-      <label style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;cursor:pointer"><input type="radio" name="ci-date-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-d2-${id}').style.display='block';document.getElementById('ci-d2n-${id}').style.display='block'"> Je préfère une autre date</label>
-      <div id="ci-d2n-${id}" style="display:none;font-size:.74rem;color:var(--td);margin-top:.35rem">Votre date sera proposée à ${_escC(b.locataire_name||'locataire 1')}${arr.length>1?' et aux autres co-locataires':''} : elle remplace la date actuelle quand tout le monde l’a acceptée.</div>
-      <input type="date" id="ci-d2-${id}" min="${new Date().toISOString().slice(0,10)}" style="display:none;margin-top:.45rem;width:100%;padding:.5rem .7rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--txt);font-family:inherit">
-    </div>
 
-    <div class="gate-box">
-      <div class="gate-h">2. Avez-vous un garant ?</div>
+    ${b.move_in_date?`<div style="font-size:.82rem;margin-top:.7rem"><i data-lucide=calendar class=ic></i> Entrée prévue le <strong>${_frDate(b.move_in_date)}</strong></div>`:''}
+    <div class="gate-box" style="margin-top:.8rem">
+      <div class="gate-h">1. Avez-vous un garant ?</div>
       <div style="display:flex;gap:1rem;margin:.4rem 0">
-        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="oui" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').innerHTML=_garantOuiHtml('ci-gchk-${id}');lucide&&lucide.createIcons()"> Oui</label>
-        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="non" style="accent-color:var(--bleu)" onchange="document.getElementById('ci-gl-${id}').innerHTML=''"> Non</label>
+        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="oui" style="accent-color:var(--bleu)" onchange="this.closest('.card').querySelector('#ci-gl-${id}').innerHTML=_garantOuiHtml('ci-gchk-${id}');window.lucide&&lucide.createIcons()"> Oui</label>
+        <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="ci-g-${id}" value="non" style="accent-color:var(--bleu)" onchange="this.closest('.card').querySelector('#ci-gl-${id}').innerHTML=''"> Non</label>
       </div>
       <div id="ci-gl-${id}"></div>
     </div>
 
     ${split?`<div class="gate-box">
-      <div class="gate-h">3. Votre part des frais : ${part} €</div>
+      <div class="gate-h">2. Votre part des frais : ${part} €</div>
       <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Prélevée uniquement si le propriétaire accepte la candidature.</div>
       <div id="nego-card-statut">${P?.stripe_customer_id
         ?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée</div>`
@@ -7992,7 +7986,9 @@ function renderColocInvite(x){
 }
 
 async function repondreColoc(bookingId,accepte){
-  const err=document.getElementById('ci-err-'+bookingId);
+  // La même invitation est affichée sur deux pages : on lit la carte réellement visible
+  const _card=[...document.querySelectorAll('[id="ci-'+bookingId+'"]')].find(e=>e.offsetParent)||document.getElementById('ci-'+bookingId)||document;
+  const err=_card.querySelector('#ci-err-'+bookingId);
   const fail=m=>{if(err){err.textContent=m;err.style.display='block';}};
   const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).maybeSingle();
   if(!bk||bk.status!=='awaiting_colocs'){toast('Cette candidature a déjà été envoyée ou annulée.');loadColocInvites();return;}
@@ -8011,9 +8007,8 @@ async function repondreColoc(bookingId,accepte){
     toast('Réponse envoyée.');loadColocInvites();return;
   }
 
-  const d=document.querySelector(`input[name="ci-date-${bookingId}"]:checked`)?.value;
-  const d2=document.getElementById('ci-d2-'+bookingId)?.value;
-  const g=document.querySelector(`input[name="ci-g-${bookingId}"]:checked`)?.value;
+  const d='oui',d2=null; // plus de choix de date pour le co-locataire : il rejoint la candidature telle quelle
+  const g=_card.querySelector(`input[name="ci-g-${bookingId}"]:checked`)?.value;
   if(!d)return fail('Dites si la date d\'entrée vous convient.');
   if(d==='non'&&!d2)return fail('Choisissez la date que vous préférez.');
   if(!g)return fail('Indiquez si vous avez un garant.');
@@ -8021,7 +8016,7 @@ async function repondreColoc(bookingId,accepte){
   if(g==='oui'){
     const st=dossierState?.[5];
     if(st?.type==='garant_personne'){
-      const idx=[...document.querySelectorAll('.ci-gchk-'+bookingId+':checked')].map(c=>+c.value);
+      const idx=[..._card.querySelectorAll('.ci-gchk-'+bookingId+':checked')].map(c=>+c.value);
       if(!idx.length)return fail('Ajoutez un garant complet à votre dossier, ou répondez « Non ».');
       garants=_garantsDuDossier(idx);garantType='physique';
     }else if(st?.type&&st.type!=='skipped_garant'){garantType=st.type;if(st.type==='garant_visale')garants=[{visa_ref:st.visa_ref||null,visa_commun:!!st.visa_commun,visa_commun_avec:st.visa_commun_avec||null}];}
