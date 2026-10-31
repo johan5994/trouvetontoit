@@ -4694,7 +4694,7 @@ function _gSyndicCard(holder,annee,nb){
   const lignes=ex?.lignes||[],rec=lignes.filter(x=>x.recuperable),non=lignes.filter(x=>!x.recuperable);
   const somme=a=>a.reduce((t,x)=>t+Number(x.montant||0),0);
   const drop=(type,txt)=>`<label class="btn ${type==='syndic'&&!docs.length?'bp':'bg'} bsm" style="cursor:pointer"><i data-lucide=upload class=ic></i> ${txt}<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="gRegUpload('${holder.id}',${annee},'${type}',this.files)"></label>`;
-  return `<div class="card" style="margin-bottom:1rem;border-color:rgba(var(--bleu-rgb),.35)"><div class="ch"><div class="ct"><i data-lucide=file-scan class=ic></i> Décompte de charges du syndic — ${annee}</div></div><div class="cb" style="font-size:.82rem;line-height:1.55">
+  return `<div class="card" style="margin-bottom:1rem;border-color:rgba(var(--bleu-rgb),.35)"><div class="ch"><div class="ct"><span style="display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:50%;background:var(--bleu);color:#fff;font-size:.75rem;margin-right:.35rem">1</span> Déposez le décompte de charges du syndic ${annee}</div></div><div class="cb" style="font-size:.82rem;line-height:1.55">
     ${!docs.length?`<p style="margin-bottom:.6rem">Déposez le <strong>décompte annuel de charges</strong> que votre syndic vous envoie après l'assemblée générale (PDF ou photo). Il est lu automatiquement : les charges récupérables sur le locataire sont triées, calculées pour la période d'occupation${nb>1?` et réparties entre les ${nb} baux`:''}, puis reportées ci-dessous. Ajoutez l'avis de taxe foncière pour la taxe d'ordures ménagères (TEOM).</p>`:''}
     <div style="display:flex;gap:.4rem;flex-wrap:wrap">${drop('syndic',docs.some(d=>d.type==='syndic')?'Ajouter un autre décompte':'Déposer le décompte du syndic')}${drop('taxe_fonciere',docs.some(d=>d.type==='taxe_fonciere')?'Ajouter un avis de taxe foncière':'Avis de taxe foncière (TEOM)')}</div>
     ${docs.length?`<div style="margin-top:.5rem;font-size:.76rem;color:var(--td)">${docs.map(d=>`<span style="display:inline-block;margin-right:.6rem"><i data-lucide=file-text class=ic></i> ${_gEsc(d.name)}</span>`).join('')}</div>`:''}
@@ -4755,7 +4755,7 @@ function renderCharges(){
   const exRow=holder?_gRegRow(holder.id,annee):null,ex=_gJson(exRow?.extraction,null);
   el.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;font-size:.8rem">Année : <select class="fi" style="width:auto" onchange="window._gChY=+this.value;renderGestion()">${[0,1,2].map(i=>new Date().getFullYear()-i).map(y=>`<option ${y===annee?'selected':''}>${y}</option>`).join('')}</select></div>
     ${holder&&ls.length?_gSyndicCard(holder,annee,nb):''}
-    <div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem;line-height:1.5">Chaque année, on compare les provisions versées par le locataire aux dépenses réelles récupérables (décret 87-713). Le décompte détaillé doit lui être envoyé un mois avant la régularisation, et les justificatifs tenus à sa disposition pendant 6 mois. La taxe foncière n'est pas récupérable, seule la TEOM l'est. En meublé avec charges au forfait, pas de régularisation.</div>`+
+    <details style="font-size:.76rem;color:var(--td);margin:0 0 .8rem;line-height:1.5"><summary style="cursor:pointer">Qu'est-ce que la régularisation des charges ?</summary><div style="margin-top:.3rem">Chaque mois, le locataire paie une provision sur charges avec son loyer. Une fois par an, on compare ces provisions aux dépenses réelles récupérables sur lui (décret 87-713) : s'il a trop peu payé, il verse un complément ; s'il a trop payé, vous le remboursez. Le décompte détaillé doit lui être envoyé un mois avant, et les justificatifs tenus à sa disposition pendant 6 mois. La taxe foncière n'est pas récupérable, seule la taxe d'ordures ménagères (TEOM) l'est. En meublé avec charges au forfait, pas de régularisation.</div></details>`+
     (ls.length?ls.map(l=>{
       const k=l.id+':'+annee,rg=GEST.regs[k]||{};let dep=_gJson(rg.depenses,{})||{};
       const saisi=Object.values(dep).some(v=>Number(v));
@@ -4763,13 +4763,16 @@ function renderCharges(){
       if(!saisi&&ex){calc=_gDepDepuisSyndic(l,ex,annee,nb);dep=calc.dep;}
       const prov=Math.round(_gProvisions(l,annee)*100)/100;
       const tot=CH_POSTES.reduce((a,[c])=>a+(Number(dep[c])||0),0);
-      return `<div class="card"><div class="ch"><div class="ct">${_gEsc(_gName(l.tenant_id))} — ${_gEsc(_gTitle(l))}</div>${rg.envoye_at?`<span style="font-size:.72rem;color:var(--green)">✓ Décompte envoyé le ${_gD(rg.envoye_at)}</span>`:''}</div><div class="cb" style="font-size:.8rem">
+      const rempli=saisi||!!calc;
+      return `<div class="card"><div class="ch"><div class="ct"><span style="display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:50%;background:${rempli?'var(--bleu)':'var(--s2)'};color:${rempli?'#fff':'var(--td)'};font-size:.75rem;margin-right:.35rem">2</span> Vérifiez et envoyez la régularisation de ${_gEsc(_gName(l.tenant_id))}${ls.length>1?' <span style="font-weight:500;color:var(--td)">('+_gEsc(l.lot_label||_gTitle(l))+')</span>':''}</div>${rg.envoye_at?`<span style="font-size:.72rem;color:var(--green)">✓ Décompte envoyé le ${_gD(rg.envoye_at)}</span>`:''}</div><div class="cb" style="font-size:.8rem">
         ${calc?`<div style="background:rgba(var(--bleu-rgb),.07);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.6rem;line-height:1.5"><strong>Rempli depuis le décompte du syndic.</strong> Part de ce locataire : occupation ${calc.p.occ} jours sur ${calc.p.tot}${nb>1?` × 1/${nb} (${nb} baux dans le logement)`:''}. Vérifiez puis enregistrez.</div>`:''}
+        ${rempli?'':`<p style="color:var(--td);margin-bottom:.5rem">Dès que le décompte du syndic est lu (étape 1), la part de ce locataire est calculée et apparaît ici. Pas de décompte ? Saisissez les montants vous-même.</p>`}
+        <details ${rempli?'open':''} style="margin-bottom:.2rem"><summary style="cursor:pointer;font-weight:600;color:${rempli?'var(--txt)':'var(--bleu)'};margin-bottom:.4rem">${rempli?`Dépenses récupérables de ${_gEsc(_gName(l.tenant_id))} pour ${annee} (modifiables)`:'Saisir les montants à la main'}</summary>
         <div style="display:grid;grid-template-columns:1fr 130px;gap:.3rem .6rem;align-items:center">
           ${CH_POSTES.map(([c,lab])=>`<label for="ch-${l.id}-${c}">${lab}</label><input class="fi" id="ch-${l.id}-${c}" type="number" step="0.01" min="0" value="${dep[c]??''}" placeholder="0" oninput="gChRecalc('${l.id}',${annee})">`).join('')}
-        </div>
-        <div id="ch-res-${l.id}" style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.6rem .75rem">${_gChRes(tot,prov,Number(l.charges))}</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem">
+        </div></details>
+        <div id="ch-res-${l.id}" style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.6rem .75rem;${rempli?'':'display:none'}">${_gChRes(tot,prov,Number(l.charges))}</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;${rempli?'':'display:none'}" id="ch-act-${l.id}">
           <button class="btn bg bsm" onclick="gChSave('${l.id}',${annee},false)">Enregistrer</button>
           <button class="btn bp bsm" onclick="gChSave('${l.id}',${annee},true)">Envoyer le décompte au locataire (PDF + message)</button>
           <button class="btn bg bsm" onclick="gChProvision('${l.id}',${annee})">Ajuster la provision mensuelle</button>
@@ -4781,7 +4784,7 @@ function _gChRes(tot,prov,chMois){
   return `<div style="font-size:.78rem;color:var(--td)">Dépenses réelles récupérables <strong style="color:var(--txt)">${_g$(tot)}</strong> − provisions versées par le locataire <strong style="color:var(--txt)">${_g$(prov)}</strong></div><div style="font-size:1.05rem;font-weight:800;margin-top:.2rem">${solde>0?`<span style="color:var(--red)">Le locataire doit un complément de <strong>${_g$(solde)}</strong></span>`:solde<0?`<span style="color:var(--green)">Vous devez rembourser <strong>${_g$(-solde)}</strong> au locataire</span>`:'Équilibré'}</div>`;
 }
 function _gChRead(lid){const d={};CH_POSTES.forEach(([c])=>{const v=document.getElementById(`ch-${lid}-${c}`)?.value;if(v!==''&&v!=null)d[c]=Number(v);});return d;}
-function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);document.getElementById('ch-res-'+lid).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
+function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);['ch-res-','ch-act-'].forEach(k=>{const e=document.getElementById(k+lid);if(e)e.style.display=tot?'':'none';});document.getElementById('ch-res-'+lid).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
 async function gChSave(lid,annee,envoyer){
   const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);
   const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0),prov=Math.round(_gProvisions(l,annee)*100)/100,solde=Math.round((tot-prov)*100)/100;
