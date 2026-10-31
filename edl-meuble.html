@@ -94,14 +94,46 @@ canvas.pad{width:100%;height:120px;border:1px dashed var(--border2);border-radiu
 .bar .save{font-size:.74rem;color:var(--td);margin-right:auto;max-width:860px}
 .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem 1rem;border-radius:10px;font-size:.84rem;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.show{opacity:1}
+/* Document final (étape 6) */
+.dx{background:#fff;border:1px solid var(--border);border-radius:6px;padding:2rem 2.2rem;margin-bottom:1rem;font-size:.86rem;line-height:1.5;color:#1A1D27}
+@media(max-width:620px){.dx{padding:1.1rem 1rem}}
+.dx-top{text-align:center;border-bottom:2px solid var(--marine);padding-bottom:.9rem;margin-bottom:1rem}
+.dx-brand{font-family:'DM Serif Display',serif;color:var(--bleu);font-size:.95rem}
+.dx-title{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.45rem;color:var(--marine);margin:.25rem 0 .3rem;text-wrap:balance}
+.dx-sub{font-size:.72rem;color:var(--td);max-width:60ch;margin:0 auto}
+.dx-info{width:100%;border-collapse:collapse;margin-bottom:.4rem}
+.dx-info th{text-align:left;width:32%;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--td);font-weight:700;padding:.45rem .6rem .45rem 0;vertical-align:top;border-bottom:1px solid #EEF0F3}
+.dx-info td{padding:.45rem 0;border-bottom:1px solid #EEF0F3}
+.dx-h{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.08rem;color:var(--marine);margin:1.4rem 0 .5rem;padding-bottom:.25rem;border-bottom:1px solid var(--border)}
+.dx-t{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:.35rem}
+.dx-t th{background:#F3F6FF;color:var(--marine);text-align:left;font-weight:700;font-size:.72rem;padding:.4rem .55rem;border:1px solid #DCE3F5}
+.dx-t td{padding:.38rem .55rem;border:1px solid #E5E7EB;vertical-align:top}
+.dx-r{text-align:right!important;font-variant-numeric:tabular-nums}.dx-c{text-align:center!important;font-variant-numeric:tabular-nums}
+.dx-room{margin-bottom:1rem;break-inside:avoid}
+.dx-room-h{font-weight:800;font-size:.86rem;padding:.35rem .55rem;background:var(--marine);color:#fff;border-radius:4px 4px 0 0}
+.dx-room .dx-t{margin-top:0}
+.dx-et{display:inline-block;font-size:.7rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;white-space:nowrap}
+.dx-neuf{background:#DCFCE7;color:#166534}.dx-tb{background:#E0F2FE;color:#075985}.dx-bon{background:#EEF2FF;color:#3730A3}.dx-usage{background:#FEF3C7;color:#92400E}.dx-mauvais{background:#FEE2E2;color:#991B1B}
+.dx-vide{font-size:.72rem;color:var(--red);font-weight:600}
+.dx-muted{color:var(--td)}
+.dx-leg{font-size:.72rem;color:var(--td);margin-bottom:.5rem;display:flex;gap:.3rem;flex-wrap:wrap;align-items:center}
+.dx-com{font-size:.8rem;margin:.3rem 0}
+.dx-photos{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0 .2rem}
+.dx-photos img{width:96px;height:96px;object-fit:cover;border-radius:4px;border:1px solid #ddd;display:block}
+.dx-legal{font-size:.72rem;color:var(--td);margin-top:1rem;border-top:1px solid var(--border);padding-top:.6rem}
+.dx .sig{border-radius:6px}
 .legal{font-size:.74rem;color:var(--td);line-height:1.5}
 .ro .et:not(.on),.ro .ph button,.ro .ph-add,.ro .row-actions,.ro .room-del{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
   .nav,.steps,.bar,.toast,.row-actions,.ph-add,.ph button,.no-print{display:none!important}
   body{background:#fff;font-size:12px}.wrap{margin:0;max-width:none;padding:0}
-  .card,.room{break-inside:avoid;border-color:#ccc}.room-b{display:block!important}
-  .et:not(.on){display:none}.panel{display:block!important}
+  h1,.sub,.status,.panel[hidden],.card{display:none!important}
+  .dx{border:none;padding:0;margin:0;font-size:10.5pt}.dx-room,.dx-t tr{break-inside:avoid}
+  .dx-room-h,.dx-t th,.dx-et{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sig{break-inside:avoid}
+  canvas.pad,.sig-b .btn{display:none!important}
+  @page{margin:1.4cm}
 }
 </style>
 </head>
@@ -233,7 +265,7 @@ async function load(){
   LISTING=li;
   LEASE=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0]||null;
   const landlordId=LEASE?.landlord_id||bk.landlord_id,tenantId=LEASE?.tenant_id||bk.tenant_id;
-  COLOCS=_arr(bk.co_locataires_data||bk.co_tenants_data);
+  COLOCS=_arr(bk.co_locataires_data||bk.co_tenants_data).filter(c=>c.coloc_status!=='declined'); // ceux qui ont refusé ne sont pas locataires
   COBAILS=_arr(bk.co_bailleurs_data);
   if(U){
     if(U.id===landlordId)myRole='landlord';
@@ -347,12 +379,12 @@ function renderInfo(d,ro){
       <div><label class="f" for="f-date">Date de l'état des lieux</label><input class="i" type="date" id="f-date" value="${esc(d.date)}" ${dis} onchange="EDL.data.date=this.value;touch()"></div>
       <div><label class="f" for="f-heure">Heure</label><input class="i" type="time" id="f-heure" value="${esc(d.heure)}" ${dis} onchange="EDL.data.heure=this.value;touch()"></div>
       <div><label class="f">Bailleur</label><input class="i" value="${esc(LL_P?.full_name||'')}" disabled></div>
-      <div><label class="f">Locataire</label><input class="i" value="${esc(T_P?.full_name||BK?.tenant_name||'')}" disabled></div>
+      <div><label class="f">${COLOCS.filter(c=>c.coloc_status!=='declined').length?'Locataires':'Locataire'}</label><input class="i" value="${esc([T_P?.full_name||BK?.tenant_name||'',...COLOCS.filter(c=>c.coloc_status!=='declined').map(c=>c.name)].filter(Boolean).join(', '))}" disabled></div>
       ${isParking()?'':`<div><label class="f" for="f-ch">Chauffage</label><input class="i" id="f-ch" list="dl-ch" value="${esc(d.chauffage)}" ${dis} placeholder="ex. Individuel — Électrique" onchange="EDL.data.chauffage=this.value;touch()"><datalist id="dl-ch"><option value="Individuel — Électrique"><option value="Individuel — Gaz naturel"><option value="Collectif"><option value="Pompe à chaleur"></datalist></div>
       <div><label class="f" for="f-ec">Eau chaude</label><input class="i" id="f-ec" list="dl-ec" value="${esc(d.eau_chaude)}" ${dis} placeholder="ex. Individuel (chauffe-eau) — Électrique" onchange="EDL.data.eau_chaude=this.value;touch()"><datalist id="dl-ec"><option value="Individuel (chauffe-eau) — Électrique"><option value="Individuel (chauffe-eau) — Gaz naturel"><option value="Collectif"></datalist></div>`}
     </div>
     ${COBAILS.length?`<p class="legal" style="margin-top:.8rem">Co-bailleur${COBAILS.length>1?'s':''} : <strong>${COBAILS.map(c=>esc(c.name)).join(', ')}</strong> — représenté${COBAILS.length>1?'s':''} par ${esc(LL_P?.full_name||'le bailleur')} pour cet état des lieux.</p>`:''}
-    ${COLOCS.length?`<p class="legal" style="margin-top:.4rem">Co-locataire${COLOCS.length>1?'s':''} : <strong>${COLOCS.map(c=>esc(c.name)).join(', ')}</strong> — chacun signe l'état des lieux depuis son compte.</p>`:''}
+    ${COLOCS.filter(c=>c.coloc_status!=='declined').length?`<p class="legal" style="margin-top:.4rem">Chaque locataire signe l'état des lieux depuis son compte.</p>`:''}
     ${(d.chauffage||d.eau_chaude)&&!ro?'<p class="legal" style="margin-top:.4rem">Chauffage et eau chaude repris de l\'annonce / du bail — modifiables si besoin.</p>':''}
     <p class="legal" style="margin-top:.8rem">Adresse du logement : <strong>${esc(LISTING?.full_address||LISTING?.zone||'—')}</strong>. Entrée dans les lieux prévue le <strong>${fmtD(BK?.move_in_date||LEASE?.start_date)}</strong>.</p>
   </div>`;
@@ -480,25 +512,68 @@ function renderSign(d){
       ${missing.length?`<div class="hint">Il reste à compléter :</div><ul style="font-size:.82rem;margin:0 0 .8rem 1.1rem">${missing.slice(0,8).map(m=>`<li>${esc(m)}</li>`).join('')}${missing.length>8?`<li>… et ${missing.length-8} autre(s)</li>`:''}</ul>`:'<div class="hint">Tout est rempli.</div>'}
       <button class="btn bp" onclick="finaliser()" ${missing.length?'':''}><i data-lucide=send class=ic></i> Terminer et faire signer</button>
       <p class="legal" style="margin-top:.5rem">Le contenu ne pourra plus être modifié une fois qu'une des parties a signé.</p></div>`:''}
-    <div class="card"><h2><i data-lucide=clipboard-check class=ic></i> Récapitulatif</h2>
-      <div class="legal" style="margin-bottom:.4rem">Date : <strong>${fmtD(d.date)}${d.heure?' à '+esc(d.heure):''}</strong> · Chauffage : ${esc(d.chauffage||'—')} · Eau chaude : ${esc(d.eau_chaude||'—')}</div>
-      ${resume}
-      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>Compteurs :</strong> électricité ${esc(d.compteurs.elec_hp||'—')}${d.compteurs.elec_hc?' / HC '+esc(d.compteurs.elec_hc):''} kWh · gaz ${esc(d.compteurs.gaz_index||'—')} m³ · eau froide ${esc(d.compteurs.eau_froide_index||'—')} m³${d.compteurs.eau_chaude_index?' · eau chaude '+esc(d.compteurs.eau_chaude_index)+' m³':''}</div>
-      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>Clés :</strong> ${d.cles.filter(k=>Number(k.nb)>0).map(k=>`${esc(k.nb)} × ${esc(k.label)}`).join(' · ')||'—'}</div>
-      <div style="padding:.45rem 0;border-top:1px solid #F1F1EF;font-size:.8rem"><strong>${isVide()?'Équipements':'Inventaire'} :</strong> ${d.inventaire.filter(x=>Number(x.qte)>0).length} élément(s) listé(s)</div>
-      <div class="no-print" style="margin-top:.5rem"><button class="btn bg bsm" onclick="goStep(1)">Voir le détail des pièces</button> <button class="btn bg bsm" onclick="goStep(2)">${isVide()?'Voir les équipements':"Voir l'inventaire"}</button></div>
-    </div>
-    <div class="card"><h2><i data-lucide=pen-line class=ic></i> Signatures</h2>
-      <div class="hint">Chacun signe depuis son propre compte, dans n'importe quel ordre — sur place, chacun sur son téléphone.</div>
-      <div class="sigs">
-        ${sigBox('landlord','Le bailleur',LL_P?.full_name,EDL.landlord_signature,EDL.landlord_signed_at)}
-        ${sigBox('tenant','Le locataire',T_P?.full_name||BK?.tenant_name,EDL.tenant_signature,EDL.tenant_signed_at)}
-        ${COLOCS.filter(c=>colocId(c)).map(c=>{const cs=coSigOf(colocId(c));return sigBoxColoc(c,cs);}).join('')}
-      </div>
-      ${COBAILS.length?`<p class="legal" style="margin-top:.6rem">Co-bailleur${COBAILS.length>1?'s':''} (${COBAILS.map(c=>esc(c.name)).join(', ')}) représenté${COBAILS.length>1?'s':''} par le bailleur signataire.</p>`:''}
-      <p class="legal" style="margin-top:.8rem">Établi contradictoirement entre les parties (art. 3-2 de la loi n° 89-462 du 6 juillet 1989 ; décret n° 2016-382). Le locataire peut demander au bailleur de compléter cet état des lieux dans les <strong>10 jours</strong> suivant sa signature, et pendant le premier mois de la période de chauffe pour les éléments de chauffage.</p>
-    </div>
+    ${renderDocEDL(d,sigBox)}
     ${both?renderReserves():''}`;
+}
+// Document final de l'état des lieux (même principe que RestMalta) : le document complet, tel qu'il est signé et imprimé
+function renderDocEDL(d,sigBox){
+  const adr=LISTING?.full_address||LEASE?.prop_adresse||LISTING?.zone||'—';
+  const locs=[T_P?.full_name||BK?.tenant_name||'',...COLOCS.map(c=>c.name)].filter(Boolean);
+  const pill=e=>e?`<span class="dx-et dx-${e}">${ETAT_LBL[e]||e}</span>`:'<span class="dx-vide">Non renseigné</span>';
+  const photos=arr=>(arr&&arr.length)?`<div class="dx-photos">${arr.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Photo ${i+1}" loading="lazy"></a>`).join('')}</div>`:'';
+  const c=d.compteurs||{};
+  const cpt=[['Électricité — heures pleines (ou base)',c.elec_num,c.elec_hp,'kWh'],['Électricité — heures creuses',c.elec_num,c.elec_hc,'kWh'],['Gaz',c.gaz_num,c.gaz_index,'m³'],['Eau froide',c.eau_froide_num,c.eau_froide_index,'m³'],['Eau chaude',c.eau_chaude_num,c.eau_chaude_index,'m³']].filter(r=>r[1]||r[2]);
+  const inv=d.inventaire.filter(x=>Number(x.qte)>0||x.oblig);
+  const cles=d.cles.filter(k=>Number(k.nb)>0);
+  let n=0;
+  const sec=t=>`<h3 class="dx-h">${++n}. ${t}</h3>`;
+  return `<article class="dx">
+    <header class="dx-top">
+      <div class="dx-brand">Trouve Ton Toit</div>
+      <h2 class="dx-title">${isParking()?"État des lieux d'entrée — parking / garage":isVide()?"État des lieux d'entrée":"État des lieux d'entrée et inventaire du mobilier"}</h2>
+      <div class="dx-sub">Établi contradictoirement entre les parties — article 3-2 de la loi n° 89-462 du 6 juillet 1989 et décret n° 2016-382 du 30 mars 2016${isVide()?'':' ; inventaire : article 25-5 de la même loi'}</div>
+    </header>
+
+    <table class="dx-info">
+      <tr><th>Logement</th><td>${esc(adr)}<br><span class="dx-muted">${isParking()?'Parking / garage':isVide()?'Location vide':'Location meublée'}${LISTING?.title?' · '+esc(LISTING.title):''}</span></td></tr>
+      <tr><th>Date de l'état des lieux</th><td>${fmtD(d.date)}${d.heure?' à '+esc(d.heure):''}</td></tr>
+      <tr><th>Bailleur</th><td>${esc(LL_P?.full_name||'—')}${COBAILS.length?`<br><span class="dx-muted">Co-bailleur${COBAILS.length>1?'s':''} : ${COBAILS.map(x=>esc(x.name)).join(', ')} (représenté${COBAILS.length>1?'s':''} par le bailleur)</span>`:''}</td></tr>
+      <tr><th>${locs.length>1?'Locataires':'Locataire'}</th><td>${locs.map(esc).join(', ')||'—'}</td></tr>
+      ${isParking()?'':`<tr><th>Chauffage</th><td>${esc(d.chauffage||'—')}</td></tr><tr><th>Eau chaude</th><td>${esc(d.eau_chaude||'—')}</td></tr>`}
+    </table>
+
+    ${sec('Relevés des compteurs')}
+    ${cpt.length?`<table class="dx-t"><thead><tr><th>Compteur</th><th>N° de compteur</th><th class="dx-r">Relevé</th></tr></thead><tbody>${cpt.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1]||'—')}</td><td class="dx-r">${r[2]?esc(r[2])+' '+r[3]:'—'}</td></tr>`).join('')}</tbody></table>`:'<p class="dx-muted">Aucun relevé.</p>'}
+    ${photos(c.photos)}
+
+    ${sec(isParking()?"État de l'emplacement":'État des pièces')}
+    <p class="dx-leg">États : ${ETATS.map(([k])=>pill(k)).join(' ')}</p>
+    ${d.rooms.map(r=>`<section class="dx-room">
+      <div class="dx-room-h">${esc(r.name)}</div>
+      <table class="dx-t"><thead><tr><th style="width:38%">Élément</th><th style="width:20%">État</th><th>Observations</th></tr></thead>
+      <tbody>${r.elements.map(e=>`<tr><td>${esc(e.label)}</td><td>${pill(e.etat)}</td><td>${esc(e.note)||'<span class="dx-muted">—</span>'}</td></tr>`).join('')}</tbody></table>
+      ${r.commentaire?`<p class="dx-com"><strong>Commentaire :</strong> ${esc(r.commentaire)}</p>`:''}
+      ${photos(r.photos)}
+    </section>`).join('')}
+
+    ${!isParking()&&(inv.length||!isVide())?`${sec(isVide()?'Équipements laissés dans le logement':'Inventaire et état du mobilier')}
+    ${inv.length?`<table class="dx-t"><thead><tr><th style="width:44%">Élément</th><th class="dx-c" style="width:10%">Qté</th><th style="width:20%">État</th><th>Détail</th></tr></thead><tbody>${inv.map(x=>`<tr><td>${esc(x.label)}</td><td class="dx-c">${esc(x.qte)}</td><td>${Number(x.qte)>0?pill(x.etat):'<span class="dx-vide">Absent</span>'}</td><td>${esc(x.note)||'<span class="dx-muted">—</span>'}</td></tr>`).join('')}</tbody></table>`:'<p class="dx-muted">Aucun équipement listé.</p>'}`:''}
+
+    ${sec('Clés et moyens d\'accès remis')}
+    ${cles.length?`<table class="dx-t"><thead><tr><th>Désignation</th><th class="dx-r" style="width:20%">Nombre</th></tr></thead><tbody>${cles.map(k=>`<tr><td>${esc(k.label)}</td><td class="dx-r">${esc(k.nb)}</td></tr>`).join('')}</tbody></table>`:'<p class="dx-muted">Aucune clé remise.</p>'}
+
+    ${sec('Observations générales')}
+    <p>${esc(d.observations)||'<span class="dx-muted">Néant</span>'}</p>
+
+    ${sec('Signatures')}
+    <p class="dx-muted" style="margin-bottom:.6rem">Chaque partie signe depuis son propre compte, dans n'importe quel ordre. En signant, elle reconnaît l'exactitude du présent état des lieux.</p>
+    <div class="sigs">
+      ${sigBox('landlord','Le bailleur',LL_P?.full_name,EDL.landlord_signature,EDL.landlord_signed_at)}
+      ${sigBox('tenant',COLOCS.length?'Locataire':'Le locataire',T_P?.full_name||BK?.tenant_name,EDL.tenant_signature,EDL.tenant_signed_at)}
+      ${COLOCS.filter(x=>colocId(x)).map(x=>sigBoxColoc(x,coSigOf(colocId(x)))).join('')}
+    </div>
+    <p class="dx-legal">Fait en autant d'exemplaires que de parties, chacune pouvant le télécharger depuis son espace. Le locataire peut demander au bailleur de compléter cet état des lieux dans les <strong>10 jours</strong> suivant sa signature, et pendant le premier mois de la période de chauffe pour les éléments de chauffage (art. 3-2 de la loi du 6 juillet 1989).</p>
+  </article>`;
 }
 function sigBoxColoc(c,cs){
   const id=colocId(c),canSign=EDL.status==='to_sign'||EDL.landlord_signed_at||EDL.tenant_signed_at;
@@ -506,8 +581,8 @@ function sigBoxColoc(c,cs){
   if(cs)inner=`<div class="sig-done"><img src="${cs.signature}" alt="Signature ${esc(c.name)}"><div class="ok"><i data-lucide=check-circle-2 class=ic></i> Signé le ${new Date(cs.signed_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>`;
   else if(!canSign)inner='En attente de la fin de la saisie';
   else if(myRole==='coloc'&&U?.id===id)inner=`<canvas class="pad" id="pad-coloc" width="600" height="160" aria-label="Zone de signature"></canvas><div style="display:flex;gap:.4rem"><button class="btn bg bsm" onclick="clearPad('coloc')">Effacer</button><button class="btn bgr bsm" onclick="signer('coloc')"><i data-lucide=pen-line class=ic></i> Signer</button></div>`;
-  else inner='<span><i data-lucide=hourglass class=ic></i> En attente de la signature du co-locataire</span>';
-  return`<div class="sig"><div class="sig-h">Co-locataire<strong>${esc(c.name)}</strong></div><div class="sig-b">${inner}</div></div>`;
+  else inner='<span><i data-lucide=hourglass class=ic></i> En attente de la signature du locataire</span>';
+  return`<div class="sig"><div class="sig-h">Locataire<strong>${esc(c.name)}</strong></div><div class="sig-b">${inner}</div></div>`;
 }
 function renderReserves(){
   const until=new Date(new Date(EDL.tenant_signed_at).getTime()+10*864e5);
