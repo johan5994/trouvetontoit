@@ -38,13 +38,15 @@ Règles :
 - Si un document est illisible ou n'est pas lié aux charges, dis-le dans "remarques".`;
 
 exports.handler = async (event) => {
-  let id = null;
-  try { id = JSON.parse(event.body || '{}').id; } catch (e) {}
+  let id = null, table = 'gestion_regul';
+  try { const b = JSON.parse(event.body || '{}'); id = b.id; if (b.table === 'charges_regularisations') table = 'charges_regularisations'; } catch (e) {}
+  // gestion_regul = portail agence ; charges_regularisations = propriétaire qui gère lui-même (espace propriétaire)
+  const T = table, PROPRIO = T === 'charges_regularisations';
   if (!id || !KEY) return { statusCode: 400, body: 'id ou clé manquante' };
   let r;
-  try { r = (await api(`gestion_regul?id=eq.${id}&select=*`))?.[0]; } catch (e) { return { statusCode: 500, body: e.message }; }
+  try { r = (await api(`${T}?id=eq.${id}&select=*`))?.[0]; } catch (e) { return { statusCode: 500, body: e.message }; }
   if (!r) return { statusCode: 404, body: 'introuvable' };
-  if (!process.env.ANTHROPIC_API_KEY) { await patch(`gestion_regul?id=eq.${id}`, { extraction_err: 'Lecture automatique non activée (clé ANTHROPIC_API_KEY absente) : saisissez les montants.' }); return { statusCode: 200, body: 'no key' }; }
+  if (!process.env.ANTHROPIC_API_KEY) { await patch(`${T}?id=eq.${id}`, { extraction_err: 'Lecture automatique non activée (clé ANTHROPIC_API_KEY absente) : saisissez les montants.' }); return { statusCode: 200, body: 'no key' }; }
   try {
     const content = [];
     for (const d of (r.docs || []).slice(0, 8)) {
@@ -58,7 +60,7 @@ exports.handler = async (event) => {
       if (ext === 'pdf') content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data } });
       else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) content.push({ type: 'image', source: { type: 'base64', media_type: ext === 'jpg' ? 'image/jpeg' : 'image/' + ext, data } });
     }
-    if (!content.length) { await patch(`gestion_regul?id=eq.${id}`, { extraction_err: 'Aucun document lisible (PDF ou photo attendus).' }); return { statusCode: 200, body: 'no doc' }; }
+    if (!content.length) { await patch(`${T}?id=eq.${id}`, { extraction_err: 'Aucun document lisible (PDF ou photo attendus).' }); return { statusCode: 200, body: 'no doc' }; }
     content.push({ type: 'text', text: `Année de régularisation demandée : ${r.annee}.\n\n` + PROMPT });
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -72,17 +74,18 @@ exports.handler = async (event) => {
     const ex = JSON.parse(txt.slice(a, b + 1));
     // Nettoyage minimal
     ex.lignes = (Array.isArray(ex.lignes) ? ex.lignes : []).map(l => ({ nature: String(l.nature || 'Poste').slice(0, 120), montant: Math.round((Number(l.montant) || 0) * 100) / 100, recuperable: l.recuperable !== false, source: l.source || null })).filter(l => l.montant);
-    await patch(`gestion_regul?id=eq.${id}`, { extraction: ex, extraction_err: null, extraction_at: new Date().toISOString(), ...(r.statut === 'attente_docs' ? { statut: 'a_verifier' } : {}) });
+    await patch(`${T}?id=eq.${id}`, { extraction: ex, extraction_err: null, extraction_at: new Date().toISOString(), ...(r.statut === 'attente_docs' ? { statut: 'a_verifier' } : {}) });
+    if (PROPRIO) return { statusCode: 200, body: 'ok' }; // le propriétaire voit le résultat directement sur sa page
     // Prévenir l'agence dans sa messagerie
     try {
       const m = (await api(`gestion_mandats?id=eq.${r.mandat_id}&select=bien_label,bien_adresse,owner_name`))?.[0] || {};
       await api('messages', { method: 'POST', body: JSON.stringify({ sender_id: 'system', receiver_id: r.agency_id, type: 'message', read: false,
-        content: `Régularisation des charges ${r.annee} — ${m.bien_label || m.bien_adresse || 'un bien'} : les documents de ${m.owner_name || 'du propriétaire'} ont été lus. Vérifiez et envoyez le décompte au locataire (Gestion locative → Ma journée).` }) });
+        content: `Régularisation des charges ${r.annee} — ${m.bien_label || m.bien_adresse || 'un bien'} : les documents de ${m.owner_name || 'du propriétaire'} ont été lus. Vérifiez et envoyez le décompte au locataire (Gestion locative → la fiche du bien).` }) });
     } catch (e) {}
     return { statusCode: 200, body: 'ok' };
   } catch (e) {
     console.error('regul-extract', e);
-    await patch(`gestion_regul?id=eq.${id}`, { extraction_err: 'Lecture automatique impossible (' + String(e.message).slice(0, 160) + ') : saisissez les montants.' }).catch(() => {});
+    await patch(`${T}?id=eq.${id}`, { extraction_err: 'Lecture automatique impossible (' + String(e.message).slice(0, 160) + ') : saisissez les montants.' }).catch(() => {});
     return { statusCode: 200, body: 'err' };
   }
 };
