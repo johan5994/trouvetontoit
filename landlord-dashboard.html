@@ -268,7 +268,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="nl">Biens</div>
     <button class="ni act" onclick="sp('annonces',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mes annonces</button>
     <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Visites<span class="nbadge" id="nb-visites-ll" style="display:none">0</span></button>
-    <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Applications<span class="nbadge" id="nb-applications-ll" style="display:none">0</span></button>
+    <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Candidatures<span class="nbadge" id="nb-applications-ll" style="display:none">0</span></button>
 
     <div class="nl">Finance</div>
     <button class="ni" onclick="sp('paiements',this)"><span class="nico"><i data-lucide=euro class=ic></i></span>Paiements<span class="nbadge" id="nb-pay" style="display:none">0</span></button>
@@ -358,7 +358,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <!-- RENTED PROPERTIES -->
     <div class="page" id="page-biens">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
-        <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> Rented Biens</div>
+        <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> Biens loués</div>
         <span class="badge b-dim" id="rp-count">—</span>
       </div>
       <div id="rp-list"><div class="ld"><div class="sp"></div></div></div>
@@ -429,7 +429,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     </div>
     <div class="page" id="page-applications">
       <div style="margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:1rem;font-weight:700"><i data-lucide=clipboard-list class=ic></i> Applications</div>
+        <div style="font-size:1rem;font-weight:700"><i data-lucide=clipboard-list class=ic></i> Candidatures</div>
         <span class="badge b-gold" id="applications-page-count">—</span>
       </div>
       <div id="applications-page-list"><div class="ld"><div class="sp"></div></div></div>
@@ -524,7 +524,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
     <!-- REVIEWS -->
     <div class="page" id="page-avis">
-      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Reviews & Ratings</div>
+      <div style="margin-bottom:1.2rem;font-size:1rem;font-weight:700">Avis et notes</div>
       <div style="background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--tm);line-height:1.6">
         <i data-lucide=star class=ic></i> Votre note est visible par tous les locataires qui consultent les annonces. Les propriétaires avec une moyenne de 4,5+ obtiennent un badge "Propriétaire de confiance" et apparaissent plus haut dans les résultats.
       </div>
@@ -970,7 +970,7 @@ function sp(id,btn){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   document.getElementById('page-'+id).classList.add('act');
   if(btn)btn.classList.add('act');
-  const titles={gestion:'Gestion locative',dash:'Mon compte',biens:'Rented Biens',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Reviews',profil:'Profil & Paramètres'};
+  const titles={gestion:'Gestion locative',dash:'Mon compte',biens:'Biens loués',applications:'Candidatures',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Avis',profil:'Profil & Paramètres'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
   if(id==='gestion')loadMaintenance();
@@ -1423,7 +1423,7 @@ async function loadVisitsPage(){
     const groups=allGroups.filter(g=>VISIT_ONLY_STATUSES.includes(g.statut)&&!(g.statut==='agents_applying'&&!g.has_agent));
 
     const pendingCount=groups.filter(g=>g.statut==='pending'||g.statut==='awaiting_propriétaire').length;
-    if(cnt)cnt.textContent=pendingCount>0?`${pendingCount} en attente`:'All good';
+    if(cnt)cnt.textContent=pendingCount>0?`${pendingCount} en attente`:'Tout est à jour';
     const badge=document.getElementById('nb-visites-ll');
     if(badge){badge.textContent=pendingCount;badge.style.display=pendingCount>0?'inline':'none';}
 
@@ -1467,7 +1467,7 @@ async function loadApplicationsPageLL(){
     const groups=allGroups.filter(g=>APPLICATION_STATUSES.includes(g.statut));
 
     const pendingCount=groups.filter(g=>g.statut==='booking_en attente').length;
-    if(cnt)cnt.textContent=pendingCount>0?`${pendingCount} en attente`:'All good';
+    if(cnt)cnt.textContent=pendingCount>0?`${pendingCount} en attente`:'Tout est à jour';
     const badge=document.getElementById('nb-applications-ll');
     if(badge){badge.textContent=pendingCount;badge.style.display=pendingCount>0?'inline':'none';}
 
@@ -4373,7 +4373,7 @@ async function confirmChildPaymentLL(leaseId){
     const pr=prorataLoyer(l.start_date,payDay,cc);
     if(!types.has('first_rent'))rows.push({...base,amount:pr?pr.amount:cc,type:'first_rent',status:'paid',paid_at:now,due_date:l.start_date||today});
     if(!types.has('rent'))rentDueDates(l.start_date,payDay,12).forEach(d=>rows.push({...base,amount:cc,type:'rent',status:'pending',due_date:d}));
-    if(rows.length){const{error:pe}=await sb.from('payments').insert(rows);if(pe)toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+pe.message,8000);}
+    if(rows.length){const{error:pe}=await sb.from('payments').insert(rows);if(pe)toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+pe.message+(/integer/i.test(pe.message)?' — exécutez supabase-migration-montants-centimes.sql dans Supabase':''),8000);}
     await sb.from('messages').insert({listing_id:l.listing_id,sender_id:'system',receiver_id:l.tenant_id,content:`Le propriétaire a confirmé la réception de votre premier paiement (${l.lot_label||'votre chambre'}). Vos quittances sont disponibles dans Paiements.`,type:'message'});
   }catch(e){console.warn('confirmChildPaymentLL',e);}
   toast('<i data-lucide=check-circle-2 class=ic></i> Paiement confirmé.');
@@ -4969,7 +4969,7 @@ async function ensureFirstPaymentRecords(bookingId){
     const _pr=prorataLoyer(moveIn,payDay,rentCC);
     if(!types.has('first_rent'))rows.push({...base,amount:_pr?_pr.amount:rentCC,type:'first_rent'});
     else if(_pr)await fixFirstRentAmount(bk.id,_pr.amount);
-    if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error){console.warn('payments (dépôt/1er loyer) :',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message+' — migration restmalta-flow exécutée ?',9000);}}
+    if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error){console.warn('payments (dépôt/1er loyer) :',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message+(/integer/i.test(error.message)?' — exécutez supabase-migration-montants-centimes.sql dans Supabase':''),9000);}}
     if(!types.has('rent')){
       const sched=rentDueDates(moveIn,payDay,12).map(d=>({landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:base.tenant_name,tenant_email:base.tenant_email,amount:rentCC,type:'rent',status:'pending',due_date:d}));
       const{error:se}=await sb.from('payments').insert(sched);
