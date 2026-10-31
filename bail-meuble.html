@@ -2050,8 +2050,8 @@ async function loadBail(){
     await loadSiblings();
     try{await _reprendreDesSoeurs();}catch(e){console.warn(e);}
     if(LEASE&&LEASE.type_bail!==TYPE_BAIL&&!LEASE.landlord_signed_at&&!LEASE.tenant_signed_at){LEASE.type_bail=TYPE_BAIL;sb.from('leases').update({type_bail:TYPE_BAIL}).eq('id',LEASE.id).then(()=>{},()=>{});}
-    if(LEASE?.booking_id&&!BOOKING){
-      const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id).maybeSingle();
+    if((LEASE?.booking_id||LEASE?.parent_booking_id)&&!BOOKING){
+      const{data:bk}=await sb.from('bookings').select('*').eq('id',LEASE.booking_id||LEASE.parent_booking_id).maybeSingle();
       if(bk)BOOKING=bk;
     }
     // Anciens baux : le loyer "hors charges" reprenait le prix de l'annonce, qui est
@@ -2182,6 +2182,23 @@ async function loadBail(){
           }
         }
       }catch(e){console.warn('Auto-load garant:',e);}
+    }
+    // Repli : garant déclaré par ce locataire en acceptant l'invitation de colocation (bookings.co_locataires_data[].garant_data)
+    if(!LEASE.garant_name&&LEASE.tenant_id&&!gliSansCaution(LEASE)){
+      try{
+        const ent=_bailArr(BOOKING?.co_locataires_data).find(c=>c&&(c.locataire_id===LEASE.tenant_id||c.tenant_id===LEASE.tenant_id));
+        let gd=ent?.garant_data;try{gd=typeof gd==='string'?JSON.parse(gd):gd;}catch(e){gd=null;}
+        const g0=Array.isArray(gd)?gd[0]:null,nom=g0?cleanPersonName([g0.prenom,g0.nom].filter(Boolean).join(' ')):'';
+        if(nom){
+          const upd={garant_name:nom,garant_email:g0.email||null};
+          if(g0.adresse&&!LEASE.garant_address)upd.garant_address=g0.adresse;
+          if(g0.telephone&&!LEASE.garant_phone)upd.garant_phone=g0.telephone;
+          if(g0.naissance_date&&!LEASE.garant_birth_date)upd.garant_birth_date=g0.naissance_date;
+          if(g0.naissance_lieu&&!LEASE.garant_birth_place)upd.garant_birth_place=g0.naissance_lieu;
+          await sb.from('leases').update(upd).eq('id',LEASE.id);
+          Object.assign(LEASE,upd);
+        }
+      }catch(e){console.warn('Garant (colocation) :',e);}
     }
 
     if(LEASE?.garant_name)LEASE.garant_name=cleanPersonName(LEASE.garant_name);
@@ -4547,6 +4564,13 @@ function _snapshotActe(g){
     loyer:Number(L.rent)||0,charges:Number(L.charges)||0,irl_txt:(q('irl-ref-txt')?.textContent||'').trim(),
     colocation:{commun,solidaire:bc.c==='commun_solidaire',nb:bc.coLocs.length+1,part:cp?.part||null},bail_url:lien};
 }
+// Explication lisible des refus de Resend (service d'envoi des e-mails)
+function _aideResend(m){m=String(m||'');
+  if(/testing emails|own email|verify a domain|resend\.dev/i.test(m))return ' — Resend est en mode test (pas de domaine vérifié). Sans domaine : configurez Brevo (BREVO_API_KEY + BREVO_SENDER dans Netlify).';
+  if(/domain is not verified|not verified/i.test(m))return ' — le domaine de RESEND_FROM n\'est pas vérifié dans Resend.';
+  if(/sender|expéditeur/i.test(m)&&/brevo/i.test(m))return ' — l\'adresse BREVO_SENDER doit être validée dans Brevo (Expéditeurs).';
+  if(/invalid.*(to|email)|422/i.test(m))return ' — l\'adresse e-mail du garant semble invalide.';
+  return '';}
 async function envoyerActes(force,seulement,sansEnvoi){
   const gs=garantsActes().filter(g=>!seulement||g.cle===seulement);
   if(!gs.length)return false;
@@ -4573,12 +4597,12 @@ async function envoyerActes(force,seulement,sansEnvoi){
     const lien=location.origin+'/acte-caution.html?t='+encodeURIComponent(g.token);
     try{
       const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template:'garant_invite',to:g.email,data:{garantNom:g.nom,locataireNom:g.forName,listingTitle:LEASE.listing_title||'le logement',listingAddress:LISTING?.full_address||'',bailUrl:lien}})});
-      if(!r.ok)throw new Error('HTTP '+r.status);
+      if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();if(j&&j.error)m=j.error;}catch(_){}throw new Error(m);}
       const now=new Date().toISOString();
       await sb.from('actes_caution').update({envoye_at:now}).eq('id',data.id);data.envoye_at=now;envoyes++;
       if(g.cle==='g:main'){try{await sb.from('leases').update({garant_invited_at:now}).eq('id',LEASE.id);LEASE.garant_invited_at=now;}catch(e){}}
       else await _saveCoSigners(cur=>{cur[g.cle]={...(cur[g.cle]||{}),invited_at:now};});
-    }catch(e){toast('Acte non envoyé à '+g.nom+' : '+e.message,7000);}
+    }catch(e){console.error('Acte non envoyé',g.nom,e.message);if(myRole==='landlord')toast('Acte non envoyé à '+_escB(g.nom)+' ('+_escB(g.email)+') : '+_escB(e.message)+_aideResend(e.message),15000);}
   }
   if(envoyes)toast('<i data-lucide=mail class=ic></i> Acte de cautionnement envoyé à '+envoyes+' garant'+(envoyes>1?'s':''),5000);
   renderActesBox(LEASE);
@@ -4600,7 +4624,8 @@ function renderActesDocs(L){
     return `<div class="bail-card" style="margin-top:1.2rem;padding:1.2rem 1.4rem">
       <div style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.6rem">
         <div class="article-title" style="margin:0">Acte de cautionnement${gs.length>1?' n° '+(i+1):''} — ${_escB(g.nom)} <span style="font-weight:500;color:var(--td);text-transform:none;letter-spacing:0">(caution de ${_escB(g.forName)})</span></div>
-        <a href="/acte-caution.html?id=${a.id}${myRole==='landlord'&&a.statut!=='signe'?'&role=bailleur':''}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--bleu);font-weight:600">${a.statut==='signe'?'Ouvrir / imprimer ↗':myRole==='landlord'?'Régler l\'acte ↗':'Ouvrir ↗'}</a>
+        <span style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">${myRole==='landlord'&&a.statut!=='signe'&&['agreed','signed'].includes(LEASE.negotiation_status)&&g.email?`<span style="font-size:.74rem;color:${a.envoye_at?'var(--green)':'var(--gold)'}">${a.envoye_at?'Envoyé le '+fmtDate(a.envoye_at):'Pas encore reçu par le garant'}</span><button type="button" class="no-print" onclick="this.disabled=true;envoyerActes(true,'${g.cle.replace(/'/g,'')}').then(()=>renderActesDocs(LEASE))" style="font-size:.76rem;font-weight:600;border:1px solid var(--b2,#ccc);background:none;border-radius:6px;padding:.2rem .55rem;cursor:pointer;color:var(--bleu)">${a.envoye_at?'Renvoyer au garant':'Envoyer au garant'}</button>`:''}
+        <a href="/acte-caution.html?id=${a.id}${myRole==='landlord'&&a.statut!=='signe'?'&role=bailleur':''}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--bleu);font-weight:600">${a.statut==='signe'?'Ouvrir / imprimer ↗':myRole==='landlord'?'Régler l\'acte ↗':'Ouvrir ↗'}</a></span>
       </div>
       ${a.statut==='brouillon'?'<p style="font-size:.8rem;color:var(--td);margin:0 0 .6rem"><i data-lucide=send class=ic></i> Envoyé automatiquement au garant dès que le bail est accepté comme final par le bailleur et le locataire.</p>':''}
       <iframe src="${src}" title="Acte de cautionnement de ${_escB(g.nom)}" data-acte="${a.id}" style="width:100%;height:600px;border:none;display:block" loading="lazy"></iframe>
