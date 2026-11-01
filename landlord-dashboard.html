@@ -4698,7 +4698,7 @@ function _gSyndicCard(holder,annee,nb){
     ${!docs.length?`<p style="margin-bottom:.6rem">Déposez le <strong>décompte annuel de charges</strong> que votre syndic vous envoie après l'assemblée générale (PDF ou photo). Il est lu automatiquement : les charges récupérables sur le locataire sont triées, calculées pour la période d'occupation${nb>1?` et réparties entre les ${nb} baux`:''}, puis reportées ci-dessous. Ajoutez l'avis de taxe foncière pour la taxe d'ordures ménagères (TEOM).</p>`:''}
     <div style="display:flex;gap:.4rem;flex-wrap:wrap">${drop('syndic',docs.some(d=>d.type==='syndic')?'Ajouter un autre décompte':'Déposer le décompte du syndic')}${drop('taxe_fonciere',docs.some(d=>d.type==='taxe_fonciere')?'Ajouter un avis de taxe foncière':'Avis de taxe foncière (TEOM)')}</div>
     ${docs.length?`<div style="margin-top:.5rem;font-size:.76rem;color:var(--td)">${docs.map(d=>`<span style="display:inline-block;margin-right:.6rem"><i data-lucide=file-text class=ic></i> ${_gEsc(d.name)}</span>`).join('')}</div>`:''}
-    ${lecture?`<div style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.55rem .7rem"><i data-lucide=loader class=ic></i> Lecture du document en cours… (environ 30 secondes, la page se met à jour toute seule)</div>`:''}
+    ${lecture?`<div style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.55rem .7rem"><i data-lucide=loader class=ic></i> Lecture du document en cours… (environ 30 secondes, la page se met à jour toute seule) <button class="btn bg bsm" style="margin-left:.4rem" onclick="gRegRelire('${holder.id}',${annee})">Relancer</button></div>`:''}
     ${rg.extraction_err?`<div style="margin-top:.6rem;background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.25);color:var(--red);border-radius:8px;padding:.55rem .7rem">${_gEsc(rg.extraction_err)} <button class="btn bg bsm" style="margin-left:.4rem" onclick="gRegRelire('${holder.id}',${annee})">Relancer la lecture</button></div>`:''}
     ${ex?`<div style="margin-top:.7rem">
       <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem"><strong>Ce qui a été lu${ex.lot?' — lot '+_gEsc(ex.lot):''}</strong><span style="color:var(--td)">${ex.exercice?.debut?'Exercice du '+_gD(ex.exercice.debut)+' au '+_gD(ex.exercice.fin):'Exercice : année '+annee}</span></div>
@@ -4713,11 +4713,30 @@ function _gSyndicCard(holder,annee,nb){
     </div>`:''}
   </div></div>`;
 }
+async function _gRegDiag(){
+  try{const r=await fetch('/.netlify/functions/regul-diag',{cache:'no-store'});
+    if(!r.ok)return 'La lecture automatique ne répond pas : les fonctions Netlify ne sont pas déployées (poussez le code). Vous pouvez saisir les montants à la main.';
+    const d=await r.json(),manque=[!d.supabase_service_key&&'SUPABASE_SERVICE_KEY',!d.anthropic_api_key&&'ANTHROPIC_API_KEY'].filter(Boolean);
+    if(manque.length)return 'Lecture automatique impossible : variable'+(manque.length>1?'s':'')+' '+manque.join(' et ')+' absente'+(manque.length>1?'s':'')+' dans Netlify (Site configuration → Environment variables), puis redéployez. En attendant, saisissez les montants à la main.';
+    return 'La lecture n\'a pas répondu après 2 minutes alors que la configuration est bonne. Relancez la lecture ; si ça recommence, regardez le journal de la fonction regul-extract-background dans Netlify (Logs → Functions).';
+  }catch(e){return 'La lecture automatique ne répond pas. Vous pouvez saisir les montants à la main.';}
+}
+// Lancer la lecture : si la fonction n'existe pas (404), le dire tout de suite
+async function _gRegLancer(row){
+  try{const r=await fetch('/.netlify/functions/regul-extract-background',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:row.id,table:'charges_regularisations'})});
+    if(r.status===404){const m='La fonction de lecture n\'est pas déployée sur Netlify : poussez le code, puis relancez la lecture.';row.extraction_err=m;await sb.from('charges_regularisations').update({extraction_err:m}).eq('id',row.id);renderGestion();}
+  }catch(e){}
+}
 function _gRegPoll(lid,annee){
   const k=lid+':'+annee;window._gRegT=window._gRegT||{};if(window._gRegT[k])return;
   let n=0;const tick=async()=>{n++;
     try{const{data}=await sb.from('charges_regularisations').select('*').eq('lease_id',lid).eq('annee',annee).maybeSingle();
-      if(data){GEST.regs[k]=data;if(data.extraction||data.extraction_err||n>40){delete window._gRegT[k];if(document.getElementById('page-gestion')?.classList.contains('act')&&window._gTab==='charges')renderGestion();return;}}}catch(e){}
+      if(data){GEST.regs[k]=data;
+        if(!data.extraction&&!data.extraction_err&&n>24){ // ~2 minutes sans réponse : on explique pourquoi au lieu de tourner indéfiniment
+          const m=await _gRegDiag();data.extraction_err=m;
+          try{await sb.from('charges_regularisations').update({extraction_err:m}).eq('id',data.id);}catch(e){}
+        }
+        if(data.extraction||data.extraction_err){delete window._gRegT[k];if(document.getElementById('page-gestion')?.classList.contains('act')&&window._gTab==='charges')renderGestion();return;}}}catch(e){}
     window._gRegT[k]=setTimeout(tick,5000);};
   window._gRegT[k]=setTimeout(tick,5000);
 }
@@ -4737,15 +4756,13 @@ async function gRegUpload(lid,annee,type,files){
   const{data,error}=await sb.from('charges_regularisations').upsert(row,{onConflict:'lease_id,annee'}).select().single();
   if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-syndic.sql dans Supabase':''),10000);return;}
   GEST.regs[lid+':'+annee]=data;
-  try{fetch('/.netlify/functions/regul-extract-background',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:data.id,table:'charges_regularisations'})});}catch(e){}
-  toast('Document reçu : lecture en cours.');renderGestion();
+  toast('Document reçu : lecture en cours.');renderGestion();_gRegLancer(data);
 }
 async function gRegRelire(lid,annee){
   const rg=_gRegRow(lid,annee);if(!rg)return;
   await sb.from('charges_regularisations').update({extraction:null,extraction_err:null}).eq('id',rg.id);
   rg.extraction=null;rg.extraction_err=null;
-  try{fetch('/.netlify/functions/regul-extract-background',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:rg.id,table:'charges_regularisations'})});}catch(e){}
-  renderGestion();
+  renderGestion();_gRegLancer(rg);
 }
 function renderCharges(){
   const el=document.getElementById('gestion-tab');
