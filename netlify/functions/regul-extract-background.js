@@ -5,11 +5,13 @@
 // Variables : SUPABASE_SERVICE_KEY, ANTHROPIC_API_KEY (+ ANTHROPIC_MODEL_DOCS facultatif).
 const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
+// Nouvelles clés Supabase « sb_secret_… » : seulement dans l'en-tête apikey (ce ne sont pas des jetons JWT)
+const AUTH = KEY && KEY.startsWith('sb_') ? { apikey: KEY } : { apikey: KEY, Authorization: 'Bearer ' + KEY };
 const BUCKET = 'documents-dossiers';
 
 const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
   ...opts,
-  headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', Prefer: 'return=representation', ...(opts.headers || {}) },
+  headers: { ...AUTH, 'Content-Type': 'application/json', Prefer: 'return=representation', ...(opts.headers || {}) },
 }).then(async r => { const t = await r.text(); if (!r.ok) throw new Error(path + ' → ' + r.status + ' ' + t); return t ? JSON.parse(t) : null; });
 const patch = (path, body) => api(path, { method: 'PATCH', body: JSON.stringify(body) });
 
@@ -50,7 +52,7 @@ exports.handler = async (event) => {
   try {
     const content = [];
     for (const d of (r.docs || []).slice(0, 8)) {
-      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${d.path.split('/').map(encodeURIComponent).join('/')}`, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${d.path.split('/').map(encodeURIComponent).join('/')}`, { headers: AUTH });
       if (!res.ok) continue;
       const buf = Buffer.from(await res.arrayBuffer());
       if (buf.length > 25e6) continue;
