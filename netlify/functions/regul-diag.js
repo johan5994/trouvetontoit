@@ -5,8 +5,14 @@ exports.handler = async () => {
   const out = { supabase: 'absente', anthropic: 'absente', modele: process.env.ANTHROPIC_MODEL_DOCS || 'claude-sonnet-4-5', modele_ok: null };
   const K = process.env.SUPABASE_SERVICE_KEY, A = process.env.ANTHROPIC_API_KEY;
   if (K) {
-    try { const r = await fetch(`${SUPABASE_URL}/rest/v1/charges_regularisations?select=id&limit=1`, { headers: { apikey: K, Authorization: 'Bearer ' + K } });
-      out.supabase = r.ok ? 'ok' : 'refusee_' + r.status; } catch (e) { out.supabase = 'erreur'; }
+    // Type de clé (sans jamais la renvoyer) : ancienne clé JWT « service_role » ou nouvelle clé « sb_secret_… »
+    out.type_cle = K.startsWith('sb_secret_') ? 'sb_secret' : K.startsWith('sb_publishable_') ? 'sb_publishable (mauvaise clé : publique)' : K.startsWith('eyJ') ? (() => { try { return 'jwt_' + JSON.parse(Buffer.from(K.split('.')[1], 'base64').toString()).role + '_' + JSON.parse(Buffer.from(K.split('.')[1], 'base64').toString()).ref; } catch (e) { return 'jwt_illisible'; } })() : 'inconnu';
+    const h = K.startsWith('sb_') ? { apikey: K } : { apikey: K, Authorization: 'Bearer ' + K };
+    for (const [nom, path] of [['table', 'rest/v1/charges_regularisations?select=id&limit=1'], ['stockage', 'storage/v1/bucket/documents-dossiers']]) {
+      try { const r = await fetch(`${SUPABASE_URL}/${path}`, { headers: h }); const t = await r.text();
+        out[nom === 'table' ? 'supabase' : 'stockage'] = r.ok ? 'ok' : 'refusee_' + r.status;
+        if (!r.ok) out[nom + '_message'] = t.slice(0, 200); } catch (e) { out[nom === 'table' ? 'supabase' : 'stockage'] = 'erreur'; }
+    }
   }
   if (A) {
     try { const r = await fetch('https://api.anthropic.com/v1/models/' + encodeURIComponent(out.modele), { headers: { 'x-api-key': A, 'anthropic-version': '2023-06-01' } });
