@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <script src="/ui-dialog.js"></script>
+<script>/* Désinstaller l'ancien service worker (il cassait les appels aux fonctions) */if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});if(window.caches)caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit — Espace propriétaire</title>
@@ -4713,13 +4714,19 @@ function _gSyndicCard(holder,annee,nb){
     </div>`:''}
   </div></div>`;
 }
-async function _gRegDiag(){
+async function _gRegDiag(final){
+  // Renvoie un message d'erreur lisible, ou null si la configuration est bonne (et que ce n'est pas l'attente finale)
   try{const r=await fetch('/.netlify/functions/regul-diag',{cache:'no-store'});
     if(!r.ok)return 'La lecture automatique ne répond pas : les fonctions Netlify ne sont pas déployées (poussez le code). Vous pouvez saisir les montants à la main.';
-    const d=await r.json(),manque=[!d.supabase_service_key&&'SUPABASE_SERVICE_KEY',!d.anthropic_api_key&&'ANTHROPIC_API_KEY'].filter(Boolean);
-    if(manque.length)return 'Lecture automatique impossible : variable'+(manque.length>1?'s':'')+' '+manque.join(' et ')+' absente'+(manque.length>1?'s':'')+' dans Netlify (Site configuration → Environment variables), puis redéployez. En attendant, saisissez les montants à la main.';
-    return 'La lecture n\'a pas répondu après 2 minutes alors que la configuration est bonne. Relancez la lecture ; si ça recommence, regardez le journal de la fonction regul-extract-background dans Netlify (Logs → Functions).';
-  }catch(e){return 'La lecture automatique ne répond pas. Vous pouvez saisir les montants à la main.';}
+    const d=await r.json();const pb=[];
+    if(d.supabase==='absente')pb.push('la variable SUPABASE_SERVICE_KEY est absente dans Netlify');
+    else if(d.supabase!=='ok')pb.push('la clé SUPABASE_SERVICE_KEY est refusée par Supabase ('+d.supabase.replace('refusee_','erreur ')+') : mettez la clé « service_role » du projet Supabase de Trouve Ton Toit (adresse hkhmktcbyfyacwfmoyxy), pas celle d\'un autre projet');
+    if(d.anthropic==='absente')pb.push('la variable ANTHROPIC_API_KEY est absente dans Netlify');
+    else if(d.anthropic!=='ok')pb.push('la clé ANTHROPIC_API_KEY est refusée par Anthropic ('+d.anthropic.replace('refusee_','erreur ')+') : clé expirée, supprimée ou sans crédit');
+    if(pb.length)return 'Lecture automatique impossible : '+pb.join(' ; ')+'. Corrigez dans Netlify (Site configuration → Environment variables), redéployez, puis cliquez sur Relancer.';
+    if(!final)return null;
+    return 'La lecture n\'a pas répondu après 2 minutes alors que la configuration est bonne. Relancez ; si ça recommence, regardez le journal de la fonction regul-extract-background dans Netlify (Logs → Functions).';
+  }catch(e){return final?'La lecture automatique ne répond pas. Vous pouvez saisir les montants à la main.':null;}
 }
 // Lancer la lecture : si la fonction n'existe pas (404), le dire tout de suite
 async function _gRegLancer(row){
@@ -4732,9 +4739,10 @@ function _gRegPoll(lid,annee){
   let n=0;const tick=async()=>{n++;
     try{const{data}=await sb.from('charges_regularisations').select('*').eq('lease_id',lid).eq('annee',annee).maybeSingle();
       if(data){GEST.regs[k]=data;
-        if(!data.extraction&&!data.extraction_err&&n>24){ // ~2 minutes sans réponse : on explique pourquoi au lieu de tourner indéfiniment
-          const m=await _gRegDiag();data.extraction_err=m;
-          try{await sb.from('charges_regularisations').update({extraction_err:m}).eq('id',data.id);}catch(e){}
+        // Après ~10 s, vérifier la configuration (clés) ; après ~2 min, expliquer pourquoi au lieu de tourner indéfiniment
+        if(!data.extraction&&!data.extraction_err&&(n===2||n>24)){
+          const m=await _gRegDiag(n>24);
+          if(m){data.extraction_err=m;try{await sb.from('charges_regularisations').update({extraction_err:m}).eq('id',data.id);}catch(e){}}
         }
         if(data.extraction||data.extraction_err){delete window._gRegT[k];if(document.getElementById('page-gestion')?.classList.contains('act')&&window._gTab==='charges')renderGestion();return;}}}catch(e){}
     window._gRegT[k]=setTimeout(tick,5000);};
@@ -4760,9 +4768,15 @@ async function gRegUpload(lid,annee,type,files){
 }
 async function gRegRelire(lid,annee){
   const rg=_gRegRow(lid,annee);if(!rg)return;
-  await sb.from('charges_regularisations').update({extraction:null,extraction_err:null}).eq('id',rg.id);
-  rg.extraction=null;rg.extraction_err=null;
-  renderGestion();_gRegLancer(rg);
+  const k=lid+':'+annee;if(window._gRegT?.[k]){clearTimeout(window._gRegT[k]);delete window._gRegT[k];}
+  toast('<i data-lucide=refresh-cw class=ic></i> Vérification de la configuration…',4000);
+  // Vérifier tout de suite les clés : si quelque chose manque, on l'affiche au lieu de relancer dans le vide
+  const m=await _gRegDiag(false);
+  rg.extraction=null;rg.extraction_err=m||null;
+  await sb.from('charges_regularisations').update({extraction:null,extraction_err:m||null}).eq('id',rg.id);
+  renderGestion();
+  if(m)return;
+  toast('Lecture relancée.',3000);_gRegLancer(rg);
 }
 function renderCharges(){
   const el=document.getElementById('gestion-tab');
