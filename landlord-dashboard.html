@@ -4717,8 +4717,10 @@ function _gSyndicCard(holder,annee,nb){
 async function _gRegDiag(final){
   // Renvoie un message d'erreur lisible, ou null si la configuration est bonne (et que ce n'est pas l'attente finale)
   try{const r=await fetch('/.netlify/functions/regul-diag',{cache:'no-store'});
-    if(!r.ok)return 'La lecture automatique ne répond pas : les fonctions Netlify ne sont pas déployées (poussez le code). Vous pouvez saisir les montants à la main.';
-    const d=await r.json();const pb=[];
+    const NONDEP='La fonction regul-diag n\'existe pas sur le site : les fichiers regul-diag.js et regul-extract-background.js doivent être dans le dossier netlify/functions/ de votre dépôt GitHub (pas à la racine), puis redéployez.';
+    if(!r.ok)return NONDEP;
+    let d;try{d=await r.json();}catch(e){return NONDEP;} // une page HTML à la place = fonction absente
+    const pb=[];
     if(d.supabase==='absente')pb.push('la variable SUPABASE_SERVICE_KEY est absente dans Netlify');
     else if(d.supabase!=='ok')pb.push('la clé SUPABASE_SERVICE_KEY est refusée par Supabase ('+d.supabase.replace('refusee_','erreur ')+') : mettez la clé « service_role » du projet Supabase de Trouve Ton Toit (adresse hkhmktcbyfyacwfmoyxy), pas celle d\'un autre projet');
     if(d.anthropic==='absente')pb.push('la variable ANTHROPIC_API_KEY est absente dans Netlify');
