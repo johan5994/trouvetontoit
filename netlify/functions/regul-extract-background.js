@@ -62,12 +62,18 @@ exports.handler = async (event) => {
     }
     if (!content.length) { await patch(`${T}?id=eq.${id}`, { extraction_err: 'Aucun document lisible (PDF ou photo attendus).' }); return { statusCode: 200, body: 'no doc' }; }
     content.push({ type: 'text', text: `Année de régularisation demandée : ${r.annee}.\n\n` + PROMPT });
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL_DOCS || 'claude-sonnet-4-5', max_tokens: 4000, messages: [{ role: 'user', content }] }),
-    });
-    const j = await res.json();
+    // Modèle : ANTHROPIC_MODEL_DOCS si défini ; si un modèle n'existe plus, on essaie le suivant
+    const modeles = [process.env.ANTHROPIC_MODEL_DOCS, 'claude-sonnet-4-5', 'claude-opus-5-5'].filter((m, i, a) => m && a.indexOf(m) === i);
+    let res, j;
+    for (const model of modeles) {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model, max_tokens: 4000, messages: [{ role: 'user', content }] }),
+      });
+      j = await res.json();
+      if (!(res.status === 404 || j?.error?.type === 'not_found_error')) break;
+    }
     if (!res.ok) throw new Error(j?.error?.message || ('HTTP ' + res.status));
     const txt = (j.content || []).map(c => c.text || '').join('');
     const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
