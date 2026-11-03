@@ -482,10 +482,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div class="ct">Historique des paiements</div>
           <select class="fsel" style="width:auto;font-size:.75rem;padding:.3rem .6rem" onchange="loadPaiements(this.value)">
             <option value="all">Tous les paiements</option>
-            <option value="paid">Confirmered <i data-lucide=check-circle-2 class=ic></i></option>
+            <option value="paid">Payés</option>
             <option value="declared">Déclarés par le locataire</option>
             <option value="en attente">En attente </option>
-            <option value="late">Overdue <i data-lucide=alert-triangle class=ic></i></option>
+            <option value="late">En retard</option>
           </select>
         </div>
         <div style="overflow-x:auto">
@@ -2557,22 +2557,23 @@ async function loadPaiements(filter){
 
   if(filter&&filter!=='all')filtered=filtered.filter(p=>p.status===filter);
   const sc={paid:'b-green',declared:'b-gold','en attente':'b-dim',late:'b-red'};
-  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Confirmered',declared:'<i data-lucide=message-circle class=ic></i> Declared paid','en attente':'<i data-lucide=hourglass class=ic></i> En attente',late:'<i data-lucide=alert-triangle class=ic></i> Overdue'};
-  const tl={depot:'<i data-lucide=lock class=ic></i> Security depot',first_rent:'<i data-lucide=flag class=ic></i> First month loyer',loyer:'<i data-lucide=home class=ic></i> Monthly loyer'};
+  const sl={paid:'<i data-lucide=check-circle-2 class=ic></i> Payé',declared:'<i data-lucide=message-circle class=ic></i> Déclaré payé','en attente':'<i data-lucide=hourglass class=ic></i> En attente',pending:'<i data-lucide=hourglass class=ic></i> À venir',late:'<i data-lucide=alert-triangle class=ic></i> En retard'};
+  if(!sc.pending)sc.pending='b-dim';
+  const tl={depot:'<i data-lucide=lock class=ic></i> Dépôt de garantie',deposit:'<i data-lucide=lock class=ic></i> Dépôt de garantie',first_rent:'<i data-lucide=flag class=ic></i> Premier loyer',loyer:'<i data-lucide=home class=ic></i> Loyer mensuel',rent:'<i data-lucide=home class=ic></i> Loyer mensuel',charges_regul:'<i data-lucide=receipt class=ic></i> Régularisation des charges'};
   const titles=window._llListingTitles||{};
   const tb=document.getElementById('pay-tbody');
   tb.innerHTML=filtered.map(p=>`<tr>
     <td style="color:var(--txt);font-weight:500">${p.tenant_name||p.tenant_id?.substring(0,8)||'—'}<div style="font-size:.68rem;color:var(--td);font-weight:400;margin-top:.1rem">${tl[p.type]||p.type||''}</div></td>
     <td style="font-size:.78rem;color:var(--tm)">${titles[p.listing_id]||'—'}</td>
-    <td style="color:var(--txt);font-weight:600">€${(p.amount||0).toLocaleString()}</td>
+    <td style="color:var(--txt);font-weight:600;white-space:nowrap">${(Number(p.amount)||0).toLocaleString('fr-FR',{minimumFractionDigits:(Number(p.amount)%1)?2:0,maximumFractionDigits:2})} €</td>
     <td style="font-size:.75rem;color:var(--td)">${p.due_date?new Date(p.due_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
     <td><span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span></td>
     <td style="display:flex;gap:.4rem">
       ${p.status==='declared'?`<button class="btn bp bsm" onclick="confirmPaiementReceived('${p.id}')"><i data-lucide=check class=ic></i> Confirmer</button>`:''}
-      ${p.status==='pending'||p.status==='late'?`<button class="btn bg bsm" onclick="sendReminder('${p.id}')"><i data-lucide=mail class=ic></i> Remind</button>`:''}
+      ${p.status==='pending'||p.status==='late'?`<button class="btn bg bsm" onclick="sendReminder('${p.id}')"><i data-lucide=mail class=ic></i> Relancer</button>`:''}
       ${p.status==='paid'?`<button class="btn bg bsm" onclick="downloadQuittance('${p.id}')"><i data-lucide=file-text class=ic></i> Quittance</button>`:''}
     </td>
-  </tr>`).join('')||`<tr><td colspan="6"><div class="empty"><div class="em"><i data-lucide=euro class=ic></i></div><p>No paiements yet. Loyer schedules are created automatically once entrée dans les lieux is complete.</p></div></td></tr>`;
+  </tr>`).join('')||`<tr><td colspan="6"><div class="empty"><div class="em"><i data-lucide=euro class=ic></i></div><p>Aucun paiement pour l'instant. L'échéancier des loyers se crée automatiquement quand le premier paiement est confirmé.</p></div></td></tr>`;
 }
 
 function loadDepotGaranties(pays){
@@ -3938,7 +3939,8 @@ async function loadRentedProperties(){
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
           <a href="/bail-meuble.html?booking_id=${bk.id}&role=landlord" class="btn bg bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> Voir le bail</a>
           ${false?`<a href="" target="_blank" class="btn bg bsm" style="text-decoration:none"><i data-lucide=file-text class=ic></i> Bail</a>`:''}
-          ${bk.edl_status?`<a href="/edl-meuble.html?booking_id=${bk.id}" class="btn bg bsm" style="text-decoration:none"><i data-lucide=clipboard-list class=ic></i> État des lieux</a>`:''}
+          ${bk.edl_status?`<a href="/edl-meuble.html?booking_id=${bk.id}" class="btn bg bsm" style="text-decoration:none"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée</a>`:''}
+          ${bk.status==='move_in_ready'||bk.status==='tenancy_ended'?`<a href="/edl-meuble.html?booking_id=${bk.id}&type=sortie" class="btn bg bsm" style="text-decoration:none"><i data-lucide=log-out class=ic></i> État des lieux de sortie</a>`:''}
           ${false?`<a href="" target="_blank" class="btn bg bsm" style="text-decoration:none"><i data-lucide=clipboard-list class=ic></i> État des lieux ${bk.edl_signed_propriétaire?'<i data-lucide=check-circle-2 class=ic></i>':'<i data-lucide=hourglass class=ic></i>'}</a>`:bk.edl_completed_at?`<button onclick="retryEdlGeneration('${bk.id}')" class="btn bp bsm"><i data-lucide=alert-triangle class=ic></i> Retry État des lieux signature</button>`:''}
           ${bk.edl_completed_at?`<button onclick="viewEdlDossier('${bk.id}')" class="btn bg bsm"><i data-lucide=camera class=ic></i> État des lieux + photos</button>`:''}
           <button onclick="openMsgChatById('${bk.tenant_id||''}','${bk.listing_id||''}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message locataire</button>
@@ -4409,6 +4411,10 @@ async function loadGestion(){
     GEST.allPays=GEST.pays=ps||[];
     const tids=[...new Set([...GEST.leases.map(l=>l.tenant_id),...GEST.pays.map(p=>p.tenant_id)].filter(Boolean))];
     if(tids.length){const{data:pr}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',tids);(pr||[]).forEach(p=>GEST.names[p.clerk_id]=p);}
+    // Relevés des compteurs d'eau à l'entrée (état des lieux) : servent à répartir l'eau selon la consommation réelle
+    GEST.edl={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:eds}=await sb.from('etats_des_lieux').select('booking_id,type,data,created_at').in('booking_id',bids);GEST.edlS={};(eds||[]).forEach(e=>{let d=e.data;try{d=typeof d==='string'?JSON.parse(d):d;}catch(x){d={};}const c=d?.compteurs||{},v={ef:c.eau_froide_index,ec:c.eau_chaude_index,date:d?.date,status:e.status};if((e.type||'entree')==='sortie')GEST.edlS[e.booking_id]=v;else GEST.edl[e.booking_id]=v;});}}catch(e){}
+    // Date de départ réelle (fin de location indiquée) : sert au prorata des charges entre ancien et nouveau locataire
+    try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:bks}=await sb.from('bookings').select('id,tenancy_ended_at,status').in('id',bids);(bks||[]).forEach(b=>GEST.leases.filter(l=>l.booking_id===b.id).forEach(l=>{if(b.tenancy_ended_at)l._fin=b.tenancy_ended_at;}));}}catch(e){}
     const lids=[...new Set(GEST.leases.map(l=>l.listing_id).filter(Boolean))];
     if(lids.length){const{data:li}=await sb.from('listings').select('*').in('id',lids);(li||[]).forEach(x=>GEST.listings[x.id]=x);}
     try{const{data:rg}=await sb.from('charges_regularisations').select('*').eq('landlord_id',U.id);(rg||[]).forEach(r=>GEST.regs[r.lease_id+':'+r.annee]=r);}catch(e){}
@@ -4444,7 +4450,7 @@ function _gBienResume(b){
       ${cell('Prochaine échéance',prochain?_gD(prochain.due_date)+' · '+_g$(prochain.amount):'—')}
       ${cell('Impayés',retard.length?retard.length+' · '+_g$(retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',retard.length?'color:var(--red)':'color:var(--green)')}
     </div>
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem">${b.ls.map(l=>`<a class="btn bg bsm" style="text-decoration:none" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' — '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`).join('')}${b.ls[0]?.booking_id?`<a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${b.ls[0].booking_id}"><i data-lucide=clipboard-list class=ic></i> État des lieux</a>`:''}</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem">${b.ls.map(l=>`<a class="btn bg bsm" style="text-decoration:none" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' — '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`).join('')}${[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()].map(l=>{const multiB=new Set(b.ls.map(x=>x.booking_id).filter(Boolean)).size>1,suf=multiB?' — '+_gEsc(_gName(l.tenant_id)):'',sortie=GEST.edlS?.[l.booking_id];return `<a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée${suf}</a><a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${sortie?(sortie.status==='signed'?'État des lieux de sortie ✓':'État des lieux de sortie (en cours)'):'Faire l\'état des lieux de sortie'}${suf}</a>`;}).join('')}</div>
   </div></div>`;
 }
 function renderGestion(){
@@ -4656,7 +4662,7 @@ async function gAppliquerIRL(lid){
 }
 
 // ─────────────── 3. RÉGULARISATION DES CHARGES ───────────────
-const CH_POSTES=[['eau','Eau froide / eau chaude'],['chauffage','Chauffage collectif'],['entretien','Entretien et électricité des parties communes'],['ascenseur','Ascenseur'],['gardien','Gardien / concierge (part récupérable)'],['teom','Taxe d\'enlèvement des ordures ménagères (TEOM — avis de taxe foncière)'],['autres','Autres charges récupérables']];
+const CH_POSTES=[['eau','Eau froide / eau chaude'],['chauffage','Chauffage collectif'],['entretien','Parties communes : électricité, ménage, entretien, espaces verts'],['ascenseur','Ascenseur'],['gardien','Gardien / concierge (part récupérable)'],['teom','Taxe d\'enlèvement des ordures ménagères (TEOM — avis de taxe foncière)'],['autres','Autres charges récupérables']];
 function _gProvisions(l,annee){
   // charges encaissées dans l'année = part « charges » des loyers payés
   const cc=(Number(l.rent)||0)+(Number(l.charges)||0),ch=Number(l.charges)||0;if(!cc||!ch)return 0;
@@ -4673,20 +4679,56 @@ function _gPoste(nature){const n=String(nature||'').toLowerCase();
   if(/\beau\b|eaux|compteur d.eau/.test(n))return 'eau';
   if(/entretien|électri|electri|ménage|menage|nettoy|espaces? verts?|parties communes|minuterie|éclairage|eclairage|propreté|proprete|désinsect|desinsect|dératis|deratis|interphone|vide.ordures|conteneur/.test(n))return 'entretien';
   return 'autres';}
-// Part du locataire : jours occupés pendant l'exercice / jours de l'exercice, divisé entre les baux du logement
-function _gPart(l,ex,annee,nbBaux){
-  const deb=new Date((ex?.debut)||`${annee}-01-01`),fin=new Date((ex?.fin)||`${annee}-12-31`);
-  const s0=l.start_date?new Date(l.start_date):deb,e0=l.end_date?new Date(l.end_date):fin;
-  const a=s0>deb?s0:deb,b=e0<fin?e0:fin;
-  const tot=Math.round((fin-deb)/864e5)+1,occ=Math.max(0,Math.round((b-a)/864e5)+1);
-  return{occ,tot,f:Math.min(1,tot?occ/tot:0)/(nbBaux||1),deb,fin};
+// Part du locataire, jour par jour sur l'exercice : chaque jour où il occupe le logement compte 1/(nombre de baux en cours ce jour-là).
+// → locataires successifs (ancien puis nouveau) : chacun paie sa période ; colocataires en baux séparés : la période commune est partagée.
+function _gOccupe(l,d){const s0=l.start_date?new Date(l.start_date+'T00:00:00'):null,e0=l._fin?new Date(String(l._fin).slice(0,10)+'T00:00:00'):null;return (!s0||d>=s0)&&(!e0||d<=e0);}
+function _gPart(l,ex,annee,tous){
+  const deb=new Date(((ex?.debut)||`${annee}-01-01`)+'T00:00:00'),fin=new Date(((ex?.fin)||`${annee}-12-31`)+'T00:00:00');
+  const autres=(tous||[l]);let occ=0,part=0,partage=0,tot=0;
+  for(let d=new Date(deb);d<=fin;d.setDate(d.getDate()+1)){
+    tot++;if(!_gOccupe(l,d))continue;occ++;
+    const n=autres.filter(x=>_gOccupe(x,d)).length||1;part+=1/n;if(n>1)partage++;
+  }
+  return{occ,tot,partage,f:tot?part/tot:0,deb,fin};
 }
-function _gDepDepuisSyndic(l,ex,annee,nb){
-  const p=_gPart(l,ex?.exercice,annee,nb),pt=_gPart(l,null,annee,nb),dep={};
-  (ex?.lignes||[]).filter(x=>x.recuperable).forEach(x=>{const c=_gPoste(x.nature);dep[c]=(dep[c]||0)+Number(x.montant||0)*p.f;});
+// ── Eau au compteur : répartie selon les m³ consommés par chaque locataire (index d'entrée / de sortie) ──
+const EAU_M=[{k:'ef',lbl:'Eau froide',edl:'ef',syn:'froide',test:n=>/eau/i.test(n)&&!/chaude/i.test(n)},{k:'ec',lbl:'Eau chaude',edl:'ec',syn:'chaude',test:n=>/eau chaude/i.test(n)}];
+const _gNum=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isFinite(x)?x:null;};
+// Index proposés pour chaque bail : entrée = index de son état des lieux (ou début d'exercice), sortie = index d'entrée du locataire suivant (ou fin d'exercice)
+function _gEauDefauts(tous,annee,ex){
+  const deb=new Date(((ex?.exercice?.debut)||`${annee}-01-01`)+'T00:00:00'),fin=new Date(((ex?.exercice?.fin)||`${annee}-12-31`)+'T23:59:59');
+  const tri=[...tous].sort((a,b)=>String(a.start_date||'').localeCompare(String(b.start_date||'')));const out={};
+  tri.forEach(l=>{const o={};
+    EAU_M.forEach(m=>{const sy=ex?.compteurs_eau?.[m.syn]||{};
+      const s0=l.start_date?new Date(l.start_date+'T00:00:00'):null,e0=l._fin?new Date(String(l._fin).slice(0,10)+'T00:00:00'):null;
+      const suiv=tri.find(x=>x!==l&&x.start_date&&e0&&new Date(x.start_date+'T00:00:00')>=e0);
+      o[m.k]={debut:s0&&s0>deb?_gNum(GEST.edl?.[l.booking_id]?.[m.edl]):_gNum(sy.index_debut),fin:e0&&e0<fin?(_gNum(GEST.edlS?.[l.booking_id]?.[m.edl])??_gNum(suiv?GEST.edl?.[suiv.booking_id]?.[m.edl]:null)):_gNum(sy.index_fin)};});
+    out[l.id]=o;});
+  return out;
+}
+function _gEauReleves(tous,annee,ex){
+  const rg=_gRegRow(tous[0]?.id,annee)||{},sav=_gJson(rg.eau_releves,null)||{},def=_gEauDefauts(tous,annee,ex),out={};
+  tous.forEach(l=>{out[l.id]={};EAU_M.forEach(m=>{const s=sav?.[l.id]?.[m.k]||{},d=def[l.id]?.[m.k]||{};out[l.id][m.k]={debut:_gNum(s.debut)??d.debut,fin:_gNum(s.fin)??d.fin};});});
+  return out;
+}
+// Pour un compteur : part de chaque bail = m³ du bail / m³ du lot sur l'exercice (null si un relevé manque → on garde le prorata des jours)
+function _gEauParts(tous,annee,ex,m){
+  const rel=_gEauReleves(tous,annee,ex),occ=tous.filter(l=>_gPart(l,ex?.exercice,annee,tous).occ>0);
+  const m3={};for(const l of occ){const r=rel[l.id]?.[m.k];if(r?.debut==null||r?.fin==null||r.fin<r.debut)return null;m3[l.id]=r.fin-r.debut;}
+  const sy=ex?.compteurs_eau?.[m.syn]||{};const lot=_gNum(sy.m3)??((_gNum(sy.index_fin)!=null&&_gNum(sy.index_debut)!=null)?_gNum(sy.index_fin)-_gNum(sy.index_debut):null);
+  const somme=Object.values(m3).reduce((a,b)=>a+b,0),base=lot&&lot>=somme?lot:somme;
+  if(!base)return null;
+  const f={};Object.keys(m3).forEach(id=>f[id]=m3[id]/base);return{f,m3,base};
+}
+function _gDepDepuisSyndic(l,ex,annee,tous){
+  const p=_gPart(l,ex?.exercice,annee,tous),pt=_gPart(l,null,annee,tous),dep={};
+  // Eau : si les relevés de compteur sont complets, part = m³ consommés ; sinon prorata des jours comme le reste
+  const eau={};EAU_M.forEach(m=>{const r=_gEauParts(tous,annee,ex,m);if(r)eau[m.k]=r;});
+  const fLigne=x=>{const m=EAU_M.find(mm=>mm.test(x.nature));return m&&eau[m.k]?(eau[m.k].f[l.id]||0):p.f;};
+  (ex?.lignes||[]).filter(x=>x.recuperable).forEach(x=>{const c=_gPoste(x.nature);dep[c]=(dep[c]||0)+Number(x.montant||0)*fLigne(x);});
   if(ex?.teom?.montant_hors_frais)dep.teom=(dep.teom||0)+Number(ex.teom.montant_hors_frais)*pt.f;
   Object.keys(dep).forEach(k=>dep[k]=Math.round(dep[k]*100)/100);
-  return{dep,p,pt};
+  return{dep,p,pt,fLigne,eau};
 }
 function _gSyndicCard(holder,annee,nb){
   const rg=_gRegRow(holder.id,annee)||{},docs=_gJson(rg.docs,[])||[],ex=_gJson(rg.extraction,null);
@@ -4695,8 +4737,8 @@ function _gSyndicCard(holder,annee,nb){
   const lignes=ex?.lignes||[],rec=lignes.filter(x=>x.recuperable),non=lignes.filter(x=>!x.recuperable);
   const somme=a=>a.reduce((t,x)=>t+Number(x.montant||0),0);
   const drop=(type,txt)=>`<label class="btn ${type==='syndic'&&!docs.length?'bp':'bg'} bsm" style="cursor:pointer"><i data-lucide=upload class=ic></i> ${txt}<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="gRegUpload('${holder.id}',${annee},'${type}',this.files)"></label>`;
-  return `<div class="card" style="margin-bottom:1rem;border-color:rgba(var(--bleu-rgb),.35)"><div class="ch"><div class="ct"><span style="display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:50%;background:var(--bleu);color:#fff;font-size:.75rem;margin-right:.35rem">1</span> Déposez le décompte de charges du syndic ${annee}</div></div><div class="cb" style="font-size:.82rem;line-height:1.55">
-    ${!docs.length?`<p style="margin-bottom:.6rem">Déposez le <strong>décompte annuel de charges</strong> que votre syndic vous envoie après l'assemblée générale (PDF ou photo). Il est lu automatiquement : les charges récupérables sur le locataire sont triées, calculées pour la période d'occupation${nb>1?` et réparties entre les ${nb} baux`:''}, puis reportées ci-dessous. Ajoutez l'avis de taxe foncière pour la taxe d'ordures ménagères (TEOM).</p>`:''}
+  return `<div class="card" style="margin-bottom:.4rem;border-color:rgba(var(--bleu-rgb),.35);box-shadow:none"><div class="ch"><div class="ct"><i data-lucide=file-scan class=ic></i> Décompte du syndic ${annee}</div></div><div class="cb" style="font-size:.82rem;line-height:1.55">
+    ${!docs.length?`<p style="margin-bottom:.6rem">Déposez le <strong>décompte annuel de charges</strong> que votre syndic vous envoie après l'assemblée générale (PDF ou photo). Il est lu automatiquement : les charges récupérables sur le locataire sont triées, calculées au prorata de la période d'occupation de chaque locataire, puis reportées ci-dessous. Ajoutez l'avis de taxe foncière pour la taxe d'ordures ménagères (TEOM).</p>`:''}
     <div style="display:flex;gap:.4rem;flex-wrap:wrap">${drop('syndic',docs.some(d=>d.type==='syndic')?'Ajouter un autre décompte':'Déposer le décompte du syndic')}${drop('taxe_fonciere',docs.some(d=>d.type==='taxe_fonciere')?'Ajouter un avis de taxe foncière':'Avis de taxe foncière (TEOM)')}</div>
     ${docs.length?`<div style="margin-top:.5rem;font-size:.76rem;color:var(--td)">${docs.map(d=>`<span style="display:inline-block;margin-right:.6rem"><i data-lucide=file-text class=ic></i> ${_gEsc(d.name)}</span>`).join('')}</div>`:''}
     ${lecture?`<div style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.55rem .7rem"><i data-lucide=loader class=ic></i> Lecture du document en cours… (environ 30 secondes, la page se met à jour toute seule) <button class="btn bg bsm" style="margin-left:.4rem" onclick="gRegRelire('${holder.id}',${annee})">Relancer</button></div>`:''}
@@ -4780,46 +4822,131 @@ async function gRegRelire(lid,annee){
   if(m)return;
   toast('Lecture relancée.',3000);_gRegLancer(rg);
 }
+// ── Régularisations : une par exercice, les unes après les autres, chacune suivie jusqu'au paiement confirmé ──
+function _gRegEtat(l,annee,calc){
+  const rg=GEST.regs[l.id+':'+annee]||{},solde=Number(rg.solde)||0;
+  if(calc&&calc.p.occ===0)return{k:'rien',t:'Rien à régulariser',c:'var(--td)'};
+  if(!rg.envoye_at)return{k:'a_faire',t:'À préparer',c:'var(--gold)'};
+  if(Math.abs(solde)<0.01||rg.paiement_confirme_at)return{k:'termine',t:'Terminé',c:'var(--green)'};
+  if(solde>0)return rg.paiement_declare_at?{k:'a_confirmer',t:'Paiement à confirmer',c:'var(--gold)'}:{k:'attente_loc',t:'En attente du paiement du locataire',c:'var(--bleu)'};
+  return rg.paiement_declare_at?{k:'attente_conf_loc',t:'En attente de confirmation du locataire',c:'var(--bleu)'}:{k:'a_rembourser',t:'Remboursement à faire',c:'var(--gold)'};
+}
+function _gRegSteps(e,solde){
+  const pos={a_faire:0,attente_loc:2,a_confirmer:2,a_rembourser:2,attente_conf_loc:2,termine:4}[e.k]??0;
+  const lab=['Décompte','Envoyé au locataire',solde<0?'Remboursement':'Paiement','Confirmé'];
+  return `<div class="bpx-steps" style="margin-bottom:.6rem">${lab.map((t,i)=>`<div class="bpx-s${i<pos?' bpx-ok':i===pos?' bpx-on':''}"><span class="bpx-d">${i<pos?'✓':i+1}</span><span class="bpx-l">${t}</span></div>`).join('<span class="bpx-sep"></span>')}</div>`;
+}
+function _gRegBlock(l,annee,nb,ex,multi){
+  const k=l.id+':'+annee,rg=GEST.regs[k]||{},uid=l.id+'-'+annee;let dep=_gJson(rg.depenses,{})||{};
+  const saisi=Object.values(dep).some(v=>Number(v));
+  let calc=ex?_gDepDepuisSyndic(l,ex,annee,GEST.leases.filter(x=>Number(x.charges)>0)):null;
+  if(!saisi&&calc)dep=calc.dep;
+  const e=_gRegEtat(l,annee,calc),envoye=!!rg.envoye_at,solde=Number(rg.solde)||0;
+  const prov=Math.round(_gProvisions(l,annee)*100)/100;
+  const tot=CH_POSTES.reduce((a,[c])=>a+(Number(dep[c])||0),0);
+  const rempli=saisi||!!calc;
+  const nom=_gEsc(_gName(l.tenant_id));
+  const head=multi?`<div style="font-weight:700;margin-bottom:.4rem">${nom} <span style="font-weight:500;color:var(--td)">${_gEsc(l.lot_label||'')}</span> <span style="font-size:.72rem;color:${e.c};margin-left:.3rem">● ${e.t}</span></div>`:'';
+  if(e.k==='rien')return `<div style="border-top:1px solid var(--b);padding-top:.7rem;margin-top:.7rem">${head}<div style="color:var(--td);font-size:.8rem">${nom} n'occupait pas le logement en ${annee}${l._fin&&new Date(l._fin).getFullYear()<annee?` (parti le ${_gD(l._fin)})`:` (bail à partir du ${_gD(l.start_date)})`} : rien à régulariser.</div></div>`;
+  // Une fois envoyé : on n'affiche plus que le résultat et le suivi du paiement
+  if(envoye){
+    const montant=_g$(Math.abs(solde));
+    let action='';
+    if(e.k==='attente_loc')action=`<div style="color:var(--td)">Le locataire doit vous verser <strong style="color:var(--txt)">${montant}</strong>. Il a reçu le décompte le ${_gD(rg.envoye_at)} et confirmera son paiement depuis son espace.</div>`;
+    else if(e.k==='a_confirmer')action=`<div><strong>${nom} indique avoir payé ${montant}</strong> le ${_gD(rg.paiement_declare_at)}. Vérifiez sur votre compte puis confirmez.</div><button class="btn bp bsm" style="margin-top:.45rem" onclick="gRegConfirmer('${l.id}',${annee})"><i data-lucide=check class=ic></i> J'ai bien reçu ${montant}</button>`;
+    else if(e.k==='a_rembourser')action=`<div><strong>Vous devez rembourser ${montant}</strong> à ${nom} (trop-perçu de provisions). Faites le virement, ou déduisez-le d'un prochain loyer, puis indiquez-le.</div><button class="btn bp bsm" style="margin-top:.45rem" onclick="gRegRembourse('${l.id}',${annee})"><i data-lucide=send class=ic></i> J'ai remboursé ${montant}</button>`;
+    else if(e.k==='attente_conf_loc')action=`<div style="color:var(--td)">Vous avez indiqué avoir remboursé <strong style="color:var(--txt)">${montant}</strong> le ${_gD(rg.paiement_declare_at)}. En attente de la confirmation du locataire.</div>`;
+    else action=`<div style="color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> ${Math.abs(solde)<0.01?'Équilibré : rien à payer ni à rembourser.':(solde>0?'Paiement de '+montant+' reçu':'Remboursement de '+montant+' confirmé par le locataire')+(rg.paiement_confirme_at?' le '+_gD(rg.paiement_confirme_at):'')+'.'}</div>`;
+    return `<div style="${multi?'border-top:1px solid var(--b);padding-top:.7rem;margin-top:.7rem':''}">${head}${_gRegSteps(e,solde)}
+      <div style="background:var(--s2);border-radius:8px;padding:.6rem .75rem;font-size:.8rem;line-height:1.55">
+        <div style="color:var(--td);margin-bottom:.35rem">Charges réelles ${_g$(rg.total_depenses)} − provisions versées ${_g$(rg.provisions)} = <strong style="color:var(--txt)">${solde>0?'complément de '+montant+' dû par le locataire':solde<0?'trop-perçu de '+montant+' à rembourser':'équilibré'}</strong></div>
+        ${action}
+      </div></div>`;
+  }
+  // Pas encore envoyé : calcul + vérification + envoi
+  return `<div style="${multi?'border-top:1px solid var(--b);padding-top:.7rem;margin-top:.7rem':''}">${head}${_gRegSteps(e,0)}
+    ${calc?(()=>{const f=calc.p.f,ligs=(ex?.lignes||[]).filter(x=>x.recuperable),tf=calc.pt.f,td='padding:.3rem .45rem;border-bottom:1px dashed var(--b)';
+      return `<div style="margin-bottom:.5rem;line-height:1.5;font-size:.8rem">Part de ${nom} : ${calc.p.occ} jours d'occupation sur ${calc.p.tot}${l._fin?` (parti le ${_gD(l._fin)})`:''}${calc.p.partage?`, dont ${calc.p.partage} jours partagés avec un autre bail du logement`:''}, soit ${Math.round(calc.p.f*1000)/10} % des charges de l'exercice.</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:.4rem"><thead><tr><th style="text-align:left;${td}">Poste du décompte</th><th style="text-align:right;${td}">Votre lot</th><th style="text-align:right;${td}">Part du locataire</th></tr></thead>
+      <tbody>${ligs.map(x=>{const fx=calc.fLigne(x),m=EAU_M.find(mm=>mm.test(x.nature)),r=m&&calc.eau[m.k];return `<tr><td style="${td}">${_gEsc(x.nature)}${r?`<div style="font-size:.7rem;color:var(--td)">au compteur : ${Math.round((r.m3[l.id]||0)*100)/100} m³ sur ${Math.round(r.base*100)/100} m³</div>`:''}</td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(x.montant)}</td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(Math.round(x.montant*fx*100)/100)}</td></tr>`;}).join('')}
+      ${ex?.teom?.montant_hors_frais?`<tr><td style="${td}">Taxe d'ordures ménagères (TEOM)</td><td style="text-align:right;${td}">${_g$(ex.teom.montant_hors_frais)}</td><td style="text-align:right;${td}">${_g$(Math.round(ex.teom.montant_hors_frais*tf*100)/100)}</td></tr>`:''}</tbody></table>`;})()
+      :`<p style="color:var(--td);margin-bottom:.5rem;font-size:.8rem">Déposez le décompte du syndic ci-dessus : la part de ${nom} sera calculée ici. Pas de décompte ? Saisissez les montants vous-même.</p>`}
+    <details ${saisi&&!calc?'open':''}><summary style="cursor:pointer;font-weight:600;color:var(--bleu);margin-bottom:.4rem;font-size:.8rem">${calc?'Corriger un montant':'Saisir les montants à la main'}</summary>
+      <div style="display:grid;grid-template-columns:1fr 130px;gap:.3rem .6rem;align-items:center;font-size:.8rem">
+        ${CH_POSTES.map(([c,lab])=>`<label for="ch-${uid}-${c}">${lab}</label><input class="fi" id="ch-${uid}-${c}" type="number" step="0.01" min="0" value="${dep[c]??''}" placeholder="0" oninput="gChRecalc('${l.id}',${annee})">`).join('')}
+      </div></details>
+    <div id="ch-res-${uid}" style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.6rem .75rem;${rempli?'':'display:none'}">${_gChRes(tot,prov,Number(l.charges))}</div>
+    <div id="ch-act-${uid}" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;${rempli?'':'display:none'}">
+      <button class="btn bp bsm" onclick="gChSave('${l.id}',${annee},true)"><i data-lucide=send class=ic></i> Envoyer le décompte au locataire</button>
+      <button class="btn bg bsm" onclick="gChSave('${l.id}',${annee},false)">Enregistrer sans envoyer</button>
+      <button class="btn bg bsm" onclick="gChProvision('${l.id}',${annee})">Ajuster la provision mensuelle</button>
+    </div></div>`;
+}
+function _gEauCard(ls,annee,ex){
+  const lignes=EAU_M.filter(m=>(ex?.lignes||[]).some(x=>x.recuperable&&m.test(x.nature)));
+  if(!lignes.length)return '';
+  const occ=ls.filter(l=>_gPart(l,ex?.exercice,annee,ls).occ>0);if(!occ.length)return '';
+  const tot=_gPart(occ[0],ex?.exercice,annee,ls).tot;
+  const plein=occ.length===1&&_gPart(occ[0],ex?.exercice,annee,ls).occ===tot;
+  if(plein)return ''; // un seul locataire toute l'année : toute l'eau du lot est à lui, pas besoin de relevés
+  const rel=_gEauReleves(ls,annee,ex),hid=ls[0].id;
+  const inp=(l,m,w,v)=>`<input class="fi" style="width:110px" type="number" step="0.001" min="0" id="eau-${hid}-${annee}-${l.id}-${m.k}-${w}" value="${v??''}" placeholder="index">`;
+  return `<div class="card" style="margin-bottom:.4rem;box-shadow:none"><div class="ch"><div class="ct"><i data-lucide=droplet class=ic></i> Eau au compteur — ${annee}</div></div><div class="cb" style="font-size:.8rem;line-height:1.5">
+    <p style="color:var(--td);margin-bottom:.5rem">Plusieurs locataires (ou une période vide) sur l'exercice : l'eau est répartie selon ce que chacun a vraiment consommé, avec les index du compteur. Ils sont pré-remplis depuis les états des lieux d'entrée et de sortie${ex?.compteurs_eau?' et le décompte du syndic':''} ; complétez ce qui manque. Tant qu'un index manque, l'eau est répartie au prorata des jours.</p>
+    ${lignes.map(m=>{const r=_gEauParts(ls,annee,ex,m);return `<div style="font-weight:700;margin:.4rem 0 .3rem">${m.lbl}${r?` <span style="font-weight:500;color:var(--green)">— réparti au compteur</span>`:` <span style="font-weight:500;color:var(--gold)">— index incomplets : prorata des jours</span>`}</div>
+      <div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.78rem;min-width:480px"><thead><tr><th style="text-align:left;padding:.25rem .4rem">Locataire</th><th style="text-align:left;padding:.25rem .4rem">Index d'entrée (ou début d'exercice)</th><th style="text-align:left;padding:.25rem .4rem">Index de sortie (ou fin d'exercice)</th><th style="text-align:right;padding:.25rem .4rem">Consommé</th></tr></thead><tbody>
+      ${occ.map(l=>{const v=rel[l.id]?.[m.k]||{};return `<tr><td style="padding:.25rem .4rem">${_gEsc(_gName(l.tenant_id))}<div style="font-size:.68rem;color:var(--td)">${_gD(l.start_date)}${l._fin?' → '+_gD(l._fin):''}</div></td><td style="padding:.25rem .4rem">${inp(l,m,'debut',v.debut)}</td><td style="padding:.25rem .4rem">${inp(l,m,'fin',v.fin)}</td><td style="padding:.25rem .4rem;text-align:right;font-variant-numeric:tabular-nums">${v.debut!=null&&v.fin!=null&&v.fin>=v.debut?Math.round((v.fin-v.debut)*1000)/1000+' m³':'—'}</td></tr>`;}).join('')}
+      </tbody></table></div>${r&&r.base>Object.values(r.m3).reduce((a,b)=>a+b,0)+0.001?`<div style="font-size:.72rem;color:var(--td);margin-top:.2rem">Le lot a consommé ${Math.round(r.base*100)/100} m³ : la différence (logement vide) reste à votre charge.</div>`:''}`;}).join('')}
+    <button class="btn bp bsm" style="margin-top:.6rem" onclick="gEauSave('${hid}',${annee})"><i data-lucide=check class=ic></i> Enregistrer les index et recalculer</button>
+  </div></div>`;
+}
+async function gEauSave(hid,annee){
+  const ls=GEST.leases.filter(x=>Number(x.charges)>0),rel={};
+  ls.forEach(l=>{rel[l.id]={};EAU_M.forEach(m=>{const g=w=>_gNum(document.getElementById(`eau-${hid}-${annee}-${l.id}-${m.k}-${w}`)?.value);const d=g('debut'),f=g('fin');if(d!=null||f!=null)rel[l.id][m.k]={debut:d,fin:f};});});
+  for(const l of ls)for(const m of EAU_M){const r=rel[l.id]?.[m.k];if(r&&r.debut!=null&&r.fin!=null&&r.fin<r.debut){toast(`${_gName(l.tenant_id)} — ${m.lbl} : l'index de sortie est plus petit que l'index d'entrée.`,7000);return;}}
+  const h=GEST.leases.find(x=>x.id===hid);
+  const{data,error}=await sb.from('charges_regularisations').upsert({lease_id:hid,landlord_id:U.id,tenant_id:h?.tenant_id||null,annee,eau_releves:rel},{onConflict:'lease_id,annee'}).select().single();
+  if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-suivi.sql':''),9000);return;}
+  GEST.regs[hid+':'+annee]=data;toast('Index enregistrés : eau recalculée selon la consommation.');renderGestion();
+}
 function renderCharges(){
   const el=document.getElementById('gestion-tab');
-  const annee=window._gChY||new Date().getFullYear()-1;
   const ls=GEST.leases.filter(l=>Number(l.charges)>0);
-  const holder=GEST.leases[0]||null,nb=ls.length||1;
-  const exRow=holder?_gRegRow(holder.id,annee):null,ex=_gJson(exRow?.extraction,null);
-  el.innerHTML=`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;font-size:.8rem">Année : <select class="fi" style="width:auto" onchange="window._gChY=+this.value;renderGestion()">${[0,1,2].map(i=>new Date().getFullYear()-i).map(y=>`<option ${y===annee?'selected':''}>${y}</option>`).join('')}</select></div>
-    ${holder&&ls.length?_gSyndicCard(holder,annee,nb):''}
-    <details style="font-size:.76rem;color:var(--td);margin:0 0 .8rem;line-height:1.5"><summary style="cursor:pointer">Qu'est-ce que la régularisation des charges ?</summary><div style="margin-top:.3rem">Chaque mois, le locataire paie une provision sur charges avec son loyer. Une fois par an, on compare ces provisions aux dépenses réelles récupérables sur lui (décret 87-713) : s'il a trop peu payé, il verse un complément ; s'il a trop payé, vous le remboursez. Le décompte détaillé doit lui être envoyé un mois avant, et les justificatifs tenus à sa disposition pendant 6 mois. La taxe foncière n'est pas récupérable, seule la taxe d'ordures ménagères (TEOM) l'est. En meublé avec charges au forfait, pas de régularisation.</div></details>`+
-    (ls.length?ls.map(l=>{
-      const k=l.id+':'+annee,rg=GEST.regs[k]||{};let dep=_gJson(rg.depenses,{})||{};
-      const saisi=Object.values(dep).some(v=>Number(v));
-      let calc=null;
-      if(!saisi&&ex){calc=_gDepDepuisSyndic(l,ex,annee,nb);dep=calc.dep;}
-      const prov=Math.round(_gProvisions(l,annee)*100)/100;
-      const tot=CH_POSTES.reduce((a,[c])=>a+(Number(dep[c])||0),0);
-      const rempli=saisi||!!calc;
-      return `<div class="card"><div class="ch"><div class="ct"><span style="display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:50%;background:${rempli?'var(--bleu)':'var(--s2)'};color:${rempli?'#fff':'var(--td)'};font-size:.75rem;margin-right:.35rem">2</span> Vérifiez et envoyez la régularisation de ${_gEsc(_gName(l.tenant_id))}${ls.length>1?' <span style="font-weight:500;color:var(--td)">('+_gEsc(l.lot_label||_gTitle(l))+')</span>':''}</div>${rg.envoye_at?`<span style="font-size:.72rem;color:var(--green)">✓ Décompte envoyé le ${_gD(rg.envoye_at)}</span>`:''}</div><div class="cb" style="font-size:.8rem">
-        ${calc?`<div style="background:rgba(var(--bleu-rgb),.07);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:8px;padding:.5rem .65rem;margin-bottom:.6rem;line-height:1.5"><strong>Rempli depuis le décompte du syndic.</strong> Part de ce locataire : occupation ${calc.p.occ} jours sur ${calc.p.tot}${nb>1?` × 1/${nb} (${nb} baux dans le logement)`:''}. Vérifiez puis enregistrez.</div>`:''}
-        ${rempli?'':`<p style="color:var(--td);margin-bottom:.5rem">Dès que le décompte du syndic est lu (étape 1), la part de ce locataire est calculée et apparaît ici. Pas de décompte ? Saisissez les montants vous-même.</p>`}
-        <details ${rempli?'open':''} style="margin-bottom:.2rem"><summary style="cursor:pointer;font-weight:600;color:${rempli?'var(--txt)':'var(--bleu)'};margin-bottom:.4rem">${rempli?`Dépenses récupérables de ${_gEsc(_gName(l.tenant_id))} pour ${annee} (modifiables)`:'Saisir les montants à la main'}</summary>
-        <div style="display:grid;grid-template-columns:1fr 130px;gap:.3rem .6rem;align-items:center">
-          ${CH_POSTES.map(([c,lab])=>`<label for="ch-${l.id}-${c}">${lab}</label><input class="fi" id="ch-${l.id}-${c}" type="number" step="0.01" min="0" value="${dep[c]??''}" placeholder="0" oninput="gChRecalc('${l.id}',${annee})">`).join('')}
-        </div></details>
-        <div id="ch-res-${l.id}" style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.6rem .75rem;${rempli?'':'display:none'}">${_gChRes(tot,prov,Number(l.charges))}</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;${rempli?'':'display:none'}" id="ch-act-${l.id}">
-          <button class="btn bg bsm" onclick="gChSave('${l.id}',${annee},false)">Enregistrer</button>
-          <button class="btn bp bsm" onclick="gChSave('${l.id}',${annee},true)">Envoyer le décompte au locataire (PDF + message)</button>
-          <button class="btn bg bsm" onclick="gChProvision('${l.id}',${annee})">Ajuster la provision mensuelle</button>
-        </div>
-      </div></div>`;}).join(''):'<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail signé avec provision sur charges pour ce bien.</div></div>');
+  if(!ls.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail avec provision sur charges pour ce bien : pas de régularisation à faire.</div></div>';return;}
+  const holder=ls[0],nb=ls.length,multi=nb>1,cur=new Date().getFullYear();
+  const y0=Math.min(...ls.map(l=>l.start_date?new Date(l.start_date).getFullYear():cur));
+  const ans=[];for(let y=y0;y<=cur;y++)ans.push(y);
+  // Une régularisation par exercice, de la plus ancienne à la plus récente ; la première non terminée est ouverte
+  let ouverte=null;
+  const cards=ans.map(y=>{
+    const ex=_gJson(_gRegRow(holder.id,y)?.extraction,null);
+    const etats=ls.map(l=>_gRegEtat(l,y,ex?_gDepDepuisSyndic(l,ex,y,ls):null));
+    const fini=etats.every(e=>['termine','rien'].includes(e.k));
+    const enCours=y===cur;
+    const e0=etats.find(e=>!['termine','rien'].includes(e.k))||etats[0];
+    // Ouvrir la plus ancienne qui attend une action de VOTRE part (pas celle qui attend le locataire)
+    const aFaire=etats.some(e=>['a_faire','a_confirmer','a_rembourser'].includes(e.k))&&!(enCours&&!ex&&etats.every(e=>e.k==='a_faire'));
+    const open=aFaire&&ouverte===null;if(open)ouverte=y;
+    const statut=enCours&&e0.k==='a_faire'&&!ex?{t:'Exercice en cours — décompte du syndic après l\'assemblée générale',c:'var(--td)'}:fini?{t:etats.every(e=>e.k==='rien')?'Rien à régulariser':'Terminé',c:etats.every(e=>e.k==='rien')?'var(--td)':'var(--green)'}:e0;
+    return `<details class="card" ${open?'open':''} style="margin-bottom:.7rem;padding:0">
+      <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.8rem 1rem;flex-wrap:wrap">
+        <span style="font-weight:800;font-size:.95rem">Charges ${y}</span><span style="font-size:.76rem;font-weight:700;color:${statut.c}">● ${statut.t}</span></summary>
+      <div style="padding:0 1rem 1rem">
+        ${etats.some(e=>e.k==='a_faire')?_gSyndicCard(holder,y,nb):''}
+        ${ex&&etats.some(e=>e.k==='a_faire')?_gEauCard(ls,y,ex):''}
+        ${ls.map(l=>_gRegBlock(l,y,nb,ex,multi)).join('')}
+      </div></details>`;
+  }).reverse(); // la plus récente en haut
+  el.innerHTML=`<details style="font-size:.76rem;color:var(--td);margin:0 0 .8rem;line-height:1.5"><summary style="cursor:pointer">Comment ça marche ?</summary><div style="margin-top:.3rem">Chaque mois, le locataire paie une provision sur charges avec son loyer. Une fois par an, quand vous recevez le décompte du syndic, on compare ces provisions aux dépenses réelles récupérables (décret 87-713) : 1. déposez le décompte, 2. vérifiez et envoyez au locataire, 3. celui qui doit de l'argent paie et l'indique, 4. l'autre confirme la réception. La taxe d'ordures ménagères (sur l'avis de taxe foncière) est récupérable ; la taxe foncière elle-même ne l'est pas.</div></details>`+cards.join('');
 }
 function _gChRes(tot,prov,chMois){
   const solde=Math.round((tot-prov)*100)/100;
   return `<div style="font-size:.78rem;color:var(--td)">Dépenses réelles récupérables <strong style="color:var(--txt)">${_g$(tot)}</strong> − provisions versées par le locataire <strong style="color:var(--txt)">${_g$(prov)}</strong></div><div style="font-size:1.05rem;font-weight:800;margin-top:.2rem">${solde>0?`<span style="color:var(--red)">Le locataire doit un complément de <strong>${_g$(solde)}</strong></span>`:solde<0?`<span style="color:var(--green)">Vous devez rembourser <strong>${_g$(-solde)}</strong> au locataire</span>`:'Équilibré'}</div>`;
 }
-function _gChRead(lid){const d={};CH_POSTES.forEach(([c])=>{const v=document.getElementById(`ch-${lid}-${c}`)?.value;if(v!==''&&v!=null)d[c]=Number(v);});return d;}
-function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);['ch-res-','ch-act-'].forEach(k=>{const e=document.getElementById(k+lid);if(e)e.style.display=tot?'':'none';});document.getElementById('ch-res-'+lid).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
+function _gChRead(lid,annee){const d={};CH_POSTES.forEach(([c])=>{const v=document.getElementById(`ch-${lid}-${annee}-${c}`)?.value;if(v!==''&&v!=null)d[c]=Number(v);});return d;}
+function gChRecalc(lid,annee){const l=GEST.leases.find(x=>x.id===lid);const d=_gChRead(lid,annee);const tot=Object.values(d).reduce((a,b)=>a+(Number(b)||0),0);['ch-res-','ch-act-'].forEach(k=>{const e=document.getElementById(k+lid+'-'+annee);if(e)e.style.display=tot?'':'none';});document.getElementById('ch-res-'+lid+'-'+annee).innerHTML=_gChRes(tot,Math.round(_gProvisions(l,annee)*100)/100,Number(l.charges));}
 async function gChSave(lid,annee,envoyer){
-  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);
+  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid,annee);
   const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0),prov=Math.round(_gProvisions(l,annee)*100)/100,solde=Math.round((tot-prov)*100)/100;
   if(envoyer&&!tot){toast('Saisissez les dépenses réelles avant d\'envoyer.');return;}
   if(envoyer&&!await uiConfirm(`Envoyer le décompte ${annee} à ${_gName(l.tenant_id)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
@@ -4843,8 +4970,30 @@ async function gChSave(lid,annee,envoyer){
   }
   toast(envoyer?'Décompte envoyé.':'Enregistré.');renderGestion();
 }
+async function gRegConfirmer(lid,annee){
+  const l=GEST.leases.find(x=>x.id===lid),rg=GEST.regs[lid+':'+annee];if(!rg)return;
+  if(!await uiConfirm(`Confirmer avoir reçu ${_g$(rg.solde)} de ${_gName(l.tenant_id)} (régularisation des charges ${annee}) ?`))return;
+  const now=new Date().toISOString();
+  const{error}=await sb.from('charges_regularisations').update({paiement_confirme_at:now}).eq('id',rg.id);
+  if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-suivi.sql':''),9000);return;}
+  rg.paiement_confirme_at=now;
+  try{await sb.from('payments').update({status:'paid',paid_at:now}).eq('lease_id',lid).eq('type','charges_regul').neq('status','paid');}catch(e){}
+  await _gMsg(l.tenant_id,l.listing_id,`Votre propriétaire a confirmé la réception de ${_g$(rg.solde)} (régularisation des charges ${annee}). C'est terminé, merci !`);
+  toast('Paiement confirmé : régularisation terminée.');renderGestion();
+}
+async function gRegRembourse(lid,annee){
+  const l=GEST.leases.find(x=>x.id===lid),rg=GEST.regs[lid+':'+annee];if(!rg)return;
+  const m=_g$(Math.abs(rg.solde));
+  if(!await uiConfirm(`Confirmer avoir remboursé ${m} à ${_gName(l.tenant_id)} (virement ou déduction d'un loyer) ?\n\nLe locataire devra confirmer la réception.`))return;
+  const now=new Date().toISOString();
+  const{error}=await sb.from('charges_regularisations').update({paiement_declare_at:now}).eq('id',rg.id);
+  if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-suivi.sql':''),9000);return;}
+  rg.paiement_declare_at=now;
+  await _gMsg(l.tenant_id,l.listing_id,`Régularisation des charges ${annee} : votre propriétaire indique vous avoir remboursé ${m}. Confirmez la réception dans « Mon logement ».`);
+  toast('Remboursement indiqué : le locataire doit confirmer.');renderGestion();
+}
 async function gChProvision(lid,annee){
-  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid);const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0);
+  const l=GEST.leases.find(x=>x.id===lid);const dep=_gChRead(lid,annee);const tot=Object.values(dep).reduce((a,b)=>a+(Number(b)||0),0);
   if(!tot){toast('Saisissez d\'abord les dépenses réelles.');return;}
   const nv=Math.ceil(tot/12);
   if(!await uiConfirm(`Passer la provision sur charges de ${_g$(l.charges)} à ${_g$(nv)} par mois pour les prochaines échéances ?`))return;
@@ -5087,9 +5236,11 @@ function rentDueDates(moveInStr,payDay,n){
   return out;
 }
 // Remet les échéances « à payer » existantes sur les bonnes dates du bail
-async function fixRentDueDates(bookingId,moveIn,payDay){
+async function fixRentDueDates(bookingId,moveIn,payDay,tenantId){
   try{
-    const{data:rows}=await sb.from('payments').select('id,due_date,status').eq('booking_id',bookingId).eq('type','rent').order('due_date',{ascending:true});
+    let q=sb.from('payments').select('id,due_date,status').eq('booking_id',bookingId).eq('type','rent');
+    if(tenantId)q=q.eq('tenant_id',tenantId);
+    const{data:rows}=await q.order('due_date',{ascending:true});
     const pend=(rows||[]).filter(r=>r.status!=='paid');
     if(!pend.length)return;
     const paidCount=(rows||[]).length-pend.length;
@@ -5099,47 +5250,56 @@ async function fixRentDueDates(bookingId,moveIn,payDay){
     }
   }catch(e){console.warn('fixRentDueDates:',e);}
 }
-
-// Dépôt + 1er loyer payés + échéancier des loyers suivants (même mécanisme que RestMalta).
-// Idempotent : ne recrée rien si déjà présent.
-async function fixFirstRentAmount(bookingId,amount){
-  try{
-    if(amount==null)return;
-    const{data:r}=await sb.from('payments').select('id,amount').eq('booking_id',bookingId).eq('type','first_rent').limit(1);
-    if(r&&r[0]&&Math.abs(Number(r[0].amount)-amount)>0.009)await sb.from('payments').update({amount}).eq('id',r[0].id);
-  }catch(e){}
-}
+// Répartir un montant en n parts au centime près (la dernière part absorbe l'arrondi)
+function _parts(total,n){const p=Math.floor(total*100/n)/100;const out=Array(n).fill(p);out[n-1]=Math.round((total-p*(n-1))*100)/100;return out;}
+// Paiements du premier mois + échéancier : UNE ligne par locataire en bail commun (chacun paie sa part)
 async function ensureFirstPaymentRecords(bookingId){
   try{
     const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
     if(!bk){return;}
     if(!bk.first_payment_confirmed||!bk.tenant_id||!bk.listing_id){console.warn('ensureFirstPaymentRecords: booking incomplet',bk);return;}
-    const{data:tp}=await sb.from('profiles').select('full_name,email').eq('clerk_id',bk.tenant_id).maybeSingle();
     // Montants du bail signé (loyer charges comprises + dépôt) si disponibles
-    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC,payDay=1,startDate=null;
+    let rentCC=Number(bk.monthly_rent)||0,deposit=rentCC,payDay=1,startDate=null,L=null;
     try{
-      const{data:ls}=await sb.from('leases').select('rent,charges,deposit,negotiation_status,payment_due_day,start_date').eq('booking_id',bk.id);
-      const L=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0];
+      const{data:ls}=await sb.from('leases').select('*').eq('booking_id',bk.id);
+      L=(ls||[]).find(l=>l.negotiation_status==='signed')||(ls||[])[0]||null;
       if(L){rentCC=(Number(L.rent)||0)+(Number(L.charges)||0)||rentCC;if(L.deposit!=null)deposit=Number(L.deposit);payDay=L.payment_due_day||1;startDate=L.start_date;}
     }catch(e){}
+    // Payeurs : locataire principal + colocataires du bail commun (pas en bail individuel : chacun a son propre bail)
+    let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){cols=[];}
+    const commun=L?.colocation_type!=='individuel';
+    const ids=[bk.tenant_id,...(commun&&Array.isArray(cols)?cols:[]).filter(c=>c&&c.coloc_status!=='declined'&&(c.locataire_id||c.tenant_id)).map(c=>c.locataire_id||c.tenant_id)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+    const{data:pr}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',ids);
+    const prof=id=>(pr||[]).find(x=>x.clerk_id===id)||{};
+    const nom=id=>prof(id).full_name||(id===bk.tenant_id?bk.tenant_name:((cols||[]).find(c=>(c.locataire_id||c.tenant_id)===id)?.name))||null;
+    const n=ids.length;
     const moveIn=bk.move_in_date||startDate;
-    const{data:have}=await sb.from('payments').select('id,type').eq('booking_id',bk.id);
-    const types=new Set((have||[]).map(x=>x.type));
-    const now=new Date().toISOString(),today=now.split('T')[0];
-    const base={landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:tp?.full_name||bk.tenant_name||null,tenant_email:tp?.email||bk.tenant_email||null,status:'paid',paid_at:now,due_date:bk.move_in_date||today};
-    const rows=[];
-    if(!types.has('deposit')&&!types.has('depot')&&deposit>0)rows.push({...base,amount:deposit,type:'deposit'});
     const _pr=prorataLoyer(moveIn,payDay,rentCC);
-    if(!types.has('first_rent'))rows.push({...base,amount:_pr?_pr.amount:rentCC,type:'first_rent'});
-    else if(_pr)await fixFirstRentAmount(bk.id,_pr.amount);
-    if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error){console.warn('payments (dépôt/1er loyer) :',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message+(/integer/i.test(error.message)?' — exécutez supabase-migration-montants-centimes.sql dans Supabase':''),9000);}}
-    if(!types.has('rent')){
-      const sched=rentDueDates(moveIn,payDay,12).map(d=>({landlord_id:bk.landlord_id||U.id,tenant_id:bk.tenant_id,listing_id:bk.listing_id,booking_id:bk.id,tenant_name:base.tenant_name,tenant_email:base.tenant_email,amount:rentCC,type:'rent',status:'pending',due_date:d}));
-      const{error:se}=await sb.from('payments').insert(sched);
-      if(se)toast('<i data-lucide=alert-triangle class=ic></i> Échéancier non créé : '+se.message,8000);
-    }else{
-      await fixRentDueDates(bk.id,moveIn,payDay);
+    const first=_pr?_pr.amount:rentCC;
+    const pDep=_parts(deposit,n),pFirst=_parts(first,n),pRent=_parts(rentCC,n);
+    const{data:have}=await sb.from('payments').select('id,type,tenant_id,amount,status').eq('booking_id',bk.id);
+    const now=new Date().toISOString(),today=now.split('T')[0];
+    const rows=[];
+    for(let i=0;i<n;i++){
+      const id=ids[i],mine=(have||[]).filter(x=>x.tenant_id===id);
+      const base={landlord_id:bk.landlord_id||U.id,tenant_id:id,listing_id:bk.listing_id,booking_id:bk.id,lease_id:L?.id||null,tenant_name:nom(id),tenant_email:prof(id).email||(id===bk.tenant_id?bk.tenant_email:null)||null};
+      // Dépôt et premier loyer : créer la ligne, ou corriger le montant (ancienne version : tout sur le locataire principal)
+      for(const[type,amt]of[['deposit',pDep[i]],['first_rent',pFirst[i]]]){
+        if(type==='deposit'&&!(deposit>0))continue;
+        const ex=mine.find(x=>x.type===type||(type==='deposit'&&x.type==='depot'));
+        if(!ex)rows.push({...base,amount:amt,type,status:'paid',paid_at:now,due_date:moveIn||today});
+        else if(Math.abs(Number(ex.amount)-amt)>0.009)await sb.from('payments').update({amount:amt}).eq('id',ex.id);
+      }
+      // Échéancier mensuel (sa part du loyer)
+      const rents=mine.filter(x=>x.type==='rent');
+      if(!rents.length)rentDueDates(moveIn,payDay,12).forEach(d=>rows.push({...base,amount:pRent[i],type:'rent',status:'pending',due_date:d}));
+      else{
+        const fix=rents.filter(x=>x.status!=='paid'&&Math.abs(Number(x.amount)-pRent[i])>0.009).map(x=>x.id);
+        if(fix.length)await sb.from('payments').update({amount:pRent[i]}).in('id',fix);
+        await fixRentDueDates(bk.id,moveIn,payDay,id);
+      }
     }
+    if(rows.length){const{error}=await sb.from('payments').insert(rows);if(error){console.warn('payments :',error.message);toast('<i data-lucide=alert-triangle class=ic></i> Paiements non enregistrés : '+error.message+(/integer/i.test(error.message)?' — exécutez supabase-migration-montants-centimes.sql dans Supabase':''),9000);}}
   }catch(e){console.warn('ensureFirstPaymentRecords:',e);}
 }
 
