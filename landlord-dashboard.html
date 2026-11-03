@@ -3273,7 +3273,7 @@ async function loadMaintenance(){
     locataireTickets=tt||[];
   }
   let allTickets=[...(data||[]),...locataireTickets.filter(t=>!(data||[]).find(d=>d.id===t.id))];
-  if(window._gBien&&document.getElementById('page-gestion')?.classList.contains('act'))allTickets=allTickets.filter(t=>t.listing_id===window._gBien); // gestion par bien
+  if(window._gBien&&window._gBien!=='__fiscal'&&document.getElementById('page-gestion')?.classList.contains('act'))allTickets=allTickets.filter(t=>t.listing_id===window._gBien); // gestion par bien
 
   const locataireIds=[...new Set(allTickets.map(t=>t.tenant_id).filter(Boolean))];
   const locataireNoms={};
@@ -4403,6 +4403,7 @@ const _gEsc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 async function loadGestion(){
   const box=document.getElementById('gestion-content');if(!box)return;
+  window._gBien=null;
   box.innerHTML='<div style="color:var(--td);font-size:.85rem">Chargement…</div>';
   try{
     const{data:ls}=await sb.from('leases').select('*').eq('landlord_id',U.id);
@@ -4453,27 +4454,59 @@ function _gBienResume(b){
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem">${b.ls.map(l=>`<a class="btn bg bsm" style="text-decoration:none" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' — '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`).join('')}${[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()].map(l=>{const multiB=new Set(b.ls.map(x=>x.booking_id).filter(Boolean)).size>1,suf=multiB?' — '+_gEsc(_gName(l.tenant_id)):'',sortie=GEST.edlS?.[l.booking_id];return `<a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée${suf}</a><a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${sortie?(sortie.status==='signed'?'État des lieux de sortie ✓':'État des lieux de sortie (en cours)'):'Faire l\'état des lieux de sortie'}${suf}</a>`;}).join('')}</div>
   </div></div>`;
 }
+// Résumé d'un bien pour la liste (impayés, prochaine échéance, régularisation à faire)
+function _gBienStats(b){
+  const today=new Date(),lids=new Set(b.ls.map(l=>l.id)),bks=new Set(b.ls.map(l=>l.booking_id).filter(Boolean));
+  const ps=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===b.id));
+  const retard=ps.filter(p=>['rent','first_rent'].includes(p.type)&&['pending','late'].includes(p.status)&&p.due_date&&_gDays(p.due_date,today)>=1);
+  const prochain=ps.filter(p=>p.type==='rent'&&p.status==='pending'&&p.due_date&&_gDays(today,p.due_date)>=0).sort((a,c)=>String(a.due_date).localeCompare(String(c.due_date)))[0];
+  const actifs=b.ls.filter(l=>!l._fin||new Date(l._fin)>=today);
+  const regulAFaire=Object.values(GEST.regs||{}).some(r=>lids.has(r.lease_id)&&r.envoye_at&&!r.paiement_confirme_at&&Math.abs(Number(r.solde)||0)>=0.01&&(Number(r.solde)<0?!r.paiement_declare_at:!!r.paiement_declare_at));
+  return{retard,prochain,actifs,regulAFaire,loyer:actifs.reduce((a,l)=>a+(Number(l.rent)||0)+(Number(l.charges)||0),0)};
+}
 function renderGestion(){
   const tab=window._gTab||'impayes';
   const biens=_gBiens();
-  if(!biens.find(b=>b.id===window._gBien))window._gBien=biens[0]?.id||null;
-  const bien=biens.find(b=>b.id===window._gBien)||null;
-  if(bien){const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
-    GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));}
-  else{GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];}
-  const selBiens=biens.length?`<div style="margin-bottom:.8rem"><label for="g-bien" style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--td);display:block;margin-bottom:.3rem">Bien</label>
-    <select id="g-bien" class="fi" style="max-width:520px" onchange="window._gBien=this.value;renderGestion()">${biens.map(b=>`<option value="${b.id}" ${b.id===window._gBien?'selected':''}>${_gEsc(b.li.title||'Logement')}${b.li.zone?' — '+_gEsc(b.li.zone):''}</option>`).join('')}</select></div>`+_gBienResume(bien):
-    `<div class="card" style="margin-bottom:1rem"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : la gestion locative apparaît ici dès qu'un bail est signé par les deux parties.</div></div>`;
-  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark'],['maintenance','Maintenance','wrench']];
-  // Maintenance : la section existante est déplacée dans l'onglet (mêmes identifiants, rien n'est recréé)
+  const box=document.getElementById('gestion-content');
   const secM=document.getElementById('sec-maintenance');
   if(secM){secM.style.display='none';document.getElementById('page-gestion').appendChild(secM);}
-  document.getElementById('gestion-content').innerHTML=selBiens+`
+  if(window._gBien&&window._gBien!=='__fiscal'&&!biens.find(b=>b.id===window._gBien))window._gBien=null;
+  // 1) Liste des biens : on clique sur un bien pour ouvrir sa gestion
+  if(!window._gBien){
+    GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
+    if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : la gestion locative apparaît ici dès qu'un bail est signé par les deux parties.</div></div>`;return;}
+    box.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.8rem">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
+      const alertes=[st.retard.length?`<span style="color:var(--red)">● ${st.retard.length} loyer${st.retard.length>1?'s':''} en retard</span>`:'',st.regulAFaire?`<span style="color:var(--gold)">● Régularisation des charges à finaliser</span>`:''].filter(Boolean);
+      return `<button type="button" onclick="window._gBien='${b.id}';window._gTab='impayes';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" style="text-align:left;background:var(--s);border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;color:var(--txt);font-family:inherit;display:flex;flex-direction:column;gap:.35rem">
+        <span style="font-weight:800;font-size:.95rem">${_gEsc(b.li.title||'Logement')}</span>
+        <span style="font-size:.74rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${_gEsc(b.li.full_address||b.li.zone||'')}</span>
+        <span style="font-size:.8rem;margin-top:.2rem">${noms.length?_gEsc(noms.join(', ')):'<span style="color:var(--td)">Plus de locataire en place</span>'}</span>
+        <span style="font-size:.78rem;color:var(--td)">${st.loyer?_g$(st.loyer)+'/mois CC':''}${st.prochain?' · prochaine échéance '+_gD(st.prochain.due_date):''}</span>
+        <span style="font-size:.74rem;font-weight:700;display:flex;flex-direction:column;gap:.1rem;margin-top:.15rem">${alertes.length?alertes.join(''):'<span style="color:var(--green)">● Tout est à jour</span>'}</span>
+        <span style="font-size:.76rem;color:var(--bleu);font-weight:700;margin-top:.3rem">Ouvrir la gestion →</span>
+      </button>`;}).join('')}</div>
+      ${biens.length>1?`<button class="btn bg bsm" style="margin-top:1rem" onclick="window._gBien='__fiscal';window._gTab='fiscal';renderGestion()"><i data-lucide=landmark class=ic></i> Récap fiscal de tous mes biens (déclaration de revenus)</button>`:''}`;
+    if(window.lucide)lucide.createIcons();return;
+  }
+  // 2) Récap fiscal global (la déclaration de revenus se fait pour tous les biens ensemble)
+  const back=`<button class="btn bg bsm" style="margin-bottom:.9rem" onclick="window._gBien=null;renderGestion()">← Tous mes biens</button>`;
+  if(window._gBien==='__fiscal'){
+    GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
+    box.innerHTML=back+`<div style="font-weight:800;font-size:1rem;margin-bottom:.6rem">Récap fiscal — tous mes biens</div><div id="gestion-tab"></div>`;
+    renderFiscal();if(window.lucide)lucide.createIcons();return;
+  }
+  // 3) Gestion d'un bien : fiche + onglets
+  const bien=biens.find(b=>b.id===window._gBien);
+  const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
+  GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));
+  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark'],['maintenance','Maintenance','wrench']];
+  box.innerHTML=back+_gBienResume(bien)+`
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${tabs.map(([k,l,ic])=>`<button class="btn bsm ${tab===k?'bp':'bg'}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}</button>`).join('')}</div>
     <div id="gestion-tab"></div>
     <div style="font-size:.7rem;color:var(--td);margin-top:1rem;line-height:1.5;${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
   if(tab==='maintenance'){if(secM){document.getElementById('gestion-tab').appendChild(secM);secM.style.display='';}try{loadMaintenance();}catch(e){}}
   else ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
+  if(tab==='fiscal'&&biens.length>1){const t=document.getElementById('gestion-tab');t.insertAdjacentHTML('afterbegin',`<div style="font-size:.76rem;color:var(--gold);margin-bottom:.6rem"><i data-lucide=info class=ic></i> Récap de ce bien seulement. Les plafonds des régimes micro s'apprécient sur l'ensemble de vos biens : <a href="#" onclick="window._gBien='__fiscal';renderGestion();return false" style="color:var(--bleu)">voir le récap de tous mes biens</a>.</div>`);}
   if(window.lucide)lucide.createIcons();
 }
 
@@ -4743,6 +4776,7 @@ function _gSyndicCard(holder,annee,nb){
     ${docs.length?`<div style="margin-top:.5rem;font-size:.76rem;color:var(--td)">${docs.map(d=>`<span style="display:inline-block;margin-right:.6rem"><i data-lucide=file-text class=ic></i> ${_gEsc(d.name)}</span>`).join('')}</div>`:''}
     ${lecture?`<div style="margin-top:.6rem;background:var(--s2);border-radius:8px;padding:.55rem .7rem"><i data-lucide=loader class=ic></i> Lecture du document en cours… (environ 30 secondes, la page se met à jour toute seule) <button class="btn bg bsm" style="margin-left:.4rem" onclick="gRegRelire('${holder.id}',${annee})">Relancer</button></div>`:''}
     ${rg.extraction_err?`<div style="margin-top:.6rem;background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.25);color:var(--red);border-radius:8px;padding:.55rem .7rem">${_gEsc(rg.extraction_err)} <button class="btn bg bsm" style="margin-left:.4rem" onclick="gRegRelire('${holder.id}',${annee})">Relancer la lecture</button></div>`:''}
+    ${ex?.exercice?.debut&&new Date(ex.exercice.debut).getFullYear()!==annee&&new Date(ex.exercice.fin||ex.exercice.debut).getFullYear()!==annee?`<div style="margin-top:.6rem;background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.35);color:var(--gold);border-radius:8px;padding:.5rem .7rem"><i data-lucide=alert-triangle class=ic></i> Ce décompte concerne l'exercice ${new Date(ex.exercice.debut).getFullYear()}, pas ${annee}. Déposez le décompte ${annee} (envoyé par le syndic après l'assemblée générale de ${annee+1}).</div>`:''}
     ${ex?`<div style="margin-top:.7rem">
       <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem"><strong>Ce qui a été lu${ex.lot?' — lot '+_gEsc(ex.lot):''}</strong><span style="color:var(--td)">${ex.exercice?.debut?'Exercice du '+_gD(ex.exercice.debut)+' au '+_gD(ex.exercice.fin):'Exercice : année '+annee}</span></div>
       <table style="width:100%;border-collapse:collapse;font-size:.78rem">
@@ -4919,7 +4953,10 @@ function renderCharges(){
   // Une régularisation par exercice, de la plus ancienne à la plus récente ; la première non terminée est ouverte
   let ouverte=null;
   const cards=ans.map(y=>{
-    const ex=_gJson(_gRegRow(holder.id,y)?.extraction,null);
+    const exLu=_gJson(_gRegRow(holder.id,y)?.extraction,null);
+    // Un décompte d'une autre année déposé ici n'est pas utilisé pour le calcul (avertissement dans la carte du décompte)
+    const exY=exLu?.exercice?.debut?[new Date(exLu.exercice.debut).getFullYear(),new Date(exLu.exercice.fin||exLu.exercice.debut).getFullYear()]:null;
+    const ex=exLu&&(!exY||exY.includes(y))?exLu:null;
     const etats=ls.map(l=>_gRegEtat(l,y,ex?_gDepDepuisSyndic(l,ex,y,ls):null));
     const fini=etats.every(e=>['termine','rien'].includes(e.k));
     const enCours=y===cur;
