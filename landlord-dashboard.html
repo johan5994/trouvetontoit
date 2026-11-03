@@ -4492,7 +4492,7 @@ function _gBienStats(b){
   return{retard,prochain,actifs,regulAFaire,loyer:actifs.reduce((a,l)=>a+(Number(l.rent)||0)+(Number(l.charges)||0),0)};
 }
 function renderGestion(){
-  const tab=window._gTab||'impayes';
+  const tab=window._gTab||'paiements';
   const biens=_gBiens();
   const box=document.getElementById('gestion-content');
   const secM=document.getElementById('sec-maintenance');
@@ -4505,7 +4505,7 @@ function renderGestion(){
     box.innerHTML=`<p class="gx-intro">Choisissez un bien pour suivre ses loyers, ses impayés, la révision du loyer, la régularisation des charges et la maintenance.</p>
       <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
       const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:st.regulAFaire?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
-      return `<button type="button" class="gx-card" onclick="window._gBien='${b.id}';window._gTab='impayes';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ouvrir la gestion de ${_gEsc(b.li.title||'ce logement')}">
+      return `<button type="button" class="gx-card" onclick="window._gBien='${b.id}';window._gTab='paiements';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ouvrir la gestion de ${_gEsc(b.li.title||'ce logement')}">
         <div class="gx-card-top"><div style="min-width:0"><div class="gx-card-t">${_gEsc(b.li.title||'Logement')}</div><div class="gx-card-a">${_gEsc(b.li.full_address||b.li.zone||'')}</div></div>${pill}</div>
         <div class="gx-kpis">
           <div class="gx-kpi"><div class="gx-k">${noms.length>1?'Locataires':'Locataire'}</div><div class="gx-v" title="${_gEsc(noms.join(', '))}">${noms.length?_gEsc(noms.join(', ')):'—'}</div></div>
@@ -4526,17 +4526,62 @@ function renderGestion(){
   const bien=biens.find(b=>b.id===window._gBien);
   const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
   GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));
-  const tabs=[['impayes','Loyers & impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['fiscal','Fiscal','landmark'],['maintenance','Maintenance','wrench']];
+  const tabs=[['paiements','Paiements','euro'],['impayes','Impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['fiscal','Fiscal','landmark'],['maintenance','Maintenance','wrench']];
   const st=_gBienStats(bien);
-  const badge={impayes:st.retard.length?`<span class="gx-badge">${st.retard.length}</span>`:'',charges:st.regulAFaire?`<span class="gx-badge wa">!</span>`:''};
+  const nDecl=GEST.pays.filter(p=>p.status==='declared').length;
+  const badge={paiements:nDecl?`<span class="gx-badge wa">${nDecl}</span>`:'',impayes:st.retard.length?`<span class="gx-badge">${st.retard.length}</span>`:'',charges:st.regulAFaire?`<span class="gx-badge wa">!</span>`:''};
   box.innerHTML=back+_gBienResume(bien)+`
     <div class="gx-tabs" role="tablist">${tabs.map(([k,l,ic])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="gx-tab ${tab===k?'on':''}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}${badge[k]||''}</button>`).join('')}</div>
     <div id="gestion-tab"></div>
     <div class="gx-foot" style="${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
   if(tab==='maintenance'){if(secM){document.getElementById('gestion-tab').appendChild(secM);secM.style.display='';}try{loadMaintenance();}catch(e){}}
-  else ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
+  else ({paiements:renderPaiementsBien,impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
   if(tab==='fiscal'&&biens.length>1){const t=document.getElementById('gestion-tab');t.insertAdjacentHTML('afterbegin',`<div style="font-size:.76rem;color:var(--gold);margin-bottom:.6rem"><i data-lucide=info class=ic></i> Récap de ce bien seulement. Les plafonds des régimes micro s'apprécient sur l'ensemble de vos biens : <a href="#" onclick="window._gBien='__fiscal';renderGestion();return false" style="color:var(--bleu)">voir le récap de tous mes biens</a>.</div>`);}
   if(window.lucide)lucide.createIcons();
+}
+
+// ─────────────── 0. PAIEMENTS DU BIEN ───────────────
+const G_TYPE={rent:'Loyer',first_rent:'Premier loyer',deposit:'Dépôt de garantie',depot:'Dépôt de garantie',charges_regul:'Régularisation des charges',loyer:'Loyer'};
+const G_STAT={paid:['Payé','var(--green)'],declared:['Déclaré payé','var(--gold)'],pending:['À venir','var(--td)'],late:['En retard','var(--red)']};
+function renderPaiementsBien(){
+  const el=document.getElementById('gestion-tab'),today=_gIso(new Date());
+  const ps=[...GEST.pays].sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
+  if(!ps.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun paiement pour ce bien. L\'échéancier se crée quand le premier paiement est confirmé.</div></div>';return;}
+  const decl=ps.filter(p=>p.status==='declared');
+  const avenir=ps.filter(p=>p.status==='pending'&&String(p.due_date)>=today).reverse().slice(0,3);
+  const histo=ps.filter(p=>p.status!=='declared'&&!(p.status==='pending'&&String(p.due_date)>=today));
+  const mois=new Date().toISOString().slice(0,7);
+  const encMois=ps.filter(p=>p.status==='paid'&&String(p.paid_at||'').slice(0,7)===mois).reduce((a,p)=>a+Number(p.amount||0),0);
+  const encAn=ps.filter(p=>p.status==='paid'&&String(p.paid_at||'').slice(0,4)===mois.slice(0,4)).reduce((a,p)=>a+Number(p.amount||0),0);
+  const ligne=p=>{const st=p.status==='pending'&&String(p.due_date)<today?G_STAT.late:(G_STAT[p.status]||[p.status,'var(--td)']);
+    return `<tr><td style="padding:.5rem .6rem;border-bottom:1px solid var(--b)"><div style="font-weight:600;color:var(--txt)">${G_TYPE[p.type]||p.type||'Paiement'}</div><div style="font-size:.72rem;color:var(--td)">${_gEsc(_gName(p.tenant_id)||p.tenant_name||'')}</div></td>
+      <td style="padding:.5rem .6rem;border-bottom:1px solid var(--b);color:var(--td);white-space:nowrap">${_gD(p.due_date)}</td>
+      <td style="padding:.5rem .6rem;border-bottom:1px solid var(--b);text-align:right;font-weight:700;color:var(--txt);white-space:nowrap;font-variant-numeric:tabular-nums">${_g$(p.amount)}</td>
+      <td style="padding:.5rem .6rem;border-bottom:1px solid var(--b)"><span style="font-size:.72rem;font-weight:700;color:${st[1]}">● ${st[0]}</span></td>
+      <td style="padding:.5rem .6rem;border-bottom:1px solid var(--b);text-align:right;white-space:nowrap">${p.status==='declared'?`<button class="btn bp bsm" onclick="gPayConfirmer('${p.id}')">Confirmer</button>`:p.status==='paid'?`<button class="btn bg bsm" onclick="downloadQuittance('${p.id}')"><i data-lucide=file-text class=ic></i> Quittance</button>`:''}</td></tr>`;};
+  el.innerHTML=`
+    <div class="gx-tiles" style="grid-template-columns:repeat(3,1fr)">
+      <div class="gx-tile"><div class="gx-k">Encaissé ce mois-ci</div><div class="gx-v" style="color:var(--green)">${_g$(encMois)}</div></div>
+      <div class="gx-tile"><div class="gx-k">Encaissé en ${mois.slice(0,4)}</div><div class="gx-v">${_g$(encAn)}</div></div>
+      <div class="gx-tile"><div class="gx-k">À confirmer</div><div class="gx-v" style="color:${decl.length?'var(--gold)':'var(--td)'}">${decl.length||'Aucun'}</div></div>
+    </div>
+    ${decl.length?`<div class="card" style="border-color:rgba(var(--gold-rgb),.4);margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=hourglass class=ic></i> À confirmer</div><span style="font-size:.74rem;color:var(--gold)">Le locataire indique avoir payé : vérifiez votre compte puis confirmez</span></div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${decl.map(ligne).join('')}</table></div></div>`:''}
+    ${avenir.length?`<div class="card" style="margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=calendar class=ic></i> Prochaines échéances</div></div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${avenir.map(ligne).join('')}</table></div></div>`:''}
+    <div class="card"><div class="ch"><div class="ct"><i data-lucide=list class=ic></i> Historique</div><button class="btn bg bsm" onclick="gPayCSV()"><i data-lucide=download class=ic></i> Export CSV</button></div><div class="cb" style="padding:0;overflow-x:auto">
+      ${histo.length?`<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Paiement</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Échéance</th><th style="text-align:right;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Montant</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Statut</th><th style="border-bottom:1px solid var(--b2)"></th></tr></thead><tbody>${histo.map(ligne).join('')}</tbody></table>`:'<div style="padding:1rem;font-size:.82rem;color:var(--td)">Aucun paiement passé pour l\'instant.</div>'}
+    </div></div>`;
+}
+async function gPayConfirmer(id){
+  if(!await uiConfirm('Confirmer avoir bien reçu ce paiement ?'))return;
+  await confirmPaiementReceived(id);
+  const now=new Date().toISOString();[GEST.pays,GEST.allPays].forEach(a=>(a||[]).forEach(p=>{if(p.id===id){p.status='paid';p.paid_at=now;}}));
+  renderGestion();
+}
+function gPayCSV(){
+  const lines=[['Paiement','Locataire','Échéance','Montant','Statut','Payé le']];
+  GEST.pays.forEach(p=>lines.push([G_TYPE[p.type]||p.type,_gName(p.tenant_id)||p.tenant_name||'',p.due_date||'',String(p.amount??'').replace('.',','),(G_STAT[p.status]||[p.status])[0],p.paid_at?String(p.paid_at).slice(0,10):'']));
+  const csv=lines.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='paiements.csv';a.click();
 }
 
 // ─────────────── 1. IMPAYÉS & RELANCES ───────────────
