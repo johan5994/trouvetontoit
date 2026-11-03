@@ -4440,6 +4440,12 @@ async function loadGestion(){
   try{
     const{data:ls}=await sb.from('leases').select('*').eq('landlord_id',U.id);
     GEST.allLeases=GEST.leases=(ls||[]).filter(l=>l.landlord_signed_at&&l.tenant_signed_at);
+    // Réservations des baux : date de départ, colocataires (bail commun), premier paiement confirmé
+    GEST.bk={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:bks}=await sb.from('bookings').select('id,tenancy_ended_at,status,first_payment_confirmed,co_locataires_data,tenant_name').in('id',bids);(bks||[]).forEach(b=>GEST.bk[b.id]=b);}}catch(e){}
+    GEST.leases.forEach(l=>{const b=GEST.bk[l.booking_id];if(!b)return;if(b.tenancy_ended_at)l._fin=b.tenancy_ended_at;
+      if(l.colocation_type!=='individuel'){let c=b.co_locataires_data;try{c=typeof c==='string'?JSON.parse(c):c;}catch(e){c=[];}l._colocs=(Array.isArray(c)?c:[]).filter(x=>x&&x.coloc_status!=='declined'&&x.name);}});
+    // Bail commun : chaque locataire doit avoir ses propres lignes de paiement (sa part) — on complète ce qui manque
+    for(const b of Object.values(GEST.bk)){if(b.first_payment_confirmed&&GEST.leases.some(l=>l.booking_id===b.id&&(l._colocs||[]).length)){try{await ensureFirstPaymentRecords(b.id);}catch(e){}}}
     const{data:ps}=await sb.from('payments').select('*').eq('landlord_id',U.id);
     GEST.allPays=GEST.pays=ps||[];
     const tids=[...new Set([...GEST.leases.map(l=>l.tenant_id),...GEST.pays.map(p=>p.tenant_id)].filter(Boolean))];
@@ -4455,7 +4461,9 @@ async function loadGestion(){
   renderGestion();
 }
 function _gLeaseOf(p){return GEST.leases.find(l=>l.id===p.lease_id)||GEST.leases.find(l=>l.booking_id&&l.booking_id===p.booking_id)||GEST.leases.find(l=>l.tenant_id===p.tenant_id&&l.listing_id===p.listing_id)||null;}
-function _gName(id){return GEST.names[id]?.full_name||'Locataire';}
+function _gName(id){if(GEST.names[id]?.full_name)return GEST.names[id].full_name;for(const l of GEST.allLeases||[]){const c=(l._colocs||[]).find(x=>(x.locataire_id||x.tenant_id)===id);if(c)return c.name;}return 'Locataire';}
+// Tous les locataires d'un bail (bail commun : principal + colocataires)
+function _gNoms(l){return [_gName(l.tenant_id),...(l._colocs||[]).map(c=>c.name)];}
 function _gTitle(l){return (GEST.listings[l?.listing_id]?.title||l?.listing_title||'Logement')+(l?.lot_label?' — '+l.lot_label:'');}
 function _gVide(l){const li=GEST.listings[l?.listing_id];if(l?.type_bail==='vide')return true;if(l?.type_bail==='meuble')return false;return (li?.['meublé']??li?.furnished)===false;}
 function _gDpe(l){return String(l?.dpe_energy_rating||GEST.listings[l?.listing_id]?.dpe||GEST.listings[l?.listing_id]?.epc_rating||'').toUpperCase().trim();}
@@ -4466,7 +4474,7 @@ function _gBiens(){
   return Object.entries(m).map(([id,ls])=>({id,ls,li:GEST.listings[id]||{}})).sort((a,b)=>String(a.li.title||'').localeCompare(String(b.li.title||'')));
 }
 function _gBienResume(b){
-  const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
+  const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
   const adr=b.li.full_address||b.li.zone||'';
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
   const docs=[...b.ls.map(l=>`<a class="gx-doc" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`),
@@ -4503,7 +4511,7 @@ function renderGestion(){
     GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
     if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : la gestion locative apparaît ici dès qu'un bail est signé par les deux parties.</div></div>`;return;}
     box.innerHTML=`<p class="gx-intro">Choisissez un bien pour suivre ses loyers, ses impayés, la révision du loyer, la régularisation des charges et la maintenance.</p>
-      <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
+      <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
       const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:st.regulAFaire?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
       return `<button type="button" class="gx-card" onclick="window._gBien='${b.id}';window._gTab='paiements';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ouvrir la gestion de ${_gEsc(b.li.title||'ce logement')}">
         <div class="gx-card-top"><div style="min-width:0"><div class="gx-card-t">${_gEsc(b.li.title||'Logement')}</div><div class="gx-card-a">${_gEsc(b.li.full_address||b.li.zone||'')}</div></div>${pill}</div>
