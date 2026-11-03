@@ -51,6 +51,39 @@
   .dos-ll>:not(summary){margin:.6rem .75rem}
   .dos-ouvrir{font-size:.74rem;font-weight:600;color:var(--bleu);white-space:nowrap}
   .dos-ouvrir::after{content:' ▾'}.dos-ll[open] .dos-ouvrir::after{content:' ▴'}
+
+/* ── Gestion locative : liste des biens et fiche d'un bien ── */
+.gx-intro{font-size:.82rem;color:var(--td);margin:-.2rem 0 1.1rem;max-width:62ch}
+.gx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.9rem}
+.gx-card{all:unset;box-sizing:border-box;display:flex;flex-direction:column;background:var(--s);border:1px solid var(--b2);border-radius:14px;cursor:pointer;overflow:hidden;transition:border-color .15s,transform .15s}
+.gx-card:hover{border-color:var(--bleu);transform:translateY(-1px)}
+.gx-card:focus-visible{outline:3px solid rgba(var(--bleu-rgb),.4);outline-offset:2px}
+.gx-card-top{padding:1rem 1.1rem .8rem;display:flex;justify-content:space-between;gap:.6rem;align-items:flex-start}
+.gx-card-t{font-weight:800;font-size:.98rem;color:var(--txt)}
+.gx-card-a{font-size:.74rem;color:var(--td);margin-top:.15rem}
+.gx-pill{flex-shrink:0;font-size:.68rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;white-space:nowrap}
+.gx-ok{background:rgba(var(--green-rgb),.14);color:var(--green)}.gx-ko{background:rgba(var(--red-rgb),.14);color:var(--red)}.gx-wa{background:rgba(var(--gold-rgb),.16);color:var(--gold)}
+.gx-kpis{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--b);background:var(--s2)}
+.gx-kpi{padding:.6rem .8rem;min-width:0}.gx-kpi+.gx-kpi{border-left:1px solid var(--b)}
+.gx-k{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);font-weight:700}
+.gx-v{font-size:.82rem;font-weight:700;color:var(--txt);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gx-back{all:unset;cursor:pointer;font-size:.78rem;color:var(--td);font-weight:600;display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.7rem}
+.gx-back:hover{color:var(--txt)}
+.gx-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.9rem}
+.gx-h1{font-size:1.25rem;font-weight:800;color:var(--txt);line-height:1.2}
+.gx-docs{display:flex;gap:.4rem;flex-wrap:wrap}
+.gx-doc{display:inline-flex;align-items:center;gap:.35rem;font-size:.74rem;font-weight:700;color:var(--txt);background:var(--s);border:1px solid var(--b2);border-radius:8px;padding:.38rem .65rem;text-decoration:none}
+.gx-doc:hover{border-color:var(--bleu);color:var(--bleu)}
+.gx-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.gx-tile{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.75rem .9rem;min-width:0}
+.gx-tile .gx-v{font-size:.95rem;white-space:normal}
+.gx-tabs{display:flex;gap:.2rem;border-bottom:1px solid var(--b2);margin-bottom:1rem;overflow-x:auto;scrollbar-width:none}
+.gx-tab{all:unset;cursor:pointer;padding:.6rem .85rem;font-size:.8rem;font-weight:700;color:var(--td);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem}
+.gx-tab:hover{color:var(--txt)}.gx-tab.on{color:var(--bleu);border-bottom-color:var(--bleu)}
+.gx-badge{font-size:.62rem;font-weight:800;border-radius:999px;padding:.05rem .4rem;background:rgba(var(--red-rgb),.15);color:var(--red)}
+.gx-badge.wa{background:rgba(var(--gold-rgb),.18);color:var(--gold)}
+.gx-foot{font-size:.68rem;color:var(--td);margin-top:1.2rem;line-height:1.5;opacity:.85}
+@media(max-width:760px){.gx-tiles{grid-template-columns:repeat(2,1fr)}.gx-kpis{grid-template-columns:1fr 1fr}.gx-kpi:nth-child(3){display:none}}
 </style>
 <style>
 :root{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
@@ -436,8 +469,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div id="applications-page-list"><div class="ld"><div class="sp"></div></div></div>
     </div>
     <div class="page" id="page-gestion">
-      <div style="font-size:1rem;font-weight:700;margin-bottom:.3rem">Gestion locative</div>
-      <div style="font-size:.8rem;color:var(--td);margin-bottom:1rem">Tout ce qu'une agence ferait pour vous : impayés, révision du loyer, charges et récap fiscal.</div>
+
       <div id="gestion-content"></div>
       <!-- MAINTENANCE (dans la gestion locative) -->
       <div id="sec-maintenance" style="display:none">
@@ -4434,25 +4466,20 @@ function _gBiens(){
   return Object.entries(m).map(([id,ls])=>({id,ls,li:GEST.listings[id]||{}})).sort((a,b)=>String(a.li.title||'').localeCompare(String(b.li.title||'')));
 }
 function _gBienResume(b){
-  const today=new Date(),lids=new Set(b.ls.map(l=>l.id)),bks=new Set(b.ls.map(l=>l.booking_id).filter(Boolean));
-  const ps=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===b.id));
-  const retard=ps.filter(p=>['rent','first_rent'].includes(p.type)&&['pending','late'].includes(p.status)&&p.due_date&&_gDays(p.due_date,today)>=1);
-  const prochain=ps.filter(p=>p.type==='rent'&&p.status==='pending'&&p.due_date&&_gDays(today,p.due_date)>=0).sort((a,c)=>String(a.due_date).localeCompare(String(c.due_date)))[0];
-  const loyer=b.ls.reduce((a,l)=>a+(Number(l.rent)||0)+(Number(l.charges)||0),0);
-  const noms=[...new Set(b.ls.map(l=>_gName(l.tenant_id)))];
+  const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
   const adr=b.li.full_address||b.li.zone||'';
-  const cell=(k,v,c)=>`<div><div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--td);font-weight:700">${k}</div><div style="font-size:.86rem;font-weight:700;${c||''}">${v}</div></div>`;
-  return `<div class="card" style="margin-bottom:1rem"><div class="cb">
-    <div style="font-weight:800;font-size:.95rem">${_gEsc(b.li.title||'Logement')}</div>
-    ${adr?`<div style="font-size:.76rem;color:var(--td);margin-bottom:.6rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem">
-      ${cell(noms.length>1?'Locataires':'Locataire',noms.map(_gEsc).join(', '))}
-      ${cell(b.ls.length>1?'Loyers CC (total)':'Loyer CC',_g$(loyer)+'/mois')}
-      ${cell('Prochaine échéance',prochain?_gD(prochain.due_date)+' · '+_g$(prochain.amount):'—')}
-      ${cell('Impayés',retard.length?retard.length+' · '+_g$(retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',retard.length?'color:var(--red)':'color:var(--green)')}
-    </div>
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem">${b.ls.map(l=>`<a class="btn bg bsm" style="text-decoration:none" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' — '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`).join('')}${[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()].map(l=>{const multiB=new Set(b.ls.map(x=>x.booking_id).filter(Boolean)).size>1,suf=multiB?' — '+_gEsc(_gName(l.tenant_id)):'',sortie=GEST.edlS?.[l.booking_id];return `<a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée${suf}</a><a class="btn bg bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${sortie?(sortie.status==='signed'?'État des lieux de sortie ✓':'État des lieux de sortie (en cours)'):'Faire l\'état des lieux de sortie'}${suf}</a>`;}).join('')}</div>
-  </div></div>`;
+  const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
+  const docs=[...b.ls.map(l=>`<a class="gx-doc" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`),
+    ...bks.map(l=>{const suf=multiB?' · '+_gEsc(_gName(l.tenant_id)):'',so=GEST.edlS?.[l.booking_id];
+      return `<a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> EDL d'entrée${suf}</a><a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${so?(so.status==='signed'?'EDL de sortie ✓':'EDL de sortie (en cours)'):'EDL de sortie'}${suf}</a>`;})].join('');
+  const tile=(k,v,c)=>`<div class="gx-tile"><div class="gx-k">${k}</div><div class="gx-v" style="${c||''}">${v}</div></div>`;
+  return `<div class="gx-head"><div style="min-width:0"><div class="gx-h1">${_gEsc(b.li.title||'Logement')}</div>${adr?`<div class="gx-card-a" style="font-size:.8rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}</div><div class="gx-docs">${docs}</div></div>
+    <div class="gx-tiles">
+      ${tile(noms.length>1?'Locataires':'Locataire',noms.length?noms.map(_gEsc).join('<br>'):'Vacant')}
+      ${tile(st.actifs.length>1?'Loyers CC (total)':'Loyer CC',st.loyer?_g$(st.loyer)+'<span style="font-weight:500;color:var(--td);font-size:.75rem"> /mois</span>':'—')}
+      ${tile('Prochaine échéance',st.prochain?_gD(st.prochain.due_date)+'<div style="font-weight:500;color:var(--td);font-size:.75rem">'+_g$(st.prochain.amount)+'</div>':'—')}
+      ${tile('Impayés',st.retard.length?st.retard.length+' · '+_g$(st.retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',st.retard.length?'color:var(--red)':'color:var(--green)')}
+    </div>`;
 }
 // Résumé d'un bien pour la liste (impayés, prochaine échéance, régularisation à faire)
 function _gBienStats(b){
@@ -4475,35 +4502,37 @@ function renderGestion(){
   if(!window._gBien){
     GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
     if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : la gestion locative apparaît ici dès qu'un bail est signé par les deux parties.</div></div>`;return;}
-    box.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.8rem">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
-      const alertes=[st.retard.length?`<span style="color:var(--red)">● ${st.retard.length} loyer${st.retard.length>1?'s':''} en retard</span>`:'',st.regulAFaire?`<span style="color:var(--gold)">● Régularisation des charges à finaliser</span>`:''].filter(Boolean);
-      return `<button type="button" onclick="window._gBien='${b.id}';window._gTab='impayes';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" style="text-align:left;background:var(--s);border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;color:var(--txt);font-family:inherit;display:flex;flex-direction:column;gap:.35rem">
-        <span style="font-weight:800;font-size:.95rem">${_gEsc(b.li.title||'Logement')}</span>
-        <span style="font-size:.74rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${_gEsc(b.li.full_address||b.li.zone||'')}</span>
-        <span style="font-size:.8rem;margin-top:.2rem">${noms.length?_gEsc(noms.join(', ')):'<span style="color:var(--td)">Plus de locataire en place</span>'}</span>
-        <span style="font-size:.78rem;color:var(--td)">${st.loyer?_g$(st.loyer)+'/mois CC':''}${st.prochain?' · prochaine échéance '+_gD(st.prochain.due_date):''}</span>
-        <span style="font-size:.74rem;font-weight:700;display:flex;flex-direction:column;gap:.1rem;margin-top:.15rem">${alertes.length?alertes.join(''):'<span style="color:var(--green)">● Tout est à jour</span>'}</span>
-        <span style="font-size:.76rem;color:var(--bleu);font-weight:700;margin-top:.3rem">Ouvrir la gestion →</span>
-      </button>`;}).join('')}</div>
-      ${biens.length>1?`<button class="btn bg bsm" style="margin-top:1rem" onclick="window._gBien='__fiscal';window._gTab='fiscal';renderGestion()"><i data-lucide=landmark class=ic></i> Récap fiscal de tous mes biens (déclaration de revenus)</button>`:''}`;
+    box.innerHTML=`<p class="gx-intro">Choisissez un bien pour suivre ses loyers, ses impayés, la révision du loyer, la régularisation des charges et la maintenance.</p>
+      <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.map(l=>_gName(l.tenant_id)))];
+      const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:st.regulAFaire?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
+      return `<button type="button" class="gx-card" onclick="window._gBien='${b.id}';window._gTab='impayes';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ouvrir la gestion de ${_gEsc(b.li.title||'ce logement')}">
+        <div class="gx-card-top"><div style="min-width:0"><div class="gx-card-t">${_gEsc(b.li.title||'Logement')}</div><div class="gx-card-a">${_gEsc(b.li.full_address||b.li.zone||'')}</div></div>${pill}</div>
+        <div class="gx-kpis">
+          <div class="gx-kpi"><div class="gx-k">${noms.length>1?'Locataires':'Locataire'}</div><div class="gx-v" title="${_gEsc(noms.join(', '))}">${noms.length?_gEsc(noms.join(', ')):'—'}</div></div>
+          <div class="gx-kpi"><div class="gx-k">Loyer CC</div><div class="gx-v">${st.loyer?_g$(st.loyer):'—'}</div></div>
+          <div class="gx-kpi"><div class="gx-k">Prochaine échéance</div><div class="gx-v">${st.prochain?_gD(st.prochain.due_date):'—'}</div></div>
+        </div></button>`;}).join('')}</div>
+      ${biens.length>1?`<button class="gx-doc" style="margin-top:1rem;cursor:pointer" onclick="window._gBien='__fiscal';window._gTab='fiscal';renderGestion()"><i data-lucide=landmark class=ic></i> Récap fiscal de tous mes biens</button>`:''}`;
     if(window.lucide)lucide.createIcons();return;
   }
   // 2) Récap fiscal global (la déclaration de revenus se fait pour tous les biens ensemble)
-  const back=`<button class="btn bg bsm" style="margin-bottom:.9rem" onclick="window._gBien=null;renderGestion()">← Tous mes biens</button>`;
+  const back=`<button type="button" class="gx-back" onclick="window._gBien=null;renderGestion()"><i data-lucide=arrow-left class=ic></i> Tous mes biens</button>`;
   if(window._gBien==='__fiscal'){
     GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
-    box.innerHTML=back+`<div style="font-weight:800;font-size:1rem;margin-bottom:.6rem">Récap fiscal — tous mes biens</div><div id="gestion-tab"></div>`;
+    box.innerHTML=back+`<div class="gx-h1" style="margin-bottom:.9rem">Récap fiscal — tous mes biens</div><div id="gestion-tab"></div>`;
     renderFiscal();if(window.lucide)lucide.createIcons();return;
   }
   // 3) Gestion d'un bien : fiche + onglets
   const bien=biens.find(b=>b.id===window._gBien);
   const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
   GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));
-  const tabs=[['impayes','Impayés & relances','alert-triangle'],['irl','Révision du loyer (IRL)','trending-up'],['charges','Régularisation des charges','receipt'],['fiscal','Récap fiscal','landmark'],['maintenance','Maintenance','wrench']];
+  const tabs=[['impayes','Loyers & impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['fiscal','Fiscal','landmark'],['maintenance','Maintenance','wrench']];
+  const st=_gBienStats(bien);
+  const badge={impayes:st.retard.length?`<span class="gx-badge">${st.retard.length}</span>`:'',charges:st.regulAFaire?`<span class="gx-badge wa">!</span>`:''};
   box.innerHTML=back+_gBienResume(bien)+`
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${tabs.map(([k,l,ic])=>`<button class="btn bsm ${tab===k?'bp':'bg'}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}</button>`).join('')}</div>
+    <div class="gx-tabs" role="tablist">${tabs.map(([k,l,ic])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="gx-tab ${tab===k?'on':''}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}${badge[k]||''}</button>`).join('')}</div>
     <div id="gestion-tab"></div>
-    <div style="font-size:.7rem;color:var(--td);margin-top:1rem;line-height:1.5;${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
+    <div class="gx-foot" style="${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais, indices et régimes fiscaux évoluent. Vérifiez sur service-public.fr, visale.fr, impots.gouv.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
   if(tab==='maintenance'){if(secM){document.getElementById('gestion-tab').appendChild(secM);secM.style.display='';}try{loadMaintenance();}catch(e){}}
   else ({impayes:renderImpayes,irl:renderIRL,charges:renderCharges,fiscal:renderFiscal})[tab]();
   if(tab==='fiscal'&&biens.length>1){const t=document.getElementById('gestion-tab');t.insertAdjacentHTML('afterbegin',`<div style="font-size:.76rem;color:var(--gold);margin-bottom:.6rem"><i data-lucide=info class=ic></i> Récap de ce bien seulement. Les plafonds des régimes micro s'apprécient sur l'ensemble de vos biens : <a href="#" onclick="window._gBien='__fiscal';renderGestion();return false" style="color:var(--bleu)">voir le récap de tous mes biens</a>.</div>`);}
