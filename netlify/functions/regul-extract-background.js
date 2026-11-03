@@ -28,7 +28,8 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte autour, de cette forme
   "lignes": [{"nature": "libellé court du poste", "montant": 123.45, "recuperable": true, "source": "syndic | facture"}],
   "total_recuperable_document": 1234.56 ou null,
   "teom": {"annee": 2025, "montant_hors_frais": 234.00, "frais_gestion": 18.72} ou null,
-  "remarques": "ce qui est incertain ou à vérifier, en une ou deux phrases"
+  "compteurs_eau": {"froide": {"index_debut": 1234.5, "index_fin": 1290.2, "m3": 55.7}, "chaude": {"index_debut": null, "index_fin": null, "m3": null}} ou null,
+  "remarques": null, ou une phrase courte UNIQUEMENT s'il y a un vrai doute (montant illisible, total incohérent, poste ambigu). Ne commente pas un calcul qui est juste.
 }
 
 Règles :
@@ -36,6 +37,7 @@ Règles :
 - Si le décompte a une colonne « récupérable », « locatif » ou « part locataire », sers-t'en pour "recuperable" et pour le montant récupérable. Un poste partiellement récupérable donne deux lignes (part récupérable / part non récupérable).
 - Sinon applique le décret n° 87-713 : récupérables = eau, chauffage et eau chaude collectifs, ascenseur (entretien courant), électricité et entretien des parties communes, ménage, espaces verts, gardien (selon la règle légale), ordures ménagères ; NON récupérables = honoraires du syndic, assurance de l'immeuble, gros travaux, fonds de travaux (loi ALUR), frais de procédure, frais bancaires, mise en conformité.
 - Ne mets pas la TEOM dans "lignes" : uniquement dans "teom". Sur l'avis de taxe foncière, "montant_hors_frais" = la cotisation de taxe d'enlèvement des ordures ménagères SANS les frais de gestion de la fiscalité directe locale (ceux-ci ne sont pas récupérables).
+- "compteurs_eau" : relevés du compteur d'eau DU LOT s'ils figurent sur le décompte (index ancien / nouveau, consommation en m³), séparément pour l'eau froide et l'eau chaude ; null pour ce qui n'y figure pas.
 - Inclue aussi les lignes non récupérables (recuperable: false) pour que le gestionnaire voie tout.
 - Si un document est illisible ou n'est pas lié aux charges, dis-le dans "remarques".`;
 
