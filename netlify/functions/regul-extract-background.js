@@ -27,7 +27,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte autour, de cette forme
   "exercice": {"debut": "AAAA-MM-JJ", "fin": "AAAA-MM-JJ"} ou null,
   "lignes": [{"nature": "libellé court du poste", "montant": 123.45, "recuperable": true, "source": "syndic | facture"}],
   "total_recuperable_document": 1234.56 ou null,
-  "teom": {"annee": 2025, "montant_hors_frais": 234.00, "frais_gestion": 18.72} ou null,
+  "teom": {"annee": 2025, "montant_hors_frais": 234.00, "frais_gestion": 18.72, "taxe_fonciere_totale": 1250.00} ou null,
   "compteurs_eau": {"froide": {"index_debut": 1234.5, "index_fin": 1290.2, "m3": 55.7}, "chaude": {"index_debut": null, "index_fin": null, "m3": null}} ou null,
   "remarques": null, ou une phrase courte UNIQUEMENT s'il y a un vrai doute (montant illisible, total incohérent, poste ambigu). Ne commente pas un calcul qui est juste.
 }
@@ -36,16 +36,16 @@ Règles :
 - Les montants sont ceux DU LOT du propriétaire (sa quote-part), jamais le total de l'immeuble. Nombres avec un point décimal, sans symbole.
 - Si le décompte a une colonne « récupérable », « locatif » ou « part locataire », sers-t'en pour "recuperable" et pour le montant récupérable. Un poste partiellement récupérable donne deux lignes (part récupérable / part non récupérable).
 - Sinon applique le décret n° 87-713 : récupérables = eau, chauffage et eau chaude collectifs, ascenseur (entretien courant), électricité et entretien des parties communes, ménage, espaces verts, gardien (selon la règle légale), ordures ménagères ; NON récupérables = honoraires du syndic, assurance de l'immeuble, gros travaux, fonds de travaux (loi ALUR), frais de procédure, frais bancaires, mise en conformité.
-- Ne mets pas la TEOM dans "lignes" : uniquement dans "teom". Sur l'avis de taxe foncière, "montant_hors_frais" = la cotisation de taxe d'enlèvement des ordures ménagères SANS les frais de gestion de la fiscalité directe locale (ceux-ci ne sont pas récupérables).
+- Ne mets pas la TEOM dans "lignes" : uniquement dans "teom". Sur l'avis de taxe foncière, "montant_hors_frais" = la cotisation de taxe d'enlèvement des ordures ménagères SANS les frais de gestion de la fiscalité directe locale (ceux-ci ne sont pas récupérables). "taxe_fonciere_totale" = le montant total à payer indiqué sur l'avis (taxe foncière + TEOM + frais), pour la déclaration de revenus du propriétaire.
 - "compteurs_eau" : relevés du compteur d'eau DU LOT s'ils figurent sur le décompte (index ancien / nouveau, consommation en m³), séparément pour l'eau froide et l'eau chaude ; null pour ce qui n'y figure pas.
 - Inclue aussi les lignes non récupérables (recuperable: false) pour que le gestionnaire voie tout.
 - Si un document est illisible ou n'est pas lié aux charges, dis-le dans "remarques".`;
 
 exports.handler = async (event) => {
   let id = null, table = 'gestion_regul';
-  try { const b = JSON.parse(event.body || '{}'); id = b.id; if (b.table === 'charges_regularisations') table = 'charges_regularisations'; } catch (e) {}
+  try { const b = JSON.parse(event.body || '{}'); id = b.id; if (['charges_regularisations', 'teom_refacturations'].includes(b.table)) table = b.table; } catch (e) {}
   // gestion_regul = portail agence ; charges_regularisations = propriétaire qui gère lui-même (espace propriétaire)
-  const T = table, PROPRIO = T === 'charges_regularisations';
+  const T = table, PROPRIO = T !== 'gestion_regul';
   if (!id || !KEY) return { statusCode: 400, body: 'id ou clé manquante' };
   let r;
   try { r = (await api(`${T}?id=eq.${id}&select=*`))?.[0]; } catch (e) { return { statusCode: 500, body: e.message }; }
