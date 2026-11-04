@@ -9,6 +9,12 @@
 [functions."gestion-auto"]
   schedule = "@daily"
 
+[functions."revision-loyer"]
+  schedule = "@daily"
+
+[functions."teom-auto"]
+  schedule = "@daily"
+
 [[redirects]]
   from = "/app/*"
   to = "/index.html"
