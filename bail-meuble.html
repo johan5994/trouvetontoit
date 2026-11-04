@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <script src="/ui-dialog.js"></script>
+<script>/* Désinstaller l'ancien service worker (il cassait les appels aux fonctions) */if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});if(window.caches)caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bail de location meublée — Trouve Ton Toit</title>
@@ -721,6 +722,7 @@
           <div class="article-title" id="art5-title">Article 5 — Charges récupérables</div>
           <div class="article-content">
             <p>En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle.</p>
+            <p id="teom-clause" hidden></p>
             <p>Les charges récupérables (définies par le décret n° 87-713 du 26 août 1987) comprennent notamment :</p>
             <ul>
               <li>Les dépenses liées aux services collectifs : eau froide, eau chaude, chauffage collectif le cas échéant</li>
@@ -1185,6 +1187,7 @@ const FIELD_LABELS={
   diag_erp:'ERP',
   diag_bruit:'Nuisances sonores',
   regime_copro:'Copropriété',
+  teom_incluse:'Taxe d\'ordures ménagères (TEOM) dans la provision',
   numero_lot:'Numéro de lot',
   parking_type:'Type de stationnement',
   parking_details:'Stationnement (numéro/localisation)',
@@ -1329,6 +1332,7 @@ const FIELD_CONFIGS={
   tenant_email:{type:'email',placeholder:'locataire@email.fr'},
   tenant_phone:{type:'tel',placeholder:'+33 6 …'},
   tenant_nationality:{type:'text',placeholder:'ex. Française'},
+  teom_incluse:{type:'select',options:[{v:'true',l:'Oui — comprise dans la provision'},{v:'false',l:'Non — remboursée à part, une fois par an'}]},
   regime_copro:{type:'select',options:[{v:'true',l:'Oui — immeuble en copropriété'},{v:'false',l:'Non — monopropriété'}]},
   zone_tendue:{type:'select',options:[{v:'true',l:'Oui — encadrement des loyers applicable'},{v:'false',l:'Non — pas d\'encadrement'}]},
   dep_cave:{type:'select',options:[{v:'oui',l:'Oui — cave incluse'},{v:'non',l:'Non'}]},
@@ -1393,6 +1397,7 @@ ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS loyer_ref_majore NUMERIC;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS zone_tendue BOOLEAN DEFAULT false;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS regime_copro BOOLEAN DEFAULT false;
+ALTER TABLE leases ADD COLUMN IF NOT EXISTS teom_incluse BOOLEAN;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS numero_lot TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS parking_type TEXT;
 ALTER TABLE leases ADD COLUMN IF NOT EXISTS parking_details TEXT;
@@ -1569,7 +1574,7 @@ async function saveFieldFromPopup(key){
     else if(!val){toast('<i data-lucide=alert-triangle class=ic></i> Décrivez les travaux ou cochez "Aucun travaux".',3500);return;}
   }else if(cfg.type==='number')val=val?parseFloat(val):null;
   // Boolean fields stored as BOOLEAN in Supabase — convert 'true'/'false' string
-  else if(key==='regime_copro'||key==='zone_tendue')val=val==='true'?true:val==='false'?false:null;
+  else if(key==='regime_copro'||key==='zone_tendue'||key==='teom_incluse')val=val==='true'?true:val==='false'?false:null;
   else if(!val)val=null;
   closeEditPopup();
   if(key==='zone_tendue'&&val!=null){await setZoneTendue(val);return;}
@@ -2856,6 +2861,17 @@ function _renderBail(){
     else show('prorata-txt',`L'entrée dans les lieux ayant lieu le <strong>${fmtDateFr(_pr.start)}</strong>, le premier loyer est calculé au prorata des jours d'occupation : <strong>${_pr.days} jours sur ${_pr.period}</strong> (du ${fmtDateFr(_pr.start)} au ${fmtDateFr(_pr.end)}), soit <strong>${fmtEur(_pr.amount)}</strong> charges comprises, payable à l'entrée dans les lieux. Le loyer est ensuite dû en totalité à chaque échéance, à compter du <strong>${fmtDateFr(_pr.nextDue)}</strong>.`);
   }
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
+  // TEOM : comprise ou non dans la provision (question du tunnel, seulement s'il y a une provision)
+  {
+    const el=document.getElementById('teom-clause');
+    if(el){
+      const ti=L.teom_incluse;let t='';
+      if(charges>0&&ti===true)t=ev('teom_incluse','Cette provision <strong>inclut la taxe d\'enlèvement des ordures ménagères (TEOM)</strong>, régularisée chaque année avec les autres charges.');
+      else if(charges>0&&ti===false)t=ev('teom_incluse','La <strong>taxe d\'enlèvement des ordures ménagères (TEOM) n\'est pas comprise</strong> dans cette provision : le locataire la rembourse au bailleur une fois par an, sur présentation de l\'avis de taxe foncière, au prorata de sa durée d\'occupation.');
+      else if(charges>0&&_editMode)t='Taxe d\'ordures ménagères (TEOM) : '+mf('teom_incluse');
+      el.innerHTML=t;el.hidden=!t;
+    }
+  }
 
   // Dernier loyer — mention obligatoire si précédent locataire parti < 18 mois
   const isPremiere=L.premiere_mise_en_location==='oui';
@@ -3596,7 +3612,7 @@ async function exportBailPDF(){
 // ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
 function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
 // Infos du logement communes à tous les baux d'une même colocation (un bail par locataire)
-const CHAMPS_COMMUNS=new Set(['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
+const CHAMPS_COMMUNS=new Set(['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','teom_incluse','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
   'dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres',
   'commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres',
   'dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit',
@@ -4151,7 +4167,7 @@ const WZ_STEPS=[
   {t:'Le logement',d:'Description du logement loué.',k:['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','numero_lot','mode_chauffage','mode_ecs'],sp:['lot','usage']},
   {t:'Annexes et équipements',d:'Cave, stationnement, parties communes et télécoms.',k:['dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres','commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres']},
   {t:'Dates',d:'La date de fin est calculée d’après la durée légale ; modifiez-la seulement si besoin.',k:['start_date','end_date','payment_due_day']},
-  {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
+  {t:'Loyer et charges',d:'Montants, encadrement des loyers et précédent locataire.',k:['rent','charges','teom_incluse','loyer_ref','loyer_ref_majore','complement_loyer','complement_justif','premiere_mise_en_location','dernier_loyer','dernier_locataire_depart','dernier_loyer_revision','dernier_loyer_versement'],sp:['zone']},
   {t:'Dépôt de garantie',d:'Montant demandé au locataire à l’entrée.',k:['deposit_mode','deposit']},
   {t:'Garantie',d:'Comment le loyer est garanti si le locataire ne paie pas.',sp:['gli','garantie'],k:['garant_name','garant_email','garant_phone','garant_address','visale_ref','garant_organisme','garant_duree_type','garant_montant','garant_pro','garant_birth_date','garant_birth_place']},
   {t:'Diagnostics',d:'Performance énergétique et diagnostics obligatoires.',k:['dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit'],sp:['annexes']},
@@ -4257,7 +4273,7 @@ const WZ_GROUPES=[
   ['Description',/^description_logement$/],
   ['Bailleur',/^landlord_/],['Locataire',/^tenant_/],
   ['Adresse',/^(prop_address|numero_lot|numero_fiscal)$/],['Caractéristiques',/^(prop_type|prop_pieces|prop_etage|surface_boutin|annee_construction|regime_copro)$/],['Chauffage et eau chaude',/^mode_/],
-  ['Loyer',/^(rent|charges)$/],['Encadrement des loyers',/^(loyer_ref|loyer_ref_majore|complement_)/],['Précédent locataire',/^(premiere_mise_en_location|dernier_)/],
+  ['Loyer',/^(rent|charges|teom_incluse)$/],['Encadrement des loyers',/^(loyer_ref|loyer_ref_majore|complement_)/],['Précédent locataire',/^(premiere_mise_en_location|dernier_)/],
   ['Performance énergétique',/^dpe_/],['Autres diagnostics',/^diag_/],
 ];
 const WZ_FACULTATIF=new Set(['numero_fiscal','numero_lot','dep_autres','commun_autres','telecom_autres','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','garant_pro','garant_birth_date','garant_birth_place','tenant_nationality','complement_justif']);
@@ -4379,7 +4395,7 @@ function _wzLire(key){
   if(cfg.type==='travaux'&&document.getElementById('wz-'+key+'-aucun')?.checked)return'aucun';
   let v=String(el.value??'').trim();
   if(v==='')return null;
-  if(key==='regime_copro'||key==='zone_tendue')return v==='true';
+  if(key==='regime_copro'||key==='zone_tendue'||key==='teom_incluse')return v==='true';
   if(cfg.type==='number')return parseFloat(v);
   return v;
 }
