@@ -2193,15 +2193,22 @@ function showMlTab(tab){
 
 // ── Régularisation des charges côté locataire : voir le décompte, payer le complément ou confirmer un remboursement ──
 const CH_LBL_T={eau:'Eau froide / eau chaude',chauffage:'Chauffage collectif',entretien:'Parties communes : électricité, ménage, entretien, espaces verts',ascenseur:'Ascenseur',gardien:'Gardien / concierge (part récupérable)',teom:'Taxe d\'enlèvement des ordures ménagères',autres:'Autres charges récupérables'};
-let REGS_T=[];
+let REGS_T=[],TEOM_T=[];
 async function loadRegulT(){
   const el=document.getElementById('ml-regul');if(!el||!U)return;
   // État des lieux de sortie préparé par le propriétaire : lien direct pour le relire et le signer
   let sorties=[];try{const{data}=await sb.from('etats_des_lieux').select('booking_id,status,landlord_signed_at,tenant_signed_at,co_signatures').eq('type','sortie').neq('status','draft').eq('tenant_id',U.id);sorties=data||[];}catch(e){}
   const htmlS=sorties.map(x=>{const fait=x.status==='signed',moi=!!x.tenant_signed_at;return `<div class="card" style="margin-bottom:.8rem"><div class="cb" style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.84rem"><span><i data-lucide=log-out class=ic></i> <strong>État des lieux de sortie</strong> — ${fait?'<span style="color:var(--green)">signé par tous</span>':moi?'vous avez signé, en attente des autres':'<span style="color:var(--gold)">à relire et signer</span>'}</span><a class="btn ${fait||moi?'bg':'bp'} bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${x.booking_id}&type=sortie">${fait||moi?'Voir':'Relire et signer'}</a></div></div>`;}).join('');
   try{const{data}=await sb.from('charges_regularisations').select('*').eq('tenant_id',U.id).not('envoye_at','is',null).order('annee',{ascending:false});REGS_T=data||[];}catch(e){REGS_T=[];}
-  if(!REGS_T.length){el.innerHTML=htmlS;if(window.lucide)lucide.createIcons();return;}
-  el.innerHTML=htmlS+REGS_T.map(r=>{
+  // TEOM (taxe d'ordures ménagères) demandée par le propriétaire
+  try{const{data}=await sb.from('teom_refacturations').select('*').eq('tenant_id',U.id).not('envoye_at','is',null).order('annee',{ascending:false});TEOM_T=data||[];}catch(e){TEOM_T=[];}
+  const htmlT=TEOM_T.map(r=>{const m=fmtEur(r.part),fini=!!r.paiement_confirme_at;
+    const act=fini?`<span style="color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmé</span>`:r.paiement_declare_at?`<span style="color:var(--td)">Paiement indiqué — en attente de la confirmation du propriétaire</span>`:`<button class="btn bp bsm" onclick="teomPayeT('${r.id}')"><i data-lucide=check class=ic></i> J'ai payé ${m}</button>`;
+    return `<div class="card" style="margin-bottom:.8rem"><div class="cb" style="font-size:.82rem;line-height:1.55">
+      <div style="display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap"><strong><i data-lucide=trash-2 class=ic></i> Taxe d'ordures ménagères ${r.annee}</strong><span style="font-weight:800">${m}</span></div>
+      <div style="color:var(--td);margin:.3rem 0 .5rem">Taxe payée par votre propriétaire avec sa taxe foncière, et récupérable sur le locataire au prorata de votre occupation en ${r.annee}${r.teom_total?` (TEOM du logement : ${fmtEur(r.teom_total)})`:''}.</div>${act}</div></div>`;}).join('');
+  if(!REGS_T.length){el.innerHTML=htmlS+htmlT;if(window.lucide)lucide.createIcons();return;}
+  el.innerHTML=htmlS+htmlT+REGS_T.map(r=>{
     const solde=Number(r.solde)||0,m=fmtEur(Math.abs(solde));let dep={};try{dep=typeof r.depenses==='string'?JSON.parse(r.depenses):(r.depenses||{});}catch(e){}
     const fini=Math.abs(solde)<0.01||!!r.paiement_confirme_at;
     let etat,action='';
@@ -2221,6 +2228,15 @@ async function loadRegulT(){
         <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Les justificatifs (décompte du syndic, factures) sont à votre disposition auprès du propriétaire pendant 6 mois.</div>
       </div></details>`;}).join('');
   if(window.lucide)lucide.createIcons();
+}
+async function teomPayeT(id){
+  const r=TEOM_T.find(x=>x.id===id);if(!r)return;
+  if(!await uiConfirm(`Confirmer avoir payé ${fmtEur(r.part)} à votre propriétaire (taxe d'ordures ménagères ${r.annee}) ?`))return;
+  const{error}=await sb.from('teom_refacturations').update({paiement_declare_at:new Date().toISOString()}).eq('id',id);
+  if(error){uiAlert('Erreur : '+error.message);return;}
+  try{await sb.from('payments').update({status:'declared'}).eq('lease_id',r.lease_id).eq('type','teom').neq('status','paid');}catch(e){}
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.landlord_id,content:`Taxe d'ordures ménagères ${r.annee} : votre locataire indique avoir payé ${fmtEur(r.part)}. Confirmez la réception dans Gestion locative → le bien → TEOM.`,type:'message'});}catch(e){}
+  loadRegulT();
 }
 async function regulPayeT(id){
   const r=REGS_T.find(x=>x.id===id);if(!r)return;
