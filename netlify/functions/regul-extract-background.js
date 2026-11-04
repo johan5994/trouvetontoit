@@ -14,6 +14,7 @@ const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
   headers: { ...AUTH, 'Content-Type': 'application/json', Prefer: 'return=representation', ...(opts.headers || {}) },
 }).then(async r => { const t = await r.text(); if (!r.ok) throw new Error(path + ' → ' + r.status + ' ' + t); return t ? JSON.parse(t) : null; });
 const patch = (path, body) => api(path, { method: 'PATCH', body: JSON.stringify(body) });
+const { estAbonne } = require('./_shared/abonnement');
 
 const PROMPT = `Tu lis des documents français envoyés par un propriétaire bailleur pour la régularisation annuelle des charges locatives de SON logement (un lot) :
 - décompte / relevé annuel de charges de copropriété du syndic (approuvé en assemblée générale),
@@ -50,6 +51,8 @@ exports.handler = async (event) => {
   let r;
   try { r = (await api(`${T}?id=eq.${id}&select=*`))?.[0]; } catch (e) { return { statusCode: 500, body: e.message }; }
   if (!r) return { statusCode: 404, body: 'introuvable' };
+  // Propriétaire en direct : lecture par IA réservée aux abonnés (les agences ont leur propre accès)
+  if (PROPRIO && !(await estAbonne(api, r.landlord_id))) { await patch(`${T}?id=eq.${id}`, { extraction_err: 'La lecture automatique est réservée aux abonnés : saisissez les montants à la main, ou abonnez-vous depuis « Abonnement ».' }); return { statusCode: 200, body: 'non abonné' }; }
   if (!process.env.ANTHROPIC_API_KEY) { await patch(`${T}?id=eq.${id}`, { extraction_err: 'Lecture automatique non activée (clé ANTHROPIC_API_KEY absente) : saisissez les montants.' }); return { statusCode: 200, body: 'no key' }; }
   try {
     const content = [];
