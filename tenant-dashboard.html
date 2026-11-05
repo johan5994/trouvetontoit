@@ -308,6 +308,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .mx-tab.on{color:var(--bleu);border-bottom-color:var(--bleu)}
 .mx-tab:focus-visible{outline:2px solid var(--bleu);border-radius:6px}
 @media(max-width:760px){.mx-tiles{grid-template-columns:repeat(2,1fr)}}
+.mx-diag{position:relative}
+.mx-diag>summary{list-style:none;cursor:pointer}
+.mx-diag>summary::-webkit-details-marker{display:none}
+.mx-diag-list{position:absolute;right:0;top:calc(100% + .4rem);z-index:20;background:var(--s,#fff);border:1px solid var(--b2,#E3E7F0);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.12);padding:.35rem;min-width:220px;display:flex;flex-direction:column}
+.mx-diag-list a{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;border-radius:8px;font-size:.84rem;color:inherit;text-decoration:none}
+.mx-diag-list a:hover{background:var(--s2,#F3F5FA)}
+.mx-diag-list{min-width:280px;max-width:min(360px,calc(100vw - 32px))}
+.mx-ann-h{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm,#6B7488);padding:.55rem .7rem .2rem}
+@media(max-width:700px){.mx-diag-list{right:auto;left:0}}
+.mx-ann-vide{font-size:.76rem;color:var(--tm,#6B7488);padding:.4rem .7rem .55rem;line-height:1.4}
+@media(max-width:600px){.ass-grid{grid-template-columns:1fr!important}}
+button.mx-doc{font-family:inherit;cursor:pointer}
+.mx-ass{background:var(--s);border:1px solid var(--b2);border-radius:12px;padding:.8rem .9rem;margin-top:.75rem}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
 <style>
@@ -2445,6 +2458,92 @@ async function loadMyLocation(){
   if(window.lucide)lucide.createIcons();
   loadTickets();
 }
+// ═══ Assurance habitation (obligatoire, art. 7 g loi du 6 juillet 1989) : dépôt par le locataire après signature du bail, validation par le propriétaire ═══
+const ASS_TXT={en_attente:['En attente de validation du propriétaire','var(--gold)','hourglass'],validee:['Validée par le propriétaire','var(--green)','badge-check'],refusee:['Refusée par le propriétaire','var(--red)','x-circle']};
+async function _assRows(leaseId){try{const{data,error}=await sb.from('assurances_habitation').select('*').eq('lease_id',leaseId).eq('tenant_id',U.id).order('deposee_at',{ascending:false});if(error)return null;return data||[];}catch(e){return null;}}
+function _assFr(d){return d?new Date(String(d).slice(0,10)+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'';}
+function _assJours(d){return d?Math.ceil((new Date(String(d).slice(0,10)+'T12:00:00')-new Date())/864e5):null;}
+function _assSlot(lease,bk){const id='ass-'+lease.id+'-'+Math.random().toString(36).slice(2,7);setTimeout(()=>_assRender(id,lease,bk),0);return`<div id="${id}" style="margin-bottom:.75rem"></div>`;}
+// Rendu du bloc (candidature et « Mon logement ») : formulaire de dépôt ou statut
+async function _assRender(elId,lease,bk,compact){
+  const el=document.getElementById(elId);if(!el)return;
+  const rows=await _assRows(lease.id);if(rows===null){el.innerHTML='';return;}
+  const der=rows[0]||null,val=rows.find(r=>r.statut==='validee');
+  const j=val?_assJours(val.date_fin):null;
+  const aRenouveler=val&&j!==null&&j<=30&&!(der&&der.statut==='en_attente'&&der!==val);
+  const titre='<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Assurance habitation</div>';
+  const voir=r=>`<button class="btn bg bsm" onclick="assVoir('${r.id}')"><i data-lucide=eye class=ic></i> Voir</button>`;
+  let h='';
+  if(der&&der.statut==='en_attente'){
+    h=`<div style="background:var(--s2);border-radius:8px;padding:.55rem .65rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><span style="font-size:.78rem;color:var(--gold);font-weight:600"><i data-lucide=hourglass class=ic></i> Attestation envoyée le ${_assFr(der.deposee_at)} — en attente de validation du propriétaire</span>${voir(der)}</div>`;
+  }else if(val&&!aRenouveler&&!(der&&der.statut==='refusee'&&der!==val)){
+    if(compact){el.innerHTML='';return;}
+    h=`<div style="background:var(--grdim);border-radius:8px;padding:.55rem .65rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><span style="font-size:.78rem;color:var(--green);font-weight:600"><i data-lucide=badge-check class=ic></i> Validée par le propriétaire${val.date_fin?' · valable jusqu\'au '+_assFr(val.date_fin):''}</span>${voir(val)}</div>`;
+  }else{
+    const refus=der&&der.statut==='refusee'?`<div style="background:rgba(var(--red-rgb),.07);border:1px solid rgba(var(--red-rgb),.2);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--red);margin-bottom:.45rem"><i data-lucide=x-circle class=ic></i> Le propriétaire a refusé l'attestation${der.motif_refus?' : '+_escT(der.motif_refus):''}. Déposez-en une nouvelle.</div>`:'';
+    const expl=aRenouveler?`<div style="font-size:.76rem;color:${j<0?'var(--red)':'var(--gold)'};font-weight:600;margin-bottom:.45rem"><i data-lucide=alert-triangle class=ic></i> ${j<0?'Votre attestation a expiré le '+_assFr(val.date_fin):'Votre attestation expire le '+_assFr(val.date_fin)} : déposez celle de l'année suivante.</div>`
+      :`<div style="font-size:.76rem;color:var(--txt);line-height:1.5;margin-bottom:.45rem">L'assurance habitation est obligatoire pour le locataire. Déposez votre attestation <strong>avant la remise des clés</strong> : le propriétaire la vérifie ici.</div>`;
+    const f='ass-f-'+elId;
+    h=refus+expl+`<div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:.45rem;margin-bottom:.45rem" class="ass-grid">
+        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.7rem;color:var(--td);font-weight:600">Attestation (PDF ou photo)<input type="file" id="${f}-file" accept=".pdf,image/*" class="fi" style="font-size:.76rem;padding:.4rem"></label>
+        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.7rem;color:var(--td);font-weight:600">Valable jusqu'au<input type="date" id="${f}-fin" class="fi" style="font-size:.8rem;padding:.4rem"></label>
+      </div>
+      <input type="text" id="${f}-assureur" class="fi" placeholder="Assureur (facultatif)" style="font-size:.8rem;padding:.45rem;margin-bottom:.45rem;width:100%;box-sizing:border-box">
+      <button class="btn bp bsm" style="width:100%;justify-content:center" onclick="assDeposer('${elId}','${lease.id}','${bk?.id||lease.booking_id||''}')"><i data-lucide=upload class=ic></i> Envoyer au propriétaire</button>`;
+  }
+  el.innerHTML=(compact?'<div class="mx-ass">':'')+titre+h+(compact?'</div>':'');
+  el._ass={lease,bk,compact};
+  if(window.lucide)lucide.createIcons();
+}
+async function assDeposer(elId,leaseId,bookingId){
+  const f='ass-f-'+elId,file=document.getElementById(f+'-file')?.files?.[0],fin=document.getElementById(f+'-fin')?.value,assureur=document.getElementById(f+'-assureur')?.value?.trim()||null;
+  if(!file){uiAlert('Choisissez le fichier de votre attestation.');return;}
+  if(!fin){uiAlert('Indiquez la date de fin de validité de l\'attestation.');return;}
+  if(file.size>10*1024*1024){uiAlert('Fichier trop volumineux (10 Mo maximum).');return;}
+  const ctx=document.getElementById(elId)?._ass||{};const L=ctx.lease||{};
+  toast('<i data-lucide=upload class=ic></i> Envoi de l\'attestation…');
+  const ext=(file.name.split('.').pop()||'pdf').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const path=`assurances/${leaseId}/${U.id}-${Date.now()}.${ext}`;
+  const up=await sb.storage.from('documents-dossiers').upload(path,file,{upsert:false,contentType:file.type||undefined});
+  if(up.error){uiAlert('Envoi impossible : '+up.error.message);return;}
+  const nom=(typeof P!=='undefined'&&P?.full_name)||'';
+  const{error}=await sb.from('assurances_habitation').insert({lease_id:leaseId,booking_id:bookingId||null,listing_id:L.listing_id||null,tenant_id:U.id,tenant_name:nom||null,landlord_id:L.landlord_id||null,fichier_path:path,fichier_nom:file.name,assureur,date_fin:fin,statut:'en_attente'});
+  if(error){uiAlert('Enregistrement impossible : '+error.message+'\n\nLa migration supabase-migration-assurance.sql a-t-elle été exécutée ?');return;}
+  if(L.landlord_id)try{await sb.from('messages').insert({sender_id:'system',receiver_id:L.landlord_id,listing_id:L.listing_id||null,type:'message',content:`${nom||'Votre locataire'} a déposé son attestation d'assurance habitation (valable jusqu'au ${_assFr(fin)}). Vérifiez-la et validez-la dans Mes locations.`});}catch(e){}
+  toast('<i data-lucide=check-circle-2 class=ic></i> Attestation envoyée au propriétaire');
+  document.querySelectorAll('[id^="ass-"]').forEach(x=>{if(x._ass)_assRender(x.id,x._ass.lease,x._ass.bk,x._ass.compact);});
+  if(L.id)_assMl(L,ctx.bk);
+}
+async function assVoir(id){
+  const{data}=await sb.from('assurances_habitation').select('fichier_path').eq('id',id).maybeSingle();
+  if(!data){uiAlert('Attestation introuvable.');return;}
+  const{data:u,error}=await sb.storage.from('documents-dossiers').createSignedUrl(data.fichier_path,3600);
+  if(error||!u?.signedUrl){uiAlert('Ouverture impossible : '+(error?.message||''));return;}
+  window.open(u.signedUrl,'_blank','noopener');
+}
+// « Mon logement » : bouton dans les documents quand validée, rappel dans « À faire » sinon
+async function _assMl(L,bk){
+  const rows=await _assRows(L.id);if(rows===null)return;
+  const val=rows.find(r=>r.statut==='validee');
+  const d=document.getElementById('ml-ass-doc');
+  if(d)d.innerHTML=val?`<button type="button" class="mx-doc" onclick="assVoir('${val.id}')"><i data-lucide=shield-check class=ic></i> Assurance habitation</button>`:'';
+  const af=document.getElementById('ml-afaire');
+  if(af&&L.landlord_signed_at&&L.tenant_signed_at){let x=document.getElementById('ml-ass');if(!x){x=document.createElement('div');x.id='ml-ass';af.appendChild(x);}
+    _assRender('ml-ass',L,bk,true);}
+  if(window.lucide)lucide.createIcons();
+}
+
+// Annexes du bail : tout ce qui est joint au bail (diagnostics déposés par le propriétaire, actes de caution signés, documents officiels)
+function _mlAnnexes(L,actes){
+  if(!L)return'';
+  const diag=[['doc_dpe_url','Diagnostic de performance énergétique (DPE)'],['doc_erp_url','État des risques et pollutions (ERP)'],['doc_plomb_url','Constat de risque d\'exposition au plomb (CREP)'],['doc_amiante_url','Dossier amiante (parties privatives)'],['doc_elec_url','Diagnostic électricité'],['doc_gaz_url','Diagnostic gaz'],['doc_bruit_url','Information sur les nuisances sonores']]
+    .filter(([k])=>L[k]).map(([k,t])=>[L[k],t]);
+  const gar=(actes||[]).map(a=>['/acte-caution.html?id='+encodeURIComponent(a.id),'Acte de cautionnement'+(a.garant_nom?' — '+a.garant_nom:'')]);
+  const info=[['https://www.pap.fr/download/notice_contrat.pdf','Notice d\'information (droits et obligations)'],['https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf','Grille de vétusté']];
+  const grp=(titre,items,ic)=>items.length?`<div class="mx-ann-h">${titre}</div>${items.map(([u,t])=>`<a href="${_escT(u)}" target="_blank" rel="noopener"><i data-lucide=${ic} class=ic></i> ${_escT(t)}</a>`).join('')}`:'';
+  const n=diag.length+gar.length+info.length;
+  return`<details class="mx-diag"><summary class="mx-doc"><i data-lucide=paperclip class=ic></i> Annexes du bail (${n})</summary><div class="mx-diag-list">${grp('Diagnostics',diag,'gauge')}${grp('Garanties',gar,'file-signature')}${grp('Informations légales',info,'book-open')}${diag.length?'':'<div class="mx-ann-vide">Aucun diagnostic déposé par le propriétaire pour le moment.</div>'}</div></details>`;
+}
 // En-tête de « Mon logement » : documents, loyer (ma part), prochaine échéance, colocataires, entrée dans les lieux
 async function _mlResume(bk,annonce){
   const L=bk._lease,eur=v=>Number(v||0).toLocaleString('fr-FR',{minimumFractionDigits:Number(v)%1?2:0,maximumFractionDigits:2})+' €';
@@ -2455,10 +2554,14 @@ async function _mlResume(bk,annonce){
   const cc=L?(Number(L.rent)||0)+(Number(L.charges)||0):Number(bk.monthly_rent)||0;
   // Documents
   let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;}catch(e){}
+  let actes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,statut,signed_at').eq('lease_id',L.id);actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
   const docs=document.getElementById('ml-docs');
   if(docs)docs.innerHTML=[L?`<a class="mx-doc" href="/bail-meuble.html?lease_id=${L.id}&role=tenant"><i data-lucide=file-text class=ic></i> Bail</a>`:'',
     (bk.edl_status||bk.edl_completed_at)?`<a class="mx-doc" href="/edl-meuble.html?booking_id=${bk.id}"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée</a>`:'',
-    sortie?`<a class="mx-doc" href="/edl-meuble.html?booking_id=${bk.id}&type=sortie"><i data-lucide=log-out class=ic></i> État des lieux de sortie</a>`:''].join('');
+    sortie?`<a class="mx-doc" href="/edl-meuble.html?booking_id=${bk.id}&type=sortie"><i data-lucide=log-out class=ic></i> État des lieux de sortie</a>`:'',
+    _mlAnnexes(L,actes),
+    `<span id="ml-ass-doc"></span>`].join('');
+  if(L)_assMl(L,bk);
   // Mes paiements
   let ps=[];try{const{data}=await sb.from('payments').select('id,type,amount,status,due_date').eq('tenant_id',U.id).eq('booking_id',bk.id).neq('status','cancelled');ps=data||[];}catch(e){}
   const today=new Date().toISOString().slice(0,10);
@@ -3775,6 +3878,7 @@ function renderLocataireBailSection(v, bk, coLocataireEntry=null, lease=null){
       </div>
       ${bk.status==='edl_scheduled'?`
       <div style="margin-top:.6rem;background:rgba(var(--sea-rgb),.08);border:1px solid rgba(var(--sea-rgb),.2);border-radius:8px;padding:.5rem .65rem;font-size:.75rem;color:var(--marine);font-weight:600"><i data-lucide=clipboard-list class=ic></i> ${bk.edl_handler==='agence'?'Your agence is':'Your propriétaire is'} completing the entrée dans les lieux état des lieux (État des lieux) — vous serez notifié once it's prêt à signer.</div>`:''}
+      ${lease&&tSigned&&llSigned?_assSlot(lease,bk):''}
       ${payConfirmered?renderEdlBlockT(bk):''}
 
       <!-- Paiement -->
@@ -5293,14 +5397,14 @@ function _sxPlusOk(l,x){
 function sxPlus(){const m=document.getElementById('sx-more'),b=document.getElementById('sx-plus-btn');if(!m)return;m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}
 function _sxResume(c){const p=[];if(c.zone)p.push(_sxEsc(c.zone));if(c.max_budget)p.push(c.max_budget.toLocaleString('fr-FR')+' € max');if(c.type)p.push(SX_TYPES[c.type]||c.type);if(c.min_rooms)p.push(c.min_rooms+' pièce'+(c.min_rooms>1?'s':'')+' et +');return p.join(' · ')||'toutes les annonces';}
 async function loadAlertState(){
-  try{const{data}=await sb.from('alerts').select('*').eq('locataire_id',U.id).maybeSingle();SX_ALERTE=data||null;}catch(e){SX_ALERTE=null;}
+  try{const{data}=await sb.from('alerts').select('*').eq('locataire_id',U.id).limit(5);SX_ALERTE=(data||[]).find(a=>a.actif??a.active)||(data||[])[0]||null;}catch(e){SX_ALERTE=null;}
   const actif=!!(SX_ALERTE&&(SX_ALERTE.actif??SX_ALERTE.active));
   const nb=document.getElementById('nb-alerts');if(nb)nb.style.display=actif?'inline':'none';
   // Première ouverture : on reprend les critères de l'alerte
   if(SX_ALERTE&&!window._sxInit){window._sxInit=true;const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null&&v!=='')e.value=v;};
     s('sx-zone',SX_ALERTE.zone);s('sx-budget',SX_ALERTE.max_budget);s('sx-type',SX_TYPES[SX_ALERTE.type]?SX_ALERTE.type:'');s('sx-rooms',SX_ALERTE.min_rooms);}
   if(!SX_ANNONCES){
-    try{const{data}=await sb.from('listings').select('*').eq('active',true).not('status','in','("reserved","rented")').neq('type','for_sale').order('created_at',{ascending:false}).limit(400);SX_ANNONCES=data||[];}catch(e){SX_ANNONCES=[];}
+    try{const{data}=await sb.from('listings').select('*').eq('active',true).or('status.is.null,status.not.in.(reserved,rented)').neq('type','for_sale').order('created_at',{ascending:false}).limit(400);SX_ANNONCES=data||[];}catch(e){SX_ANNONCES=[];}
     const zones=[...new Set(SX_ANNONCES.map(l=>String(l.zone||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
     const dl=document.getElementById('sx-zones');if(dl)dl.innerHTML=zones.map(z=>`<option value="${_sxEsc(z)}">`).join('');
   }
@@ -5338,12 +5442,13 @@ function sxFiltrer(){
 }
 async function saveAlert(){
   const c=_sxCriteres(); // ville, budget, type, pièces
-  const{error}=await sb.from('alerts').upsert({locataire_id:U.id,...c,actif:true,dernier_envoi_at:new Date().toISOString()},{onConflict:'locataire_id'});
-  if(error){
-    // Colonne dernier_envoi_at pas encore créée : on enregistre sans
-    const r=await sb.from('alerts').upsert({locataire_id:U.id,...c,actif:true},{onConflict:'locataire_id'});
-    if(r.error){toast('<i data-lucide=x-circle class=ic></i> '+_sxEsc(r.error.message));return;}
-  }
+  // Une seule alerte par locataire : mise à jour si elle existe, sinon création (sans dépendre d'une contrainte unique)
+  const row={...c,actif:true,dernier_envoi_at:new Date().toISOString()};
+  const{data:ex}=await sb.from('alerts').select('locataire_id').eq('locataire_id',U.id).limit(1);
+  const{error}=ex&&ex.length
+    ?await sb.from('alerts').update(row).eq('locataire_id',U.id)
+    :await sb.from('alerts').insert({locataire_id:U.id,...row});
+  if(error){toast('<i data-lucide=x-circle class=ic></i> '+_sxEsc(error.message));return;}
   toast('<i data-lucide=bell class=ic></i> Alerte enregistrée : '+_sxResume(c));
   loadAlertState();
 }
