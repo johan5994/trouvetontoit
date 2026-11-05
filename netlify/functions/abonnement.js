@@ -1,16 +1,19 @@
 // Abonnement propriétaire — Stripe Checkout (paiement) et portail client (gérer, résilier).
-// Variables Netlify : STRIPE_SECRET_KEY, STRIPE_PRICE_PRO (identifiant du prix récurrent créé dans Stripe, « price_… »),
-// SUPABASE_SERVICE_KEY. Facultatif : STRIPE_WEBHOOK_SECRET_ABONNEMENT (voir stripe-abonnement-webhook.js).
+// Variables Netlify : STRIPE_SECRET_KEY, SUPABASE_SERVICE_KEY,
+//   STRIPE_PRICE_PRO    = prix MENSUEL par paliers progressifs (1er bien 4,90 €, 2e 2,90 €, suivants 1,90 €),
+//   STRIPE_PRICE_PRO_AN = prix ANNUEL par paliers progressifs (1er bien 39 €, 2e 23 €, suivants 15 €) — facultatif.
+// La quantité facturée = nombre de biens loués (mise à jour automatique, action « sync »). Facultatif : STRIPE_WEBHOOK_SECRET_ABONNEMENT (voir stripe-abonnement-webhook.js).
 // Actions (POST JSON { action }) :
 //   prix      → montant et périodicité affichés sur la page (sans connexion)
 //   checkout  → lien de paiement Stripe (utilisateur connecté)
 //   verifier  → au retour du paiement, enregistre l'abonnement (session_id Stripe)
 //   statut    → revérifie l'abonnement auprès de Stripe (fin de période)
+//   sync      → ajuste le nombre de biens facturés (au prorata)
 //   portail   → lien vers le portail Stripe pour changer de carte ou résilier (utilisateur connecté)
 const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = process.env.URL || 'https://trouvetontoi.netlify.app';
-const { stripe, ligne, enregistrer, estAbonne } = require('./_shared/verif-abonnement');
+const { stripe, ligne, enregistrer, estAbonne, nbBiens } = require('./_shared/verif-abonnement');
 const { utilisateur } = require('./_shared/clerk-auth');
 
 const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -28,8 +31,11 @@ exports.handler = async (event) => {
   try {
     if (b.action === 'prix') {
       if (!PRIX) return rep(200, { disponible: false, erreur: 'Abonnement non configuré : ajoutez STRIPE_PRICE_PRO dans les variables Netlify.' });
-      const p = await s.prices.retrieve(PRIX);
-      return rep(200, { disponible: true, montant: (p.unit_amount || 0) / 100, devise: p.currency, intervalle: p.recurring?.interval || null, nb: p.recurring?.interval_count || 1 });
+      const lire = async id => { const p = await s.prices.retrieve(id, { expand: ['tiers'] });
+        return { id: p.id, mode: p.tiers_mode || null, devise: p.currency, intervalle: p.recurring?.interval || null, montant: p.unit_amount != null ? p.unit_amount / 100 : null,
+          paliers: (p.tiers || []).map(t => ({ jusqu_a: t.up_to, unitaire: (t.unit_amount ?? Number(t.unit_amount_decimal || 0)) / 100, fixe: (t.flat_amount || 0) / 100 })) }; };
+      const uid = await utilisateur(event);
+      return rep(200, { disponible: true, mois: await lire(PRIX), an: process.env.STRIPE_PRICE_PRO_AN ? await lire(process.env.STRIPE_PRICE_PRO_AN) : null, nb_biens: uid ? await nbBiens(api, uid) : null });
     }
     if (b.action === 'verifier') {
       if (!/^cs_/.test(String(b.session_id || ''))) return rep(400, { erreur: 'session_id invalide' });
@@ -57,14 +63,27 @@ exports.handler = async (event) => {
         customer = c.id;
         await enregistrer(api, { landlord_id: uid, stripe_customer_id: customer, statut: a?.statut || 'aucun', updated_at: new Date().toISOString() });
       }
+      const prixChoisi = b.plan === 'an' && process.env.STRIPE_PRICE_PRO_AN ? process.env.STRIPE_PRICE_PRO_AN : PRIX;
       const ses = await s.checkout.sessions.create({
         mode: 'subscription', customer, client_reference_id: uid, locale: 'fr', allow_promotion_codes: true,
-        line_items: [{ price: PRIX, quantity: 1 }],
+        line_items: [{ price: prixChoisi, quantity: await nbBiens(api, uid) }],
         subscription_data: { metadata: { clerk_id: uid } },
         success_url: `${SITE}/landlord-dashboard.html?abonnement=ok&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${SITE}/landlord-dashboard.html?abonnement=annule`,
       });
       return rep(200, { url: ses.url });
+    }
+    if (b.action === 'sync') {
+      if (!a?.stripe_subscription_id || !['active', 'trialing', 'past_due'].includes(a.statut)) return rep(200, { ok: true, abonnement: a });
+      const n = await nbBiens(api, uid);
+      let sub = await s.subscriptions.retrieve(a.stripe_subscription_id);
+      const item = sub.items.data[0];
+      if (item && item.quantity !== n) {
+        // Annuel : la différence est facturée (ou créditée) tout de suite ; mensuel : sur la prochaine facture
+        sub = await s.subscriptions.update(sub.id, { items: [{ id: item.id, quantity: n }], proration_behavior: item.price?.recurring?.interval === 'year' ? 'always_invoice' : 'create_prorations' });
+      }
+      const row = ligne(sub, uid); await enregistrer(api, row);
+      return rep(200, { ok: true, abonnement: { ...a, ...row } });
     }
     if (b.action === 'portail') {
       if (!a?.stripe_customer_id) return rep(200, { erreur: 'Aucun abonnement trouvé.' });
