@@ -298,15 +298,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   </div>
   <nav class="sb-nav">
     <div class="nl">Tableau de bord</div>
-    <button class="ni" onclick="sp('biens',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Biens loués</button>
+    <button class="ni" onclick="sp('gestion',this)"><span class="nico"><i data-lucide=key-round class=ic></i></span>Mes locations<span class="nbadge" id="nb-gestion" style="display:none">0</span></button>
     <div class="nl">Biens</div>
     <button class="ni act" onclick="sp('annonces',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mes annonces</button>
     <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Visites<span class="nbadge" id="nb-visites-ll" style="display:none">0</span></button>
     <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Candidatures<span class="nbadge" id="nb-applications-ll" style="display:none">0</span></button>
 
-    <div class="nl">Finance</div>
-    <button class="ni" onclick="sp('paiements',this)"><span class="nico"><i data-lucide=euro class=ic></i></span>Paiements<span class="nbadge" id="nb-pay" style="display:none">0</span></button>
-    <button class="ni" onclick="sp('gestion',this)"><span class="nico"><i data-lucide=briefcase class=ic></i></span>Gestion locative<span class="nbadge" id="nb-gestion" style="display:none">0</span><span class="nbadge g" id="nb-tick" style="display:none">0</span></button>
     <div class="nl">Communication</div>
     <button class="ni" onclick="sp('messages',this)"><span class="nico"><i data-lucide=message-circle class=ic></i></span>Messages<span class="nbadge" id="nb-msg" style="display:none">0</span></button>
     <div class="nl">Avis & Profil</div>
@@ -396,7 +393,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         <div style="font-size:1rem;font-weight:700"><i data-lucide=home class=ic></i> Biens loués</div>
         <span class="badge b-dim" id="rp-count">—</span>
       </div>
-      <div id="rp-list"><div class="ld"><div class="sp"></div></div></div>
     </div>
 
     <!-- TENANT MATCHING -->
@@ -1007,13 +1003,14 @@ async function loadAll(){
 }
 
 function sp(id,btn){
+  if(id==='biens'||id==='paiements'){id='gestion';btn=document.querySelector('.ni[onclick*="\'gestion\'"]');} // pages fusionnées dans « Mes locations »
   if(id==='maintenance'){id='gestion';window._gTab='maintenance';btn=document.querySelector('.ni[onclick*="\'gestion\'"]');setTimeout(()=>{try{renderGestion();}catch(e){}},150);}
   if(id==='dash'){id='annonces';btn=btn||document.querySelector('.ni[onclick*="\'annonces\'"]');} // « Mon compte » retiré : page d'accueil = Mes annonces
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
   document.getElementById('page-'+id).classList.add('act');
   if(btn)btn.classList.add('act');
-  const titles={gestion:'Gestion locative',dash:'Mon compte',biens:'Biens loués',applications:'Candidatures',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Avis',profil:'Profil & Paramètres',abonnement:'Abonnement'};
+  const titles={gestion:'Mes locations',dash:'Mon compte',biens:'Biens loués',applications:'Candidatures',annonces:'Mes annonces',visites:'Visites',paiements:'Paiements & Loyer',messages:'Messages',maintenance:'Maintenance',avis:'Avis',profil:'Profil & Paramètres',abonnement:'Abonnement'};
   document.getElementById('tbt').textContent=titles[id]||id;
   if(id==='messages')loadMessages();
   if(id==='gestion')loadMaintenance();
@@ -2352,7 +2349,7 @@ async function loadPaiementsData(){
   document.getElementById('pay-collected').textContent=`€${collected.toLocaleString()}`;
   document.getElementById('pay-declared').textContent=declared||'0';
   document.getElementById('pay-en attente').textContent=enAttenteCount||'0';
-  if(declared>0){document.getElementById('nb-pay').textContent=declared;document.getElementById('nb-pay').style.display='inline';}
+  {const nb=document.getElementById('nb-gestion');if(nb){nb.textContent=declared;nb.style.display=declared>0?'inline':'none';}}
   loadPaiements('all');
   loadAwaitingConfirmeration(data||[]);
   loadDepotGaranties(data||[]);
@@ -3798,8 +3795,8 @@ async function confirmLocatairePaiementAgenceManaged(bookingId){
 // loadVisitsPage() par défaut (le flow normal) — quand on est sur
 // Agence-managed à la place, il faut rafraîchir CETTE page-là, pas Visites.
 function refreshCurrentBookingView(){
-  if(document.getElementById('page-biens')?.classList.contains('act')){
-    loadRentedProperties();
+  if(document.getElementById('page-gestion')?.classList.contains('act')){
+    loadGestion();
   }else{
     loadVisitsPage();
   }
@@ -3844,12 +3841,13 @@ async function landlordEndTenancy(bookingId){
     for(const to of dest){try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:to,content:`Votre propriétaire a indiqué la fin de votre location au ${dFr}. Les loyers à venir sont annulés. Votre bail, vos quittances et votre état des lieux restent consultables 7 jours dans « Mon logement » : pensez à les télécharger. Le dépôt de garantie doit vous être restitué sous 1 mois (2 mois en cas de dégradations constatées à l'état des lieux de sortie).`,type:'tenancy_ended'});}catch(e){}}
     ov.remove();
     toast('<i data-lucide=check-circle-2 class=ic></i> Départ enregistré.'+(relist?' Annonce remise en ligne.':''));
-    loadRentedProperties();
+    if(document.getElementById('page-gestion')?.classList.contains('act'))loadGestion();else loadRentedProperties();
   };
 }
 
 async function loadRentedProperties(){
   const wrap=document.getElementById('rp-list');
+  const sec=document.getElementById('rp-sec');
   const countBadge=document.getElementById('rp-count');
   if(!wrap)return;
 
@@ -3881,8 +3879,8 @@ async function loadRentedProperties(){
       if(daysSince<7){b._daysLeftToView=Math.max(1,Math.ceil(7-daysSince));return true;}
     }
     return false;
-  });
-
+  }).filter(b=>!(window._rpExclure&&window._rpExclure.has(b.id))); // déjà suivis dans « Mes locations » (bail signé)
+  if(sec)sec.hidden=!bookings.length;
   if(!bookings.length){
     wrap.innerHTML='<div class="empty"><div class="em"><i data-lucide=home class=ic></i></div><p>No rented biens yet</p></div>';
     if(countBadge)countBadge.textContent='0';
@@ -3989,7 +3987,7 @@ async function loadRentedProperties(){
           <button onclick="openMsgChatById('${bk.tenant_id||''}','${bk.listing_id||''}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message locataire</button>
           ${agentId?`<button onclick="messageAgenceÀProposProperty('${agentId}','${bk.listing_id||''}','${(annonce.title||'Bien').replace(/'/g,"\\'")}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message agence</button>`:''}
           <button onclick="sp('maintenance',document.querySelector('.ni[onclick*=maintenance]'))" class="btn bg bsm" ${openTickets.length?'style="border-color:var(--red);color:var(--red)"':''}><i data-lucide=wrench class=ic></i> Maintenance${openTickets.length?` (${openTickets.length})`:''}</button>
-          <button onclick="sp('paiements',document.querySelector('.ni[onclick*=paiements]'))" class="btn bg bsm"><i data-lucide=euro class=ic></i> Full paiement history</button>
+          
           ${bk.status!=='tenancy_ended'?`<button onclick="landlordEndTenancy('${bk.id}')" class="btn bg bsm" style="border-color:var(--red);color:var(--red)"><i data-lucide=door-open class=ic></i> Le locataire est parti</button>`:''}
         </div>
         <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Recent quittances</div>
@@ -4537,7 +4535,7 @@ async function loadGestion(){
     const{data:ls}=await sb.from('leases').select('*').eq('landlord_id',U.id);
     GEST.allLeases=GEST.leases=(ls||[]).filter(l=>l.landlord_signed_at&&l.tenant_signed_at);
     // Réservations des baux : date de départ, colocataires (bail commun), premier paiement confirmé
-    GEST.bk={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:bks}=await sb.from('bookings').select('id,tenancy_ended_at,status,first_payment_confirmed,co_locataires_data,tenant_name').in('id',bids);(bks||[]).forEach(b=>GEST.bk[b.id]=b);}}catch(e){}
+    GEST.bk={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:bks}=await sb.from('bookings').select('id,tenancy_ended_at,status,first_payment_confirmed,co_locataires_data,tenant_name,tenant_id,edl_completed_at').in('id',bids);(bks||[]).forEach(b=>GEST.bk[b.id]=b);}}catch(e){}
     GEST.leases.forEach(l=>{const b=GEST.bk[l.booking_id];if(!b)return;if(b.tenancy_ended_at)l._fin=b.tenancy_ended_at;
       if(l.colocation_type!=='individuel'){let c=b.co_locataires_data;try{c=typeof c==='string'?JSON.parse(c):c;}catch(e){c=[];}l._colocs=(Array.isArray(c)?c:[]).filter(x=>x&&x.coloc_status!=='declined'&&x.name);}});
     // Bail commun : chaque locataire doit avoir ses propres lignes de paiement (sa part) — on complète ce qui manque
@@ -4587,7 +4585,20 @@ function _gBienResume(b){
       ${tile(st.actifs.length>1?'Loyers CC (total)':'Loyer CC',st.loyer?_g$(st.loyer)+'<span style="font-weight:500;color:var(--td);font-size:.75rem"> /mois</span>':'—')}
       ${tile('Prochaine échéance',st.prochain?_gD(st.prochain.due_date)+'<div style="font-weight:500;color:var(--td);font-size:.75rem">'+_g$(st.prochain.amount)+'</div>':'—')}
       ${tile('Impayés',st.retard.length?st.retard.length+' · '+_g$(st.retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',st.retard.length?'color:var(--red)':'color:var(--green)')}
-    </div>`;
+    </div>${_gBienActions(b)}`;
+}
+// Actions sur la location (reprises de l'ancienne page « Biens loués ») : message, état des lieux avec photos, départ du locataire, fin de bail
+function _gBienActions(b){
+  const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multi=bks.length>1,out=[],alertes=[];
+  bks.forEach(l=>{const bk=GEST.bk?.[l.booking_id]||{},suf=multi?' · '+_gEsc(_gName(l.tenant_id)):'';
+    out.push(`<button class="btn bg bsm" onclick="openMsgChatById('${bk.tenant_id||l.tenant_id||''}','${l.listing_id||''}')"><i data-lucide=message-circle class=ic></i> Message au locataire${suf}</button>`);
+    if(bk.edl_completed_at)out.push(`<button class="btn bg bsm" onclick="viewEdlDossier('${l.booking_id}')"><i data-lucide=camera class=ic></i> Photos de l'état des lieux${suf}</button>`);
+    if(!bk.tenancy_ended_at)out.push(`<button class="btn bg bsm" style="border-color:var(--red);color:var(--red)" onclick="landlordEndTenancy('${l.booking_id}')"><i data-lucide=door-open class=ic></i> Le locataire est parti${suf}</button>`);
+  });
+  b.ls.filter(l=>!l._fin&&l.end_date).forEach(l=>{const j=Math.ceil((new Date(l.end_date)-new Date())/864e5);
+    if(j<=90)alertes.push(`<div style="font-size:.78rem;color:${j<0?'var(--red)':j<=60?'var(--gold)':'var(--td)'};font-weight:600"><i data-lucide=calendar class=ic></i> ${j<0?`Bail de ${_gEsc(_gName(l.tenant_id))} arrivé à son terme il y a ${-j} jours`:`Bail de ${_gEsc(_gName(l.tenant_id))} : fin le ${_gD(l.end_date)} (dans ${j} jours)`}</div>`);});
+  if(!out.length&&!alertes.length)return '';
+  return `<div style="margin:-.3rem 0 1rem;display:flex;flex-direction:column;gap:.45rem">${alertes.join('')}<div style="display:flex;gap:.4rem;flex-wrap:wrap">${out.join('')}</div></div>`;
 }
 // Résumé d'un bien pour la liste (impayés, prochaine échéance, régularisation à faire)
 function _gBienStats(b){
@@ -4609,7 +4620,10 @@ function renderGestion(){
   // 1) Liste des biens : on clique sur un bien pour ouvrir sa gestion
   if(!window._gBien){
     GEST.leases=GEST.allLeases||[];GEST.pays=GEST.allPays||[];
-    if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : la gestion locative apparaît ici dès qu'un bail est signé par les deux parties.</div></div>`;return;}
+    // Locations dont le bail n'est pas encore signé (ou gérées par une agence) : affichées sous la liste
+    window._rpExclure=new Set((GEST.allLeases||[]).flatMap(l=>[l.booking_id,l.parent_booking_id]).filter(Boolean));
+    const _rp=()=>{try{loadRentedProperties();}catch(e){}};
+    if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : un logement apparaît ici dès que vous acceptez un locataire, puis sa gestion complète une fois le bail signé par les deux parties.</div></div>`+`<div id="rp-sec" hidden style="margin-top:1.6rem"><div style="font-weight:800;font-size:1rem;margin-bottom:.25rem">Locations en cours de mise en place</div><p class="gx-intro">Bail pas encore signé par les deux parties, entrée dans les lieux à venir, ou logement géré par une agence.</p><div id="rp-list"></div></div>`;_rp();return;}
     box.innerHTML=_gRevBandeau()+`<p class="gx-intro">Choisissez un bien pour suivre ses loyers, ses impayés, la révision du loyer, la régularisation des charges et la maintenance.</p>
       <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
       const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:st.regulAFaire?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
@@ -4619,8 +4633,8 @@ function renderGestion(){
           <div class="gx-kpi"><div class="gx-k">${noms.length>1?'Locataires':'Locataire'}</div><div class="gx-v" title="${_gEsc(noms.join(', '))}">${noms.length?_gEsc(noms.join(', ')):'—'}</div></div>
           <div class="gx-kpi"><div class="gx-k">Loyer CC</div><div class="gx-v">${st.loyer?_g$(st.loyer):'—'}</div></div>
           <div class="gx-kpi"><div class="gx-k">Prochaine échéance</div><div class="gx-v">${st.prochain?_gD(st.prochain.due_date):'—'}</div></div>
-        </div></button>`;}).join('')}</div>`;
-    if(window.lucide)lucide.createIcons();return;
+        </div></button>`;}).join('')}</div>`+`<div id="rp-sec" hidden style="margin-top:1.6rem"><div style="font-weight:800;font-size:1rem;margin-bottom:.25rem">Locations en cours de mise en place</div><p class="gx-intro">Bail pas encore signé par les deux parties, entrée dans les lieux à venir, ou logement géré par une agence.</p><div id="rp-list"></div></div>`;
+    _rp();if(window.lucide)lucide.createIcons();return;
   }
   // 2) Gestion d'un bien : fiche + onglets
   const back=`<button type="button" class="gx-back" onclick="window._gBien=null;renderGestion()"><i data-lucide=arrow-left class=ic></i> Tous mes biens</button>`;
@@ -4648,7 +4662,7 @@ const G_STAT={paid:['Payé','var(--green)'],declared:['Déclaré payé','var(--g
 function renderPaiementsBien(){
   const el=document.getElementById('gestion-tab'),today=_gIso(new Date());
   const ps=[...GEST.pays].sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
-  if(!ps.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun paiement pour ce bien. L\'échéancier se crée quand le premier paiement est confirmé.</div></div>';return;}
+  if(!ps.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun paiement pour ce bien. L\'échéancier se crée quand le premier paiement est confirmé. <button class="btn bg bsm" style="margin-left:.4rem" onclick="addRentEntry()">+ Ajouter un loyer</button></div></div>';return;}
   const decl=ps.filter(p=>p.status==='declared');
   // Prochaine échéance seulement (tous les locataires de ce mois-là)
   const futurs=ps.filter(p=>p.status==='pending'&&String(p.due_date)>=today);
@@ -4672,7 +4686,7 @@ function renderPaiementsBien(){
     </div>
     ${decl.length?`<div class="card" style="border-color:rgba(var(--gold-rgb),.4);margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=hourglass class=ic></i> À confirmer</div><span style="font-size:.74rem;color:var(--gold)">Le locataire indique avoir payé : vérifiez votre compte puis confirmez</span></div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${decl.map(ligne).join('')}</table></div></div>`:''}
     ${avenir.length?`<div class="card" style="margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=calendar class=ic></i> Prochaine échéance — ${_gD(dProch)}</div>${avenir.length>1?`<span style="font-size:.78rem;font-weight:700">Total ${_g$(avenir.reduce((a,p)=>a+Number(p.amount||0),0))}</span>`:''}</div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${avenir.map(ligne).join('')}</table></div></div>`:''}
-    <div class="card"><div class="ch"><div class="ct"><i data-lucide=list class=ic></i> Historique</div><button class="btn bg bsm" onclick="gPayCSV()"><i data-lucide=download class=ic></i> Export CSV</button></div><div class="cb" style="padding:0;overflow-x:auto">
+    <div class="card"><div class="ch"><div class="ct"><i data-lucide=list class=ic></i> Historique</div><button class="btn bg bsm" onclick="addRentEntry()">+ Ajouter un loyer</button> <button class="btn bg bsm" onclick="gPayCSV()"><i data-lucide=download class=ic></i> Export CSV</button></div><div class="cb" style="padding:0;overflow-x:auto">
       ${histo.length?`<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Paiement</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Échéance</th><th style="text-align:right;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Montant</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Statut</th><th style="border-bottom:1px solid var(--b2)"></th></tr></thead><tbody>${histo.map(ligne).join('')}</tbody></table>`:'<div style="padding:1rem;font-size:.82rem;color:var(--td)">Aucun paiement passé pour l\'instant.</div>'}
     </div></div>`;
 }
