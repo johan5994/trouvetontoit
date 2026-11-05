@@ -4440,45 +4440,71 @@ async function loadAbonnement(){
   try{const{data}=await sb.from('abonnements').select('*').eq('landlord_id',U.id).maybeSingle();window.ABO=data||null;}catch(e){window.ABO=null;}
   // Période terminée : Stripe a peut-être renouvelé, on vérifie
   if(window.ABO?.stripe_subscription_id&&!_estAbo()&&['active','trialing','past_due'].includes(window.ABO.statut)){const r=await _aboFetch('statut');if(r?.abonnement)window.ABO=r.abonnement;}
+  // Nombre de biens facturés : ajusté automatiquement (bail signé ou terminé)
+  if(_estAbo()||window.ABO?.statut==='past_due'){_aboFetch('sync').then(r=>{if(r?.abonnement){window.ABO=r.abonnement;if(document.getElementById('page-abonnement')?.classList.contains('act'))renderAbonnement();}}).catch(()=>{});}
   const el=document.getElementById('ur-abo');if(el)el.textContent=_estAbo()?'Propriétaire · Abonné':'Propriétaire';
 }
 function _aboOuvrir(){sp('abonnement',document.querySelector('.ni[onclick*="\'abonnement\'"]'));}
 // Encart affiché à la place des fonctions par IA quand on n'est pas abonné
 function _aboVerrou(titre,texte){return `<div class="card" style="padding:.8rem 1rem;margin-bottom:.6rem;font-size:.8rem;line-height:1.55;display:flex;justify-content:space-between;gap:.7rem;align-items:center;flex-wrap:wrap"><div><strong><i data-lucide=lock class=ic></i> ${titre}</strong><br><span style="color:var(--td)">${texte}</span></div><button class="btn bg bsm" onclick="_aboOuvrir()">Voir l'abonnement</button></div>`;}
+// Montant pour n biens avec un prix par paliers progressifs (ou un prix unitaire simple)
+function _aboTotal(p,n){
+  if(!p)return null;
+  if(!p.paliers?.length)return p.montant!=null?p.montant*n:null;
+  if(p.mode==='volume'){const x=p.paliers.find(t=>t.jusqu_a==null||n<=t.jusqu_a)||p.paliers[p.paliers.length-1];return Math.round((n*x.unitaire+x.fixe)*100)/100;}
+  let t=0,deja=0;for(const x of p.paliers){const fin=x.jusqu_a==null?Infinity:x.jusqu_a,q=Math.max(0,Math.min(n,fin)-deja);if(q>0){t+=q*x.unitaire+x.fixe;}deja=fin;if(deja>=n)break;}
+  return Math.round(t*100)/100;
+}
+const _aboEur=v=>v==null?'—':v.toLocaleString('fr-FR',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2})+' €';
+// Texte des paliers : « 1er bien 4,90 € · 2e bien 2,90 € · à partir du 3e 1,90 € »
+function _aboPaliers(p){
+  if(!p?.paliers?.length)return p?.montant!=null?_aboEur(p.montant)+' par bien':'';
+  let deja=0;return p.paliers.map(x=>{const de=deja+1,fin=x.jusqu_a;deja=fin??deja;const lab=fin==null?(de===1?'par bien':`à partir du ${de}e bien`):de===fin?(de===1?'1er bien':`${de}e bien`):`biens ${de} à ${fin}`;return `${lab} ${_aboEur(x.unitaire)}`;}).join(' · ');
+}
 async function renderAbonnement(){
   const el=document.getElementById('abo-content');if(!el)return;
   if(!window._aboPrix){el.innerHTML='<div style="color:var(--td);font-size:.85rem">Chargement…</div>';window._aboPrix=await _aboFetch('prix');}
   const px=window._aboPrix||{},a=window.ABO,on=_estAbo();
-  const per={month:'mois',year:'an',week:'semaine',day:'jour'}[px.intervalle]||px.intervalle;
-  const prix=px.disponible?`${px.montant.toLocaleString('fr-FR',{minimumFractionDigits:px.montant%1?2:0,maximumFractionDigits:2})} ${px.devise==='eur'?'€':String(px.devise||'').toUpperCase()} / ${px.nb>1?px.nb+' ':''}${per}`:'';
+  const n=on&&a?.nb_biens?a.nb_biens:(px.nb_biens||1);
+  const plan=window._aboPlan||(on&&a?.plan)||'mois';
+  const pm=px.mois,pa=px.an,tm=_aboTotal(pm,n),ta=_aboTotal(pa,n);
+  const eco=tm!=null&&ta!=null?Math.round((tm*12-ta)*100)/100:0;
+  // Prix Stripe en mode « Volume » : tous les biens au tarif du dernier palier (3 biens moins chers que 2) → à corriger dans Stripe
+  const volume=[pm,pa].some(p=>p?.mode==='volume');
   const td='padding:.55rem .7rem;border-bottom:1px solid var(--b);vertical-align:top';
   const lignes=[
     ['Décompte de charges du syndic','Vous saisissez les montants du décompte, poste par poste.','Déposez le PDF ou une photo : il est lu automatiquement, les charges récupérables sont triées et la part de chaque locataire est calculée.'],
     ['Taxe d\'ordures ménagères (TEOM)','Vous saisissez le montant de l\'avis ; les parts sont calculées et envoyées en un clic.','L\'avis de taxe foncière est lu automatiquement. Rappel dès début septembre, message avec les parts prêtes à envoyer, relance des locataires qui n\'ont pas payé.'],
     ['Paiements, impayés, révision du loyer, maintenance','Inclus','Inclus'],
   ];
+  const carte=(k,p,t,titre)=>p?`<button type="button" onclick="window._aboPlan='${k}';renderAbonnement()" aria-pressed="${plan===k}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1 1 220px;border:2px solid ${plan===k?'var(--bleu)':'var(--b)'};border-radius:12px;padding:.8rem .95rem;background:var(--s)">
+      <div style="font-weight:700">${titre}${k==='an'&&eco>0?` <span style="font-weight:600;color:var(--green);font-size:.78rem">· ${_aboEur(eco)} d'économie par an</span>`:''}</div>
+      <div style="font-size:1.4rem;font-weight:800;margin-top:.2rem;font-variant-numeric:tabular-nums">${_aboEur(t)} <span style="font-size:.85rem;font-weight:500;color:var(--td)">/ ${k==='an'?'an':'mois'}</span></div>
+      <div style="font-size:.74rem;color:var(--td);margin-top:.2rem">${_aboPaliers(p)}</div></button>`:'';
   let statut='';
-  if(on)statut=`<div style="color:var(--green);font-weight:700"><i data-lucide=check-circle-2 class=ic></i> Abonnement actif</div><div style="color:var(--td);font-size:.8rem">${a.annule_fin_periode?'Résilié : reste actif jusqu\'au '+_gD(a.periode_fin)+'.':a.periode_fin?'Prochain renouvellement le '+_gD(a.periode_fin)+'.':''}</div>`;
+  if(on)statut=`<div style="color:var(--green);font-weight:700"><i data-lucide=check-circle-2 class=ic></i> Abonnement ${a.plan==='an'?'annuel':'mensuel'} actif · ${a.nb_biens||n} bien${(a.nb_biens||n)>1?'s':''}</div><div style="color:var(--td);font-size:.8rem">${a.annule_fin_periode?'Résilié : reste actif jusqu\'au '+_gD(a.periode_fin)+'.':a.periode_fin?'Prochain renouvellement le '+_gD(a.periode_fin)+' : '+_aboEur(_aboTotal(a.plan==='an'?pa:pm,a.nb_biens||n))+'.':''}</div>`;
   else if(a?.statut==='past_due')statut=`<div style="color:var(--red);font-weight:700">Paiement refusé</div><div style="color:var(--td);font-size:.8rem">Mettez à jour votre carte pour retrouver la lecture automatique.</div>`;
   else statut=`<div style="color:var(--td)">Pas d'abonnement en cours.</div>`;
   el.innerHTML=`<div class="card" style="padding:1.1rem 1.2rem;margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start">
-        <div><div style="font-size:1.1rem;font-weight:800">Gestion locative avec lecture automatique</div>${prix?`<div style="font-size:1.5rem;font-weight:800;margin-top:.3rem;font-variant-numeric:tabular-nums">${prix}</div>`:''}<div style="margin-top:.5rem">${statut}</div></div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap">${on||a?.statut==='past_due'?`<button class="btn bp" onclick="gAboPortail()"><i data-lucide=settings class=ic></i> Gérer mon abonnement</button>`:px.disponible?`<button class="btn bp" onclick="gAboSouscrire()"><i data-lucide=credit-card class=ic></i> S'abonner</button>`:''}</div>
-      </div>
+      <div style="font-size:1.1rem;font-weight:800">Gestion locative avec lecture automatique</div>
+      <div style="margin-top:.4rem">${statut}</div>
+      ${px.disponible?`<div style="font-size:.8rem;color:var(--td);margin:.8rem 0 .5rem">Prix selon le nombre de biens loués : <strong style="color:var(--txt)">${n} bien${n>1?'s':''}</strong> aujourd'hui. Il s'ajuste tout seul quand un bail est signé ou se termine (au prorata).</div>
+        ${on?'':`<div style="display:flex;gap:.6rem;flex-wrap:wrap">${carte('mois',pm,tm,'Mensuel')}${carte('an',pa,ta,'Annuel')}</div>`}`:''}
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">${on||a?.statut==='past_due'?`<button class="btn bp" onclick="gAboPortail()"><i data-lucide=settings class=ic></i> Gérer mon abonnement</button>`:px.disponible?`<button class="btn bp" onclick="gAboSouscrire('${plan}')"><i data-lucide=credit-card class=ic></i> S'abonner — ${_aboEur(plan==='an'?ta:tm)} / ${plan==='an'?'an':'mois'}</button>`:''}</div>
+      ${volume?`<div style="margin-top:.7rem;font-size:.8rem;color:var(--red)">Configuration Stripe à corriger : le prix est en mode « Volume » (tous les biens au tarif du dernier palier, donc 3 biens moins chers que 2). Recréez-le en mode « Progressif » (Graduated).</div>`:''}
       ${!px.disponible&&!on?`<div style="margin-top:.7rem;font-size:.8rem;color:var(--gold)">${_gEsc(px.erreur||'L\'abonnement n\'est pas encore disponible.')}</div>`:''}
-      ${on?`<div style="margin-top:.6rem;font-size:.76rem;color:var(--td)">Carte bancaire, factures et résiliation : « Gérer mon abonnement ». Sans engagement, résiliable à tout moment ; l'accès reste ouvert jusqu'à la fin de la période payée.</div>`:`<div style="margin-top:.6rem;font-size:.76rem;color:var(--td)">Paiement sécurisé par Stripe. Sans engagement, résiliable à tout moment.</div>`}
+      <div style="margin-top:.6rem;font-size:.76rem;color:var(--td)">${on?'Carte bancaire, factures, passage au mensuel ou à l\'annuel et résiliation : « Gérer mon abonnement ». ':''}Paiement sécurisé par Stripe. Sans engagement, résiliable à tout moment ; l'accès reste ouvert jusqu'à la fin de la période payée.</div>
     </div>
     <div class="card" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.82rem;line-height:1.5">
       <thead><tr><th style="${td};text-align:left"></th><th style="${td};text-align:left">Sans abonnement</th><th style="${td};text-align:left">Avec abonnement</th></tr></thead>
       <tbody>${lignes.map(([t,s0,s1])=>`<tr><td style="${td};font-weight:700">${t}</td><td style="${td};color:var(--td)">${s0}</td><td style="${td}">${s1}</td></tr>`).join('')}</tbody></table></div>`;
   if(window.lucide)lucide.createIcons();
 }
-async function gAboSouscrire(){
+async function gAboSouscrire(plan){
   const btn=event?.target?.closest('button');if(btn){btn.disabled=true;btn.textContent='Ouverture du paiement…';}
-  const r=await _aboFetch('checkout',{email:U?.email||''});
+  const r=await _aboFetch('checkout',{plan:plan||'mois',email:U?.email||''});
   if(r?.url){location.href=r.url;return;}
-  toast(_gEsc(r?.erreur||'Paiement indisponible.'),8000);if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide=credit-card class=ic></i> S\'abonner';}
+  toast(_gEsc(r?.erreur||'Paiement indisponible.'),8000);renderAbonnement();
 }
 async function gAboPortail(){
   const r=await _aboFetch('portail');
