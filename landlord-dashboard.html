@@ -4437,9 +4437,10 @@ async function _aboFetch(action,extra){
   try{return await r.json();}catch(e){return{erreur:'La fonction abonnement ne répond pas (déployée ?).'};}
 }
 async function loadAbonnement(){
-  try{const{data}=await sb.from('abonnements').select('*').eq('landlord_id',U.id).maybeSingle();window.ABO=data||null;}catch(e){window.ABO=null;}
-  // Période terminée : Stripe a peut-être renouvelé, on vérifie
-  if(window.ABO?.stripe_subscription_id&&!_estAbo()&&['active','trialing','past_due'].includes(window.ABO.statut)){const r=await _aboFetch('statut');if(r?.abonnement)window.ABO=r.abonnement;}
+  // Lu par la fonction serveur (vérifie aussi chez Stripe) ; lecture directe de la table en secours
+  const r=await _aboFetch('statut').catch(()=>null);
+  if(r&&'abonnement' in r)window.ABO=r.abonnement||null;
+  else{try{const{data}=await sb.from('abonnements').select('*').eq('landlord_id',U.id).maybeSingle();window.ABO=data||null;}catch(e){window.ABO=null;}}
   // Nombre de biens facturés : ajusté automatiquement (bail signé ou terminé)
   if(_estAbo()||window.ABO?.statut==='past_due'){_aboFetch('sync').then(r=>{if(r?.abonnement){window.ABO=r.abonnement;if(document.getElementById('page-abonnement')?.classList.contains('act'))renderAbonnement();}}).catch(()=>{});}
   const el=document.getElementById('ur-abo');if(el)el.textContent=_estAbo()?'Propriétaire · Abonné':'Propriétaire';
