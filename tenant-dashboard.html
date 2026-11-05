@@ -549,11 +549,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
               <input type="hidden" id="rm-avatar" value="">
             </div>
             <div class="fgrid2">
-              <div class="fg"><label class="fl">Budget min (€/mois)</label><input class="fi" type="number" id="rm-budget-min" placeholder="400"></div>
               <div class="fg"><label class="fl">Budget max (€/mois)</label><input class="fi" type="number" id="rm-budget-max" placeholder="700"></div>
+              <div class="fg"><label class="fl">Date d'entrée idéale</label><input class="fi" type="date" id="rm-movein"></div>
             </div>
             <div class="fg"><label class="fl">Zone(s) préférée(s)</label><input class="fi" id="rm-zones" placeholder="Lyon, Marseille, Toulouse..."></div>
-            <div class="fg"><label class="fl">Date d'entrée dans les lieux</label><input class="fi" type="date" id="rm-movein"></div>
             <div class="fg"><label class="fl">Avez-vous déjà des colocataires et cherchez-vous quelqu'un de plus ?</label>
               <select class="fsel" id="rm-spots-needed">
                 <option value="0">Non — je cherche seul(e)</option>
@@ -1632,7 +1631,6 @@ async function loadRoommateProfile(){
   try{
     const{data:p}=await sb.from('roommate_profiles').select('*').eq('locataire_id',U.id).maybeSingle();
     if(!p)return;
-    document.getElementById('rm-budget-min').value=p.budget_min||'';
     document.getElementById('rm-budget-max').value=p.budget_max||'';
     document.getElementById('rm-zones').value=p.zones||'';
     document.getElementById('rm-movein').value=p.move_in_date||'';
@@ -1692,7 +1690,6 @@ async function saveRoommateProfile(){
   const payload={
     locataire_id:U.id,
     full_name:P?.full_name||'Locataire',
-    budget_min:parseFloat(document.getElementById('rm-budget-min').value)||null,
     budget_max:parseFloat(document.getElementById('rm-budget-max').value)||null,
     zones:document.getElementById('rm-zones').value.trim(),
     move_in_date:document.getElementById('rm-movein').value||null,
@@ -1796,7 +1793,7 @@ async function loadRmChannel(){
         const prof=rmProfilesCache[m.sender_id];
         const isMe=m.sender_id===U.id;
         const name=prof?.full_name||'Someone';
-        const budget=prof?.budget_min||prof?.budget_max?`€${prof.budget_min||'?'}-${prof.budget_max||'?'}`:'';
+        const budget=prof?.budget_max?`max €${prof.budget_max}`:'';
         const zones=prof?.zones||'';
         const spotsNote=prof?.spots_needed>0?`· needs ${prof.spots_needed} more`:'';
         return`<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
@@ -1852,10 +1849,10 @@ function viewRmProfile(otherId){
 
   // Tiles — n'affiche que les champs remplis
   const tiles=[];
-  if(prof.budget_min||prof.budget_max)tiles.push(['Budget',`€${prof.budget_min||'?'} – €${prof.budget_max||'?'}/mois`,'euro']);
+  if(prof.budget_max)tiles.push(['Budget max',`€${prof.budget_max}/mois`,'euro']);
   const zonesStr=Array.isArray(prof.zones)?prof.zones.join(', '):(prof.zones||'');
   if(zonesStr)tiles.push(['Zone(s)',zonesStr,'map-pin']);
-  if(prof.move_in_date)tiles.push(['Disponible dès',new Date(prof.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),'calendar']);
+  if(prof.move_in_date)tiles.push(['Entrée idéale',new Date(prof.move_in_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),'calendar']);
   if(prof.lease_duration)tiles.push(['Durée bail',prof.lease_duration,'clock']);
   if(prof.spots_needed>0)tiles.push(['Colocataires cherchés',prof.spots_needed+' personne'+(prof.spots_needed>1?'s':''),'users']);
 
