@@ -3804,6 +3804,40 @@ function refreshCurrentBookingView(){
 
 // Le propriétaire indique que le locataire a quitté le logement (même effet que côté locataire :
 // location visible encore 7 jours, échéances futures annulées, locataire libre de postuler ailleurs)
+// Location qui n'a pas abouti (désistement, bail jamais signé…) : retirée de « Mes locations », sans rien supprimer
+async function landlordAbandonLocation(bookingId){
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
+  if(!bk)return;
+  if(bk.lease_signed_landlord&&bk.lease_signed_tenant){toast('Le bail est signé par les deux parties : utilisez « Le locataire est parti ».',6000);return;}
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:16px;padding:1.3rem;width:100%;max-width:440px">
+    <div style="font-size:1rem;font-weight:800;margin-bottom:.4rem"><i data-lucide=x-circle class=ic></i> La location avec ${_gEsc(bk.tenant_name||'ce locataire')} n'a pas abouti</div>
+    <div style="font-size:.8rem;color:var(--td);line-height:1.5;margin-bottom:.8rem">Elle disparaît de « Mes locations », les paiements prévus sont annulés et le locataire est prévenu. Le bail non signé et les échanges restent consultables : rien n'est effacé.</div>
+    <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem" for="ab-motif">Raison</label>
+    <select id="ab-motif" class="fi" style="margin-bottom:.6rem"><option>Le locataire s'est désisté</option><option>Le bail n'a pas été signé</option><option>Je ne loue plus ce logement</option><option>Autre raison</option></select>
+    <label style="display:flex;gap:.45rem;align-items:center;font-size:.8rem;margin-bottom:.9rem;cursor:pointer"><input type="checkbox" id="ab-relist" checked style="accent-color:var(--bleu)"> Remettre l'annonce en ligne</label>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end"><button class="btn bg bsm" id="ab-cancel">Annuler</button><button class="btn bp bsm" id="ab-ok" style="background:var(--red)">Confirmer</button></div>
+  </div>`;
+  document.body.appendChild(ov);if(window.lucide)lucide.createIcons();
+  ov.querySelector('#ab-cancel').onclick=()=>ov.remove();
+  ov.querySelector('#ab-ok').onclick=async()=>{
+    const motif=ov.querySelector('#ab-motif').value,relist=ov.querySelector('#ab-relist').checked;
+    const btn=ov.querySelector('#ab-ok');btn.disabled=true;btn.textContent='Enregistrement…';
+    const{error}=await sb.from('bookings').update({status:'cancelled'}).eq('id',bookingId);
+    if(error){toast('<i data-lucide=x-circle class=ic></i> '+_gEsc(error.message),7000);btn.disabled=false;btn.textContent='Confirmer';return;}
+    try{await sb.from('payments').update({status:'cancelled'}).eq('booking_id',bookingId).in('status',['pending','late']);}catch(e){}
+    try{const{data:ls}=await sb.from('leases').select('id').or(`booking_id.eq.${bookingId},parent_booking_id.eq.${bookingId}`);const ids=(ls||[]).map(l=>l.id);
+      if(ids.length)await sb.from('payments').update({status:'cancelled'}).in('lease_id',ids).in('status',['pending','late']);}catch(e){}
+    if(relist){try{await sb.from('listings').update({active:true,actif:true,status:'active',reserved_by:null}).eq('id',bk.listing_id);}catch(e){try{await sb.from('listings').update({active:true}).eq('id',bk.listing_id);}catch(e2){}}}
+    let cols=[];try{cols=typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[]);}catch(e){}
+    const dest=[bk.tenant_id,...(cols||[]).filter(c=>c&&c.coloc_status!=='declined').map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
+    for(const to of dest){try{await sb.from('messages').insert({listing_id:bk.listing_id,sender_id:'system',receiver_id:to,content:`Le propriétaire a mis fin au projet de location (${motif.toLowerCase()}). Aucun paiement ne vous sera demandé pour ce logement.`,type:'message'});}catch(e){}}
+    ov.remove();
+    toast('<i data-lucide=check-circle-2 class=ic></i> Location retirée.'+(relist?' Annonce remise en ligne.':''));
+    if(document.getElementById('page-gestion')?.classList.contains('act'))loadGestion();else loadRentedProperties();
+  };
+}
 async function landlordEndTenancy(bookingId){
   const{data:bk}=await sb.from('bookings').select('*').eq('id',bookingId).single();
   if(!bk)return;
@@ -3912,8 +3946,8 @@ async function loadRentedProperties(){
     const pays=(paysByAnnonce[bk.listing_id]||[]).slice().sort((a,b)=>(b.due_date||'').localeCompare(a.due_date||''));
     const overdue=pays.filter(p=>p.status==='pending'&&p.due_date&&p.due_date<today);
     const declared=pays.filter(p=>p.status==='declared'||(p.status==='pending'&&p.tenant_declared));
-    let payBadge='<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> Up to date</span>';
-    if(overdue.length)payBadge=`<span class="badge b-red"><i data-lucide=alert-triangle class=ic></i> ${overdue.length} overdue</span>`;
+    let payBadge='<span class="badge b-green"><i data-lucide=check-circle-2 class=ic></i> À jour</span>';
+    if(overdue.length)payBadge=`<span class="badge b-red"><i data-lucide=alert-triangle class=ic></i> ${overdue.length} en retard</span>`;
     else if(declared.length)payBadge=`<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> En attente de confirmation</span>`;
 
     // Prochaine échéance — le prochain paiement encore en attente, trié par date
@@ -3949,13 +3983,13 @@ async function loadRentedProperties(){
     // Bien géré par une agence — badge + actions propres tant que le
     // bail/paiement n'est pas encore entièrement finalisé
     const agentId=agentByAnnonce[bk.listing_id];
-    const agencyBadge=agentId?` · <i data-lucide=building-2 class=ic></i> Managed by ${agencyNomMap[agentId]||'agence'}`:'';
+    const agencyBadge=agentId?` · <i data-lucide=building-2 class=ic></i> Géré par ${agencyNomMap[agentId]||'agence'}`:'';
     const bailSigned=bk.lease_signed_landlord&&bk.lease_signed_tenant;
     let agencyActionHtml='';
     if(agentId&&!bailSigned&&bk.bail_propriétaire_embed&&!bk.lease_signed_landlord){
       agencyActionHtml=`<button onclick="signAgenceManagedDoc('${bk.id}','${bk.bail_propriétaire_embed}','bail_signed_propriétaire','<i data-lucide=file-text class=ic></i> Contrat de bail')" class="btn bp bsm"><i data-lucide=pen-line class=ic></i> Sign bail now</button>`;
     }else if(agentId&&bailSigned&&!bk.first_payment_confirmed){
-      agencyActionHtml=`<button onclick="confirmLocatairePaiementAgenceManaged('${bk.id}')" class="btn bp bsm" style="background:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Confirmer paiement received</button>`;
+      agencyActionHtml=`<button onclick="confirmLocatairePaiementAgenceManaged('${bk.id}')" class="btn bp bsm" style="background:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Confirmer la réception du paiement</button>`;
     }
 
     return `<div class="card" style="margin-bottom:1rem">
@@ -3988,9 +4022,10 @@ async function loadRentedProperties(){
           ${agentId?`<button onclick="messageAgenceÀProposProperty('${agentId}','${bk.listing_id||''}','${(annonce.title||'Bien').replace(/'/g,"\\'")}')" class="btn bg bsm"><i data-lucide=message-circle class=ic></i> Message agence</button>`:''}
           <button onclick="sp('maintenance',document.querySelector('.ni[onclick*=maintenance]'))" class="btn bg bsm" ${openTickets.length?'style="border-color:var(--red);color:var(--red)"':''}><i data-lucide=wrench class=ic></i> Maintenance${openTickets.length?` (${openTickets.length})`:''}</button>
           
-          ${bk.status!=='tenancy_ended'?`<button onclick="landlordEndTenancy('${bk.id}')" class="btn bg bsm" style="border-color:var(--red);color:var(--red)"><i data-lucide=door-open class=ic></i> Le locataire est parti</button>`:''}
+          ${!bailSigned&&!agentId&&bk.status!=='tenancy_ended'?`<button onclick="landlordAbandonLocation('${bk.id}')" class="btn bg bsm" style="border-color:var(--red);color:var(--red)"><i data-lucide=x-circle class=ic></i> La location n'a pas abouti</button>`:''}
+          ${bailSigned&&bk.status!=='tenancy_ended'?`<button onclick="landlordEndTenancy('${bk.id}')" class="btn bg bsm" style="border-color:var(--red);color:var(--red)"><i data-lucide=door-open class=ic></i> Le locataire est parti</button>`:''}
         </div>
-        <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Recent quittances</div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Dernières quittances</div>
         ${quittancesHtml}
       </div>
     </div>`;
@@ -4581,7 +4616,7 @@ function _gBienResume(b){
   const tile=(k,v,c)=>`<div class="gx-tile"><div class="gx-k">${k}</div><div class="gx-v" style="${c||''}">${v}</div></div>`;
   return `<div class="gx-head"><div style="min-width:0"><div class="gx-h1">${_gEsc(b.li.title||'Logement')}</div>${adr?`<div class="gx-card-a" style="font-size:.8rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}</div><div class="gx-docs">${docs}</div></div>
     <div class="gx-tiles">
-      ${tile(noms.length>1?'Locataires':'Locataire',noms.length?noms.map(_gEsc).join('<br>'):'Vacant')}
+      ${tile(noms.length>1?'Locataires':'Locataire',st.actifs.length?st.actifs.map(l=>`${_gNoms(l).map(_gEsc).join('<br>')}${l.start_date?`<div style="font-weight:500;color:var(--td);font-size:.75rem">Entrée dans les lieux le ${_gD(l.start_date)}</div>`:''}`).join('<div style="height:.35rem"></div>'):'Vacant')}
       ${tile(st.actifs.length>1?'Loyers CC (total)':'Loyer CC',st.loyer?_g$(st.loyer)+'<span style="font-weight:500;color:var(--td);font-size:.75rem"> /mois</span>':'—')}
       ${tile('Prochaine échéance',st.prochain?_gD(st.prochain.due_date)+'<div style="font-weight:500;color:var(--td);font-size:.75rem">'+_g$(st.prochain.amount)+'</div>':'—')}
       ${tile('Impayés',st.retard.length?st.retard.length+' · '+_g$(st.retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',st.retard.length?'color:var(--red)':'color:var(--green)')}
@@ -5202,7 +5237,7 @@ function renderTeom(){
     const hr=GEST.teom[holder.id+':'+y]||{},docs=_gJson(hr.docs,[])||[],ex=_gJson(hr.extraction,null);
     const total=Number(hr.teom_total)||Number(ex?.teom?.montant_hors_frais)||0;
     const lecture=docs.length&&!ex&&!hr.extraction_err&&!Number(hr.teom_total);if(lecture)_gTeomPoll(holder.id,y);
-    const blocs=ls.map(l=>{const r=GEST.teom[l.id+':'+y]||{},p=_gPart(l,null,y,ls),part0=Math.round(total*p.f*100)/100;return{l,r,p,part0,e:_gTeomEtat(r,r.envoye_at?Number(r.part):part0,l)};});
+    const blocs=ls.map(l=>{const r=GEST.teom[l.id+':'+y]||{},p=_gPart(l,null,y,ls),calc=Math.round(total*p.f*100)/100,man=_gTeomManuel(r),part0=man?Number(r.part):calc;return{l,r,p,calc,man,part0,e:_gTeomEtat(r,r.envoye_at?Number(r.part):part0,l)};});
     const actifs=blocs.filter(b=>b.p.occ>0);
     if(!actifs.length)return '';
     const aFaire=!total||actifs.some(b=>['a_faire','a_confirmer'].includes(b.e.k));
@@ -5227,7 +5262,10 @@ function renderTeom(){
           else if(b.e.k==='incluse')act=`<span style="color:var(--td)"><i data-lucide=info class=ic></i> Incluse dans les provisions : régularisée avec les charges</span>`;
           else if(b.e.k==='termine')act=`<span style="color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Payée le ${_gD(r.paiement_confirme_at)}</span>`;
           return `<div style="background:var(--s2);border-radius:8px;padding:.6rem .75rem;margin-top:.5rem;display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center">
-            <div><strong>${nom}</strong>${b.l.lot_label?' <span style="color:var(--td)">'+_gEsc(b.l.lot_label)+'</span>':''}<div style="font-size:.74rem;color:var(--td)">${b.p.occ} jours d'occupation sur ${b.p.tot} en ${y}${b.p.partage?', dont '+b.p.partage+' partagés avec un autre bail':''} → ${String(Math.round(b.p.f*1000)/10).replace('.',',')} % × ${_g$(total)} = <strong style="color:var(--txt)">${_g$(part)}</strong></div></div>
+            <div><strong>${nom}</strong>${b.l.lot_label?' <span style="color:var(--td)">'+_gEsc(b.l.lot_label)+'</span>':''}<div style="font-size:.74rem;color:var(--td)">${(()=>{const d0=b.l.start_date&&String(b.l.start_date).slice(0,10)>`${y}-01-01`?String(b.l.start_date).slice(0,10):`${y}-01-01`,f0=b.l._fin&&String(b.l._fin).slice(0,10)<`${y}-12-31`?String(b.l._fin).slice(0,10):`${y}-12-31`;return `Du ${_gD(d0)} au ${_gD(f0)}${!b.l._fin&&new Date(f0)>new Date()?' (locataire en place jusqu\'à la fin de l\'année)':''} : `;})()}${b.p.occ} jours d'occupation sur ${b.p.tot} en ${y}${b.p.partage?', dont '+b.p.partage+' partagés avec un autre bail':''} → ${String(Math.round(b.p.f*1000)/10).replace('.',',')} % × ${_g$(total)} = <strong style="color:var(--txt)${b.man&&!r.envoye_at?';text-decoration:line-through;font-weight:500':''}">${_g$(b.calc)}</strong></div>
+              ${b.man&&!r.envoye_at?`<div style="font-size:.78rem;margin-top:.2rem"><strong>Montant fixé à la main : ${_g$(part)}</strong> <a href="#" style="color:var(--bleu)" onclick="gTeomPartAuto('${b.l.id}',${y});return false">Revenir au calcul</a></div>`:''}
+              ${!r.envoye_at&&b.e.k==='a_faire'?(window._teomEdit===b.l.id+':'+y?`<div style="display:flex;gap:.35rem;align-items:center;margin-top:.35rem;flex-wrap:wrap"><input class="fi" style="width:110px" type="number" step="0.01" min="0" id="teom-part-${b.l.id}" value="${part}"> € <button class="btn bp bsm" onclick="gTeomPartSave('${b.l.id}',${y})">Enregistrer</button><button class="btn bg bsm" onclick="window._teomEdit=null;renderGestion()">Annuler</button></div>`:`<a href="#" style="font-size:.74rem;color:var(--bleu)" onclick="window._teomEdit='${b.l.id}:${y}';renderGestion();return false">Modifier le montant</a>`):''}
+            </div>
             <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">${act}${r.envoye_at?` <button class="btn bg bsm" onclick="gTeomCourrier('${b.l.id}',${y})"><i data-lucide=file-text class=ic></i> Courrier</button>`:''}</div></div>`;}).join(''):''}
         ${total&&actifs.some(b=>b.e.k==='a_faire')?(()=>{const af=actifs.filter(b=>b.e.k==='a_faire');return `<div style="margin-top:.7rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap"><button class="btn bp bsm" onclick="gTeomEnvoyerTous(${y})"><i data-lucide=send class=ic></i> Envoyer ${af.length>1?'les '+af.length+' demandes':'la demande'} (${af.map(b=>_g$(b.part0)).join(' + ')})</button><span style="font-size:.74rem;color:var(--td)">Vérifiez le montant de la TEOM ci-dessus${ex?' (lu sur l\'avis)':''}. Chaque locataire reçoit le détail du calcul${_estAbo()?' ; une relance part automatiquement s\'il n\'a pas payé au bout d\'un mois':''}.</span></div>`;})():''}
       </div></details>`;}).join('');
@@ -5261,23 +5299,30 @@ async function gTeomTotal(lid,annee){
   if(await _gTeomRow(lid,annee,{teom_total:Math.round(v*100)/100}))renderGestion();
 }
 // Parts de la TEOM de l'année pour le bien affiché : total de l'avis × part d'occupation (jour par jour, jours partagés divisés)
+// Montant fixé à la main par le propriétaire avant l'envoi (enregistré dans « part » tant que la demande n'est pas partie)
+function _gTeomManuel(r){return !!r&&!r.envoye_at&&r.part!=null&&r.part!=='';}
+async function gTeomPartSave(lid,annee){
+  const v=_gNum(document.getElementById('teom-part-'+lid)?.value);if(v==null||v<0){toast('Saisissez un montant.');return;}
+  window._teomEdit=null;if(await _gTeomRow(lid,annee,{part:Math.round(v*100)/100}))renderGestion();
+}
+async function gTeomPartAuto(lid,annee){if(await _gTeomRow(lid,annee,{part:null}))renderGestion();}
 function _gTeomParts(annee){
   const ls=GEST.leases,h=ls[0];if(!h)return{total:0,parts:[]};
   const total=_gTeomTotalAn(annee);
-  return{total,parts:ls.map(l=>{const p=_gPart(l,null,annee,ls),r=GEST.teom[l.id+':'+annee]||{};return{l,p,r,part:Math.round(total*p.f*100)/100};}).filter(x=>x.p.occ>0&&x.part>0&&!x.r.envoye_at&&!_gTeomInc(x.l))};
+  return{total,parts:ls.map(l=>{const p=_gPart(l,null,annee,ls),r=GEST.teom[l.id+':'+annee]||{},man=_gTeomManuel(r);return{l,p,r,man,part:man?Number(r.part):Math.round(total*p.f*100)/100};}).filter(x=>x.p.occ>0&&x.part>0&&!x.r.envoye_at&&!_gTeomInc(x.l))};
 }
 async function gTeomEnvoyerTous(annee){
   const{total,parts}=_gTeomParts(annee);if(!total||!parts.length)return;
-  if(!await uiConfirm(`Envoyer la taxe d'ordures ménagères ${annee} (${_g$(total)} pour le logement) ?\n\n${parts.map(x=>`${_gNoms(x.l).join(', ')} : ${_g$(x.part)} (${x.p.occ} jours sur ${x.p.tot})`).join('\n')}\n\nChaque locataire reçoit le détail du calcul et a un mois pour payer.`))return;
+  if(!await uiConfirm(`Envoyer la taxe d'ordures ménagères ${annee} (${_g$(total)} pour le logement) ?\n\n${parts.map(x=>`${_gNoms(x.l).join(', ')} : ${_g$(x.part)} (${x.man?'montant fixé à la main':x.p.occ+' jours sur '+x.p.tot})`).join('\n')}\n\nChaque locataire reçoit le détail du calcul et a un mois pour payer.`))return;
   let n=0;
-  for(const x of parts){if(await _gTeomEnvoi(x.l,annee,x.part,total,x.p))n++;}
+  for(const x of parts){if(await _gTeomEnvoi(x.l,annee,x.part,total,x.p,x.man))n++;}
   toast(n>1?`${n} demandes envoyées.`:n?'Demande envoyée.':'Rien n\'a été envoyé.');renderGestion();
 }
-async function _gTeomEnvoi(l,annee,part,total,p){
+async function _gTeomEnvoi(l,annee,part,total,p,man){
   const now=new Date().toISOString();
   const row=await _gTeomRow(l.id,annee,{part,teom_total:total,envoye_at:now});if(!row)return false;
   try{await sb.from('payments').insert({landlord_id:U.id,tenant_id:l.tenant_id,listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:part,type:'teom',status:'pending',due_date:_gIso(_gAdd(new Date(),30))});}catch(e){}
-  const txt=`Taxe d'ordures ménagères ${annee} : votre part est de ${_g$(part)}. Calcul : TEOM du logement ${_g$(total)} (avis de taxe foncière ${annee}, sans les frais de gestion) au prorata de votre occupation, ${p.occ} jours sur ${p.tot}${p.partage?' dont '+p.partage+' partagés avec un autre locataire':''}. À régler à votre propriétaire d'ici le ${_gD(_gAdd(new Date(),30))}, puis indiquez-le dans « Mon logement ».`;
+  const txt=`Taxe d'ordures ménagères ${annee} : votre part est de ${_g$(part)}. ${man?`Montant fixé par votre propriétaire (TEOM du logement : ${_g$(total)}, avis de taxe foncière ${annee}).`:`Calcul : TEOM du logement ${_g$(total)} (avis de taxe foncière ${annee}, sans les frais de gestion) au prorata de votre occupation, ${p.occ} jours sur ${p.tot}${p.partage?' dont '+p.partage+' partagés avec un autre locataire':''}.`} À régler à votre propriétaire d'ici le ${_gD(_gAdd(new Date(),30))}, puis indiquez-le dans « Mon logement ».`;
   const dest=[{id:l.tenant_id,email:GEST.names[l.tenant_id]?.email,nom:_gName(l.tenant_id)},...(l._colocs||[]).map(c=>({id:c.locataire_id||c.tenant_id,email:c.email,nom:c.name}))];
   for(const d of dest){
     if(d.id)await _gMsg(d.id,l.listing_id,txt);
