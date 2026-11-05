@@ -1291,7 +1291,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div class="sx-filters" role="search">
         <div class="sx-f sx-f-ville"><label for="sx-zone">Ville ou quartier</label><input id="sx-zone" list="sx-zones" placeholder="Lyon, Paris 11e…" autocomplete="off" oninput="sxFiltrer()"><datalist id="sx-zones"></datalist></div>
         <div class="sx-f"><label for="sx-budget">Budget max</label><div class="sx-eur"><input id="sx-budget" type="number" min="0" step="10" placeholder="800" oninput="sxFiltrer()"><span>€/mois</span></div></div>
-        <div class="sx-f"><label for="sx-type">Type</label><select id="sx-type" onchange="sxFiltrer()"><option value="">Tous</option><option value="vide">Location vide</option><option value="meuble">Location meublée</option><option value="room_rental">Colocation</option><option value="parking">Parking / garage</option></select></div>
+        <div class="sx-f"><label for="sx-type">Type</label><select id="sx-type" onchange="sxFiltrer()"><option value="">Tous</option><option value="vide">Location vide</option><option value="meuble">Location meublée</option><option value="parking">Parking / garage</option></select></div>
         <div class="sx-f"><label for="sx-rooms">Pièces</label><select id="sx-rooms" onchange="sxFiltrer()"><option value="">Indifférent</option><option value="1">1 et +</option><option value="2">2 et +</option><option value="3">3 et +</option><option value="4">4 et +</option></select></div>
         <button type="button" class="sx-reset" onclick="sxReset()">Effacer</button>
       </div>
@@ -2395,7 +2395,7 @@ async function loadMyLocation(){
   if(progressEl)progressEl.innerHTML=renderLocataireBailSection({},bk,myCoLocataireEntry,bk._lease);
   // Mise en place (bail, état des lieux, premier paiement) : affichée seulement tant que l'entrée n'est pas terminée
   const entreeFaite=bk.status==='move_in_ready'||!!bk.edl_completed_at||bk.status==='tenancy_ended';
-  const setupEl=document.getElementById('ml-setup');if(setupEl)setupEl.hidden=entreeFaite;
+  // La mise en place (bail, état des lieux, premier paiement) se suit dans « Candidatures » : rien à répéter ici
   await _mlResume(bk,annonce);
 
   const docEl=document.getElementById('ml-bail-doc');
@@ -5242,7 +5242,7 @@ async function uploadID(input){
 // ── CHERCHER UN LOGEMENT ──────────────────────────────────────
 // Annonces actives (hors vente), filtrées en direct ; l'alerte reprend les critères affichés.
 let SX_ANNONCES=null,SX_ALERTE=null;
-const SX_TYPES={vide:'Location vide',meuble:'Location meublée',room_rental:'Colocation',parking:'Parking / garage'};
+const SX_TYPES={vide:'Location vide',meuble:'Location meublée',parking:'Parking / garage'};
 const _sxEsc=x=>String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const _sxNorm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function _sxType(l){const m=l['meublé']??l.furnished;if(l.type==='room_rental')return 'room_rental';if(l.type==='parking')return 'parking';return m===true?'meuble':m===false?'vide':'';}
