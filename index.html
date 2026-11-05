@@ -5,24 +5,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Trouve Ton Toit — Location immobilière en France</title>
-<meta name="description" content="Trouvez des logements vérifiés en France avec chat en direct, visites guidées et baux e-signés — no agents, no Facebook groups. Location courte et longue durée — étudiants, expatriés, résidents.">
+<meta name="description" content="Trouvez des logements vérifiés en France avec chat en direct, visites guidées et baux e-signés. Location courte et longue durée — étudiants, expatriés, résidents.">
 <link rel="canonical" href="https://trouvetonoit.fr/">
 <meta name="robots" content="index, follow">
 <meta name="google-site-verification" content="5vB3Az7o83wT0tdPP83nUMNl-SItQ3r9qm0gvWzQ6yc" />
 
 <!-- Ouvrir Graph — comment le lien apparaît quand il est partagé (WhatsApp, Facebook, LinkedIn...) -->
-<meta bien="og:type" content="website">
-<meta bien="og:site_name" content="Trouve Ton Toit">
-<meta bien="og:title" content="Trouve Ton Toit — Location immobilière en France">
-<meta bien="og:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Sans frais cachés, sans agents fantômes  depuis  a WhatsApp group.">
-<meta bien="og:url" content="https://trouvetonoit.fr/">
-<meta bien="og:image" content="https://trouvetonoit.fr/og-image.png">
-<meta bien="og:locale" content="en_US">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Trouve Ton Toit">
+<meta property="og:title" content="Trouve Ton Toit — Location immobilière en France">
+<meta property="og:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Sans frais cachés.">
+<meta property="og:url" content="https://trouvetonoit.fr/">
+<meta property="og:image" content="https://trouvetonoit.fr/og-image.png">
+<meta property="og:locale" content="fr_FR">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Trouve Ton Toit — Location immobilière en France">
-<meta name="twitter:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit in France.">
+<meta name="twitter:description" content="Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit.">
 <meta name="twitter:image" content="https://trouvetonoit.fr/og-image.png">
 
 <meta name="theme-color" content="#1B4FD8">
@@ -33,7 +33,6 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <!-- Données structurées — aide Google à comprendre que c'est un service immobilier -->
@@ -42,7 +41,7 @@
   "@context": "https://schema.org",
   "@type": "RealEstateAgent",
   "name": "Trouve Ton Toit",
-  "description": "France's smart location platform — annonces vérifiées, chat en direct, visites guidées et baux e-signés.",
+  "description": "Plateforme de location en France — annonces vérifiées, chat en direct, visites guidées et baux e-signés.",
   "url": "https://trouvetonoit.fr/",
   "areaServed": {
     "@type": "Country",
@@ -69,17 +68,17 @@
 
 
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--deep);overflow-x:hidden}
+body{font-family:'Figtree',sans-serif;background:var(--warm);color:var(--deep);overflow-x:hidden}
 
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 4rem;background:rgba(253,250,244,0.93);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,85,58,0.1)}
-.logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--bleu);cursor:pointer}
+.logo{font-family:'Bricolage Grotesque',serif;font-size:1.6rem;font-weight:900;color:var(--bleu);cursor:pointer}
 .logo span{color:var(--marine)}
 .nav-links{display:flex;gap:2.5rem;list-style:none}
 .nav-links a{text-decoration:none;color:var(--stone);font-size:0.9rem;font-weight:500;cursor:pointer;transition:color .2s}
 .nav-links a:hover{color:var(--terra)}
 .nav-act{display:flex;gap:.75rem;align-items:center}
 
-.btn{padding:.65rem 1.4rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s}
+.btn{padding:.65rem 1.4rem;border-radius:100px;border:none;font-family:'Figtree',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s}
 .btn-p{background:var(--terra);color:white;box-shadow:0 4px 16px rgba(201,85,58,.25)}
 .btn-p:hover{background:var(--terra-l);transform:translateY(-2px)}
 .btn-s{background:transparent;color:var(--deep);border:1.5px solid rgba(26,20,16,.18)}
@@ -95,12 +94,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 80% 50%,rgba(46,107,138,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(201,85,58,.05) 0%,transparent 70%)}
 .hero-l{display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 5rem;position:relative;z-index:1}
 .hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,85,58,.1);color:var(--terra);border:1px solid rgba(201,85,58,.2);padding:.4rem 1rem;border-radius:100px;font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;width:fit-content;margin-bottom:1.8rem}
-.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,4.5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-1.5px;margin-bottom:1.3rem}
+.hero h1{font-family:'Bricolage Grotesque',serif;font-size:clamp(2.8rem,4.5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-1.5px;margin-bottom:1.3rem}
 .hero h1 em{font-style:italic;color:var(--terra)}
 .hero-desc{font-size:1rem;color:var(--stone);line-height:1.7;max-width:420px;margin-bottom:2rem}
 .hero-acts{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
 .hero-stats{display:flex;gap:2.5rem;padding-top:2rem;border-top:1px solid rgba(107,95,82,.12)}
-.sn{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--terra)}
+.sn{font-family:'Bricolage Grotesque',serif;font-size:1.8rem;font-weight:700;color:var(--terra)}
 .sl{font-size:.75rem;color:var(--stone-l);font-weight:500}
 
 .hero-r{display:flex;align-items:center;justify-content:center;padding:2rem}
@@ -119,20 +118,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .pi{flex:1}
 .pt{font-size:.8rem;font-weight:600}
 .ps{font-size:.68rem;color:var(--stone-l)}
-.pp{font-family:'Playfair Display',serif;font-weight:700;color:var(--terra);font-size:.85rem}
+.pp{font-family:'Bricolage Grotesque',serif;font-weight:700;color:var(--terra);font-size:.85rem}
 
 /* SEARCH */
 .search-sec{padding:0 4rem 2rem}
-.sbar{background:white;border-radius:16px;padding:1.2rem 1.5rem;box-shadow:0 8px 32px rgba(26,20,16,.08);display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end;border:1px solid rgba(107,95,82,.08)}
-.sf{display:flex;flex-direction:column;gap:.3rem}
-.sf label{font-size:.67rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--stone-l)}
-.sf select{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--deep);font-weight:500;padding:.3rem 0;border-bottom:1.5px solid rgba(107,95,82,.2);outline:none;cursor:pointer;width:100%;transition:border-color .2s}
-.sf select:focus{border-color:var(--terra)}
+.sbar{background:white;border-radius:18px;padding:1rem;box-shadow:0 10px 36px rgba(26,20,16,.08);display:grid;grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(0,1fr)) auto;gap:.6rem;align-items:end;border:1px solid rgba(107,95,82,.1)}
+.sf{display:flex;flex-direction:column;gap:.35rem;min-width:0}
+.sf label{display:flex;align-items:center;gap:.3rem;font-size:.66rem;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--stone-l);padding-left:.2rem}
+.sf label .ic{width:12px;height:12px}
+.sf select,.sf input{appearance:none;-webkit-appearance:none;border:1.5px solid rgba(107,95,82,.14);background:var(--warm,#F7F5F1);font-family:'Figtree',sans-serif;font-size:.88rem;color:var(--deep);font-weight:500;padding:.65rem .8rem;border-radius:11px;outline:none;cursor:pointer;width:100%;height:44px;box-sizing:border-box;transition:border-color .15s,background .15s;text-overflow:ellipsis}
+.sf select{padding-right:2rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B5F52' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center}
+.sf input{cursor:text}
+.sf select:hover,.sf input:hover{border-color:rgba(107,95,82,.3)}
+.sf select:focus,.sf input:focus{border-color:var(--terra);background-color:#fff}
+.sbar-go{height:44px;padding:0 1.3rem;border-radius:11px;white-space:nowrap}
 
 /* HOW IT WORKS */
 .hiw{padding:5rem 4rem;background:white}
 .stag{display:inline-flex;align-items:center;background:rgba(212,168,71,.1);color:var(--ochre);border:1px solid rgba(212,168,71,.2);padding:.35rem 1rem;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1.2rem}
-.hiw h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:.8rem}
+.hiw h2{font-family:'Bricolage Grotesque',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:.8rem}
 .hiw h2 em{font-style:italic;color:var(--terra)}
 .hiw p{color:var(--stone);font-size:.95rem;line-height:1.7;max-width:480px;margin-bottom:3rem}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
@@ -140,29 +144,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .step::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--terra);transform:scaleX(0);transition:transform .3s;transform-origin:left}
 .step:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(26,20,16,.08)}
 .step:hover::before{transform:scaleX(1)}
-.snum{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:rgba(201,85,58,.1);line-height:1;margin-bottom:.8rem}
+.snum{font-family:'Bricolage Grotesque',serif;font-size:2.5rem;font-weight:900;color:rgba(201,85,58,.1);line-height:1;margin-bottom:.8rem}
 .sico{font-size:1.6rem;margin-bottom:.8rem}
-.step h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.step h3{font-family:'Bricolage Grotesque',serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
 .step p{font-size:.85rem;color:var(--stone);line-height:1.6}
 
 /* FEATURES */
 .feat{background:var(--deep);color:white;padding:5rem 4rem}
 .feat .stag{background:rgba(255,255,255,.07);color:var(--ochre);border-color:rgba(212,168,71,.2)}
-.feat h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;color:white;margin-bottom:3rem}
+.feat h2{font-family:'Bricolage Grotesque',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;letter-spacing:-1px;line-height:1.1;color:white;margin-bottom:3rem}
 .feat h2 em{font-style:italic;color:var(--terra)}
 .fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:900px;margin:0 auto}
 .fc{padding:1.8rem;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);transition:all .3s}
 .fc:hover{background:rgba(255,255,255,.08);border-color:rgba(201,85,58,.3);transform:translateY(-3px)}
 .fci{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1rem}
-.fc h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.4rem}
+.fc h3{font-family:'Bricolage Grotesque',serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.4rem}
 .fc p{font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6}
 
 /* LISTINGS */
 .ls{padding:3rem 4rem 5rem;background:var(--sand)}
 .ls-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem}
-.ls-head h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800}
+.ls-head h2{font-family:'Bricolage Grotesque',serif;font-size:1.8rem;font-weight:800}
 .lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
-.pagebtn{background:white;border:1px solid rgba(107,95,82,.15);color:var(--deep);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;padding:.55rem .9rem;border-radius:8px;cursor:pointer;transition:all .15s}
+.pagebtn{background:white;border:1px solid rgba(107,95,82,.15);color:var(--deep);font-family:'Figtree',sans-serif;font-size:.85rem;font-weight:600;padding:.55rem .9rem;border-radius:8px;cursor:pointer;transition:all .15s}
 .pagebtn:hover:not(:disabled){border-color:var(--terra);color:var(--terra)}
 .pagebtn.act{background:var(--terra);color:white;border-color:var(--terra)}
 .pagebtn:disabled{opacity:.35;cursor:default}
@@ -192,7 +196,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .dcar-nav:hover{transform:translateY(-50%) scale(1.07)}
 .dcar-nav svg,.dcar-nav .ic{width:20px;height:20px}
 .dcar-prev{left:.9rem}.dcar-next{right:.9rem}
-.dcar-all{position:absolute;left:.9rem;bottom:.9rem;z-index:3;display:inline-flex;align-items:center;gap:.45rem;background:#fff;color:var(--deep);border:none;border-radius:100px;padding:.55rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer}
+.dcar-all{position:absolute;left:.9rem;bottom:.9rem;z-index:3;display:inline-flex;align-items:center;gap:.45rem;background:#fff;color:var(--deep);border:none;border-radius:100px;padding:.55rem 1.1rem;font-family:'Figtree',sans-serif;font-size:.85rem;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer}
 .dcar-video{left:auto;right:.9rem;bottom:3.2rem}
 .dcar-count{position:absolute;right:.9rem;bottom:.9rem;z-index:3;background:rgba(0,0,0,.78);color:#fff;border-radius:100px;padding:.25rem .75rem;font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
 #page-det .pgrid-ph{height:auto;aspect-ratio:16/10}
@@ -213,17 +217,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .bs{background:var(--terra);color:white}.bl{background:var(--sea);color:white}.bsub{background:var(--ochre);color:white}
 .lbody{padding:1.1rem}
 .lzone{font-size:.72rem;color:var(--stone-l);margin-bottom:.3rem;font-weight:500}
-.ltitle{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;margin-bottom:.6rem;line-height:1.3}
+.ltitle{font-family:'Bricolage Grotesque',serif;font-size:.98rem;font-weight:700;margin-bottom:.6rem;line-height:1.3}
 .ltags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
 .ltag{background:var(--sand);color:var(--stone);padding:.2rem .6rem;border-radius:100px;font-size:.66rem}
 .lfoot{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid rgba(107,95,82,.1)}
-.lprice{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--terra)}
+.lprice{font-family:'Bricolage Grotesque',serif;font-size:1.2rem;font-weight:700;color:var(--terra)}
 .lper{font-size:.7rem;color:var(--stone-l)}
 
 /* FOOTER */
 footer{background:var(--deep);color:white;padding:4rem 4rem 2rem}
 .fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
-.flogo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--terra);margin-bottom:.8rem}
+.flogo{font-family:'Bricolage Grotesque',serif;font-size:1.6rem;font-weight:900;color:var(--terra);margin-bottom:.8rem}
 .fdesc{font-size:.82rem;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px}
 footer h4{font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1rem}
 footer ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
@@ -235,40 +239,40 @@ footer ul a:hover{color:var(--terra)}
 /* AUTH */
 .awrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 80px);padding:2rem;background:radial-gradient(ellipse at 50% 0%,rgba(201,85,58,.05) 0%,transparent 60%)}
 .acard{background:white;border-radius:24px;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(26,20,16,.1);border:1px solid rgba(107,95,82,.08)}
-.atitle{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800;margin-bottom:.3rem}
+.atitle{font-family:'Bricolage Grotesque',serif;font-size:1.8rem;font-weight:800;margin-bottom:.3rem}
 .asub{color:var(--stone);font-size:.85rem;margin-bottom:1.5rem}
 .atabs{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px;margin-bottom:1.5rem}
-.atab{flex:1;padding:.55rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.atab{flex:1;padding:.55rem;border:none;border-radius:8px;font-family:'Figtree',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
 .atab.actif{background:white;color:var(--deep);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .rtog{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px;margin-bottom:1.2rem}
-.rbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.rbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'Figtree',sans-serif;font-size:.83rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
 .rbtn.actif{background:var(--terra);color:white;font-weight:600}
 .fg2{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
 .fg2 label{font-size:.75rem;font-weight:600;color:var(--stone)}
-.fi{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%}
+.fi{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'Figtree',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%}
 .fi:focus{border-color:var(--terra);background:white}
-.fsel{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;cursor:pointer;width:100%}
-.fta{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%;resize:vertical}
+.fsel{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'Figtree',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;cursor:pointer;width:100%}
+.fta{padding:.75rem 1rem;border:1.5px solid rgba(107,95,82,.2);border-radius:10px;font-family:'Figtree',sans-serif;font-size:.88rem;color:var(--deep);background:var(--warm);outline:none;transition:border-color .2s;width:100%;resize:vertical}
 .fta:focus{border-color:var(--terra);background:white}
 .aerr{background:rgba(201,85,58,.08);color:var(--terra);padding:.7rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:none;border:1px solid rgba(201,85,58,.15)}
 .aok{background:rgba(76,175,125,.08);color:#2d7a56;padding:.7rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:none;border:1px solid rgba(76,175,125,.2)}
 
 /* POST */
 .pwrap{max-width:700px;margin:0 auto;padding:3rem 2rem 5rem}
-.ptitle{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;margin-bottom:.3rem}
+.ptitle{font-family:'Bricolage Grotesque',serif;font-size:2.2rem;font-weight:900;margin-bottom:.3rem}
 .psub{color:var(--stone);margin-bottom:2rem;font-size:.95rem}
 .fcard{background:white;border-radius:20px;padding:2rem;box-shadow:0 8px 32px rgba(26,20,16,.06);border:1px solid rgba(107,95,82,.08);margin-bottom:1.5rem}
-.fcard h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid rgba(107,95,82,.1)}
+.fcard h3{font-family:'Bricolage Grotesque',serif;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid rgba(107,95,82,.1)}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .ttog{display:flex;background:var(--sand);border-radius:10px;padding:4px;gap:4px}
-.tbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
+.tbtn{flex:1;padding:.6rem;border:none;border-radius:8px;font-family:'Figtree',sans-serif;font-size:.8rem;cursor:pointer;background:transparent;color:var(--stone);transition:all .2s}
 .tbtn.actif{background:var(--terra);color:white;font-weight:600}
 .cbwrap{display:flex;gap:1.5rem;flex-wrap:wrap}
 .cl{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--stone);cursor:pointer}
 .cl input{accent-color:var(--terra);width:15px;height:15px;cursor:pointer}
 /* Type de bien cards */
 /* Cartes type de location */
-.tloc-card{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:1rem .75rem;border:2px solid var(--b2);border-radius:14px;background:#fff;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;text-align:center}
+.tloc-card{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:1rem .75rem;border:2px solid var(--b2);border-radius:14px;background:#fff;cursor:pointer;transition:all .18s;font-family:'Figtree',sans-serif;text-align:center}
 .tloc-card:hover{border-color:var(--terra,#1B4FD8);background:#f0f4ff}
 .tloc-card.actif{border-color:var(--terra,#1B4FD8);background:#eef2ff;box-shadow:0 0 0 3px rgba(27,79,216,.12)}
 .tloc-card-row{flex-direction:row;align-items:center;gap:.9rem;padding:.8rem 1rem;text-align:left}
@@ -300,12 +304,12 @@ footer ul a:hover{color:var(--terra)}
 .wizard-nav>:only-child{margin-left:auto}
 
 .tbien-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.4rem}
-.tbien-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border:2px solid var(--b2);border-radius:12px;background:var(--s);color:var(--stone);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;font-weight:500}
+.tbien-btn{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.7rem .4rem;border:2px solid var(--b2);border-radius:12px;background:var(--s);color:var(--stone);font-family:'Figtree',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;font-weight:500}
 .tbien-btn svg{width:22px;height:22px;stroke:currentColor}
 .tbien-btn.actif{border-color:var(--terra);color:var(--terra);background:rgba(201,85,58,.06);font-weight:700}
 /* Chauffage + toggle pills */
 .tpill-wrap{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem}
-.tpill{padding:.4rem .85rem;border:1.5px solid var(--b2);border-radius:20px;background:var(--s);color:var(--stone);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tpill{padding:.4rem .85rem;border:1.5px solid var(--b2);border-radius:20px;background:var(--s);color:var(--stone);font-size:.8rem;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .15s}
 .tpill.actif{border-color:var(--terra);background:rgba(201,85,58,.09);color:var(--terra);font-weight:600}
 @media(max-width:500px){.tbien-grid{grid-template-columns:repeat(2,1fr)!important}}
 /* Form section headers */
@@ -347,16 +351,16 @@ footer ul a:hover{color:var(--terra)}
   .pgrid-th{display:none}
   .pgrid-main{grid-row:1;grid-column:1}
 }
-.bbtn{position:absolute;top:1.2rem;left:1.2rem;background:white;border:none;padding:.5rem 1.2rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.1);transition:all .2s}
+.bbtn{position:absolute;top:1.2rem;left:1.2rem;background:white;border:none;padding:.5rem 1.2rem;border-radius:100px;font-family:'Figtree',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.1);transition:all .2s}
 .bbtn:hover{transform:translateX(-2px)}
 .dgrid{display:grid;grid-template-columns:1.4fr 1fr;gap:2.5rem}
-.dtitle{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.5rem;color:var(--bleu,#1B4FD8)}
+.dtitle{font-family:'Bricolage Grotesque',serif;font-size:2rem;font-weight:900;margin-bottom:.5rem;color:var(--bleu,#1B4FD8)}
 .dzone{color:var(--stone-l);font-size:.9rem;margin-bottom:1.2rem}
 .dfeats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
 .dfeat{background:var(--sand);padding:.35rem .85rem;border-radius:100px;font-size:.78rem;color:var(--stone)}
 .ddesc{color:var(--deep);line-height:1.85;font-size:.97rem;white-space:pre-line}
 .ccard{background:white;border-radius:20px;padding:1.8rem;border:1px solid rgba(107,95,82,.1);box-shadow:0 8px 30px rgba(26,20,16,.08);position:sticky;top:100px}
-.cprice{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--terra)}
+.cprice{font-family:'Bricolage Grotesque',serif;font-size:2.2rem;font-weight:700;color:var(--terra)}
 .cper{font-size:.78rem;color:var(--stone-l);margin-bottom:1.2rem}
 .cinfo{display:flex;flex-direction:column;gap:.6rem;padding-bottom:1.2rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(107,95,82,.1)}
 .crow{display:flex;justify-content:space-between;align-items:baseline;font-size:.92rem;padding:.1rem 0}
@@ -367,7 +371,7 @@ footer ul a:hover{color:var(--terra)}
 .dwrap2{max-width:960px;margin:0 auto;padding:2.5rem 2rem 5rem}
 .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
 .dtabs{display:flex;gap:.3rem;background:var(--sand);border-radius:10px;padding:4px;width:fit-content;margin-bottom:1.5rem}
-.dtab{padding:.5rem 1.2rem;border-radius:8px;font-size:.83rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--stone);font-family:'DM Sans',sans-serif;transition:all .15s}
+.dtab{padding:.5rem 1.2rem;border-radius:8px;font-size:.83rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--stone);font-family:'Figtree',sans-serif;transition:all .15s}
 .dtab.actif{background:var(--terra);color:white;font-weight:600}
 .dpanel{display:none}
 .dpanel.actif{display:block;animation:fu .2s ease}
@@ -392,7 +396,7 @@ footer ul a:hover{color:var(--terra)}
 .modal{background:white;border-radius:22px;padding:2rem;max-width:500px;width:100%;position:relative;animation:fu .25s ease;max-height:88vh;overflow-y:auto}
 .mclose{position:absolute;top:1rem;right:1rem;background:var(--sand);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--stone);display:flex;align-items:center;justify-content:center;transition:all .2s}
 .mclose:hover{background:rgba(201,85,58,.1);color:var(--terra)}
-.mt{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
+.mt{font-family:'Bricolage Grotesque',serif;font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
 .ms{color:var(--stone);font-size:.82rem;margin-bottom:1.2rem}
 .thread{display:flex;flex-direction:column;gap:.6rem;max-height:220px;overflow-y:auto;padding:.5rem 0;margin-bottom:.8rem}
 .bt{background:var(--sand);padding:.65rem .9rem;border-radius:4px 12px 12px 12px;font-size:.83rem;color:var(--stone);line-height:1.5;align-self:flex-start;max-width:85%}
@@ -429,7 +433,8 @@ footer ul a:hover{color:var(--terra)}
   .hero{grid-template-columns:1fr!important}
   .hero-r{display:none!important}
   .hero-l{padding:2rem 1.2rem!important}
-  .sbar{grid-template-columns:1fr!important;padding:1rem!important}
+  .sbar{grid-template-columns:1fr 1fr!important;padding:.9rem!important}
+  .sbar .sf-ville,.sbar .sbar-go{grid-column:1/-1}
   .lgrid{grid-template-columns:1fr!important}
   .steps,.fgrid{grid-template-columns:1fr!important}
   .hiw,.feat,.ls{padding:2.5rem 1.2rem!important}
@@ -455,7 +460,7 @@ footer ul a:hover{color:var(--terra)}
 @media(max-width:900px){
   nav{padding:1rem 1.5rem}.nav-links{display:none}
   .hero{grid-template-columns:1fr}.hero-r{display:none}.hero-l{padding:3rem 1.5rem}
-  .search-sec{padding:0 1.5rem 2rem}.sbar{grid-template-columns:1fr}
+  .search-sec{padding:0 1.5rem 2rem}.sbar{grid-template-columns:1fr 1fr}.sbar .sf-ville,.sbar .sbar-go{grid-column:1/-1}
   .hiw,.feat{padding:3rem 1.5rem}.steps,.fgrid{grid-template-columns:1fr}
   .ls{padding:2.5rem 1.5rem}.lgrid{grid-template-columns:1fr}
   .trust{padding:2rem 1.5rem}footer{padding:3rem 1.5rem 2rem}.fg{grid-template-columns:1fr 1fr}
@@ -499,6 +504,140 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 .depot-mois-btn{border:1.5px solid var(--b2,#D8DCE6);background:var(--s,#fff);color:inherit;border-radius:20px;padding:.35rem .9rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
 .depot-mois-btn.on{background:var(--bleu,#1B4FD8);border-color:var(--bleu,#1B4FD8);color:#fff}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style id="design-v2">
+:root{--bleu:#1B4FD8;--marine:#0E1526;--terra:#1B4FD8;--terra-l:#2F62E6;--ochre:#1B4FD8;--deep:#0E1526;--stone:#4A5468;--stone-l:#6B7488;--stone-xl:#E3E7F0;--sand:#EEF1F8;--warm:#F7F8FB;--sea:#0E1526;--tuile:#E0603A;--line:rgba(14,21,38,.09);--card:#fff}
+body{font-family:'Figtree',system-ui,sans-serif;background:var(--warm);color:var(--deep);-webkit-font-smoothing:antialiased}
+nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-bottom:1px solid var(--line)}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;color:var(--deep)}
+.logo span{color:var(--deep)}
+.nav-links a{font-weight:600;color:var(--stone)}
+.nav-links a:hover{color:var(--bleu)}
+.page{padding-top:66px}
+.btn{border-radius:10px;font-family:'Figtree',sans-serif;font-weight:700}
+.btn-p{background:var(--bleu);box-shadow:0 1px 2px rgba(14,21,38,.12),0 4px 14px rgba(27,79,216,.22)}
+.btn-p:hover{background:var(--terra-l);transform:translateY(-1px)}
+.btn-s{border:1.5px solid var(--line);background:#fff}
+.btn-s:hover{border-color:var(--bleu);color:var(--bleu)}
+.btn:focus-visible,.sf select:focus-visible,.sf input:focus-visible,.h-tabs button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+
+.h-wrap{max-width:1200px;margin:0 auto;padding-inline:clamp(16px,4vw,48px)}
+/* HERO */
+.h-hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff 0%,var(--warm) 100%);padding-block:clamp(2.5rem,6vw,4.5rem) 2.5rem;border-bottom:1px solid var(--line)}
+.h-roof{position:absolute;left:0;right:0;bottom:0;width:100%;height:100%;color:var(--bleu);opacity:.07;pointer-events:none}
+.h-hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:center;margin-bottom:2rem}
+.h-eyebrow{display:inline-flex;align-items:center;gap:.15rem;flex-wrap:wrap;font-size:.82rem;font-weight:600;color:var(--stone);background:#fff;border:1px solid var(--line);padding:.4rem .85rem;border-radius:100px;margin-bottom:1.4rem;font-variant-numeric:tabular-nums}
+.h-eyebrow b{color:var(--deep);font-weight:800}
+.h-sep{margin:0 .45rem;color:var(--stone-l)}
+.h-pulse{width:8px;height:8px;border-radius:50%;background:#16A34A;margin-right:.5rem;box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:hpulse 2s infinite}
+@keyframes hpulse{70%{box-shadow:0 0 0 8px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+.h-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.2rem,5vw,3.7rem);font-weight:800;line-height:1.02;letter-spacing:-.035em;text-wrap:balance;margin-bottom:1.1rem}
+.h-hero h1 span{color:var(--bleu)}
+.h-lead{font-size:clamp(1rem,1.4vw,1.1rem);line-height:1.6;color:var(--stone);max-width:56ch}
+.h-live{background:#fff;border:1px solid var(--line);border-radius:18px;padding:1rem;box-shadow:0 24px 60px -24px rgba(14,21,38,.22)}
+.h-live-head{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--stone-l);padding:.2rem .3rem .8rem}
+.h-live-head a{color:var(--bleu);cursor:pointer;text-transform:none;letter-spacing:0;font-size:.82rem}
+.h-live .pitems{gap:.5rem}
+.h-live .pitem{background:var(--warm);border:1px solid transparent;border-radius:12px;padding:.75rem .85rem}
+.h-live .pitem:hover{border-color:rgba(27,79,216,.35);background:#fff;transform:none}
+.h-live .pe{width:36px;height:36px;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--bleu);font-size:1rem}
+.h-live .pt{font-size:.74rem;color:var(--stone-l);font-weight:600}
+.h-live .ps{font-size:.9rem;color:var(--deep);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
+.h-live .pi{min-width:0}
+.h-live .pp{font-family:'Figtree',sans-serif;color:var(--deep);font-weight:800;font-size:.9rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.h-hero .search-sec{padding:0;position:relative}
+.h-hero .sbar{box-shadow:0 18px 50px -20px rgba(14,21,38,.25);border-radius:16px}
+#hero-agences-link{margin-top:1rem;align-items:center;gap:.5rem;font-size:.86rem;color:var(--stone);cursor:pointer}
+#hero-agences-link b{color:var(--bleu)}
+/* PREUVES */
+.h-proof{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.5rem;padding-block:2rem}
+.h-proof>div{display:flex;gap:.75rem;align-items:flex-start}
+.h-proof .ic{width:22px;height:22px;color:var(--bleu);flex-shrink:0;margin-top:.1rem}
+.h-proof p{display:flex;flex-direction:column;gap:.15rem}
+.h-proof b{font-size:.92rem}
+.h-proof span{font-size:.82rem;color:var(--stone-l);line-height:1.4}
+/* ANNONCES */
+.ls{padding:1rem 0 4.5rem;background:var(--warm)}
+.ls-head{align-items:center;margin-bottom:1.4rem;gap:1rem;flex-wrap:wrap}
+.ls-head h2,.h-sec-head h2,.h-owner h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+#lc{font-size:.88rem;color:var(--stone-l);margin-top:.3rem;font-variant-numeric:tabular-nums}
+.h-tools{display:flex;gap:.5rem}
+#map-container{height:520px;border-radius:16px;overflow:hidden;margin-bottom:1.5rem;border:1px solid var(--line)}
+#annonces-map{height:100%;width:100%}
+#lpagination{display:flex;gap:.4rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap}
+.lgrid{gap:1.4rem}
+.lcard{border-radius:16px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(14,21,38,.04)}
+.lcard:hover{transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(14,21,38,.25)}
+.lprice2{color:var(--deep);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.lprice2 small{color:var(--stone-l)}
+.lsrc-own{background:#fff;color:var(--stone);border:1px solid var(--line)}
+.pagebtn{border-radius:10px;border:1px solid var(--line)}
+.pagebtn.act{background:var(--deep);border-color:var(--deep)}
+.empty{background:#fff;border:1px dashed rgba(14,21,38,.15);border-radius:16px}
+/* COMMENT ÇA MARCHE */
+.h-how{background:#fff;padding-block:4.5rem;border-block:1px solid var(--line)}
+.h-sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:2.2rem}
+.h-tabs{display:inline-flex;background:var(--sand);border-radius:12px;padding:4px;gap:4px}
+.h-tabs button{border:none;background:transparent;font:inherit;font-size:.88rem;font-weight:700;color:var(--stone);padding:.6rem 1rem;border-radius:9px;cursor:pointer}
+.h-tabs button.on{background:#fff;color:var(--deep);box-shadow:0 1px 3px rgba(14,21,38,.12)}
+.h-steps[hidden]{display:none}
+.h-steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.5rem}
+.h-steps li{counter-increment:st;position:relative;padding-top:3.2rem}
+.h-steps li::before{content:counter(st);position:absolute;top:0;left:0;width:2.2rem;height:2.2rem;border-radius:50%;border:1.5px solid var(--bleu);color:var(--bleu);font-weight:800;display:flex;align-items:center;justify-content:center;background:#fff;z-index:1}
+.h-steps li::after{content:'';position:absolute;top:1.1rem;left:2.2rem;right:-1.5rem;height:1.5px;background:linear-gradient(90deg,rgba(27,79,216,.35),rgba(27,79,216,.08))}
+.h-steps li:last-child::after{display:none}
+.h-steps b{display:block;font-size:1.05rem;margin-bottom:.4rem}
+.h-steps p{font-size:.9rem;line-height:1.55;color:var(--stone)}
+/* PROPRIÉTAIRES */
+.h-owner{background:var(--deep);color:#fff;padding-block:4.5rem}
+.h-owner-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(2rem,5vw,4rem);align-items:center}
+.h-kicker{display:inline-block;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#8FB0FF;margin-bottom:.8rem}
+.h-owner p{color:rgba(255,255,255,.7);line-height:1.65;margin-top:1rem;max-width:58ch}
+.h-owner-acts{display:flex;align-items:center;gap:1.3rem;flex-wrap:wrap;margin-top:1.8rem}
+.btn-light{background:#fff;color:var(--deep)}
+.btn-light:hover{background:#E8EEFF}
+.h-link-light{color:#fff;font-weight:700;font-size:.9rem;text-decoration:none;opacity:.85}
+.h-link-light:hover{opacity:1}
+.h-owner-list{list-style:none;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden}
+.h-owner-list li{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:1.1rem 1.3rem;font-variant-numeric:tabular-nums}
+.h-owner-list li+li{border-top:1px solid rgba(255,255,255,.1)}
+.h-owner-list span{color:rgba(255,255,255,.65);font-size:.9rem}
+.h-owner-list b{font-size:1.1rem;white-space:nowrap}
+.h-owner-list small{font-size:.8rem;font-weight:500;color:rgba(255,255,255,.6)}
+/* PIED DE PAGE */
+.h-foot{background:#0A101E;color:#fff;padding-block:3.5rem 1.8rem}
+.h-foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2.5rem}
+.h-foot-logo{display:flex;align-items:center;gap:.45rem;font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:.7rem}
+.h-foot-logo svg{color:#8FB0FF}
+.h-foot p{font-size:.86rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:32ch}
+.h-foot h4{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.9rem}
+.h-foot ul{list-style:none;display:flex;flex-direction:column;gap:.55rem}
+.h-foot ul a{color:rgba(255,255,255,.75);font-size:.88rem;text-decoration:none;cursor:pointer}
+.h-foot ul a:hover{color:#fff}
+.h-foot-bot{border-top:1px solid rgba(255,255,255,.08);padding-top:1.4rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.h-foot-bot p{font-size:.78rem;color:rgba(255,255,255,.4);max-width:none}
+@media(max-width:900px){
+  .h-hero-grid{grid-template-columns:1fr}
+  .h-proof{grid-template-columns:1fr 1fr}
+  .h-steps{grid-template-columns:1fr 1fr;row-gap:2rem}
+  .h-steps li::after{display:none}
+  .h-owner-grid{grid-template-columns:1fr}
+  .h-foot-grid{grid-template-columns:1fr 1fr}
+  .page{padding-top:62px}
+}
+@media(max-width:600px){
+  .logo{font-size:1.1rem;white-space:nowrap}
+  .h-live{display:none}
+  .h-proof{grid-template-columns:1fr;gap:1rem}
+  .h-steps{grid-template-columns:1fr}
+  .h-tabs{width:100%}.h-tabs button{flex:1;padding:.6rem .4rem;font-size:.8rem}
+  .h-foot-grid{grid-template-columns:1fr 1fr}
+  .h-foot-grid>div:first-child{grid-column:1/-1}
+  #map-container{height:380px}
+}
+@media(prefers-reduced-motion:reduce){.h-pulse{animation:none}.lcard,.btn{transition:none}}
+</style>
+
 </head>
 <body>
 
@@ -518,101 +657,121 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 
 <!-- HOME -->
 <div class="page actif" id="page-home">
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-l">
-      <div class="hero-tag"> La première plateforme locative intelligente de France</div>
-      <h1><em>Trouve Ton Toit</em> — La façon sécurisée de louer en France.</h1>
-      <p class="hero-desc">Annonces vérifiées, chat en direct avec les propriétaires, visites guidées et baux e-signés — tout au même endroit. Zéro cash à des inconnus, zéro "agents" fantômes  depuis  a WhatsApp group.</p>
-      <div class="hero-acts">
-        <button class="btn btn-p" onclick="stl()"><i data-lucide=search class=ic></i> Browse annonces</button>
-        <button class="btn btn-s" onclick="chkPost()"><i data-lucide=home class=ic></i> Publier votre logement</button>
+  <section class="h-hero">
+    <svg class="h-roof" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M-40 420 L600 40 L1240 420" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M60 420 L600 100 L1140 420" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    <div class="h-wrap h-hero-grid">
+      <div class="h-hero-copy">
+        <div class="h-eyebrow"><span class="h-pulse"></span><b id="sc">—</b>&nbsp;annonces en ligne<span class="h-sep">·</span><b id="sc-villes">—</b>&nbsp;villes</div>
+        <h1>Trouvez votre toit.<br><span>Signez sans vous déplacer.</span></h1>
+        <p class="h-lead">Des annonces de particuliers et d'agences, un dossier locataire réutilisable, puis la visite, le bail et l'état des lieux signés en ligne. De la recherche à la remise des clés, tout se passe ici.</p>
       </div>
-      <div id="hero-agences-link" onclick="go('agences')" style="display:none;margin-top:1rem;align-items:center;gap:.6rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:100px;padding:.55rem 1.1rem;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(99,102,241,.16)'" onmouseout="this.style.background='rgba(99,102,241,.1)'">
-        <span style="font-size:1.1rem"><i data-lucide=building-2 class=ic></i></span>
-        <span style="font-size:.85rem;font-weight:700;color:#4F46E5">Selling or renting through an agence? Parcourir les agences →</span>
-      </div>
-
-      <div class="hero-stats">
-        <div><div class="sn" id="sc">—</div><div class="sl">Actif annonces</div></div>
-      </div>
-    </div>
-    <div class="hero-r">
-      <div class="pcard">
-        <div style="padding:1rem 1rem 0;font-size:.72rem;font-weight:700;color:var(--stone-l);text-transform:uppercase;letter-spacing:.6px"><i data-lucide=sparkle class=ic></i> Live on Trouve Ton Toit right now</div>
+      <aside class="h-live" aria-label="Annonces en ligne">
+        <div class="h-live-head"><span>En ligne en ce moment</span><a onclick="stl()">Tout voir</a></div>
         <div class="pitems" id="hero-live-annonces">
-          <div class="pitem"><div class="pi"><div class="pt">Chargement real annonces…</div></div></div>
+          <div class="pitem"><div class="pi"><div class="pt">Chargement…</div></div></div>
         </div>
-        <div style="padding:0 1rem 1rem"><a onclick="stl()" style="display:block;text-align:center;background:var(--terra);color:white;text-decoration:none;padding:.7rem;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer">Toutes les annonces →</a></div>
+      </aside>
+    </div>
+    <div class="h-wrap">
+      <div class="search-sec" id="la">
+        <div class="sbar">
+          <div class="sf sf-ville"><label for="fz"><i data-lucide=map-pin class=ic></i> Ville</label><input list="zones-list" id="fz" autocomplete="off" onchange="loadL()" oninput="loadLDebounce()" placeholder="Toutes les villes"><datalist id="zones-list"></datalist></div>
+          <div class="sf"><label for="ft"><i data-lucide=home class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
+            <option value="">Tous les types</option>
+            <option value="long">Location</option>
+            <option value="room_rental">Colocation</option>
+            <option value="parking">Parking / garage</option>
+            <option value="for_sale">À vendre</option>
+          </select></div>
+          <div class="sf" id="fp-wrap"><label for="fp"><i data-lucide=euro class=ic></i> Budget max</label><select id="fp" onchange="loadL()"><option value="">Sans limite</option><option value="400">400 €</option><option value="600">600 €</option><option value="800">800 €</option><option value="1000">1 000 €</option><option value="1500">1 500 €</option><option value="2000">2 000 €</option></select></div>
+          <div class="sf"><label for="fsrc"><i data-lucide=user class=ic></i> Annonceur</label><select id="fsrc" onchange="loadL()"><option value="">Tous</option><option value="owner">Particulier</option><option value="agence">Agence</option></select></div>
+          <div class="sf"><label for="fa"><i data-lucide=shield-check class=ic></i> Garantie</label><select id="fa" onchange="loadL()"><option value="">Toutes</option><option value="yes">Visale / attestation acceptée</option></select></div>
+          <button class="btn btn-p sbar-go" onclick="loadL();document.getElementById('lg').scrollIntoView({behavior:'smooth',block:'start'})"><i data-lucide=search class=ic></i> Rechercher</button>
+        </div>
       </div>
+      <div id="hero-agences-link" onclick="go('agences')" style="display:none"><i data-lucide=building-2 class=ic></i> Vous passez par une agence ? <b>Parcourir les agences →</b></div>
     </div>
-  </div>
+  </section>
 
-  <div class="search-sec" id="la">
-    <div class="sbar">
-      <div class="sf"><label><i data-lucide=map-pin class=ic></i> Zone</label><input list="zones-list" id="fz" onchange="loadL()" oninput="loadL()" placeholder="Any zone..." style="border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--deep);font-weight:500;padding:.3rem 0;border-bottom:1.5px solid rgba(107,95,82,.2);outline:none;width:100%">
-<datalist id="zones-list">
-  <option value="St. Julian's"><option value="Paris"><option value="Paris"><option value="Paris">
-  <option value="Paris"><option value="Gozo"><option value="Birkirkara"><option value="Swieqi">
-  <option value="Paceville"><option value="Bugibba"><option value="St. Paul's Bay"><option value="Mellieha">
-  <option value="Mosta"><option value="Naxxar"><option value="Rabat"><option value="Mdina">
-  <option value="Marsaskala"><option value="Marsaxlokk"><option value="Birgu"><option value="Senglea">
-</datalist></div>
-      <div class="sf"><label><i data-lucide=calendar class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
-        <option value="">Tous les types</option>
-        <option value="long">Bail vide ou meublé</option>
-        <option value="parking">Parking / garage</option>
-        <option value="for_sale">À vendre</option>
-      </select></div>
-      <div class="sf" id="fp-wrap"><label><i data-lucide=euro class=ic></i> Budget max</label><select id="fp" onchange="loadL()"><option value="">Any budget</option><option value="400">Under €400</option><option value="600">Under €600</option><option value="900">Under €900</option><option value="1500">Under €1,500</option></select></div>
-      <div class="sf"><label><i data-lucide=clipboard-list class=ic></i> Attestation</label><select id="fa" onchange="loadL()"><option value="">All</option><option value="yes"><i data-lucide=check-circle-2 class=ic></i> Attestation OK</option></select></div>
-      <div class="sf"><label><i data-lucide=home class=ic></i> Listed by</label><select id="fsrc" onchange="loadL()"><option value="">Owner or agence</option><option value="owner"><i data-lucide=user class=ic></i> Directement du propriétaire</option><option value="agence"><i data-lucide=building-2 class=ic></i> Via an agence</option></select></div>
-      <button class="btn btn-p" onclick="loadL()">Rechercher →</button>
-    </div>
-  </div>
+  <section class="h-proof h-wrap" aria-label="Garanties">
+    <div><i data-lucide=badge-check class=ic></i><p><b>Annonces contrôlées</b><span>Adresse vérifiée, propriétaire identifié</span></p></div>
+    <div><i data-lucide=folder-check class=ic></i><p><b>Dossier en un clic</b><span>Pièces déposées une fois, réutilisées partout</span></p></div>
+    <div><i data-lucide=pen-line class=ic></i><p><b>Bail signé en ligne</b><span>Modèles conformes à la loi du 6 juillet 1989</span></p></div>
+    <div><i data-lucide=camera class=ic></i><p><b>État des lieux photo</b><span>Pièce par pièce, compteurs compris</span></p></div>
+  </section>
 
-  <div class="ls">
-    <div class="ls-head">
-      <div><h2>Latest annonces</h2><p style="font-size:.82rem;color:var(--stone-l);margin-top:.2rem" id="lc"></p></div>
-      <div style="display:flex;gap:.5rem;align-items:center">
-        <button class="btn btn-s btn-sm" id="view-toggle" onclick="toggleMapView()"><i data-lucide=map class=ic></i> Vue carte</button>
-        <button class="btn btn-s btn-sm" onclick="chkPost()">+ Publier votre logement</button>
+  <section class="ls">
+    <div class="h-wrap">
+      <div class="ls-head">
+        <div><h2>Dernières annonces</h2><p id="lc"></p></div>
+        <div class="h-tools">
+          <button class="btn btn-s btn-sm" id="view-toggle" onclick="toggleMapView()"><i data-lucide=map class=ic></i> Vue carte</button>
+        </div>
       </div>
+      <div id="map-container" style="display:none">
+        <div id="annonces-map"></div>
+      </div>
+      <div id="lg" class="lgrid"><div class="chargement"><div class="sp"></div> Chargement des annonces…</div></div>
+      <div id="lpagination"></div>
     </div>
-    <!-- MAP VIEW -->
-    <div id="map-container" style="display:none;height:500px;border-radius:16px;overflow:hidden;margin-bottom:1.5rem;border:1px solid rgba(107,95,82,.12)">
-      <div id="annonces-map" style="height:100%;width:100%"></div>
-    </div>
-    <div id="lg" class="lgrid"><div class="chargement"><div class="sp"></div> Chargement annonces…</div></div>
-    <div id="lpagination" style="display:flex;gap:.4rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap"></div>
-  </div>
+  </section>
 
-  <div class="hiw">
-    <div class="stag"><i data-lucide=sparkle class=ic></i> Simple process</div>
-    <h2>How <em>Trouve Ton Toit</em> works</h2>
-    <p>Une expérience différente selon votre profil — voir le guide complet pour locataires, propriétaires et agences.</p>
-    <a href="/how-it-works.html" style="display:inline-block;background:var(--terra);color:white;text-decoration:none;padding:.9rem 2.2rem;border-radius:100px;font-weight:700;font-size:.92rem">See comment ça marche →</a>
-  </div>
-
-  <div class="feat">
-    <div class="stag"><i data-lucide=sparkle class=ic></i> Platform features</div>
-    <h2>Everything you need,<br><em>nothing</em> you don't.</h2>
-    <div class="fgrid">
-      <div class="fc"><div class="fci" style="background:rgba(201,85,58,.15)"><i data-lucide=message-circle class=ic></i></div><h3>Real-time chat</h3><p>Messagerie instantanée entre locataires et propriétaires. Les messages apparaissent en direct — sans actualisation. Comme WhatsApp, intégré à la plateforme.</p></div>
-      <div class="fc"><div class="fci" style="background:rgba(99,102,241,.15)"><i data-lucide=building-2 class=ic></i></div><h3>Immobilier agences</h3><p>Les agences gèrent tout en votre nom — annonce, visites, candidatures, bail, entrée dans les lieux — avec their own tableau de bord et a public directory profil propriétaires can browse et contact directly.</p></div>
-      <div class="fc"><div class="fci" style="background:rgba(201,85,58,.15)"><i data-lucide=clipboard-list class=ic></i></div><h3>Digital locataire dossier</h3><p>Téléverser votre ID, employment letter, bank statements et references once — propriétaires see votre vérifié profil et documents in one click. Co-locataires get their own dossier too.</p></div>
-      <div class="fc"><div class="fci" style="background:rgba(139,92,246,.15)"><i data-lucide=camera class=ic></i></div><h3>Photographed entrée dans les lieux état des lieux</h3><p>Chaque pièce et chaque compteur est consigné et photographié à l'état des lieux d'entrée, kept as proof both parties can access anytime — no more disputes over who broke what.</p></div>
+  <section class="h-how">
+    <div class="h-wrap">
+      <div class="h-sec-head">
+        <h2>Comment ça marche</h2>
+        <div class="h-tabs" role="tablist">
+          <button class="on" role="tab" onclick="hTab('loc',this)">Je cherche un logement</button>
+          <button role="tab" onclick="hTab('pro',this)">Je loue mon bien</button>
+        </div>
+      </div>
+      <ol class="h-steps" id="h-steps-loc">
+        <li><b>Créez votre dossier</b><p>Pièce d'identité, justificatifs de revenus, garant ou Visale : déposés une seule fois, envoyés en un clic à chaque candidature.</p></li>
+        <li><b>Visitez</b><p>Demandez un créneau directement au propriétaire ou à l'agence et échangez dans la messagerie, sans numéro perso.</p></li>
+        <li><b>Signez le bail</b><p>Bail et acte de caution signés électroniquement, colocataires et garants compris.</p></li>
+        <li><b>Emménagez</b><p>État des lieux photo, loyers suivis et quittances disponibles chaque mois dans votre espace.</p></li>
+      </ol>
+      <ol class="h-steps" id="h-steps-pro" hidden>
+        <li><b>Publiez votre annonce</b><p>Adresse géolocalisée, photos, DPE et loyer : l'annonce est en ligne en quelques minutes.</p></li>
+        <li><b>Choisissez votre locataire</b><p>Comparez des dossiers complets, organisez les visites et répondez depuis un seul endroit.</p></li>
+        <li><b>Signez à distance</b><p>Bail vide, meublé ou parking, état des lieux d'entrée et dépôt de garantie, sans papier.</p></li>
+        <li><b>Gérez au quotidien</b><p>Loyers, quittances, révision IRL, TEOM et régularisation des charges réunis dans votre tableau de bord.</p></li>
+      </ol>
     </div>
-  </div>
+  </section>
 
-  <footer>
-    <div class="fg">
-      <div><div class="flogo"><svg width="16" height="16" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-2px;margin-right:.35rem"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="var(--terra)"/></svg>Trouve Ton Toit</div><p class="fdesc">La première plateforme locative intelligente de France. Real-time chat, visites guidées, baux e-signés et a photographed entrée dans les lieux état des lieux. Built pour interns, expats et independent propriétaires.</p></div>
-      <div><h4>Pour les locataires</h4><ul><li><a onclick="stl()">Parcourir les annonces</a></li><li><a onclick="stl()">Visites virtuelles</a></li><li><a onclick="go('auth')">Constituer mon dossier</a></li><li><a onclick="stl()">Colocation</a></li></ul></div>
-      <div><h4>Pour les propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Parcourir les agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
-      <div><h4>Legal</h4><ul><li><a href="/terms.html">Terms of service</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/cookies.html">Cookie policy</a></li><li><a href="/contact.html">Contact us</a></li></ul></div>
+  <section class="h-owner">
+    <div class="h-wrap h-owner-grid">
+      <div>
+        <span class="h-kicker">Propriétaires</span>
+        <h2>Louez et gérez sans agence.</h2>
+        <p>Suivi des loyers et relances, révision annuelle du loyer à l'IRL, refacturation de la taxe d'ordures ménagères au prorata et régularisation des charges : les calculs sont faits pour vous.</p>
+        <div class="h-owner-acts">
+          <button class="btn btn-light" onclick="chkPost()">Publier un logement</button>
+          <a class="h-link-light" href="/how-it-works.html">Voir le guide complet →</a>
+        </div>
+      </div>
+      <ul class="h-owner-list">
+        <li><span>Gestion locative</span><b>dès 4,90 €<small>/mois</small></b></li>
+        <li><span>Chaque bien supplémentaire</span><b>2,90 € puis 1,90 €</b></li>
+        <li><span>Formule annuelle</span><b>39 €<small>/an</small></b></li>
+      </ul>
     </div>
-    <div class="fbot"><p>© 2026 Trouve Ton Toit. Made avec <i data-lucide=sun class=ic></i> in France.</p><p>Pas affilié au gouvernement français. Trouve Ton Toit n'est pas une agence immobilière.</p></div>
+  </section>
+
+  <footer class="h-foot">
+    <div class="h-wrap">
+      <div class="h-foot-grid">
+        <div>
+          <div class="h-foot-logo"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0 L10.2 3.5 L14 4.5 L11.5 7.5 L12 11.5 L8 9.8 L4 11.5 L4.5 7.5 L2 4.5 L5.8 3.5 Z" fill="currentColor"/></svg>Trouve Ton Toit</div>
+          <p>La location entre particuliers et agences, de l'annonce à la quittance.</p>
+        </div>
+        <div><h4>Locataires</h4><ul><li><a onclick="stl()">Parcourir les annonces</a></li><li><a onclick="go('auth')">Créer mon dossier</a></li><li><a onclick="document.getElementById('ft').value='room_rental';loadL();stl()">Colocation</a></li></ul></div>
+        <div><h4>Propriétaires</h4><ul><li><a onclick="chkPost()">Publier un logement</a></li><li><a onclick="go('agences')">Parcourir les agences</a></li><li><a onclick="go('auth')">Tableau de bord</a></li></ul></div>
+        <div><h4>Informations</h4><ul><li><a href="/how-it-works.html">Comment ça marche</a></li><li><a href="/terms.html">Conditions d'utilisation</a></li><li><a href="/privacy.html">Confidentialité</a></li><li><a href="/cookies.html">Cookies</a></li><li><a href="/contact.html">Contact</a></li></ul></div>
+      </div>
+      <div class="h-foot-bot"><p>© 2026 Trouve Ton Toit</p><p>Trouve Ton Toit n'est pas une agence immobilière.</p></div>
+    </div>
   </footer>
 </div>
 
@@ -622,11 +781,11 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
     <div class="atitle">Welcome to Trouve Ton Toit</div>
     <div class="asub">Se connecter to access votre tableau de bord</div>
     <div style="display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem">
-      <button onclick="signInWithGoogle()" style="width:100%;padding:.85rem;border:1.5px solid rgba(107,95,82,.2);border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:#1A1410;transition:all .2s" onmouseover="this.style.borderColor='#4285F4'" onmouseout="this.style.borderColor='rgba(107,95,82,.2)'">
+      <button onclick="signInWithGoogle()" style="width:100%;padding:.85rem;border:1.5px solid rgba(107,95,82,.2);border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'Figtree',sans-serif;font-size:.95rem;font-weight:600;color:#1A1410;transition:all .2s" onmouseover="this.style.borderColor='#4285F4'" onmouseout="this.style.borderColor='rgba(107,95,82,.2)'">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continue avec Google
       </button>
-      <button onclick="signInWithFacebook()" style="width:100%;padding:.85rem;border:none;border-radius:12px;background:#1877F2;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:white;transition:all .2s" onmouseover="this.style.background='#0d6edb'" onmouseout="this.style.background='#1877F2'">
+      <button onclick="signInWithFacebook()" style="width:100%;padding:.85rem;border:none;border-radius:12px;background:#1877F2;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;font-family:'Figtree',sans-serif;font-size:.95rem;font-weight:600;color:white;transition:all .2s" onmouseover="this.style.background='#0d6edb'" onmouseout="this.style.background='#1877F2'">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         Continue avec Facebook
       </button>
@@ -2589,7 +2748,7 @@ function stl(){go('home');setTimeout(()=>{var el=document.getElementById('la');i
 <div class="page" id="page-agences">
   <div class="pwrap" style="max-width:760px">
     <button class="btn btn-s" style="margin-bottom:1.5rem" onclick="go('post')">← Retour</button>
-    <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:.4rem"><i data-lucide=building-2 class=ic></i> Browse immobilier agences</h2>
+    <h2 style="font-family:'Bricolage Grotesque',serif;font-size:1.8rem;font-weight:900;margin-bottom:.4rem"><i data-lucide=building-2 class=ic></i> Browse immobilier agences</h2>
     <p style="color:var(--stone);font-size:.9rem;margin-bottom:1.5rem">Enter votre bien's address et we'll show you agences covering that area — dont any current offers.</p>
 
     <div class="fcard" style="margin-bottom:1.5rem">
@@ -3056,18 +3215,18 @@ function showRolePicker(name) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:1.5rem';
   modal.innerHTML = `
     <div style="background:#0D1220;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.5)">
-      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Welcome${name?' '+name:''}!</div>
+      <div style="font-family:'Bricolage Grotesque',serif;font-size:1.4rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Welcome${name?' '+name:''}!</div>
       <div style="font-size:.82rem;color:rgba(240,237,232,.4);margin-bottom:1.6rem">Who are you on Trouve Ton Toit?</div>
       <div style="display:flex;flex-direction:column;gap:.5rem">
-        <button onclick="confirmRoleChoice('locataire','<i data-lucide=briefcase class=ic></i>','Locataire / Intern','Looking pour a flat in France')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+        <button onclick="confirmRoleChoice('locataire','<i data-lucide=briefcase class=ic></i>','Locataire / Intern','Looking pour a flat in France')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'Figtree',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
           <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=briefcase class=ic></i></span>
           <div><div>Locataire / Intern</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">Looking pour a flat in France</div></div>
         </button>
-        <button onclick="confirmRoleChoice('bailleur','<i data-lucide=home class=ic></i>','Propriétaire','I want to list my bien')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+        <button onclick="confirmRoleChoice('bailleur','<i data-lucide=home class=ic></i>','Propriétaire','I want to list my bien')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-family:'Figtree',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
           <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=home class=ic></i></span>
           <div><div>Propriétaire</div><div style="font-size:.7rem;color:rgba(240,237,232,.35);font-weight:400;margin-top:.1rem">I want to list my bien</div></div>
         </button>
-        <button onclick="confirmRoleChoice('agence','<i data-lucide=building-2 class=ic></i>','Agence immobilière','Publish annonces · CRM · Team')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(99,102,241,.4);background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .2s" onmouseover="this.style.background='linear-gradient(135deg,rgba(99,102,241,.22),rgba(139,92,246,.14))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08))'">
+        <button onclick="confirmRoleChoice('agence','<i data-lucide=building-2 class=ic></i>','Agence immobilière','Publish annonces · CRM · Team')" style="width:100%;padding:.9rem 1rem;border-radius:12px;border:1px solid rgba(99,102,241,.4);background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));font-family:'Figtree',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;color:#F0EDE8;transition:all .2s" onmouseover="this.style.background='linear-gradient(135deg,rgba(99,102,241,.22),rgba(139,92,246,.14))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08))'">
           <span style="font-size:1.4rem;flex-shrink:0"><i data-lucide=building-2 class=ic></i></span>
           <div style="flex:1">
             <div style="color:#818CF8">Agence immobilière</div>
@@ -3091,11 +3250,11 @@ function confirmRoleChoice(role,icon,label,description){
   modal.innerHTML=`
     <div style="background:#0D1220;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:2rem;max-width:360px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.5)">
       <div style="font-size:2.2rem;margin-bottom:.6rem">${icon}</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Continue as ${label}?</div>
+      <div style="font-family:'Bricolage Grotesque',serif;font-size:1.15rem;font-weight:900;color:#F0EDE8;margin-bottom:.3rem">Continue as ${label}?</div>
       <div style="font-size:.8rem;color:rgba(240,237,232,.45);margin-bottom:1.5rem;line-height:1.5">${description}</div>
       <div style="display:flex;flex-direction:column;gap:.5rem">
-        <button onclick="document.getElementById('role-confirm-modal').remove();setRoleAndContinue('${role}')" style="width:100%;padding:.8rem;border-radius:12px;border:none;background:#E05A3A;color:white;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer">Yes, that's me →</button>
-        <button onclick="document.getElementById('role-confirm-modal').remove()" style="width:100%;padding:.8rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(240,237,232,.55);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer">← Go back</button>
+        <button onclick="document.getElementById('role-confirm-modal').remove();setRoleAndContinue('${role}')" style="width:100%;padding:.8rem;border-radius:12px;border:none;background:#E05A3A;color:white;font-family:'Figtree',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer">Yes, that's me →</button>
+        <button onclick="document.getElementById('role-confirm-modal').remove()" style="width:100%;padding:.8rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(240,237,232,.55);font-family:'Figtree',sans-serif;font-size:.82rem;cursor:pointer">← Go back</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -3202,24 +3361,24 @@ async function doLogout(){await clerk.signOut();toast('<i data-lucide=hand class
 function toggleSaleFiltrerUI(){
   const isSale=document.getElementById('ft')?.value==='for_sale';
   const fpWrap=document.getElementById('fp-wrap');
-  if(fpWrap)fpWrap.style.display=isSale?'none':'block';
+  if(fpWrap)fpWrap.style.display=isSale?'none':'';
 }
 
 async function loadHeroAnnonces(){
   const wrap=document.getElementById('hero-live-annonces');
   if(!wrap)return;
   try{
-    const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('active',true).not('status','in','("reserved","rented")').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
+    const{data}=await sb.from('listings').select('id,title,zone,price,type,spots').eq('active',true).or('status.is.null,status.not.in.(reserved,rented)').order('boosted_until',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(3);
     if(!data||!data.length){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Aucune annonce en ligne</div><div class="ps">Soyez le premier à publier!</div></div></div>';return;}
-    const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=key class=ic></i>',room_rental:'<i data-lucide=waves class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
-    const typeLabel={short:'Location courte durée',long:'Location longue durée',room_rental:'Room',for_sale:'À vendre'};
+    const typeIcon={short:'<i data-lucide=home class=ic></i>',long:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=users class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>',parking:'<i data-lucide=car class=ic></i>'};
+    const typeLabel={short:'Location',long:'Location',room_rental:'Colocation',for_sale:'À vendre',parking:'Parking'};
     wrap.innerHTML=data.map(l=>`
       <div class="pitem" onclick="openDet('${l.id}')">
         <div class="pe">${typeIcon[l.type]||'<i data-lucide=home class=ic></i>'}</div>
         <div class="pi"><div class="pt">${typeLabel[l.type]||''} · ${l.zone||'France'}</div><div class="ps">${l.title||''}</div></div>
-        <div class="pp">€${l.price}${l.type==='for_sale'?'':'/mois'}</div>
+        <div class="pp">${l.price!=null?Number(l.price).toLocaleString('fr-FR')+' €':''}${l.type==='for_sale'?'':'<small style="font-weight:500;color:var(--stone-l)">/mois</small>'}</div>
       </div>`).join('');
-  }catch(e){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Browse annonces →</div></div></div>';}
+  }catch(e){wrap.innerHTML='<div class="pitem" style="cursor:default"><div class="pi"><div class="pt">Parcourir les annonces →</div></div></div>';}
 }
 
 const LISTINGS_PER_PAGE=25;
@@ -3228,8 +3387,8 @@ let currentListingsPage=1;
 async function loadL(){
   const g=document.getElementById('lg');g.innerHTML='<div class="chargement"><div class="sp"></div> Chargement…</div>';
   const z=document.getElementById('fz')?.value,t=document.getElementById('ft')?.value,p=document.getElementById('fp')?.value,att=document.getElementById('fa')?.value,src=document.getElementById('fsrc')?.value;
-  let q=sb.from('listings').select('*').eq('active',true).not('status','in','("reserved","rented")').order('created_at',{ascending:false});
-  if(z)q=q.eq('zone',z);
+  let q=sb.from('listings').select('*').eq('active',true).or('status.is.null,status.not.in.(reserved,rented)').order('created_at',{ascending:false});
+  if(z)q=q.ilike('zone','%'+z.trim()+'%');
   if(t)q=q.eq('type',t);
   if(p&&t!=='for_sale')q=q.lte('price',parseInt(p)); // le filtre budget est pensé pour un loyer, n'a pas de sens pour un prix de vente
   if(att==='yes')q=q.eq('accepts_attestation',true);
@@ -3244,8 +3403,8 @@ async function loadL(){
     return new Date(b.created_at)-new Date(a.created_at);
   });
   window._currentAnnonces=sorted;
-  if(!sorted.length){g.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>Aucune annonce trouvée. Essayez d'ajuster vos filtres!</p><button class="btn btn-p" onclick="chkPost()">Publier votre logement →</button></div>`;document.getElementById('lc').innerHTML='';document.getElementById('lpagination').innerHTML='';return;}
-  document.getElementById('lc').textContent=`${sorted.length} annonce${sorted.length>1?'s':''} found`;
+  if(!sorted.length){g.innerHTML=`<div class="empty"><div class="emo"><i data-lucide=home class=ic></i></div><p>${(z||t||p||att||src)?'Aucune annonce ne correspond à ces critères.':'Aucune annonce en ligne pour le moment.'}</p>${(z||t||p||att||src)?'<button class="btn btn-s" onclick="resetFiltresL()">Effacer les filtres</button>':'<button class="btn btn-p" onclick="chkPost()">Publier votre logement →</button>'}</div>`;document.getElementById('lc').innerHTML='';document.getElementById('lpagination').innerHTML='';return;}
+  document.getElementById('lc').textContent=`${sorted.length} annonce${sorted.length>1?'s':''} trouvée${sorted.length>1?'s':''}`;
 
   // Repartir de la page 1 à chaque nouveau résultat (changement de filtre) —
   // sinon on peut rester bloqué sur "page 5" alors qu'il n'y a plus que 2
@@ -3334,7 +3493,17 @@ function renderDcost(){
       <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le premier loyer sont versés directement au propriétaire à l'entrée dans les lieux.</div>`;
 }
 
-async function updC(){const{count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('active',true);document.getElementById('sc').textContent=count??'0';}
+async function updC(){
+  const{data}=await sb.from('listings').select('zone').eq('active',true).or('status.is.null,status.not.in.(reserved,rented)');
+  const rows=data||[];
+  const sc=document.getElementById('sc');if(sc)sc.textContent=rows.length;
+  const villes=[...new Set(rows.map(r=>(r.zone||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+  const sv=document.getElementById('sc-villes');if(sv)sv.textContent=villes.length;
+  const dl=document.getElementById('zones-list');if(dl)dl.innerHTML=villes.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join('');
+}
+function hTab(k,b){document.querySelectorAll('.h-tabs button').forEach(x=>x.classList.toggle('on',x===b));document.getElementById('h-steps-loc').hidden=k!=='loc';document.getElementById('h-steps-pro').hidden=k!=='pro';}
+let _loadLT;function loadLDebounce(){clearTimeout(_loadLT);_loadLT=setTimeout(loadL,300);}
+function resetFiltresL(){['fz','ft','fp','fa','fsrc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});toggleSaleFiltrerUI();loadL();}
 
 // Photo verticale (prise au téléphone en portrait) : on l'affiche en entier, centrée,
 // sur une copie floutée d'elle-même, au lieu de n'en montrer qu'une bande rognée.
@@ -3350,7 +3519,7 @@ function fitPhoto(img){
 }
 
 function rCard(l){
-  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=key class=ic></i>',long:'<i data-lucide=calendar class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>'};
+  const ic={short:'<i data-lucide=home class=ic></i>',room_rental:'<i data-lucide=users class=ic></i>',long:'<i data-lucide=home class=ic></i>',for_sale:'<i data-lucide=tag class=ic></i>',parking:'<i data-lucide=car class=ic></i>'};
   const _esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const _avDate=l.available_from?new Date(l.available_from):null;
   const _today=new Date(); _today.setHours(0,0,0,0);
@@ -5380,7 +5549,7 @@ function toggleMapView(){
   if(mapView){
     mc.style.display='block';
     lg.style.display='none';
-    btn.innerHTML='<i data-lucide=clipboard-list class=ic></i> List view';
+    btn.innerHTML='<i data-lucide=layout-grid class=ic></i> Vue liste';
     initMap();
   } else {
     mc.style.display='none';
@@ -5389,38 +5558,45 @@ function toggleMapView(){
   }
 }
 
-function initMap(){
+// Géocodage des villes via l'API Adresse (BAN, gratuite, sans clé), mis en cache dans le navigateur.
+function _geoCache(){try{return JSON.parse(localStorage.getItem('ttt_geo_v1')||'{}');}catch(e){return{};}}
+function _geoSave(c){try{localStorage.setItem('ttt_geo_v1',JSON.stringify(c));}catch(e){}}
+async function geoVille(z){
+  const k=String(z||'').trim().toLowerCase();if(!k)return null;
+  const c=_geoCache();if(c[k])return c[k];
+  try{
+    const r=await fetch('https://api-adresse.data.gouv.fr/search/?type=municipality&limit=1&q='+encodeURIComponent(z));
+    const j=await r.json();const f=j.features&&j.features[0];
+    if(!f)return null;
+    const ll=[f.geometry.coordinates[1],f.geometry.coordinates[0]];
+    c[k]=ll;_geoSave(c);return ll;
+  }catch(e){return null;}
+}
+async function initMap(){
   if(mapInstance){mapInstance.remove();mapInstance=null;}
-  mapInstance=L.map('annonces-map',{zoomControl:true}).setView([35.9042,14.4700],12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OuvrirStreetMap',maxZoom:19
-  }).addTo(mapInstance);
-  // Add markers  depuis  current annonces
-  const grid=document.getElementById('lg');
-  if(window._currentAnnonces){
-    window._currentAnnonces.forEach(l=>{
-      const coords=ZONE_COORDS[l.zone];
-      if(!coords)return;
-      // Slight random offset so pins don't overlap
-      const lat=coords[0]+(Math.random()-0.5)*0.008;
-      const lng=coords[1]+(Math.random()-0.5)*0.008;
-      const marker=L.marker([lat,lng],{
-        icon:L.divIcon({
-          classNom:'',
-          html:`<div style="background:#1B4FD8;color:white;padding:.3rem .6rem;border-radius:100px;font-size:.72rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)">€${l.price}</div>`,
-          iconAnchor:[20,15]
-        })
-      }).addTo(mapInstance);
-      marker.bindPopup(`
-        <div style="min-width:200px">
-          <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">${l.title}</div>
-          <div style="font-size:.78rem;color:#666;margin-bottom:.5rem"><i data-lucide=map-pin class=ic></i> ${l.zone} · €${l.price}/mois</div>
-          <button onclick="openDet('${l.id}')" style="background:#1B4FD8;color:white;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600">View annonce →</button>
-        </div>
-      `);
-    });
-  }
-  setTimeout(()=>mapInstance.invalidateSize(),100);
+  mapInstance=L.map('annonces-map',{zoomControl:true}).setView([46.6,2.4],6); // France métropolitaine
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(mapInstance);
+  setTimeout(()=>mapInstance&&mapInstance.invalidateSize(),100);
+  const list=window._currentAnnonces||[];
+  const villes=[...new Set(list.map(l=>(l.zone||'').trim()).filter(Boolean))];
+  const coords={};
+  await Promise.all(villes.map(async v=>{coords[v]=await geoVille(v);}));
+  if(!mapInstance)return;
+  const _esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const pts=[];
+  list.forEach(l=>{
+    const c=coords[(l.zone||'').trim()];if(!c)return;
+    // Position approximative (ville) avec léger décalage pour ne pas superposer les annonces — l'adresse exacte n'est jamais affichée
+    const lat=c[0]+(Math.random()-0.5)*0.012,lng=c[1]+(Math.random()-0.5)*0.016;
+    pts.push([lat,lng]);
+    const prix=l.type==='for_sale'?(l.sale_price||l.price):l.price;
+    const prixTxt=prix!=null?Number(prix).toLocaleString('fr-FR')+' €':'—';
+    L.marker([lat,lng],{icon:L.divIcon({className:'',html:`<div style="background:#0E1526;color:#fff;padding:.3rem .6rem;border-radius:100px;font:700 .74rem Figtree,sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);transform:translate(-50%,-50%);display:inline-block">${prixTxt}</div>`,iconSize:[0,0]})})
+      .addTo(mapInstance)
+      .bindPopup(`<div style="min-width:200px;font-family:Figtree,sans-serif"><div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">${_esc(l.title)}</div><div style="font-size:.8rem;color:#4A5468;margin-bottom:.6rem">${_esc(l.zone)} · ${prixTxt}${l.type==='for_sale'?'':'/mois'}</div><button onclick="openDet('${l.id}')" style="background:#1B4FD8;color:#fff;border:none;padding:.45rem .85rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700">Voir l'annonce →</button></div>`);
+  });
+  if(pts.length===1)mapInstance.setView(pts[0],12);
+  else if(pts.length>1)mapInstance.fitBounds(pts,{padding:[40,40],maxZoom:13});
 }
 
 // ── Badge "Propriétaire réactif" ──────────────────────────────────
