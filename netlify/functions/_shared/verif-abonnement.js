@@ -13,6 +13,8 @@ function ligne(sub, clerkId) {
     stripe_subscription_id: sub.id,
     periode_fin: fin ? new Date(fin * 1000).toISOString() : null,
     annule_fin_periode: !!sub.cancel_at_period_end,
+    nb_biens: sub.items?.data?.[0]?.quantity || null,
+    plan: sub.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'an' : 'mois',
     updated_at: new Date().toISOString(),
   };
 }
@@ -36,4 +38,14 @@ async function estAbonne(api, clerkId) {
   return false;
 }
 
-module.exports = { stripe, ligne, actif, enregistrer, estAbonne };
+// Nombre de biens facturés : logements avec au moins un bail signé en cours, gérés en direct (une colocation = un bien). Minimum 1.
+async function nbBiens(api, clerkId) {
+  let ls = [];
+  try { ls = await api(`leases?landlord_id=eq.${encodeURIComponent(clerkId)}&landlord_signed_at=not.is.null&tenant_signed_at=not.is.null&select=id,listing_id,booking_id`) || []; } catch (e) { return 1; }
+  try { const m = new Set((await api('gestion_mandats?select=lease_id&statut=neq.resilie') || []).map(x => x.lease_id)); ls = ls.filter(l => !m.has(l.id)); } catch (e) {}
+  const bids = [...new Set(ls.map(l => l.booking_id).filter(Boolean))];
+  if (bids.length) try { const fin = new Set((await api(`bookings?select=id,tenancy_ended_at&id=in.(${bids.join(',')})`) || []).filter(b => b.tenancy_ended_at).map(b => b.id)); ls = ls.filter(l => !fin.has(l.booking_id)); } catch (e) {}
+  return Math.max(1, new Set(ls.map(l => l.listing_id || l.id)).size);
+}
+
+module.exports = { stripe, ligne, actif, enregistrer, estAbonne, nbBiens };
