@@ -246,11 +246,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .sx-h1{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 .sx-sub{font-size:.82rem;color:var(--td);margin-top:.15rem}
 .sx-count{font-size:.8rem;color:var(--tm);font-variant-numeric:tabular-nums;white-space:nowrap}
-.sx-filters{display:grid;grid-template-columns:2fr 1.2fr 1.3fr 1fr auto;gap:.6rem;align-items:end;background:var(--s);border:1px solid var(--b);border-radius:14px;padding:.85rem}
+.sx-filters{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1.1fr) minmax(0,1.2fr) minmax(0,1.2fr) auto auto;gap:.6rem;align-items:end;background:var(--s);border:1px solid var(--b);border-radius:14px;padding:.85rem}
 .sx-f label{display:block;font-size:.7rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
 .sx-f input,.sx-f select{width:100%;height:2.5rem;box-sizing:border-box;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:.55rem .7rem;font:inherit;font-size:.86rem;color:var(--txt)}
 .sx-f input:focus,.sx-f select:focus{outline:2px solid rgba(var(--bleu-rgb),.45);outline-offset:0;border-color:transparent}
 .sx-eur{position:relative}.sx-eur input{padding-right:3.6rem}.sx-eur span{position:absolute;right:.65rem;top:50%;transform:translateY(-50%);font-size:.74rem;color:var(--td);pointer-events:none}
+.sx-tri{display:flex;align-items:center;gap:.6rem}
+.sx-tri select{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:.4rem .6rem;font:inherit;font-size:.8rem;color:var(--txt)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.sx-plus{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--bleu);padding:.55rem .5rem;border-radius:8px;white-space:nowrap}
+.sx-plus:hover{background:rgba(var(--bleu-rgb),.08)}.sx-plus:focus-visible{outline:2px solid var(--bleu)}
+.sx-nb{background:var(--bleu);color:#fff;border-radius:999px;font-size:.66rem;padding:0 .4rem;line-height:1.5}
+.sx-more{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;padding-top:.75rem;margin-top:.15rem;border-top:1px solid var(--b)}
+.sx-more[hidden]{display:none}
+.sx-f-chips{grid-column:1/-1}
+.sx-chips{display:flex;gap:.4rem;flex-wrap:wrap}
+.sx-f .sx-chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;background:var(--s2);border:1px solid var(--b);border-radius:999px;padding:.35rem .7rem;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500;color:var(--txt);margin:0}
+.sx-f .sx-chip:has(input:checked){background:rgba(var(--bleu-rgb),.12);border-color:rgba(var(--bleu-rgb),.45);color:var(--bleu)}
+.sx-f .sx-chip input{accent-color:var(--bleu);margin:0;width:15px;height:15px;padding:0;flex:none;background:none;border:0}
 .sx-reset{all:unset;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--tm);padding:.55rem .4rem}
 .sx-reset:hover{color:var(--txt)}.sx-reset:focus-visible{outline:2px solid var(--bleu);border-radius:6px}
 .sx-alert{margin:.8rem 0 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;font-size:.82rem;color:var(--tm);padding:.7rem .9rem;border-radius:12px;background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.16)}
@@ -270,7 +283,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .sx-title{font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sx-meta{font-size:.74rem;color:var(--td);display:flex;gap:.5rem;flex-wrap:wrap}
 .sx-empty{grid-column:1/-1;text-align:center;padding:2.5rem 1rem;color:var(--td);font-size:.86rem;background:var(--s);border:1px dashed var(--b2);border-radius:14px}
-@media(max-width:900px){.sx-filters{grid-template-columns:1fr 1fr}.sx-f-ville{grid-column:1/-1}.sx-reset{justify-self:start}}
+@media(max-width:900px){.sx-filters{grid-template-columns:1fr 1fr}.sx-f-ville{grid-column:1/-1}.sx-reset,.sx-plus{justify-self:start}.sx-more{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.sx-card{transition:none}.sx-card:hover{transform:none}}
 .mx-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 .mx-h1{font-size:1.3rem;font-weight:800;letter-spacing:-.01em}
@@ -316,13 +329,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
   </div>
   <nav class="sb-nav">
     <div class="nl">Aperçu</div>
-    <button class="ni act" onclick="sp('search',this)"><span class="nico"><i data-lucide=search class=ic></i></span>Chercher un logement<span class="nbadge" id="nb-alerts" style="display:none;background:var(--green)">!</span></button>
+    <button class="ni act" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mon logement</button>
+    <button class="ni" onclick="sp('search',this)"><span class="nico"><i data-lucide=search class=ic></i></span>Chercher un logement<span class="nbadge" id="nb-alerts" style="display:none;background:var(--green)">!</span></button>
     <button class="ni" onclick="sp('visites',this)"><span class="nico"><i data-lucide=calendar class=ic></i></span>Mes visites<span class="nbadge" id="nb-visites-t" style="display:none">0</span></button>
     <button class="ni" onclick="sp('applications',this)"><span class="nico"><i data-lucide=clipboard-list class=ic></i></span>Candidatures<span class="nbadge" id="nb-applications-t" style="display:none">0</span></button>
     <div class="nl">Communication</div>
     <button class="ni" onclick="sp('messages',this)"><span class="nico"><i data-lucide=message-circle class=ic></i></span>Messages<span class="nbadge" id="nb-msg" style="display:none">0</span></button>
-    <div class="nl">Documents & Finances</div>
-    <button class="ni" onclick="sp('mylocation',this)"><span class="nico"><i data-lucide=home class=ic></i></span>Mon logement</button>
+    <div class="nl">Colocation</div>
     <button class="ni" onclick="sp('roommates',this)"><span class="nico"><i data-lucide=users class=ic></i></span>Trouver un colocataire</button>
     <div class="nl">Avis & Profil</div>
     <button class="ni" onclick="sp('avis',this)"><span class="nico"><i data-lucide=star class=ic></i></span>Mes avis</button>
@@ -341,7 +354,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 
 <main class="main">
   <div class="topbar">
-    <div><div class="tb-title" id="tbt">Chercher un logement</div><div class="tb-sub" id="tbs">Bienvenue !</div></div>
+    <div><div class="tb-title" id="tbt">Mon logement</div><div class="tb-sub" id="tbs">Bienvenue !</div></div>
     <div style="display:flex;gap:.75rem">
       <button class="btn bg bsm" onclick="window.location.href='/'"><i data-lucide=search class=ic></i> Parcourir les annonces</button>
       <button class="btn bg bsm" onclick="doLogout()">Se déconnecter</button>
@@ -400,7 +413,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     </div>
 
     <!-- MA LOCATION -->
-    <div class="page" id="page-mylocation">
+    <div class="page act" id="page-mylocation">
       <!-- Régularisations des charges : visibles même après le départ du logement -->
       <div id="ml-regul"></div>
 
@@ -1283,17 +1296,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       </div>
 
     </div><!-- /page-profil -->
-    <div class="page act" id="page-search">
+    <div class="page" id="page-search">
       <div class="sx-head">
         <div><div class="sx-h1">Chercher un logement</div><div class="sx-sub">Les annonces disponibles sur Trouve Ton Toit, mises à jour en direct.</div></div>
-        <span class="sx-count" id="sx-count">—</span>
+        <div class="sx-tri"><span class="sx-count" id="sx-count">—</span><label class="sr" for="sx-tri">Trier</label><select id="sx-tri" onchange="sxFiltrer()"><option value="recent">Plus récentes</option><option value="prix_asc">Prix croissant</option><option value="prix_desc">Prix décroissant</option><option value="dispo">Disponibles en premier</option></select></div>
       </div>
       <div class="sx-filters" role="search">
         <div class="sx-f sx-f-ville"><label for="sx-zone">Ville ou quartier</label><input id="sx-zone" list="sx-zones" placeholder="Lyon, Paris 11e…" autocomplete="off" oninput="sxFiltrer()"><datalist id="sx-zones"></datalist></div>
         <div class="sx-f"><label for="sx-budget">Budget max</label><div class="sx-eur"><input id="sx-budget" type="number" min="0" step="10" placeholder="800" oninput="sxFiltrer()"><span>€/mois</span></div></div>
         <div class="sx-f"><label for="sx-type">Type</label><select id="sx-type" onchange="sxFiltrer()"><option value="">Tous</option><option value="vide">Location vide</option><option value="meuble">Location meublée</option><option value="parking">Parking / garage</option></select></div>
         <div class="sx-f"><label for="sx-rooms">Pièces</label><select id="sx-rooms" onchange="sxFiltrer()"><option value="">Indifférent</option><option value="1">1 et +</option><option value="2">2 et +</option><option value="3">3 et +</option><option value="4">4 et +</option></select></div>
+        <button type="button" class="sx-plus" id="sx-plus-btn" aria-expanded="false" onclick="sxPlus()"><i data-lucide=sliders-horizontal class=ic></i> Plus de critères<span class="sx-nb" id="sx-nb" hidden></span></button>
         <button type="button" class="sx-reset" onclick="sxReset()">Effacer</button>
+        <div class="sx-more" id="sx-more" hidden>
+          <div class="sx-f"><label for="sx-dpe">DPE (au moins)</label><select id="sx-dpe" onchange="sxFiltrer()"><option value="">Indifférent</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select></div>
+          <div class="sx-f"><label for="sx-dispo">Disponible avant le</label><input id="sx-dispo" type="date" onchange="sxFiltrer()"></div>
+          <div class="sx-f"><label for="sx-annonceur">Annonce de</label><select id="sx-annonceur" onchange="sxFiltrer()"><option value="">Tous</option><option value="particulier">Particulier</option><option value="agence">Agence</option></select></div>
+          <div class="sx-f sx-f-chips"><label>Équipements et conditions</label><div class="sx-chips">
+            <label class="sx-chip"><input type="checkbox" id="sx-c-balcon" onchange="sxFiltrer()"> Balcon / terrasse</label>
+            <label class="sx-chip"><input type="checkbox" id="sx-c-parking" onchange="sxFiltrer()"> Parking</label>
+            <label class="sx-chip"><input type="checkbox" id="sx-c-ascenseur" onchange="sxFiltrer()"> Ascenseur</label>
+            <label class="sx-chip"><input type="checkbox" id="sx-c-lavelinge" onchange="sxFiltrer()"> Lave-linge</label>
+            <label class="sx-chip"><input type="checkbox" id="sx-c-animaux" onchange="sxFiltrer()"> Animaux acceptés</label>
+            <label class="sx-chip"><input type="checkbox" id="sx-c-garant" onchange="sxFiltrer()"> Accepte Visale / attestation</label>
+          </div></div>
+        </div>
       </div>
       <div class="sx-alert" id="sx-alert"></div>
       <div class="sx-grid" id="sx-grid"><div class="ld"><div class="sp"></div></div></div>
@@ -1461,13 +1488,9 @@ let clerk,U=null,P=null,selectedRating=5;
   if(P&&P['vérifié_at']!==undefined)P.verified_at=P['vérifié_at'];
   if(P?.role==='bailleur'||P?.role==='propriétaire'){window.location.href='/landlord-dashboard.html'+window.location.search;return;}
   initUI();loadAll();loadGestionnaire();
-  // Page d'accueil (l'ancienne page « Mes annonces » est retirée) : Mon logement si une location est en cours, sinon la recherche
-  (async()=>{const qp0=new URLSearchParams(window.location.search);if(qp0.get('tab'))return;
-    let enCours=false;try{const{data}=await sb.from('bookings').select('id').eq('tenant_id',U.id).in('status',['accepted','lease_pending','edl_scheduled','signing_day','move_in_ready']).limit(1);enCours=!!(data&&data.length);}catch(e){}
-    if(!enCours){try{const{data}=await sb.from('leases').select('id').eq('tenant_id',U.id).not('tenant_signed_at','is',null).limit(1);enCours=!!(data&&data.length);}catch(e){}}
-    window._tPageDefaut=enCours?'mylocation':'search';
-    if(enCours&&document.getElementById('page-search')?.classList.contains('act'))sp(window._tPageDefaut,document.querySelector(`.ni[onclick*="'${window._tPageDefaut}'"]`));
-  })();
+  // Page d'accueil : Mon logement (s'il n'y a aucune location, on bascule sur « Chercher un logement »)
+  window._mlInitial=true;window._tPageDefaut='mylocation';
+  if(!new URLSearchParams(window.location.search).get('tab'))loadMyLocation();
 
   // Arrivée depuis une annonce avec un profil incomplet : ouvrir directement "Mon profil" avec un message
   try{
@@ -2351,6 +2374,8 @@ async function loadMyLocation(){
     }
   }catch(e){}
 
+  const _init=window._mlInitial;window._mlInitial=false;
+  if(!bk&&_init&&document.getElementById('page-mylocation')?.classList.contains('act')){window._tPageDefaut='search';sp('search',document.querySelector('.ni[onclick*="\'search\'"]'));return;}
   if(!bk){
     {const r=document.getElementById('ml-regul'),pg=document.getElementById('page-mylocation');if(r&&pg&&r.parentElement!==pg)pg.prepend(r);}
     if(emptyEl)emptyEl.style.display='block';
@@ -5257,6 +5282,18 @@ function sxCorrespond(l,c){
 }
 function _sxCriteres(){const v=id=>document.getElementById(id)?.value?.trim()||'';
   return{zone:v('sx-zone')||null,max_budget:v('sx-budget')?parseInt(v('sx-budget')):null,type:v('sx-type')||null,min_rooms:v('sx-rooms')?parseInt(v('sx-rooms')):null};}
+// Critères supplémentaires (recherche seulement, pas enregistrés dans l'alerte)
+const SX_CHIPS={balcon:l=>!!(l.balcon||Number(l.terrasse_sqm)>0),parking:l=>!!(l.parking||l.parking_inclus),ascenseur:l=>l.ascenseur===true||/^(oui|yes|true)$/i.test(String(l.ascenseur||'')),lavelinge:l=>!!l.washing_machine,animaux:l=>!!l.pets,garant:l=>!!l.accepts_attestation};
+function _sxPlusCrit(){const v=id=>document.getElementById(id)?.value||'';const chips=Object.keys(SX_CHIPS).filter(k=>document.getElementById('sx-c-'+k)?.checked);
+  return{dpe:v('sx-dpe'),dispo:v('sx-dispo'),annonceur:v('sx-annonceur'),chips};}
+function _sxPlusOk(l,x){
+  if(x.dpe){const d=String(l.dpe||l.epc_rating||'').toUpperCase().trim();if(!d||d>x.dpe)return false;}
+  if(x.dispo&&l.available_from&&String(l.available_from).slice(0,10)>x.dispo)return false;
+  if(x.annonceur==='agence'&&!l.agency_annonce)return false;
+  if(x.annonceur==='particulier'&&l.agency_annonce)return false;
+  return x.chips.every(k=>SX_CHIPS[k](l));
+}
+function sxPlus(){const m=document.getElementById('sx-more'),b=document.getElementById('sx-plus-btn');if(!m)return;m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}
 function _sxResume(c){const p=[];if(c.zone)p.push(_sxEsc(c.zone));if(c.max_budget)p.push(c.max_budget.toLocaleString('fr-FR')+' € max');if(c.type)p.push(SX_TYPES[c.type]||c.type);if(c.min_rooms)p.push(c.min_rooms+' pièce'+(c.min_rooms>1?'s':'')+' et +');return p.join(' · ')||'toutes les annonces';}
 async function loadAlertState(){
   try{const{data}=await sb.from('alerts').select('*').eq('locataire_id',U.id).maybeSingle();SX_ALERTE=data||null;}catch(e){SX_ALERTE=null;}
@@ -5272,10 +5309,16 @@ async function loadAlertState(){
   }
   sxFiltrer();
 }
-function sxReset(){['sx-zone','sx-budget','sx-type','sx-rooms'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});sxFiltrer();}
+function sxReset(){['sx-zone','sx-budget','sx-type','sx-rooms','sx-dpe','sx-dispo','sx-annonceur'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});Object.keys(SX_CHIPS).forEach(k=>{const e=document.getElementById('sx-c-'+k);if(e)e.checked=false;});sxFiltrer();}
 function sxFiltrer(){
   const grid=document.getElementById('sx-grid');if(!grid||!SX_ANNONCES)return;
-  const c=_sxCriteres(),res=SX_ANNONCES.filter(l=>sxCorrespond(l,c));
+  const c=_sxCriteres(),x=_sxPlusCrit(),tri=document.getElementById('sx-tri')?.value||'recent';
+  const res=SX_ANNONCES.filter(l=>sxCorrespond(l,c)&&_sxPlusOk(l,x));
+  const dispoT=l=>l.available_from?new Date(l.available_from).getTime():0;
+  if(tri==='prix_asc')res.sort((a,b)=>Number(a.price)-Number(b.price));
+  else if(tri==='prix_desc')res.sort((a,b)=>Number(b.price)-Number(a.price));
+  else if(tri==='dispo')res.sort((a,b)=>dispoT(a)-dispoT(b));
+  const nbPlus=(x.dpe?1:0)+(x.dispo?1:0)+(x.annonceur?1:0)+x.chips.length,nbEl=document.getElementById('sx-nb');if(nbEl){nbEl.hidden=!nbPlus;nbEl.textContent=nbPlus;}
   const cnt=document.getElementById('sx-count');if(cnt)cnt.textContent=`${res.length} annonce${res.length>1?'s':''}`;
   const sem=Date.now()-7*864e5;
   grid.innerHTML=res.length?res.map(l=>{
@@ -5293,11 +5336,11 @@ function sxFiltrer(){
   if(box)box.innerHTML=actif
     ?`<div><i data-lucide=bell class=ic></i> Alerte active : <strong>${_sxResume({zone:a.zone,max_budget:a.max_budget,type:a.type,min_rooms:a.min_rooms})}</strong>. Vous recevez un message dès qu'une nouvelle annonce correspond.</div>
       <div class="sx-acts">${memes?'':`<button class="btn bp bsm" onclick="saveAlert()">Remplacer par ces critères</button>`}<button class="btn bg bsm" onclick="deactivateAlert()"><i data-lucide=bell-off class=ic></i> Désactiver</button></div>`
-    :`<div><i data-lucide=bell class=ic></i> Être prévenu des nouvelles annonces : <strong>${_sxResume(c)}</strong></div><div class="sx-acts"><button class="btn bp bsm" onclick="saveAlert()"><i data-lucide=bell class=ic></i> Créer l'alerte</button></div>`;
+    :`<div><i data-lucide=bell class=ic></i> Être prévenu des nouvelles annonces : <strong>${_sxResume(c)}</strong>${nbPlus?' <span style="color:var(--td)">(ville, budget, type et pièces seulement)</span>':''}</div><div class="sx-acts"><button class="btn bp bsm" onclick="saveAlert()"><i data-lucide=bell class=ic></i> Créer l'alerte</button></div>`;
   if(window.lucide)lucide.createIcons();
 }
 async function saveAlert(){
-  const c=_sxCriteres();
+  const c=_sxCriteres(); // ville, budget, type, pièces
   const{error}=await sb.from('alerts').upsert({locataire_id:U.id,...c,actif:true,dernier_envoi_at:new Date().toISOString()},{onConflict:'locataire_id'});
   if(error){
     // Colonne dernier_envoi_at pas encore créée : on enregistre sans
