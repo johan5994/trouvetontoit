@@ -103,7 +103,7 @@ exports.handler = async () => {
       const loc = profils[l.tenant_id]?.full_name || l.tenant_name || 'votre locataire';
       const logement = li.title || 'votre logement';
       const lien = `${SITE}/landlord-dashboard.html?revision=${l.id}`;
-      const txt = `Date anniversaire du bail de ${loc} (« ${logement} ») le ${fr(r.anniv)} : vous pouvez réviser le loyer hors charges de ${eur(r.rent)} à ${eur(r.nouveau)} (+${eur(r.nouveau - r.rent)}/mois). Calcul : ${eur(r.rent)} × ${nb(r.newI)} (IRL ${trim(r.rq)} ${r.targetY}) ÷ ${nb(r.oldI)} (IRL ${trim(r.rq)} ${r.targetY - 1}). <a href='/landlord-dashboard.html?revision=${l.id}'>Appliquer la révision</a> (ou Gestion locative → « ${logement} » → Révision du loyer). À demander avant le ${fr(r.limite)}, sinon la hausse de cette année est perdue.`;
+      const txt = `Date anniversaire du bail de ${loc} (« ${logement} ») le ${fr(r.anniv)} : vous pouvez réviser le loyer hors charges de ${eur(r.rent)} à ${eur(r.nouveau)} (+${eur(r.nouveau - r.rent)}/mois). Calcul : ${eur(r.rent)} × ${nb(r.newI)} (IRL ${trim(r.rq)} ${r.targetY}) ÷ ${nb(r.oldI)} (IRL ${trim(r.rq)} ${r.targetY - 1}). <a href='/landlord-dashboard.html?revision=${l.id}'>Appliquer la révision</a> (ou Mes locations → « ${logement} » → Révision du loyer). À demander avant le ${fr(r.limite)}, sinon la hausse de cette année est perdue.`;
       await api('messages', { method: 'POST', body: JSON.stringify({ listing_id: l.listing_id || null, sender_id: 'system', receiver_id: l.landlord_id, type: 'message', content: txt }) });
       const em = profils[l.landlord_id]?.email;
       if (em) await sendMail({ to: em, subject: `Révision du loyer possible — ${logement}`,
