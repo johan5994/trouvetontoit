@@ -15,6 +15,9 @@
 [functions."teom-auto"]
   schedule = "@daily"
 
+[functions."alertes-annonces"]
+  schedule = "@hourly"
+
 [[redirects]]
   from = "/app/*"
   to = "/index.html"
