@@ -321,6 +321,80 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 @media(max-width:600px){.ass-grid{grid-template-columns:1fr!important}}
 button.mx-doc{font-family:inherit;cursor:pointer}
 .mx-ass{background:var(--s);border:1px solid var(--b2);border-radius:12px;padding:.8rem .9rem;margin-top:.75rem}
+.mx-dlist{background:var(--s);border:1px solid var(--b2);border-radius:14px;overflow:hidden}
+.mx-drow{display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;text-decoration:none;color:var(--txt);width:100%;background:none;border:none;font-family:inherit;text-align:left;cursor:pointer}
+.mx-dlist>.mx-drow+.mx-drow,.mx-dlist>#ml-ass-doc:not(:empty){border-top:1px solid var(--b2)}
+.mx-drow:hover{background:var(--s2)}
+.mx-dvide{color:var(--td);font-size:.82rem;cursor:default}
+.mx-dic{width:36px;height:36px;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--bleu)}
+.mx-dtx{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1rem}
+.mx-dtx b{font-size:.88rem;font-weight:700}
+.mx-dtx small{font-size:.74rem;color:var(--td)}
+.mx-chip{font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:100px;white-space:nowrap}
+.mx-chip.ok{background:var(--grdim);color:var(--green)}
+.mx-chip.wa{background:rgba(var(--gold-rgb),.12);color:var(--gold)}
+.mx-dch{color:var(--td);flex-shrink:0}
+.mx-ann{margin-top:1rem;background:var(--s);border:1px solid var(--b2);border-radius:14px;padding:.85rem 1rem}
+.mx-ann-t{font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem}
+.mx-ann-t span{color:var(--td);font-weight:500}
+.mx-ann-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));column-gap:1rem}
+.mx-ann-list .mx-ann-h{grid-column:1/-1;padding-left:0}
+.mx-ann-list a{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;font-size:.84rem;color:var(--txt);text-decoration:none}
+.mx-ann-list a:hover{color:var(--bleu)}
+.mx-ann-list .mx-ann-vide{grid-column:1/-1;padding-left:0}
+/* Trouver un colocataire */
+.rm-head{margin-bottom:1rem}
+.rm-h1{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.rm-intro{font-size:.86rem;color:var(--tm);margin-top:.25rem;max-width:62ch;line-height:1.5}
+.rm-tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--b2);margin-bottom:1.1rem;overflow-x:auto;scrollbar-width:none}
+.rm-tab{display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;border:none;background:none;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--tm);padding:.7rem .9rem;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.rm-tab:hover{color:var(--txt)}
+.rm-tab.on{color:var(--bleu);border-bottom-color:var(--bleu)}
+.rm-chat{display:grid;grid-template-columns:210px minmax(0,1fr);background:var(--s);border:1px solid var(--b2);border-radius:16px;overflow:hidden;height:min(640px,calc(100vh - 260px));min-height:440px}
+.rm-side{border-right:1px solid var(--b2);padding:.8rem .6rem;overflow-y:auto;background:var(--s2)}
+.rm-side-t{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--td);padding:0 .5rem .5rem}
+#rm-channel-list{display:flex;flex-direction:column;gap:2px}
+.rm-ch{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;border:none;background:none;font-family:inherit;font-size:.84rem;font-weight:500;color:var(--tm);padding:.5rem .6rem;border-radius:8px;cursor:pointer;white-space:nowrap}
+.rm-ch:hover{background:var(--s);color:var(--txt)}
+.rm-ch.on{background:var(--s);color:var(--bleu);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.rm-main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.rm-main-h{padding:.85rem 1.1rem;border-bottom:1px solid var(--b2)}
+.rm-main-t{font-size:.95rem;font-weight:800}
+.rm-main-s{font-size:.74rem;color:var(--td);margin-top:.1rem}
+#rm-channel-body{flex:1;overflow-y:auto;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.9rem}
+.rm-empty{margin:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.35rem;color:var(--td);font-size:.82rem;max-width:34ch}
+.rm-empty .ic{width:28px;height:28px;opacity:.6}
+.rm-empty b{color:var(--txt);font-size:.9rem}
+.rm-msg{display:flex;flex-direction:column;align-items:flex-start;max-width:78%}
+.rm-msg.me{align-self:flex-end;align-items:flex-end}
+.rm-who{display:flex;align-items:center;gap:.45rem;margin-bottom:.3rem;flex-wrap:wrap}
+.rm-who-t{display:flex;flex-direction:column;line-height:1.2}
+.rm-who-t b{font-size:.8rem}
+.rm-who-t span{font-size:.7rem;color:var(--td)}
+.rm-acts{display:flex;gap:2px}
+.rm-acts button{border:none;background:none;color:var(--td);padding:.25rem;border-radius:6px;cursor:pointer;display:flex}
+.rm-acts button:hover{background:var(--s2);color:var(--bleu)}
+.rm-bub{background:var(--s2);border-radius:4px 14px 14px 14px;padding:.55rem .8rem;font-size:.86rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.rm-msg.me .rm-bub{background:var(--bleu);color:#fff;border-radius:14px 4px 14px 14px}
+.rm-time{font-size:.64rem;color:var(--td);margin-top:.2rem}
+#rm-profil-required{align-items:center;gap:.6rem;margin:0 1.1rem .6rem;padding:.6rem .8rem;border-radius:10px;background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25);font-size:.8rem;color:var(--txt)}
+#rm-profil-required[style*="block"]{display:flex!important}
+#rm-profil-required span{flex:1}
+#rm-profil-required .ic{color:var(--gold);flex-shrink:0}
+.rm-compose{display:flex;gap:.5rem;padding:.8rem 1.1rem;border-top:1px solid var(--b2)}
+.rm-compose .fi{flex:1;margin:0}
+@media(max-width:760px){
+  .rm-chat{grid-template-columns:1fr;height:auto;min-height:0}
+  .rm-side{border-right:none;border-bottom:1px solid var(--b2);padding:.6rem}
+  .rm-side-t{display:none}
+  #rm-channel-list{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .rm-ch{width:auto}
+  #rm-channel-body{height:55vh}
+  .rm-msg{max-width:90%}
+  #rm-profil-required{flex-wrap:wrap}
+}
+.rm-tags{display:inline-flex;gap:.25rem;flex-wrap:wrap}
+.rm-tag{font-size:.64rem;font-weight:600;color:var(--tm);background:var(--s2);border:1px solid var(--b2);border-radius:100px;padding:.08rem .45rem}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
 <style>
@@ -453,7 +527,7 @@ button.mx-doc{font-family:inherit;cursor:pointer}
         <div id="ml-no-tracking-notice" style="display:none;background:rgba(var(--sea-rgb),.08);border:1px solid rgba(var(--sea-rgb),.2);border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:.8rem;color:var(--marine);line-height:1.5">ℹ Le propriétaire de ce logement n'a pas de compte Trouve Ton Toit — les paiements, les demandes de maintenance et la gestion du bail ne sont pas suivis ici. Coordonnez directement avec votre agence.</div>
         <div class="mx-tabs" role="tablist">
           <button type="button" role="tab" class="mx-tab" id="ml-tabbtn-paiements" onclick="showMlTab('paiements')"><i data-lucide=euro class=ic></i> Paiements</button>
-          <button type="button" role="tab" class="mx-tab" id="ml-tabbtn-bail" onclick="showMlTab('bail')"><i data-lucide=file-text class=ic></i> Bail &amp; état des lieux</button>
+          <button type="button" role="tab" class="mx-tab" id="ml-tabbtn-bail" onclick="showMlTab('bail')"><i data-lucide=file-text class=ic></i> Bail &amp; documents</button>
           <button type="button" role="tab" class="mx-tab" id="ml-tabbtn-maintenance" onclick="showMlTab('maintenance')"><i data-lucide=wrench class=ic></i> Maintenance</button>
           <button type="button" role="tab" class="mx-tab" id="ml-tabbtn-manage" onclick="showMlTab('manage')"><i data-lucide=door-open class=ic></i> Je quitte le logement</button>
         </div>
@@ -491,6 +565,7 @@ button.mx-doc{font-family:inherit;cursor:pointer}
 
         <!-- Sub-tab: Extend or Stop -->
         <div id="ml-tab-manage" style="display:none">
+          <div id="ml-sortie-doc"></div>
           <div class="card">
             <div class="ch"><div class="ct"><i data-lucide=door-open class=ic></i> Quitter ce logement</div></div>
             <div class="cb">
@@ -504,41 +579,36 @@ button.mx-doc{font-family:inherit;cursor:pointer}
 
     <!-- FIND A ROOMMATE -->
     <div class="page" id="page-roommates">
-      <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;overflow-x:auto">
-        <button class="ml-tab" id="rm-tabbtn-channel" onclick="showRmTab('channel')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bleu);color:white"><i data-lucide=message-circle class=ic></i> Community Channel</button>
-        <button class="ml-tab" id="rm-tabbtn-dms" onclick="showRmTab('dms')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=mail class=ic></i> Mes messages<span class="badge" id="rm-dms-badge" style="display:none;margin-left:.3rem"></span></button>
-        <button class="ml-tab" id="rm-tabbtn-profil" onclick="showRmTab('profil')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=user class=ic></i> Mon compte</button>
-        <button class="ml-tab" id="rm-tabbtn-groups" onclick="showRmTab('groups')" style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;background:var(--s2);color:var(--tm)"><i data-lucide=users class=ic></i> Mes groupes</button>
+      <div class="rm-head">
+        <div><h2 class="rm-h1">Trouver un colocataire</h2><p class="rm-intro">Discutez avec d'autres locataires qui cherchent dans votre ville, puis formez un groupe pour postuler ensemble.</p></div>
+      </div>
+      <div class="rm-tabs" role="tablist">
+        <button type="button" role="tab" class="rm-tab on" id="rm-tabbtn-channel" onclick="showRmTab('channel')"><i data-lucide=messages-square class=ic></i> Discussion</button>
+        <button type="button" role="tab" class="rm-tab" id="rm-tabbtn-dms" onclick="showRmTab('dms')"><i data-lucide=mail class=ic></i> Messages privés</button>
+        <button type="button" role="tab" class="rm-tab" id="rm-tabbtn-groups" onclick="showRmTab('groups')"><i data-lucide=users class=ic></i> Mes groupes</button>
+        <button type="button" role="tab" class="rm-tab" id="rm-tabbtn-profil" onclick="showRmTab('profil')"><i data-lucide=user class=ic></i> Mon profil</button>
       </div>
 
-      <!-- Sub-tab: Community Channel -->
+      <!-- Discussion par ville -->
       <div id="rm-tab-channel">
-        <div id="rm-profil-required" style="display:none;background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--gold)">
-          <i data-lucide=user class=ic></i> Créez d'abord votre profil colocataire pour que les autres sachent ce que vous cherchez — <span onclick="showRmTab('profil')" style="text-decoration:underline;cursor:pointer;font-weight:700">configurer maintenant</span>.
-        </div>
-        <!-- Channel list Discord-style -->
-        <div style="overflow-x:auto;padding-bottom:.3rem;margin-bottom:.75rem;scrollbar-width:none">
-          <div id="rm-channel-list" style="display:flex;gap:.4rem;min-width:max-content">
-            <!-- généré par JS -->
-          </div>
-        </div>
-        <div class="card">
-          <div class="ch" style="padding:.7rem 1rem">
-            <div class="ct" style="font-size:.85rem"><i data-lucide=hash class=ic></i> <span id="rm-channel-title">général</span></div>
-            <span id="rm-channel-subtitle" style="font-size:.68rem;color:var(--td)">Tous ceux qui cherchent un colocataire</span>
-          </div>
-          <div id="rm-channel-body" style="height:420px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem"></div>
-          <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem">
-            <input id="rm-channel-input" class="fi" placeholder="Dites bonjour, mentionnez votre budget..." style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmChannelMsg();}">
-            <button class="btn bp bsm" onclick="sendRmChannelMsg()">Envoyer →</button>
-          </div>
+        <div class="rm-chat">
+          <aside class="rm-side"><div class="rm-side-t">Villes</div><div id="rm-channel-list"></div></aside>
+          <section class="rm-main">
+            <div class="rm-main-h"><div><div class="rm-main-t"><span id="rm-channel-title">Toute la France</span></div><div class="rm-main-s" id="rm-channel-subtitle">Tous ceux qui cherchent un colocataire</div></div></div>
+            <div id="rm-channel-body"></div>
+            <div id="rm-profil-required" style="display:none"><i data-lucide=user-round-plus class=ic></i><span>Créez votre profil pour que les autres voient votre budget et vos critères.</span><button type="button" class="btn bp bsm" onclick="showRmTab('profil')">Créer mon profil</button></div>
+            <div class="rm-compose">
+              <input id="rm-channel-input" class="fi" placeholder="Présentez-vous : budget, quartier, date d'entrée…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendRmChannelMsg();}">
+              <button class="btn bp" onclick="sendRmChannelMsg()"><i data-lucide=send class=ic></i> Envoyer</button>
+            </div>
+          </section>
         </div>
       </div>
 
       <!-- Sub-tab: Mes messages (DMs) -->
       <div id="rm-tab-dms" style="display:none">
         <div class="card">
-          <div class="ch"><div class="ct"><i data-lucide=mail class=ic></i> Mes messages</div><span style="font-size:.68rem;color:var(--td)">Conversations privées avec les autres locataires</span></div>
+          <div class="ch"><div class="ct"><i data-lucide=mail class=ic></i> Messages privés</div><span style="font-size:.72rem;color:var(--td)">Vos conversations avec les autres locataires</span></div>
           <div id="rm-dms-list" style="padding:.5rem 0"><div style="text-align:center;padding:1.5rem;font-size:.8rem;color:var(--td)">Chargement...</div></div>
         </div>
       </div>
@@ -548,7 +618,7 @@ button.mx-doc{font-family:inherit;cursor:pointer}
         <div class="card">
           <div class="ch"><div class="ct"><i data-lucide=user class=ic></i> Mon profil colocataire</div><span class="badge" id="rm-profil-badge" style="display:none"></span></div>
           <div class="cb">
-            <p style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">C'est ce que les autres locataires voient à côté de vos messages dans le Community Channel.</p>
+            <p style="font-size:.8rem;color:var(--tm);margin-bottom:1rem;line-height:1.6">C'est ce que les autres locataires voient à côté de vos messages dans la discussion.</p>
             <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
               <div id="rm-avatar-prev" style="width:72px;height:72px;border-radius:50%;background:var(--s2);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;color:var(--td)"><i data-lucide=user class=ic style="width:28px;height:28px"></i></div>
               <div>
@@ -584,7 +654,7 @@ button.mx-doc{font-family:inherit;cursor:pointer}
               </div>
             </div>
             <div class="fg"><label class="fl">Courte bio</label><textarea class="fta" id="rm-bio" rows="3" placeholder="Quelques mots sur vous — d'où vous venez, ce que vous faites, ce que vous cherchez..."></textarea></div>
-            <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rm-actif" checked> <span class="fl" style="margin:0">Visible dans le Community Channel (désactivez une fois que vous avez trouvé un logement)</span></label></div>
+            <div class="fg"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer"><input type="checkbox" id="rm-actif" checked> <span class="fl" style="margin:0">Visible dans la discussion (désactivez une fois que vous avez trouvé un logement)</span></label></div>
             <button class="btn bp" style="width:100%;justify-content:center" onclick="saveRoommateProfile()">Enregistrer profil →</button>
           </div>
         </div>
@@ -1606,13 +1676,8 @@ const RM_VILLES=[
 function renderRmChannelList(){
   const el=document.getElementById('rm-channel-list');
   if(!el)return;
-  el.innerHTML=RM_VILLES.map(v=>`
-    <button onclick="selectRmZone('${v.zone}')" id="rm-zone-btn-${v.zone}"
-      style="flex-shrink:0;border:1px solid var(--b);border-radius:20px;padding:.38rem .85rem;font-size:.77rem;font-weight:600;cursor:pointer;
-             background:${rmCurrentZone===v.zone?'var(--bleu)':'var(--s2)'};
-             color:${rmCurrentZone===v.zone?'white':'var(--tm)'};
-             transition:background .15s,color .15s;white-space:nowrap">${v.label}</button>
-  `).join('');
+  el.innerHTML=RM_VILLES.map(v=>`<button type="button" onclick="selectRmZone('${v.zone}')" id="rm-zone-btn-${v.zone}" class="rm-ch${rmCurrentZone===v.zone?' on':''}"><i data-lucide=${v.zone==='Général'?'globe':'map-pin'} class=ic></i> ${v.zone==='Général'?'Toute la France':v.zone}</button>`).join('');
+  if(window.lucide)lucide.createIcons();
 }
 
 function selectRmZone(zone){
@@ -1620,7 +1685,7 @@ function selectRmZone(zone){
   const v=RM_VILLES.find(x=>x.zone===zone);
   const titleEl=document.getElementById('rm-channel-title');
   const subEl=document.getElementById('rm-channel-subtitle');
-  if(titleEl)titleEl.textContent=v?.zone?.toLowerCase()||zone.toLowerCase();
+  if(titleEl)titleEl.textContent=zone==='Général'?'Toute la France':zone;
   if(subEl)subEl.textContent=v?.subtitle||'';
   renderRmChannelList();
   loadRmChannel();
@@ -1631,7 +1696,7 @@ function showRmTab(tab){
     const panel=document.getElementById('rm-tab-'+t);
     const btn=document.getElementById('rm-tabbtn-'+t);
     if(panel)panel.style.display=t===tab?'block':'none';
-    if(btn){btn.style.background=t===tab?'var(--bleu)':'var(--s2)';btn.style.color=t===tab?'white':'var(--tm)';}
+    if(btn){btn.classList.toggle('on',t===tab);btn.setAttribute('aria-selected',t===tab);}
   });
   if(tab==='channel'){renderRmChannelList();loadRmChannel();}
   if(tab==='dms')loadRmDmsList();
@@ -1764,13 +1829,8 @@ const rmAvatarMini=(prof,name)=>prof?.avatar_url
 
 function rmLifestyleIcons(life){
   if(!life)return'';
-  const icons=[];
-  if(life.quiet)icons.push('<i data-lucide=eye-off class=ic></i>');
-  if(life.social)icons.push('<i data-lucide=party-popper class=ic></i>');
-  if(life.nonsmoker)icons.push('<i data-lucide=ban class=ic></i>');
-  if(life.pets)icons.push('<i data-lucide=paw-print class=ic></i>');
-  if(life.wfh)icons.push('<i data-lucide=laptop class=ic></i>');
-  return icons.join(' ');
+  const t=[['quiet','Calme'],['social','Sociable'],['nonsmoker','Non-fumeur'],['pets','Animaux OK'],['wfh','Télétravail']].filter(([k])=>life[k]).map(([,l])=>`<span class="rm-tag">${l}</span>`);
+  return t.length?`<span class="rm-tags">${t.join('')}</span>`:'';
 }
 
 async function loadRmChannel(){
@@ -1799,29 +1859,26 @@ async function loadRmChannel(){
     }
 
     if(!visibleMsgs.length){
-      const zoneLabel=rmCurrentZone==='Général'?'dans ce channel':'à '+rmCurrentZone;
-      body.innerHTML=`<div style="text-align:center;font-size:.8rem;color:var(--td);padding:2rem">Aucun message ${zoneLabel} — soyez le premier à dire bonjour <i data-lucide=hand class=ic></i></div>`;
+      const zoneLabel=rmCurrentZone==='Général'?'pour le moment':'à '+_escT(rmCurrentZone)+' pour le moment';
+      body.innerHTML=`<div class="rm-empty"><i data-lucide=message-circle class=ic></i><b>Aucun message ${zoneLabel}</b><span>Présentez-vous en premier : budget, quartier et date d'entrée.</span></div>`;
     }else{
       body.innerHTML=visibleMsgs.map(m=>{
         const prof=rmProfilesCache[m.sender_id];
         const isMe=m.sender_id===U.id;
-        const name=prof?.full_name||'Someone';
-        const budget=prof?.budget_max?`max €${prof.budget_max}`:'';
-        const zones=prof?.zones||'';
-        const spotsNote=prof?.spots_needed>0?`· needs ${prof.spots_needed} more`:'';
-        return`<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
-          ${!isMe?`<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.15rem">
-            ${rmAvatarMini(prof,name)}<span style="font-size:.68rem;color:var(--bleu);font-weight:700">${name}${budget?' · '+budget:''}${zones?' · <i data-lucide=map-pin class=ic></i>'+zones:''} ${spotsNote} ${rmLifestyleIcons(prof?.lifestyle?JSON.parse(prof.lifestyle):null)}</span>
-            <button onclick="viewRmProfile('${m.sender_id}')" title="Voir le profil" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=eye class=ic></i></button>
-            <button onclick="openRmDm('${m.sender_id}','${name.replace(/'/g,"\\'")}')" title="Envoyer un message privé" style="background:none;border:none;cursor:pointer;padding:.1rem .25rem;border-radius:4px;color:var(--tm);font-size:.75rem;line-height:1;display:flex;align-items:center" onmouseover="this.style.color='var(--bleu)'" onmouseout="this.style.color='var(--tm)'"><i data-lucide=message-circle class=ic></i></button>
-          </div>`:''}
-          <div style="max-width:78%;background:${isMe?'var(--bleu)':'var(--s2)'};color:${isMe?'white':'var(--txt)'};border-radius:12px;padding:.55rem .8rem;font-size:.83rem;white-space:pre-wrap;line-height:1.5">${m.content}</div>
-          <div style="font-size:.6rem;color:var(--td);margin-top:.15rem">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
-        </div>`;
+        const name=prof?.full_name||'Membre';
+        const meta=[prof?.budget_max?'max '+Number(prof.budget_max).toLocaleString('fr-FR')+' €':'',prof?.zones||'',prof?.spots_needed>0?'cherche '+prof.spots_needed+' pers.':''].filter(Boolean).map(_escT).join(' · ');
+        let life=null;try{life=prof?.lifestyle?JSON.parse(prof.lifestyle):null;}catch(e){}
+        const heure=new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+        if(isMe)return`<div class="rm-msg me"><div class="rm-bub">${_escT(m.content)}</div><div class="rm-time">${heure}</div></div>`;
+        return`<div class="rm-msg">
+          <div class="rm-who">${rmAvatarMini(prof,name)}<div class="rm-who-t"><b>${_escT(name)}</b>${meta?`<span>${meta}</span>`:''}</div>${rmLifestyleIcons(life)}
+            <div class="rm-acts"><button type="button" onclick="viewRmProfile('${m.sender_id}')" title="Voir le profil"><i data-lucide=user class=ic></i></button><button type="button" onclick="openRmDm('${m.sender_id}','${_escT(name).replace(/'/g,"&#39;")}')" title="Message privé"><i data-lucide=mail class=ic></i></button></div></div>
+          <div class="rm-bub">${_escT(m.content)}</div><div class="rm-time">${heure}</div></div>`;
       }).join('');
       body.scrollTop=body.scrollHeight;
     }
-  }catch(e){body.innerHTML='<div style="text-align:center;font-size:.8rem;color:var(--red)">Could not load channel</div>';}
+  }catch(e){body.innerHTML='<div class="rm-empty" style="color:var(--red)">Impossible de charger la discussion.</div>';}
+  if(window.lucide)lucide.createIcons();
 }
 
 async function sendRmChannelMsg(){
@@ -2433,8 +2490,7 @@ async function loadMyLocation(){
   // La mise en place (bail, état des lieux, premier paiement) se suit dans « Candidatures » : rien à répéter ici
   await _mlResume(bk,annonce);
 
-  const docEl=document.getElementById('ml-bail-doc');
-  if(docEl)docEl.innerHTML=renderBailDocCard(bk,annonce)+renderEdlDocCard(bk);
+  // Onglet « Bail & documents » : rempli par _mlResume (bail, état des lieux d'entrée, annexes, assurance)
 
   // Ce bien est géré par une agence sans propriétaire lié à un vrai compte
   // Trouve Ton Toit — personne côté Trouve Ton Toit pour suivre paiements/gestion.
@@ -2526,7 +2582,7 @@ async function _assMl(L,bk){
   const rows=await _assRows(L.id);if(rows===null)return;
   const val=rows.find(r=>r.statut==='validee');
   const d=document.getElementById('ml-ass-doc');
-  if(d)d.innerHTML=val?`<button type="button" class="mx-doc" onclick="assVoir('${val.id}')"><i data-lucide=shield-check class=ic></i> Assurance habitation</button>`:'';
+  if(d)d.innerHTML=val?`<button type="button" class="mx-drow" onclick="assVoir('${val.id}')"><span class="mx-dic"><i data-lucide=shield-check class=ic></i></span><span class="mx-dtx"><b>Assurance habitation</b><small>${val.assureur?_escT(val.assureur)+' · ':''}valable jusqu'au ${_assFr(val.date_fin)}</small></span><span class="mx-chip ok">Validée</span><i data-lucide=chevron-right class="ic mx-dch"></i></button>`:'';
   const af=document.getElementById('ml-afaire');
   if(af&&L.landlord_signed_at&&L.tenant_signed_at){let x=document.getElementById('ml-ass');if(!x){x=document.createElement('div');x.id='ml-ass';af.appendChild(x);}
     _assRender('ml-ass',L,bk,true);}
@@ -2534,7 +2590,7 @@ async function _assMl(L,bk){
 }
 
 // Annexes du bail : tout ce qui est joint au bail (diagnostics déposés par le propriétaire, actes de caution signés, documents officiels)
-function _mlAnnexes(L,actes){
+function _mlAnnexes(L,actes,inline){
   if(!L)return'';
   const diag=[['doc_dpe_url','Diagnostic de performance énergétique (DPE)'],['doc_erp_url','État des risques et pollutions (ERP)'],['doc_plomb_url','Constat de risque d\'exposition au plomb (CREP)'],['doc_amiante_url','Dossier amiante (parties privatives)'],['doc_elec_url','Diagnostic électricité'],['doc_gaz_url','Diagnostic gaz'],['doc_bruit_url','Information sur les nuisances sonores']]
     .filter(([k])=>L[k]).map(([k,t])=>[L[k],t]);
@@ -2542,6 +2598,7 @@ function _mlAnnexes(L,actes){
   const info=[['https://www.pap.fr/download/notice_contrat.pdf','Notice d\'information (droits et obligations)'],['https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf','Grille de vétusté']];
   const grp=(titre,items,ic)=>items.length?`<div class="mx-ann-h">${titre}</div>${items.map(([u,t])=>`<a href="${_escT(u)}" target="_blank" rel="noopener"><i data-lucide=${ic} class=ic></i> ${_escT(t)}</a>`).join('')}`:'';
   const n=diag.length+gar.length+info.length;
+  if(inline)return`<div class="mx-ann-t"><i data-lucide=paperclip class=ic></i> Annexes du bail <span>(${n})</span></div><div class="mx-ann-list">${grp('Diagnostics',diag,'gauge')}${grp('Garanties',gar,'file-signature')}${grp('Informations légales',info,'book-open')}${diag.length?'':'<div class="mx-ann-vide">Aucun diagnostic déposé par le propriétaire pour le moment.</div>'}</div>`;
   return`<details class="mx-diag"><summary class="mx-doc"><i data-lucide=paperclip class=ic></i> Annexes du bail (${n})</summary><div class="mx-diag-list">${grp('Diagnostics',diag,'gauge')}${grp('Garanties',gar,'file-signature')}${grp('Informations légales',info,'book-open')}${diag.length?'':'<div class="mx-ann-vide">Aucun diagnostic déposé par le propriétaire pour le moment.</div>'}</div></details>`;
 }
 // En-tête de « Mon logement » : documents, loyer (ma part), prochaine échéance, colocataires, entrée dans les lieux
@@ -2555,12 +2612,21 @@ async function _mlResume(bk,annonce){
   // Documents
   let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;}catch(e){}
   let actes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,statut,signed_at').eq('lease_id',L.id);actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
-  const docs=document.getElementById('ml-docs');
-  if(docs)docs.innerHTML=[L?`<a class="mx-doc" href="/bail-meuble.html?lease_id=${L.id}&role=tenant"><i data-lucide=file-text class=ic></i> Bail</a>`:'',
-    (bk.edl_status||bk.edl_completed_at)?`<a class="mx-doc" href="/edl-meuble.html?booking_id=${bk.id}"><i data-lucide=clipboard-list class=ic></i> État des lieux d'entrée</a>`:'',
-    sortie?`<a class="mx-doc" href="/edl-meuble.html?booking_id=${bk.id}&type=sortie"><i data-lucide=log-out class=ic></i> État des lieux de sortie</a>`:'',
-    _mlAnnexes(L,actes),
-    `<span id="ml-ass-doc"></span>`].join('');
+  const docs=document.getElementById('ml-docs');if(docs)docs.innerHTML='';
+  // Onglet « Bail & documents » : liste simple
+  const bailOk=L&&L.landlord_signed_at&&L.tenant_signed_at,edlOk=bk.status==='move_in_ready'||!!bk.edl_completed_at||(bk.edl_signed_landlord&&bk.edl_signed_tenant);
+  const ligne=(ic,t,sub,href,etat)=>`<a class="mx-drow" href="${href}"><span class="mx-dic"><i data-lucide=${ic} class=ic></i></span><span class="mx-dtx"><b>${t}</b>${sub?`<small>${sub}</small>`:''}</span>${etat||''}<i data-lucide=chevron-right class="ic mx-dch"></i></a>`;
+  const chip=(ok,a,b)=>`<span class="mx-chip ${ok?'ok':'wa'}">${ok?a:b}</span>`;
+  const docEl=document.getElementById('ml-bail-doc');
+  if(docEl)docEl.innerHTML=`<div class="mx-dlist">
+      ${L?ligne('file-text',L.type_bail==='vide'?'Bail de location vide':'Bail de location','Du '+fr(L.start_date)+' au '+fr(L.end_date),`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(bailOk,'Signé','En cours')):'<div class="mx-drow mx-dvide">Le bail apparaîtra ici dès que le propriétaire l\'aura préparé.</div>'}
+      ${(bk.edl_status||bk.edl_completed_at)?ligne('clipboard-list','État des lieux d\'entrée',edlOk?'Signé par tous':'',`/edl-meuble.html?booking_id=${bk.id}`,chip(edlOk,'Signé','En cours')):''}
+      <div id="ml-ass-doc"></div>
+    </div>
+    ${L?`<div class="mx-ann">${_mlAnnexes(L,actes,true)}</div>`:''}`;
+  // État des lieux de sortie : dans « Je quitte le logement »
+  const sx=document.getElementById('ml-sortie-doc');
+  if(sx)sx.innerHTML=sortie?`<div class="mx-dlist" style="margin-bottom:1rem">${ligne('log-out','État des lieux de sortie',sortie.status==='signed'?'Signé':'En cours',`/edl-meuble.html?booking_id=${bk.id}&type=sortie`,chip(sortie.status==='signed','Signé','En cours'))}</div>`:'';
   if(L)_assMl(L,bk);
   // Mes paiements
   let ps=[];try{const{data}=await sb.from('payments').select('id,type,amount,status,due_date').eq('tenant_id',U.id).eq('booking_id',bk.id).neq('status','cancelled');ps=data||[];}catch(e){}
