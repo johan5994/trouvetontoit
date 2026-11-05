@@ -84,6 +84,11 @@
 .gx-badge.wa{background:rgba(var(--gold-rgb),.18);color:var(--gold)}
 .gx-foot{font-size:.68rem;color:var(--td);margin-top:1.2rem;line-height:1.5;opacity:.85}
 @media(max-width:760px){.gx-tiles{grid-template-columns:repeat(2,1fr)}.gx-kpis{grid-template-columns:1fr 1fr}.gx-kpi:nth-child(3){display:none}}
+.gx-ass{display:flex;justify-content:space-between;align-items:center;gap:.7rem;flex-wrap:wrap;border-radius:10px;padding:.65rem .8rem;font-size:.8rem}
+.gx-ass-wa{background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.35)}
+.gx-ass-s{font-size:.74rem;color:var(--td);margin-top:.15rem}
+.gx-ass-b{display:flex;gap:.35rem;flex-wrap:wrap}
+button.gx-doc{font-family:inherit;cursor:pointer}
 </style>
 <style>
 :root{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
@@ -4600,6 +4605,7 @@ async function loadGestion(){
     if(lids.length){const{data:li}=await sb.from('listings').select('*').in('id',lids);(li||[]).forEach(x=>GEST.listings[x.id]=x);}
     try{const{data:rg}=await sb.from('charges_regularisations').select('*').eq('landlord_id',U.id);(rg||[]).forEach(r=>GEST.regs[r.lease_id+':'+r.annee]=r);}catch(e){}
     try{const{data:ix}=await sb.from('irl_indices').select('trimestre,valeur');(ix||[]).forEach(x=>{const v=Number(x.valeur);if(v>100&&v<300&&/^\d{4}-[1-4]$/.test(x.trimestre))IRL[x.trimestre]=v;});}catch(e){}
+    GEST.ass=[];try{const{data:as,error:ae}=await sb.from('assurances_habitation').select('*').eq('landlord_id',U.id).order('deposee_at',{ascending:false});if(!ae)GEST.ass=as||[];}catch(e){}
     GEST.teom={};try{const{data:tm}=await sb.from('teom_refacturations').select('*').eq('landlord_id',U.id);(tm||[]).forEach(r=>GEST.teom[r.lease_id+':'+r.annee]=r);}catch(e){}
   }catch(e){box.innerHTML='<div style="color:var(--red)">Erreur : '+_gEsc(e.message)+'</div>';return;}
   if(window._gOpenTeom){window._gBien=window._gOpenTeom;window._gTab='teom';window._gOpenTeom=null;}
@@ -4623,9 +4629,10 @@ function _gBienResume(b){
   const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
   const adr=b.li.full_address||b.li.zone||'';
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
-  const docs=[...b.ls.map(l=>`<a class="gx-doc" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`),
+  let docs=[...b.ls.map(l=>`<a class="gx-doc" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`),
     ...bks.map(l=>{const suf=multiB?' · '+_gEsc(_gName(l.tenant_id)):'',so=GEST.edlS?.[l.booking_id];
       return `<a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> EDL d'entrée${suf}</a><a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${so?(so.status==='signed'?'EDL de sortie ✓':'EDL de sortie (en cours)'):'EDL de sortie'}${suf}</a>`;})].join('');
+  _gAssEtat(b).forEach(x=>{if(x.val)docs+=`<button type="button" class="gx-doc" onclick="gAssVoir('${x.val.id}')"><i data-lucide=shield-check class=ic></i> Assurance${x.multi?' · '+_gEsc(x.nom):''}</button>`;});
   const tile=(k,v,c)=>`<div class="gx-tile"><div class="gx-k">${k}</div><div class="gx-v" style="${c||''}">${v}</div></div>`;
   return `<div class="gx-head"><div style="min-width:0"><div class="gx-h1">${_gEsc(b.li.title||'Logement')}</div>${adr?`<div class="gx-card-a" style="font-size:.8rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}</div><div class="gx-docs">${docs}</div></div>
     <div class="gx-tiles">
@@ -4634,6 +4641,39 @@ function _gBienResume(b){
       ${tile('Prochaine échéance',st.prochain?_gD(st.prochain.due_date)+'<div style="font-weight:500;color:var(--td);font-size:.75rem">'+_g$(st.prochain.amount)+'</div>':'—')}
       ${tile('Impayés',st.retard.length?st.retard.length+' · '+_g$(st.retard.reduce((a,p)=>a+Number(p.amount||0),0)):'Aucun',st.retard.length?'color:var(--red)':'color:var(--green)')}
     </div>${_gBienActions(b)}`;
+}
+// Assurance habitation des locataires d'un bien : dernière attestation en attente, dernière validée, par locataire et par bail en cours
+function _gAssEtat(b){
+  const today=new Date(),res=[];
+  (b.ls||[]).filter(l=>!l._fin||new Date(l._fin)>=today).forEach(l=>{
+    const ids=[l.tenant_id,...(l._colocs||[]).map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
+    [...new Set(ids)].forEach(tid=>{
+      const rs=(GEST.ass||[]).filter(r=>r.lease_id===l.id&&r.tenant_id===tid);
+      const att=rs.find(r=>r.statut==='en_attente')||null,val=rs.find(r=>r.statut==='validee')||null,der=rs[0]||null;
+      res.push({lease:l,tid,nom:_gName(tid),att,val,refus:der&&der.statut==='refusee'});
+    });
+  });
+  const multi=res.length>1;res.forEach(x=>x.multi=multi);
+  return res;
+}
+async function gAssVoir(id){
+  const r=(GEST.ass||[]).find(x=>x.id===id);if(!r){toast('Attestation introuvable');return;}
+  const{data:u,error}=await sb.storage.from('documents-dossiers').createSignedUrl(r.fichier_path,3600);
+  if(error||!u?.signedUrl){uiAlert('Ouverture impossible : '+(error?.message||''));return;}
+  window.open(u.signedUrl,'_blank','noopener');
+}
+async function gAssTraiter(id,ok){
+  const r=(GEST.ass||[]).find(x=>x.id===id);if(!r)return;
+  let motif=null;
+  if(ok){if(!await uiConfirm(`Valider l'attestation d'assurance habitation de ${_gName(r.tenant_id)} (valable jusqu'au ${_gD(r.date_fin)}) ?\n\nVérifiez qu'elle couvre bien ce logement et au minimum les risques locatifs (incendie, dégât des eaux, explosion).`))return;}
+  else{motif=await uiPrompt('Motif du refus (visible par le locataire) :','Adresse différente, date dépassée, document illisible…');if(motif===null)return;motif=String(motif).trim()||null;}
+  const upd={statut:ok?'validee':'refusee',motif_refus:motif,traitee_at:new Date().toISOString()};
+  const{error}=await sb.from('assurances_habitation').update(upd).eq('id',id);
+  if(error){uiAlert('Erreur : '+error.message);return;}
+  Object.assign(r,upd);
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.tenant_id,listing_id:r.listing_id||null,type:'message',content:ok?`Votre propriétaire a validé votre attestation d'assurance habitation (valable jusqu'au ${_gD(r.date_fin)}). Elle est disponible dans Mon logement.`:`Votre propriétaire a refusé votre attestation d'assurance habitation${motif?' : '+motif:''}. Déposez-en une nouvelle dans Mon logement.`});}catch(e){}
+  toast(ok?'<i data-lucide=check-circle-2 class=ic></i> Attestation validée':'Attestation refusée — le locataire est prévenu');
+  renderGestion();
 }
 // Actions sur la location (reprises de l'ancienne page « Biens loués ») : message, état des lieux avec photos, départ du locataire, fin de bail
 function _gBienActions(b){
@@ -4645,6 +4685,14 @@ function _gBienActions(b){
   });
   b.ls.filter(l=>!l._fin&&l.end_date).forEach(l=>{const j=Math.ceil((new Date(l.end_date)-new Date())/864e5);
     if(j<=90)alertes.push(`<div style="font-size:.78rem;color:${j<0?'var(--red)':j<=60?'var(--gold)':'var(--td)'};font-weight:600"><i data-lucide=calendar class=ic></i> ${j<0?`Bail de ${_gEsc(_gName(l.tenant_id))} arrivé à son terme il y a ${-j} jours`:`Bail de ${_gEsc(_gName(l.tenant_id))} : fin le ${_gD(l.end_date)} (dans ${j} jours)`}</div>`);});
+  const ass=_gAssEtat(b),assH=ass.map(x=>{
+    const nom=_gEsc(x.nom);
+    if(x.att)return `<div class="gx-ass gx-ass-wa"><div><strong><i data-lucide=shield class=ic></i> Assurance habitation de ${nom}</strong><div class="gx-ass-s">Déposée le ${_gD(x.att.deposee_at)}${x.att.assureur?' · '+_gEsc(x.att.assureur):''} · valable jusqu'au ${_gD(x.att.date_fin)}</div></div><div class="gx-ass-b"><button class="btn bg bsm" onclick="gAssVoir('${x.att.id}')"><i data-lucide=eye class=ic></i> Voir</button><button class="btn bp bsm" onclick="gAssTraiter('${x.att.id}',true)"><i data-lucide=check class=ic></i> Valider</button><button class="btn bg bsm" style="color:var(--red)" onclick="gAssTraiter('${x.att.id}',false)">Refuser</button></div></div>`;
+    if(x.val){const j=x.val.date_fin?_gDays(new Date(),x.val.date_fin):null;
+      if(j!==null&&j<=30)return `<div style="font-size:.78rem;color:${j<0?'var(--red)':'var(--gold)'};font-weight:600"><i data-lucide=shield-alert class=ic></i> Assurance habitation de ${nom} ${j<0?'expirée depuis le '+_gD(x.val.date_fin):'expire le '+_gD(x.val.date_fin)} — le locataire est invité à déposer la nouvelle attestation</div>`;
+      return '';}
+    return `<div style="font-size:.78rem;color:var(--td);font-weight:600"><i data-lucide=shield class=ic></i> Attestation d'assurance habitation de ${nom} pas encore reçue${x.refus?' (dernière refusée)':''}</div>`;}).filter(Boolean);
+  alertes.unshift(...assH);
   if(!out.length&&!alertes.length)return '';
   return `<div style="margin:-.3rem 0 1rem;display:flex;flex-direction:column;gap:.45rem">${alertes.join('')}<div style="display:flex;gap:.4rem;flex-wrap:wrap">${out.join('')}</div></div>`;
 }
@@ -4674,7 +4722,7 @@ function renderGestion(){
     if(!biens.length){box.innerHTML=`<div class="card"><div class="cb" style="font-size:.85rem">Aucun bien loué pour l'instant : un logement apparaît ici dès que vous acceptez un locataire, puis sa gestion complète une fois le bail signé par les deux parties.</div></div>`+`<div id="rp-sec" hidden style="margin-top:1.6rem"><div style="font-weight:800;font-size:1rem;margin-bottom:.25rem">Locations en cours de mise en place</div><p class="gx-intro">Bail pas encore signé par les deux parties, entrée dans les lieux à venir, ou logement géré par une agence.</p><div id="rp-list"></div></div>`;_rp();return;}
     box.innerHTML=_gRevBandeau()+`<p class="gx-intro">Choisissez un bien pour suivre ses loyers, ses impayés, la révision du loyer, la régularisation des charges et la maintenance.</p>
       <div class="gx-grid">${biens.map(b=>{const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
-      const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:st.regulAFaire?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
+      const pill=st.retard.length?`<span class="gx-pill gx-ko">${st.retard.length} impayé${st.retard.length>1?'s':''}</span>`:(st.regulAFaire||_gAssEtat(b).some(x=>x.att))?`<span class="gx-pill gx-wa">Action requise</span>`:noms.length?`<span class="gx-pill gx-ok">À jour</span>`:`<span class="gx-pill gx-wa">Vacant</span>`;
       return `<button type="button" class="gx-card" onclick="window._gBien='${b.id}';window._gTab='paiements';renderGestion();window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ouvrir la gestion de ${_gEsc(b.li.title||'ce logement')}">
         <div class="gx-card-top"><div style="min-width:0"><div class="gx-card-t">${_gEsc(b.li.title||'Logement')}</div><div class="gx-card-a">${_gEsc(b.li.full_address||b.li.zone||'')}</div></div>${pill}</div>
         <div class="gx-kpis">
@@ -5702,7 +5750,7 @@ async function ensureFirstPaymentRecords(bookingId){
         if(type==='deposit'&&!(deposit>0))continue;
         const ex=mine.find(x=>x.type===type||(type==='deposit'&&x.type==='depot'));
         if(!ex)rows.push({...base,amount:amt,type,status:'paid',paid_at:now,due_date:moveIn||today});
-        else if(Math.abs(Number(ex.amount)-amt)>0.009)await sb.from('payments').update({amount:amt}).eq('id',ex.id);
+        else if(Math.abs(Number(ex.amount)-amt)>0.009){const{error:ue}=await sb.from('payments').update({amount:amt,lease_id:ex.lease_id||L?.id||null}).eq('id',ex.id);if(ue)console.error('ensureFirstPaymentRecords: correction du montant impossible',ue.message);}
       }
       // Échéancier mensuel (sa part du loyer)
       const rents=mine.filter(x=>x.type==='rent');
