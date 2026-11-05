@@ -2235,7 +2235,7 @@ async function teomPayeT(id){
   const{error}=await sb.from('teom_refacturations').update({paiement_declare_at:new Date().toISOString()}).eq('id',id);
   if(error){uiAlert('Erreur : '+error.message);return;}
   try{await sb.from('payments').update({status:'declared'}).eq('lease_id',r.lease_id).eq('type','teom').neq('status','paid');}catch(e){}
-  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.landlord_id,content:`Taxe d'ordures ménagères ${r.annee} : votre locataire indique avoir payé ${fmtEur(r.part)}. Confirmez la réception dans Gestion locative → le bien → TEOM.`,type:'message'});}catch(e){}
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.landlord_id,content:`Taxe d'ordures ménagères ${r.annee} : votre locataire indique avoir payé ${fmtEur(r.part)}. Confirmez la réception dans Mes locations → le bien → TEOM.`,type:'message'});}catch(e){}
   loadRegulT();
 }
 async function regulPayeT(id){
@@ -2245,7 +2245,7 @@ async function regulPayeT(id){
   const{error}=await sb.from('charges_regularisations').update({paiement_declare_at:now}).eq('id',id);
   if(error){uiAlert('Erreur : '+error.message);return;}
   try{await sb.from('payments').update({status:'declared'}).eq('lease_id',r.lease_id).eq('type','charges_regul').neq('status','paid');}catch(e){}
-  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.landlord_id,content:`Régularisation des charges ${r.annee} : votre locataire indique avoir payé ${fmtEur(r.solde)}. Confirmez la réception dans Gestion locative → Régularisation des charges.`,type:'message'});}catch(e){}
+  try{await sb.from('messages').insert({sender_id:'system',receiver_id:r.landlord_id,content:`Régularisation des charges ${r.annee} : votre locataire indique avoir payé ${fmtEur(r.solde)}. Confirmez la réception dans Mes locations → Régularisation des charges.`,type:'message'});}catch(e){}
   loadRegulT();
 }
 async function regulRecuT(id){
