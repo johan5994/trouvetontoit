@@ -13,7 +13,7 @@
 const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = process.env.URL || 'https://trouvetontoi.netlify.app';
-const { stripe, ligne, enregistrer, estAbonne, nbBiens } = require('./_shared/verif-abonnement');
+const { stripe, ligne, actif, enregistrer, estAbonne, nbBiens } = require('./_shared/verif-abonnement');
 const { utilisateur } = require('./_shared/clerk-auth');
 
 const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -50,8 +50,18 @@ exports.handler = async (event) => {
     if (!uid) return rep(401, { erreur: 'Session expirée : reconnectez-vous.' });
     const a = (await api(`abonnements?landlord_id=eq.${encodeURIComponent(uid)}&select=*`))?.[0] || null;
     if (b.action === 'statut') {
+      // L'espace propriétaire lit son abonnement ici (clé service) plutôt que directement dans la table
       await estAbonne(api, uid);
-      return rep(200, { abonnement: (await api(`abonnements?landlord_id=eq.${encodeURIComponent(uid)}&select=*`))?.[0] || null });
+      let row = (await api(`abonnements?landlord_id=eq.${encodeURIComponent(uid)}&select=*`))?.[0] || null;
+      if (!actif(row)) {
+        // Rattrapage : abonnement payé chez Stripe mais pas encore enregistré (retour de paiement interrompu, webhook absent)
+        try {
+          const r = await s.subscriptions.search({ query: `metadata['clerk_id']:'${uid.replace(/'/g, '')}'`, limit: 10 });
+          const sub = (r.data || []).find(x => ['active', 'trialing', 'past_due'].includes(x.status));
+          if (sub) { const l = ligne(sub, uid); await enregistrer(api, l); row = { ...(row || {}), ...l }; }
+        } catch (e) { console.error('recherche abonnement', e.message); }
+      }
+      return rep(200, { abonnement: row });
     }
     if (b.action === 'checkout') {
       if (!PRIX) return rep(200, { erreur: 'Abonnement non configuré : ajoutez STRIPE_PRICE_PRO dans les variables Netlify.' });
