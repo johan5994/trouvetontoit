@@ -105,10 +105,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .nico{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
 .nbadge{margin-left:auto;background:var(--bleu);color:white;font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;min-width:20px;text-align:center}
 .nbadge.g{background:var(--green)}.nbadge.gold{background:var(--gold);color:#1A1410}
-.sb-user{padding:1rem 1.5rem;border-top:1px solid var(--b);display:flex;align-items:center;gap:.75rem}
+.sb-user{padding:.85rem 1rem .75rem 1.25rem;border-top:1px solid var(--b);display:flex;flex-wrap:wrap;align-items:center;gap:.45rem .65rem}
+.sb-user>div:nth-child(2){flex:1 1 0}
+.sb-acts{display:flex;gap:.25rem;width:100%;padding-left:calc(34px + .65rem);margin-left:-6px}
+.sb-ic{all:unset;box-sizing:border-box;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--td);cursor:pointer;transition:background .15s,color .15s}
+.sb-ic:hover{background:var(--s2);color:var(--txt)}
+.sb-ic:focus-visible{outline:2px solid var(--bleu);outline-offset:1px}
+.sb-pill{display:inline-block;margin-left:.3rem;padding:0 .4rem;border-radius:999px;background:rgba(var(--bleu-rgb),.14);color:var(--bleu);font-size:.62rem;font-weight:700;line-height:1.5;vertical-align:1px}
 .uav{width:34px;height:34px;border-radius:50%;background:var(--tdim);border:1px solid rgba(var(--bleu-rgb),.3);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:700;color:var(--bleu)}
 .un{font-size:.82rem;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ur{font-size:.7rem;color:var(--td)}
+.ur{font-size:.7rem;color:var(--td);white-space:nowrap;margin-top:.1rem}
 
 .main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{padding:1rem 2rem;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--s);position:sticky;top:0;z-index:40}
@@ -318,8 +324,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
       <div class="un" id="uname">Chargement...</div>
       <div class="ur" id="ur-abo">Propriétaire</div>
     </div>
-    <button class="btn bg bsm" onclick="toggleTheme()" title="Basculer clair/sombre" id="theme-toggle-btn"><i data-lucide=moon class=ic></i></button>
-    <button class="btn bg bsm" onclick="doLogout()" title="Se déconnecter">↩</button>
+    <div class="sb-acts">
+      <button class="sb-ic" onclick="toggleTheme()" title="Basculer clair/sombre" aria-label="Basculer clair/sombre" id="theme-toggle-btn"><i data-lucide=moon class=ic></i></button>
+      <button class="sb-ic" onclick="doLogout()" title="Se déconnecter" aria-label="Se déconnecter"><i data-lucide=log-out class=ic></i></button>
+    </div>
   </div>
 </aside>
 
@@ -399,7 +407,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
     <div class="page act" id="page-annonces">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
         <div style="font-size:1rem;font-weight:700">Mes annonces</div>
-        <button class="btn bp bsm" onclick="openNewAnnonce()">+ Add annonce</button>
+        <button class="btn bp bsm" onclick="openNewAnnonce()">+ Nouvelle annonce</button>
       </div>
       <div class="card" style="overflow-x:auto">
         <table class="tbl">
@@ -1128,13 +1136,18 @@ async function loadAnnonces(){
 
   myAnnonces=(data||[]).filter(l=>!rentedListingIds.has(l.id));
   const tb=document.getElementById('annonces-tbody');
-  const tl={short:'<i data-lucide=home class=ic></i> Location courte durée',sublet:'<i data-lucide=key class=ic></i> Sous-loc',long:'<i data-lucide=calendar class=ic></i> Location longue durée',both:'<i data-lucide=refresh-cw class=ic></i> Les deux',for_sale:'<i data-lucide=tag class=ic></i> À vendre'};
+  // Type d'annonce (France) : location vide / meublée, colocation, parking, vente
+  const tl=l=>{const m=l['meublé']??l.furnished;
+    if(l.type==='for_sale')return '<i data-lucide=tag class=ic></i> À vendre';
+    if(l.type==='room_rental')return '<i data-lucide=users class=ic></i> Colocation';
+    if(l.type==='parking')return '<i data-lucide=car class=ic></i> Parking / garage';
+    return m===true?'<i data-lucide=sofa class=ic></i> Location meublée':m===false?'<i data-lucide=home class=ic></i> Location vide':'<i data-lucide=home class=ic></i> Location vide ou meublée';};
   tb.innerHTML=myAnnonces.map(l=>{
     const isSale=l.type==='for_sale';
     const isBoosted=l.boosted_until&&new Date(l.boosted_until).getTime()>Date.now();
     const pendingSale=isSale&&l.sale_subscription_status!=='actif';
-    const priceLabel=isSale?`€${l.sale_price||l.price}`:`€${l.price}/mois`;
-    const statusBadge=pendingSale?'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> Not activated — €2/week</span>':`<span class="badge ${(l.actif??l.active)?'b-green':'b-dim'}">${(l.actif??l.active)?'<i data-lucide=circle class=ic></i> Actif':'<i data-lucide=circle class=ic></i> Paused'}</span>`;
+    const priceLabel=isSale?`${Number(l.sale_price||l.price||0).toLocaleString('fr-FR')} €`:`${Number(l.price||0).toLocaleString('fr-FR')} €/mois`;
+    const statusBadge=pendingSale?'<span class="badge b-gold"><i data-lucide=hourglass class=ic></i> Not activated — €2/week</span>':`<span class="badge ${(l.actif??l.active)?'b-green':'b-dim'}">${(l.actif??l.active)?'<i data-lucide=circle class=ic></i> Actif':'<i data-lucide=circle class=ic></i> En pause'}</span>`;
     const actionBtn=isSale
       ?((l.actif??l.active)
         ?`<button class="btn bg bsm" onclick="toggleAnnonce('${l.id}',true)">Pause</button>`
@@ -1144,7 +1157,7 @@ async function loadAnnonces(){
     return`<tr>
     <td style="color:var(--txt);font-weight:500">${l.title}
       <div style="font-size:.7rem;color:var(--td)"><i data-lucide=map-pin class=ic></i> ${l.zone}${isBoosted?` · <i data-lucide=flame class=ic></i> Boosté jusqu'au ${new Date(l.boosted_until).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`:''}</div></td>
-    <td><span class="badge b-sea">${tl[l.type]||l.type}</span></td>
+    <td><span class="badge b-sea">${tl(l)}</span></td>
     <td style="color:var(--txt);font-weight:600">${priceLabel}</td>
     <td>${statusBadge}</td>
     <td style="font-size:.75rem;color:var(--td)">${l.available_indefinitely?'Indéfiniment':l.available_from?new Date(l.available_from).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'Maintenant'}</td>
@@ -4476,7 +4489,7 @@ async function loadAbonnement(){
   else{try{const{data}=await sb.from('abonnements').select('*').eq('landlord_id',U.id).maybeSingle();window.ABO=data||null;}catch(e){window.ABO=null;}}
   // Nombre de biens facturés : ajusté automatiquement (bail signé ou terminé)
   if(_estAbo()||window.ABO?.statut==='past_due'){_aboFetch('sync').then(r=>{if(r?.abonnement){window.ABO=r.abonnement;if(document.getElementById('page-abonnement')?.classList.contains('act'))renderAbonnement();}}).catch(()=>{});}
-  const el=document.getElementById('ur-abo');if(el)el.textContent=_estAbo()?'Propriétaire · Abonné':'Propriétaire';
+  const el=document.getElementById('ur-abo');if(el)el.innerHTML=_estAbo()?'Propriétaire<span class="sb-pill">Abonné</span>':'Propriétaire';
 }
 function _aboOuvrir(){sp('abonnement',document.querySelector('.ni[onclick*="\'abonnement\'"]'));}
 // Encart affiché à la place des fonctions par IA quand on n'est pas abonné
@@ -4697,7 +4710,7 @@ const G_STAT={paid:['Payé','var(--green)'],declared:['Déclaré payé','var(--g
 function renderPaiementsBien(){
   const el=document.getElementById('gestion-tab'),today=_gIso(new Date());
   const ps=[...GEST.pays].sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
-  if(!ps.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun paiement pour ce bien. L\'échéancier se crée quand le premier paiement est confirmé. <button class="btn bg bsm" style="margin-left:.4rem" onclick="addRentEntry()">+ Ajouter un loyer</button></div></div>';return;}
+  if(!ps.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun paiement pour ce bien. L\'échéancier se crée quand le premier paiement est confirmé.</div></div>';return;}
   const decl=ps.filter(p=>p.status==='declared');
   // Prochaine échéance seulement (tous les locataires de ce mois-là)
   const futurs=ps.filter(p=>p.status==='pending'&&String(p.due_date)>=today);
@@ -4721,7 +4734,7 @@ function renderPaiementsBien(){
     </div>
     ${decl.length?`<div class="card" style="border-color:rgba(var(--gold-rgb),.4);margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=hourglass class=ic></i> À confirmer</div><span style="font-size:.74rem;color:var(--gold)">Le locataire indique avoir payé : vérifiez votre compte puis confirmez</span></div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${decl.map(ligne).join('')}</table></div></div>`:''}
     ${avenir.length?`<div class="card" style="margin-bottom:1rem"><div class="ch"><div class="ct"><i data-lucide=calendar class=ic></i> Prochaine échéance — ${_gD(dProch)}</div>${avenir.length>1?`<span style="font-size:.78rem;font-weight:700">Total ${_g$(avenir.reduce((a,p)=>a+Number(p.amount||0),0))}</span>`:''}</div><div class="cb" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">${avenir.map(ligne).join('')}</table></div></div>`:''}
-    <div class="card"><div class="ch"><div class="ct"><i data-lucide=list class=ic></i> Historique</div><button class="btn bg bsm" onclick="addRentEntry()">+ Ajouter un loyer</button> <button class="btn bg bsm" onclick="gPayCSV()"><i data-lucide=download class=ic></i> Export CSV</button></div><div class="cb" style="padding:0;overflow-x:auto">
+    <div class="card"><div class="ch"><div class="ct"><i data-lucide=list class=ic></i> Historique</div><button class="btn bg bsm" onclick="gPayCSV()"><i data-lucide=download class=ic></i> Export CSV</button></div><div class="cb" style="padding:0;overflow-x:auto">
       ${histo.length?`<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Paiement</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Échéance</th><th style="text-align:right;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Montant</th><th style="text-align:left;padding:.45rem .6rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);border-bottom:1px solid var(--b2)">Statut</th><th style="border-bottom:1px solid var(--b2)"></th></tr></thead><tbody>${histo.map(ligne).join('')}</tbody></table>`:'<div style="padding:1rem;font-size:.82rem;color:var(--td)">Aucun paiement passé pour l\'instant.</div>'}
     </div></div>`;
 }
@@ -5263,8 +5276,8 @@ function renderTeom(){
           else if(b.e.k==='termine')act=`<span style="color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Payée le ${_gD(r.paiement_confirme_at)}</span>`;
           return `<div style="background:var(--s2);border-radius:8px;padding:.6rem .75rem;margin-top:.5rem;display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;align-items:center">
             <div><strong>${nom}</strong>${b.l.lot_label?' <span style="color:var(--td)">'+_gEsc(b.l.lot_label)+'</span>':''}<div style="font-size:.74rem;color:var(--td)">${(()=>{const d0=b.l.start_date&&String(b.l.start_date).slice(0,10)>`${y}-01-01`?String(b.l.start_date).slice(0,10):`${y}-01-01`,f0=b.l._fin&&String(b.l._fin).slice(0,10)<`${y}-12-31`?String(b.l._fin).slice(0,10):`${y}-12-31`;return `Du ${_gD(d0)} au ${_gD(f0)}${!b.l._fin&&new Date(f0)>new Date()?' (locataire en place jusqu\'à la fin de l\'année)':''} : `;})()}${b.p.occ} jours d'occupation sur ${b.p.tot} en ${y}${b.p.partage?', dont '+b.p.partage+' partagés avec un autre bail':''} → ${String(Math.round(b.p.f*1000)/10).replace('.',',')} % × ${_g$(total)} = <strong style="color:var(--txt)${b.man&&!r.envoye_at?';text-decoration:line-through;font-weight:500':''}">${_g$(b.calc)}</strong></div>
-              ${b.man&&!r.envoye_at?`<div style="font-size:.78rem;margin-top:.2rem"><strong>Montant fixé à la main : ${_g$(part)}</strong> <a href="#" style="color:var(--bleu)" onclick="gTeomPartAuto('${b.l.id}',${y});return false">Revenir au calcul</a></div>`:''}
-              ${!r.envoye_at&&b.e.k==='a_faire'?(window._teomEdit===b.l.id+':'+y?`<div style="display:flex;gap:.35rem;align-items:center;margin-top:.35rem;flex-wrap:wrap"><input class="fi" style="width:110px" type="number" step="0.01" min="0" id="teom-part-${b.l.id}" value="${part}"> € <button class="btn bp bsm" onclick="gTeomPartSave('${b.l.id}',${y})">Enregistrer</button><button class="btn bg bsm" onclick="window._teomEdit=null;renderGestion()">Annuler</button></div>`:`<a href="#" style="font-size:.74rem;color:var(--bleu)" onclick="window._teomEdit='${b.l.id}:${y}';renderGestion();return false">Modifier le montant</a>`):''}
+              ${b.man&&!r.envoye_at?`<div style="font-size:.78rem;margin-top:.2rem"><strong>Montant fixé à la main : ${_g$(part)}</strong> <button type="button" class="btn bg bsm" style="margin-left:.35rem" onclick="gTeomPartAuto('${b.l.id}',${y})"><i data-lucide=rotate-ccw class=ic></i> Revenir au calcul</button></div>`:''}
+              ${!r.envoye_at&&b.e.k==='a_faire'?(window._teomEdit===b.l.id+':'+y?`<div style="display:flex;gap:.35rem;align-items:center;margin-top:.35rem;flex-wrap:wrap"><input class="fi" style="width:110px" type="number" step="0.01" min="0" id="teom-part-${b.l.id}" value="${part}"> € <button class="btn bp bsm" onclick="gTeomPartSave('${b.l.id}',${y})">Enregistrer</button><button class="btn bg bsm" onclick="window._teomEdit=null;renderGestion()">Annuler</button></div>`:`<button type="button" class="btn bg bsm" style="margin-top:.4rem" onclick="window._teomEdit='${b.l.id}:${y}';renderGestion()"><i data-lucide=pencil class=ic></i> Modifier le montant</button>`):''}
             </div>
             <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">${act}${r.envoye_at?` <button class="btn bg bsm" onclick="gTeomCourrier('${b.l.id}',${y})"><i data-lucide=file-text class=ic></i> Courrier</button>`:''}</div></div>`;}).join(''):''}
         ${total&&actifs.some(b=>b.e.k==='a_faire')?(()=>{const af=actifs.filter(b=>b.e.k==='a_faire');return `<div style="margin-top:.7rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap"><button class="btn bp bsm" onclick="gTeomEnvoyerTous(${y})"><i data-lucide=send class=ic></i> Envoyer ${af.length>1?'les '+af.length+' demandes':'la demande'} (${af.map(b=>_g$(b.part0)).join(' + ')})</button><span style="font-size:.74rem;color:var(--td)">Vérifiez le montant de la TEOM ci-dessus${ex?' (lu sur l\'avis)':''}. Chaque locataire reçoit le détail du calcul${_estAbo()?' ; une relance part automatiquement s\'il n\'a pas payé au bout d\'un mois':''}.</span></div>`;})():''}
@@ -7020,7 +7033,7 @@ function toggleTheme(){
   const isLight=document.documentElement.classList.toggle('light');
   localStorage.setItem('rm_theme',isLight?'light':'dark');
   const btn=document.getElementById('theme-toggle-btn');
-  if(btn)btn.innerHTML=isLight?'<i data-lucide=sun class=ic></i>':'<i data-lucide=moon class=ic></i>';
+  if(btn)btn.innerHTML=isLight?'<i data-lucide=sun class=ic></i>':'<i data-lucide=moon class=ic></i>';if(window.lucide)lucide.createIcons();
 }
 (function syncThemeIcon(){
   const btn=document.getElementById('theme-toggle-btn');
