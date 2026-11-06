@@ -478,6 +478,33 @@ footer ul a:hover{color:var(--terra)}
   .fin-entree{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.8rem;padding-top:.75rem;border-top:1px dashed var(--b2);font-size:.86rem;color:var(--stone)}
   .fin-entree strong{font-size:1.05rem;font-variant-numeric:tabular-nums}
   .fin-note{font-size:.74rem;color:var(--stone-l);margin-top:.45rem;line-height:1.5}
+/* Étape « Charges » : pastilles au lieu de cases à cocher, une ligne par question */
+#wstep-5 .cblock{background:var(--card,#fff);border:1px solid var(--line,rgba(14,21,38,.1));border-radius:14px;padding:1rem 1.1rem}
+#wstep-5 .cblock-hd{display:flex;align-items:center;gap:.45rem;font-size:.92rem;font-weight:800;color:var(--deep);margin-bottom:.75rem}
+#wstep-5 .cblock-hd .ic{color:var(--bleu)}
+#wstep-5 .cblock-cols3{display:flex;flex-direction:column;gap:.7rem}
+#wstep-5 .cblock-cols3>div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:.4rem .8rem;align-items:start}
+#wstep-5 .cblabel{font-size:.78rem;font-weight:700;letter-spacing:0;text-transform:none;color:var(--stone);margin:.45rem 0 0}
+#wstep-5 .cbwrap,#wstep-5 .cbcol{display:flex;flex-direction:row;flex-wrap:wrap;gap:.4rem}
+#wstep-5 label.cl{position:relative;display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .85rem;border:1.5px solid var(--line,rgba(14,21,38,.14));border-radius:100px;background:var(--warm,#f7f8fb);font-size:.84rem;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .15s,background .15s,color .15s;user-select:none}
+#wstep-5 label.cl:hover{border-color:rgba(27,79,216,.45)}
+#wstep-5 label.cl input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+#wstep-5 label.cl:has(input:checked){background:var(--bleu);border-color:var(--bleu);color:#fff}
+#wstep-5 label.cl:has(input:checked)::before{content:'✓';font-weight:800}
+#wstep-5 label.cl:has(input:focus-visible){outline:2px solid var(--bleu);outline-offset:2px}
+#wstep-5 #chauffage-hint{grid-column:2}
+#wstep-5 #reg-hint{margin-top:.6rem!important;font-size:.78rem!important}
+#wstep-5 #charges-summary{background:var(--warm,#f7f8fb)!important;border-radius:14px!important}
+@media(max-width:640px){#wstep-5 .cblock-cols3>div{grid-template-columns:1fr}#wstep-5 #chauffage-hint{grid-column:1}#wstep-5 div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}
+/* Étape « Prix » : récapitulatif loyer */
+.px-recap{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--warm,#f7f8fb);border:1px solid var(--line,rgba(14,21,38,.1));border-radius:14px;padding:.8rem 1rem;margin-top:-.2rem}
+.px-recap>div{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.px-recap small{font-size:.72rem;color:var(--stone-l)}
+.px-recap strong{font-size:1rem;font-variant-numeric:tabular-nums;color:var(--deep)}
+.px-recap>div:last-child strong{color:var(--bleu)}
+.px-op{color:var(--stone-l);font-weight:700}
+.px-recap.px-ko{border-color:var(--tuile,#E0603A)}
+.px-recap.px-ko #loyer-hc-val::after{content:' (charges > loyer)';font-size:.72rem;color:var(--tuile,#E0603A);font-weight:600}
 </style>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script>
@@ -569,9 +596,14 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
 .lgrid{gap:1.4rem}
 .lcard{border-radius:16px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(14,21,38,.04)}
 .lcard:hover{transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(14,21,38,.25)}
-.lprice2{color:var(--deep);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.lprice2{color:var(--bleu);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .lprice2 small{color:var(--stone-l)}
-.lsrc-own{background:#fff;color:var(--stone);border:1px solid var(--line)}
+.lsrc-own{background:rgba(27,79,216,.07);color:var(--bleu);border:1px solid rgba(27,79,216,.2)}
+.lcard{border-top:3px solid var(--bleu)}
+.lcard:hover{border-color:rgba(27,79,216,.35);border-top-color:var(--bleu)}
+.lzone2 .ic,.lzone2 svg{color:var(--bleu)}
+.ltitle2{color:var(--deep)}
+.ldispo{background:rgba(27,79,216,.07);color:var(--bleu);font-weight:700;padding:.22rem .6rem;border-radius:100px}
 .pagebtn{border-radius:10px;border:1px solid var(--line)}
 .pagebtn.act{background:var(--deep);border-color:var(--deep)}
 .empty{background:#fff;border:1px dashed rgba(14,21,38,.15);border-radius:16px}
@@ -1098,19 +1130,22 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
       <div class="wizard-step" id="wstep-6" style="display:none">
         <p class="wstep-title">Prix &amp; diagnostic énergétique</p>
         <div class="frow">
-          <div class="fg2" id="pt-avail-wrap"><label>Disponible à partir du *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
           <div class="fg2" id="pt-price-wrap">
             <label id="pt-price-label">Loyer mensuel charges comprises (€) *</label>
-            <input class="fi" type="number" id="ppr" placeholder="950" oninput="updateLoyerHC()">
-            <div id="loyer-hc-display" style="margin-top:.45rem;padding:.5rem .75rem;background:rgba(27,79,216,.06);border-radius:8px;font-size:.82rem;color:var(--stone);display:flex;align-items:center;gap:.35rem">
-              <i data-lucide=arrow-right class=ic style="opacity:.5;flex-shrink:0"></i>
-              Loyer hors charges : <strong id="loyer-hc-val" style="color:var(--bleu,#1B4FD8);margin-left:.2rem">—</strong>
-            </div>
+            <input class="fi" type="number" id="ppr" placeholder="ex. 950" oninput="updateLoyerHC()">
           </div>
           <div class="fg2" id="pt-charges-wrap">
-            <label>Montant des charges (€/mois) <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">incluses dans le loyer CC</span></label>
-            <input class="fi" type="number" id="p-charges" placeholder="80" min="0" oninput="updateLoyerHC()">
+            <label id="pt-charges-label">Provision sur charges (€/mois)</label>
+            <input class="fi" type="number" id="p-charges" placeholder="ex. 80" min="0" oninput="updateLoyerHC()">
           </div>
+          <div id="loyer-hc-display" class="px-recap" style="grid-column:1/-1">
+            <div><small>Loyer hors charges</small><strong id="loyer-hc-val">—</strong></div>
+            <span class="px-op">+</span>
+            <div><small id="px-ch-lbl">Charges</small><strong id="px-ch-val">—</strong></div>
+            <span class="px-op">=</span>
+            <div><small>Total payé par le locataire</small><strong id="px-cc-val">—</strong></div>
+          </div>
+          <div class="fg2" id="pt-avail-wrap"><label>Disponible à partir du *</label><input class="fi" type="date" id="pfr" onchange="onDisponibleFromChange(this.value)"></div>
           <div class="fg2" id="pt-depot-wrap">
             <label id="pt-depot-label">Dépôt de garantie <span style="font-size:.7rem;color:var(--stone-l);font-weight:400">— en mois de loyer hors charges</span></label>
             <div id="depot-mois-btns" style="display:flex;gap:.4rem;flex-wrap:wrap">
@@ -2783,8 +2818,8 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
         <div id="d-inclus-wrap" style="margin-top:1.2rem"></div>
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
-        <div id="dcost" style="margin-top:1rem;background:rgba(201,85,58,.05);border:1.5px solid rgba(201,85,58,.2);border-radius:16px;padding:1.4rem 1.5rem">
-          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:#C9553A"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à la signature</div>
+        <div id="dcost" style="margin-top:1rem;background:var(--card,#fff);border:1px solid var(--line,rgba(14,21,38,.1));border-radius:16px;padding:1.4rem 1.5rem">
+          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:var(--deep)"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à l’entrée</div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -3493,15 +3528,14 @@ function renderDcost(){
   const first=pr?pr.amount:c.price;
   const sub=pr?(pr.full?`Mois complet — entrée le ${fmtDateFr(pr.start)}`:`Prorata : ${pr.days} jours sur ${pr.period} (du ${fmtDateFr(pr.start)} au ${fmtDateFr(pr.end)})`)
              :'Mois complet — indiquez votre date d\'entrée ci-dessous pour voir le prorata';
-  const total=Math.round((first+c.depot+c.commission)*100)/100;
-  el.innerHTML=c.cline('Premier mois de loyer',(Math.round(first*100)/100).toLocaleString('fr-FR'),sub,'var(--stone)')
-    +c.cline('Dépôt de garantie',c.depot,'Remboursé en fin de bail','var(--stone)')
-    +c.cline(c.commissionLabel,c.commission,'','#C9553A')
+  const total=Math.round((first+c.depot)*100)/100;
+  el.innerHTML=c.cline('Premier loyer',(Math.round(first*100)/100).toLocaleString('fr-FR'),sub,'var(--stone)')
+    +(c.depot?c.cline('Dépôt de garantie',Number(c.depot).toLocaleString('fr-FR'),'Rendu en fin de bail, déduction faite des éventuelles réparations','var(--stone)'):'')
     +`<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .3rem;margin-top:.35rem">
         <div style="font-size:1rem;font-weight:700;color:var(--stone)">Total à l'entrée${pr?'':' (mois complet)'}</div>
-        <div style="font-size:1.7rem;font-weight:900;color:#C9553A;font-variant-numeric:tabular-nums">€${total.toLocaleString('fr-FR')}</div>
+        <div style="font-size:1.7rem;font-weight:900;color:var(--bleu,#1B4FD8);font-variant-numeric:tabular-nums">${total.toLocaleString('fr-FR')} €</div>
       </div>
-      ${pr&&!pr.full?`<div style="font-size:.75rem;color:var(--stone);margin-bottom:.2rem">Puis <strong>€${Number(c.price).toLocaleString('fr-FR')}</strong> par mois à partir du ${fmtDateFr(pr.nextDue)}.</div>`:''}
+      ${pr&&!pr.full?`<div style="font-size:.75rem;color:var(--stone);margin-bottom:.2rem">Puis <strong>${Number(c.price).toLocaleString('fr-FR')} €</strong> par mois à partir du ${fmtDateFr(pr.nextDue)}.</div>`:''}
       <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le premier loyer sont versés directement au propriétaire à l'entrée dans les lieux.</div>`;
 }
 
@@ -4000,8 +4034,6 @@ async function _openDetBody(l,id){
           ${due?`<div class="fin-due"><i data-lucide=calendar class=ic></i> Payable ${due}</div>`:''}
         </div>
         ${cases.length?`<div class="fin-grid">${cases.map(([k,v])=>`<div class="fin-c"><div class="fin-lbl">${k}</div><div class="fin-v">${v}</div></div>`).join('')}</div>`:''}
-        ${entree&&dep?`<div class="fin-entree"><span>À prévoir à l’entrée (1er loyer + dépôt)</span><strong>${eur(entree)}</strong></div>`:''}
-        ${dep?'<div class="fin-note">Le dépôt de garantie est rendu en fin de bail, déduction faite des éventuelles réparations.</div>':''}
       </div>`:'';
 
     document.getElementById('din-wrap').innerHTML='<div style="margin-bottom:1rem">'
@@ -4030,12 +4062,12 @@ async function _openDetBody(l,id){
     const commission=Math.round(l.price*commissionRate);
     const commissionLabel=isAgence?'Frais d\'agence (50%)':'Commission Trouve Ton Toit (10%)';
     const _cline=(label,amount,sub,color)=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid rgba(201,85,58,.1)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--line,rgba(14,21,38,.08))">
         <div>
           <div style="font-size:.95rem;font-weight:600;color:var(--stone)">${label}</div>
           ${sub?`<div style="font-size:.75rem;color:var(--stone-l);margin-top:.1rem">${sub}</div>`:''}
         </div>
-        <div style="font-size:1.2rem;font-weight:800;color:${color||'var(--stone)'};font-variant-numeric:tabular-nums">€${amount}</div>
+        <div style="font-size:1.2rem;font-weight:800;color:${color||'var(--stone)'};font-variant-numeric:tabular-nums">${amount} €</div>
       </div>`;
     const payDay=l.payment_due_day||1;
     window._dcostCtx={price:l.price,depot:l.depot||0,commission,commissionLabel,payDay,cline:_cline};
@@ -4652,7 +4684,7 @@ function setElectricite(v,cb){
 function setChargesRegularisation(v,cb){
   ['annuelle','forfaitaire'].forEach(m=>{const el=document.getElementById('reg-'+m);if(el)el.checked=(m===v)?cb.checked:false;});
   document.getElementById('p-charges-regularisation').value=cb.checked?v:'';
-  regHint();
+  regHint();try{updateLoyerHC();}catch(e){}
 }
 // Le forfait de charges n'est autorisé qu'en meublé et en colocation (loi du 6 juillet 1989) : en location vide, provisions obligatoires.
 function regHint(){
@@ -4700,7 +4732,13 @@ function updateLoyerHC(){
   const ch=parseInt(document.getElementById('p-charges')?.value)||0;
   const hc=cc-ch;
   const el=document.getElementById('loyer-hc-val');
-  if(el)el.textContent=cc>0?(hc>=0?hc+' € / mois':'—'):'—';
+  if(el)el.textContent=cc>0?(hc>=0?hc.toLocaleString('fr-FR')+' €':'—'):'—';
+  const fz=document.getElementById('p-charges-regularisation')?.value==='forfaitaire';
+  const lb=document.getElementById('pt-charges-label');if(lb)lb.textContent=fz?'Forfait de charges (€/mois)':'Provision sur charges (€/mois)';
+  const cl=document.getElementById('px-ch-lbl');if(cl)cl.textContent=fz?'Forfait de charges':'Provision sur charges';
+  const cv=document.getElementById('px-ch-val');if(cv)cv.textContent=cc>0?ch.toLocaleString('fr-FR')+' €':'—';
+  const tv=document.getElementById('px-cc-val');if(tv)tv.textContent=cc>0?cc.toLocaleString('fr-FR')+' € / mois':'—';
+  const rc=document.getElementById('loyer-hc-display');if(rc)rc.classList.toggle('px-ko',cc>0&&hc<0);
   updateDepotMontant();
 }
 // Dépôt de garantie : choisi en mois de loyer HORS CHARGES (max 2 en meublé, 1 en vide)
