@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "dependencies": {
     "stripe": "^14.0.0",
-    "@supabase/supabase-js": "^2.39.3"
+    "@supabase/supabase-js": "^2.39.3",
+    "pdf-lib": "^1.17.1",
+    "unpdf": "^1.0.0"
   }
 }
