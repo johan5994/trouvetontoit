@@ -149,6 +149,8 @@ async function charger(){
   LEASE=(ls||[]).find(l=>l.landlord_signed_at&&l.tenant_signed_at)||(ls||[])[0]||null;LISTING=li;
   const ed=(eds||[]).map(e=>{if(typeof e.data==='string'){try{e.data=JSON.parse(e.data);}catch(x){e.data=null;}}return e;});
   EDL_E=ed.find(e=>(e.type||'entree')==='entree')||null;EDL_S=ed.find(e=>e.type==='sortie')||null;
+  // Brouillon de sortie vide (page ouverte sans rien saisir) : considéré comme pas commencé
+  if(EDL_S&&EDL_S.status==='draft'&&!(EDL_S.data?.rooms||[]).some(r=>(r.elements||[]).some(x=>x.etat)))EDL_S=null;
   try{COLOCS=(typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[])).filter(c=>c&&c.coloc_status!=='declined');}catch(e){COLOCS=[];}
   const landlordId=LEASE?.landlord_id||bk.landlord_id,tenantIds=[bk.tenant_id,...COLOCS.map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
   if(U?.id===landlordId)ROLE='landlord';else if(U&&tenantIds.includes(U.id))ROLE='tenant';
