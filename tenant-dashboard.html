@@ -5291,9 +5291,10 @@ async function loadAvisAboutMe(){
 async function loadProfilee(){
   if(!P)return;
   // Nom repris automatiquement du compte (Google…) sur un profil jamais complété : on laisse vide
-  const _acct=[clerk?.user?.fullName,clerk?.user?.firstName].filter(Boolean);
-  const _autoName=P.full_name&&_acct.includes(P.full_name)&&!P.date_of_birth&&!P.nationality&&!P.home_address;
+  const _acct=[clerk?.user?.fullName,clerk?.user?.firstName,clerk?.user?.username,(U?.email||'').split('@')[0]].filter(Boolean).map(x=>String(x).toLowerCase());
+  const _base=String(P.full_name||'').toLowerCase(),_autoName=!!P.full_name&&(_acct.includes(_base)||_acct.some(a=>a.split(/[._-]/)[0]===_base))&&!P.date_of_birth&&!P.nationality&&!P.home_address;
   document.getElementById('p-name').value=_autoName?'':(P.full_name||'');
+  if(_autoName){try{sb.from('profiles').update({full_name:null}).eq('clerk_id',U.id).then(()=>{});}catch(e){}P.full_name=null;}
   document.getElementById('p-email').value=P.email||U.email||'';
   document.getElementById('p-phone').value=P.phone||'';
   document.getElementById('p-nat').value=P.nationality||'';
