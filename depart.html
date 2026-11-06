@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="/ui-dialog.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Départ du locataire — Trouve Ton Toit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script>window.__clerk_publishable_key='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<style>
+:root{--bleu:#1B4FD8;--marine:#0F2D7A;--bg:#F8F7F4;--card:#fff;--tm:#1A1D27;--td:#6B7280;--border:#E5E7EB;--border2:#D1D5DB;--green:#16A34A;--red:#DC2626;--gold:#B45309;--soft:#F3F6FF}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tm);font-size:15px;line-height:1.55}
+.ic{width:1em;height:1em;vertical-align:-.14em;stroke-width:2}
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:.7rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:1rem}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--bleu);text-decoration:none}
+.nav-back{font-size:.82rem;color:var(--td);text-decoration:none;font-weight:600}
+.wrap{max-width:820px;margin:1.25rem auto;padding:0 1rem 5rem}
+h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.7rem;line-height:1.2;text-wrap:balance}
+.sub{color:var(--td);font-size:.88rem;margin-top:.2rem}
+.tl{list-style:none;margin:1.2rem 0 0;position:relative}
+.tl>li{position:relative;padding:0 0 1.1rem 2.6rem}
+.tl>li::before{content:'';position:absolute;left:.95rem;top:2rem;bottom:0;width:2px;background:var(--border)}
+.tl>li:last-child::before{display:none}
+.tl-n{position:absolute;left:0;top:.1rem;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;background:#fff;border:2px solid var(--border2);color:var(--td)}
+.tl-n.on{border-color:var(--bleu);color:var(--bleu)}
+.tl-n.ok{background:var(--green);border-color:var(--green);color:#fff}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem}
+.card h2{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:.45rem;justify-content:space-between;flex-wrap:wrap}
+.chip{font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:100px;background:#F3F4F6;color:var(--td);white-space:nowrap}
+.chip.ok{background:#DCFCE7;color:#166534}.chip.wa{background:#FEF3C7;color:#92400E}.chip.ko{background:#FEE2E2;color:#991B1B}
+.muted{color:var(--td);font-size:.84rem;line-height:1.55}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem;margin-top:.7rem}
+label.f{display:flex;flex-direction:column;gap:.25rem;font-size:.76rem;font-weight:700;color:var(--td)}
+.fi{border:1.5px solid var(--border2);border-radius:9px;padding:.55rem .7rem;font:inherit;font-size:.9rem;color:var(--tm);background:#fff;width:100%}
+.fi:focus{outline:2px solid var(--bleu);outline-offset:1px;border-color:var(--bleu)}
+textarea.fi{min-height:70px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1rem;border-radius:9px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none}
+.bp{background:var(--bleu);color:#fff}.bg{background:#fff;color:var(--tm);border:1px solid var(--border2)}.br{background:#fff;color:var(--red);border:1px solid #FCA5A5}
+.btn:disabled{opacity:.5;cursor:default}
+.acts{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.8rem}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin-top:.7rem}
+.mode{border:1.5px solid var(--border2);border-radius:12px;padding:.75rem;background:#fff;text-align:left;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:.25rem}
+.mode b{font-size:.88rem}.mode span{font-size:.76rem;color:var(--td);line-height:1.45}
+.mode.on{border-color:var(--bleu);background:var(--soft)}
+.mode:disabled{cursor:default}
+.note{margin-top:.7rem;padding:.6rem .8rem;border-radius:10px;font-size:.8rem;line-height:1.5;background:var(--soft);color:var(--marine)}
+.note.wa{background:#FFFBEB;color:#92400E}.note.ko{background:#FEF2F2;color:#991B1B}.note.ok{background:#F0FDF4;color:#166534}
+table.dc{width:100%;border-collapse:collapse;margin-top:.7rem;font-size:.84rem}
+table.dc th{text-align:left;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--td);padding:.4rem .35rem;border-bottom:1px solid var(--border)}
+table.dc td{padding:.5rem .35rem;border-bottom:1px solid #F1F1EF;vertical-align:top}
+.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tot td{font-weight:800;border-bottom:none}
+.ret{border:1px solid var(--border);border-radius:12px;padding:.7rem .8rem;margin-top:.55rem}
+.ret-h{display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start}
+.ret-h b{font-size:.86rem}
+.ret-g{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,.7fr) minmax(0,.8fr);gap:.45rem;margin-top:.5rem;align-items:end}
+.ret-calc{font-size:.76rem;color:var(--td);margin-top:.35rem}
+.x{background:none;border:none;color:var(--td);cursor:pointer;padding:.2rem;border-radius:6px}
+.x:hover{color:var(--red);background:#FEF2F2}
+.big{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin-top:.8rem}
+.sum>div{background:#FAFAF9;border:1px solid var(--border);border-radius:12px;padding:.65rem .8rem}
+.sum small{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td)}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--tm);color:#fff;padding:.7rem 1.1rem;border-radius:10px;font-size:.86rem;transition:transform .3s,opacity .3s;opacity:0;z-index:100;max-width:calc(100vw - 2rem)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.src{font-size:.72rem;color:var(--td);margin-top:1.5rem;line-height:1.6}
+.src a{color:var(--td)}
+@media(max-width:640px){.modes,.sum{grid-template-columns:1fr}.ret-g{grid-template-columns:1fr 1fr}.tl>li{padding-left:2.3rem}h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<nav class="nav"><a class="nav-brand" href="/">★ Trouve Ton Toit</a><a class="nav-back" id="nav-back" href="/">← Retour à mon espace</a></nav>
+<div class="wrap" id="app"><div class="card" style="text-align:center;color:var(--td)">Chargement…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const CLERK_KEY='pk_test_Y3JlZGlibGUtbWFybGluLTU1NzcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+const SB_URL='https://hkhmktcbyfyacwfmoyxy.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraG1rdGNieWZ5YWN3Zm1veXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NzIxMjcsImV4cCI6MjEwNTE0ODEyN30.PhI80G7KHgeh-E6urTVjzld8ThBHLbFDV8HkHLd_bWE';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const BUCKET='lease-docs';
+const BOOKING_ID=new URLSearchParams(location.search).get('booking_id');
+let U=null,BK=null,LEASE=null,LISTING=null,S=null,EDL_E=null,EDL_S=null,ROLE=null,PAYS=[],COLOCS=[],NOMS={};
+
+// ── Grille de vétusté indicative (durée de vie, franchise, valeur résiduelle) ──
+// Si une grille est annexée au bail, c'est elle qui s'applique : les pourcentages restent modifiables.
+const VET={
+  peinture:{l:'Peintures, papiers peints',d:7,f:1,r:.10},
+  moquette:{l:'Moquette',d:7,f:1,r:.10},
+  sol_souple:{l:'Sol souple (PVC, lino)',d:10,f:2,r:.10},
+  parquet:{l:'Parquet, carrelage',d:15,f:2,r:.20},
+  sanitaire:{l:'Sanitaires, robinetterie',d:10,f:2,r:.10},
+  electromenager:{l:'Électroménager',d:7,f:1,r:.10},
+  mobilier:{l:'Mobilier, literie',d:10,f:2,r:.10},
+  menuiserie:{l:'Portes, menuiseries, volets',d:20,f:3,r:.20},
+  nettoyage:{l:'Nettoyage / ménage',d:0},
+  cles:{l:'Clés, badges, serrure',d:0},
+  autre:{l:'Autre (sans vétusté)',d:0}
+};
+function partLocataire(cat,ans){const v=VET[cat]||VET.autre;if(!v.d)return 1;if(ans<=v.f)return 1;return Math.max(v.r,1-(ans-v.f)/(v.d-v.f)*(1-v.r));}
+function devinerCat(t){t=String(t||'').toLowerCase();
+  if(/mur|plafond|peint|papier/.test(t))return'peinture';if(/moquette/.test(t))return'moquette';if(/parquet|carrel|faïence|faience/.test(t))return'parquet';if(/sol/.test(t))return'sol_souple';
+  if(/lavabo|douche|baignoire|robinet|évier|evier|wc|cuvette|chasse|joint/.test(t))return'sanitaire';
+  if(/réfrig|refrig|four|plaque|hotte|lave|micro|congél|congel|électroménager/.test(t))return'electromenager';
+  if(/clé|cle|badge|serrure|bip|télécommande/.test(t))return'cles';if(/porte|fenêtre|fenetre|volet|vitr/.test(t))return'menuiserie';
+  if(/lit|matelas|canapé|table|chaise|armoire|commode|bureau|étagère|literie|siège|meuble/.test(t))return'mobilier';return'autre';}
+
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=v=>(Math.round((Number(v)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const iso=d=>new Date(d).toISOString().slice(0,10);
+function fmtD(x){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(x||''));return m?new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';}
+function addMonths(d,n){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d);if(!m)return null;const y=+m[1],mo=+m[2]-1+n,j=+m[3];const dim=new Date(y,mo+1,0).getDate();return iso(new Date(Date.UTC(y,mo,Math.min(j,dim))));}
+function toast(m,ms){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms||3200);}
+const icons=()=>window.lucide&&lucide.createIcons();
+const RANG={neuf:0,tb:1,bon:2,usage:3,mauvais:4},ETAT={neuf:'Neuf',tb:'Très bon',bon:'Bon',usage:'Usagé',mauvais:'Mauvais'};
+
+// Différences entrée → sortie (même règle que l'état des lieux de sortie)
+function differences(d){
+  const out=[];if(!d)return out;
+  (d.rooms||[]).forEach(r=>(r.elements||[]).forEach(e=>{if(e.etat&&e.etat_entree&&RANG[e.etat]>RANG[e.etat_entree])out.push({libelle:`${r.name} — ${e.label}`,detail:`${ETAT[e.etat_entree]} → ${ETAT[e.etat]}${e.note?' ('+e.note+')':''}`});}));
+  (d.inventaire||[]).forEach(x=>{if(Number(x.qte)<Number(x.qte_entree??x.qte))out.push({libelle:`Inventaire — ${x.label}`,detail:`${x.qte_entree} à l'entrée, ${x.qte} à la sortie`});else if(x.etat&&x.etat_entree&&RANG[x.etat]>RANG[x.etat_entree])out.push({libelle:`Inventaire — ${x.label}`,detail:`${ETAT[x.etat_entree]} → ${ETAT[x.etat]}`});});
+  (d.cles||[]).forEach(k=>{if(Number(k.nb)<Number(k.nb_entree))out.push({libelle:`Clés — ${k.label}`,detail:`${k.nb_entree} remis, ${k.nb||0} rendus`});});
+  return out;
+}
+
+(async()=>{
+  try{const clerk=(typeof window.Clerk==='function')?new window.Clerk(CLERK_KEY):window.Clerk;await clerk.load();if(clerk.user)U={id:clerk.user.id};}catch(e){}
+  try{await charger();}catch(e){fatal('Erreur de chargement : '+esc(e.message));}
+})();
+function fatal(m){$('app').innerHTML=`<div class="card" style="text-align:center">${m}</div>`;}
+
+async function charger(){
+  if(!BOOKING_ID)return fatal('Lien incomplet : ouvrez cette page depuis votre espace.');
+  const{data:bk}=await sb.from('bookings').select('*').eq('id',BOOKING_ID).maybeSingle();
+  if(!bk)return fatal('Location introuvable.');
+  BK=bk;
+  const[{data:ls},{data:li},{data:eds},{data:so,error:se}]=await Promise.all([
+    sb.from('leases').select('*').eq('booking_id',bk.id),
+    sb.from('listings').select('id,title,full_address,zone').eq('id',bk.listing_id).maybeSingle(),
+    sb.from('etats_des_lieux').select('id,type,status,data,landlord_signed_at,tenant_signed_at,created_at').eq('booking_id',bk.id).order('created_at',{ascending:false}),
+    sb.from('sorties').select('*').eq('booking_id',bk.id).maybeSingle()
+  ]);
+  if(se)return fatal('La table « sorties » n\'existe pas encore : exécutez la migration <b>supabase-migration-sorties.sql</b> dans Supabase.');
+  LEASE=(ls||[]).find(l=>l.landlord_signed_at&&l.tenant_signed_at)||(ls||[])[0]||null;LISTING=li;
+  const ed=(eds||[]).map(e=>{if(typeof e.data==='string'){try{e.data=JSON.parse(e.data);}catch(x){e.data=null;}}return e;});
+  EDL_E=ed.find(e=>(e.type||'entree')==='entree')||null;EDL_S=ed.find(e=>e.type==='sortie')||null;
+  try{COLOCS=(typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[])).filter(c=>c&&c.coloc_status!=='declined');}catch(e){COLOCS=[];}
+  const landlordId=LEASE?.landlord_id||bk.landlord_id,tenantIds=[bk.tenant_id,...COLOCS.map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
+  if(U?.id===landlordId)ROLE='landlord';else if(U&&tenantIds.includes(U.id))ROLE='tenant';
+  if(!ROLE)return fatal(U?'Cette page ne concerne pas votre compte.':'Connectez-vous pour accéder au suivi du départ.');
+  $('nav-back').href=ROLE==='landlord'?'/landlord-dashboard.html':'/tenant-dashboard.html';
+  try{const{data:pr}=await sb.from('profiles').select('clerk_id,full_name').in('clerk_id',[landlordId,...tenantIds]);(pr||[]).forEach(p=>NOMS[p.clerk_id]=p.full_name);}catch(e){}
+  try{const{data:ps}=await sb.from('payments').select('id,type,amount,status,due_date,tenant_id').eq('booking_id',bk.id).in('status',['pending','late','declared']);PAYS=ps||[];}catch(e){PAYS=[];}
+  if(!so&&ROLE==='landlord'){
+    const ins={booking_id:bk.id,lease_id:LEASE?.id||null,listing_id:bk.listing_id,landlord_id:landlordId,tenant_id:bk.tenant_id,depot:LEASE?.deposit!=null?Number(LEASE.deposit):null,cles_at:bk.tenancy_ended_at?String(bk.tenancy_ended_at).slice(0,10):null,mode_edl:EDL_S?'plateforme':null,retenues:[]};
+    const{data:n,error}=await sb.from('sorties').insert(ins).select().single();
+    if(error)return fatal('Création impossible : '+esc(error.message));
+    S=n;
+  }else S=so;
+  if(!S)return fatal('Le propriétaire n\'a pas encore ouvert le suivi du départ. Vous serez prévenu dès qu\'il le fera.');
+  if(typeof S.retenues==='string'){try{S.retenues=JSON.parse(S.retenues);}catch(e){S.retenues=[];}}
+  if(!Array.isArray(S.retenues))S.retenues=[];
+  render();
+}
+async function maj(upd,msg){
+  const{error}=await sb.from('sorties').update({...upd,updated_at:new Date().toISOString()}).eq('id',S.id);
+  if(error){uiAlert('Enregistrement impossible : '+error.message);return false;}
+  Object.assign(S,upd);if(msg)toast(msg);render();return true;
+}
+async function notif(to,txt){try{await sb.from('messages').insert((Array.isArray(to)?to:[to]).filter(Boolean).map(r=>({listing_id:BK.listing_id,sender_id:'system',receiver_id:r,type:'message',content:txt})));}catch(e){}}
+const locataires=()=>[BK.tenant_id,...COLOCS.map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);
+const proprio=()=>LEASE?.landlord_id||BK.landlord_id;
+
+// ── Calculs ─────────────────────────────────────────────────────────────────
+function etatEdl(){
+  if(S.mode_edl==='sans')return S.sans_edl_landlord_at&&S.sans_edl_tenant_at?'ok':'attente';
+  if(S.mode_edl==='commissaire')return S.commissaire_url?'ok':'attente';
+  if(S.mode_edl==='plateforme')return EDL_S?.status==='signed'?'ok':'attente';
+  return'';
+}
+function conforme(){ // état des lieux de sortie conforme à celui d'entrée → délai 1 mois
+  if(S.mode_edl==='sans')return true;
+  if(S.mode_edl==='plateforme'&&EDL_S?.data&&EDL_E?.data)return differences(EDL_S.data).length===0;
+  if(S.mode_edl==='commissaire')return !S.commissaire_differences;
+  return false;
+}
+function anneesOccupation(){const deb=LEASE?.start_date||BK.move_in_date,fin=S.cles_at||iso(new Date());if(!deb)return 0;return Math.max(0,(new Date(fin)-new Date(deb))/(365.25*864e5));}
+function totaux(){
+  const depot=Number(S.depot)||0;
+  const ret=S.retenues.reduce((a,r)=>a+montantRetenue(r),0);
+  const prov=Math.min(Number(S.provision_copro)||0,depot*.2);
+  return{depot,ret,prov,solde:Math.round((depot-ret-prov)*100)/100};
+}
+function montantRetenue(r){const c=Number(r.cout)||0;if(r.kind!=='degradation')return c;const p=r.part!=null&&r.part!==''?Number(r.part)/100:partLocataire(r.cat,anneesOccupation());return Math.round(c*p*100)/100;}
+function echeance(){if(!S.cles_at)return null;return addMonths(S.cles_at,conforme()?1:2);}
+function penalite(){ // 10 % du loyer mensuel hors charges par mois de retard commencé (art. 22), sauf si la nouvelle adresse n'a pas été transmise
+  const e=echeance();if(!e||!S.nouvelle_adresse)return{mois:0,montant:0};
+  const fin=S.restitue_at||iso(new Date());if(fin<=e)return{mois:0,montant:0};
+  let mois=0,d=e;while(d<fin){mois++;d=addMonths(e,mois);}
+  const loyer=Number(LEASE?.rent)||Number(BK.monthly_rent)||0;
+  return{mois,montant:Math.round(loyer*.1*mois*100)/100};
+}
+
+// ── Rendu ───────────────────────────────────────────────────────────────────
+function render(){
+  const L=ROLE==='landlord',ee=etatEdl(),t=totaux(),e=echeance(),pen=penalite();
+  const noms=locataires().map(id=>NOMS[id]||'').filter(Boolean);
+  const etapes=[!!S.cles_at,ee==='ok',!!S.decompte_envoye_at,!!S.restitue_at];
+  const cur=etapes.indexOf(false);
+  const n=(i)=>`<span class="tl-n ${etapes[i]?'ok':i===cur?'on':''}">${etapes[i]?'✓':i+1}</span>`;
+  $('app').innerHTML=`
+  <h1>Départ du locataire</h1>
+  <div class="sub">${esc(LISTING?.title||'Logement')}${LISTING?.full_address?' · '+esc(LISTING.full_address):''}${noms.length?' · '+noms.map(esc).join(', '):''}</div>
+  ${S.restitue_at?`<div class="note ok"><b>Dossier clôturé.</b> Dépôt de garantie restitué le ${fmtD(S.restitue_at)} : ${eur(S.montant_restitue)}${S.moyen_restitution?' ('+esc(S.moyen_restitution)+')':''}.${t.prov>0?` Provision de copropriété retenue : ${eur(t.prov)}, à régulariser dans le mois qui suit l'approbation des comptes de l'immeuble.`:''}</div>`:''}
+  <ol class="tl">
+    <li>${n(0)}${carteCles(L)}</li>
+    <li>${n(1)}${carteEdl(L,ee)}</li>
+    <li>${n(2)}${carteDecompte(L,t,e,pen)}</li>
+    <li>${n(3)}${carteRestitution(L,t,e,pen)}</li>
+  </ol>
+  <p class="src">Repères juridiques (je ne suis pas juriste) : état des lieux de sortie contradictoire, sinon par commissaire de justice à frais partagés (art. 3-2 de la loi du 6 juillet 1989) ; usure normale non imputable au locataire (art. 7) ; dépôt restitué sous 1 mois si l'état des lieux de sortie est conforme à celui d'entrée, 2 mois sinon, à compter de la remise des clés, déduction faite des sommes dues justifiées ; majoration de 10 % du loyer hors charges par mois de retard commencé ; provision de 20 % maximum en copropriété (art. 22). Sources : <a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F33671" target="_blank" rel="noopener">service-public.gouv.fr — état des lieux de sortie</a>, <a href="https://www.justice.fr/fiche/etat-lieux-sortie-bail-habitation" target="_blank" rel="noopener">justice.fr</a>, <a href="https://www.actionlogement.fr/proprietaire-bailleur/actualites/delais-restitution-depot-garantie" target="_blank" rel="noopener">Action Logement — délais de restitution</a>.</p>`;
+  icons();
+}
+
+function carteCles(L){
+  const ok=!!S.cles_at;
+  return`<div class="card"><h2><span><i data-lucide=key-round class=ic></i> Remise des clés</span>${ok?`<span class="chip ok">Le ${fmtD(S.cles_at)}</span>`:'<span class="chip wa">À renseigner</span>'}</h2>
+  <p class="muted" style="margin-top:.3rem">La date de remise des clés fait courir le délai de restitution du dépôt de garantie. La nouvelle adresse du locataire est indispensable pour le lui rendre (sans elle, la majoration de retard ne s'applique pas).</p>
+  <div class="row">
+    <label class="f">Date de remise des clés<input type="date" class="fi" id="f-cles" value="${esc(S.cles_at||'')}" ${L?'':'disabled'}></label>
+    <label class="f">Nouvelle adresse du locataire<input class="fi" id="f-adr" value="${esc(S.nouvelle_adresse||'')}" placeholder="${L?'Renseignée par le locataire':'Votre adresse après le départ'}" ${L&&!S.nouvelle_adresse?'':''}></label>
+  </div>
+  <div class="acts"><button class="btn bg" onclick="enregCles()"><i data-lucide=save class=ic></i> Enregistrer</button></div></div>`;
+}
+async function enregCles(){
+  const upd={nouvelle_adresse:$('f-adr').value.trim()||null};
+  if(ROLE==='landlord')upd.cles_at=$('f-cles').value||null;
+  const avant=S.nouvelle_adresse;
+  if(await maj(upd,'Enregistré')&&ROLE==='tenant'&&upd.nouvelle_adresse&&upd.nouvelle_adresse!==avant)notif(proprio(),`Le locataire a indiqué sa nouvelle adresse pour la restitution du dépôt de garantie : ${upd.nouvelle_adresse}`);
+}
+
+function carteEdl(L,ee){
+  const m=S.mode_edl,verrou=!!S.decompte_envoye_at;
+  const chip=ee==='ok'?'<span class="chip ok">Fait</span>':m?'<span class="chip wa">En cours</span>':'<span class="chip">À choisir</span>';
+  const mode=(k,ic,t,d)=>`<button type="button" class="mode ${m===k?'on':''}" ${L&&!verrou?`onclick="choisirMode('${k}')"`:'disabled'}><b><i data-lucide=${ic} class=ic></i> ${t}</b><span>${d}</span></button>`;
+  let detail='';
+  if(m==='plateforme'){
+    const diffs=EDL_S?.data&&EDL_E?.data?differences(EDL_S.data):null;
+    detail=`<div class="note">${EDL_S?(EDL_S.status==='signed'?`État des lieux de sortie signé.${diffs?(diffs.length?` <b>${diffs.length} différence${diffs.length>1?'s':''}</b> avec l'entrée, reprises dans le décompte ci-dessous.`:' Aucune différence avec l\'entrée.'):' Pas d\'état des lieux d\'entrée sur Trouve Ton Toit pour comparer.'}`:'État des lieux de sortie commencé, en attente des signatures.'):'Faites l\'état des lieux ensemble le jour du départ : chaque élément est repris de l\'entrée pour comparer.'}</div>
+      <div class="acts"><a class="btn ${EDL_S?.status==='signed'?'bg':'bp'}" href="/edl-meuble.html?booking_id=${BK.id}&type=sortie"><i data-lucide=clipboard-list class=ic></i> ${EDL_S?(EDL_S.status==='signed'?'Voir l\'état des lieux de sortie':'Ouvrir l\'état des lieux de sortie'):(L?'Commencer l\'état des lieux de sortie':'Voir l\'état des lieux de sortie')}</a></div>`;
+  }else if(m==='commissaire'){
+    detail=`<div class="note">Recours au commissaire de justice quand l'état des lieux ne peut pas se faire à l'amiable : le locataire est convoqué au moins 7 jours avant par lettre recommandée, et les frais (tarif réglementé) sont partagés par moitié.</div>
+      <div class="row">
+        <label class="f">Procès-verbal (PDF)${S.commissaire_url?` <a href="${esc(S.commissaire_url)}" target="_blank" rel="noopener" style="font-weight:600">Voir le document</a>`:''}${L&&!verrou?'<input type="file" class="fi" id="f-pv" accept=".pdf,image/*">':''}</label>
+        <label class="f">Coût total de l'acte (€)<input type="number" step="0.01" class="fi" id="f-pvcout" value="${esc(S.commissaire_cout??'')}" ${L&&!verrou?'':'disabled'}></label>
+      </div>
+      <label style="display:flex;gap:.45rem;align-items:center;font-size:.82rem;margin-top:.6rem"><input type="checkbox" id="f-pvdiff" ${S.commissaire_differences?'checked':''} ${L&&!verrou?'':'disabled'}> Le procès-verbal relève des différences avec l'état des lieux d'entrée</label>
+      ${L&&!verrou?'<div class="acts"><button class="btn bp" onclick="enregCommissaire()"><i data-lucide=upload class=ic></i> Enregistrer</button></div>':''}`;
+  }else if(m==='sans'){
+    const okL=!!S.sans_edl_landlord_at,okT=!!S.sans_edl_tenant_at;
+    detail=`<div class="note wa"><b>Sans état des lieux de sortie, aucune dégradation ne peut être retenue sur le dépôt</b> : faute de constat comparable à l'entrée, le logement est considéré comme rendu dans l'état où il a été remis. Seules les sommes réellement dues (loyers, charges) peuvent être déduites, et le dépôt est à restituer sous 1 mois. Les deux parties doivent confirmer.</div>
+      <div class="row"><div class="muted"><b>Propriétaire</b> : ${okL?'confirmé le '+fmtD(S.sans_edl_landlord_at):'en attente'}</div><div class="muted"><b>Locataire</b> : ${okT?'confirmé le '+fmtD(S.sans_edl_tenant_at):'en attente'}</div></div>
+      ${(L&&!okL)||(!L&&!okT)?`<div class="acts"><button class="btn bp" onclick="confirmerSans()"><i data-lucide=check class=ic></i> Je confirme : pas d'état des lieux de sortie</button></div>`:''}`;
+  }
+  return`<div class="card"><h2><span><i data-lucide=clipboard-check class=ic></i> État des lieux de sortie</span>${chip}</h2>
+  ${L?'<p class="muted" style="margin-top:.3rem">Choisissez comment il sera fait. Il se fait à la remise des clés, en présence des deux parties, sur le même modèle que l\'entrée.</p>':'<p class="muted" style="margin-top:.3rem">Choisi par le propriétaire.</p>'}
+  <div class="modes">
+    ${mode('plateforme','smartphone','Ensemble, sur Trouve Ton Toit','Pièce par pièce, comparé automatiquement à l\'entrée, signé par tous.')}
+    ${mode('commissaire','scale','Par un commissaire de justice','En cas de désaccord ou d\'absence du locataire. Frais partagés par moitié.')}
+    ${mode('sans','circle-slash','Sans état des lieux','D\'un commun accord. Aucune retenue pour dégradation possible.')}
+  </div>${detail}</div>`;
+}
+async function choisirMode(k){
+  if(k===S.mode_edl)return;
+  if(k==='sans'&&!await uiConfirm('Renoncer à l\'état des lieux de sortie ?\n\nSans constat, vous ne pourrez retenir aucune somme pour des dégradations : seuls les loyers et charges impayés pourront être déduits du dépôt. Le locataire devra aussi confirmer.'))return;
+  const upd={mode_edl:k,sans_edl_landlord_at:k==='sans'?new Date().toISOString():null,sans_edl_tenant_at:null};
+  if(k==='sans')S.retenues=S.retenues.filter(r=>r.kind!=='degradation'),upd.retenues=S.retenues;
+  if(await maj(upd,'Mode d\'état des lieux enregistré')&&k==='sans')notif(locataires(),'Le propriétaire propose de ne pas faire d\'état des lieux de sortie. Dans ce cas, aucune dégradation ne peut être retenue sur votre dépôt de garantie. Confirmez ou non dans « Je quitte le logement ».');
+}
+async function confirmerSans(){
+  if(!await uiConfirm('Confirmer qu\'il n\'y aura pas d\'état des lieux de sortie ?'))return;
+  const upd=ROLE==='landlord'?{sans_edl_landlord_at:new Date().toISOString()}:{sans_edl_tenant_at:new Date().toISOString()};
+  if(await maj(upd,'Confirmé'))notif(ROLE==='landlord'?locataires():proprio(),`${ROLE==='landlord'?'Le propriétaire':'Le locataire'} a confirmé : pas d'état des lieux de sortie.`);
+}
+async function enregCommissaire(){
+  const upd={commissaire_cout:$('f-pvcout').value?Number($('f-pvcout').value):null,commissaire_differences:$('f-pvdiff').checked};
+  const f=$('f-pv')?.files?.[0];
+  if(f){const path=`sorties/${BK.id}/pv-${Date.now()}.${(f.name.split('.').pop()||'pdf').toLowerCase()}`;
+    const up=await sb.storage.from(BUCKET).upload(path,f,{upsert:true});if(up.error){uiAlert('Envoi impossible : '+up.error.message);return;}
+    upd.commissaire_url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;}
+  // Part du locataire dans les frais (moitié) : ajoutée au décompte
+  S.retenues=S.retenues.filter(r=>r.auto!=='commissaire');
+  if(upd.commissaire_cout)S.retenues.push({id:'commissaire',auto:'commissaire',kind:'frais',libelle:'Moitié des frais du commissaire de justice',cout:Math.round(upd.commissaire_cout/2*100)/100});
+  upd.retenues=S.retenues;
+  maj(upd,'Procès-verbal enregistré');
+}
+
+function carteDecompte(L,t,e,pen){
+  const ee=etatEdl(),verrou=!!S.decompte_envoye_at,sans=S.mode_edl==='sans';
+  const chip=S.reponse==='accepte'?'<span class="chip ok">Accepté par le locataire</span>':S.reponse==='conteste'?'<span class="chip ko">Contesté</span>':verrou?'<span class="chip wa">Envoyé au locataire</span>':'<span class="chip">À préparer</span>';
+  const ans=anneesOccupation();
+  // Suggestions automatiques (propriétaire, avant envoi)
+  let sugg='';
+  if(L&&!verrou){
+    const deja=new Set(S.retenues.map(r=>r.src).filter(Boolean));
+    const imp=PAYS.filter(p=>['pending','late'].includes(p.status)&&p.due_date&&p.due_date<=(S.cles_at||iso(new Date()))&&!deja.has('pay:'+p.id));
+    const diffs=!sans&&S.mode_edl==='plateforme'&&EDL_S?.status==='signed'&&EDL_S?.data&&EDL_E?.data?differences(EDL_S.data).filter(d=>!deja.has('edl:'+d.libelle)):[];
+    if(imp.length||diffs.length)sugg=`<div class="note"><b>Détecté automatiquement</b> — ajoutez ce qui doit être retenu :
+      ${imp.map(p=>`<div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin-top:.4rem"><span>${p.type==='rent'||p.type==='first_rent'?'Loyer':'Paiement'} impayé du ${fmtD(p.due_date)} — ${eur(p.amount)}</span><button class="btn bg" style="padding:.3rem .6rem" onclick="ajoutImpaye('${p.id}')">+ Ajouter</button></div>`).join('')}
+      ${diffs.map((d,i)=>`<div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;margin-top:.4rem"><span>${esc(d.libelle)} : ${esc(d.detail)}</span><button class="btn bg" style="padding:.3rem .6rem" onclick="ajoutDiff(${i})">+ Chiffrer</button></div>`).join('')}</div>`;
+  }
+  const lignes=S.retenues.map(r=>{
+    const m=montantRetenue(r);
+    if(L&&!verrou&&r.kind==='degradation'){const p=r.part!=null&&r.part!==''?Number(r.part):Math.round(partLocataire(r.cat,ans)*100);
+      return`<div class="ret"><div class="ret-h"><b>${esc(r.libelle)}</b><button class="x" title="Retirer" onclick="retirer('${r.id}')"><i data-lucide=x class=ic></i></button></div>${r.detail?`<div class="ret-calc">${esc(r.detail)}</div>`:''}
+        <div class="ret-g">
+          <label class="f">Type<select class="fi" onchange="majRet('${r.id}','cat',this.value)">${Object.entries(VET).map(([k,v])=>`<option value="${k}" ${r.cat===k?'selected':''}>${v.l}</option>`).join('')}</select></label>
+          <label class="f">Coût (devis / facture)<input type="number" step="0.01" class="fi" value="${esc(r.cout??'')}" onchange="majRet('${r.id}','cout',this.value)"></label>
+          <label class="f">Part locataire (%)<input type="number" min="0" max="100" class="fi" value="${p}" onchange="majRet('${r.id}','part',this.value)"></label>
+          <label class="f">Justificatif${r.justif?` <a href="${esc(r.justif)}" target="_blank" rel="noopener">voir</a>`:''}<input type="file" class="fi" accept=".pdf,image/*" onchange="justif('${r.id}',this)"></label>
+        </div>
+        <div class="ret-calc">${VET[r.cat]?.d?`Vétusté : ${ans.toFixed(1).replace('.',',')} an(s) d'occupation, durée de vie ${VET[r.cat].d} ans, franchise ${VET[r.cat].f} an(s) → part locataire ${Math.round(partLocataire(r.cat,ans)*100)} %${r.part!=null&&r.part!==''?' (modifiée : '+r.part+' %)':''}.`:'Sans abattement pour vétusté.'} Retenue : <b>${eur(m)}</b></div></div>`;}
+    return`<div class="ret"><div class="ret-h"><span><b>${esc(r.libelle)}</b>${r.detail?`<div class="ret-calc">${esc(r.detail)}</div>`:''}${r.justif?`<div class="ret-calc"><a href="${esc(r.justif)}" target="_blank" rel="noopener">Justificatif</a></div>`:''}</span><span class="r"><b>${eur(m)}</b>${L&&!verrou&&!r.auto?` <button class="x" title="Retirer" onclick="retirer('${r.id}')"><i data-lucide=x class=ic></i></button>`:''}</span></div></div>`;
+  }).join('');
+  const peutCommencer=!!S.cles_at&&ee==='ok';
+  return`<div class="card"><h2><span><i data-lucide=calculator class=ic></i> Décompte du dépôt de garantie</span>${chip}</h2>
+    ${!peutCommencer&&!verrou?`<p class="muted" style="margin-top:.3rem">${L?'Disponible une fois la date de remise des clés et l\'état des lieux de sortie renseignés.':'Le propriétaire préparera le décompte après la remise des clés et l\'état des lieux.'}</p>`:''}
+    ${peutCommencer||verrou?`
+    <div class="row"><label class="f">Dépôt de garantie versé (€)<input type="number" step="0.01" class="fi" id="f-depot" value="${esc(S.depot??'')}" ${L&&!verrou?'onchange="majDepot(this.value)"':'disabled'}></label></div>
+    ${sugg}
+    ${lignes||`<p class="muted" style="margin-top:.6rem">${verrou?'Aucune retenue.':'Aucune retenue pour le moment.'}</p>`}
+    ${L&&!verrou?`<div class="acts">
+      ${sans?'':'<button class="btn bg" onclick="ajoutLibre(\'degradation\')"><i data-lucide=hammer class=ic></i> Dégradation</button>'}
+      <button class="btn bg" onclick="ajoutLibre('dette')"><i data-lucide=receipt class=ic></i> Loyer ou charges dus</button>
+      <button class="btn bg" onclick="ajoutLibre('frais')"><i data-lucide=plus class=ic></i> Autre somme due</button></div>
+      <label style="display:flex;gap:.45rem;align-items:center;font-size:.82rem;margin-top:.8rem"><input type="checkbox" id="f-copro" ${S.provision_copro>0?'checked':''} onchange="majCopro(this.checked)"> Logement en copropriété : conserver une provision de ${eur((Number(S.depot)||0)*.2)} (20 % max) jusqu'à l'approbation des comptes de l'immeuble</label>`:''}
+    <div class="sum">
+      <div><small>Dépôt versé</small><span class="big">${eur(t.depot)}</span></div>
+      <div><small>Retenues${t.prov?' + provision':''}</small><span class="big" style="color:${t.ret+t.prov?'var(--red)':'inherit'}">− ${eur(t.ret+t.prov)}</span></div>
+      <div><small>${t.solde>=0?'À restituer':'Reste dû par le locataire'}</small><span class="big" style="color:var(--green)">${eur(Math.abs(t.solde))}</span></div>
+    </div>
+    ${e?`<div class="note ${pen.montant?'ko':''}">À restituer au plus tard le <b>${fmtD(e)}</b> (${conforme()?'1 mois : état des lieux de sortie conforme':'2 mois : différences avec l\'entrée'}, à compter de la remise des clés).${pen.montant?` Délai dépassé : majoration de ${eur(pen.montant)} (10 % du loyer hors charges × ${pen.mois} mois commencé${pen.mois>1?'s':''}).`:''}${!S.nouvelle_adresse?' Nouvelle adresse du locataire non renseignée.':''}</div>`:''}
+    ${L&&!verrou?`<div class="acts"><button class="btn bp" onclick="envoyerDecompte()"><i data-lucide=send class=ic></i> Envoyer le décompte au locataire</button></div>`:''}
+    ${!L&&verrou&&!S.reponse?`<div class="acts"><button class="btn bp" onclick="repondre('accepte')"><i data-lucide=check class=ic></i> J'accepte le décompte</button><button class="btn br" onclick="repondre('conteste')">Je conteste</button></div>`:''}
+    ${S.reponse==='conteste'?`<div class="note ko"><b>Le locataire conteste${S.reponse_at?' ('+fmtD(S.reponse_at)+')':''} :</b> ${esc(S.reponse_commentaire||'')}<br>En cas de désaccord persistant : conciliateur de justice (gratuit) ou commission départementale de conciliation, puis le juge des contentieux de la protection.${L?' Vous pouvez ajuster le décompte et le renvoyer.':''}</div>${L?'<div class="acts"><button class="btn bg" onclick="rouvrir()"><i data-lucide=pencil class=ic></i> Modifier le décompte</button></div>':''}`:''}
+    `:''}</div>`;
+}
+function nid(){return Math.random().toString(36).slice(2,9);}
+async function sauverRetenues(msg){return maj({retenues:S.retenues},msg);}
+function ajoutImpaye(id){const p=PAYS.find(x=>x.id===id);if(!p)return;S.retenues.push({id:nid(),src:'pay:'+p.id,kind:'dette',libelle:`Loyer impayé du ${fmtD(p.due_date)}`,cout:Number(p.amount)||0});sauverRetenues('Ajouté au décompte');}
+function ajoutDiff(i){const d=differences(EDL_S.data).filter(x=>!new Set(S.retenues.map(r=>r.src)).has('edl:'+x.libelle))[i];if(!d)return;S.retenues.push({id:nid(),src:'edl:'+d.libelle,kind:'degradation',libelle:d.libelle,detail:d.detail,cat:devinerCat(d.libelle),cout:null,part:null});sauverRetenues('Ajouté : indiquez le coût');}
+async function ajoutLibre(kind){
+  const lib=await uiPrompt(kind==='degradation'?'Dégradation constatée (élément et pièce) :':kind==='dette'?'Libellé (ex. « Régularisation des charges 2026 ») :':'Libellé de la somme due :','');
+  if(!lib)return;
+  S.retenues.push({id:nid(),kind,libelle:String(lib).trim(),cat:kind==='degradation'?devinerCat(lib):undefined,cout:kind==='degradation'?null:Number(String(await uiPrompt('Montant (€) :','')||'0').replace(',','.'))||0,part:null});
+  sauverRetenues('Ajouté au décompte');
+}
+function retirer(id){S.retenues=S.retenues.filter(r=>r.id!==id);sauverRetenues('Retiré');}
+function majRet(id,k,v){const r=S.retenues.find(x=>x.id===id);if(!r)return;r[k]=k==='cat'?v:(v===''?null:Number(String(v).replace(',','.')));if(k==='cat')r.part=null;sauverRetenues();}
+async function justif(id,input){const f=input.files?.[0];if(!f)return;const path=`sorties/${BK.id}/justif-${id}-${Date.now()}.${(f.name.split('.').pop()||'pdf').toLowerCase()}`;
+  const up=await sb.storage.from(BUCKET).upload(path,f,{upsert:true});if(up.error){uiAlert('Envoi impossible : '+up.error.message);return;}
+  const r=S.retenues.find(x=>x.id===id);if(r){r.justif=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;sauverRetenues('Justificatif ajouté');}}
+function majDepot(v){maj({depot:v===''?null:Number(v)});}
+function majCopro(on){maj({provision_copro:on?Math.round((Number(S.depot)||0)*.2*100)/100:0});}
+async function envoyerDecompte(){
+  if(S.depot==null){uiAlert('Indiquez le montant du dépôt de garantie versé.');return;}
+  const sansCout=S.retenues.filter(r=>r.kind==='degradation'&&!(Number(r.cout)>0));
+  if(sansCout.length){uiAlert('Indiquez le coût de chaque dégradation (ou retirez-la) : '+sansCout.map(r=>r.libelle).join(', '));return;}
+  const sansJ=S.retenues.filter(r=>r.kind==='degradation'&&!r.justif);
+  if(sansJ.length&&!await uiConfirm(`${sansJ.length} retenue(s) sans justificatif (devis ou facture). En cas de contestation, une retenue non justifiée peut être refusée. Envoyer quand même ?`))return;
+  const t=totaux(),e=echeance();
+  if(!await uiConfirm(`Envoyer le décompte au locataire ?\n\nDépôt : ${eur(t.depot)}\nRetenues : ${eur(t.ret)}${t.prov?'\nProvision copropriété : '+eur(t.prov):''}\n${t.solde>=0?'À restituer : '+eur(t.solde):'Reste dû par le locataire : '+eur(-t.solde)}${e?'\nÀ restituer au plus tard le '+fmtD(e):''}`))return;
+  if(await maj({decompte_envoye_at:new Date().toISOString(),reponse:null,reponse_commentaire:null,reponse_at:null},'Décompte envoyé au locataire'))
+    notif(locataires(),`Décompte de votre dépôt de garantie : ${eur(t.depot)} versés, ${eur(t.ret+t.prov)} retenus, ${t.solde>=0?eur(t.solde)+' à vous restituer':eur(-t.solde)+' restant dû'}${e?' (au plus tard le '+fmtD(e)+')':''}. Détail, justificatifs et réponse : ${location.origin}/depart.html?booking_id=${BK.id}`);
+}
+async function repondre(r){
+  let com=null;
+  if(r==='conteste'){com=await uiPrompt('Ce que vous contestez (retenue concernée et pourquoi) :','');if(!com)return;}
+  else if(!await uiConfirm('Accepter le décompte du dépôt de garantie ?'))return;
+  if(await maj({reponse:r,reponse_commentaire:com,reponse_at:new Date().toISOString()},r==='accepte'?'Décompte accepté':'Contestation envoyée'))
+    notif(proprio(),r==='accepte'?'Le locataire a accepté le décompte du dépôt de garantie. Il reste à effectuer la restitution.':`Le locataire conteste le décompte du dépôt de garantie : « ${com} »`);
+}
+async function rouvrir(){await maj({decompte_envoye_at:null,reponse:null},'Décompte rouvert : modifiez-le puis renvoyez-le');}
+
+function carteRestitution(L,t,e,pen){
+  const fait=!!S.restitue_at;
+  const du=Math.max(0,t.solde)+pen.montant;
+  return`<div class="card"><h2><span><i data-lucide=banknote class=ic></i> Restitution</span>${fait?'<span class="chip ok">Restitué</span>':S.decompte_envoye_at?'<span class="chip wa">À effectuer</span>':'<span class="chip">Après le décompte</span>'}</h2>
+  ${fait?`<p class="muted" style="margin-top:.3rem">${eur(S.montant_restitue)} restitués le ${fmtD(S.restitue_at)}${S.moyen_restitution?' par '+esc(S.moyen_restitution):''}.</p>`
+   :S.decompte_envoye_at?(L?`<p class="muted" style="margin-top:.3rem">Montant à verser : <b>${eur(du)}</b>${pen.montant?` (dont ${eur(pen.montant)} de majoration de retard)`:''}${S.nouvelle_adresse?' — adresse du locataire : '+esc(S.nouvelle_adresse):''}.</p>
+      <div class="row"><label class="f">Date du versement<input type="date" class="fi" id="f-rdate" value="${iso(new Date())}"></label><label class="f">Montant versé (€)<input type="number" step="0.01" class="fi" id="f-rmt" value="${du.toFixed(2)}"></label><label class="f">Moyen<select class="fi" id="f-rmoy"><option>virement</option><option>chèque</option><option>autre</option></select></label></div>
+      <div class="acts"><button class="btn bp" onclick="restituer()"><i data-lucide=check-circle-2 class=ic></i> J'ai restitué le dépôt</button></div>`
+     :`<p class="muted" style="margin-top:.3rem">Montant attendu : <b>${eur(du)}</b>${e?', au plus tard le '+fmtD(e):''}.${pen.montant?' Le délai est dépassé : la majoration légale est incluse.':''}</p>`)
+   :'<p class="muted" style="margin-top:.3rem">Le versement se fait une fois le décompte envoyé.</p>'}</div>`;
+}
+async function restituer(){
+  const d=$('f-rdate').value,m=Number($('f-rmt').value),mo=$('f-rmoy').value;
+  if(!d||!(m>=0)){uiAlert('Indiquez la date et le montant.');return;}
+  if(await maj({restitue_at:d,montant_restitue:m,moyen_restitution:mo},'Restitution enregistrée'))
+    notif(locataires(),`Votre propriétaire indique avoir restitué ${eur(m)} de dépôt de garantie le ${fmtD(d)} (${mo}).`);
+}
+</script>
+</body>
+</html>
