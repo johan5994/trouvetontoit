@@ -4695,6 +4695,9 @@ function _gLeaseOf(p){return GEST.leases.find(l=>l.id===p.lease_id)||GEST.leases
 function _gName(id){if(GEST.names[id]?.full_name)return GEST.names[id].full_name;for(const l of GEST.allLeases||[]){const c=(l._colocs||[]).find(x=>(x.locataire_id||x.tenant_id)===id);if(c)return c.name;}return 'Locataire';}
 // Tous les locataires d'un bail (bail commun : principal + colocataires)
 function _gNoms(l){return [_gName(l.tenant_id),...(l._colocs||[]).map(c=>c.name)];}
+// Tous les locataires d'un bail commun (ids) : principal + colocataires
+function _gIds(l){return [l.tenant_id,...(l._colocs||[]).map(c=>c.locataire_id||c.tenant_id)].filter(Boolean);}
+function _gNomsTxt(l){const n=_gNoms(l);return n.length>1?n.slice(0,-1).join(', ')+' et '+n[n.length-1]:n[0];}
 function _gTitle(l){return (GEST.listings[l?.listing_id]?.title||l?.listing_title||'Logement')+(l?.lot_label?' — '+l.lot_label:'');}
 function _gVide(l){const li=GEST.listings[l?.listing_id];if(l?.type_bail==='vide')return true;if(l?.type_bail==='meuble')return false;return (li?.['meublé']??li?.furnished)===false;}
 function _gDpe(l){return String(l?.dpe_energy_rating||GEST.listings[l?.listing_id]?.dpe||GEST.listings[l?.listing_id]?.epc_rating||'').toUpperCase().trim();}
@@ -4758,11 +4761,19 @@ async function renderDocsBien(b){
   const el=document.getElementById('gestion-tab');
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
   const rows=[...b.ls.map(l=>_gRow('file-text',(l.type_bail==='vide'||_gVide(l)?'Bail de location vide':'Bail de location')+(b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''),'Du '+_gD(l.start_date)+' au '+_gD(l.end_date),`href="/bail-meuble.html?lease_id=${l.id}&role=landlord"`,_gChip(l.landlord_signed_at&&l.tenant_signed_at,'Signé','En cours'))),
-    ...bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{};const ok=!!bk.edl_completed_at||bk.status==='move_in_ready'||!!bk.tenancy_ended_at;return _gRow('clipboard-list','État des lieux d\'entrée'+(multiB?' · '+_gEsc(_gName(l.tenant_id)):''),bk.edl_completed_at?'Signé le '+_gD(bk.edl_completed_at):(ok?'Signé par tous':''),`href="/edl-meuble.html?booking_id=${l.booking_id}"`,_gChip(ok,'Signé','En cours'));}),
+    ...bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{};const ok=!!bk.edl_completed_at||bk.status==='move_in_ready'||!!bk.tenancy_ended_at||GEST.edl?.[l.booking_id]?.status==='signed';return _gRow('clipboard-list','État des lieux d\'entrée'+(multiB?' · '+_gEsc(_gName(l.tenant_id)):''),bk.edl_completed_at?'Signé le '+_gD(bk.edl_completed_at):(ok?'Signé par tous':''),`href="/edl-meuble.html?booking_id=${l.booking_id}"`,_gChip(ok,'Signé','En cours'));}),
     ..._gAssEtat(b).filter(x=>x.val).map(x=>_gRow('shield-check','Assurance habitation · '+_gEsc(x.nom),(x.val.assureur?_gEsc(x.val.assureur)+' · ':'')+'valable jusqu\'au '+_gD(x.val.date_fin),`href="#" onclick="event.preventDefault();gAssVoir('${x.val.id}')"`,_gChip(true,'Validée','')))];
-  el.innerHTML=`<div class="gd-list">${rows.join('')}</div><div id="gd-ann" class="gd-ann"><div style="color:var(--td);font-size:.8rem">Chargement des annexes…</div></div>`;
+  el.innerHTML=`<div class="gd-list">${rows.join('')}</div><div id="gd-gar" class="gd-ann" style="display:none"></div><div id="gd-ann" class="gd-ann"><div style="color:var(--td);font-size:.8rem">Chargement des annexes…</div></div>`;
   if(window.lucide)lucide.createIcons();
-  let actes=[];try{const{data}=await sb.from('actes_caution').select('id,lease_id,garant_nom,statut,signed_at').in('lease_id',b.ls.map(l=>l.id));actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
+  let tousActes=[];try{const{data}=await sb.from('actes_caution').select('id,lease_id,garant_nom,locataire_nom,statut,signed_at,envoye_at,type,plafond').in('lease_id',b.ls.map(l=>l.id));tousActes=(data||[]).filter(x=>x.statut!=='annule');}catch(e){}
+  const actes=tousActes.filter(x=>x.signed_at);
+  { // Garants : actes de cautionnement (signés ou en attente), Visale, garant du bail
+    const g=document.getElementById('gd-gar');
+    const rowsG=[...tousActes.map(a=>_gRow('shield','Garant · '+_gEsc(a.garant_nom||'—'),[a.locataire_nom?'caution de '+_gEsc(a.locataire_nom):'',a.type==='simple'?'caution simple':'caution solidaire',a.plafond?'plafond '+_g$(a.plafond):''].filter(Boolean).join(' · ')+(a.signed_at?' · signé le '+_gD(a.signed_at):a.envoye_at?' · envoyé le '+_gD(a.envoye_at):''),`href="/acte-caution.html?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener"`,_gChip(!!a.signed_at,'Signé','En attente de signature'))),
+      ...b.ls.filter(l=>l.visale_ref||l.garant_type==='visale').map(l=>_gRow('badge-check','Garantie Visale'+(b.ls.length>1?' · '+_gEsc(_gName(l.tenant_id)):''),l.visale_ref?'Visa n° '+_gEsc(l.visale_ref)+' — à vérifier sur visale.fr':'Numéro de visa à renseigner dans le bail',`href="/bail-meuble.html?lease_id=${l.id}&role=landlord"`,_gChip(!!l.visale_ref,'Renseignée','À compléter'))),
+      ...(tousActes.length?[]:b.ls.filter(l=>l.garant_name).map(l=>_gRow('shield','Garant · '+_gEsc(l.garant_name),'signataire du bail',`href="/bail-meuble.html?lease_id=${l.id}&role=landlord"`,_gChip(!!l.garant_signed_at,'Signé','En attente de signature'))))];
+    if(g&&rowsG.length){g.style.display='';g.style.padding='0';g.style.overflow='hidden';g.innerHTML=`<div class="gd-ann-t" style="padding:.85rem 1rem .4rem"><i data-lucide=shield class=ic></i> Garants <span>(${rowsG.length})</span></div><div class="gd-list" style="border:none;border-radius:0;border-top:1px solid var(--b)">${rowsG.join('')}</div>`;}
+  }
   const D=[['doc_dpe_url','Diagnostic de performance énergétique (DPE)'],['doc_erp_url','État des risques et pollutions (ERP)'],['doc_plomb_url','Constat de risque d\'exposition au plomb (CREP)'],['doc_amiante_url','Dossier amiante (parties privatives)'],['doc_elec_url','Diagnostic électricité'],['doc_gaz_url','Diagnostic gaz'],['doc_bruit_url','Information sur les nuisances sonores']];
   const vus=new Set(),diag=[];b.ls.forEach(l=>D.forEach(([k,t])=>{if(l[k]&&!vus.has(l[k])){vus.add(l[k]);diag.push([l[k],t]);}}));
   const gar=actes.map(a=>['/acte-caution.html?id='+encodeURIComponent(a.id),'Acte de cautionnement'+(a.garant_nom?' — '+a.garant_nom:'')]);
@@ -5340,7 +5351,7 @@ function _gRegBlock(l,annee,nb,ex,multi){
   const prov=Math.round(_gProvisions(l,annee)*100)/100;
   const tot=_gPostes(l).reduce((a,[c])=>a+(Number(dep[c])||0),0);
   const rempli=saisi||!!calc||!!dep.teom;
-  const nom=_gEsc(_gName(l.tenant_id));
+  const nom=_gEsc(_gNomsTxt(l)),pl=_gNoms(l).length>1;
   const head=multi?`<div style="font-weight:700;margin-bottom:.4rem">${nom} <span style="font-weight:500;color:var(--td)">${_gEsc(l.lot_label||'')}</span> <span style="font-size:.72rem;color:${e.c};margin-left:.3rem">● ${e.t}</span></div>`:'';
   if(_gForfait(l))return `<div style="${multi?'border-top:1px solid var(--b);padding-top:.7rem;margin-top:.7rem':''}">${head.replace(/● [^<]*/,'● Forfait')}<div style="color:var(--td);font-size:.8rem;line-height:1.5">${nom} paie un <strong style="color:var(--txt)">forfait de charges</strong> de ${_g$(l.charges)} par mois : pas de régularisation, ni complément ni remboursement. Le forfait peut seulement être révisé une fois par an, comme le loyer.</div></div>`;
   if(e.k==='rien')return `<div style="border-top:1px solid var(--b);padding-top:.7rem;margin-top:.7rem">${head}<div style="color:var(--td);font-size:.8rem">${nom} n'occupait pas le logement en ${annee}${l._fin&&new Date(l._fin).getFullYear()<annee?` (parti le ${_gD(l._fin)})`:` (bail à partir du ${_gD(l.start_date)})`} : rien à régulariser.</div></div>`;
@@ -5367,16 +5378,16 @@ function _gRegBlock(l,annee,nb,ex,multi){
       <tbody>${ligs.map(x=>{const fx=calc.fLigne(x),m=EAU_M.find(mm=>mm.test(x.nature)),r=m&&calc.eau[m.k];return `<tr><td style="${td}">${_gEsc(x.nature)}${r?`<div style="font-size:.7rem;color:var(--td)">au compteur : ${Math.round((r.m3[l.id]||0)*100)/100} m³ sur ${Math.round(r.base*100)/100} m³</div>`:''}</td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(x.montant)}</td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(Math.round(x.montant*fx*100)/100)}</td></tr>`;}).join('')}
       ${calc.dep.teom?`<tr><td style="${td}">Taxe d'ordures ménagères (TEOM)<div style="font-size:.7rem;color:var(--td)">avis de taxe foncière ${annee}, comprise dans la provision selon le bail</div></td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(_gTeomTotalAn(annee))}</td><td style="text-align:right;${td};font-variant-numeric:tabular-nums">${_g$(calc.dep.teom)}</td></tr>`:''}
       </tbody></table>`;})()
-      :`<p style="color:var(--td);margin-bottom:.5rem;font-size:.8rem">${_estAbo()?`Déposez le décompte du syndic ci-dessus : la part de ${nom} sera calculée ici. Pas de décompte ? Indiquez directement le montant ci-dessous.`:`Faites le calcul avec votre décompte (charges récupérables de l'année − provisions versées), puis envoyez le résultat à ${nom}.`}</p>`}
+      :`<p style="color:var(--td);margin-bottom:.5rem;font-size:.8rem">${_estAbo()?`Déposez le décompte du syndic ci-dessus : la part de ${nom} sera calculée ici. Pas de décompte ? Indiquez directement le montant ci-dessous.`:`Faites le calcul avec votre décompte (charges récupérables de l'année − provisions versées), puis envoyez le résultat à ${nom}${pl?' (bail commun : un seul décompte pour le logement, le montant est réparti à parts égales)':''}.`}</p>`}
     ${_gTeomInc(l)&&!_gTeomTotalAn(annee)?`<div style="font-size:.76rem;color:var(--gold);margin-bottom:.5rem">Le bail inclut la taxe d'ordures ménagères dans la provision : déposez l'avis de taxe foncière ${annee} dans l'onglet TEOM pour l'ajouter ici automatiquement, ou saisissez-la à la main.</div>`:''}
     <div style="display:none">${_gPostes(l).map(([c])=>`<input type="hidden" id="ch-${uid}-${c}" value="${calc&&dep[c]!=null?dep[c]:''}">`).join('')}</div>
     ${(()=>{const s0=calc?Math.round((tot-prov)*100)/100:null,dir=s0==null?'':s0>0.004?'loc':s0<-0.004?'prop':'zero';
       return `<div style="margin-top:.6rem;background:var(--s2);border-radius:10px;padding:.75rem .85rem">
-      ${calc?`<div style="font-size:.78rem;color:var(--td);margin-bottom:.5rem">Calculé : charges réelles ${_g$(tot)} − provisions versées ${_g$(prov)} = <strong style="color:var(--txt)">${s0>0?'complément de '+_g$(s0)+' dû par le locataire':s0<0?'trop-perçu de '+_g$(-s0)+' à rembourser':'équilibré'}</strong>. Modifiable ci-dessous.</div>`:`<div style="font-size:.78rem;color:var(--td);margin-bottom:.5rem">Provisions versées par ${nom} en ${annee} : <strong style="color:var(--txt)">${_g$(prov)}</strong>. Indiquez le résultat de votre décompte.</div>`}
+      ${calc?`<div style="font-size:.78rem;color:var(--td);margin-bottom:.5rem">Calculé : charges réelles ${_g$(tot)} − provisions versées ${_g$(prov)} = <strong style="color:var(--txt)">${s0>0?'complément de '+_g$(s0)+' dû par le locataire':s0<0?'trop-perçu de '+_g$(-s0)+' à rembourser':'équilibré'}</strong>. Modifiable ci-dessous.</div>`:`<div style="font-size:.78rem;color:var(--td);margin-bottom:.5rem">Provisions versées ${pl?'ensemble ':''}par ${nom} en ${annee} : <strong style="color:var(--txt)">${_g$(prov)}</strong>. Indiquez le résultat de votre décompte.</div>`}
       <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:.5rem;align-items:end" class="ch-simple">
         <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.74rem;font-weight:700;color:var(--td)">Résultat
           <select class="fi" id="ch-dir-${uid}" onchange="document.getElementById('ch-mt-${uid}').disabled=this.value==='zero'">
-            <option value="loc" ${dir==='loc'||!dir?'selected':''}>${nom} vous doit</option>
+            <option value="loc" ${dir==='loc'||!dir?'selected':''}>${nom} vous ${pl?'doivent':'doit'}</option>
             <option value="prop" ${dir==='prop'?'selected':''}>Vous devez rembourser ${nom}</option>
             <option value="zero" ${dir==='zero'?'selected':''}>Rien à régler (équilibré)</option>
           </select></label>
@@ -5527,7 +5538,7 @@ async function gTeomEnvoyerTous(annee){
 async function _gTeomEnvoi(l,annee,part,total,p,man){
   const now=new Date().toISOString();
   const row=await _gTeomRow(l.id,annee,{part,teom_total:total,envoye_at:now});if(!row)return false;
-  try{await sb.from('payments').insert({landlord_id:U.id,tenant_id:l.tenant_id,listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:part,type:'teom',status:'pending',due_date:_gIso(_gAdd(new Date(),30))});}catch(e){}
+  {const ids=_gIds(l),n=ids.length,b=Math.floor(part/n*100)/100;for(let i=0;i<n;i++){try{await sb.from('payments').insert({landlord_id:U.id,tenant_id:ids[i],listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:i===0?Math.round((part-b*(n-1))*100)/100:b,type:'teom',status:'pending',due_date:_gIso(_gAdd(new Date(),30))});}catch(e){}}}
   const txt=`Taxe d'ordures ménagères ${annee} : votre part est de ${_g$(part)}. ${man?`Montant fixé par votre propriétaire (TEOM du logement : ${_g$(total)}, avis de taxe foncière ${annee}).`:`Calcul : TEOM du logement ${_g$(total)} (avis de taxe foncière ${annee}, sans les frais de gestion) au prorata de votre occupation, ${p.occ} jours sur ${p.tot}${p.partage?' dont '+p.partage+' partagés avec un autre locataire':''}.`} À régler à votre propriétaire d'ici le ${_gD(_gAdd(new Date(),30))}, puis indiquez-le dans « Mon logement ».`;
   const dest=[{id:l.tenant_id,email:GEST.names[l.tenant_id]?.email,nom:_gName(l.tenant_id)},...(l._colocs||[]).map(c=>({id:c.locataire_id||c.tenant_id,email:c.email,nom:c.name}))];
   for(const d of dest){
@@ -5603,7 +5614,7 @@ async function gChSave(lid,annee,envoyer){
   let docs=_gJson(GEST.regs[lid+':'+annee]?.docs,[])||[];
   const pj=[...(document.getElementById('ch-pj-'+uid)?.files||[])];
   if(envoyer&&!docs.length&&!pj.length){toast('Joignez le décompte des charges (décompte du syndic ou factures) : le locataire doit pouvoir vérifier le montant.',7000);return;}
-  if(envoyer&&!await uiConfirm(`Envoyer le décompte ${annee} à ${_gName(l.tenant_id)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
+  if(envoyer&&!await uiConfirm(`Envoyer le décompte ${annee} à ${_gNomsTxt(l)} ?\n\nSolde : ${solde>0?'complément de '+_g$(solde)+' à payer':solde<0?'remboursement de '+_g$(-solde):'équilibré'}.`))return;
   if(pj.length){toast('<i data-lucide=upload class=ic></i> Envoi des justificatifs…',8000);
     try{for(const f of pj){if(f.size>20*1024*1024)throw new Error(`« ${f.name} » dépasse 20 Mo`);
       const ext=(f.name.split('.').pop()||'pdf').toLowerCase().replace(/[^a-z0-9]/g,''),path=`docs/regul-${lid}-${annee}/${Date.now()}-justificatif.${ext}`;
@@ -5615,7 +5626,7 @@ async function gChSave(lid,annee,envoyer){
   GEST.regs[lid+':'+annee]=data;
   if(envoyer){
     const adr=GEST.listings[l.listing_id]?.full_address||_gTitle(l);
-    _gLettre(`Objet : régularisation annuelle des charges — année ${annee}`,[_gName(l.tenant_id),adr],
+    _gLettre(`Objet : régularisation annuelle des charges — année ${annee}`,[_gNomsTxt(l),adr],
       [`Madame, Monsieur,`,`Conformément à l'article 23 de la loi du 6 juillet 1989, voici le décompte des charges récupérables de l'année ${annee} pour le logement situé ${adr} :`,
        _gPostes(l).filter(([c])=>dep[c]).map(([c,lab])=>`• ${lab} : ${_g$(dep[c])}`).join('\n'),
        `Total des dépenses récupérables : ${_g$(tot)}.`,`Provisions sur charges versées sur la période : ${_g$(prov)}.`,
@@ -5624,31 +5635,32 @@ async function gChSave(lid,annee,envoyer){
        `Le décompte détaillé est joint à votre espace Trouve Ton Toit (${docs.map(d=>d.name).join(', ')}). Les autres justificatifs (factures, avis de taxe foncière pour la TEOM) sont tenus à votre disposition pendant six mois.`,
        `Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`],
       `Regularisation-charges-${annee}-${_gName(l.tenant_id).replace(/\s+/g,'-')}.pdf`);
-    await _gMsg(l.tenant_id,l.listing_id,`Régularisation des charges ${annee} : dépenses ${_g$(tot)}, provisions versées ${_g$(prov)}. ${solde>0?'Complément à régler : '+_g$(solde)+' (exigible dans un mois). ':solde<0?'Trop-perçu à vous rembourser : '+_g$(-solde)+'. ':''}Les justificatifs sont à votre disposition pendant 6 mois.`);
-    if(solde>0){const due=_gIso(_gAdd(new Date(),30));await sb.from('payments').insert({landlord_id:U.id,tenant_id:l.tenant_id,listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:solde,type:'charges_regul',status:'pending',due_date:due});}
+    const ids=_gIds(l),n=ids.length,partDe=i=>{const b=Math.floor(Math.abs(solde)/n*100)/100;return i===0?Math.round((Math.abs(solde)-b*(n-1))*100)/100:b;};
+    for(let i=0;i<n;i++)await _gMsg(ids[i],l.listing_id,`Régularisation des charges ${annee} : dépenses ${_g$(tot)}, provisions versées ${_g$(prov)}. ${solde>0?'Complément à régler : '+_g$(solde)+(n>1?' pour le logement, soit '+_g$(partDe(i))+' pour vous':'')+' (exigible dans un mois). ':solde<0?'Trop-perçu à rembourser : '+_g$(-solde)+(n>1?' pour le logement, soit '+_g$(partDe(i))+' pour vous':'')+'. ':''}Le décompte est disponible dans « Mon logement » ; les autres justificatifs sont à votre disposition pendant 6 mois.`);
+    if(solde>0){const due=_gIso(_gAdd(new Date(),30));for(let i=0;i<n;i++){try{await sb.from('payments').insert({landlord_id:U.id,tenant_id:ids[i],listing_id:l.listing_id,lease_id:l.id,booking_id:l.booking_id||null,amount:partDe(i),type:'charges_regul',status:'pending',due_date:due});}catch(e){}}}
   }
   toast(envoyer?'Décompte envoyé.':'Enregistré.');renderGestion();
 }
 async function gRegConfirmer(lid,annee){
   const l=GEST.leases.find(x=>x.id===lid),rg=GEST.regs[lid+':'+annee];if(!rg)return;
-  if(!await uiConfirm(`Confirmer avoir reçu ${_g$(rg.solde)} de ${_gName(l.tenant_id)} (régularisation des charges ${annee}) ?`))return;
+  if(!await uiConfirm(`Confirmer avoir reçu ${_g$(rg.solde)} de ${_gNomsTxt(l)} (régularisation des charges ${annee}) ?`))return;
   const now=new Date().toISOString();
   const{error}=await sb.from('charges_regularisations').update({paiement_confirme_at:now}).eq('id',rg.id);
   if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-suivi.sql':''),9000);return;}
   rg.paiement_confirme_at=now;
   try{await sb.from('payments').update({status:'paid',paid_at:now}).eq('lease_id',lid).eq('type','charges_regul').neq('status','paid');}catch(e){}
-  await _gMsg(l.tenant_id,l.listing_id,`Votre propriétaire a confirmé la réception de ${_g$(rg.solde)} (régularisation des charges ${annee}). C'est terminé, merci !`);
+  for(const id of _gIds(l))await _gMsg(id,l.listing_id,`Votre propriétaire a confirmé la réception de ${_g$(rg.solde)} (régularisation des charges ${annee}). C'est terminé, merci !`);
   toast('Paiement confirmé : régularisation terminée.');renderGestion();
 }
 async function gRegRembourse(lid,annee){
   const l=GEST.leases.find(x=>x.id===lid),rg=GEST.regs[lid+':'+annee];if(!rg)return;
   const m=_g$(Math.abs(rg.solde));
-  if(!await uiConfirm(`Confirmer avoir remboursé ${m} à ${_gName(l.tenant_id)} (virement ou déduction d'un loyer) ?\n\nLe locataire devra confirmer la réception.`))return;
+  if(!await uiConfirm(`Confirmer avoir remboursé ${m} à ${_gNomsTxt(l)} (virement ou déduction d'un loyer) ?\n\nLe locataire devra confirmer la réception.`))return;
   const now=new Date().toISOString();
   const{error}=await sb.from('charges_regularisations').update({paiement_declare_at:now}).eq('id',rg.id);
   if(error){toast('Erreur : '+_gEsc(error.message)+(/column/i.test(error.message)?' — exécutez supabase-migration-regul-suivi.sql':''),9000);return;}
   rg.paiement_declare_at=now;
-  await _gMsg(l.tenant_id,l.listing_id,`Régularisation des charges ${annee} : votre propriétaire indique vous avoir remboursé ${m}. Confirmez la réception dans « Mon logement ».`);
+  for(const id of _gIds(l))await _gMsg(id,l.listing_id,`Régularisation des charges ${annee} : votre propriétaire indique vous avoir remboursé ${m}${_gIds(l).length>1?' (pour le logement)':''}. Confirmez la réception dans « Mon logement ».`);
   toast('Remboursement indiqué : le locataire doit confirmer.');renderGestion();
 }
 async function gChProvision(lid,annee){
