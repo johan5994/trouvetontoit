@@ -689,7 +689,7 @@
               <span class="ir-value" id="loyer-val" style="color:var(--bleu);font-size:.92rem">—</span>
             </div>
             <div class="info-row">
-              <span class="ir-label">Provisions sur charges</span>
+              <span class="ir-label" id="charges-lbl">Provisions sur charges</span>
               <span class="ir-value" id="charges-val">—</span>
             </div>
             <div class="info-row" style="background:var(--bg)">
@@ -721,7 +721,7 @@
         <div class="section">
           <div class="article-title" id="art5-title">Article 5 — Charges récupérables</div>
           <div class="article-content">
-            <p>En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle.</p>
+            <p id="charges-mode-txt">En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de <span id="charges-txt">—</span></strong>, soumise à régularisation annuelle.</p>
             <p id="teom-clause" hidden></p>
             <p>Les charges récupérables (définies par le décret n° 87-713 du 26 août 1987) comprennent notamment :</p>
             <ul>
@@ -1100,6 +1100,8 @@ const TEST_GARANT_PAR_LOCATAIRE=true;
 // Type de bail : 'meuble' (loi 89-462 titre Ier bis) ou 'vide' (titre Ier)
 let TYPE_BAIL='meuble';
 const isVide=()=>TYPE_BAIL==='vide';
+// Charges : provisions (régularisées chaque année) ou forfait (montant fixe, sans régularisation — meublé uniquement, art. 25-10 ; en vide, provisions obligatoires)
+function chargesMode(){if(isVide())return'provision';const m=LEASE?.charges_mode;if(m==='forfait'||m==='provision')return m;return LISTING?.charges_regularisation==='forfaitaire'?'forfait':'provision';}
 function detectTypeBail(){
   // L'annonce fait foi (meublé / vide) ; le bail ne garde son propre type que si l'annonce ne le précise pas
   const m=LISTING?LISTING['meublé']??LISTING.furnished??LISTING.meuble:null;
@@ -1188,6 +1190,7 @@ const FIELD_LABELS={
   diag_bruit:'Nuisances sonores',
   regime_copro:'Copropriété',
   teom_incluse:'Taxe d\'ordures ménagères (TEOM) dans la provision',
+  charges_mode:'Mode de charges',
   numero_lot:'Numéro de lot',
   parking_type:'Type de stationnement',
   parking_details:'Stationnement (numéro/localisation)',
@@ -1333,6 +1336,7 @@ const FIELD_CONFIGS={
   tenant_phone:{type:'tel',placeholder:'+33 6 …'},
   tenant_nationality:{type:'text',placeholder:'ex. Française'},
   teom_incluse:{type:'select',options:[{v:'true',l:'Oui — comprise dans la provision'},{v:'false',l:'Non — remboursée à part, une fois par an'}]},
+  charges_mode:{type:'select',options:[{v:'provision',l:'Provisions sur charges — régularisées chaque année'},{v:'forfait',l:'Forfait de charges — montant fixe, sans régularisation (meublé)'}]},
   regime_copro:{type:'select',options:[{v:'true',l:'Oui — immeuble en copropriété'},{v:'false',l:'Non — monopropriété'}]},
   zone_tendue:{type:'select',options:[{v:'true',l:'Oui — encadrement des loyers applicable'},{v:'false',l:'Non — pas d\'encadrement'}]},
   dep_cave:{type:'select',options:[{v:'oui',l:'Oui — cave incluse'},{v:'non',l:'Non'}]},
@@ -2861,15 +2865,21 @@ function _renderBail(){
     else show('prorata-txt',`L'entrée dans les lieux ayant lieu le <strong>${fmtDateFr(_pr.start)}</strong>, le premier loyer est calculé au prorata des jours d'occupation : <strong>${_pr.days} jours sur ${_pr.period}</strong> (du ${fmtDateFr(_pr.start)} au ${fmtDateFr(_pr.end)}), soit <strong>${fmtEur(_pr.amount)}</strong> charges comprises, payable à l'entrée dans les lieux. Le loyer est ensuite dû en totalité à chaque échéance, à compter du <strong>${fmtDateFr(_pr.nextDue)}</strong>.`);
   }
   show('charges-txt',charges>0?fmt(charges)+' / mois':'incluses dans le loyer');
+  {const fz=chargesMode()==='forfait',lb=document.getElementById('charges-lbl'),mt=document.getElementById('charges-mode-txt');
+    if(lb)lb.textContent=fz?'Forfait de charges':'Provisions sur charges';
+    if(mt&&charges>0)mt.innerHTML=fz
+      ?ev('charges_mode',`En sus du loyer, le locataire versera un <strong>forfait de charges mensuel de ${fmt(charges)}</strong>, fixé dès la signature et <strong>non régularisable</strong> : aucun complément ni remboursement ne sera demandé en fin d'année. Ce forfait peut être révisé chaque année aux mêmes conditions que le loyer ; il ne doit pas être manifestement disproportionné au regard des charges dont le locataire se serait acquitté sur justification (art. 25-10 de la loi du 6 juillet 1989).`)
+      :(isVide()?(x=>x):(x=>ev('charges_mode',x)))(`En sus du loyer, le locataire versera une <strong>provision mensuelle sur charges de ${fmt(charges)}</strong>, soumise à régularisation annuelle : un mois avant, le bailleur communique le décompte par nature de charges et, pendant six mois, tient les justificatifs à la disposition du locataire (art. 23 de la loi du 6 juillet 1989).`);}
   // TEOM : comprise ou non dans la provision (question du tunnel, seulement s'il y a une provision)
   {
     const el=document.getElementById('teom-clause');
     if(el){
       const ti=L.teom_incluse;let t='';
+      if(chargesMode()==='forfait'){el.innerHTML='';el.hidden=true;}else{
       if(charges>0&&ti===true)t=ev('teom_incluse','Cette provision <strong>inclut la taxe d\'enlèvement des ordures ménagères (TEOM)</strong>, régularisée chaque année avec les autres charges.');
       else if(charges>0&&ti===false)t=ev('teom_incluse','La <strong>taxe d\'enlèvement des ordures ménagères (TEOM) n\'est pas comprise</strong> dans cette provision : le locataire la rembourse au bailleur une fois par an, sur présentation de l\'avis de taxe foncière, au prorata de sa durée d\'occupation.');
       else if(charges>0&&_editMode)t='Taxe d\'ordures ménagères (TEOM) : '+mf('teom_incluse');
-      el.innerHTML=t;el.hidden=!t;
+      el.innerHTML=t;el.hidden=!t;}
     }
   }
 
@@ -3340,7 +3350,7 @@ function renderResume(L){
   const ans=(()=>{try{return dureeAns();}catch(err){return 1;}})();
   const cases=[
     ['Loyer mensuel hors charges',e(rent)],
-    ['Provision sur charges',e(ch)],
+    [chargesMode()==='forfait'?'Forfait de charges':'Provision sur charges',e(ch)],
     ['Total mensuel',e(rent+ch),true],
     ['Dépôt de garantie',dep===0?'Aucun':e(dep)],
     ['Prise d’effet',d(L.start_date)],
@@ -3612,7 +3622,7 @@ async function exportBailPDF(){
 // ═══ Colocation « un bail par locataire » : baux individuels liés à la même candidature ═══
 function _bookingRef(){return LEASE?.booking_id||LEASE?.parent_booking_id||BOOKING_ID||null;}
 // Infos du logement communes à tous les baux d'une même colocation (un bail par locataire)
-const CHAMPS_COMMUNS=new Set(['prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','teom_incluse','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
+const CHAMPS_COMMUNS=new Set(['charges_mode','prop_address','description_logement','prop_type','prop_pieces','prop_etage','surface_boutin','annee_construction','numero_fiscal','regime_copro','teom_incluse','numero_lot','mode_chauffage','mode_ecs','usage_locaux',
   'dep_cave','dep_cave_numero','cave_details','dep_parking','parking_type','parking_details','dep_garage','box_details','dep_balcon','dep_terrasse','dep_jardin','dep_autres',
   'commun_ascenseur','commun_velo','commun_poubelles','commun_espaces_verts','commun_gardien','commun_laverie','commun_autres','telecom_fibre','telecom_prise_tv','telecom_internet_fourni','telecom_autres',
   'dpe_energy_rating','dpe_ges_rating','dpe_depenses_min','dpe_depenses_max','dpe_annee_ref','diag_amiante','diag_plomb','diag_elec','diag_gaz','diag_erp','diag_bruit',
