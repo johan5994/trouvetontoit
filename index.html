@@ -3973,7 +3973,7 @@ async function _openDetBody(l,id){
 
     const eur=n=>Number(n).toLocaleString('fr-FR',{maximumFractionDigits:2})+' €';
     const cc=Number(l.price)||0,hc=loyerHC!=null?loyerHC:(charges?null:cc),dep=l.depot!=null&&l.depot!==''?Number(l.depot):null;
-    const regul=l.charges_regularisation==='forfait'?'forfait':'provision';
+    const regul=['forfait','forfaitaire'].includes(l.charges_regularisation)?'forfait':'provision';
     const cases=[
       hc!=null?['Loyer hors charges',eur(hc)]:null,
       charges?[regul==='forfait'?'Forfait de charges':'Provision sur charges',eur(charges)]:null,
