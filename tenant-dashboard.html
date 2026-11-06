@@ -2333,14 +2333,31 @@ function showMlTab(tab){
 // ── Régularisation des charges côté locataire : voir le décompte, payer le complément ou confirmer un remboursement ──
 const CH_LBL_T={eau:'Eau froide / eau chaude',chauffage:'Chauffage collectif',entretien:'Parties communes : électricité, ménage, entretien, espaces verts',ascenseur:'Ascenseur',gardien:'Gardien / concierge (part récupérable)',teom:'Taxe d\'enlèvement des ordures ménagères',autres:'Autres charges récupérables'};
 let REGS_T=[],TEOM_T=[];
+// Baux où je suis locataire (principal ou colocataire d'un bail commun) et nombre de locataires de chacun
+async function _mesBaux(){
+  const out={ids:[],nb:{}};
+  try{
+    const[{data:a},{data:b}]=await Promise.all([sb.from('bookings').select('id,co_locataires_data').eq('tenant_id',U.id),sb.from('bookings').select('id,co_locataires_data').not('co_locataires_data','is',null).neq('tenant_id',U.id)]);
+    const cols=bk=>{let c=bk.co_locataires_data;try{c=typeof c==='string'?JSON.parse(c):c;}catch(e){c=[];}return(Array.isArray(c)?c:[]).filter(x=>x&&x.coloc_status!=='declined');};
+    const mine=[...(a||[]),...(b||[]).filter(bk=>cols(bk).some(c=>(c.locataire_id||c.tenant_id)===U.id))];
+    if(!mine.length)return out;
+    const{data:ls}=await sb.from('leases').select('id,booking_id,colocation_type').in('booking_id',mine.map(x=>x.id));
+    (ls||[]).forEach(l=>{const bk=mine.find(x=>x.id===l.booking_id);out.ids.push(l.id);out.nb[l.id]=l.colocation_type==='individuel'?1:1+cols(bk).filter(c=>c.locataire_id||c.tenant_id).length;});
+  }catch(e){}
+  return out;
+}
 async function loadRegulT(){
   const el=document.getElementById('ml-regul');if(!el||!U)return;
   // État des lieux de sortie préparé par le propriétaire : lien direct pour le relire et le signer
   let sorties=[];try{const{data}=await sb.from('etats_des_lieux').select('booking_id,status,landlord_signed_at,tenant_signed_at,co_signatures').eq('type','sortie').neq('status','draft').eq('tenant_id',U.id);sorties=data||[];}catch(e){}
   const htmlS=sorties.map(x=>{const fait=x.status==='signed',moi=!!x.tenant_signed_at;return `<div class="card" style="margin-bottom:.8rem"><div class="cb" style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.84rem"><span><i data-lucide=log-out class=ic></i> <strong>État des lieux de sortie</strong> — ${fait?'<span style="color:var(--green)">signé par tous</span>':moi?'vous avez signé, en attente des autres':'<span style="color:var(--gold)">à relire et signer</span>'}</span><a class="btn ${fait||moi?'bg':'bp'} bsm" style="text-decoration:none" href="/edl-meuble.html?booking_id=${x.booking_id}&type=sortie">${fait||moi?'Voir':'Relire et signer'}</a></div></div>`;}).join('');
-  try{const{data}=await sb.from('charges_regularisations').select('*').eq('tenant_id',U.id).not('envoye_at','is',null).order('annee',{ascending:false});REGS_T=data||[];}catch(e){REGS_T=[];}
+  // Bail commun : la régularisation et la TEOM sont enregistrées sur le bail (locataire principal) — chaque colocataire doit aussi les voir
+  const MB=await _mesBaux();
+  const orF=MB.ids.length?`tenant_id.eq.${U.id},lease_id.in.(${MB.ids.join(',')})`:`tenant_id.eq.${U.id}`;
+  try{const{data}=await sb.from('charges_regularisations').select('*').or(orF).not('envoye_at','is',null).order('annee',{ascending:false});REGS_T=data||[];}catch(e){REGS_T=[];}
   // TEOM (taxe d'ordures ménagères) demandée par le propriétaire
-  try{const{data}=await sb.from('teom_refacturations').select('*').eq('tenant_id',U.id).not('envoye_at','is',null).order('annee',{ascending:false});TEOM_T=data||[];}catch(e){TEOM_T=[];}
+  try{const{data}=await sb.from('teom_refacturations').select('*').or(orF).not('envoye_at','is',null).order('annee',{ascending:false});TEOM_T=data||[];}catch(e){TEOM_T=[];}
+  window._MB=MB;
   const htmlT=TEOM_T.map(r=>{const m=fmtEur(r.part),fini=!!r.paiement_confirme_at;
     const act=fini?`<span style="color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Paiement confirmé</span>`:r.paiement_declare_at?`<span style="color:var(--td)">Paiement indiqué — en attente de la confirmation du propriétaire</span>`:`<button class="btn bp bsm" onclick="teomPayeT('${r.id}')"><i data-lucide=check class=ic></i> J'ai payé ${m}</button>`;
     return `<div class="card" style="margin-bottom:.8rem"><div class="cb" style="font-size:.82rem;line-height:1.55">
@@ -2362,7 +2379,7 @@ async function loadRegulT(){
         <table style="width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:.5rem">${Object.entries(dep).filter(([,v])=>Number(v)).map(([c,v])=>`<tr><td style="padding:.25rem 0;border-bottom:1px dashed var(--b)">${CH_LBL_T[c]||c}</td><td style="padding:.25rem 0;border-bottom:1px dashed var(--b);text-align:right;font-variant-numeric:tabular-nums">${fmtEur(v)}</td></tr>`).join('')}
           <tr><td style="padding:.3rem 0;font-weight:700">Charges réelles</td><td style="text-align:right;font-weight:700">${fmtEur(r.total_depenses)}</td></tr>
           <tr><td style="padding:.2rem 0;color:var(--td)">Provisions déjà versées</td><td style="text-align:right;color:var(--td)">− ${fmtEur(r.provisions)}</td></tr>
-          <tr><td style="padding:.35rem 0;font-weight:800;border-top:1px solid var(--b)">${solde>0?'Complément à payer':solde<0?'À vous rembourser':'Solde'}</td><td style="text-align:right;font-weight:800;border-top:1px solid var(--b)">${m}</td></tr></table>
+          <tr><td style="padding:.35rem 0;font-weight:800;border-top:1px solid var(--b)">${solde>0?'Complément à payer':solde<0?'À rembourser':'Solde'}${(window._MB?.nb?.[r.lease_id]||1)>1?' (logement)':''}</td><td style="text-align:right;font-weight:800;border-top:1px solid var(--b)">${m}</td></tr>${(window._MB?.nb?.[r.lease_id]||1)>1&&Math.abs(solde)>=0.01?`<tr><td style="padding:.2rem 0;color:var(--td)">Votre part (bail commun, ${window._MB.nb[r.lease_id]} colocataires)</td><td style="text-align:right;color:var(--td)">${fmtEur(Math.round(Math.abs(solde)/window._MB.nb[r.lease_id]*100)/100)}</td></tr>`:''}</table>
         <div style="background:var(--s2);border-radius:8px;padding:.6rem .75rem">${action}</div>
         ${(()=>{let dj=[];try{dj=typeof r.docs==='string'?JSON.parse(r.docs):(r.docs||[]);}catch(e){}return dj.length?`<div style="margin-top:.6rem"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--td);margin-bottom:.25rem">Décompte et justificatifs</div>${dj.map(d=>`<button type="button" class="btn bg bsm" style="margin:0 .3rem .3rem 0" onclick="regDocT('${_escT(d.path)}')"><i data-lucide=file-text class=ic></i> ${_escT(d.name||'Décompte')}</button>`).join('')}</div>`:'';})()}
         <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Vous pouvez demander les autres justificatifs (factures…) au propriétaire : il doit les tenir à votre disposition pendant 6 mois (art. 23 de la loi du 6 juillet 1989).</div>
@@ -2613,7 +2630,8 @@ async function _mlResume(bk,annonce){
   const cc=L?(Number(L.rent)||0)+(Number(L.charges)||0):Number(bk.monthly_rent)||0;
   // Documents
   let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status,data').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;let dd=sortie?.data;try{dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(x){dd=null;}if(sortie&&sortie.status==='draft'&&!(dd?.rooms||[]).some(r=>(r.elements||[]).some(x=>x.etat)))sortie=null;}catch(e){}
-  let actes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,statut,signed_at').eq('lease_id',L.id);actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
+  let tousActes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,locataire_nom,statut,signed_at,envoye_at,type,plafond').eq('lease_id',L.id);tousActes=(data||[]).filter(x=>x.statut!=='annule');}catch(e){}
+  const actes=tousActes.filter(x=>x.signed_at);
   const docs=document.getElementById('ml-docs');if(docs)docs.innerHTML='';
   // Onglet « Bail & documents » : liste simple
   const bailOk=L&&L.landlord_signed_at&&L.tenant_signed_at,edlOk=bk.status==='move_in_ready'||!!bk.edl_completed_at||(bk.edl_signed_landlord&&bk.edl_signed_tenant);
@@ -2625,6 +2643,11 @@ async function _mlResume(bk,annonce){
       ${(bk.edl_status||bk.edl_completed_at)?ligne('clipboard-list','État des lieux d\'entrée',edlOk?'Signé par tous':'',`/edl-meuble.html?booking_id=${bk.id}`,chip(edlOk,'Signé','En cours')):''}
       <div id="ml-ass-doc"></div>
     </div>
+    ${(()=>{if(!L)return'';const fe=v=>Number(v||0).toLocaleString('fr-FR')+' €';
+      const g=[...tousActes.map(a=>ligne('shield','Garant · '+_escT(a.garant_nom||'—'),[a.locataire_nom?'caution de '+_escT(a.locataire_nom):'',a.type==='simple'?'caution simple':'caution solidaire',a.plafond?'plafond '+fe(a.plafond):''].filter(Boolean).join(' · '),`/acte-caution.html?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener`,chip(!!a.signed_at,'Signé','En attente'))),
+        ...(L.visale_ref||L.garant_type==='visale'?[ligne('badge-check','Garantie Visale',L.visale_ref?'Visa n° '+_escT(L.visale_ref):'Numéro de visa à transmettre au propriétaire',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.visale_ref,'Renseignée','À compléter'))]:[]),
+        ...(!tousActes.length&&L.garant_name?[ligne('shield','Garant · '+_escT(L.garant_name),'signataire du bail',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.garant_signed_at,'Signé','En attente'))]:[])];
+      return g.length?`<div class="mx-ann" style="padding:0;overflow:hidden"><div class="mx-ann-t" style="padding:.85rem 1rem .4rem"><i data-lucide=shield class=ic></i> Garants <span>(${g.length})</span></div><div class="mx-dlist" style="border:none;border-radius:0;border-top:1px solid var(--b2)">${g.join('')}</div></div>`:'';})()}
     ${L?`<div class="mx-ann">${_mlAnnexes(L,actes,true)}</div>`:''}`;
   // État des lieux de sortie : dans « Je quitte le logement »
   const sx=document.getElementById('ml-sortie-doc');
