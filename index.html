@@ -2941,7 +2941,7 @@ async function sU(clerkUser, showPicker=true) {
     if(data.role==='bailleur')setTimeout(()=>{try{editDepuisUrl();}catch(e){console.error(e);}},300);
   } else {
     const full_name = clerkUser.fullName || clerkUser.firstName || '';
-    P = data || { clerk_id: U.id, full_name, email: U.email, role: null };
+    P = data || { clerk_id: U.id, full_name: '', email: U.email, role: null }; // nom légal saisi par l'utilisateur, jamais repris du compte
     if(showPicker){
       // Locataire invité par son gestionnaire : rôle déjà connu, pas de question
       let inv=null;try{inv=localStorage.getItem('ttt_signup_role');}catch(e){}
