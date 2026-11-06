@@ -77,7 +77,8 @@
 .gx-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
 .gx-tile{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.75rem .9rem;min-width:0}
 .gx-tile .gx-v{font-size:.95rem;white-space:normal}
-.gx-tabs{display:flex;gap:.2rem;border-bottom:1px solid var(--b2);margin-bottom:1rem;overflow-x:auto;scrollbar-width:none}
+.gx-tabs{display:flex;flex-wrap:wrap;gap:0 .1rem;border-bottom:1px solid var(--b2);margin-bottom:1rem}
+@media(max-width:700px){.gx-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
 .gx-tab{all:unset;cursor:pointer;padding:.6rem .85rem;font-size:.8rem;font-weight:700;color:var(--td);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem}
 .gx-tab:hover{color:var(--txt)}.gx-tab.on{color:var(--bleu);border-bottom-color:var(--bleu)}
 .gx-badge{font-size:.62rem;font-weight:800;border-radius:999px;padding:.05rem .4rem;background:rgba(var(--red-rgb),.15);color:var(--red)}
@@ -4851,7 +4852,7 @@ function renderGestion(){
   const bien=biens.find(b=>b.id===window._gBien);
   const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
   GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));
-  const tabs=[['paiements','Paiements','euro'],['impayes','Impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['teom','TEOM','trash-2'],['maintenance','Maintenance','wrench'],['documents','Bail & documents','file-text'],['assurance','Assurance habitation','shield-check'],['depart','Départ du locataire','door-open']];
+  const tabs=[['paiements','Paiements','euro'],['impayes','Impayés','alert-triangle'],['irl','Révision','trending-up'],['charges','Charges','receipt'],['teom','TEOM','trash-2'],['maintenance','Maintenance','wrench'],['documents','Documents','file-text'],['assurance','Assurance','shield-check'],['depart','Départ','door-open']];
   const st=_gBienStats(bien);
   const nDecl=GEST.pays.filter(p=>p.status==='declared').length;
   const lidsB=new Set(bien.ls.map(l=>l.id)),nTeom=Object.values(GEST.teom||{}).filter(r=>lidsB.has(r.lease_id)&&r.paiement_declare_at&&!r.paiement_confirme_at).length;
