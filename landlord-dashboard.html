@@ -119,6 +119,11 @@ button.gx-doc{font-family:inherit;cursor:pointer}
 .gd-hist>div{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.35rem 0;border-top:1px solid var(--b)}
 @media(max-width:600px){.gd-acts,.gd-hist{margin-left:0}}
 @media(max-width:600px){.ch-simple{grid-template-columns:1fr!important}}
+.ac-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.ac-item{padding:.6rem .9rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--b);display:flex;gap:.5rem;align-items:baseline}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:rgba(var(--bleu-rgb),.1)}
+.ac-item small{color:var(--td);font-size:.75rem}
 </style>
 <style>
 :root{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
@@ -816,7 +821,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
           <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0"><i data-lucide=file-text class=ic></i> Requis pour le bail</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:.75rem">Obligatoire par la loi française — ces informations apparaissent dans le contrat de bail.</div>
           <div class="fgrid2">
-            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse de résidence * <span style="font-size:.68rem;color:var(--td)">(apparaît sur le bail comme votre résidence légale)</span></label><input class="fi" id="prof-home-address" placeholder="12 rue de la Paix, 75001 Paris, France" oninput="updateLLCompleteness()"></div>
+            <div class="fg" style="grid-column:1/-1"><label class="fl">Adresse de résidence * <span style="font-size:.68rem;color:var(--td)">(apparaît sur le bail comme votre résidence légale)</span></label><div style="position:relative"><input class="fi" id="prof-home-address" placeholder="Commencez à taper votre adresse…" autocomplete="off" oninput="updateLLCompleteness();acInputLL(this)" onblur="acHideLL(this)"><div class="ac-list" id="prof-home-address-ac"></div></div></div>
           </div>
           <div style="font-size:.75rem;font-weight:700;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0"><i data-lucide=euro class=ic></i> Finances</div>
           <div class="fgrid2">
@@ -3692,9 +3697,28 @@ function requireCompleteProfile(action){
   return true;
 }
 
+// ── Autocomplétion d'adresse (Base Adresse Nationale), comme dans l'espace locataire et la création d'annonce ──
+let _acTLL=null,_acDLL={};
+function acInputLL(inp){
+  clearTimeout(_acTLL);const list=document.getElementById(inp.id+'-ac');const q=inp.value.trim();
+  if(q.length<3){list.style.display='none';return;}
+  _acTLL=setTimeout(async()=>{
+    try{const d=await(await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(q)+'&limit=6')).json();const fs=d.features||[];
+      _acDLL[inp.id]=fs.map(f=>{const p=f.properties;return{main:p.name||p.label,sub:[p.postcode,p.city].filter(Boolean).join(' '),val:p.label};});
+      if(!fs.length){list.style.display='none';return;}
+      list.innerHTML=_acDLL[inp.id].map((o,i)=>`<div class="ac-item" onmousedown="acPickLL('${inp.id}',${i})"><span style="font-weight:600">${_gEsc(o.main)}</span><small>${_gEsc(o.sub)}</small></div>`).join('');
+      list.style.display='block';}catch(e){list.style.display='none';}
+  },250);
+}
+function acPickLL(id,i){const o=_acDLL[id]?.[i];if(!o)return;const inp=document.getElementById(id);inp.value=o.val;document.getElementById(id+'-ac').style.display='none';try{updateLLCompleteness();}catch(e){}}
+function acHideLL(inp){setTimeout(()=>{const l=document.getElementById(inp.id+'-ac');if(l)l.style.display='none';},150);}
 async function loadProfilee(){
   if(!P)return;
-  document.getElementById('prof-name').value=P.full_name||'';
+  // Nom repris automatiquement du compte (Google, e-mail…) sur un profil jamais complété : on laisse vide
+  const _acct=[window.Clerk?.user?.fullName,window.Clerk?.user?.firstName,window.Clerk?.user?.username,(U?.email||'').split('@')[0]].filter(Boolean).map(x=>String(x).toLowerCase());
+  const _base=String(P.full_name||'').toLowerCase(),_autoName=!!P.full_name&&(_acct.includes(_base)||_acct.some(a=>a.split(/[._-]/)[0]===_base))&&!P.date_of_birth&&!P.nationality&&!P.home_address;
+  document.getElementById('prof-name').value=_autoName?'':(P.full_name||'');
+  if(_autoName){try{sb.from('profiles').update({full_name:null}).eq('clerk_id',U.id).then(()=>{});}catch(e){}P.full_name=null;}
   document.getElementById('prof-email').value=P.email||U.email||'';
   document.getElementById('prof-phone').value=P.phone||'';
   const _nat = P.nationality||'';
