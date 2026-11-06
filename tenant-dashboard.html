@@ -2626,7 +2626,7 @@ async function _mlResume(bk,annonce){
     ${L?`<div class="mx-ann">${_mlAnnexes(L,actes,true)}</div>`:''}`;
   // État des lieux de sortie : dans « Je quitte le logement »
   const sx=document.getElementById('ml-sortie-doc');
-  if(sx)sx.innerHTML=sortie?`<div class="mx-dlist" style="margin-bottom:1rem">${ligne('log-out','État des lieux de sortie',sortie.status==='signed'?'Signé':'En cours',`/edl-meuble.html?booking_id=${bk.id}&type=sortie`,chip(sortie.status==='signed','Signé','En cours'))}</div>`:'';
+  if(sx)sx.innerHTML=bailOk?`<div class="mx-dlist" style="margin-bottom:1rem">${ligne('route','Suivi du départ et du dépôt de garantie','Remise des clés, nouvelle adresse, état des lieux de sortie, décompte et restitution',`/depart.html?booking_id=${bk.id}`,'')}${sortie?ligne('log-out','État des lieux de sortie',sortie.status==='signed'?'Signé':'En cours',`/edl-meuble.html?booking_id=${bk.id}&type=sortie`,chip(sortie.status==='signed','Signé','En cours')):''}</div>`:'';
   if(L)_assMl(L,bk);
   // Mes paiements
   let ps=[];try{const{data}=await sb.from('payments').select('id,type,amount,status,due_date').eq('tenant_id',U.id).eq('booking_id',bk.id).neq('status','cancelled');ps=data||[];}catch(e){}
