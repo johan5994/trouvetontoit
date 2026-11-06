@@ -695,14 +695,15 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
           <div class="sf sf-ville"><label for="fz"><i data-lucide=map-pin class=ic></i> Ville</label><input list="zones-list" id="fz" autocomplete="off" onchange="loadL()" oninput="loadLDebounce()" placeholder="Toutes les villes"><datalist id="zones-list"></datalist></div>
           <div class="sf"><label for="ft"><i data-lucide=home class=ic></i> Type</label><select id="ft" onchange="loadL();toggleSaleFiltrerUI()">
             <option value="">Tous les types</option>
-            <option value="long">Location</option>
+            <option value="meuble">Meublé</option>
+            <option value="vide">Vide</option>
             <option value="room_rental">Colocation</option>
-            <option value="parking">Parking / garage</option>
-            <option value="for_sale">À vendre</option>
+            <option value="parking">Garage / box</option>
+            <option value="for_sale">Vente</option>
           </select></div>
-          <div class="sf" id="fp-wrap"><label for="fp"><i data-lucide=euro class=ic></i> Budget max</label><select id="fp" onchange="loadL()"><option value="">Sans limite</option><option value="400">400 €</option><option value="600">600 €</option><option value="800">800 €</option><option value="1000">1 000 €</option><option value="1500">1 500 €</option><option value="2000">2 000 €</option></select></div>
+          <div class="sf" id="fp-wrap"><label for="fp"><i data-lucide=euro class=ic></i> Budget max</label><input id="fp" type="number" inputmode="numeric" min="0" step="50" placeholder="ex. 800 €" onchange="loadL()" oninput="loadLDebounce()"></div>
           <div class="sf"><label for="fsrc"><i data-lucide=user class=ic></i> Annonceur</label><select id="fsrc" onchange="loadL()"><option value="">Tous</option><option value="owner">Particulier</option><option value="agence">Agence</option></select></div>
-          <div class="sf"><label for="fa"><i data-lucide=shield-check class=ic></i> Garantie</label><select id="fa" onchange="loadL()"><option value="">Toutes</option><option value="yes">Visale / attestation acceptée</option></select></div>
+          <div class="sf"><label for="fa"><i data-lucide=layout-grid class=ic></i> Pièces</label><select id="fa" onchange="loadL()"><option value="">Indifférent</option><option value="1">1 pièce (studio)</option><option value="2">2 pièces et +</option><option value="3">3 pièces et +</option><option value="4">4 pièces et +</option></select></div>
           <button class="btn btn-p sbar-go" onclick="loadL();document.getElementById('lg').scrollIntoView({behavior:'smooth',block:'start'})"><i data-lucide=search class=ic></i> Rechercher</button>
         </div>
       </div>
@@ -3358,9 +3359,12 @@ function goToDash(){
 async function doLogout(){await clerk.signOut();toast('<i data-lucide=hand class=ic></i> See you soon!');go('home');updN();}
 
 function toggleSaleFiltrerUI(){
-  const isSale=document.getElementById('ft')?.value==='for_sale';
-  const fpWrap=document.getElementById('fp-wrap');
-  if(fpWrap)fpWrap.style.display=isSale?'none':'';
+  const t=document.getElementById('ft')?.value,isSale=t==='for_sale';
+  const lb=document.querySelector('label[for="fp"]');if(lb)lb.innerHTML='<i data-lucide=euro class=ic></i> '+(isSale?'Prix max':'Budget max');
+  const fp=document.getElementById('fp');if(fp){fp.placeholder=isSale?'ex. 250 000 €':'ex. 800 €';fp.step=isSale?'5000':'50';}
+  const pw=document.getElementById('fa')?.closest('.sf');if(pw)pw.style.display=t==='parking'?'none':'';
+  if(t==='parking'){const fa=document.getElementById('fa');if(fa)fa.value='';}
+  if(window.lucide)lucide.createIcons();
 }
 
 async function loadHeroAnnonces(){
@@ -3388,12 +3392,21 @@ async function loadL(){
   const z=document.getElementById('fz')?.value,t=document.getElementById('ft')?.value,p=document.getElementById('fp')?.value,att=document.getElementById('fa')?.value,src=document.getElementById('fsrc')?.value;
   let q=sb.from('listings').select('*').eq('active',true).or('status.is.null,status.not.in.(reserved,rented)').order('created_at',{ascending:false});
   if(z)q=q.ilike('zone','%'+z.trim()+'%');
-  if(t)q=q.eq('type',t);
-  if(p&&t!=='for_sale')q=q.lte('price',parseInt(p)); // le filtre budget est pensé pour un loyer, n'a pas de sens pour un prix de vente
-  if(att==='yes')q=q.eq('accepts_attestation',true);
+  if(t==='meuble'||t==='vide')q=q.eq('type','long');
+  else if(t==='parking')q=q.in('type',['parking','parking_box']);
+  else if(t)q=q.eq('type',t);
+  const pmax=parseFloat(String(p||'').replace(',','.'));
+  if(pmax>0)q=t==='for_sale'?q.lte('sale_price',pmax):q.lte('price',pmax);
   if(src==='owner')q=q.not('agency_annonce','is',true);
   else if(src==='agence')q=q.eq('agency_annonce',true);
-  const{data}=await q;
+  let{data}=await q;
+  // Meublé / vide (même type « long », distingués par la case meublé) et nombre de pièces : filtrés ici
+  const meub=l=>l['meublé']??l.furnished;
+  if(t==='meuble')data=(data||[]).filter(l=>meub(l)===true);
+  if(t==='vide')data=(data||[]).filter(l=>meub(l)===false);
+  const PIECES={studio:1,t1:1,t2:2,t3:3,t4:4,t5:5,t6plus:6};
+  const nbP=l=>PIECES[l.typology]||(Number(l.chambres)?Number(l.chambres)+1:null);
+  if(att){const n=Number(att);data=(data||[]).filter(l=>{const v=nbP(l);if(v==null)return true;return n===1?v===1:v>=n;});}
   const now=Date.now();
   const sorted=(data||[]).slice().sort((a,b)=>{
     const aBoost=a.boosted_until&&new Date(a.boosted_until).getTime()>now?1:0;
