@@ -877,9 +877,8 @@ button.mx-doc{font-family:inherit;cursor:pointer}
       <!-- Import d'un DossierFacile déjà constitué -->
       <div id="df-import" style="background:rgba(var(--bleu-rgb),.05);border:1.5px solid rgba(var(--bleu-rgb),.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
         <div style="font-size:.92rem;font-weight:800;color:var(--deep)"><i data-lucide=file-up class=ic></i> Vous avez déjà un dossier sur DossierFacile ?</div>
-        <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez le PDF téléchargé depuis DossierFacile : <strong>votre dossier ici se remplit tout seul</strong> (identité, situation, revenus, avis d’impôt, garant), puis il est envoyé au propriétaire avec chaque candidature. Vous pouvez aussi coller votre lien de partage.</div>
+        <div style="font-size:.8rem;color:var(--tm);margin:.3rem 0 .7rem;line-height:1.5">Ajoutez le PDF téléchargé depuis DossierFacile : <strong>votre dossier ici se remplit tout seul</strong> (identité, situation, revenus, avis d’impôt, garant), puis il est envoyé au propriétaire avec chaque candidature.</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
-          <input class="fi" id="df-link" placeholder="Lien de partage DossierFacile (facultatif)" style="flex:1;min-width:220px" onchange="dfSaveLink()">
           <button class="btn bp bsm" onclick="document.getElementById('df-file').click()"><i data-lucide=upload class=ic></i> Ajouter le PDF</button>
           <input type="file" id="df-file" accept=".pdf,image/*" multiple style="display:none" onchange="dfUpload(this.files)">
         </div>
