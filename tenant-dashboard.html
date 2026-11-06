@@ -2364,10 +2364,12 @@ async function loadRegulT(){
           <tr><td style="padding:.2rem 0;color:var(--td)">Provisions déjà versées</td><td style="text-align:right;color:var(--td)">− ${fmtEur(r.provisions)}</td></tr>
           <tr><td style="padding:.35rem 0;font-weight:800;border-top:1px solid var(--b)">${solde>0?'Complément à payer':solde<0?'À vous rembourser':'Solde'}</td><td style="text-align:right;font-weight:800;border-top:1px solid var(--b)">${m}</td></tr></table>
         <div style="background:var(--s2);border-radius:8px;padding:.6rem .75rem">${action}</div>
-        <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Les justificatifs (décompte du syndic, factures) sont à votre disposition auprès du propriétaire pendant 6 mois.</div>
+        ${(()=>{let dj=[];try{dj=typeof r.docs==='string'?JSON.parse(r.docs):(r.docs||[]);}catch(e){}return dj.length?`<div style="margin-top:.6rem"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--td);margin-bottom:.25rem">Décompte et justificatifs</div>${dj.map(d=>`<button type="button" class="btn bg bsm" style="margin:0 .3rem .3rem 0" onclick="regDocT('${_escT(d.path)}')"><i data-lucide=file-text class=ic></i> ${_escT(d.name||'Décompte')}</button>`).join('')}</div>`:'';})()}
+        <div style="font-size:.7rem;color:var(--td);margin-top:.45rem">Vous pouvez demander les autres justificatifs (factures…) au propriétaire : il doit les tenir à votre disposition pendant 6 mois (art. 23 de la loi du 6 juillet 1989).</div>
       </div></details>`;}).join('');
   if(window.lucide)lucide.createIcons();
 }
+async function regDocT(path){const{data,error}=await sb.storage.from('documents-dossiers').createSignedUrl(path,3600);if(error||!data?.signedUrl){uiAlert('Ouverture impossible : '+(error?.message||''));return;}window.open(data.signedUrl,'_blank','noopener');}
 async function teomPayeT(id){
   const r=TEOM_T.find(x=>x.id===id);if(!r)return;
   if(!await uiConfirm(`Confirmer avoir payé ${fmtEur(r.part)} à votre propriétaire (taxe d'ordures ménagères ${r.annee}) ?`))return;
@@ -2610,7 +2612,7 @@ async function _mlResume(bk,annonce){
   const nb=commun?1+cols.filter(c=>c.locataire_id||c.tenant_id).length:1;
   const cc=L?(Number(L.rent)||0)+(Number(L.charges)||0):Number(bk.monthly_rent)||0;
   // Documents
-  let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;}catch(e){}
+  let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status,data').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;let dd=sortie?.data;try{dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(x){dd=null;}if(sortie&&sortie.status==='draft'&&!(dd?.rooms||[]).some(r=>(r.elements||[]).some(x=>x.etat)))sortie=null;}catch(e){}
   let actes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,statut,signed_at').eq('lease_id',L.id);actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
   const docs=document.getElementById('ml-docs');if(docs)docs.innerHTML='';
   // Onglet « Bail & documents » : liste simple
