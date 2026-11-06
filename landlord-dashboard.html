@@ -149,7 +149,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .un{font-size:.82rem;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ur{font-size:.7rem;color:var(--td);white-space:nowrap;margin-top:.1rem}
 
-.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0}
 .topbar{padding:1rem 2rem;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--s);position:sticky;top:0;z-index:40}
 .tb-title{font-size:1rem;font-weight:600}
 .tb-sub{font-size:.75rem;color:var(--tm);margin-top:.1rem}
@@ -162,7 +162,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .bsm{padding:.4rem .9rem;font-size:.78rem}
 .bdanger{background:var(--rdim);color:var(--red);border:1px solid rgba(var(--red-rgb),.2)}
 
-.content{padding:1.5rem 2rem;flex:1}
+.content{padding:1.5rem 2rem;flex:1;min-width:0}
 .page{display:none}.page.act{display:block;animation:fi .2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -4748,7 +4748,7 @@ async function renderDocsBien(b){
   const el=document.getElementById('gestion-tab');
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
   const rows=[...b.ls.map(l=>_gRow('file-text',(l.type_bail==='vide'||_gVide(l)?'Bail de location vide':'Bail de location')+(b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''),'Du '+_gD(l.start_date)+' au '+_gD(l.end_date),`href="/bail-meuble.html?lease_id=${l.id}&role=landlord"`,_gChip(l.landlord_signed_at&&l.tenant_signed_at,'Signé','En cours'))),
-    ...bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{};return _gRow('clipboard-list','État des lieux d\'entrée'+(multiB?' · '+_gEsc(_gName(l.tenant_id)):''),bk.edl_completed_at?'Signé le '+_gD(bk.edl_completed_at):'',`href="/edl-meuble.html?booking_id=${l.booking_id}"`,_gChip(!!bk.edl_completed_at,'Signé','En cours'));}),
+    ...bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{};const ok=!!bk.edl_completed_at||bk.status==='move_in_ready'||!!bk.tenancy_ended_at;return _gRow('clipboard-list','État des lieux d\'entrée'+(multiB?' · '+_gEsc(_gName(l.tenant_id)):''),bk.edl_completed_at?'Signé le '+_gD(bk.edl_completed_at):(ok?'Signé par tous':''),`href="/edl-meuble.html?booking_id=${l.booking_id}"`,_gChip(ok,'Signé','En cours'));}),
     ..._gAssEtat(b).filter(x=>x.val).map(x=>_gRow('shield-check','Assurance habitation · '+_gEsc(x.nom),(x.val.assureur?_gEsc(x.val.assureur)+' · ':'')+'valable jusqu\'au '+_gD(x.val.date_fin),`href="#" onclick="event.preventDefault();gAssVoir('${x.val.id}')"`,_gChip(true,'Validée','')))];
   el.innerHTML=`<div class="gd-list">${rows.join('')}</div><div id="gd-ann" class="gd-ann"><div style="color:var(--td);font-size:.8rem">Chargement des annexes…</div></div>`;
   if(window.lucide)lucide.createIcons();
