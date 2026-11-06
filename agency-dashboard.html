@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <script src="/ui-dialog.js"></script>
+<script>/* Désinstaller l'ancien service worker (il cassait les appels aux fonctions) */if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});if(window.caches)caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trouve Ton Toit — Portail agence</title>
@@ -4509,7 +4510,7 @@ async function doLogout(){await window.Clerk.signOut();window.location.reload();
   if(!P||!['agent','agence','agency'].includes(P.role)){
     // Créer le profil agence si pas encore fait
     if(!P){
-      try{await sb.from('profiles').insert({clerk_id:U.id,role:'agent',full_name:clerk.user.fullName||'Agence'});}catch(e){}
+      try{await sb.from('profiles').insert({clerk_id:U.id,role:'agent',full_name:null});}catch(e){}
     }
   }
   
