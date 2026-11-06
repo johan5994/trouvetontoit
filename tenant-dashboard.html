@@ -395,6 +395,18 @@ button.mx-doc{font-family:inherit;cursor:pointer}
 }
 .rm-tags{display:inline-flex;gap:.25rem;flex-wrap:wrap}
 .rm-tag{font-size:.64rem;font-weight:600;color:var(--tm);background:var(--s2);border:1px solid var(--b2);border-radius:100px;padding:.08rem .45rem}
+.gov{border:1px solid var(--b2);border-radius:12px;background:var(--s);margin:.75rem 0 1rem;overflow:hidden}
+.gov-t{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--td);padding:.6rem .85rem .4rem}
+.gov-row{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:.6rem;align-items:center;padding:.5rem .85rem;border-top:1px solid var(--b2)}
+.gov-lbl{all:unset;cursor:pointer;font-size:.82rem;font-weight:700;display:flex;flex-direction:column;gap:.05rem}
+.gov-lbl small{font-weight:500;font-size:.72rem;color:var(--td)}
+.gov-lbl:hover{color:var(--bleu)}
+.gov-files{display:flex;flex-wrap:wrap;gap:.35rem .8rem;font-size:.8rem;min-width:0}
+.gov-files a{color:var(--green);text-decoration:none;font-weight:600;overflow-wrap:anywhere}
+.gov-files a:hover{text-decoration:underline}
+.gov-ok{color:var(--td)}
+.gov-miss{all:unset;cursor:pointer;color:var(--gold);font-weight:700}
+@media(max-width:600px){.gov-row{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
 <style>
@@ -7253,7 +7265,20 @@ function renderGarantSubNav(){
     const act=i===garantSubStep;
     const cls=done?'garant-sub-tab gst-done':act?'garant-sub-tab gst-act':'garant-sub-tab';
     return `<div class="${cls}" onclick="showGarantSubStep(${i})"><span>${done?'✓':(i+1)}</span>${step.label}</div>`;
+  }).join('');  // Vue d'ensemble : tous les documents du garant, rangés par rubrique, visibles sans cliquer sur chaque onglet
+  let ov=document.getElementById('garant-overview');
+  if(!ov){ov=document.createElement('div');ov.id='garant-overview';nav.insertAdjacentElement('afterend',ov);}
+  const subs=gState().garant_subs||{},esc=x=>String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const lignes=GARANT_SUB_STEPS.map((step,i)=>{
+    const sub=subs[i]||{},files=i===3?(sub.revenues||[]).flatMap(r=>r.files||[]):(sub.files||[]);
+    const opt=i===3?null:GARANT_TYPE_OPTIONS[i]?.find(o=>o.key===sub.type);
+    const quoi=i===3?(sub.revenues||[]).map(r=>r.label||'Revenus').join(', '):(opt?.label||'');
+    const sansDoc=opt?.needsUpload===false;
+    return `<div class="gov-row"><button type="button" class="gov-lbl" onclick="showGarantSubStep(${i})"><i data-lucide=${step.icon} class=ic></i> ${step.label}${quoi?`<small>${esc(quoi)}</small>`:''}</button>
+      <div class="gov-files">${files.length?files.map(f=>f.url?`<a href="${esc(f.url)}" target="_blank" rel="noopener"><i data-lucide=file-check class=ic></i> ${esc(f.name)}</a>`:`<span><i data-lucide=file-check class=ic></i> ${esc(f.name)}</span>`).join(''):sansDoc?'<span class="gov-ok">Aucun document à fournir</span>':`<button type="button" class="gov-miss" onclick="showGarantSubStep(${i})">À fournir →</button>`}</div></div>`;
   }).join('');
+  ov.innerHTML=`<div class="gov"><div class="gov-t">Documents du garant</div>${lignes}</div>`;
+  if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
 function showGarantSubStep(i){
@@ -7517,6 +7542,10 @@ async function dfSuivre(t0,avant){
     if(ex&&ex.status!=='en_cours'&&ex.at&&ex.at!==avant){
       dossierState=d;try{localStorage.setItem('dossier_'+U.id,JSON.stringify(d));}catch(e){}
       try{renderDossierState();}catch(e){}
+      // Rafraîchir tout de suite l'étape affichée (et les sous-étapes du garant) : plus besoin de cliquer pour voir le vert
+      try{const vis=document.querySelector('.dossier-screen.ds-visible');const idx=vis?parseInt(String(vis.id).replace('dscreen-',''),10):NaN;
+        if(!isNaN(idx)){showDossierStep(idx);if(idx===5&&dossierState[5]?.type==='garant_personne'){try{renderGarantSelector();}catch(e){}try{renderGarantSubNav();}catch(e){}try{renderGarantSubScreen(garantSubStep);}catch(e){}}}
+        renderDossierState();}catch(e){}
       dfRender();
       if(ex.status==='ok')toast('<i data-lucide=check-circle-2 class=ic></i> Dossier rempli depuis DossierFacile : vérifiez chaque étape');
       return;
