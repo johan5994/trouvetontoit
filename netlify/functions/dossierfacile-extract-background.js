@@ -143,8 +143,8 @@ function lireDossierFacile(pages, outline, monPrenom) {
     if (x.prenom !== cible) return; // dossier en couple / colocation : seulement les pièces du locataire qui importe
     if (x.qui === 't') { (res.locataire.pages[x.cat] = res.locataire.pages[x.cat] || []).push(i + 1); return; }
     let g = res.garants.find(y => y.n === x.n && (y.type === 'personne') === !['organisme', 'moral'].includes(x.cat));
-    if (!g) { g = { n: x.n, type: x.cat === 'organisme' ? 'organisme' : x.cat === 'moral' ? 'moral' : 'personne', nom: null, pages: [] }; res.garants.push(g); }
-    g.pages.push(i + 1);
+    if (!g) { g = { n: x.n, type: x.cat === 'organisme' ? 'organisme' : x.cat === 'moral' ? 'moral' : 'personne', nom: null, pages: [], cats: {} }; res.garants.push(g); }
+    g.pages.push(i + 1); (g.cats[x.cat] = g.cats[x.cat] || []).push(i + 1);
   });
   // Noms des garants : signets « Prénom Nom » sous le locataire
   if (Array.isArray(outline) && cible) {
@@ -240,7 +240,7 @@ exports.handler = async (event) => {
           ressources: PP.ressources ? { type: /bulletin|fiche de paie|pension|bourse|\bcaf\b|rsa|allocation/.test(txtDe(PP.ressources)) ? ty('ressources') : 'autre_ressources', montant_mensuel_net: dfr.resume.revenu || null, pages: PP.ressources } : null,
           impot: PP.impot ? { present: true, annee_revenus: null, revenu_fiscal: null, rattache_parents: false, pages: PP.impot } : null,
           garants: dfr.garants.map(g => { const [p0, ...p1] = String(g.nom || '').split(' '); const vis = /visale/.test(txtDe(g.pages));
-            return { type: g.type === 'personne' ? 'garant_personne' : g.type === 'moral' ? 'garant_moral' : vis ? 'garant_visale' : 'garant_organisme', prenom: p0 || '', nom: p1.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages }; }),
+            return { type: g.type === 'personne' ? 'garant_personne' : g.type === 'moral' ? 'garant_moral' : vis ? 'garant_visale' : 'garant_organisme', prenom: p0 || '', nom: p1.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages, cats: g.cats, textes: Object.fromEntries(Object.entries(g.cats || {}).map(([k, v]) => [k, txtDe(v)])) }; }),
           remarques: dfr.resume.type && dfr.resume.type !== 'seul' ? `Dossier DossierFacile ${dfr.resume.type === 'couple' ? 'en couple' : 'en colocation'} : seules vos pièces (${dfr.resume.prenom || ''}) ont été reprises.` : '',
           _mode: 'code-df', _lisible: true,
         };
@@ -292,8 +292,25 @@ exports.handler = async (event) => {
           const garants = [];
           for (let k = 0; k < G.filter(g => g.type === 'garant_personne').length && k < 2; k++) {
             const g = G.filter(x => x.type === 'garant_personne')[k];
-            const f = await decoupe(src, pagesOk(g.pages, n), clerk, 'garant' + (k + 1), ts + 10 + k);
-            garants.push({ garant_name: { prenom: g.prenom || '', nom: g.nom || '', email: g.email || '' }, garant_subs: {}, files: f ? [f] : [], fromDF: true, revenu_df: Number(g.revenu_mensuel_net) || null });
+            const subs = {};
+            if (g.cats && Object.keys(g.cats).length) {
+              const T = g.textes || {}, cut = async (cat, i) => (g.cats[cat] ? await decoupe(src, pagesOk(g.cats[cat], n), clerk, `garant${k + 1}_${cat}`, ts + 20 + k * 10 + i) : null);
+              const fId = await cut('identite', 0), fHe = await cut('hebergement', 1), fPr = await cut('profession', 2), fRe = await cut('ressources', 3), fIm = await cut('impot', 4);
+              const idDoc = detectType('identite', T.identite || '');
+              const ID = { cni: 'g_cni', passeport: 'g_passeport', sejour: 'g_sejour', permis: 'g_permis', france_identite: 'g_france_id' };
+              if (fId) subs[0] = { type: /passeport|titre de sejour|permis|france identite|carte nationale/.test(T.identite || '') ? (ID[idDoc] || 'g_autre_id') : 'g_autre_id', files: [fId], fromDF: true };
+              if (fHe) { const t = T.hebergement || ''; subs[1] = { type: /attestation de bon paiement/.test(t) ? 'g_attest_paiement' : /attestation d ?hebergement/.test(t) ? 'g_attest_heberg' : /taxe fonciere/.test(t) ? 'g_taxe_fonciere' : 'g_quittances', files: [fHe], fromDF: true }; }
+              if (fPr) { const t = T.profession || '', pt = detectType('profession', t); const PR = { cdi: 'g_cdi', cdd: 'g_cdd', fonctionnaire: 'g_fonctionnaire', independant: 'g_independant', retraite: 'g_retraite', chomage: 'g_chomage', etudes: 'g_etudiant', alternance: 'g_alternance', stage: 'g_stage' };
+                subs[2] = { type: /\bcdi\b|\bcdd\b|fonctionnaire|independant|kbis|retraite|chomage|france travail|scolarite|etudiant|alternan|stage/.test(t) ? (PR[pt] || 'g_autre_pro') : 'g_autre_pro', files: [fPr], fromDF: true }; }
+              if (fRe) { const t = T.ressources || ''; const rt = /pension|retraite/.test(t) ? 'g_retraite_pension' : /bourse/.test(t) ? 'g_bourse' : /\bcaf\b|rsa|allocation|chomage|\bare\b/.test(t) ? 'g_aide_sociale' : 'g_travail';
+                const net = /net a payer\s*:?\s*([\d\s]+[,.]?\d*)/.exec(t);
+                subs[3] = { revenues: [{ type: rt, subType: rt === 'g_travail' ? 'g_trav_salarie' : null, anciennete: null, montant: net ? String(Math.round(Number(net[1].replace(/\s/g, '').replace(',', '.')))) : null, label: { g_travail: 'Revenus du travail — salarié', g_retraite_pension: 'Retraite ou pension', g_bourse: 'Bourse', g_aide_sociale: 'Aide sociale' }[rt], files: [fRe], fromDF: true }] }; }
+              if (fIm) subs[4] = { type: 'g_avec_impot', files: [fIm], fromDF: true };
+              garants.push({ garant_name: { prenom: g.prenom || '', nom: g.nom || '', email: g.email || '' }, garant_subs: subs, files: [], fromDF: true, revenu_df: Number(g.revenu_mensuel_net) || null });
+            } else {
+              const f = await decoupe(src, pagesOk(g.pages, n), clerk, 'garant' + (k + 1), ts + 10 + k);
+              garants.push({ garant_name: { prenom: g.prenom || '', nom: g.nom || '', email: g.email || '' }, garant_subs: {}, files: f ? [f] : [], fromDF: true, revenu_df: Number(g.revenu_mensuel_net) || null });
+            }
           }
           d[5] = { type: 'garant_personne', garants, fromDF: true };
         } else {
