@@ -58,7 +58,7 @@ const CATS = [
 const GARANT = /\bgarant(e|s)?\b|\bcaution\b|visale/;
 function detectType(cat, t) {
   if (cat === 'identite') return /passeport/.test(t) ? 'passeport' : /titre de sejour/.test(t) ? 'sejour' : /permis de conduire/.test(t) ? 'permis' : /france identite/.test(t) ? 'france_identite' : 'cni';
-  if (cat === 'hebergement') return /attestation d ?hebergement|heberge/.test(t) ? 'attestation_hebergement' : /taxe fonciere|proprietaire/.test(t) ? 'taxe_fonciere' : /attestation de bon paiement/.test(t) ? 'attestation_paiement' : 'quittances';
+  if (cat === 'hebergement') return /quittance/.test(t) ? 'quittances' : /attestation de bon paiement/.test(t) ? 'attestation_paiement' : /attestation d ?hebergement|heberge (a titre gratuit|chez)/.test(t) ? 'attestation_hebergement' : /taxe fonciere/.test(t) ? 'taxe_fonciere' : 'quittances';
   if (cat === 'profession') return /\bcdd\b/.test(t) ? 'cdd' : /\bcdi\b/.test(t) ? 'cdi' : /fonctionnaire/.test(t) ? 'fonctionnaire' : /alternan|apprenti/.test(t) ? 'alternance' : /stage/.test(t) ? 'stage' : /scolarite|etudiant/.test(t) ? 'etudes' : /retraite/.test(t) ? 'retraite' : /france travail|pole emploi|chomage/.test(t) ? 'chomage' : /kbis|independant|auto.?entrepreneur|micro/.test(t) ? 'independant' : 'cdi';
   if (cat === 'ressources') return /pension|retraite/.test(t) ? 'pension_rev' : /bourse/.test(t) ? 'bourse' : /\bcaf\b|rsa|allocation/.test(t) ? 'aide_sociale' : 'salarie_plus3';
   return null;
@@ -87,6 +87,88 @@ function classer(pages) {
   const nom = /dossier (?:de location )?de\s+([a-z-]+ [a-z-]+)/.exec(texte); if (nom) res.resume.nom = nom[1].replace(/\b\w/g, c => c.toUpperCase());
   res.lisible = texte.replace(/\s/g, '').length > 40;
   return res;
+}
+
+// ── Lecture d'un PDF DossierFacile, sans IA ──
+// Structure du PDF (code source officiel : github.com/MTES-MCT/dossierfacile-backend, module dossierfacile-pdf-generator) :
+//  • pages d'index : « Le dossier en un clin d'oeil », « Type de dossier » (Dossier seul / en couple / en colocation),
+//    « Revenus mensuels nets cumulés » puis « 2150 € », « Leur(s) garant(s) » ;
+//  • chaque page de pièce porte un en-tête texte « Le dossier de <Noms> » suivi d'une phrase qui dit exactement ce qu'est la pièce :
+//    « La pièce d'identité de <Prénom> », « Le justificatif de situation d'hébergement de <Prénom> »,
+//    « Le justificatif de situation professionnelle de <Prénom> », « Le justificatif de ressources n° 1 de <Prénom> »,
+//    « L'avis d'imposition de <Prénom> », et pour les garants « … du garant [n° 2] de <Prénom> »,
+//    « L'attestation de l'organisme qui se porte garant pour <Prénom> », « Identité de la personne morale qui se porte garant pour <Prénom> » ;
+//  • signets (outline) : <Nom du locataire> → catégories, puis <Prénom Nom du garant> → catégories.
+const nz = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, ' ').replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+const CAP = s => String(s || '').replace(/\b\p{L}/gu, c => c.toUpperCase());
+const RE = [
+  // garants (à tester avant le locataire : les phrases se ressemblent)
+  [/l attestation de l organisme qui se porte garant pour ([\p{L}-]+)/u, 'g', 'organisme'],
+  [/identite de la personne morale qui se porte garant pour ([\p{L}-]+)/u, 'g', 'moral'],
+  [/justificatif d identite du representant de la personne morale qui se porte garant pour ([\p{L}-]+)/u, 'g', 'moral'],
+  [/la piece d identite du garant (?:n° ?(\d+) )?de ([\p{L}-]+)/u, 'g', 'identite'],
+  [/le justificatif de situation d hebergement du garant (?:n° ?(\d+) )?de ([\p{L}-]+)/u, 'g', 'hebergement'],
+  [/le justificatif de situation professionnelle du garant (?:n° ?(\d+) )?de ([\p{L}-]+)/u, 'g', 'profession'],
+  [/le justificatif de ressources n° ?\d+ du garant (?:n° ?(\d+) )?de ([\p{L}-]+)/u, 'g', 'ressources'],
+  [/l avis d imposition du garant (?:n° ?(\d+) )?de ([\p{L}-]+)/u, 'g', 'impot'],
+  // locataire
+  [/la piece d identite de ([\p{L}-]+)/u, 't', 'identite'],
+  [/le justificatif de situation d hebergement de ([\p{L}-]+)/u, 't', 'hebergement'],
+  [/le justificatif de situation professionnelle de ([\p{L}-]+)/u, 't', 'profession'],
+  [/le justificatif de ressources n° ?\d+ de ([\p{L}-]+)/u, 't', 'ressources'],
+  [/l avis d imposition de ([\p{L}-]+)/u, 't', 'impot'],
+];
+function lirePage(t) {
+  for (const [re, qui, cat] of RE) {
+    const m = re.exec(t); if (!m) continue;
+    if (qui === 'g' && (cat === 'organisme' || cat === 'moral')) return { qui, cat, n: 1, prenom: m[1] };
+    if (qui === 'g') return { qui, cat, n: Number(m[1]) || 1, prenom: m[2] };
+    return { qui, cat, prenom: m[1] };
+  }
+  return null;
+}
+// pages: texte de chaque page ; outline: [{titre, page, enfants:[...]}] (facultatif) ; monPrenom: prénom du locataire qui importe
+function lireDossierFacile(pages, outline, monPrenom) {
+  const P = pages.map(nz), texte = P.join(' ');
+  const res = { estDF: /le dossier en un clin d oeil|le dossier de |dossierfacile|documents exclusivement destines a la location/.test(texte), locataire: { pages: {} }, garants: [], resume: {} };
+  const lus = P.map(lirePage);
+  const prenoms = [...new Set(lus.filter(Boolean).map(x => x.prenom))];
+  const cible = (monPrenom && prenoms.find(p => p === nz(monPrenom).split(' ')[0])) || prenoms[0] || null;
+  res.resume.prenoms = prenoms.map(CAP);
+  let der = null;
+  lus.forEach((x, i) => {
+    // une pièce de plusieurs pages : les pages suivantes sans en-tête reconnu appartiennent à la même pièce
+    if (!x) { if (der && P[i].includes('le dossier de')) x = der; else return; }
+    der = x;
+    if (x.prenom !== cible) return; // dossier en couple / colocation : seulement les pièces du locataire qui importe
+    if (x.qui === 't') { (res.locataire.pages[x.cat] = res.locataire.pages[x.cat] || []).push(i + 1); return; }
+    let g = res.garants.find(y => y.n === x.n && (y.type === 'personne') === !['organisme', 'moral'].includes(x.cat));
+    if (!g) { g = { n: x.n, type: x.cat === 'organisme' ? 'organisme' : x.cat === 'moral' ? 'moral' : 'personne', nom: null, pages: [] }; res.garants.push(g); }
+    g.pages.push(i + 1);
+  });
+  // Noms des garants : signets « Prénom Nom » sous le locataire
+  if (Array.isArray(outline) && cible) {
+    const loc = outline.find(o => nz(o.titre).split(' ')[0] === cible) || outline.find(o => (o.enfants || []).length);
+    const gs = [];
+    const parcours = arr => (arr || []).forEach(o => { const t = nz(o.titre); if (!/piece d identite|justificatif|avis d imposition|attestation|identification|certificat|clin d oeil|explication|mot du locataire/.test(t) && (o.enfants || []).length && o !== loc) gs.push(o.titre); parcours(o.enfants); });
+    parcours(loc ? loc.enfants : outline);
+    res.garants.filter(g => g.type === 'personne').forEach((g, k) => { if (gs[k] && !/garant personne morale|organisme garant/i.test(gs[k])) g.nom = String(gs[k]).trim(); });
+  }
+  const seul = /type de dossier\s*dossier seul|dossier seul/.test(texte);
+  const rv = /revenus mensuels nets cumules\D{0,80}?(\d[\d\s]*)\s*€/.exec(texte);
+  if (rv && seul) res.resume.revenu = Number(rv[1].replace(/\s/g, '')) || null;
+  res.resume.type = /dossier en couple/.test(texte) ? 'couple' : /dossier en colocation/.test(texte) ? 'colocation' : seul ? 'seul' : null;
+  res.resume.valide = res.estDF;
+  res.resume.prenom = cible ? CAP(cible) : null;
+  return res;
+}
+async function lireOutline(pdf) {
+  try {
+    const raw = await pdf.getOutline(); if (!raw) return null;
+    const page = async it => { try { let d = it.dest; if (typeof d === 'string') d = await pdf.getDestination(d); if (!d) return null; return (await pdf.getPageIndex(d[0])) + 1; } catch (e) { return null; } };
+    const conv = async arr => Promise.all((arr || []).map(async it => ({ titre: it.title, page: await page(it), enfants: await conv(it.items) })));
+    return await conv(raw);
+  } catch (e) { return null; }
 }
 
 function pagesOk(p, n) { return [...new Set((Array.isArray(p) ? p : []).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= n))].sort((a, b) => a - b); }
@@ -137,23 +219,46 @@ exports.handler = async (event) => {
       if (a < 0 || b < a) throw new Error('Réponse illisible');
       const ex = JSON.parse(txt.slice(a, b + 1));
     } else {
-      // Lecture gratuite : texte de chaque page, classé par mots-clés
-      const { extractText } = require('unpdf');
-      let pagesTxt = [];
-      try { ({ text: pagesTxt } = await extractText(new Uint8Array(buf), { mergePages: false })); } catch (e) { pagesTxt = []; }
-      const c = classer(pagesTxt || []);
-      const L = c.locataire, bloc = k => L.pages[k] ? { type: L.types[k] || null, pages: L.pages[k] } : null;
-      const [prenom, ...nomR] = String(c.resume.nom || '').split(' ');
-      ex = {
-        locataire: { prenom: prenom || '', nom: nomR.join(' ') }, dossier_valide: null,
-        identite: bloc('identite'), hebergement: bloc('hebergement'),
-        profession: L.pages.profession ? { type: L.types.profession || 'cdi', employeur: null, pages: L.pages.profession } : null,
-        ressources: L.pages.ressources ? { type: L.types.ressources || 'salarie_plus3', montant_mensuel_net: c.resume.revenu || null, pages: L.pages.ressources } : null,
-        impot: L.pages.impot ? { present: true, annee_revenus: c.resume.annee || null, revenu_fiscal: c.resume.rfr || null, rattache_parents: false, pages: L.pages.impot } : null,
-        garants: c.garants.map(g => { const [gp, ...gn] = String(g.nom || '').split(' '); return { type: g.visale ? 'garant_visale' : 'garant_personne', prenom: gp || '', nom: gn.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages }; }),
-        remarques: c.lisible ? '' : 'PDF sans texte lisible (pièces scannées) : le PDF complet reste joint au dossier, déposez les pièces étape par étape si besoin.',
-        _mode: 'code', _lisible: c.lisible,
-      };
+      // Lecture gratuite : texte de chaque page + signets. D'abord le format DossierFacile (en-têtes exacts), sinon mots-clés.
+      const { extractText, getDocumentProxy } = require('unpdf');
+      let pagesTxt = [], outline = null;
+      try { const pdf = await getDocumentProxy(new Uint8Array(buf)); ({ text: pagesTxt } = await extractText(pdf, { mergePages: false })); outline = await lireOutline(pdf); } catch (e) { pagesTxt = []; }
+      let monNom = '';
+      try { const pr = await fetch(`${SUPABASE_URL}/rest/v1/profiles?clerk_id=eq.${encodeURIComponent(clerk)}&select=full_name`, { headers: H }); monNom = (await pr.json())?.[0]?.full_name || ''; } catch (e) {}
+      const dfr = lireDossierFacile(pagesTxt || [], outline, monNom);
+      const PP = dfr.locataire.pages;
+      const txtDe = pg => (pg || []).map(k => nz(pagesTxt[k - 1])).join(' ');
+      if (dfr.estDF && Object.keys(PP).length) {
+        const ty = (cat, def) => detectType(cat, txtDe(PP[cat])) || def;
+        const idT = /passeport|titre de sejour|permis de conduire|france identite|carte nationale/.test(txtDe(PP.identite)) ? detectType('identite', txtDe(PP.identite)) : 'autre_id';
+        const [gpren, ...gnom] = String(dfr.resume.prenom || '').split(' ');
+        ex = {
+          locataire: { prenom: gpren || '', nom: gnom.join(' ') }, dossier_valide: true,
+          identite: PP.identite ? { type: idT, pages: PP.identite } : null,
+          hebergement: PP.hebergement ? { type: /quittance|attestation d ?hebergement|taxe fonciere|bon paiement/.test(txtDe(PP.hebergement)) ? ty('hebergement') : 'autre_heberg', pages: PP.hebergement } : null,
+          profession: PP.profession ? { type: /\bcdi\b|\bcdd\b|fonctionnaire|alternan|stage|scolarite|etudiant|retraite|chomage|france travail|kbis|independant/.test(txtDe(PP.profession)) ? ty('profession') : 'autre_pro', employeur: null, pages: PP.profession } : null,
+          ressources: PP.ressources ? { type: /bulletin|fiche de paie|pension|bourse|\bcaf\b|rsa|allocation/.test(txtDe(PP.ressources)) ? ty('ressources') : 'autre_ressources', montant_mensuel_net: dfr.resume.revenu || null, pages: PP.ressources } : null,
+          impot: PP.impot ? { present: true, annee_revenus: null, revenu_fiscal: null, rattache_parents: false, pages: PP.impot } : null,
+          garants: dfr.garants.map(g => { const [p0, ...p1] = String(g.nom || '').split(' '); const vis = /visale/.test(txtDe(g.pages));
+            return { type: g.type === 'personne' ? 'garant_personne' : g.type === 'moral' ? 'garant_moral' : vis ? 'garant_visale' : 'garant_organisme', prenom: p0 || '', nom: p1.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages }; }),
+          remarques: dfr.resume.type && dfr.resume.type !== 'seul' ? `Dossier DossierFacile ${dfr.resume.type === 'couple' ? 'en couple' : 'en colocation'} : seules vos pièces (${dfr.resume.prenom || ''}) ont été reprises.` : '',
+          _mode: 'code-df', _lisible: true,
+        };
+      } else {
+        const c = classer(pagesTxt || []);
+        const L = c.locataire, bloc = k => L.pages[k] ? { type: L.types[k] || null, pages: L.pages[k] } : null;
+        const [prenom, ...nomR] = String(c.resume.nom || '').split(' ');
+        ex = {
+          locataire: { prenom: prenom || '', nom: nomR.join(' ') }, dossier_valide: null,
+          identite: bloc('identite'), hebergement: bloc('hebergement'),
+          profession: L.pages.profession ? { type: L.types.profession || 'autre_pro', employeur: null, pages: L.pages.profession } : null,
+          ressources: L.pages.ressources ? { type: L.types.ressources || 'autre_ressources', montant_mensuel_net: c.resume.revenu || null, pages: L.pages.ressources } : null,
+          impot: L.pages.impot ? { present: true, annee_revenus: c.resume.annee || null, revenu_fiscal: c.resume.rfr || null, rattache_parents: false, pages: L.pages.impot } : null,
+          garants: c.garants.map(g => { const [gp, ...gn] = String(g.nom || '').split(' '); return { type: g.visale ? 'garant_visale' : 'garant_personne', prenom: gp || '', nom: gn.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages }; }),
+          remarques: c.lisible ? '' : 'PDF sans texte lisible : le PDF complet reste joint au dossier, déposez les pièces étape par étape si besoin.',
+          _mode: 'code', _lisible: c.lisible,
+        };
+      }
     }
 
     // Découpage par étape puis remplissage des étapes vides
