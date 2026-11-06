@@ -2630,8 +2630,12 @@ async function _mlResume(bk,annonce){
   const cc=L?(Number(L.rent)||0)+(Number(L.charges)||0):Number(bk.monthly_rent)||0;
   // Documents
   let sortie=null;try{const{data}=await sb.from('etats_des_lieux').select('status,data').eq('booking_id',bk.id).eq('type','sortie').limit(1);sortie=(data||[])[0]||null;let dd=sortie?.data;try{dd=typeof dd==='string'?JSON.parse(dd):dd;}catch(x){dd=null;}if(sortie&&sortie.status==='draft'&&!(dd?.rooms||[]).some(r=>(r.elements||[]).some(x=>x.etat)))sortie=null;}catch(e){}
-  let tousActes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,garant_nom,locataire_nom,statut,signed_at,envoye_at,type,plafond').eq('lease_id',L.id);tousActes=(data||[]).filter(x=>x.statut!=='annule');}catch(e){}
+  let tousActes=[];if(L)try{const{data}=await sb.from('actes_caution').select('id,cle,garant_nom,locataire_nom,statut,signed_at,envoye_at,type,plafond').eq('lease_id',L.id);tousActes=(data||[]).filter(x=>x.statut!=='annule');}catch(e){}
   const actes=tousActes.filter(x=>x.signed_at);
+  // Garants : seulement ceux qui se portent caution pour moi (en bail commun, chaque colocataire a le sien)
+  const _n=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  const principal=bk.tenant_id===U.id,monNom=_n(P?.full_name);
+  const mesActes=tousActes.filter(a=>monNom&&a.locataire_nom?_n(a.locataire_nom)===monNom:(principal?a.cle==='g:main':a.cle!=='g:main'));
   const docs=document.getElementById('ml-docs');if(docs)docs.innerHTML='';
   // Onglet « Bail & documents » : liste simple
   const bailOk=L&&L.landlord_signed_at&&L.tenant_signed_at,edlOk=bk.status==='move_in_ready'||!!bk.edl_completed_at||(bk.edl_signed_landlord&&bk.edl_signed_tenant);
@@ -2644,11 +2648,11 @@ async function _mlResume(bk,annonce){
       <div id="ml-ass-doc"></div>
     </div>
     ${(()=>{if(!L)return'';const fe=v=>Number(v||0).toLocaleString('fr-FR')+' €';
-      const g=[...tousActes.map(a=>ligne('shield','Garant · '+_escT(a.garant_nom||'—'),[a.locataire_nom?'caution de '+_escT(a.locataire_nom):'',a.type==='simple'?'caution simple':'caution solidaire',a.plafond?'plafond '+fe(a.plafond):''].filter(Boolean).join(' · '),`/acte-caution.html?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener`,chip(!!a.signed_at,'Signé','En attente'))),
-        ...(L.visale_ref||L.garant_type==='visale'?[ligne('badge-check','Garantie Visale',L.visale_ref?'Visa n° '+_escT(L.visale_ref):'Numéro de visa à transmettre au propriétaire',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.visale_ref,'Renseignée','À compléter'))]:[]),
-        ...(!tousActes.length&&L.garant_name?[ligne('shield','Garant · '+_escT(L.garant_name),'signataire du bail',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.garant_signed_at,'Signé','En attente'))]:[])];
-      return g.length?`<div class="mx-ann" style="padding:0;overflow:hidden"><div class="mx-ann-t" style="padding:.85rem 1rem .4rem"><i data-lucide=shield class=ic></i> Garants <span>(${g.length})</span></div><div class="mx-dlist" style="border:none;border-radius:0;border-top:1px solid var(--b2)">${g.join('')}</div></div>`:'';})()}
-    ${L?`<div class="mx-ann">${_mlAnnexes(L,actes,true)}</div>`:''}`;
+      const g=[...mesActes.map(a=>ligne('shield','Garant · '+_escT(a.garant_nom||'—'),[a.type==='simple'?'caution simple':'caution solidaire',a.plafond?'plafond '+fe(a.plafond):''].filter(Boolean).join(' · '),`/acte-caution.html?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener`,chip(!!a.signed_at,'Signé','En attente'))),
+        ...(principal&&(L.visale_ref||L.garant_type==='visale')?[ligne('badge-check','Garantie Visale',L.visale_ref?'Visa n° '+_escT(L.visale_ref):'Numéro de visa à transmettre au propriétaire',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.visale_ref,'Renseignée','À compléter'))]:[]),
+        ...(principal&&!tousActes.length&&L.garant_name?[ligne('shield','Garant · '+_escT(L.garant_name),'signataire du bail',`/bail-meuble.html?lease_id=${L.id}&role=tenant`,chip(!!L.garant_signed_at,'Signé','En attente'))]:[])];
+      return g.length?`<div class="mx-ann" style="padding:0;overflow:hidden"><div class="mx-ann-t" style="padding:.85rem 1rem .4rem"><i data-lucide=shield class=ic></i> ${g.length>1?'Mes garants':'Mon garant'}</div><div class="mx-dlist" style="border:none;border-radius:0;border-top:1px solid var(--b2)">${g.join('')}</div></div>`:'';})()}
+    ${L?`<div class="mx-ann">${_mlAnnexes(L,mesActes.filter(x=>x.signed_at),true)}</div>`:''}`;
   // État des lieux de sortie : dans « Je quitte le logement »
   const sx=document.getElementById('ml-sortie-doc');
   if(sx)sx.innerHTML=bailOk?`<div class="mx-dlist" style="margin-bottom:1rem">${ligne('route','Suivi du départ et du dépôt de garantie','Remise des clés, nouvelle adresse, état des lieux de sortie, décompte et restitution',`/depart.html?booking_id=${bk.id}`,'')}${sortie?ligne('log-out','État des lieux de sortie',sortie.status==='signed'?'Signé':'En cours',`/edl-meuble.html?booking_id=${bk.id}&type=sortie`,chip(sortie.status==='signed','Signé','En cours')):''}</div>`:'';
@@ -7533,7 +7537,7 @@ function dfExtractRender(){
   el.innerHTML=`<div style="background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:.7rem .85rem;font-size:.8rem;line-height:1.6">
     <div style="font-weight:700;color:var(--green);margin-bottom:.2rem"><i data-lucide=check-circle-2 class=ic></i> DossierFacile lu${r.valide?' — dossier validé par DossierFacile':''}</div>
     ${[r.nom&&'Locataire : <strong>'+String(r.nom).replace(/[<>]/g,'')+'</strong>',r.profession&&'Situation : '+(DOSSIER_TYPE_LABELS[r.profession]||r.profession)+(r.employeur?' chez '+String(r.employeur).replace(/[<>]/g,''):''),r.revenus&&'Revenus : '+eur(r.revenus)+' net / mois',(r.garants||[]).length&&'Garant : '+r.garants.map(g=>(DOSSIER_TYPE_LABELS[g.type]||g.type).replace(/^Garant — /,'')+(g.nom?' ('+String(g.nom).replace(/[<>]/g,'')+')':'')).join(', ')].filter(Boolean).map(x=>'<div>'+x+'</div>').join('')}
-    <div style="color:var(--tm);margin-top:.3rem">${rempli.length?'Étapes remplies automatiquement : '+rempli.join(', ')+'. Vérifiez-les ci-dessous.':'Vos étapes étaient déjà remplies : rien n’a été remplacé.'}${(ex.rempli||[]).includes(5)?' Complétez les informations du garant si besoin.':''}</div>
+    <div style="color:var(--tm);margin-top:.3rem">${rempli.length?'Étapes remplies automatiquement : '+rempli.join(', ')+'. Vérifiez-les ci-dessous.':r.remarques?String(r.remarques).replace(/[<>]/g,''):'Vos étapes étaient déjà remplies : rien n’a été remplacé.'}${(ex.rempli||[]).includes(5)?' Complétez les informations du garant si besoin.':''}</div>
   </div><div style="margin-top:.4rem">${relire}</div>`;
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
