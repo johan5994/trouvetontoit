@@ -4,7 +4,9 @@
 // - le PDF est découpé par étape (identité, hébergement, situation pro, ressources, impôt, garant)
 // - seules les étapes encore vides sont remplies : rien de ce que le locataire a déjà fourni n'est écrasé
 // Statut suivi dans dossier_data.df.extract = { status: 'en_cours' | 'ok' | 'erreur', ... }
-// Variables : SUPABASE_SERVICE_KEY, ANTHROPIC_API_KEY (+ ANTHROPIC_MODEL_DOCS facultatif).
+// Par défaut : lecture GRATUITE par code (texte des pages extrait avec pdf.js, classé par mots-clés), aucune IA.
+// L'IA (payante, plus fiable sur les documents scannés) ne sert que si DOSSIERFACILE_IA=oui est défini dans Netlify.
+// Variables : SUPABASE_SERVICE_KEY (+ DOSSIERFACILE_IA=oui, ANTHROPIC_API_KEY, ANTHROPIC_MODEL_DOCS facultatifs).
 const { PDFDocument } = require('pdf-lib');
 const SUPABASE_URL = 'https://hkhmktcbyfyacwfmoyxy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -44,6 +46,49 @@ Règles :
 - Si une information n'apparaît pas, mets null. N'invente rien. "garants" = [] s'il n'y en a pas.
 - "dossier_valide" = true si le document indique que le dossier a été vérifié/validé par DossierFacile.`;
 
+// Lecture sans IA : texte de chaque page (pdf.js via unpdf), classement par mots-clés
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, ' ').replace(/\s+/g, ' ');
+const CATS = [
+  ['identite', /piece d ?identite|carte nationale d ?identite|carte d ?identite|passeport|titre de sejour|permis de conduire|france identite/],
+  ['hebergement', /justificatif de domicile|situation d ?hebergement|hebergement|quittance|attestation d ?hebergement|taxe fonciere|attestation de bon paiement/],
+  ['profession', /situation professionnelle|contrat de travail|attestation (de l ?)?employeur|certificat de scolarite|carte d ?etudiant|kbis|attestation france travail|pole emploi/],
+  ['ressources', /justificatifs? de ressources|bulletins? de (salaire|paie)|fiches? de paie|avis de pension|attestation (de la )?caf|bourse|ressources/],
+  ['impot', /avis d ?impot|avis d ?imposition|impot sur le revenu|revenu fiscal de reference/],
+];
+const GARANT = /\bgarant(e|s)?\b|\bcaution\b|visale/;
+function detectType(cat, t) {
+  if (cat === 'identite') return /passeport/.test(t) ? 'passeport' : /titre de sejour/.test(t) ? 'sejour' : /permis de conduire/.test(t) ? 'permis' : /france identite/.test(t) ? 'france_identite' : 'cni';
+  if (cat === 'hebergement') return /attestation d ?hebergement|heberge/.test(t) ? 'attestation_hebergement' : /taxe fonciere|proprietaire/.test(t) ? 'taxe_fonciere' : /attestation de bon paiement/.test(t) ? 'attestation_paiement' : 'quittances';
+  if (cat === 'profession') return /\bcdd\b/.test(t) ? 'cdd' : /\bcdi\b/.test(t) ? 'cdi' : /fonctionnaire/.test(t) ? 'fonctionnaire' : /alternan|apprenti/.test(t) ? 'alternance' : /stage/.test(t) ? 'stage' : /scolarite|etudiant/.test(t) ? 'etudes' : /retraite/.test(t) ? 'retraite' : /france travail|pole emploi|chomage/.test(t) ? 'chomage' : /kbis|independant|auto.?entrepreneur|micro/.test(t) ? 'independant' : 'cdi';
+  if (cat === 'ressources') return /pension|retraite/.test(t) ? 'pension_rev' : /bourse/.test(t) ? 'bourse' : /\bcaf\b|rsa|allocation/.test(t) ? 'aide_sociale' : 'salarie_plus3';
+  return null;
+}
+function classer(pages) {
+  const P = pages.map(norm), texte = P.join(' ');
+  const res = { locataire: { pages: {}, types: {} }, garants: [], resume: {} };
+  let cur = null, g = null;
+  P.forEach((t, i) => {
+    const hits = CATS.filter(([, re]) => re.test(t)).map(([k]) => k);
+    if (hits.length >= 3 && i < 3) return; // page de synthèse
+    if (GARANT.test(t) && (!hits.length || /^\W*(le |la )?garant/.test(t.trim())) && t.length < 400) { // page d'en-tête d'un garant
+      g = { pages: [], nom: null, visale: /visale/.test(t) }; const m = /garant(?:e)?\s*:?\s*([a-z-]+ [a-z-]+)/.exec(t); if (m) g.nom = m[1].replace(/\b\w/g, c => c.toUpperCase());
+      res.garants.push(g); cur = null; if (!hits.length) return;
+    }
+    if (g) { g.pages.push(i + 1); return; }
+    if (hits.length) cur = hits[0];
+    if (!cur) return;
+    (res.locataire.pages[cur] = res.locataire.pages[cur] || []).push(i + 1);
+    if (hits.length && !res.locataire.types[cur]) res.locataire.types[cur] = detectType(cur, t);
+  });
+  const num = s => Number(String(s).replace(/[\s.]/g, '').replace(',', '.')) || null;
+  const m = /revenus? (?:mensuels? )?nets?\s*(?:mensuels?)?\s*:?\s*([\d][\d\s.,]*)\s*(?:€|eur)/.exec(texte); if (m) res.resume.revenu = num(m[1]);
+  const f = /revenu fiscal de reference\s*:?\s*([\d][\d\s.,]*)/.exec(texte); if (f) res.resume.rfr = num(f[1]);
+  const a = /revenus (20\d\d)|avis d ?imp\w* (?:sur les revenus )?(20\d\d)/.exec(texte); if (a) res.resume.annee = Number(a[1] || a[2]);
+  const nom = /dossier (?:de location )?de\s+([a-z-]+ [a-z-]+)/.exec(texte); if (nom) res.resume.nom = nom[1].replace(/\b\w/g, c => c.toUpperCase());
+  res.lisible = texte.replace(/\s/g, '').length > 40;
+  return res;
+}
+
 function pagesOk(p, n) { return [...new Set((Array.isArray(p) ? p : []).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= n))].sort((a, b) => a - b); }
 
 async function decoupe(src, pages, clerk, key, ts) {
@@ -69,7 +114,7 @@ exports.handler = async (event) => {
   if (!path.startsWith(`dossier/${clerk}/`) || path.includes('..')) return { statusCode: 403, body: 'chemin refusé' };
   const t0 = new Date().toISOString();
   try {
-    if (!process.env.ANTHROPIC_API_KEY) { await setStatut(clerk, { status: 'erreur', at: t0, err: 'Lecture automatique non activée sur le site.' }); return { statusCode: 200, body: 'no key' }; }
+    const IA = process.env.DOSSIERFACILE_IA === 'oui' && !!process.env.ANTHROPIC_API_KEY;
     await setStatut(clerk, { status: 'en_cours', at: t0, path });
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${enc(path)}`, { headers: H });
     if (!res.ok) throw new Error('Fichier introuvable (' + res.status + ')');
@@ -78,17 +123,38 @@ exports.handler = async (event) => {
     const n = src.getPageCount();
     if (n > 100) throw new Error('PDF trop long (' + n + ' pages, 100 au maximum).');
 
-    const ai = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL_DOCS || 'claude-sonnet-4-5', max_tokens: 4000, messages: [{ role: 'user', content: [{ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: buf.toString('base64') } }, { type: 'text', text: PROMPT }] }] }),
-    });
-    const aj = await ai.json();
-    if (!ai.ok) throw new Error('Lecture impossible : ' + (aj?.error?.message || ai.status));
-    const txt = (aj.content || []).map(c => c.text || '').join('');
-    const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
-    if (a < 0 || b < a) throw new Error('Réponse illisible');
-    const ex = JSON.parse(txt.slice(a, b + 1));
+    let ex;
+    if (IA) {
+      const ai = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL_DOCS || 'claude-sonnet-4-5', max_tokens: 4000, messages: [{ role: 'user', content: [{ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: buf.toString('base64') } }, { type: 'text', text: PROMPT }] }] }),
+      });
+      const aj = await ai.json();
+      if (!ai.ok) throw new Error('Lecture impossible : ' + (aj?.error?.message || ai.status));
+      const txt = (aj.content || []).map(c => c.text || '').join('');
+      const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+      if (a < 0 || b < a) throw new Error('Réponse illisible');
+      const ex = JSON.parse(txt.slice(a, b + 1));
+    } else {
+      // Lecture gratuite : texte de chaque page, classé par mots-clés
+      const { extractText } = require('unpdf');
+      let pagesTxt = [];
+      try { ({ text: pagesTxt } = await extractText(new Uint8Array(buf), { mergePages: false })); } catch (e) { pagesTxt = []; }
+      const c = classer(pagesTxt || []);
+      const L = c.locataire, bloc = k => L.pages[k] ? { type: L.types[k] || null, pages: L.pages[k] } : null;
+      const [prenom, ...nomR] = String(c.resume.nom || '').split(' ');
+      ex = {
+        locataire: { prenom: prenom || '', nom: nomR.join(' ') }, dossier_valide: null,
+        identite: bloc('identite'), hebergement: bloc('hebergement'),
+        profession: L.pages.profession ? { type: L.types.profession || 'cdi', employeur: null, pages: L.pages.profession } : null,
+        ressources: L.pages.ressources ? { type: L.types.ressources || 'salarie_plus3', montant_mensuel_net: c.resume.revenu || null, pages: L.pages.ressources } : null,
+        impot: L.pages.impot ? { present: true, annee_revenus: c.resume.annee || null, revenu_fiscal: c.resume.rfr || null, rattache_parents: false, pages: L.pages.impot } : null,
+        garants: c.garants.map(g => { const [gp, ...gn] = String(g.nom || '').split(' '); return { type: g.visale ? 'garant_visale' : 'garant_personne', prenom: gp || '', nom: gn.join(' '), email: null, numero_visa: null, revenu_mensuel_net: null, pages: g.pages }; }),
+        remarques: c.lisible ? '' : 'PDF sans texte lisible (pièces scannées) : le PDF complet reste joint au dossier, déposez les pièces étape par étape si besoin.',
+        _mode: 'code', _lisible: c.lisible,
+      };
+    }
 
     // Découpage par étape puis remplissage des étapes vides
     const ts = Date.now();
@@ -139,7 +205,7 @@ exports.handler = async (event) => {
         nom: [ex.locataire?.prenom, ex.locataire?.nom].filter(Boolean).join(' ') || null,
         profession: ex.profession?.type || null, employeur: ex.profession?.employeur || null,
         revenus: montant, garants: G.map(g => ({ type: g.type, nom: [g.prenom, g.nom].filter(Boolean).join(' ') || null })),
-        valide: ex.dossier_valide ?? null, remarques: ex.remarques || null,
+        valide: ex.dossier_valide ?? null, remarques: ex.remarques || null, mode: ex._mode || 'ia',
       },
     };
     await setDossier(clerk, d);
