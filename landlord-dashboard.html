@@ -89,6 +89,34 @@
 .gx-ass-s{font-size:.74rem;color:var(--td);margin-top:.15rem}
 .gx-ass-b{display:flex;gap:.35rem;flex-wrap:wrap}
 button.gx-doc{font-family:inherit;cursor:pointer}
+.gd-list{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden}
+.gd-list>*+*{border-top:1px solid var(--b)}
+.gd-row{display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;color:var(--txt);text-decoration:none;cursor:pointer}
+.gd-row:hover{background:var(--s2)}
+.gd-ic{width:36px;height:36px;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--bleu)}
+.gd-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1rem}
+.gd-tx b{font-size:.88rem}
+.gd-tx small{font-size:.75rem;color:var(--td)}
+.gd-ch{color:var(--td);flex-shrink:0}
+.gd-chip{font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:100px;white-space:nowrap;background:var(--s2);color:var(--td)}
+.gd-chip.ok{background:rgba(var(--green-rgb),.14);color:var(--green)}
+.gd-chip.wa{background:rgba(var(--gold-rgb),.16);color:var(--gold)}
+.gd-chip.ko{background:rgba(var(--red-rgb),.12);color:var(--red)}
+.gd-ann{margin-top:1rem;background:var(--s);border:1px solid var(--b);border-radius:14px;padding:.85rem 1rem}
+.gd-ann-t{font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
+.gd-ann-t span{color:var(--td);font-weight:500}
+.gd-ann-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));column-gap:1rem}
+.gd-ann-h{grid-column:1/-1;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--td);padding:.6rem 0 .15rem}
+.gd-ann-list a{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;font-size:.84rem;color:var(--txt);text-decoration:none}
+.gd-ann-list a:hover{color:var(--bleu)}
+.gd-ann-vide{grid-column:1/-1;font-size:.78rem;color:var(--td);padding:.2rem 0}
+.gd-ass{padding:.85rem 1rem}
+.gd-ass-top{display:flex;align-items:center;gap:.8rem}
+.gd-acts{display:flex;gap:.35rem;flex-wrap:wrap;margin:.6rem 0 0 calc(36px + .8rem)}
+.gd-hist{margin:.6rem 0 0 calc(36px + .8rem);font-size:.78rem;color:var(--td)}
+.gd-hist summary{cursor:pointer;font-weight:600}
+.gd-hist>div{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.35rem 0;border-top:1px solid var(--b)}
+@media(max-width:600px){.gd-acts,.gd-hist{margin-left:0}}
 </style>
 <style>
 :root{--bg:#10131C;--s:#181C28;--s2:#202535;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#ECEAE6;--tm:rgba(236,234,230,.68);--td:rgba(236,234,230,.5);--ink-rgb:236,234,230;--bleu:#4A78F5;--bleu-rgb:74,120,245;--marine:#9DB4FF;--green:#4CC08A;--green-rgb:76,192,138;--gold:#E2A83E;--gold-rgb:226,168,62;--red:#EE6B5B;--red-rgb:238,107,91;--sea:#5AAED3;--sea-rgb:90,174,211;--grdim:rgba(76,192,138,.14);--gdim:rgba(226,168,62,.13);--rdim:rgba(238,107,91,.13);--tdim:rgba(74,120,245,.14);--sdim:rgba(90,174,211,.13);--deep:#ECEAE6;--stone:rgba(236,234,230,.68)}
@@ -551,12 +579,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
         <div id="msg-thread-panel" style="display:flex;flex-direction:column;min-height:0">
           <div style="padding:1rem 1.2rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.6rem;flex-shrink:0">
             <button id="msg-back-btn" onclick="closeMobileMsgThread()" style="display:none;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.4rem .6rem;cursor:pointer;flex-shrink:0"><i data-lucide=x class=ic style="width:1rem;height:1rem"></i></button>
-            <div style="flex:1;min-width:0"><div style="font-size:.9rem;font-weight:600" id="msg-chat-name">Select a conversation</div><div style="font-size:.72rem;color:var(--tm)" id="msg-chat-sub"></div></div>
+            <div style="flex:1;min-width:0"><div style="font-size:.9rem;font-weight:600" id="msg-chat-name">Choisissez une conversation</div><div style="font-size:.72rem;color:var(--tm)" id="msg-chat-sub"></div></div>
+            <button id="msg-del-btn" title="Supprimer la discussion" onclick="supprimerDiscussion()" style="display:none;background:none;border:1px solid var(--b);color:var(--td);border-radius:8px;padding:.45rem .55rem;cursor:pointer;flex-shrink:0"><i data-lucide=trash-2 class=ic></i></button>
             <button id="propose-visite-btn" style="display:none;background:var(--bleu);color:white;border:none;border-radius:8px;padding:.5rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="proposeVisitFromChat()"><i data-lucide=calendar class=ic></i> Propose a visite</button>
           </div>
           <div style="flex:1;overflow-y:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.6rem;min-height:0" id="msg-chat-body"><div style="text-align:center;color:var(--td);font-size:.85rem;margin-top:2rem">Select a conversation to start messaging</div></div>
           <div style="padding:.75rem 1rem;border-top:1px solid var(--b);display:flex;gap:.5rem;flex-shrink:0;align-items:flex-end">
-            <textarea class="fta" id="msg-input" rows="2" placeholder="Write a message..." style="flex:1;resize:none;font-size:.83rem;min-height:48px"></textarea>
+            <textarea class="fta" id="msg-input" rows="2" placeholder="Écrire un message…" style="flex:1;resize:none;font-size:.83rem;min-height:48px"></textarea>
             <button class="btn bp" onclick="sendMsg()" style="padding:.6rem 1rem;flex-shrink:0">➤ Envoyer</button>
           </div>
         </div>
@@ -2795,6 +2824,9 @@ async function loadMessages(){
   });
 
   allMsgs=Array.from(convMap.values()).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  // Discussions supprimées (masquées pour moi) : réapparaissent seulement si un message plus récent arrive
+  window._msgMasq={};try{const{data:mq,error:me}=await sb.from('discussions_masquees').select('other_id,listing_id,masquee_at').eq('user_id',U.id);if(!me)(mq||[]).forEach(x=>window._msgMasq[(x.listing_id||'')+'|'+x.other_id]=x.masquee_at);}catch(e){}
+  allMsgs=allMsgs.filter(m=>{const t=window._msgMasq[(m.listing_id||'')+'|'+m._other_id];return !t||new Date(m.created_at)>new Date(t);});
 
   // Récupérer les titres des annonces liées
   const listingIds=[...new Set(allMsgs.filter(m=>m.listing_id).map(m=>m.listing_id))];
@@ -2838,7 +2870,7 @@ function renderMessages(){
       <div class="mav">${displayNom[0].toUpperCase()}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${displayNom}</div>
-        <div class="mprev" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${m.sender_id===U.id?'You: ':''}${m.content}</div>
+        <div class="mprev" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${m.sender_id===U.id?'Vous : ':''}${_gEsc(m.content)}</div>
       </div>
       <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
         <span style="font-size:.65rem;color:var(--td)">${new Date(m.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
@@ -2854,6 +2886,21 @@ function filterMsgs(q){
   wrap.innerHTML=filtered.map(m=>`<div class="mitem" onclick="openMsgChat('${m.id}','${(m.listings?.title||'').replace(/'/g,"\\'")}','${m.listing_id||''}','${m.sender_id||''}')"><div class="mav">${(m.listings?.title||'?')[0].toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:.83rem;font-weight:600">${m.listings?.title||'Annonce'}</div><div class="mprev">${m.content}</div></div></div>`).join('');
 }
 
+async function supprimerDiscussion(){
+  const other=activeChatSenderId,lid=activeChatListingId||'';
+  if(!other)return;
+  if(!await uiConfirm('Supprimer cette discussion ?\n\nElle disparaît de votre messagerie uniquement : votre interlocuteur la garde. Si cette personne vous réécrit, la discussion réapparaîtra avec les nouveaux messages seulement.'))return;
+  const{error}=await sb.from('discussions_masquees').upsert({user_id:U.id,other_id:other,listing_id:lid,masquee_at:new Date().toISOString()},{onConflict:'user_id,other_id,listing_id'});
+  if(error){uiAlert('Suppression impossible : '+error.message+'\n\nLa migration supabase-migration-discussions-masquees.sql a-t-elle été exécutée ?');return;}
+  toast('<i data-lucide=trash-2 class=ic></i> Discussion supprimée');
+  activeChatSenderId=null;activeChatListingId=null;
+  document.getElementById('msg-chat-name').textContent='Choisissez une conversation';
+  document.getElementById('msg-chat-sub').innerHTML='';
+  document.getElementById('msg-chat-body').innerHTML='';
+  ['msg-del-btn','propose-visite-btn'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display='none';});
+  closeMobileMsgThread();
+  loadMessages();
+}
 function closeMobileMsgThread(){
   document.getElementById('msg-split')?.classList.remove('thread-open');
 }
@@ -2870,6 +2917,7 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
   // Afficher le nom de l'interlocuteur (on le connaît déjà directement)
   const pvBtn=document.getElementById('propose-visite-btn');
   if(pvBtn)pvBtn.style.display=(listingId&&senderId&&senderId!=='system')?'block':'none';
+  const delBtn=document.getElementById('msg-del-btn');if(delBtn)delBtn.style.display=senderId?'block':'none';
   try{
     if(senderId&&senderId!=='system'){
       const{data:other}=await sb.from('profiles').select('full_name,role').eq('clerk_id',senderId).maybeSingle();
@@ -2895,6 +2943,7 @@ async function openMsgChat(id, title, listingId, senderId, threadId){
     const{data:byAnnonce}=await query;
     data=(byAnnonce||[]).filter(m=>m.sender_id===U.id||m.receiver_id===U.id);
   }catch(e){}
+  {const t=(window._msgMasq||{})[(listingId||'')+'|'+senderId];if(t)data=(data||[]).filter(m=>new Date(m.created_at)>new Date(t));}
   body.innerHTML='';
   (data||[]).forEach(m=>{
     const isMe=m.sender_id===U.id;
@@ -4311,6 +4360,25 @@ function renderEdlCoLocataireSignatureRows(bk){
     </div>`).join('');
 }
 
+// Signataires de l'état des lieux d'entrée : locataire principal + chaque colocataire du bail commun (signatures lues dans etats_des_lieux)
+function _edlSignatairesLL(bk){
+  let cols=[];try{cols=(typeof bk.co_locataires_data==='string'?JSON.parse(bk.co_locataires_data):(bk.co_locataires_data||[])).filter(c=>c&&c.coloc_status!=='declined'&&(c.locataire_id||c.tenant_id));}catch(e){}
+  return [{id:bk.tenant_id,nom:bk.tenant_name||bk.locataire_name||'Locataire principal',principal:true},...cols.map(c=>({id:c.locataire_id||c.tenant_id,nom:c.name||'Colocataire'}))];
+}
+async function _edlSigsLL(bk){
+  const el=document.getElementById('edl-sigs-ll-'+bk.id);if(!el)return;
+  let e=null;try{const{data}=await sb.from('etats_des_lieux').select('landlord_signed_at,tenant_signed_at,co_signatures,status').eq('booking_id',bk.id).neq('type','sortie').order('created_at',{ascending:false}).limit(1);e=(data||[])[0]||null;}catch(x){}
+  if(!e)return;
+  let co=[];try{co=typeof e.co_signatures==='string'?JSON.parse(e.co_signatures):(e.co_signatures||[]);}catch(x){}
+  const fini=e.status==='signed';
+  el.innerHTML=_edlRowsLL(bk,fini||!!e.landlord_signed_at,s=>fini||(s.principal?!!e.tenant_signed_at:co.some(x=>x.tenant_id===s.id&&x.signed_at)));
+  if(window.lucide)lucide.createIcons();
+}
+function _edlRowsLL(bk,llOk,sigOk){
+  const row=(lbl,ok)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem">${lbl}</span>${ok?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente de signature</span>'}</div>`;
+  const sigs=_edlSignatairesLL(bk);
+  return row('<i data-lucide=home class=ic></i> Vous (propriétaire)',llOk)+sigs.map(x=>row(`<i data-lucide=user class=ic></i> Locataire · <strong>${_gEsc(x.nom)}</strong>`,sigOk(x))).join('');
+}
 // Bloc « État des lieux d'entrée » sur la carte (nouvel EDL meublé : edl-meuble.html)
 function renderEdlBlockLL(bk){
   if(!bk?.id)return'';
@@ -4320,8 +4388,9 @@ function renderEdlBlockLL(bk){
   const row=(lbl,ok)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border-radius:8px;padding:.4rem .65rem"><span style="font-size:.78rem">${lbl}</span>${ok?'<span style="font-size:.72rem;color:var(--green);font-weight:600"><i data-lucide=check-circle-2 class=ic></i> Signé</span>':'<span style="font-size:.72rem;color:var(--td);font-style:italic">En attente</span>'}</div>`;
   const title='<div style="font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.04em;margin:.75rem 0 .35rem">État des lieux d\'entrée & inventaire</div>';
   const btn=(lbl,primary)=>`<a href="${url}" style="display:flex;align-items:center;justify-content:center;gap:.35rem;background:${primary?'var(--bleu)':'var(--s2)'};color:${primary?'#fff':'var(--txt)'};border:${primary?'none':'1px solid var(--b2)'};border-radius:8px;padding:.5rem;font-size:.78rem;font-weight:700;text-decoration:none;margin-top:.35rem"><i data-lucide=clipboard-list class=ic></i> ${lbl}</a>`;
-  if(done)return title+`<div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.35rem">${row('<i data-lucide=home class=ic></i> Vous',true)}${row('<i data-lucide=user class=ic></i> Locataire',true)}</div><div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — état des lieux signé par les deux parties. L'annonce est retirée du site.</div>`+btn('Voir l\'état des lieux',false);
-  if(st==='to_sign')return title+`<div style="display:flex;flex-direction:column;gap:.3rem">${row('<i data-lucide=home class=ic></i> Vous',bk.edl_signed_landlord)}${row('<i data-lucide=user class=ic></i> Locataire',bk.edl_signed_tenant)}</div>`+btn(bk.edl_signed_landlord?'Voir l\'état des lieux':'Signer l\'état des lieux',!bk.edl_signed_landlord);
+  setTimeout(()=>_edlSigsLL(bk),0);
+  if(done)return title+`<div id="edl-sigs-ll-${bk.id}" style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.35rem">${_edlRowsLL(bk,true,()=>true)}</div><div style="background:var(--grdim);border-radius:8px;padding:.5rem .65rem;font-size:.76rem;color:var(--green);font-weight:600"><i data-lucide=party-popper class=ic></i> Entrée terminée — état des lieux signé par les deux parties. L'annonce est retirée du site.</div>`+btn('Voir l\'état des lieux',false);
+  if(st==='to_sign')return title+`<div id="edl-sigs-ll-${bk.id}" style="display:flex;flex-direction:column;gap:.3rem">${_edlRowsLL(bk,bk.edl_signed_landlord,x=>x.principal?bk.edl_signed_tenant:false)}</div>`+btn(bk.edl_signed_landlord?'Voir l\'état des lieux':'Signer l\'état des lieux',!bk.edl_signed_landlord);
   if(st==='draft')return title+`<div style="font-size:.74rem;color:var(--td)">Brouillon enregistré — terminez la saisie puis faites signer.</div>`+btn('Continuer l\'état des lieux',true);
   return title+`<div style="font-size:.74rem;color:var(--td)">Le jour de l'entrée, faites le tour du logement avec le locataire : pièces, mobilier, compteurs et clés, avec photos.</div>`+btn('Faire l\'état des lieux',true);
 }
@@ -4598,7 +4667,7 @@ async function loadGestion(){
     const tids=[...new Set([...GEST.leases.map(l=>l.tenant_id),...GEST.pays.map(p=>p.tenant_id)].filter(Boolean))];
     if(tids.length){const{data:pr}=await sb.from('profiles').select('clerk_id,full_name,email').in('clerk_id',tids);(pr||[]).forEach(p=>GEST.names[p.clerk_id]=p);}
     // Relevés des compteurs d'eau à l'entrée (état des lieux) : servent à répartir l'eau selon la consommation réelle
-    GEST.edl={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:eds}=await sb.from('etats_des_lieux').select('booking_id,type,data,created_at').in('booking_id',bids);GEST.edlS={};(eds||[]).forEach(e=>{let d=e.data;try{d=typeof d==='string'?JSON.parse(d):d;}catch(x){d={};}const c=d?.compteurs||{},v={ef:c.eau_froide_index,ec:c.eau_chaude_index,date:d?.date,status:e.status};if((e.type||'entree')==='sortie')GEST.edlS[e.booking_id]=v;else GEST.edl[e.booking_id]=v;});}}catch(e){}
+    GEST.edl={};try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:eds}=await sb.from('etats_des_lieux').select('booking_id,type,data,created_at,status').in('booking_id',bids);GEST.edlS={};(eds||[]).forEach(e=>{let d=e.data;try{d=typeof d==='string'?JSON.parse(d):d;}catch(x){d={};}const c=d?.compteurs||{},v={ef:c.eau_froide_index,ec:c.eau_chaude_index,date:d?.date,status:e.status};if((e.type||'entree')==='sortie')GEST.edlS[e.booking_id]=v;else GEST.edl[e.booking_id]=v;});}}catch(e){}
     // Date de départ réelle (fin de location indiquée) : sert au prorata des charges entre ancien et nouveau locataire
     try{const bids=[...new Set(GEST.leases.map(l=>l.booking_id).filter(Boolean))];if(bids.length){const{data:bks}=await sb.from('bookings').select('id,tenancy_ended_at,status').in('id',bids);(bks||[]).forEach(b=>GEST.leases.filter(l=>l.booking_id===b.id).forEach(l=>{if(b.tenancy_ended_at)l._fin=b.tenancy_ended_at;}));}}catch(e){}
     const lids=[...new Set(GEST.leases.map(l=>l.listing_id).filter(Boolean))];
@@ -4629,12 +4698,9 @@ function _gBienResume(b){
   const st=_gBienStats(b),noms=[...new Set(st.actifs.flatMap(_gNoms))];
   const adr=b.li.full_address||b.li.zone||'';
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
-  let docs=[...b.ls.map(l=>`<a class="gx-doc" href="/bail-meuble.html?lease_id=${l.id}&role=landlord"><i data-lucide=file-text class=ic></i> Bail${b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''}</a>`),
-    ...bks.map(l=>{const suf=multiB?' · '+_gEsc(_gName(l.tenant_id)):'',so=GEST.edlS?.[l.booking_id];
-      return `<a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}"><i data-lucide=clipboard-list class=ic></i> EDL d'entrée${suf}</a><a class="gx-doc" href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"><i data-lucide=log-out class=ic></i> ${so?(so.status==='signed'?'EDL de sortie ✓':'EDL de sortie (en cours)'):'EDL de sortie'}${suf}</a>`;})].join('');
-  _gAssEtat(b).forEach(x=>{if(x.val)docs+=`<button type="button" class="gx-doc" onclick="gAssVoir('${x.val.id}')"><i data-lucide=shield-check class=ic></i> Assurance${x.multi?' · '+_gEsc(x.nom):''}</button>`;});
+  const docs='';
   const tile=(k,v,c)=>`<div class="gx-tile"><div class="gx-k">${k}</div><div class="gx-v" style="${c||''}">${v}</div></div>`;
-  return `<div class="gx-head"><div style="min-width:0"><div class="gx-h1">${_gEsc(b.li.title||'Logement')}</div>${adr?`<div class="gx-card-a" style="font-size:.8rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}</div><div class="gx-docs">${docs}</div></div>
+  return `<div class="gx-head"><div style="min-width:0"><div class="gx-h1">${_gEsc(b.li.title||'Logement')}</div>${adr?`<div class="gx-card-a" style="font-size:.8rem"><i data-lucide=map-pin class=ic></i> ${_gEsc(adr)}</div>`:''}</div></div>
     <div class="gx-tiles">
       ${tile(noms.length>1?'Locataires':'Locataire',st.actifs.length?st.actifs.map(l=>`${_gNoms(l).map(_gEsc).join('<br>')}${l.start_date?`<div style="font-weight:500;color:var(--td);font-size:.75rem">Entrée dans les lieux le ${_gD(l.start_date)}</div>`:''}`).join('<div style="height:.35rem"></div>'):'Vacant')}
       ${tile(st.actifs.length>1?'Loyers CC (total)':'Loyer CC',st.loyer?_g$(st.loyer)+'<span style="font-weight:500;color:var(--td);font-size:.75rem"> /mois</span>':'—')}
@@ -4675,24 +4741,72 @@ async function gAssTraiter(id,ok){
   toast(ok?'<i data-lucide=check-circle-2 class=ic></i> Attestation validée':'Attestation refusée — le locataire est prévenu');
   renderGestion();
 }
+// ─────────────── BAIL & DOCUMENTS DU BIEN ───────────────
+function _gRow(ic,t,sub,attrs,etat){return `<a class="gd-row" ${attrs}><span class="gd-ic"><i data-lucide=${ic} class=ic></i></span><span class="gd-tx"><b>${t}</b>${sub?`<small>${sub}</small>`:''}</span>${etat||''}<i data-lucide=chevron-right class="ic gd-ch"></i></a>`;}
+function _gChip(ok,a,b){return `<span class="gd-chip ${ok?'ok':'wa'}">${ok?a:b}</span>`;}
+async function renderDocsBien(b){
+  const el=document.getElementById('gestion-tab');
+  const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multiB=bks.length>1;
+  const rows=[...b.ls.map(l=>_gRow('file-text',(l.type_bail==='vide'||_gVide(l)?'Bail de location vide':'Bail de location')+(b.ls.length>1?' · '+_gEsc(l.lot_label||_gName(l.tenant_id)):''),'Du '+_gD(l.start_date)+' au '+_gD(l.end_date),`href="/bail-meuble.html?lease_id=${l.id}&role=landlord"`,_gChip(l.landlord_signed_at&&l.tenant_signed_at,'Signé','En cours'))),
+    ...bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{};return _gRow('clipboard-list','État des lieux d\'entrée'+(multiB?' · '+_gEsc(_gName(l.tenant_id)):''),bk.edl_completed_at?'Signé le '+_gD(bk.edl_completed_at):'',`href="/edl-meuble.html?booking_id=${l.booking_id}"`,_gChip(!!bk.edl_completed_at,'Signé','En cours'));}),
+    ..._gAssEtat(b).filter(x=>x.val).map(x=>_gRow('shield-check','Assurance habitation · '+_gEsc(x.nom),(x.val.assureur?_gEsc(x.val.assureur)+' · ':'')+'valable jusqu\'au '+_gD(x.val.date_fin),`href="#" onclick="event.preventDefault();gAssVoir('${x.val.id}')"`,_gChip(true,'Validée','')))];
+  el.innerHTML=`<div class="gd-list">${rows.join('')}</div><div id="gd-ann" class="gd-ann"><div style="color:var(--td);font-size:.8rem">Chargement des annexes…</div></div>`;
+  if(window.lucide)lucide.createIcons();
+  let actes=[];try{const{data}=await sb.from('actes_caution').select('id,lease_id,garant_nom,statut,signed_at').in('lease_id',b.ls.map(l=>l.id));actes=(data||[]).filter(x=>x.signed_at&&x.statut!=='annule');}catch(e){}
+  const D=[['doc_dpe_url','Diagnostic de performance énergétique (DPE)'],['doc_erp_url','État des risques et pollutions (ERP)'],['doc_plomb_url','Constat de risque d\'exposition au plomb (CREP)'],['doc_amiante_url','Dossier amiante (parties privatives)'],['doc_elec_url','Diagnostic électricité'],['doc_gaz_url','Diagnostic gaz'],['doc_bruit_url','Information sur les nuisances sonores']];
+  const vus=new Set(),diag=[];b.ls.forEach(l=>D.forEach(([k,t])=>{if(l[k]&&!vus.has(l[k])){vus.add(l[k]);diag.push([l[k],t]);}}));
+  const gar=actes.map(a=>['/acte-caution.html?id='+encodeURIComponent(a.id),'Acte de cautionnement'+(a.garant_nom?' — '+a.garant_nom:'')]);
+  const info=[['https://www.pap.fr/download/notice_contrat.pdf','Notice d\'information (droits et obligations)'],['https://www.rentila.com/content/Models/Proprietaire/Grille%20de%20vetuste.pdf','Grille de vétusté']];
+  const grp=(t,it,ic)=>it.length?`<div class="gd-ann-h">${t}</div>${it.map(([u,x])=>`<a href="${_gEsc(u)}" target="_blank" rel="noopener"><i data-lucide=${ic} class=ic></i> ${_gEsc(x)}</a>`).join('')}`:'';
+  const box=document.getElementById('gd-ann');if(!box)return;
+  box.innerHTML=`<div class="gd-ann-t"><i data-lucide=paperclip class=ic></i> Annexes du bail <span>(${diag.length+gar.length+info.length})</span></div><div class="gd-ann-list">${grp('Diagnostics',diag,'gauge')}${diag.length?'':'<div class="gd-ann-vide">Aucun diagnostic déposé : ajoutez-les dans le bail (étape diagnostics).</div>'}${grp('Garanties',gar,'file-signature')}${grp('Informations légales',info,'book-open')}</div>`;
+  if(window.lucide)lucide.createIcons();
+}
+// ─────────────── ASSURANCE HABITATION ───────────────
+function renderAssBien(b){
+  const el=document.getElementById('gestion-tab'),ass=_gAssEtat(b);
+  if(!ass.length){el.innerHTML='<div class="card"><div class="cb" style="font-size:.85rem">Aucun bail en cours sur ce bien.</div></div>';return;}
+  el.innerHTML=`<p class="gx-intro" style="margin-bottom:.8rem">Le locataire doit être assuré pour les risques locatifs pendant toute la location (art. 7 g de la loi du 6 juillet 1989). Il dépose son attestation depuis son espace ; vous la validez ici. Avant l'échéance, il reçoit un rappel automatique, et vous êtes prévenu si elle n'est pas renouvelée.</p>
+  <div class="gd-list">${ass.map(x=>{const nom=_gEsc(x.nom);
+    const hist=(GEST.ass||[]).filter(r=>r.lease_id===x.lease.id&&r.tenant_id===x.tid);
+    let etat,sub,acts='';
+    if(x.att){etat=_gChip(false,'','À valider');sub=`Déposée le ${_gD(x.att.deposee_at)}${x.att.assureur?' · '+_gEsc(x.att.assureur):''} · valable jusqu'au ${_gD(x.att.date_fin)}`;
+      acts=`<div class="gd-acts"><button class="btn bg bsm" onclick="gAssVoir('${x.att.id}')"><i data-lucide=eye class=ic></i> Voir</button><button class="btn bp bsm" onclick="gAssTraiter('${x.att.id}',true)"><i data-lucide=check class=ic></i> Valider</button><button class="btn bg bsm" style="color:var(--red)" onclick="gAssTraiter('${x.att.id}',false)">Refuser</button></div>`;}
+    else if(x.val){const j=x.val.date_fin?_gDays(new Date(),x.val.date_fin):null;
+      etat=j!==null&&j<0?'<span class="gd-chip ko">Expirée</span>':j!==null&&j<=30?_gChip(false,'','Expire bientôt'):_gChip(true,'À jour','');
+      sub=`${x.val.assureur?_gEsc(x.val.assureur)+' · ':''}${j!==null&&j<0?'expirée depuis le ':'valable jusqu\'au '}${_gD(x.val.date_fin)}${j!==null&&j>=0&&j<=30?' (dans '+j+' jour'+(j>1?'s':'')+')':''}`;
+      acts=`<div class="gd-acts"><button class="btn bg bsm" onclick="gAssVoir('${x.val.id}')"><i data-lucide=eye class=ic></i> Voir</button>${j!==null&&j<=30?`<button class="btn bg bsm" onclick="openMsgChatById('${x.tid}','${x.lease.listing_id||''}')"><i data-lucide=message-circle class=ic></i> Relancer</button>`:''}</div>`;}
+    else{etat='<span class="gd-chip ko">Non reçue</span>';sub=x.refus?'La dernière attestation a été refusée':'Le locataire n\'a pas encore déposé son attestation';
+      acts=`<div class="gd-acts"><button class="btn bg bsm" onclick="openMsgChatById('${x.tid}','${x.lease.listing_id||''}')"><i data-lucide=message-circle class=ic></i> Relancer</button></div>`;}
+    const old=hist.filter(r=>r!==x.att&&r!==x.val);
+    return `<div class="gd-ass"><div class="gd-ass-top"><span class="gd-ic"><i data-lucide=shield class=ic></i></span><span class="gd-tx"><b>${nom}</b><small>${sub}</small></span>${etat}</div>${acts}${old.length?`<details class="gd-hist"><summary>Historique (${old.length})</summary>${old.map(r=>`<div><span>${_gD(r.deposee_at)} · ${r.statut==='validee'?'validée':r.statut==='refusee'?'refusée'+(r.motif_refus?' : '+_gEsc(r.motif_refus):''):'en attente'}${r.date_fin?' · fin '+_gD(r.date_fin):''}</span><button class="btn bg bsm" onclick="gAssVoir('${r.id}')">Voir</button></div>`).join('')}</details>`:''}</div>`;}).join('')}</div>`;
+  if(window.lucide)lucide.createIcons();
+}
+// ─────────────── DÉPART DU LOCATAIRE ───────────────
+function renderDepartBien(b){
+  const el=document.getElementById('gestion-tab');
+  const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multi=bks.length>1;
+  el.innerHTML=`<div class="gd-list" style="margin-bottom:1rem">${bks.map(l=>{const suf=multi?' · '+_gEsc(_gName(l.tenant_id)):'';return _gRow('route','Suivi du départ et du dépôt de garantie'+suf,'Remise des clés, état des lieux de sortie (ou sans), décompte avec vétusté, délai de restitution',`href="/depart.html?booking_id=${l.booking_id}"`,'');}).join('')}</div>
+  <div class="gd-list">${bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{},so=GEST.edlS?.[l.booking_id],suf=multi?' · '+_gEsc(_gName(l.tenant_id)):'';
+    return _gRow('log-out','État des lieux de sortie'+suf,so?(so.status==='signed'?'Signé':'Commencé — à terminer avec le locataire'):'À faire le jour du départ, pièce par pièce, en comparant avec l\'entrée',`href="/edl-meuble.html?booking_id=${l.booking_id}&type=sortie"`,so?_gChip(so.status==='signed','Signé','En cours'):'<span class="gd-chip">À faire</span>');}).join('')}</div>
+  <div class="card" style="margin-top:1rem"><div class="cb">
+    <div style="font-weight:700;margin-bottom:.3rem">Fin de la location</div>
+    <p style="font-size:.82rem;color:var(--td);line-height:1.55;margin-bottom:.8rem">Indiquez la date de départ réelle : elle sert au prorata des charges et à arrêter l'échéancier. Le dépôt de garantie doit être restitué sous 1 mois si l'état des lieux de sortie est conforme, 2 mois sinon (art. 22 de la loi du 6 juillet 1989).</p>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap">${bks.map(l=>{const bk=GEST.bk?.[l.booking_id]||{},suf=multi?' · '+_gEsc(_gName(l.tenant_id)):'';
+      return bk.tenancy_ended_at?`<span class="gd-chip">Parti le ${_gD(bk.tenancy_ended_at)}${suf}</span>`:`<button class="btn bg bsm" style="border-color:var(--red);color:var(--red)" onclick="landlordEndTenancy('${l.booking_id}')"><i data-lucide=door-open class=ic></i> Le locataire est parti${suf}</button>`;}).join('')}</div>
+  </div></div>`;
+  if(window.lucide)lucide.createIcons();
+}
 // Actions sur la location (reprises de l'ancienne page « Biens loués ») : message, état des lieux avec photos, départ du locataire, fin de bail
 function _gBienActions(b){
   const bks=[...new Map(b.ls.filter(l=>l.booking_id).map(l=>[l.booking_id,l])).values()],multi=bks.length>1,out=[],alertes=[];
   bks.forEach(l=>{const bk=GEST.bk?.[l.booking_id]||{},suf=multi?' · '+_gEsc(_gName(l.tenant_id)):'';
     out.push(`<button class="btn bg bsm" onclick="openMsgChatById('${bk.tenant_id||l.tenant_id||''}','${l.listing_id||''}')"><i data-lucide=message-circle class=ic></i> Message au locataire${suf}</button>`);
     if(bk.edl_completed_at)out.push(`<button class="btn bg bsm" onclick="viewEdlDossier('${l.booking_id}')"><i data-lucide=camera class=ic></i> Photos de l'état des lieux${suf}</button>`);
-    if(!bk.tenancy_ended_at)out.push(`<button class="btn bg bsm" style="border-color:var(--red);color:var(--red)" onclick="landlordEndTenancy('${l.booking_id}')"><i data-lucide=door-open class=ic></i> Le locataire est parti${suf}</button>`);
   });
   b.ls.filter(l=>!l._fin&&l.end_date).forEach(l=>{const j=Math.ceil((new Date(l.end_date)-new Date())/864e5);
     if(j<=90)alertes.push(`<div style="font-size:.78rem;color:${j<0?'var(--red)':j<=60?'var(--gold)':'var(--td)'};font-weight:600"><i data-lucide=calendar class=ic></i> ${j<0?`Bail de ${_gEsc(_gName(l.tenant_id))} arrivé à son terme il y a ${-j} jours`:`Bail de ${_gEsc(_gName(l.tenant_id))} : fin le ${_gD(l.end_date)} (dans ${j} jours)`}</div>`);});
-  const ass=_gAssEtat(b),assH=ass.map(x=>{
-    const nom=_gEsc(x.nom);
-    if(x.att)return `<div class="gx-ass gx-ass-wa"><div><strong><i data-lucide=shield class=ic></i> Assurance habitation de ${nom}</strong><div class="gx-ass-s">Déposée le ${_gD(x.att.deposee_at)}${x.att.assureur?' · '+_gEsc(x.att.assureur):''} · valable jusqu'au ${_gD(x.att.date_fin)}</div></div><div class="gx-ass-b"><button class="btn bg bsm" onclick="gAssVoir('${x.att.id}')"><i data-lucide=eye class=ic></i> Voir</button><button class="btn bp bsm" onclick="gAssTraiter('${x.att.id}',true)"><i data-lucide=check class=ic></i> Valider</button><button class="btn bg bsm" style="color:var(--red)" onclick="gAssTraiter('${x.att.id}',false)">Refuser</button></div></div>`;
-    if(x.val){const j=x.val.date_fin?_gDays(new Date(),x.val.date_fin):null;
-      if(j!==null&&j<=30)return `<div style="font-size:.78rem;color:${j<0?'var(--red)':'var(--gold)'};font-weight:600"><i data-lucide=shield-alert class=ic></i> Assurance habitation de ${nom} ${j<0?'expirée depuis le '+_gD(x.val.date_fin):'expire le '+_gD(x.val.date_fin)} — le locataire est invité à déposer la nouvelle attestation</div>`;
-      return '';}
-    return `<div style="font-size:.78rem;color:var(--td);font-weight:600"><i data-lucide=shield class=ic></i> Attestation d'assurance habitation de ${nom} pas encore reçue${x.refus?' (dernière refusée)':''}</div>`;}).filter(Boolean);
-  alertes.unshift(...assH);
+
   if(!out.length&&!alertes.length)return '';
   return `<div style="margin:-.3rem 0 1rem;display:flex;flex-direction:column;gap:.45rem">${alertes.join('')}<div style="display:flex;gap:.4rem;flex-wrap:wrap">${out.join('')}</div></div>`;
 }
@@ -4707,7 +4821,7 @@ function _gBienStats(b){
   return{retard,prochain,actifs,regulAFaire,loyer:actifs.reduce((a,l)=>a+(Number(l.rent)||0)+(Number(l.charges)||0),0)};
 }
 function renderGestion(){
-  const tab=['paiements','impayes','irl','charges','teom','maintenance'].includes(window._gTab)?window._gTab:'paiements';
+  const tab=['paiements','impayes','irl','charges','teom','maintenance','documents','assurance','depart'].includes(window._gTab)?window._gTab:'paiements';
   const biens=_gBiens();
   const box=document.getElementById('gestion-content');
   const secM=document.getElementById('sec-maintenance');
@@ -4737,18 +4851,19 @@ function renderGestion(){
   const bien=biens.find(b=>b.id===window._gBien);
   const lids=new Set(bien.ls.map(l=>l.id)),bks=new Set(bien.ls.map(l=>l.booking_id).filter(Boolean));
   GEST.leases=bien.ls;GEST.pays=(GEST.allPays||[]).filter(p=>lids.has(p.lease_id)||bks.has(p.booking_id)||(!p.lease_id&&!p.booking_id&&p.listing_id===bien.id));
-  const tabs=[['paiements','Paiements','euro'],['impayes','Impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['teom','TEOM','trash-2'],['maintenance','Maintenance','wrench']];
+  const tabs=[['paiements','Paiements','euro'],['impayes','Impayés','alert-triangle'],['irl','Révision du loyer','trending-up'],['charges','Charges','receipt'],['teom','TEOM','trash-2'],['maintenance','Maintenance','wrench'],['documents','Bail & documents','file-text'],['assurance','Assurance habitation','shield-check'],['depart','Départ du locataire','door-open']];
   const st=_gBienStats(bien);
   const nDecl=GEST.pays.filter(p=>p.status==='declared').length;
   const lidsB=new Set(bien.ls.map(l=>l.id)),nTeom=Object.values(GEST.teom||{}).filter(r=>lidsB.has(r.lease_id)&&r.paiement_declare_at&&!r.paiement_confirme_at).length;
   const nRev=_gRevisionsDues(bien.ls).length;
-  const badge={irl:nRev?`<span class="gx-badge wa">${nRev}</span>`:'',teom:nTeom?`<span class="gx-badge wa">${nTeom}</span>`:'',paiements:nDecl?`<span class="gx-badge wa">${nDecl}</span>`:'',impayes:st.retard.length?`<span class="gx-badge">${st.retard.length}</span>`:'',charges:st.regulAFaire?`<span class="gx-badge wa">!</span>`:''};
+  const _ae=_gAssEtat(bien),nAss=_ae.filter(x=>x.att||(x.val&&x.val.date_fin&&_gDays(new Date(),x.val.date_fin)<=30)||(!x.val&&!x.att)).length;
+  const badge={assurance:nAss?`<span class="gx-badge wa">${nAss}</span>`:'',irl:nRev?`<span class="gx-badge wa">${nRev}</span>`:'',teom:nTeom?`<span class="gx-badge wa">${nTeom}</span>`:'',paiements:nDecl?`<span class="gx-badge wa">${nDecl}</span>`:'',impayes:st.retard.length?`<span class="gx-badge">${st.retard.length}</span>`:'',charges:st.regulAFaire?`<span class="gx-badge wa">!</span>`:''};
   box.innerHTML=back+_gBienResume(bien)+`
     <div class="gx-tabs" role="tablist">${tabs.map(([k,l,ic])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="gx-tab ${tab===k?'on':''}" onclick="window._gTab='${k}';renderGestion()"><i data-lucide=${ic} class=ic></i> ${l}${badge[k]||''}</button>`).join('')}</div>
     <div id="gestion-tab"></div>
     <div class="gx-foot" style="${tab==='maintenance'?'display:none':''}">Aide à la gestion : les délais et indices évoluent. Vérifiez sur service-public.fr, visale.fr ou auprès de l'ADIL avant d'agir. Trouve Ton Toit ne remplace pas un conseil juridique ou fiscal.</div>`;
   if(tab==='maintenance'){if(secM){document.getElementById('gestion-tab').appendChild(secM);secM.style.display='';}try{loadMaintenance();}catch(e){}}
-  else ({paiements:renderPaiementsBien,impayes:renderImpayes,irl:renderIRL,charges:renderCharges,teom:renderTeom})[tab]();
+  else ({paiements:renderPaiementsBien,impayes:renderImpayes,irl:renderIRL,charges:renderCharges,teom:renderTeom,documents:()=>renderDocsBien(bien),assurance:()=>renderAssBien(bien),depart:()=>renderDepartBien(bien)})[tab]();
   if(window.lucide)lucide.createIcons();
 }
 
