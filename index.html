@@ -686,6 +686,7 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
 .ec-k{font-size:.78rem;color:var(--stone-l);font-weight:600}
 .ec-v{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--deep);margin:.05rem 0 .15rem}
 .ec-sub{font-size:.74rem;color:var(--stone-l);line-height:1.4}
+.ec-fee{grid-column:1/-1;background:rgba(37,84,219,.05);border-color:rgba(37,84,219,.25)}
 .ec-total{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:1rem 0 0;padding:1rem 1.25rem;background:var(--bleu);color:#fff}
 .ec-tk{font-weight:800;font-size:1rem}
 .ec-ts{font-size:.76rem;opacity:.85;margin-top:.1rem}
@@ -2842,7 +2843,7 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
         <div id="dcost" class="ec">
-          <div class="ec-hd"><span class="ec-ic"><i data-lucide=key-round class=ic></i></span><div><div class="ec-t">Ce que vous payez à l’entrée</div><div class="ec-s">Versé directement au propriétaire, le jour de la remise des clés</div></div></div>
+          <div class="ec-hd"><span class="ec-ic"><i data-lucide=key-round class=ic></i></span><div><div class="ec-t">Ce que vous payez à l’entrée</div><div class="ec-s">Premier loyer et dépôt versés au propriétaire le jour de la remise des clés</div></div></div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -3546,17 +3547,18 @@ function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('f
 
 function renderDcost(){
   const c0=window._dcostCtx;const el=document.getElementById('dcost-lines');if(!c0||!el)return;
-  const c={...c0,price:Number(c0.price)||0,depot:Number(c0.depot)||0};
+  const c={...c0,price:Number(c0.price)||0,depot:Number(c0.depot)||0,commission:Number(c0.commission)||0};
   const dv=document.getElementById('dcost-date')?.value||'';
   const pr=dv?prorataLoyer(dv,c.payDay,c.price):null;
   const first=pr?pr.amount:c.price;
   const sub=pr?(pr.full?`Mois complet — entrée le ${fmtDateFr(pr.start)}`:`Au prorata : ${pr.days} jours sur ${pr.period}, du ${fmtDateFr(pr.start)} au ${fmtDateFr(pr.end)}`)
              :'Mois complet';
-  const total=Math.round((first+c.depot)*100)/100;
+  const total=Math.round((first+c.depot+c.commission)*100)/100;
   const eu=v=>(Math.round(v*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:Number.isInteger(Math.round(v*100)/100)?0:2,maximumFractionDigits:2})+' €';
   el.innerHTML=`<div class="ec-grid">
       <div class="ec-tile"><span class="ec-ti"><i data-lucide=home class=ic></i></span><div><div class="ec-k">Premier loyer</div><div class="ec-v">${eu(first)}</div><div class="ec-sub">${sub}</div></div></div>
       ${c.depot?`<div class="ec-tile"><span class="ec-ti"><i data-lucide=shield-check class=ic></i></span><div><div class="ec-k">Dépôt de garantie</div><div class="ec-v">${eu(Number(c.depot))}</div><div class="ec-sub">Rendu en fin de bail, déduction faite des éventuelles réparations</div></div></div>`:''}
+      ${c.commission?`<div class="ec-tile ec-fee"><span class="ec-ti"><i data-lucide=badge-check class=ic></i></span><div><div class="ec-k">${c.commissionLabel}</div><div class="ec-v">${eu(c.commission)}</div><div class="ec-sub">Payé à Trouve Ton Toit par carte, uniquement si le propriétaire accepte votre candidature. Partageable entre colocataires.</div></div></div>`:''}
     </div>
     <div class="ec-total"><div><div class="ec-tk">Total à l’entrée</div>${pr&&!pr.full?`<div class="ec-ts">Puis ${eu(Number(c.price))} par mois à partir du ${fmtDateFr(pr.nextDue)}</div>`:`<div class="ec-ts">${pr?'Entrée le jour d’échéance : mois complet':'Sur la base d’un mois complet'}</div>`}</div><div class="ec-tv">${eu(total)}</div></div>`;
   if(window.lucide)lucide.createIcons();
@@ -4081,9 +4083,10 @@ async function _openDetBody(l,id){
     if(dcostCard)dcostCard.style.display='none';
   }else{
     if(dcostCard)dcostCard.style.display='block';
-    const commissionRate=isAgence?0.50:0.10;
-    const commission=Math.round(l.price*commissionRate);
-    const commissionLabel=isAgence?'Frais d\'agence (50%)':'Commission Trouve Ton Toit (10%)';
+    // Même règle que feeInfo() côté locataire : 10 % du loyer, rien pour une annonce d'agence
+    const sansFrais=isAgence||!!l.agency_name||!!l.agent_must_create;
+    const commission=sansFrais?0:Math.round((Number(l.price)||0)*0.10);
+    const commissionLabel='Frais de service Trouve Ton Toit (10 %)';
     const _cline=(label,amount,sub,color)=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--line,rgba(14,21,38,.08))">
         <div>
@@ -4096,7 +4099,7 @@ async function _openDetBody(l,id){
     window._dcostCtx={price:l.price,depot:l.depot||0,commission,commissionLabel,payDay,cline:_cline};
     document.getElementById('dcost-inner').innerHTML=`<label class="ec-date" for="dcost-date"><span><i data-lucide=calendar class=ic></i> Votre date d’entrée <small>(facultatif — pour calculer le premier loyer au prorata)</small></span><input type="date" id="dcost-date" oninput="renderDcost()"></label>
       <div id="dcost-lines"></div>
-      <div class="ec-foot">Loyer payable le ${payDay===1?'1<sup>er</sup>':payDay} de chaque mois. Aucun frais de dossier ni de plateforme pour le locataire.</div>`;
+      <div class="ec-foot">Loyer payable le ${payDay===1?'1<sup>er</sup>':payDay} de chaque mois. ${commission?'Frais de service prélevés par Trouve Ton Toit, en une fois, à l’acceptation de votre candidature.':'Aucun frais de service Trouve Ton Toit pour cette annonce.'}</div>`;
     renderDcost();
   }
 
