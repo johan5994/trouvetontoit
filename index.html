@@ -669,6 +669,29 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
   #map-container{height:380px}
 }
 @media(prefers-reduced-motion:reduce){.h-pulse{animation:none}.lcard,.btn{transition:none}}
+.ec{margin-top:1rem;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.ec-hd{display:flex;gap:.8rem;align-items:center;padding:1.1rem 1.25rem .9rem}
+.ec-ic{width:42px;height:42px;border-radius:12px;background:rgba(27,79,216,.1);color:var(--bleu);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ec-ic .ic{width:20px;height:20px}
+.ec-t{font-family:'Bricolage Grotesque',sans-serif;font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
+.ec-s{font-size:.8rem;color:var(--stone-l);margin-top:.1rem}
+.ec-date{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;margin:0 1.25rem .9rem;padding:.65rem .8rem;background:var(--warm);border:1px solid var(--line);border-radius:12px;font-size:.84rem;font-weight:700;color:var(--deep);cursor:pointer}
+.ec-date .ic{color:var(--bleu)}
+.ec-date small{font-weight:500;color:var(--stone-l);font-size:.74rem}
+.ec-date input{border:1.5px solid var(--line);border-radius:9px;padding:.45rem .6rem;font:inherit;font-weight:600;color:var(--deep);background:#fff}
+.ec-date input:focus{outline:2px solid var(--bleu);outline-offset:1px}
+.ec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem;padding:0 1.25rem}
+.ec-tile{display:flex;gap:.7rem;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:.85rem .95rem}
+.ec-ti{width:34px;height:34px;border-radius:10px;background:var(--warm);color:var(--bleu);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ec-k{font-size:.78rem;color:var(--stone-l);font-weight:600}
+.ec-v{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--deep);margin:.05rem 0 .15rem}
+.ec-sub{font-size:.74rem;color:var(--stone-l);line-height:1.4}
+.ec-total{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:1rem 0 0;padding:1rem 1.25rem;background:var(--bleu);color:#fff}
+.ec-tk{font-weight:800;font-size:1rem}
+.ec-ts{font-size:.76rem;opacity:.85;margin-top:.1rem}
+.ec-tv{font-family:'Bricolage Grotesque',sans-serif;font-size:1.9rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ec-foot{font-size:.74rem;color:var(--stone-l);padding:.75rem 1.25rem .9rem;background:var(--warm);border-top:1px solid var(--line);order:9}
+#dcost-inner{display:flex;flex-direction:column}
 </style>
 
 </head>
@@ -2818,8 +2841,8 @@ nav{padding:.85rem clamp(16px,4vw,48px);background:rgba(255,255,255,.88);border-
         <div id="d-inclus-wrap" style="margin-top:1.2rem"></div>
         <div id="d-dpe-wrap" style="margin-top:1.2rem"></div>
 
-        <div id="dcost" style="margin-top:1rem;background:var(--card,#fff);border:1px solid var(--line,rgba(14,21,38,.1));border-radius:16px;padding:1.4rem 1.5rem">
-          <div style="font-size:1.1rem;font-weight:800;margin-bottom:1.1rem;color:var(--deep)"><i data-lucide="pen-line" style="width:16px;height:16px;vertical-align:-2px;margin-right:.3rem"></i> Ce que vous payez à l’entrée</div>
+        <div id="dcost" class="ec">
+          <div class="ec-hd"><span class="ec-ic"><i data-lucide=key-round class=ic></i></span><div><div class="ec-t">Ce que vous payez à l’entrée</div><div class="ec-s">Versé directement au propriétaire, le jour de la remise des clés</div></div></div>
           <div id="dcost-inner"></div>
         </div>
       </div>
@@ -3522,21 +3545,21 @@ function fmtDateFr(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''))
 function fmtEur(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(Number(n)%1)?2:0,maximumFractionDigits:2})+' €';}
 
 function renderDcost(){
-  const c=window._dcostCtx;const el=document.getElementById('dcost-lines');if(!c||!el)return;
+  const c0=window._dcostCtx;const el=document.getElementById('dcost-lines');if(!c0||!el)return;
+  const c={...c0,price:Number(c0.price)||0,depot:Number(c0.depot)||0};
   const dv=document.getElementById('dcost-date')?.value||'';
   const pr=dv?prorataLoyer(dv,c.payDay,c.price):null;
   const first=pr?pr.amount:c.price;
-  const sub=pr?(pr.full?`Mois complet — entrée le ${fmtDateFr(pr.start)}`:`Prorata : ${pr.days} jours sur ${pr.period} (du ${fmtDateFr(pr.start)} au ${fmtDateFr(pr.end)})`)
-             :'Mois complet — indiquez votre date d\'entrée ci-dessous pour voir le prorata';
+  const sub=pr?(pr.full?`Mois complet — entrée le ${fmtDateFr(pr.start)}`:`Au prorata : ${pr.days} jours sur ${pr.period}, du ${fmtDateFr(pr.start)} au ${fmtDateFr(pr.end)}`)
+             :'Mois complet';
   const total=Math.round((first+c.depot)*100)/100;
-  el.innerHTML=c.cline('Premier loyer',(Math.round(first*100)/100).toLocaleString('fr-FR'),sub,'var(--stone)')
-    +(c.depot?c.cline('Dépôt de garantie',Number(c.depot).toLocaleString('fr-FR'),'Rendu en fin de bail, déduction faite des éventuelles réparations','var(--stone)'):'')
-    +`<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .3rem;margin-top:.35rem">
-        <div style="font-size:1rem;font-weight:700;color:var(--stone)">Total à l'entrée${pr?'':' (mois complet)'}</div>
-        <div style="font-size:1.7rem;font-weight:900;color:var(--bleu,#1B4FD8);font-variant-numeric:tabular-nums">${total.toLocaleString('fr-FR')} €</div>
-      </div>
-      ${pr&&!pr.full?`<div style="font-size:.75rem;color:var(--stone);margin-bottom:.2rem">Puis <strong>${Number(c.price).toLocaleString('fr-FR')} €</strong> par mois à partir du ${fmtDateFr(pr.nextDue)}.</div>`:''}
-      <div style="font-size:.73rem;color:var(--stone-l);margin-top:.15rem;line-height:1.4">Le dépôt de garantie et le premier loyer sont versés directement au propriétaire à l'entrée dans les lieux.</div>`;
+  const eu=v=>(Math.round(v*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:Number.isInteger(Math.round(v*100)/100)?0:2,maximumFractionDigits:2})+' €';
+  el.innerHTML=`<div class="ec-grid">
+      <div class="ec-tile"><span class="ec-ti"><i data-lucide=home class=ic></i></span><div><div class="ec-k">Premier loyer</div><div class="ec-v">${eu(first)}</div><div class="ec-sub">${sub}</div></div></div>
+      ${c.depot?`<div class="ec-tile"><span class="ec-ti"><i data-lucide=shield-check class=ic></i></span><div><div class="ec-k">Dépôt de garantie</div><div class="ec-v">${eu(Number(c.depot))}</div><div class="ec-sub">Rendu en fin de bail, déduction faite des éventuelles réparations</div></div></div>`:''}
+    </div>
+    <div class="ec-total"><div><div class="ec-tk">Total à l’entrée</div>${pr&&!pr.full?`<div class="ec-ts">Puis ${eu(Number(c.price))} par mois à partir du ${fmtDateFr(pr.nextDue)}</div>`:`<div class="ec-ts">${pr?'Entrée le jour d’échéance : mois complet':'Sur la base d’un mois complet'}</div>`}</div><div class="ec-tv">${eu(total)}</div></div>`;
+  if(window.lucide)lucide.createIcons();
 }
 
 async function updC(){
@@ -4071,12 +4094,9 @@ async function _openDetBody(l,id){
       </div>`;
     const payDay=l.payment_due_day||1;
     window._dcostCtx={price:l.price,depot:l.depot||0,commission,commissionLabel,payDay,cline:_cline};
-    document.getElementById('dcost-inner').innerHTML=`<div id="dcost-lines"></div>
-      <div style="margin-top:.75rem;background:rgba(27,79,216,.05);border:1px solid rgba(27,79,216,.18);border-radius:10px;padding:.7rem .8rem">
-        <label for="dcost-date" style="display:block;font-size:.82rem;font-weight:700;color:var(--stone);margin-bottom:.35rem">Simulez votre date d'entrée</label>
-        <input type="date" id="dcost-date" style="width:100%;padding:.5rem .6rem;border:1px solid var(--b2);border-radius:8px;font-size:.9rem;box-sizing:border-box" oninput="renderDcost()">
-        <div style="font-size:.72rem;color:var(--stone-l);margin-top:.35rem;line-height:1.45">Le loyer est payable le ${payDay===1?'1<sup>er</sup>':payDay} de chaque mois. Si vous entrez en cours de mois, le premier loyer est calculé au prorata des jours occupés.</div>
-      </div>`;
+    document.getElementById('dcost-inner').innerHTML=`<label class="ec-date" for="dcost-date"><span><i data-lucide=calendar class=ic></i> Votre date d’entrée <small>(facultatif — pour calculer le premier loyer au prorata)</small></span><input type="date" id="dcost-date" oninput="renderDcost()"></label>
+      <div id="dcost-lines"></div>
+      <div class="ec-foot">Loyer payable le ${payDay===1?'1<sup>er</sup>':payDay} de chaque mois. Aucun frais de dossier ni de plateforme pour le locataire.</div>`;
     renderDcost();
   }
 
