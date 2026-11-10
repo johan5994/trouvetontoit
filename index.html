@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <script src="/ui-dialog.js"></script>
+<script src="/visite-dossier.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Trouve Ton Toit — Location immobilière en France</title>
@@ -4242,56 +4243,10 @@ async function requestVisitFromDetail(){
     return;
   }
 
-  const modal=document.createElement('div');
-  modal.id='visite-request-modal-overlay';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  modal.innerHTML=`
-    <div style="background:white;border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
-      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Demander une visite</div>
-      <div style="font-size:.78rem;color:var(--stone);margin-bottom:1rem">${(AL.title||'ce logement').replace(/</g,'&lt;')}</div>
-      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(27,79,216,.06);border:1px solid rgba(27,79,216,.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
-      <div class="fg2"><label>Date souhaitée</label><input class="fi" type="date" id="vr-date"></div>
-      <div class="fg2"><label>Heure souhaitée</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
-      <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button id="vr-send-btn" style="flex:1;background:var(--terra);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer la demande →</button>
-        <button onclick="document.getElementById('visite-request-modal-overlay').remove()" style="background:#f2ede4;color:var(--stone);border:1px solid #e5ddd0;border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-  try{if(window.lucide)lucide.createIcons();}catch(e){}
-
-  document.getElementById('vr-send-btn').onclick=async()=>{
-    const visitDate=document.getElementById('vr-date')?.value;
-    const visitTime=document.getElementById('vr-time')?.value||'14:00';
-    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a date');return;}
-    const today=new Date();today.setHours(0,0,0,0);
-    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i> Pbail select a future date');return;}
-
-    const{error:visitInsertErr}=await sb.from('visits').insert({
-      listing_id:AL.id,
-      tenant_id:U.id,
-      landlord_id:AL.landlord_id,
-      tenant_name:P?.full_name||'',
-      tenant_email:P?.email||U.email||'',
-      visit_date:visitDate,
-      visit_time:visitTime,
-      zone:AL.zone||'',
-      status:'pending'
-    });
-    if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
-
-    try{
-      const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-      await sb.from('messages').insert({
-        listing_id:AL.id,sender_id:'system',receiver_id:AL.landlord_id,
-        content:'<i data-lucide=calendar class=ic></i> '+(P?.full_name||'A locataire')+' requested a visite\n\n'+(AL.title||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
-        type:'visit_request'
-      });
-    }catch(e){}
-
-    modal.remove();
-    toast('<i data-lucide=check-circle-2 class=ic></i> Visite request sent! Check My Tableau de bord → Mes visites.');
-  };
+  let dd=null;try{dd=typeof P?.dossier_data==='string'?JSON.parse(P.dossier_data):P?.dossier_data;}catch(e){}
+  vdDemanderVisite({sb,U,P,dossier:dd||{},listingId:AL.id,landlordId:AL.landlord_id,title:AL.title||'',zone:AL.zone||'',
+    toast:m=>toast(m+' Suivez-la dans Mon espace → Mes visites.'),
+    goDossier:k=>{window.location.href='/tenant-dashboard.html?tab=profil'+(k==='couple'?'&dossier=couple':'');}});
 }
 
 async function sendMsg(){
