@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <script src="/ui-dialog.js"></script>
+<script src="/visite-dossier.js"></script>
 <script>/* Désinstaller l'ancien service worker (il cassait les appels aux fonctions) */if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});if(window.caches)caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -258,6 +259,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gt-foot .btn{min-width:8rem;justify-content:center}
 .gt-card .bp:hover{background:var(--bleu);filter:brightness(1.1)}
 @media (max-width:520px){.gt-ov{padding:0;align-items:flex-end}.gt-card{max-height:96vh;border-radius:20px 20px 0 0}.gt-choices{grid-template-columns:1fr}.gt-rrow{grid-template-columns:1fr auto}.gt-rk{grid-column:1/-1}.gt-foot .btn{flex:1;min-width:0}}
+.dsit{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.dsit-t{font-size:.92rem;font-weight:800;color:var(--deep);margin-bottom:.65rem}
+.dsit-g{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem}
+.dsit-c{display:flex;gap:.6rem;align-items:center;text-align:left;background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:.7rem .75rem;cursor:pointer;font-family:inherit;color:var(--txt)}
+.dsit-c:hover{border-color:var(--b2)}.dsit-c.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.06)}
+.dsit-c strong{display:block;font-size:.86rem;color:var(--deep)}.dsit-c small{display:block;font-size:.72rem;color:var(--tm);margin-top:.05rem}
+.dsit-ic{width:32px;height:32px;border-radius:9px;background:var(--s2);color:var(--tm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dsit-c.on .dsit-ic{background:var(--bleu);color:#fff}
+.dsit-form{margin-top:.85rem;border-top:1px dashed var(--b2);padding-top:.85rem;display:flex;flex-direction:column;gap:.6rem}
+.dsit-form label{display:flex;flex-direction:column;gap:.25rem;font-size:.78rem;font-weight:700;color:var(--tm);flex:1;min-width:0}
+.dsit-ft{font-size:.86rem;font-weight:800;color:var(--deep)}
+.dsit-row{display:flex;gap:.6rem;flex-wrap:wrap}
+.dsit-help{font-size:.74rem;color:var(--td);margin-top:-.2rem}
+.dsit-form label.dsit-chk{flex-direction:row;align-items:flex-start;gap:.5rem;font-weight:500;color:var(--txt);font-size:.8rem;line-height:1.5;border:1.5px solid var(--b);border-radius:10px;padding:.6rem .7rem;cursor:pointer}
+.dsit-chk input{width:17px;height:17px;accent-color:var(--bleu);flex-shrink:0;margin-top:.1rem}
+.dsit-err{background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.3);color:var(--red);font-size:.78rem;border-radius:9px;padding:.45rem .65rem}
+.dsit-ok{display:flex;gap:.6rem;align-items:center;margin-top:.85rem;background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.28);border-radius:12px;padding:.7rem .85rem;color:var(--green)}
+.dsit-ok strong{display:block;font-size:.86rem;color:var(--deep)}.dsit-ok span{display:block;font-size:.74rem;color:var(--tm);overflow-wrap:anywhere}
+.dsit-lien{background:none;border:none;color:var(--bleu);font-weight:700;font-size:.78rem;cursor:pointer;font-family:inherit;flex-shrink:0}
+.dsit-note{display:flex;gap:.55rem;align-items:flex-start;margin-top:.85rem;background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.22);border-radius:12px;padding:.7rem .85rem;font-size:.8rem;line-height:1.5}
+.dsit-note>i,.dsit-note>svg{color:var(--bleu);flex-shrink:0;margin-top:.15rem}
+.dpers{margin-bottom:1rem}
+.dpers-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.dpers-t{flex:1;min-width:10rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:.7rem .9rem;font-size:.88rem;font-weight:800;color:var(--deep);cursor:pointer;font-family:inherit}
+.dpers-t.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.07);color:var(--bleu)}
+.dpers-n{font-size:.72rem;font-weight:700;color:var(--tm);background:var(--s2);border-radius:99px;padding:.15rem .55rem;display:inline-flex;align-items:center;gap:.2rem;white-space:nowrap}
+.dpers-n.ok{background:rgba(var(--green-rgb),.12);color:var(--green)}
+.dpers-ban{display:flex;gap:.5rem;align-items:flex-start;margin-top:.6rem;background:var(--bleu);color:#fff;border-radius:12px;padding:.65rem .85rem;font-size:.82rem;line-height:1.45}
+@media(max-width:620px){.dsit-g{grid-template-columns:1fr}}
 .gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
 .gate-g{display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:9px;padding:.5rem .65rem;cursor:pointer;font-size:.84rem}.gate-g.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.06)}.gate-g.off{opacity:.75;cursor:default}.gate-g input{width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0}
 .gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
@@ -950,6 +980,9 @@ button.mx-doc{font-family:inherit;cursor:pointer}
         <div style="font-size:.78rem;color:var(--tm);margin-top:.2rem">Constituez votre dossier étape par étape — comme sur DossierFacile</div>
       </div>
 
+      <div id="dos-invite"></div>
+      <div id="dos-sit" class="dsit"></div>
+
       <!-- Import d'un DossierFacile déjà constitué -->
       <div id="df-import" style="background:rgba(var(--bleu-rgb),.05);border:1.5px solid rgba(var(--bleu-rgb),.3);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem">
         <div style="font-size:.92rem;font-weight:800;color:var(--deep)"><i data-lucide=file-up class=ic></i> Vous avez déjà un dossier sur DossierFacile ?</div>
@@ -962,6 +995,7 @@ button.mx-doc{font-family:inherit;cursor:pointer}
         <div id="df-extract" style="margin-top:.6rem" aria-live="polite"></div>
       </div>
 
+      <div id="dos-pers" class="dpers" style="display:none"></div>
       <!-- Progress bar global -->
       <div style="background:var(--s);border:1px solid var(--b);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem">
         <div style="flex:1">
@@ -1663,8 +1697,9 @@ let clerk,U=null,P=null,selectedRating=5;
       const need=qp.get('need'),miss=(qp.get('missing')||'').split(',');
       const back=(qp.get('annonce')||'').replace(/[^a-zA-Z0-9-]/g,'');
       window.history.replaceState({},'',window.location.pathname);
-      sp('profil',document.querySelector('.ni[onclick*="profil"]'));
-      showProfileNeeded(need,miss,back);
+      const dk=qp.get('dossier');
+      if(dk==='couple')_goDossierKind('couple');
+      else{sp('profil',document.querySelector('.ni[onclick*="profil"]'));if(need)showProfileNeeded(need,miss,back);}
     }
   }catch(e){console.error('[profil] deep link:',e);}
 })();
@@ -5923,6 +5958,110 @@ const DOSSIER_TYPE_INSTRUCTIONS={
 // State: {step_index -> {type, files:[{name,url,path}], skipped}}
 let dossierState={};
 
+// ═══ Dossier en couple (même principe que DossierFacile) ═══
+// Le conjoint a ses propres pièces (identité, hébergement, situation pro, ressources, avis d'impôt, garants)
+// rangées dans le même dossier : dossier_data.situation='couple', dossier_data.conjoint={prenom,nom,email,acces,dossier:{0..5}}
+let _dosPers='moi',_dosRootRef=null,_dosEdit=false;
+function _dosRoot(){return (_dosPers==='conjoint'&&_dosRootRef)?_dosRootRef:dossierState;}
+function _dosConj(){const r=_dosRoot();return r?.situation==='couple'&&r.conjoint?.prenom?r.conjoint:null;}
+function _dosNbFaits(d){return [0,1,2,3,4,5].filter(i=>d?.[i]?.type&&(d[i].type!=='garant_personne'||(d[i].garants||[]).length)).length;}
+function _escD(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function _dosMoi(){if(_dosPers==='conjoint')_dosSwitch('moi');}
+function _dosSwitch(p){
+  const root=_dosRoot();
+  if(p==='conjoint'){
+    if(!root?.conjoint)return;
+    root.conjoint.dossier=root.conjoint.dossier||{};
+    _dosRootRef=root;dossierState=root.conjoint.dossier;_dosPers='conjoint';
+  }else{dossierState=root;_dosPers='moi';}
+  for(let i=0;i<6;i++){try{resetDocType(i);}catch(e){}}
+  const imp=document.getElementById('df-import');if(imp)imp.style.display=_dosPers==='conjoint'?'none':'';
+  try{renderDossierState();showDossierStep(0);}catch(e){}
+  renderDosPers();
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function renderDosSituation(){
+  const el=document.getElementById('dos-sit');if(!el)return;
+  const r=_dosRoot()||{};const sit=r.situation||'seul';const c=r.conjoint||{};
+  const chip=(k,ic,t,s)=>`<button type="button" class="dsit-c${sit===k?' on':''}" onclick="dosSituation('${k}')"><span class="dsit-ic"><i data-lucide=${ic} class=ic></i></span><span><strong>${t}</strong><small>${s}</small></span></button>`;
+  let bas='';
+  if(sit==='couple'&&c.prenom&&!_dosEdit){
+    bas=`<div class="dsit-ok"><i data-lucide=heart-handshake class=ic></i><div style="flex:1;min-width:0"><strong>En couple avec ${_escD(c.prenom)} ${_escD(c.nom)}</strong><span>${c.email?_escD(c.email):'<b style="color:var(--red)">adresse e-mail à ajouter</b>'} · ses documents se remplissent dans l’onglet « Dossier de ${_escD(c.prenom)} » ci-dessous</span></div><button type="button" class="dsit-lien" onclick="_dosEdit=true;renderDosSituation()">Modifier</button></div>`;
+  }else if(sit==='couple'){
+    bas=`<div class="dsit-form">
+      <div class="dsit-ft">Informations sur votre conjoint</div>
+      <div class="dsit-row"><label>Prénom<input id="cj-prenom" class="fi" value="${_escD(c.prenom)}" autocomplete="off"></label><label>Nom<input id="cj-nom" class="fi" value="${_escD(c.nom)}" autocomplete="off"></label></div>
+      <label>Adresse e-mail de votre conjoint<input id="cj-email" class="fi" type="email" value="${_escD(c.email)}" autocomplete="off" placeholder="prenom@exemple.fr"></label>
+      <div class="dsit-help">Pour figurer sur le bail, votre conjoint devra avoir son compte Trouve Ton Toit avec cette adresse.</div>
+      <label class="dsit-chk"><input type="checkbox" id="cj-acces" ${c.acces?'checked':''}><span>J’accepte que mon conjoint ait accès à mes informations et documents, et que nos deux dossiers soient envoyés ensemble aux propriétaires.</span></label>
+      <div id="cj-err" class="dsit-err" style="display:none"></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap"><button type="button" class="btn bp bsm" onclick="dosCoupleSave()">Valider</button>${c.prenom?`<button type="button" class="btn bg bsm" onclick="_dosEdit=false;renderDosSituation()">Annuler</button>`:''}</div>
+    </div>`;
+  }else if(sit==='colocation'){
+    bas=`<div class="dsit-note"><i data-lucide=info class=ic></i><span>En colocation, <strong>chaque colocataire crée son compte et son propre dossier</strong>. Vous les ajoutez au moment de la demande de visite ou de la candidature : leurs dossiers sont alors envoyés avec le vôtre.</span></div>`;
+  }
+  el.innerHTML=`<div class="dsit-t">Vous louez ce logement…</div>
+    <div class="dsit-g">${chip('seul','user','Seul(e)','Un seul dossier')}${chip('couple','heart','En couple','Vos deux dossiers ensemble')}${chip('colocation','users','En colocation','Chacun son compte')}</div>${bas}`;
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+async function dosSituation(k){
+  _dosMoi();
+  const r=dossierState;const old=r.situation||'seul';
+  if(k===old&&!(k==='couple'&&!r.conjoint?.prenom))return;
+  if(old==='couple'&&k!=='couple'&&r.conjoint?.prenom){
+    const n=_dosNbFaits(r.conjoint.dossier);
+    if(!await uiConfirm(`Retirer ${r.conjoint.prenom} de votre dossier ?`+(n?` Ses ${n} étape(s) remplie(s) seront supprimées.`:'')))return;
+    delete r.conjoint;
+  }
+  r.situation=k;_dosEdit=k==='couple';
+  if(k!=='couple'){await saveDossierState();}
+  renderDosSituation();renderDosPers();
+}
+async function dosCoupleSave(){
+  const v=id=>document.getElementById(id)?.value.trim()||'';
+  const prenom=v('cj-prenom'),nom=v('cj-nom'),email=v('cj-email').toLowerCase();
+  const err=document.getElementById('cj-err');
+  const msg=!prenom||!nom?'Indiquez le prénom et le nom de votre conjoint.'
+    :!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?'Indiquez une adresse e-mail valide pour votre conjoint.'
+    :email===String(P?.email||U?.email||'').toLowerCase()?'L’adresse de votre conjoint doit être différente de la vôtre.'
+    :!document.getElementById('cj-acces')?.checked?'Cochez la case d’accord pour continuer.':'';
+  if(msg){err.textContent=msg;err.style.display='block';return;}
+  _dosMoi();
+  const r=dossierState;
+  r.situation='couple';
+  r.conjoint={...(r.conjoint||{}),prenom,nom,email,acces:true,dossier:r.conjoint?.dossier||{}};
+  _dosEdit=false;
+  await saveDossierState();
+  renderDosSituation();renderDosPers();
+  toast('<i data-lucide=check-circle-2 class=ic></i> Dossier en couple créé : complétez maintenant le dossier de '+_escD(prenom));
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+function renderDosPers(){
+  const el=document.getElementById('dos-pers');if(!el)return;
+  const root=_dosRoot();const c=_dosConj();
+  if(!c){el.style.display='none';el.innerHTML='';if(_dosPers==='conjoint'){dossierState=root;_dosPers='moi';}return;}
+  const nm=_dosNbFaits(root),nc=_dosNbFaits(c.dossier);
+  const tab=(k,t,n)=>`<button type="button" class="dpers-t${_dosPers===k?' on':''}" onclick="_dosSwitch('${k}')"><span>${t}</span><span class="dpers-n${n>=6?' ok':''}">${n>=6?'<i data-lucide=check class=ic></i> Complet':n+'/6'}</span></button>`;
+  el.style.display='block';
+  el.innerHTML=`<div class="dpers-tabs">${tab('moi','Mon dossier',nm)}${tab('conjoint','Dossier de '+_escD(c.prenom),nc)}</div>
+    ${_dosPers==='conjoint'?`<div class="dpers-ban"><i data-lucide=pencil-line class=ic></i><span>Vous remplissez le dossier de <strong>${_escD(c.prenom)} ${_escD(c.nom)}</strong> : mêmes étapes que le vôtre, avec ses propres pièces et ses garants.</span></div>`:''}`;
+  if(typeof lucide!=='undefined')lucide.createIcons();
+}
+// Le compte du conjoint : on lui montre qu'il fait partie d'un dossier en couple
+async function dosBanniereConjoint(){
+  const el=document.getElementById('dos-invite');if(!el)return;
+  const em=String(P?.email||U?.email||'').toLowerCase();if(!em){el.innerHTML='';return;}
+  try{
+    const{data}=await sb.from('profiles').select('full_name,dossier_data').eq('dossier_data->conjoint->>email',em).limit(1);
+    const p=(data||[])[0];
+    if(!p){el.innerHTML='';return;}
+    const dd=typeof p.dossier_data==='string'?JSON.parse(p.dossier_data):p.dossier_data;
+    const n=_dosNbFaits(dd?.conjoint?.dossier);
+    el.innerHTML=`<div class="dsit-note" style="margin-bottom:1rem"><i data-lucide=heart-handshake class=ic></i><span><strong>${_escD(p.full_name||'Votre conjoint')}</strong> vous a ajouté(e) à son dossier en couple. Vos pièces y sont remplies à ${n}/6 et sont envoyées avec les siennes. Vous pouvez lui transmettre vos documents pour qu’il/elle les dépose.</span></div>`;
+    if(typeof lucide!=='undefined')lucide.createIcons();
+  }catch(e){el.innerHTML='';}
+}
+
 async function initDossierPage(){
   // 1) Essai Supabase
   let loaded=false;
@@ -5940,9 +6079,13 @@ async function initDossierPage(){
       if(local)dossierState=JSON.parse(local);
     }catch(e){}
   }
+  _dosPers='moi';_dosRootRef=dossierState;_dosEdit=false;
+  const _imp=document.getElementById('df-import');if(_imp)_imp.style.display='';
+  for(let i=0;i<6;i++){try{resetDocType(i);}catch(e){}}
   renderDossierState();
   showDossierStep(0);
   dfRender();
+  renderDosSituation();renderDosPers();dosBanniereConjoint();
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 
@@ -6625,10 +6768,13 @@ async function confirmDossierStep(idx){
 
 async function saveDossierState(){
   // Toujours sauvegarder en localStorage (instantané, pas de colonne requise)
-  try{localStorage.setItem('dossier_'+U.id,JSON.stringify(dossierState));}catch(e){}
+  const _root=_dosRoot();
+  try{localStorage.setItem('dossier_'+U.id,JSON.stringify(_root));}catch(e){}
   // Et aussi en Supabase si la colonne existe
   try{
-    await sb.from('profiles').update({dossier_data:dossierState}).eq('clerk_id',U.id);
+    await sb.from('profiles').update({dossier_data:_root}).eq('clerk_id',U.id);
+    if(P)P.dossier_data=_root;
+    if(_dosConj())renderDosPers();
   }catch(e){console.warn('saveDossierState Supabase:',e);}
 }
 
@@ -6636,9 +6782,10 @@ async function manualSaveDossier(){
   const btn=document.getElementById('dossier-save-btn');
   const status=document.getElementById('dossier-save-status');
   if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide=loader-2 class=ic></i> Sauvegarde...';}
-  try{localStorage.setItem('dossier_'+U.id,JSON.stringify(dossierState));}catch(e){}
+  const _root=_dosRoot();
+  try{localStorage.setItem('dossier_'+U.id,JSON.stringify(_root));}catch(e){}
   try{
-    const{error}=await sb.from('profiles').update({dossier_data:dossierState}).eq('clerk_id',U.id);
+    const{error}=await sb.from('profiles').update({dossier_data:_root}).eq('clerk_id',U.id);
     if(error)throw error;
     if(status){status.style.color='var(--green)';status.textContent='✓ Enregistré';}
   }catch(e){
@@ -7605,7 +7752,8 @@ async function dfSuivre(t0,avant){
     const d=typeof data?.dossier_data==='string'?JSON.parse(data.dossier_data):data?.dossier_data;
     const ex=d?.df?.extract;
     if(ex&&ex.status!=='en_cours'&&ex.at&&ex.at!==avant){
-      dossierState=d;try{localStorage.setItem('dossier_'+U.id,JSON.stringify(d));}catch(e){}
+      dossierState=d;_dosPers='moi';_dosRootRef=d;try{localStorage.setItem('dossier_'+U.id,JSON.stringify(d));}catch(e){}
+      try{renderDosSituation();renderDosPers();}catch(e){}
       try{renderDossierState();}catch(e){}
       // Rafraîchir tout de suite l'étape affichée (et les sous-étapes du garant) : plus besoin de cliquer pour voir le vert
       try{const vis=document.querySelector('.dossier-screen.ds-visible');const idx=vis?parseInt(String(vis.id).replace('dscreen-',''),10):NaN;
@@ -7630,6 +7778,7 @@ function dfExtractRender(){
   el.innerHTML=`<div style="background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:.7rem .85rem;font-size:.8rem;line-height:1.6">
     <div style="font-weight:700;color:var(--green);margin-bottom:.2rem"><i data-lucide=check-circle-2 class=ic></i> DossierFacile lu${r.valide?' — dossier validé par DossierFacile':''}</div>
     ${[r.nom&&'Locataire : <strong>'+String(r.nom).replace(/[<>]/g,'')+'</strong>',r.profession&&'Situation : '+(DOSSIER_TYPE_LABELS[r.profession]||r.profession)+(r.employeur?' chez '+String(r.employeur).replace(/[<>]/g,''):''),r.revenus&&'Revenus : '+eur(r.revenus)+' net / mois',(r.garants||[]).length&&'Garant : '+r.garants.map(g=>(DOSSIER_TYPE_LABELS[g.type]||g.type).replace(/^Garant — /,'')+(g.nom?' ('+String(g.nom).replace(/[<>]/g,'')+')':'')).join(', ')].filter(Boolean).map(x=>'<div>'+x+'</div>').join('')}
+    ${ex.conjoint?`<div><i data-lucide=heart-handshake class=ic></i> Dossier en couple : pièces de <strong>${String(ex.conjoint.nom||'').replace(/[<>]/g,'')}</strong> rangées dans l’onglet « Dossier de ${String(ex.conjoint.nom||'').split(' ')[0].replace(/[<>]/g,'')} »</div>`:''}
     <div style="color:var(--tm);margin-top:.3rem">${rempli.length?'Étapes remplies automatiquement : '+rempli.join(', ')+'. Vérifiez-les ci-dessous.':r.remarques?String(r.remarques).replace(/[<>]/g,''):'Vos étapes étaient déjà remplies : rien n’a été remplacé.'}${(ex.rempli||[]).includes(5)?' Complétez les informations du garant si besoin.':''}</div>
   </div><div style="margin-top:.4rem">${relire}</div>`;
   if(typeof lucide!=='undefined')lucide.createIcons();
@@ -7644,6 +7793,7 @@ async function dfRemove(i){
 // ═══ Avant de postuler : profil complet, nom = pièce d'identité, dossier fortement recommandé, garant ═══
 const DOSSIER_BOOST_TXT='jusqu’à 80 % de chances en plus d’être choisis';
 async function _ensureDossierLoaded(){
+  _dosMoi();
   if(Object.keys(dossierState||{}).length)return;
   try{
     const{data}=await sb.from('profiles').select('dossier_data').eq('clerk_id',U.id).single();
@@ -7755,6 +7905,7 @@ function applicationGate(listingId,opts){
 
       <section class="gt-step" data-k="coloc" hidden>
         ${head('users','Emménagez-vous avec quelqu’un ?','Conjoint, colocataires… Ajoutez chaque personne qui sera sur le bail. Si vous êtes seul, cliquez simplement sur « Continuer ».')}
+        ${_dosConj()?`<div class="gt-info" style="margin-bottom:.7rem"><strong>${esc(_dosConj().prenom+' '+_dosConj().nom)}</strong>, votre conjoint, est ajouté(e) automatiquement depuis votre dossier en couple. Pour figurer sur le bail, il/elle doit avoir son compte Trouve Ton Toit avec l’adresse ${esc(_dosConj().email)}.</div>`:''}
         <div id="colocataires-list"></div>
         <button type="button" id="colocataire-add-btn" class="gt-add" onclick="addCoLocataireSlot()"><i data-lucide=user-plus class=ic></i> Ajouter un co-locataire</button>
         <details class="gt-det"><summary>Comment ça marche à plusieurs ?</summary>
@@ -7864,7 +8015,7 @@ function applicationGate(listingId,opts){
       const ix=k=>STEPS.findIndex(s=>s.k===k);
       el.innerHTML=[
         row(ix('nom'),'Nom sur le bail',nomTxt),
-        row(ix('dossier'),'Dossier',dossierOk?(hasDF?'DossierFacile importé':'Complet'):`Rempli à ${done}/6`),
+        row(ix('dossier'),'Dossier',(dossierOk?(hasDF?'DossierFacile importé':'Complet'):`Rempli à ${done}/6`)+(_dosConj()?` · ${esc(_dosConj().prenom)} : ${_dosNbFaits(_dosConj().dossier)>=6?'complet':_dosNbFaits(_dosConj().dossier)+'/6'}`:'')),
         row(ix('garant'),'Garant',gTxt),
         row(ix('coloc'),'Co-locataires',cl.length?cl.map(d=>esc(d.name||d.email)).join(', '):'Personne, je suis seul·e'),
         row(ix('date'),'Date d’entrée',dTxt),
@@ -7905,6 +8056,9 @@ function applicationGate(listingId,opts){
       ov.remove();resolve(true);
     };
     aller(0);
+    // Dossier en couple : le conjoint est ajouté d'office comme co-locataire (son compte est recherché)
+    const _cj=_dosConj();
+    if(_cj?.email){try{addCoLocataireSlot();const i=coLocataireSlotCount-1;const inp=ov.querySelector('#ct-email-'+i);if(inp){inp.value=_cj.email;lookupCoLocataire(i);}}catch(e){}}
     if(typeof lucide!=='undefined')lucide.createIcons();
   });
 }
@@ -8022,6 +8176,15 @@ async function submitNegotiationAndRent(listingId, listingTitle, contactId, orig
 
 // Modal de paiement autonome (holding + commission) — utilisable depuis n'importe quelle
 // page (Messages, annonce, etc.).
+// Ouvre le profil sur le dossier (compléter, importer DossierFacile, passer en couple)
+function _goDossierKind(kind){
+  if(kind==='completer')return _goDossierStep(0);
+  sp('profil',document.querySelector('.ni[onclick*="profil"]'));
+  setTimeout(()=>{initDossierPage().then(()=>{
+    if(kind==='couple'){dosSituation('couple');document.getElementById('dos-sit')?.scrollIntoView({behavior:'smooth',block:'center'});}
+    else document.getElementById('df-import')?.scrollIntoView({behavior:'smooth',block:'center'});
+  });},400);
+}
 async function requestVisitFromContact(listingId, landlordId, listingTitle){
   if(!listingId||!landlordId){toast('<i data-lucide=x-circle class=ic></i> Informations d\'annonce manquantes');return;}
 
@@ -8032,61 +8195,10 @@ async function requestVisitFromContact(listingId, landlordId, listingTitle){
     return;
   }
 
-  const modal=document.createElement('div');
-  modal.id='visite-request-modal-overlay';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  modal.innerHTML=`
-    <div style="background:var(--s);border:1px solid var(--b);border-radius:20px;padding:1.5rem;width:100%;max-width:400px">
-      <div style="font-size:1rem;font-weight:800;margin-bottom:1rem"><i data-lucide=calendar class=ic></i> Demander une visite</div>
-      <div style="font-size:.78rem;color:var(--tm);margin-bottom:1rem">${listingTitle||'ce logement'}</div>
-      <div style="display:flex;gap:.5rem;align-items:flex-start;background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:10px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;margin-bottom:1rem"><i data-lucide=info class=ic style="flex-shrink:0;margin-top:.15rem;color:#1B4FD8"></i><span><strong>Vous visitez à plusieurs ?</strong> La visite se demande à votre nom. Vos colocataires, votre conjoint(e) et vos garants s’ajoutent plus tard, au moment d’envoyer votre candidature.</span></div>
-      <div class="fg"><label class="fl">Date souhaitée</label><input class="fi" type="date" id="vr-date"></div>
-      <div class="fg"><label class="fl">Heure souhaitée</label><input class="fi" type="time" id="vr-time" value="14:00"></div>
-      <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button id="vr-send-btn" style="flex:1;background:var(--bleu);color:white;border:none;border-radius:10px;padding:.7rem;font-size:.86rem;font-weight:700;cursor:pointer">Envoyer la demande →</button>
-        <button onclick="document.getElementById('visite-request-modal-overlay').remove()" style="background:var(--s2);color:var(--tm);border:1px solid var(--b);border-radius:10px;padding:.7rem .9rem;font-size:.82rem;cursor:pointer">Annuler</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-  try{if(window.lucide)lucide.createIcons();}catch(e){}
-
-  document.getElementById('vr-send-btn').onclick=async()=>{
-    const visitDate=document.getElementById('vr-date')?.value;
-    const visitTime=document.getElementById('vr-time')?.value||'14:00';
-    if(!visitDate){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner une date');return;}
-    const today=new Date();today.setHours(0,0,0,0);
-    if(new Date(visitDate)<today){toast('<i data-lucide=alert-triangle class=ic></i> Veuillez sélectionner une date future');return;}
-
-    let annonce=null;
-    try{const{data:l}=await sb.from('listings').select('zone,title').eq('id',listingId).single();annonce=l;}catch(e){}
-
-    const{error:visitInsertErr}=await sb.from('visits').insert({
-      listing_id:listingId,
-      tenant_id:U.id,
-      landlord_id:landlordId,
-      tenant_name:P?.full_name||'',
-      tenant_email:P?.email||'',
-      visit_date:visitDate,
-      visit_time:visitTime,
-      zone:annonce?.zone||'',
-      status:'pending'
-    });
-    if(visitInsertErr){toast('<i data-lucide=x-circle class=ic></i> '+visitInsertErr.message);return;}
-
-    try{
-      const visitDateStr=new Date(visitDate).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-      await sb.from('messages').insert({
-        listing_id:listingId,sender_id:'system',receiver_id:landlordId,
-        content:''+(P?.full_name||'A locataire')+' requested a visite\n\n'+(annonce?.title||listingTitle||'Bien')+'\nDate: '+visitDateStr+' at '+visitTime+'\n\nCheck votre visites page to confirm.',
-        type:'visit_request'
-      });
-    }catch(e){}
-
-    modal.remove();
-    toast('<i data-lucide=check-circle-2 class=ic></i> Demande de visite envoyée !');
-    sp('visites',document.querySelector('.ni[onclick*="visites"]'));
-    loadLocataireVisits();
-  };
+  await _ensureDossierLoaded();
+  let zone='';try{const{data:l}=await sb.from('listings').select('zone,title').eq('id',listingId).maybeSingle();zone=l?.zone||'';if(!listingTitle)listingTitle=l?.title||'';}catch(e){}
+  vdDemanderVisite({sb,U,P,dossier:dossierState,listingId,landlordId,title:listingTitle,zone,toast,goDossier:_goDossierKind,
+    onSent:()=>{sp('visites',document.querySelector('.ni[onclick*="visites"]'));loadLocataireVisits();}});
 }
 
 // ── Co-locataires (added  depuis  the loyer paiement modal) ─────────────────────
