@@ -194,6 +194,70 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);disp
 .gar-radio-line input{width:18px;height:18px;accent-color:var(--bleu);margin:0}
 .gm-block{border:1px solid var(--b2);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem;background:var(--s)}
 .gm-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bleu);margin-bottom:.7rem}
+.gt-ov{position:fixed;inset:0;background:rgba(10,16,32,.62);backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem}
+.gt-card{background:var(--s);border:1px solid var(--b);border-radius:20px;width:100%;max-width:540px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden}
+.gt-top{padding:1.15rem 1.35rem .9rem;border-bottom:1px solid var(--b)}
+.gt-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.gt-kicker{font-size:.72rem;font-weight:700;color:var(--bleu);letter-spacing:.02em;margin-bottom:.15rem;overflow-wrap:anywhere}
+.gt-titre{font-size:1.05rem;font-weight:800;color:var(--deep)}
+.gt-x{background:none;border:1px solid var(--b);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tm);cursor:pointer;flex-shrink:0}
+.gt-x:hover{color:var(--txt);border-color:var(--b2)}
+.gt-prog{display:flex;gap:5px;margin-top:.9rem}
+.gt-seg{flex:1;height:5px;border-radius:99px;background:var(--b);transition:background .25s}
+.gt-seg.done{background:rgba(var(--bleu-rgb),.45)}.gt-seg.on{background:var(--bleu)}
+.gt-count{display:flex;justify-content:space-between;font-size:.72rem;color:var(--tm);margin-top:.45rem;font-weight:600}
+.gt-count #gt-nom-etape{color:var(--bleu)}
+.gt-body{padding:1.3rem 1.35rem;overflow-y:auto;flex:1;min-height:230px}
+.gt-step{animation:gtIn .22s ease}
+@keyframes gtIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.gt-step{animation:none}}
+.gt-qh{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:1.1rem}
+.gt-qi{width:42px;height:42px;border-radius:12px;background:rgba(var(--bleu-rgb),.1);color:var(--bleu);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gt-q{font-size:1.12rem;font-weight:800;color:var(--deep);line-height:1.3}
+.gt-help{font-size:.8rem;color:var(--tm);line-height:1.5;margin-top:.2rem}
+.gt-nom{font-size:1.25rem;font-weight:800;color:var(--bleu);background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.2);border-radius:12px;padding:.8rem 1rem;margin-bottom:.8rem;overflow-wrap:anywhere}
+.gt-check{display:flex;gap:.6rem;align-items:flex-start;font-size:.85rem;line-height:1.5;cursor:pointer;border:1.5px solid var(--b);border-radius:12px;padding:.75rem .85rem}
+.gt-check:has(input:checked){border-color:var(--bleu);background:rgba(var(--bleu-rgb),.05)}
+.gt-check input{width:18px;height:18px;accent-color:var(--bleu);flex-shrink:0;margin-top:.1rem}
+.gt-lien{display:inline-block;margin-top:.7rem;font-size:.78rem;color:var(--bleu)}
+.gt-ok{display:flex;gap:.7rem;align-items:flex-start;background:rgba(var(--green-rgb,22,163,74),.08);border:1px solid rgba(var(--green-rgb,22,163,74),.3);border-radius:12px;padding:.8rem .95rem;color:var(--green)}
+.gt-ok div{display:flex;flex-direction:column;gap:.1rem}.gt-ok strong{font-size:.9rem}.gt-ok span{font-size:.8rem;color:var(--tm)}
+.gt-jauge{border:1px solid var(--b);border-radius:12px;padding:.8rem .95rem;margin-bottom:.75rem}
+.gt-jauge-row{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.45rem}
+.gt-jauge-bar{height:8px;border-radius:99px;background:var(--b);overflow:hidden}.gt-jauge-bar span{display:block;height:100%;background:var(--bleu);border-radius:99px}
+.gt-info{font-size:.82rem;line-height:1.55;background:rgba(var(--bleu-rgb),.06);border-radius:10px;padding:.65rem .8rem}
+.gt-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.gt-choices{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.gt-choices-col{grid-template-columns:1fr}
+.gt-choice{display:flex;gap:.7rem;align-items:center;border:1.5px solid var(--b);border-radius:14px;padding:.85rem .9rem;cursor:pointer;transition:border-color .15s,background .15s}
+.gt-choice:hover{border-color:var(--b2)}
+.gt-choice.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.06)}
+.gt-choice input{position:absolute;opacity:0;pointer-events:none}
+.gt-choice:focus-within{outline:2px solid rgba(var(--bleu-rgb),.4);outline-offset:2px}
+.gt-choice>span:last-child{display:flex;flex-direction:column;gap:.1rem}
+.gt-choice strong{font-size:.92rem;color:var(--deep)}.gt-choice small{font-size:.75rem;color:var(--tm);line-height:1.45}
+.gt-choice-ic{width:36px;height:36px;border-radius:10px;background:var(--s2);color:var(--tm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gt-choice.on .gt-choice-ic{background:var(--bleu);color:#fff}
+.gt-add{width:100%;display:flex;align-items:center;justify-content:center;gap:.4rem;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:12px;padding:.75rem;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit}
+.gt-add:hover{background:rgba(var(--bleu-rgb),.05)}
+.gt-det{margin-top:.9rem;font-size:.8rem;color:var(--tm);line-height:1.55}
+.gt-det summary{cursor:pointer;color:var(--bleu);font-weight:700}
+.gt-det p{margin:.5rem 0 0}
+.gt-input{width:100%;padding:.8rem .95rem;background:var(--s2);border:1.5px solid var(--b);border-radius:12px;color:var(--txt);font-size:1rem;font-family:inherit}
+.gt-input:focus{outline:none;border-color:var(--bleu)}
+.gt-fee{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1px solid var(--b);border-radius:12px;padding:.85rem 1rem;margin-bottom:.8rem;font-size:.85rem}
+.gt-fee strong{font-size:1.25rem;color:var(--deep);font-variant-numeric:tabular-nums;white-space:nowrap}
+.gt-sous{font-size:.85rem;font-weight:800;color:var(--deep);margin-bottom:.5rem}
+.gt-recap{border:1px solid var(--b);border-radius:14px;overflow:hidden}
+.gt-rrow{display:grid;grid-template-columns:8.5rem 1fr auto;gap:.6rem;align-items:center;padding:.7rem .9rem;border-bottom:1px solid var(--b);font-size:.84rem}
+.gt-rrow:last-child{border-bottom:none}
+.gt-rk{color:var(--tm);font-size:.78rem}.gt-rv{font-weight:700;color:var(--deep);overflow-wrap:anywhere}
+.gt-rmod{background:none;border:none;color:var(--bleu);font-size:.75rem;font-weight:700;cursor:pointer;padding:0;font-family:inherit}
+.gt-err{margin:0 1.35rem .2rem;background:rgba(var(--red-rgb),.08);border:1px solid rgba(var(--red-rgb),.35);color:var(--red);font-size:.8rem;border-radius:10px;padding:.55rem .75rem}
+.gt-foot{display:flex;gap:.6rem;justify-content:space-between;padding:.9rem 1.35rem;border-top:1px solid var(--b);background:var(--s)}
+.gt-foot .btn{min-width:8rem;justify-content:center}
+.gt-card .bp:hover{background:var(--bleu);filter:brightness(1.1)}
+@media (max-width:520px){.gt-ov{padding:0;align-items:flex-end}.gt-card{max-height:96vh;border-radius:20px 20px 0 0}.gt-choices{grid-template-columns:1fr}.gt-rrow{grid-template-columns:1fr auto}.gt-rk{grid-column:1/-1}.gt-foot .btn{flex:1;min-width:0}}
 .gate-box{border:1px solid var(--b2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem}
 .gate-g{display:flex;align-items:center;gap:.6rem;background:var(--s);border:1.5px solid var(--b);border-radius:9px;padding:.5rem .65rem;cursor:pointer;font-size:.84rem}.gate-g.on{border-color:var(--bleu);background:rgba(var(--bleu-rgb),.06)}.gate-g.off{opacity:.75;cursor:default}.gate-g input{width:16px;height:16px;accent-color:var(--bleu);flex-shrink:0}
 .gate-h{font-size:.9rem;font-weight:800;color:var(--deep);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
@@ -7635,66 +7699,100 @@ function applicationGate(listingId,opts){
     const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const ov=document.createElement('div');
     ov.id='apply-gate-overlay';
-    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-    ov.innerHTML=`<div style="background:var(--s);border:1px solid var(--b);border-radius:18px;padding:1.4rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto">
-      <div style="font-size:1.05rem;font-weight:800;margin-bottom:1rem">Avant d'envoyer votre candidature</div>
-
-      <div class="gate-box">
-        <div class="gate-h">1. Votre nom sur le bail</div>
-        <div style="font-size:.85rem;margin:.3rem 0 .5rem">Le bail sera établi au nom de : <strong style="color:var(--bleu)">${esc(P?.full_name)}</strong></div>
-        <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="checkbox" id="gate-name-ok" style="margin-top:.15rem;accent-color:var(--bleu);flex-shrink:0"><span>Je confirme que ce nom est <strong>exactement</strong> celui de ma pièce d'identité (passeport ou carte d'identité).</span></label>
-        <a href="#" onclick="document.getElementById('apply-gate-overlay').remove();goToProfileFor('candidature',[]);return false" style="font-size:.75rem;color:var(--bleu)">Corriger mon nom dans le profil →</a>
-      </div>
-
-      <div class="gate-box" style="${dossierOk?'':'border-color:var(--bleu);background:rgba(var(--bleu-rgb),.05)'}">
-        <div class="gate-h">2. Votre dossier locataire ${dossierOk?'<span style="color:var(--green)">✓</span>':'<span class="gate-tag">Fortement recommandé</span>'}</div>
-        ${dossierOk
-          ?`<div style="font-size:.82rem;color:var(--green)">${hasDF?'Votre DossierFacile importé sera envoyé au propriétaire avec votre candidature.':'Votre dossier est complet — il sera envoyé au propriétaire.'}</div>`
-          :`<div style="font-size:.82rem;line-height:1.55">Votre dossier est rempli à ${done}/6. Il n'est pas obligatoire, mais les locataires qui envoient un dossier complet ont <strong>${DOSSIER_BOOST_TXT}</strong> par le propriétaire.</div>
-            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">
-              <button class="btn bp bsm" onclick="_goDossierStep(0)">Compléter mon dossier →</button>
-              <button class="btn bg bsm" onclick="document.getElementById('apply-gate-overlay').remove();sp('profil',document.querySelector('.ni[onclick*=profil]'));setTimeout(()=>document.getElementById('df-import')?.scrollIntoView({behavior:'smooth',block:'center'}),400)">J'ai déjà un DossierFacile</button>
-            </div>`}
-      </div>
-
-      <div class="gate-box">
-        <div class="gate-h">3. Avez-vous un garant ?</div>
-        <div style="display:flex;gap:1rem;margin:.4rem 0">
-          <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="gate-garant" value="oui" style="accent-color:var(--bleu)"> Oui</label>
-          <label style="display:flex;gap:.4rem;align-items:center;font-size:.88rem;cursor:pointer"><input type="radio" name="gate-garant" value="non" style="accent-color:var(--bleu)"> Non</label>
+    ov.className='gt-ov';
+    const nomTxt=esc(P?.full_name)||'<em>nom non renseigné</em>';
+    const STEPS=[
+      {k:'nom',t:'Votre nom',ic:'id-card'},
+      {k:'dossier',t:'Dossier',ic:'folder-check'},
+      {k:'garant',t:'Garant',ic:'shield-check'},
+      {k:'coloc',t:'Colocataires',ic:'users'}
+    ].concat(opts.withSend?[
+      {k:'date',t:'Date d’entrée',ic:'calendar'},
+      {k:'frais',t:'Frais',ic:'credit-card'},
+      {k:'recap',t:'Récapitulatif',ic:'list-checks'}
+    ]:[]);
+    const head=(ic,q,help)=>`<div class="gt-qh"><span class="gt-qi"><i data-lucide=${ic} class=ic></i></span><div><div class="gt-q">${q}</div>${help?`<div class="gt-help">${help}</div>`:''}</div></div>`;
+    ov.innerHTML=`<div class="gt-card" role="dialog" aria-modal="true" aria-labelledby="gt-titre">
+      <div class="gt-top">
+        <div class="gt-top-row">
+          <div><div class="gt-kicker">Candidature${opts.title?' · '+esc(opts.title):''}${opts.price?' · '+opts.price+' €/mois':''}</div>
+          <div class="gt-titre" id="gt-titre">Avant d’envoyer votre candidature</div></div>
+          <button type="button" class="gt-x" id="gate-x" aria-label="Fermer"><i data-lucide=x class=ic></i></button>
         </div>
-        <div id="gate-garant-msg"></div>
+        <div class="gt-prog">${STEPS.map((s,i)=>`<span class="gt-seg" data-i="${i}" title="${s.t}"></span>`).join('')}</div>
+        <div class="gt-count"><span id="gt-num">Étape 1 sur ${STEPS.length}</span><span id="gt-nom-etape">${STEPS[0].t}</span></div>
       </div>
 
-      <div class="gate-box">
-        <div class="gate-h">4. Emménagez-vous avec quelqu'un ?</div>
-        <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">Ajoutez les autres personnes qui seront sur le bail avec vous (conjoint, colocataires…). Sinon, laissez vide.</div>
-        <div style="background:rgba(var(--bleu-rgb),.06);border:1px solid rgba(var(--bleu-rgb),.25);border-radius:10px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;margin-bottom:.6rem"><strong style="color:var(--bleu)">Important :</strong> pour être plusieurs sur le bail, <strong>chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet — vous comme vos co-locataires. Sans compte, la personne n'apparaîtra pas sur le bail.<br><br><strong style="color:var(--bleu)">Comment ça marche :</strong> chaque co-locataire reçoit votre candidature dans son espace. Il confirme la date d'entrée, indique s'il a un garant et, si vous partagez les frais, enregistre sa carte. La candidature part chez le propriétaire quand tout le monde a répondu.</div>
+      <div class="gt-body">
+      <section class="gt-step" data-k="nom">
+        ${head('id-card','Votre nom sur le bail','Le propriétaire doit pouvoir le comparer à votre pièce d’identité.')}
+        <div class="gt-nom">${nomTxt}</div>
+        <label class="gt-check"><input type="checkbox" id="gate-name-ok"><span>Je confirme que ce nom est <strong>exactement</strong> celui de ma pièce d’identité (passeport ou carte d’identité).</span></label>
+        <a href="#" class="gt-lien" onclick="document.getElementById('apply-gate-overlay').remove();goToProfileFor('candidature',[]);return false">Ce n’est pas le bon nom ? Le corriger dans mon profil →</a>
+      </section>
+
+      <section class="gt-step" data-k="dossier" hidden>
+        ${head('folder-check','Votre dossier locataire',dossierOk?'':'Pas obligatoire, mais c’est ce que le propriétaire regarde en premier.')}
+        ${dossierOk
+          ?`<div class="gt-ok"><i data-lucide=check-circle-2 class=ic></i><div><strong>${hasDF?'DossierFacile importé':'Dossier complet'}</strong><span>${hasDF?'Il sera envoyé au propriétaire avec votre candidature.':'Il sera envoyé au propriétaire avec votre candidature.'}</span></div></div>`
+          :`<div class="gt-jauge"><div class="gt-jauge-row"><span>Dossier rempli</span><strong>${done}/6</strong></div><div class="gt-jauge-bar"><span style="width:${Math.round(done/6*100)}%"></span></div></div>
+            <div class="gt-info">Les locataires qui envoient un dossier complet ont <strong>${DOSSIER_BOOST_TXT}</strong> par le propriétaire.</div>
+            <div class="gt-actions">
+              <button type="button" class="btn bp bsm" onclick="_goDossierStep(0)">Compléter mon dossier →</button>
+              <button type="button" class="btn bg bsm" onclick="document.getElementById('apply-gate-overlay').remove();sp('profil',document.querySelector('.ni[onclick*=profil]'));setTimeout(()=>document.getElementById('df-import')?.scrollIntoView({behavior:'smooth',block:'center'}),400)">J’ai déjà un DossierFacile</button>
+            </div>
+            <div class="gt-help" style="margin-top:.7rem">Vous pouvez aussi continuer sans : cliquez sur « Continuer ».</div>`}
+      </section>
+
+      <section class="gt-step" data-k="garant" hidden>
+        ${head('shield-check','Avez-vous un garant ?','Une personne ou un organisme (Visale…) qui se porte caution pour vous.')}
+        <div class="gt-choices">
+          <label class="gt-choice"><input type="radio" name="gate-garant" value="oui"><span class="gt-choice-ic"><i data-lucide=user-check class=ic></i></span><span><strong>Oui</strong><small>Il figurera dans le bail</small></span></label>
+          <label class="gt-choice"><input type="radio" name="gate-garant" value="non"><span class="gt-choice-ic"><i data-lucide=user-x class=ic></i></span><span><strong>Non</strong><small>Je postule sans garant</small></span></label>
+        </div>
+        <div id="gate-garant-msg" style="margin-top:.8rem"></div>
+      </section>
+
+      <section class="gt-step" data-k="coloc" hidden>
+        ${head('users','Emménagez-vous avec quelqu’un ?','Conjoint, colocataires… Ajoutez chaque personne qui sera sur le bail. Si vous êtes seul, cliquez simplement sur « Continuer ».')}
         <div id="colocataires-list"></div>
-        <button type="button" id="colocataire-add-btn" onclick="addCoLocataireSlot()" style="width:100%;background:none;border:1.5px dashed var(--b2);color:var(--bleu);border-radius:10px;padding:.55rem;font-size:.8rem;font-weight:700;cursor:pointer">+ Ajouter un co-locataire</button>
-      </div>
+        <button type="button" id="colocataire-add-btn" class="gt-add" onclick="addCoLocataireSlot()"><i data-lucide=user-plus class=ic></i> Ajouter un co-locataire</button>
+        <details class="gt-det"><summary>Comment ça marche à plusieurs ?</summary>
+          <p><strong>Chaque personne doit avoir son propre compte Trouve Ton Toit</strong> avec un profil complet. Sans compte, elle n’apparaîtra pas sur le bail.</p>
+          <p>Chaque co-locataire reçoit la candidature dans son espace : il confirme la date d’entrée, indique s’il a un garant et, si vous partagez les frais, enregistre sa carte. La candidature part chez le propriétaire quand tout le monde a répondu.</p>
+        </details>
+      </section>
 
-      ${opts.withSend?`<div class="gate-box">
-        <div class="gate-h">5. Date d'entrée souhaitée</div>
-        <div style="font-size:.8rem;color:var(--tm);margin:.25rem 0 .5rem">${esc(opts.title||'')}${opts.price?' · <strong style="color:var(--txt)">'+opts.price+' €/mois</strong>':''}</div>
-        <input type="date" id="neg-movein" min="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:.55rem .8rem;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--txt);font-size:.85rem;font-family:inherit">
-      </div>
-      <div class="gate-box">
-        <div class="gate-h">6. Frais de service</div>
-        ${opts.commission>0?`<div style="font-size:.82rem;line-height:1.55;margin:.25rem 0 .5rem">En envoyant votre candidature, vous autorisez Trouve Ton Toit à prélever <strong>${opts.commission} € (${opts.commissionLabel})</strong>, <strong>uniquement si le propriétaire accepte</strong> votre candidature.</div>
-        <div id="nego-card-statut">${opts.hasCard?`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`:`<div style="font-size:.78rem;color:var(--bleu);margin-bottom:.5rem"><i data-lucide=alert-triangle class=ic></i> Une carte est nécessaire. Rien n'est débité si vous n'êtes pas accepté.</div><button type="button" class="btn bp bsm" style="width:100%;justify-content:center" onclick="registerCardThenSend('${listingId}','${String(opts.title||'').replace(/['"\\]/g,'')}','${opts.contactId||''}',${opts.price||0})"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>
-        <div id="gate-split" style="display:none;margin-top:.75rem;padding-top:.65rem;border-top:1px dashed var(--b)">
-          <div style="font-size:.82rem;font-weight:700;margin-bottom:.35rem">Qui paie les frais ?</div>
-          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer;margin-bottom:.3rem"><input type="radio" name="gate-split" value="solo" checked style="accent-color:var(--bleu);margin-top:.15rem"><span>Je paie tout seul (${opts.commission} €)</span></label>
-          <label style="display:flex;gap:.45rem;align-items:flex-start;font-size:.82rem;cursor:pointer"><input type="radio" name="gate-split" value="split" style="accent-color:var(--bleu);margin-top:.15rem"><span>On partage à parts égales : chacun paie sa part avec sa propre carte<span style="display:block;font-size:.74rem;color:var(--td);margin-top:.15rem;line-height:1.45"><i data-lucide=info class=ic></i> Votre candidature ne sera envoyée au propriétaire <strong>qu’une fois que chaque colocataire aura accepté et enregistré sa carte</strong>. Rien n’est débité tant que le propriétaire n’a pas accepté.</span></span></label>
+      ${opts.withSend?`<section class="gt-step" data-k="date" hidden>
+        ${head('calendar','Quand voulez-vous entrer dans le logement ?','Le propriétaire pourra vous proposer une autre date.')}
+        <input type="date" id="neg-movein" class="gt-input" min="${new Date().toISOString().slice(0,10)}">
+      </section>
+
+      <section class="gt-step" data-k="frais" hidden>
+        ${opts.commission>0?`${head('credit-card','Frais de service','Prélevés uniquement si le propriétaire accepte votre candidature.')}
+        <div class="gt-fee"><span>Frais de service Trouve Ton Toit (${esc(opts.commissionLabel)})</span><strong>${opts.commission} €</strong></div>
+        <div id="nego-card-statut">${opts.hasCard?`<div class="gt-ok"><i data-lucide=check-circle-2 class=ic></i><div><strong>Carte enregistrée</strong><span>Débitée seulement en cas d’acceptation.</span></div></div>`:`<div class="gt-help" style="margin:.2rem 0 .6rem"><i data-lucide=lock class=ic></i> Une carte est nécessaire. Rien n’est débité si vous n’êtes pas accepté.</div><button type="button" class="btn bp" style="width:100%;justify-content:center" onclick="registerCardThenSend('${listingId}','${String(opts.title||'').replace(/['"\\]/g,'')}','${opts.contactId||''}',${opts.price||0})"><i data-lucide=credit-card class=ic></i> Enregistrer ma carte</button>`}</div>
+        <div id="gate-split" style="display:none;margin-top:1rem">
+          <div class="gt-sous">Qui paie les frais ?</div>
+          <div class="gt-choices gt-choices-col">
+            <label class="gt-choice"><input type="radio" name="gate-split" value="solo" checked><span><strong>Je paie tout seul</strong><small>${opts.commission} € sur ma carte</small></span></label>
+            <label class="gt-choice"><input type="radio" name="gate-split" value="split"><span><strong>On partage à parts égales</strong><small>Chacun paie sa part avec sa carte. La candidature part une fois que chaque colocataire a accepté et enregistré sa carte.</small></span></label>
+          </div>
         </div>`
-        :`<div style="font-size:.82rem;color:var(--green);margin-top:.25rem"><i data-lucide=building-2 class=ic></i> Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</div>`}
-      </div>`:''}
+        :`${head('building-2','Frais de service','')}<div class="gt-ok"><i data-lucide=check-circle-2 class=ic></i><div><strong>Aucun frais</strong><span>Logement géré par une agence : vous ne payez rien à Trouve Ton Toit.</span></div></div>`}
+      </section>
 
-      <div id="gate-err" style="color:var(--red);font-size:.8rem;margin:.5rem 0;display:none"></div>
-      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem;flex-wrap:wrap">
-        <button class="btn bg" id="gate-cancel">Annuler</button>
-        <button class="btn bp" id="gate-go">${opts.withSend?'<i data-lucide=send class=ic></i> Envoyer ma candidature':'Continuer ma candidature →'}</button>
+      <section class="gt-step" data-k="recap" hidden>
+        ${head('list-checks','Tout est bon ?','Vérifiez avant d’envoyer. Cliquez sur « Modifier » pour revenir à une étape.')}
+        <div id="gt-recap" class="gt-recap"></div>
+      </section>`:''}
+      </div>
+
+      <div id="gate-err" class="gt-err" role="alert" style="display:none"></div>
+      <div class="gt-foot">
+        <button type="button" class="btn bg" id="gate-cancel">Annuler</button>
+        <button type="button" class="btn bp" id="gate-next">Continuer →</button>
+        <button type="button" class="btn bp" id="gate-go" style="display:none">${opts.withSend?'<i data-lucide=send class=ic></i> Envoyer ma candidature':'Continuer ma candidature →'}</button>
       </div>
     </div>`;
     document.body.appendChild(ov);
@@ -7703,46 +7801,110 @@ function applicationGate(listingId,opts){
       const v=ov.querySelector('input[name="gate-garant"]:checked')?.value;
       const m=ov.querySelector('#gate-garant-msg');
       m.innerHTML=v==='oui'?_garantOuiHtml('gate-g-chk',window._gateGarants?.idx):'';
+      ov.querySelectorAll('.gt-choice input[name="gate-garant"]').forEach(r=>r.closest('.gt-choice').classList.toggle('on',r.checked));
+      if(typeof lucide!=='undefined')lucide.createIcons();
     };
     ov.querySelectorAll('input[name="gate-garant"]').forEach(r=>r.addEventListener('change',garMsg));
+    ov.querySelectorAll('input[name="gate-split"]').forEach(r=>r.addEventListener('change',()=>ov.querySelectorAll('input[name="gate-split"]').forEach(x=>x.closest('.gt-choice').classList.toggle('on',x.checked))));
+    ov.querySelector('input[name="gate-split"]:checked')?.closest('.gt-choice')?.classList.add('on');
     // « Qui paie les frais ? » seulement s'il y a au moins un co-locataire
     const _cl=ov.querySelector('#colocataires-list'),_sp=ov.querySelector('#gate-split');
     if(_cl&&_sp){const t=()=>{_sp.style.display=_cl.children.length?'block':'none';};new MutationObserver(t).observe(_cl,{childList:true});t();}
-    ov.querySelector('#gate-cancel').onclick=()=>{ov.remove();resolve(false);};
-    ov.querySelector('#gate-go').onclick=()=>{
-      const err=ov.querySelector('#gate-err');
+    const fermer=()=>{ov.remove();resolve(false);};
+    ov.querySelector('#gate-x').onclick=fermer;
+    ov.addEventListener('click',e=>{if(e.target===ov)fermer();});
+
+    // ── Vérifications par étape ──
+    const _colocs=()=>{
+      const out=[];
+      const slots=[...ov.querySelectorAll('[id^="colocataire-slot-"]')].map(el=>+el.id.split('-').pop());
+      for(const i of slots){
+        const d=window._coLocatairesData[i];
+        const em=ov.querySelector('#ct-email-'+i)?.value.trim();
+        if(!d){if(em)return{msg:'Cliquez sur « Rechercher » pour chaque co-locataire (ou retirez la ligne).'};continue;}
+        if(!d.hasAccount)return{msg:'Chaque co-locataire doit avoir un compte Trouve Ton Toit pour figurer sur le bail (ou retirez la ligne).'};
+        if(d.incomplete)return{msg:'Le profil d\'un co-locataire est incomplet : il doit le compléter avant que vous puissiez continuer (ou retirez la ligne).'};
+        out.push(d);
+      }
+      return{list:out};
+    };
+    const _garantChoix=()=>{
       const g=ov.querySelector('input[name="gate-garant"]:checked')?.value;
-      let msg='';
-      if(!ov.querySelector('#gate-name-ok').checked)msg='Confirmez que votre nom est identique à celui de votre pièce d\'identité.';
-      else if(!g)msg='Indiquez si vous avez un garant.';
       const gl=_gateGarantList(),useList=g==='oui'&&gl.some(x=>x.ok);
       const picked=[...ov.querySelectorAll('.gate-g-chk:checked')].map(c=>+c.value);
-      if(!msg&&useList&&!picked.length)msg='Cochez au moins un garant (ou répondez « Non »).';
-      else if(!msg&&g==='oui'&&!useList&&!_garantReady())msg='Ajoutez d\'abord votre garant à votre dossier.';
-      let coloc=[];
-      if(!msg){
-        const slots=[...ov.querySelectorAll('[id^="colocataire-slot-"]')].map(el=>+el.id.split('-').pop());
-        for(const i of slots){
-          const d=window._coLocatairesData[i];
-          const em=ov.querySelector('#ct-email-'+i)?.value.trim();
-          if(!d){if(em){msg='Cliquez sur « Rechercher » pour chaque co-locataire (ou retirez la ligne).';break;}continue;}
-          if(!d.hasAccount){msg='Chaque co-locataire doit avoir un compte Trouve Ton Toit pour figurer sur le bail (ou retirez la ligne).';break;}
-          if(d.incomplete){msg='Le profil d\'un co-locataire est incomplet : il doit le compléter avant que vous puissiez continuer (ou retirez la ligne).';break;}
-          coloc.push(d);
-        }
-      }
-      if(!msg&&opts.withSend){
-        if(!ov.querySelector('#neg-movein')?.value)msg='Choisissez votre date d\'entrée souhaitée.';
-        else if(opts.commission>0&&!P?.stripe_customer_id)msg='Enregistrez votre carte (étape 6) avant d\'envoyer.';
-      }
-      if(msg){err.textContent=msg;err.style.display='block';return;}
+      let msg='';
+      if(!g)msg='Indiquez si vous avez un garant.';
+      else if(useList&&!picked.length)msg='Cochez au moins un garant (ou répondez « Non »).';
+      else if(g==='oui'&&!useList&&!_garantReady())msg='Ajoutez d\'abord votre garant à votre dossier.';
+      return{g,gl,useList,picked,msg};
+    };
+    const verifier=k=>{
+      if(k==='nom'&&!ov.querySelector('#gate-name-ok').checked)return 'Confirmez que votre nom est identique à celui de votre pièce d\'identité.';
+      if(k==='garant')return _garantChoix().msg;
+      if(k==='coloc')return _colocs().msg||'';
+      if(k==='date'&&!ov.querySelector('#neg-movein')?.value)return 'Choisissez votre date d\'entrée souhaitée.';
+      if(k==='frais'&&opts.commission>0&&!P?.stripe_customer_id)return 'Enregistrez votre carte pour continuer.';
+      return '';
+    };
+
+    // ── Navigation du tunnel ──
+    let cur=0;
+    const errEl=ov.querySelector('#gate-err');
+    const showErr=m=>{errEl.textContent=m||'';errEl.style.display=m?'block':'none';};
+    const recap=()=>{
+      const el=ov.querySelector('#gt-recap');if(!el)return;
+      const gc=_garantChoix(),cl=_colocs().list||[];
+      const gTxt=gc.g==='non'?'Sans garant':gc.useList?gc.gl.filter(x=>gc.picked.includes(x.i)).map(x=>esc(x.name)).join(', '):'Garant de mon dossier';
+      const dv=ov.querySelector('#neg-movein')?.value;
+      const dTxt=dv?new Date(dv+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'—';
+      const split=cl.length&&ov.querySelector('input[name="gate-split"]:checked')?.value==='split';
+      const nb=cl.length+1;
+      const fTxt=opts.commission>0?(split?`${opts.commission} € partagés à ${nb} (≈ ${Math.round(opts.commission/nb*100)/100} € chacun), seulement si accepté`:`${opts.commission} €, seulement si accepté`):'Aucun';
+      const row=(i,label,val)=>`<div class="gt-rrow"><span class="gt-rk">${label}</span><span class="gt-rv">${val}</span><button type="button" class="gt-rmod" data-go="${i}">Modifier</button></div>`;
+      const ix=k=>STEPS.findIndex(s=>s.k===k);
+      el.innerHTML=[
+        row(ix('nom'),'Nom sur le bail',nomTxt),
+        row(ix('dossier'),'Dossier',dossierOk?(hasDF?'DossierFacile importé':'Complet'):`Rempli à ${done}/6`),
+        row(ix('garant'),'Garant',gTxt),
+        row(ix('coloc'),'Co-locataires',cl.length?cl.map(d=>esc(d.name||d.email)).join(', '):'Personne, je suis seul·e'),
+        row(ix('date'),'Date d’entrée',dTxt),
+        row(ix('frais'),'Frais de service',fTxt)
+      ].join('');
+      el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>aller(+b.dataset.go));
+    };
+    const aller=i=>{
+      cur=Math.max(0,Math.min(STEPS.length-1,i));
+      ov.querySelectorAll('.gt-step').forEach(s=>{s.hidden=s.dataset.k!==STEPS[cur].k;});
+      ov.querySelectorAll('.gt-seg').forEach((s,j)=>{s.classList.toggle('done',j<cur);s.classList.toggle('on',j===cur);});
+      ov.querySelector('#gt-num').textContent=`Étape ${cur+1} sur ${STEPS.length}`;
+      ov.querySelector('#gt-nom-etape').textContent=STEPS[cur].t;
+      const last=cur===STEPS.length-1;
+      ov.querySelector('#gate-next').style.display=last?'none':'';
+      ov.querySelector('#gate-go').style.display=last?'':'none';
+      ov.querySelector('#gate-cancel').textContent=cur?'← Retour':'Annuler';
+      if(STEPS[cur].k==='recap')recap();
+      showErr('');
+      ov.querySelector('.gt-body').scrollTop=0;
+      if(typeof lucide!=='undefined')lucide.createIcons();
+    };
+    ov.querySelector('#gate-cancel').onclick=()=>{if(cur)aller(cur-1);else fermer();};
+    ov.querySelector('#gate-next').onclick=()=>{
+      const m=verifier(STEPS[cur].k);
+      if(m){showErr(m);return;}
+      aller(cur+1);
+    };
+    ov.querySelector('#gate-go').onclick=()=>{
+      // Revérifie tout : si une étape pose problème, on y retourne
+      for(let i=0;i<STEPS.length;i++){const m=verifier(STEPS[i].k);if(m){aller(i);showErr(m);return;}}
+      const gc=_garantChoix(),coloc=_colocs().list||[];
       window._gateMoveIn=ov.querySelector('#neg-movein')?.value||null;
       window._gateFeeSplit=coloc.length?(ov.querySelector('input[name="gate-split"]:checked')?.value||'solo'):'solo';
       window._gateColoc={listingId,list:coloc};
-      window._gateGarants={listingId,idx:g==='non'?[]:(useList?picked:null)};
+      window._gateGarants={listingId,idx:gc.g==='non'?[]:(gc.useList?gc.picked:null)};
       window._applyGatePassed=listingId;
       ov.remove();resolve(true);
     };
+    aller(0);
     if(typeof lucide!=='undefined')lucide.createIcons();
   });
 }
@@ -7806,7 +7968,7 @@ async function registerCardThenSend(listingId, listingTitle, contactId, price){
       // (et le prix négocié, le message, la date d'emménagement...) puisque
       // showNegotiationModal() réinitialise tout à chaque appel.
       const statusEl=document.getElementById('nego-card-statut');
-      if(statusEl)statusEl.innerHTML=`<div style="font-size:.8rem;color:var(--green)"><i data-lucide=check-circle-2 class=ic></i> Carte enregistrée — débitée seulement en cas d'acceptation</div>`;
+      if(statusEl)statusEl.innerHTML=`<div class="gt-ok"><i data-lucide=check-circle-2 class=ic></i><div><strong>Carte enregistrée</strong><span>Débitée seulement en cas d’acceptation.</span></div></div>`;
       if(window.lucide)lucide.createIcons();
       const btnsEl=document.getElementById('nego-action-buttons');
       if(btnsEl){
